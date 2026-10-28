@@ -40,6 +40,7 @@ export function dialogRootSharedTests(config: DialogRootSharedTestsConfig) {
                     </Popup>
                   </Portal>
                 </Root>
+                <button>Save</button>
               </Dialog.Popup>
             </Dialog.Portal>
           </Dialog.Root>

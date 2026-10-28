@@ -870,6 +870,53 @@ describe('<Popover.Root />', () => {
         );
       });
 
+      it('focuses the enclosing dialog popup when the trigger is removed on close', async () => {
+        function Test() {
+          const [showTrigger, setShowTrigger] = React.useState(true);
+          return (
+            <Dialog.Root>
+              <Dialog.Trigger>Open dialog</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <Popover.Root>
+                    {showTrigger && <Popover.Trigger>Actions</Popover.Trigger>}
+                    <Popover.Portal>
+                      <Popover.Positioner>
+                        <Popover.Popup>
+                          <Popover.Close onClick={() => setShowTrigger(false)}>
+                            Delete
+                          </Popover.Close>
+                        </Popover.Popup>
+                      </Popover.Positioner>
+                    </Popover.Portal>
+                  </Popover.Root>
+                  <button>Save</button>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        await user.click(screen.getByRole('button', { name: 'Open dialog' }));
+        const popoverTrigger = screen.getByRole('button', { name: 'Actions' });
+        await waitFor(() => {
+          expect(popoverTrigger).toHaveFocus();
+        });
+        await user.click(popoverTrigger);
+        const deleteButton = screen.getByRole('button', { name: 'Delete' });
+        await waitFor(() => {
+          expect(deleteButton).toHaveFocus();
+        });
+
+        await user.click(deleteButton);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('dialog-popup')).toHaveFocus();
+        });
+        expect(popoverTrigger.isConnected).toBe(false);
+      });
+
       it('restores temporarily disabled focus before focusing a reopened keepMounted popover', async () => {
         const { user } = await render(
           <div>
