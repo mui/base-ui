@@ -396,7 +396,7 @@ Renders a `<div>` element and a nested `<input type="range">`.
 | :--------------- | :--------------------------- | :--------------------------------------------------------------------------- |
 | data-dragging    | -                            | Present while the user is dragging.                                          |
 | data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the slider.                                     |
-| data-disabled    | -                            | Present when the slider is disabled.                                         |
+| data-disabled    | -                            | Present when the thumb or the slider is disabled.                            |
 | data-valid       | -                            | Present when the slider is in a valid state (when wrapped in Field.Root).    |
 | data-invalid     | -                            | Present when the slider is in an invalid state (when wrapped in Field.Root). |
 | data-dirty       | -                            | Present when the slider's value has changed (when wrapped in Field.Root).    |
@@ -691,7 +691,7 @@ declare namespace SliderThumbDataAttributes {
    * @type 'horizontal' | 'vertical'
    */
   const orientation: 'data-orientation';
-  /** Present when the slider is disabled. */
+  /** Present when the thumb or the slider is disabled. */
   const disabled: 'data-disabled';
   /** Present when the slider is in a valid state (when wrapped in Field.Root). */
   const valid: 'data-valid';

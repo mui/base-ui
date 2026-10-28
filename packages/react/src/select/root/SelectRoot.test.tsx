@@ -15,6 +15,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  hiddenInputSizeTests,
   hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
@@ -3488,6 +3489,17 @@ describe('<Select.Root />', () => {
       </Select.Root>
     ),
     getFocusTarget: () => screen.getByTestId('trigger'),
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <Select.Root {...props}>
+        <Select.Trigger>
+          <Select.Value />
+        </Select.Trigger>
+      </Select.Root>
+    ),
   });
 
   describe('with Field.Root parent', () => {

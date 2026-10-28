@@ -35,6 +35,21 @@ describe('<Accordion.Trigger />', () => {
     expect(trigger).not.toHaveAttribute('aria-disabled');
   });
 
+  it('adds data-disabled when only the trigger is disabled', async () => {
+    await render(
+      <Accordion.Root>
+        <Accordion.Item>
+          <Accordion.Header>
+            <Accordion.Trigger disabled>Trigger</Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>Panel</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute('data-disabled');
+  });
+
   it('removes a disabled non-native trigger from the tab order', async () => {
     const { user } = await render(
       <Accordion.Root>

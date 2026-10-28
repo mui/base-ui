@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
@@ -39,6 +39,7 @@ import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Groups all parts of the select.
@@ -516,7 +517,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         required={required && !(multiple && hasSelectedValue)}
         readOnly={readOnly}
         ref={ref}
-        style={name ? visuallyHiddenInput : visuallyHidden}
+        style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         tabIndex={-1}
         aria-hidden
         suppressHydrationWarning
