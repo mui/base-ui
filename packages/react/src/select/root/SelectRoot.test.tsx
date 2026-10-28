@@ -7381,6 +7381,53 @@ describe('<Select.Root />', () => {
   });
 
   describe('closing', () => {
+    it('reports a close after the parent declined an open without canceling it', async () => {
+      const handleOpenChange = vi.fn();
+      const actionsRef = React.createRef<Select.Root.Actions>();
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <Select.Root
+            actionsRef={actionsRef}
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              handleOpenChange(nextOpen, eventDetails.reason);
+              if (!nextOpen) {
+                setOpen(false);
+              }
+            }}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(handleOpenChange).toHaveBeenLastCalledWith(true, REASONS.triggerPress);
+      });
+      expect(screen.queryByRole('listbox')).toBe(null);
+
+      await act(async () => {
+        actionsRef.current!.close();
+      });
+
+      // The store can't tell a declined open from one the parent applies later, so the close is
+      // reported.
+      expect(handleOpenChange).toHaveBeenLastCalledWith(false, REASONS.imperativeAction);
+    });
+
     it('does not notify the interactions of a close that onOpenChange cancels', async () => {
       const onOpenChange = vi.fn((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => {
         if (!open) {

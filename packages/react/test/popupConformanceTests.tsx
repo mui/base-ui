@@ -228,18 +228,40 @@ export function popupConformanceTests(config: PopupTestConfig) {
         expect(getTrigger()).not.toHaveAttribute('data-popup-open');
       });
 
-      it('is not called when the `close` action is called while closed', async () => {
-        const handleOpenChange = vi.fn();
-        const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
-        await render(prepareComponent({ root: { actionsRef, onOpenChange: handleOpenChange } }));
+      it.each([
+        { name: 'uncontrolled', controlled: false },
+        { name: 'closed by the `open` prop', controlled: true },
+      ])(
+        'is not called when the `close` action is called while closed ($name)',
+        async ({ controlled }) => {
+          const handleOpenChange = vi.fn();
+          const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
+          const { rerender } = await render(
+            prepareComponent({
+              root: {
+                actionsRef,
+                onOpenChange: handleOpenChange,
+                ...(controlled ? { open: true } : {}),
+              },
+            }),
+          );
+          if (controlled) {
+            await rerender(
+              prepareComponent({
+                root: { actionsRef, onOpenChange: handleOpenChange, open: false },
+              }),
+            );
+            await waitFor(expectPopupClosed);
+          }
 
-        await act(async () => {
-          actionsRef.current!.close();
-        });
+          await act(async () => {
+            actionsRef.current!.close();
+          });
 
-        expect(handleOpenChange).not.toHaveBeenCalled();
-        expect(getTrigger()).not.toHaveAttribute('data-popup-open');
-      });
+          expect(handleOpenChange).not.toHaveBeenCalled();
+          expect(getTrigger()).not.toHaveAttribute('data-popup-open');
+        },
+      );
 
       it('is called when the `close` action is called while open', async () => {
         const handleOpenChange = vi.fn();
@@ -345,6 +367,26 @@ export function popupConformanceTests(config: PopupTestConfig) {
 
           expect(handleOpenChange).toHaveBeenCalledWith(true, expect.anything());
           expect(getPopup()).toHaveAttribute('data-open');
+        });
+
+        it('is not called when the pointer leaves the trigger before the hover delay ends', async () => {
+          const handleOpenChange = vi.fn();
+          await render(
+            prepareComponent({
+              root: { onOpenChange: handleOpenChange },
+              trigger: { delay: 100 },
+            }),
+          );
+          const trigger = getTrigger();
+
+          enterWithMouse(trigger);
+          fireEvent.mouseLeave(trigger);
+          await act(async () => {
+            await wait(200);
+          });
+
+          expect(handleOpenChange).not.toHaveBeenCalled();
+          expect(getPopup()).toBe(null);
         });
 
         it('opens once the hover delay ends without a `close` action', async () => {
@@ -616,6 +658,66 @@ export function popupConformanceTests(config: PopupTestConfig) {
           expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
           expect(getPopup()).not.toBe(null);
         });
+
+        it.each([
+          { name: 'one close', closes: 1 },
+          { name: 'a second close during the wait', closes: 2 },
+        ])(
+          'is not called on close when a controlled popup prevents unmounting after an await, with $name',
+          async ({ closes }) => {
+            globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+            const onOpenChangeComplete = vi.fn();
+
+            function App() {
+              const [open, setOpen] = React.useState(true);
+              const busyRef = React.useRef(false);
+              return prepareComponent({
+                root: {
+                  open,
+                  onOpenChangeComplete,
+                  onOpenChange: async (nextOpen, eventDetails) => {
+                    if (nextOpen) {
+                      setOpen(true);
+                      return;
+                    }
+                    // A close that arrives while the first one waits is ignored.
+                    if (busyRef.current) {
+                      return;
+                    }
+                    busyRef.current = true;
+                    await wait(50);
+                    eventDetails.preventUnmountOnClose();
+                    setOpen(false);
+                  },
+                },
+                popup: { className },
+              });
+            }
+
+            const { user } = await render(
+              <div>
+                <style>
+                  {`@keyframes ${animationName}-exit { to { opacity: 0; } }
+                    .${className}[data-ending-style] { animation: ${animationName}-exit 200ms; }`}
+                </style>
+                <App />
+              </div>,
+            );
+            expect(getPopup()).toBeVisible();
+
+            await user.keyboard('[Escape]');
+            if (closes === 2) {
+              await user.keyboard('[Escape]');
+            }
+            await waitFor(() => {
+              expect(getPopup()).toHaveAttribute('data-ending-style');
+            });
+            await wait(400);
+
+            expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+            expect(getPopup()).not.toBe(null);
+          },
+        );
 
         it('is called on open once the enter animation finishes', async () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

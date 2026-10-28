@@ -1684,35 +1684,6 @@ describe('<Tooltip.Root />', () => {
     );
   });
 
-  describe('open delay', () => {
-    clock.withFakeTimers();
-
-    it('does not report leaving the trigger before the open delay ends', async () => {
-      const onOpenChange = vi.fn();
-      await render(
-        <Tooltip.Root onOpenChange={onOpenChange}>
-          <Tooltip.Trigger delay={200}>Trigger</Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-      const trigger = screen.getByRole('button', { name: 'Trigger' });
-
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-      fireEvent.mouseLeave(trigger);
-      clock.tick(300);
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).toBe(null);
-      expect(onOpenChange).not.toHaveBeenCalled();
-    });
-  });
-
   describe('close requests', () => {
     it('reports the active trigger for an Escape close', async () => {
       const onOpenChange = vi.fn();

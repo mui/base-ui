@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { expect, vi, describe, it, afterEach } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import type { AlertDialog } from '@base-ui/react/alert-dialog';
 import type { Dialog } from '@base-ui/react/dialog';
 import type { createRenderer } from '#test-utils';
-import { isJSDOM, wait } from '#test-utils';
 import { REASONS } from '../src/internals/reasons';
 
 /**
@@ -81,57 +80,6 @@ export function dialogRootSharedTests(config: DialogRootSharedTestsConfig) {
           false,
           expect.objectContaining({ reason: REASONS.escapeKey, trigger: triggerB }),
         );
-      });
-    });
-
-    describe.skipIf(isJSDOM)('close requests', () => {
-      afterEach(() => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-      });
-
-      const exitStyle = `
-        @keyframes dialog-await-exit { to { opacity: 0; } }
-        .dialog-await-popup[data-ending-style] { animation: dialog-await-exit 200ms; }
-      `;
-
-      it('keeps a controlled popup mounted when onOpenChange prevents unmounting after an await', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        function App() {
-          const [open, setOpen] = React.useState(true);
-          return (
-            <Root
-              open={open}
-              onOpenChange={async (nextOpen, eventDetails) => {
-                if (nextOpen) {
-                  setOpen(true);
-                  return;
-                }
-                await Promise.resolve();
-                eventDetails.preventUnmountOnClose();
-                setOpen(false);
-              }}
-            >
-              <Portal>
-                <Popup data-testid="popup" className="dialog-await-popup" />
-              </Portal>
-            </Root>
-          );
-        }
-
-        const { user } = await render(
-          <div>
-            <style>{exitStyle}</style>
-            <App />
-          </div>,
-        );
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
-
-        await user.keyboard('[Escape]');
-        await wait(400);
-
-        expect(screen.queryByTestId('popup')).not.toBe(null);
-        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
       });
     });
 

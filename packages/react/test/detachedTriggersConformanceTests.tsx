@@ -282,6 +282,24 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
             expectActiveTrigger(2);
           });
 
+          it('reports the trigger the popup was opened from for an Escape close', async () => {
+            const onOpenChange = vi.fn();
+            const { user } = await render(
+              <Fixture mode={mode} handle={getHandle()} rootProps={{ onOpenChange }} />,
+            );
+
+            await openWith(primaryInteraction, user, getTrigger(2));
+            await waitForPopupOpen();
+            expectActiveTrigger(2);
+            await user.keyboard('[Escape]');
+            await waitForPopupClosed();
+
+            expect(onOpenChange).toHaveBeenLastCalledWith(
+              false,
+              expect.objectContaining({ reason: 'escape-key', trigger: getTrigger(2) }),
+            );
+          });
+
           it('reuses the popup DOM nodes when switching triggers', async () => {
             const { user } = await render(<Fixture mode={mode} handle={getHandle()} />);
 

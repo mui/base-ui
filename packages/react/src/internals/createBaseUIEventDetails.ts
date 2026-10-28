@@ -80,6 +80,7 @@ type BaseUIChangeEventDetail<Reason extends string, CustomProperties extends obj
   isPropagationAllowed: boolean;
   /**
    * The element that triggered the event, if applicable.
+   * A popup that closes reports the trigger it was opened from, whatever closed it.
    */
   trigger: Element | undefined;
 } & CustomProperties;

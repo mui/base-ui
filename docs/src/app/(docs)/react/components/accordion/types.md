@@ -82,7 +82,10 @@ type AccordionRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * A popup that closes reports the trigger it was opened from, whatever closed it.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -237,7 +240,10 @@ type AccordionItemChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * A popup that closes reports the trigger it was opened from, whatever closed it.
+   */
   trigger: Element | undefined;
 };
 ```
