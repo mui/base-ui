@@ -6,6 +6,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { clamp } from '@base-ui/utils/clamp';
+import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
@@ -662,9 +663,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       // Already focused with the keyboard up: let the native tap through so it can
       // reposition the caret, rather than blurring and re-focusing the same input.
+      // Android re-shows a dismissed keyboard on a native tap, and the keyboard can't be
+      // detected when it resizes the layout viewport (`interactive-widget=resizes-content`,
+      // resizing WebViews), so always let it through there.
       if (
         activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget &&
-        (!win.visualViewport || getKeyboardViewportRef.current?.() != null)
+        (platform.os.android || !win.visualViewport || getKeyboardViewportRef.current?.() != null)
       ) {
         resetTouchTrackingState();
         return;
