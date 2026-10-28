@@ -75,7 +75,7 @@ function createNodeSnapshot({
   return {
     open,
     elements: { domReference, floating },
-    interaction: {},
+    rootStore: { context: {} },
   };
 }
 

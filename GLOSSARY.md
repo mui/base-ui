@@ -43,7 +43,7 @@ Each popup family keeps its own popup tree. A member nested in a popup of anothe
 _Avoid_: shared tree
 
 **Snapshot**:
-What a tree member publishes on its node for the other members: whether it is open, its floating and trigger elements, and its interaction data. Whether it is open and its elements are copied each time the member renders, so a node the member stops updating keeps the last ones. They can go stale: when a Menu switches triggers, the previous trigger's node keeps reporting the Menu as open, so a parent may still treat it as an open child (a known issue). The interaction data isn't copied: other members read the member's current values.
+What a tree member publishes on its node for the other members: whether it is open, its floating and trigger elements, and its interaction data. Whether it is open and its elements are updated each time the member renders, so a node the member stops updating keeps the last ones. They can go stale: when a Menu switches triggers, the previous trigger's node keeps reporting the Menu as open, so a parent may still treat it as an open child (a known issue). The interaction data isn't copied: other members read the member's current values.
 _Avoid_: floating context
 _In code_: a node's `context` field.
 

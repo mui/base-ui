@@ -9,7 +9,7 @@ function createContext(
   return {
     open,
     elements: { floating: options.floating ?? null, domReference: null },
-    interaction: options.interaction ?? {},
+    rootStore: { context: options.interaction ?? {} },
   } satisfies FloatingNodeSnapshot;
 }
 

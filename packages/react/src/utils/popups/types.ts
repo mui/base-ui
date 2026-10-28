@@ -232,15 +232,15 @@ export type FloatingNodeInteraction = Pick<
 
 /**
  * What a popup tree member publishes about itself for the other members: whether it is open, its
- * elements, and the interaction fields the other members read. `open` and `elements` are copied in
- * a layout effect after the member renders, so a node the member no longer updates keeps the last
- * ones. `interaction` is the member's own interaction context, which its interaction hooks update
- * in place, so other members always read its current values.
+ * elements, and the interaction fields the other members read. The node holds the member's
+ * positioning context, written in a layout effect after the member renders, so a node the member
+ * no longer updates keeps the last `open` and `elements`. The interaction fields are read from the
+ * member's interaction store, which its interaction hooks update in place.
  */
 export interface FloatingNodeSnapshot {
   open: boolean;
   elements: Pick<ExtendedElements, 'floating' | 'domReference'>;
-  interaction: FloatingNodeInteraction;
+  rootStore: { context: FloatingNodeInteraction };
 }
 
 export interface FloatingNodeType {

@@ -6,7 +6,6 @@ import type { VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type {
-  FloatingNodeSnapshot,
   PopupPositioningContext,
   PopupInteractionStore,
   NarrowedElement,
@@ -107,17 +106,12 @@ export function useBaseUIFloating(
     }
   }, [anchorElement]);
 
-  const snapshot = React.useMemo<FloatingNodeSnapshot>(
-    () => ({ open, elements, interaction: store.context }),
-    [open, elements, store],
-  );
-
   useIsoLayoutEffect(() => {
     store.context.positioning = context;
 
     const node = tree?.getNode(nodeId);
     if (node) {
-      node.context = snapshot;
+      node.context = context;
     }
   });
 

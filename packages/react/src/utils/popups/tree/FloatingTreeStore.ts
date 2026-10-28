@@ -71,7 +71,7 @@ export class FloatingTreeStore {
    */
   public hasBlockingChild(id: string | undefined, dismissal: 'escapeKey' | 'outsidePress') {
     const bubbleKey = BUBBLE_KEYS[dismissal];
-    return this.descendants(id).some((child) => !child.context!.interaction[bubbleKey]);
+    return this.descendants(id).some((child) => !child.context!.rootStore.context[bubbleKey]);
   }
 
   /**
