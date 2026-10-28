@@ -13,6 +13,7 @@ import {
   resetBrowserPointer,
   positionerConformanceTests,
 } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -746,9 +747,11 @@ describe('<Menu.Positioner />', () => {
       React.useEffect(() => {
         function handleMenuOpenChange(details: MenuOpenEventDetails) {
           const positionerMounted = document.querySelector('[data-testid="menu-positioner"]');
-          log.push(
-            `open=${details.open} parent=${details.parentNodeId == null ? 'none' : 'set'} positioner=${positionerMounted != null}`,
-          );
+          const entry = `open=${details.open} parent=${details.parentNodeId == null ? 'none' : 'set'} positioner=${positionerMounted != null}`;
+          // StrictMode runs the emitting effect twice, so repeats of the same entry are dropped.
+          if (log[log.length - 1] !== entry) {
+            log.push(entry);
+          }
         }
 
         tree.events.on('menuopenchange', handleMenuOpenChange);
@@ -796,11 +799,9 @@ describe('<Menu.Positioner />', () => {
       });
       log.push('menu closed');
 
-      // The menu's parent is the popover's node. The test renderer uses StrictMode, which runs the
-      // emitting effect twice on open, so `open=true` appears twice.
+      // The menu's parent is the popover's node.
       expect(log).toEqual([
         'popover opened',
-        'open=true parent=set positioner=true',
         'open=true parent=set positioner=true',
         'menu opened',
         'open=false parent=set positioner=true',
@@ -850,10 +851,8 @@ describe('<Menu.Positioner />', () => {
       });
       log.push('menu closed');
 
-      // The nested popover doesn't take part in the menu's events. The test renderer uses
-      // StrictMode, which runs the emitting effect twice on open, so `open=true` appears twice.
+      // The nested popover doesn't take part in the menu's events.
       expect(log).toEqual([
-        'open=true parent=none positioner=true',
         'open=true parent=none positioner=true',
         'menu opened',
         'popover opened',
@@ -862,5 +861,47 @@ describe('<Menu.Positioner />', () => {
         'menu closed',
       ]);
     });
+  });
+
+  it('closes an open submenu with the reason its parent menu closed with', async () => {
+    const actionsRef = React.createRef<Menu.Root.Actions>();
+    const onSubmenuOpenChange = vi.fn();
+    const { user } = await render(
+      <Menu.Root actionsRef={actionsRef}>
+        <Menu.Trigger>Menu</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.SubmenuRoot onOpenChange={onSubmenuOpenChange}>
+                <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu-popup">
+                      <Menu.Item>Item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'More' }));
+    await screen.findByTestId('submenu-popup');
+    onSubmenuOpenChange.mockClear();
+
+    await act(async () => {
+      actionsRef.current!.close();
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).toBe(null);
+    });
+    expect(onSubmenuOpenChange).toHaveBeenCalledTimes(1);
+    expect(onSubmenuOpenChange.mock.calls[0][0]).toBe(false);
+    expect(onSubmenuOpenChange.mock.calls[0][1].reason).toBe(REASONS.imperativeAction);
   });
 });
