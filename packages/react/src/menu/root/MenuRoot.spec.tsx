@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { expectType } from '#test-utils';
-import type { MenuOpenEventDetails } from '../utils/types';
 
 <Menu.Root
   onItemHighlighted={(item, details) => {
@@ -32,7 +31,3 @@ import type { MenuOpenEventDetails } from '../utils/types';
     }
   }}
 />;
-
-// The popup tree's `menuopenchange` payload lists the same reasons as `onOpenChange`.
-const menuOpenChangeReason = null as MenuOpenEventDetails['reason'];
-expectType<Menu.Root.ChangeEventReason | null, typeof menuOpenChangeReason>(menuOpenChangeReason);

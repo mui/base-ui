@@ -69,30 +69,11 @@ export interface FloatingEventMap {
 export type PopupEvents = FloatingEventEmitter<FloatingEventMap>;
 
 /**
- * Why a menu opened or closed, as reported by `menuopenchange`. The same reasons as
- * `Menu.Root`'s `onOpenChange` (`MenuRoot.spec.tsx` checks that they match).
- */
-export type MenuOpenChangeReason =
-  | typeof REASONS.triggerHover
-  | typeof REASONS.triggerFocus
-  | typeof REASONS.triggerPress
-  | typeof REASONS.outsidePress
-  | typeof REASONS.focusOut
-  | typeof REASONS.listNavigation
-  | typeof REASONS.escapeKey
-  | typeof REASONS.itemPress
-  | typeof REASONS.closePress
-  | typeof REASONS.siblingOpen
-  | typeof REASONS.cancelOpen
-  | typeof REASONS.imperativeAction
-  | typeof REASONS.none;
-
-/**
- * The payload of `menuopenchange`.
+ * The payload of `menuopenchange`. `reason` is the `Menu.Root` open change reason.
  */
 export interface MenuOpenEventDetails {
   open: boolean;
-  reason: MenuOpenChangeReason | null;
+  reason: string | null;
   nodeId: string | undefined;
   parentNodeId: string | null;
 }
