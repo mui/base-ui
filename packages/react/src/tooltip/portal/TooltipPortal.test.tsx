@@ -40,11 +40,16 @@ describe('<Tooltip.Portal />', () => {
       expect(screen.queryByTestId('popup')).toBe(null);
     });
 
-    // A kept-mounted positioner forgets the trigger once the popup closes, so returning to the
-    // window doesn't count as refocusing the trigger the popup last belonged to.
+    // Returning to the window shouldn't reopen the tooltip on the trigger that kept focus. The
+    // window-blur guard compares against the anchor element, which a kept-mounted positioner clears
+    // once the popup closes, so the `keepMounted` row characterizes a known gap rather than the
+    // intended behavior.
     it.each([
-      { name: 'reopens on trigger focus after the window regains focus', keepMounted: true },
       { name: 'stays closed on trigger focus after the window regains focus', keepMounted: false },
+      {
+        name: 'currently reopens on trigger focus after the window regains focus, because the positioner clears the anchor element',
+        keepMounted: true,
+      },
     ])('with keepMounted=$keepMounted, $name', async ({ keepMounted }) => {
       const actionsRef: React.RefObject<Tooltip.Root.Actions | null> = { current: null };
 
