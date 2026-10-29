@@ -1860,7 +1860,9 @@ describe('<Select.Popup />', () => {
 
       await user.click(screen.getByTestId('trigger'));
 
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
     });
   });
