@@ -37,13 +37,13 @@ describe('FloatingTreeStore', () => {
 
     expect(tree.getNode('child')).toBe(child);
     expect(tree.descendants('root')).toEqual([child]);
-    expect(tree.contains(target)).toBe(true);
+    expect(tree.descendantContains('root', target)).toBe(true);
 
     tree.removeNode(child);
 
     expect(tree.getNode('child')).toBeUndefined();
     expect(tree.descendants('root')).toEqual([]);
-    expect(tree.contains(target)).toBe(false);
+    expect(tree.descendantContains('root', target)).toBe(false);
   });
 
   it.each([
@@ -181,6 +181,45 @@ describe('FloatingTreeStore', () => {
     expect(createTree(openUnset).hasBlockingChild('0', 'escapeKeyBubbles')).toBe(true);
   });
 
+  it('hasBlockingChild finds an open blocking descendant below a closed child', () => {
+    const nodes = [
+      { id: '0', parentId: null, context: contextOpen },
+      { id: '1', parentId: '0', context: contextClosed },
+      {
+        id: '2',
+        parentId: '1',
+        context: createContext(true, {
+          interaction: { escapeKeyBubbles: false, outsidePressBubbles: true },
+        }),
+      },
+    ];
+
+    expect(createTree(nodes).hasBlockingChild('0', 'escapeKeyBubbles')).toBe(true);
+  });
+
+  it('hasBlockingChild ignores a blocking node in a sibling subtree', () => {
+    const nodes = [
+      { id: '0', parentId: null, context: contextOpen },
+      {
+        id: '1',
+        parentId: '0',
+        context: createContext(true, {
+          interaction: { escapeKeyBubbles: true, outsidePressBubbles: true },
+        }),
+      },
+      {
+        id: '2',
+        parentId: '0',
+        context: createContext(true, {
+          interaction: { escapeKeyBubbles: false, outsidePressBubbles: false },
+        }),
+      },
+    ];
+
+    expect(createTree(nodes).hasBlockingChild('1', 'escapeKeyBubbles')).toBe(false);
+    expect(createTree(nodes).hasBlockingChild('0', 'escapeKeyBubbles')).toBe(true);
+  });
+
   it('descendantContains checks open descendants, or all of them when onlyOpen is false', () => {
     const openFloating = document.createElement('div');
     const closedFloating = document.createElement('div');
@@ -198,18 +237,5 @@ describe('FloatingTreeStore', () => {
     expect(createTree(nodes).descendantContains('0', closedTarget)).toBe(false);
     expect(createTree(nodes).descendantContains('0', closedTarget, false)).toBe(true);
     expect(createTree(nodes).descendantContains('1', target)).toBe(false);
-  });
-
-  it('contains checks every node that has a context, open or not', () => {
-    const floating = document.createElement('div');
-    const target = document.createElement('span');
-    floating.appendChild(target);
-    const nodes = [
-      { id: '0', parentId: null },
-      { id: '1', parentId: '0', context: createContext(false, { floating }) },
-    ];
-
-    expect(createTree(nodes).contains(target)).toBe(true);
-    expect(createTree(nodes).contains(document.createElement('span'))).toBe(false);
   });
 });

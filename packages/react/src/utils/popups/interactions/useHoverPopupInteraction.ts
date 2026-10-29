@@ -92,7 +92,7 @@ export function useHoverPopupInteraction(
     }
 
     function hasParentChildren() {
-      return !!(tree && parentId && tree.descendants(parentId).length > 0);
+      return !!(parentId && tree?.descendants(parentId).length);
     }
 
     function onFloatingMouseEnter() {

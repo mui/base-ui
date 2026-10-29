@@ -84,13 +84,4 @@ export class FloatingTreeStore {
       contains(node.context?.elements.floating, target),
     );
   }
-
-  /**
-   * Whether the floating element of any node in the tree contains the target.
-   */
-  public contains(target: Element | null | undefined) {
-    return this.nodesRef.current.some(
-      (node) => node.context && contains(node.context.elements.floating, target),
-    );
-  }
 }

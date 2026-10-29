@@ -16,7 +16,7 @@ interface Params {
 export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, params: Params) {
   const { popupElement, rootRef, tree, nodeId } = params;
 
-  const nodeChildrenContains = tree ? tree.descendantContains(nodeId, relatedTarget) : false;
+  const nodeChildrenContains = tree?.descendantContains(nodeId, relatedTarget);
 
   if (!popupElement) {
     return !contains(rootRef.current, relatedTarget) && !nodeChildrenContains;

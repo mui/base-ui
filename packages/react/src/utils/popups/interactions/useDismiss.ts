@@ -388,11 +388,9 @@ export function useDismiss(
 
     function isEventWithinFloatingTree(event: Event) {
       const nodeId = storeContext.positioning?.nodeId;
-      const targetIsInsideChildren =
-        tree &&
-        tree
-          .descendants(nodeId)
-          .some((node) => isEventTargetWithin(event, node.context?.elements.floating));
+      const targetIsInsideChildren = tree
+        ?.descendants(nodeId)
+        .some((node) => isEventTargetWithin(event, node.context?.elements.floating));
 
       return isEventWithinOwnElements(event) || targetIsInsideChildren;
     }
