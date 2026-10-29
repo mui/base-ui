@@ -739,6 +739,8 @@ describe('<Menu.Positioner />', () => {
     ),
   });
 
+  // StrictMode would run the emitting effect twice, so these tests render without it and count
+  // every emission.
   describe('menuopenchange across popup families', () => {
     function MenuOpenChangeLog({ log }: { log: string[] }) {
       const { store } = useMenuRootContext();
@@ -748,10 +750,7 @@ describe('<Menu.Positioner />', () => {
         function handleMenuOpenChange(details: MenuOpenEventDetails) {
           const positionerMounted = document.querySelector('[data-testid="menu-positioner"]');
           const entry = `open=${details.open} parent=${details.parentNodeId == null ? 'none' : 'set'} positioner=${positionerMounted != null}`;
-          // StrictMode runs the emitting effect twice, so repeats of the same entry are dropped.
-          if (log[log.length - 1] !== entry) {
-            log.push(entry);
-          }
+          log.push(entry);
         }
 
         tree.events.on('menuopenchange', handleMenuOpenChange);
@@ -786,6 +785,7 @@ describe('<Menu.Positioner />', () => {
             </Popover.Positioner>
           </Popover.Portal>
         </Popover.Root>,
+        { strict: false },
       );
 
       await user.click(screen.getByRole('button', { name: 'Popover' }));
@@ -832,6 +832,7 @@ describe('<Menu.Positioner />', () => {
             </Menu.Positioner>
           </Menu.Portal>
         </Menu.Root>,
+        { strict: false },
       );
 
       await user.click(screen.getByRole('button', { name: 'Menu' }));
@@ -851,7 +852,7 @@ describe('<Menu.Positioner />', () => {
       });
       log.push('menu closed');
 
-      // The nested popover doesn't take part in the menu's events.
+      // Escape on the nested popover closes only the popover, and the menu emits nothing for it.
       expect(log).toEqual([
         'open=true parent=none positioner=true',
         'menu opened',
@@ -863,7 +864,7 @@ describe('<Menu.Positioner />', () => {
     });
   });
 
-  it('closes an open submenu with the reason its parent menu closed with', async () => {
+  it('closes an open submenu with imperativeAction when the parent closes through actionsRef', async () => {
     const actionsRef = React.createRef<Menu.Root.Actions>();
     const onSubmenuOpenChange = vi.fn();
     const { user } = await render(

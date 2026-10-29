@@ -1,8 +1,10 @@
-import { vi, expect, describe, it, beforeEach, afterEach } from 'vitest';
+import { vi, expect, describe, it, beforeEach, afterEach, onTestFinished } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
+import { FloatingTree } from '../tree/FloatingTree';
+import { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import { useHoverPopupInteraction } from './useHoverPopupInteraction';
 import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
 
@@ -15,10 +17,10 @@ describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
     vi.useRealTimers();
   });
 
-  function App(props: { closeDelay?: number }) {
+  function App(props: { closeDelay?: number; nodeId?: string }) {
     const [open, setOpen] = React.useState(false);
     const triggerElementRef = React.useRef<Element | null>(null);
-    const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+    const { refs, context } = useFloating({ open, onOpenChange: setOpen, nodeId: props.nodeId });
     const referenceProps = useHoverTriggerInteraction(context.rootStore, {
       triggerElementRef,
       delay: { close: props.closeDelay },
@@ -100,4 +102,47 @@ describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
 
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
+
+  it.each([
+    { childState: 'open', childOpen: true },
+    { childState: 'closed', childOpen: false },
+  ])(
+    'keeps the popup open when the pointer leaves it for the floating element of a $childState descendant',
+    async ({ childOpen }) => {
+      const tree = new FloatingTreeStore();
+      const childFloating = document.createElement('div');
+      document.body.appendChild(childFloating);
+      onTestFinished(() => childFloating.remove());
+      tree.addNode({
+        id: 'child',
+        parentId: 'root',
+        context: {
+          open: childOpen,
+          elements: { floating: childFloating, domReference: null },
+          rootStore: { context: {} },
+        },
+      });
+
+      render(
+        <FloatingTree externalTree={tree}>
+          <App closeDelay={100} nodeId="root" />
+        </FloatingTree>,
+      );
+
+      const button = screen.getByRole('button');
+      fireEvent.mouseEnter(button);
+      await flushMicrotasks();
+
+      const tooltip = screen.getByRole('tooltip');
+      fireEvent(button, new MouseEvent('mouseleave', { relatedTarget: tooltip }));
+      fireEvent.mouseEnter(tooltip);
+      fireEvent.mouseLeave(tooltip, { relatedTarget: childFloating });
+
+      await act(async () => {
+        vi.advanceTimersByTime(200);
+      });
+
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    },
+  );
 });
