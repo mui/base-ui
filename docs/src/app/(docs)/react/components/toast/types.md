@@ -892,24 +892,7 @@ type ToastManagerPositionerProps = {
 
 ```typescript
 type ToastManagerPromiseOptions<Value, Data extends {}> = {
-  loading:
-    | string
-    | {
-        title?: React.ReactNode;
-        type?: string;
-        description?: React.ReactNode;
-        timeout?: number;
-        priority?: 'low' | 'high';
-        onClose?: () => void;
-        onRemove?: () => void;
-        actionProps?: Omit<
-          React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-          'ref'
-        >;
-        positionerProps?: ToastManagerPositionerProps;
-        data?: Data;
-        id?: string;
-      };
+  loading: string | ToastManagerAddOptions<Data>;
   success:
     | string
     | ToastManagerUpdateOptions<Data>

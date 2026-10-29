@@ -79,6 +79,14 @@ typedManager.promise(Promise.resolve(2), {
   error: 'error',
 });
 
+typedManager.promise(Promise.resolve(2), {
+  loading: 'loading',
+  // @ts-expect-error - id is only accepted on loading
+  success: { id: 'typed', title: 'success' },
+  // @ts-expect-error - id is only accepted on loading
+  error: { id: 'typed', title: 'error' },
+});
+
 const legacyManager = useToastManager();
 
 const legacyAddId = legacyManager.add<ToastPayload>({
