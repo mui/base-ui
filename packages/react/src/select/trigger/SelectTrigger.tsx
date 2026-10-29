@@ -133,7 +133,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const { filterable } = store.context;
 
   const useFilterTriggerProps = useSelectFilterImpl()?.useTriggerProps ?? useUnfilteredTriggerProps;
-  const filterTriggerProps = useFilterTriggerProps();
+  const filterTriggerProps = useFilterTriggerProps(id, ariaLabelledBy);
 
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
@@ -159,8 +159,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // Saves a re-render on initial click: `forceMounted === true` mounts
         // the items before `open === true`. We could sync those cycles better
-        // without a timeout, but this is enough for now. A filterable select has no
-        // closed-trigger typeahead to serve, so its popup mounts on open only.
+        // without a timeout, but this is enough for now. Typing on a filterable select's
+        // closed trigger opens it instead of matching items, so its popup mounts on open only.
         if (!filterable) {
           timeoutFocus.start(0, () => {
             store.set('forceMounted', true);
@@ -224,7 +224,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />
-  props.role = 'combobox';
+  if (!filterable) {
+    props.role = 'combobox';
+  }
 
   const state: SelectTriggerState = {
     ...fieldState,

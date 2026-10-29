@@ -360,8 +360,9 @@ The highlighted item has the `data-highlighted` attribute, and `onItemHighlighte
 #### Focus and keyboard
 
 Opening the select with a click or the keyboard focuses the input. Opening it with touch or a pen does not, so the on-screen keyboard stays hidden.
+Typing on the closed trigger opens the select and starts the query with the typed character.
 The arrow keys move the highlight while the input keeps focus. <kbd>Tab</kbd> closes the select, and <kbd>Shift</kbd>+<kbd>Tab</kbd> returns focus to the trigger.
-The trigger stays a `combobox` that opens a `dialog`, like a [Combobox](/react/components/combobox) with its input inside the popup. The input is a `combobox` that controls the `listbox` list.
+The popup is a `dialog` that holds the `searchbox` input and the `listbox` list.
 `alignItemWithTrigger` is disabled for filterable selects.
 
 ## API reference

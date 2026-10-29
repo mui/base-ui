@@ -28,20 +28,11 @@ export const SelectInput = React.forwardRef(function SelectInput(
 
   const { onKeyDown, ...navigationProps } = store.useState('inputProps');
   const activeItemId = store.useState('highlightedItemId');
-  const open = store.useState('open');
 
   const handleKeyDown = useSelectFilterKeyDown(value !== '');
 
-  // Like a combobox's input inside its popup, the input is a combobox that controls the listbox,
-  // which lets it point `aria-activedescendant` at an option outside it.
   const inputProps = mergeProps<typeof FilterDropdownInput>(
-    {
-      role: 'combobox',
-      'aria-expanded': open,
-      'aria-haspopup': 'listbox',
-      'aria-autocomplete': 'list',
-      onKeyDown: handleKeyDown,
-    },
+    { onKeyDown: handleKeyDown },
     componentProps,
   );
 
