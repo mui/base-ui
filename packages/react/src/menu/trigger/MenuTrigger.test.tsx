@@ -11,6 +11,7 @@ import {
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { Menubar } from '@base-ui/react/menubar';
 import { BASE_UI_SWIPE_IGNORE_ATTRIBUTE, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
@@ -231,6 +232,43 @@ describe('<Menu.Trigger />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await user.pointer({ keys: '[MouseLeft>]', target: trigger });
+
+      expect(trigger).toHaveAttribute('aria-expanded', String(opensOnMouseDown));
+
+      await user.pointer({ keys: '[/MouseLeft]', target: trigger });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it.each([
+      {
+        name: 'opens on click when inside a draggable menubar',
+        opensOnMouseDown: false,
+      },
+      {
+        name: 'opens on click when inside a draggable menubar and the trigger ignores swipes',
+        triggerProps: { [BASE_UI_SWIPE_IGNORE_ATTRIBUTE]: '' },
+        opensOnMouseDown: false,
+      },
+    ])('$name', async ({ triggerProps, opensOnMouseDown }) => {
+      const { user } = await render(
+        <Menubar draggable>
+          <Menu.Root>
+            <Menu.Trigger {...triggerProps}>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>One</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      const trigger = screen.getByRole('menuitem', { name: 'Open' });
 
       await user.pointer({ keys: '[MouseLeft>]', target: trigger });
 
