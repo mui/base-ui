@@ -474,6 +474,8 @@ type SelectPositionerState = {
   align: Align;
   /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** Whether CSS transitions should be disabled. */
+  instant: 'click' | 'dismiss' | undefined;
 };
 ```
 

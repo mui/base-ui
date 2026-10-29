@@ -63,6 +63,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
+  const instantType = store.useState('instantType');
   const positionerElement = store.useState('positionerElement');
   const triggerElement = store.useState('triggerElement');
   const transitionStatus = store.useState('transitionStatus');
@@ -117,6 +118,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     side: renderedSide,
     align: positioning.align,
     anchorHidden: positioning.anchorHidden,
+    instant: instantType,
   };
 
   useIsoLayoutEffect(() => {
@@ -249,6 +251,10 @@ export interface SelectPositionerState {
    * Whether the anchor element is hidden.
    */
   anchorHidden: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: 'click' | 'dismiss' | undefined;
 }
 
 export interface SelectPositionerProps
