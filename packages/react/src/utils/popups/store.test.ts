@@ -972,6 +972,21 @@ describe('createPopupOpenState', () => {
     expect(nextState.activeTriggerElement).toBe(trigger);
   });
 
+  it('keeps the trigger id a controlled `triggerId` resolves to when a close names the active trigger', () => {
+    // The `triggerId` prop moved the open popup to the second trigger, which updates only the
+    // stored element.
+    const state = { ...createInitialPopupStoreState(), triggerIdProp: 'second' };
+    const trigger = document.createElement('button');
+    trigger.id = 'second';
+    state.activeTriggerId = 'first';
+    state.activeTriggerElement = trigger;
+
+    const nextState = createPopupOpenState(state, false, trigger, false);
+
+    expect(nextState.activeTriggerId).toBe('second');
+    expect(nextState.activeTriggerElement).toBe(trigger);
+  });
+
   it('makes a different trigger that a close names the active one', () => {
     const state = createInitialPopupStoreState();
     state.activeTriggerId = 'first';
