@@ -1785,6 +1785,16 @@ describe('<Select.Popup />', () => {
   });
 
   describe('data-instant', () => {
+    // The popup clears `instantType` once it finishes closing, which happens right away while
+    // animations are disabled, so the closing render records what it saw.
+    let closingInstants: Array<string | undefined> = [];
+    function recordClosingInstant(state: Select.Popup.State) {
+      if (!state.open) {
+        closingInstants.push(state.instant);
+      }
+      return undefined;
+    }
+
     function TestSelect() {
       return (
         <Select.Root>
@@ -1792,8 +1802,8 @@ describe('<Select.Popup />', () => {
             <Select.Value />
           </Select.Trigger>
           <Select.Portal>
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.Popup data-testid="popup">
+            <Select.Positioner data-testid="positioner" alignItemWithTrigger={false}>
+              <Select.Popup data-testid="popup" className={recordClosingInstant}>
                 <Select.Item value="a">a</Select.Item>
                 <Select.Item value="b">b</Select.Item>
               </Select.Popup>
@@ -1803,23 +1813,27 @@ describe('<Select.Popup />', () => {
       );
     }
 
-    it('is "dismiss" when Escape closes the popup', async () => {
-      const { user } = await render(<TestSelect />);
-
+    async function openWithMouse(user: Awaited<ReturnType<typeof render>>['user']) {
       await user.click(screen.getByTestId('trigger'));
       await waitFor(() => {
         expect(screen.getByTestId('popup')).toHaveFocus();
       });
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+    }
 
+    it('is "dismiss" when Escape closes the popup', async () => {
+      const { user } = await render(<TestSelect />);
+      await openWithMouse(user);
+
+      closingInstants = [];
       await user.keyboard('{Escape}');
 
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+      expect(closingInstants[0]).toBe('dismiss');
     });
 
-    it('is "click" when a keyboard press on the trigger opens the popup', async () => {
+    it('is "click" on the popup and the positioner when a keyboard press on the trigger opens the popup', async () => {
       const { user } = await render(<TestSelect />);
 
       await act(async () => {
@@ -1829,41 +1843,36 @@ describe('<Select.Popup />', () => {
 
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-instant', 'click');
     });
 
     it('is "click" when a keyboard press on an item closes the popup', async () => {
       const { user } = await render(<TestSelect />);
-
-      await user.click(screen.getByTestId('trigger'));
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveFocus();
-      });
+      await openWithMouse(user);
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
       });
-      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
 
+      closingInstants = [];
       await user.keyboard('{Enter}');
 
       expect(screen.getByTestId('trigger')).toHaveTextContent('a');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+      expect(closingInstants[0]).toBe('click');
     });
 
     it('is absent when a mouse press on an item closes the popup', async () => {
       const { user } = await render(<TestSelect />);
+      await openWithMouse(user);
 
-      await user.click(screen.getByTestId('trigger'));
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
-      });
-
+      closingInstants = [];
       await user.click(screen.getByRole('option', { name: 'a' }));
 
       expect(screen.getByTestId('trigger')).toHaveTextContent('a');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
-      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+      expect(closingInstants).not.toHaveLength(0);
+      expect(closingInstants[0]).toBe(undefined);
     });
 
     it('is absent when a drag from the trigger releases on an item', async () => {
@@ -1882,33 +1891,48 @@ describe('<Select.Popup />', () => {
       await act(async () => {
         await wait(100);
       });
+      closingInstants = [];
       fireEvent.mouseUp(option);
 
       await waitFor(() => {
         expect(screen.getByTestId('trigger')).toHaveTextContent('a');
       });
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
-      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+      expect(closingInstants).not.toHaveLength(0);
+      expect(closingInstants[0]).toBe(undefined);
     });
 
-    it('is removed when a pointer press opens the popup after a dismissal', async () => {
-      const { user } = await render(<TestSelect />);
-
-      await user.click(screen.getByTestId('trigger'));
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveFocus();
-      });
+    it('is removed when a controlled `open` reopens the popup after a dismissal', async () => {
+      function ControlledSelect() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <React.Fragment>
+            <button onClick={() => setOpen(true)}>Open externally</button>
+            <Select.Root open={open} onOpenChange={setOpen}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup data-testid="popup">
+                    <Select.Item value="a">a</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+      const { user } = await render(<ControlledSelect />);
+      await openWithMouse(user);
       await user.keyboard('{Escape}');
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
       await waitFor(() => {
-        expect(screen.getByTestId('trigger')).toHaveFocus();
+        expect(screen.getByTestId('popup')).toBeInaccessible();
       });
 
-      await user.click(screen.getByTestId('trigger'));
+      await user.click(screen.getByRole('button', { name: 'Open externally' }));
 
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
-      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
     });
   });

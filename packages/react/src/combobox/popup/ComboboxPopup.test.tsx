@@ -196,14 +196,24 @@ describe('<Combobox.Popup />', () => {
   });
 
   describe('data-instant', () => {
+    // The popup clears `instantType` once it unmounts, which happens as soon as it closes while
+    // animations are disabled, so the closing render records what it saw.
+    let closingInstants: Array<string | undefined> = [];
+    function recordClosingInstant(state: Combobox.Popup.State) {
+      if (!state.open) {
+        closingInstants.push(state.instant);
+      }
+      return undefined;
+    }
+
     function TestCombobox() {
       return (
         <Combobox.Root items={['Apple', 'Banana']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-          <Combobox.Portal keepMounted>
-            <Combobox.Positioner>
-              <Combobox.Popup data-testid="popup">
+          <Combobox.Portal>
+            <Combobox.Positioner data-testid="positioner">
+              <Combobox.Popup data-testid="popup" className={recordClosingInstant}>
                 <Combobox.List>
                   {(item: string) => (
                     <Combobox.Item key={item} value={item}>
@@ -225,13 +235,14 @@ describe('<Combobox.Popup />', () => {
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
 
+      closingInstants = [];
       await user.keyboard('{Escape}');
 
-      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+      expect(screen.queryByTestId('popup')).toBe(null);
+      expect(closingInstants[0]).toBe('dismiss');
     });
 
-    it('is "click" when a keyboard press on the trigger opens the popup', async () => {
+    it('is "click" on the popup and the positioner when a keyboard press on the trigger opens the popup', async () => {
       const { user } = await render(<TestCombobox />);
 
       await act(async () => {
@@ -241,6 +252,7 @@ describe('<Combobox.Popup />', () => {
 
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-instant', 'click');
     });
 
     it('is "click" when Enter selects the highlighted item', async () => {
@@ -250,11 +262,12 @@ describe('<Combobox.Popup />', () => {
       await user.keyboard('{ArrowDown}');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
 
+      closingInstants = [];
       await user.keyboard('{Enter}');
 
       expect(screen.getByTestId('input')).toHaveValue('Apple');
-      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+      expect(screen.queryByTestId('popup')).toBe(null);
+      expect(closingInstants[0]).toBe('click');
     });
 
     it('is absent when a mouse press on an item closes the popup', async () => {
@@ -263,25 +276,49 @@ describe('<Combobox.Popup />', () => {
       await user.click(screen.getByTestId('input'));
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
 
+      closingInstants = [];
       await user.click(screen.getByRole('option', { name: 'Apple' }));
 
       expect(screen.getByTestId('input')).toHaveValue('Apple');
-      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
-      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+      expect(screen.queryByTestId('popup')).toBe(null);
+      expect(closingInstants).not.toHaveLength(0);
+      expect(closingInstants[0]).toBe(undefined);
     });
 
-    it('is removed when a pointer press opens the popup after a dismissal', async () => {
-      const { user } = await render(<TestCombobox />);
+    it('is removed when a controlled `open` reopens the popup after a dismissal', async () => {
+      function ControlledCombobox() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <React.Fragment>
+            <button onClick={() => setOpen(true)}>Open externally</button>
+            <Combobox.Root items={['Apple']} open={open} onOpenChange={setOpen}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup">
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>
+        );
+      }
+      const { user } = await render(<ControlledCombobox />);
 
       await user.click(screen.getByTestId('input'));
       await user.keyboard('{Escape}');
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+      expect(screen.queryByTestId('popup')).toBe(null);
 
-      await user.click(screen.getByTestId('trigger'));
+      await user.click(screen.getByRole('button', { name: 'Open externally' }));
 
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
-      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
     });
   });

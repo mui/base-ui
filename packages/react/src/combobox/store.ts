@@ -184,7 +184,7 @@ export class ComboboxStore extends ValuePopupStore<
 
   protected prepareUnmount() {
     this.context.handleUnmount();
-    return {};
+    return { instantType: undefined };
   }
 }
 
