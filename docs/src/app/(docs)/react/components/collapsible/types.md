@@ -67,7 +67,12 @@ type CollapsibleRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -88,9 +93,10 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type | Description                                 |
-| :-------------- | :--- | :------------------------------------------ |
-| data-panel-open | -    | Present when the collapsible panel is open. |
+| Attribute       | Type | Description                                              |
+| :-------------- | :--- | :------------------------------------------------------- |
+| data-panel-open | -    | Present when the collapsible panel is open.              |
+| data-disabled   | -    | Present when the trigger or the collapsible is disabled. |
 
 ### Trigger.Props
 
@@ -219,6 +225,8 @@ Data attributes of [Trigger](#trigger).
 declare namespace CollapsibleTriggerDataAttributes {
   /** Present when the collapsible panel is open. */
   const panelOpen: 'data-panel-open';
+  /** Present when the trigger or the collapsible is disabled. */
+  const disabled: 'data-disabled';
 }
 ```
 

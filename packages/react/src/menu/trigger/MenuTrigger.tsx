@@ -6,7 +6,7 @@ import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { contains } from '@base-ui/utils/shadowDom';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import {
@@ -135,7 +135,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     allowMouseUpTriggerTimeout.clear();
     store.context.allowMouseUpTriggerRef.current = false;
 
-    const mouseUpTarget = mouseEvent.target as Element | null;
+    const mouseUpTarget = getTarget(mouseEvent) as Element | null;
 
     if (
       contains(triggerRef.current, mouseUpTarget) ||

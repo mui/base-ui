@@ -5,7 +5,13 @@ import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createFormDataSpy, createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createFormDataSpy,
+  createRenderer,
+  describeConformance,
+  hiddenInputSizeTests,
+  isJSDOM,
+} from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
   const { render, renderToString } = createRenderer();
@@ -19,6 +25,11 @@ describe('<Checkbox.Root />', () => {
     button: true,
     render,
   }));
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <Checkbox.Root {...props} />,
+  });
 
   describe('ARIA attributes', () => {
     it('sets the correct aria attributes', async () => {

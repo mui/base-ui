@@ -117,7 +117,12 @@ type SliderRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** The index of the active thumb at the time of the change. */
   activeThumbIndex: number;
@@ -396,7 +401,7 @@ Renders a `<div>` element and a nested `<input type="range">`.
 | :--------------- | :--------------------------- | :--------------------------------------------------------------------------- |
 | data-dragging    | -                            | Present while the user is dragging.                                          |
 | data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the slider.                                     |
-| data-disabled    | -                            | Present when the slider is disabled.                                         |
+| data-disabled    | -                            | Present when the thumb or the slider is disabled.                            |
 | data-valid       | -                            | Present when the slider is in a valid state (when wrapped in Field.Root).    |
 | data-invalid     | -                            | Present when the slider is in an invalid state (when wrapped in Field.Root). |
 | data-dirty       | -                            | Present when the slider's value has changed (when wrapped in Field.Root).    |
@@ -691,7 +696,7 @@ declare namespace SliderThumbDataAttributes {
    * @type 'horizontal' | 'vertical'
    */
   const orientation: 'data-orientation';
-  /** Present when the slider is disabled. */
+  /** Present when the thumb or the slider is disabled. */
   const disabled: 'data-disabled';
   /** Present when the slider is in a valid state (when wrapped in Field.Root). */
   const valid: 'data-valid';
