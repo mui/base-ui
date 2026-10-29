@@ -4,7 +4,13 @@ import { Select } from '@base-ui/react/select';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM, popupFocusPropsTests } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  popupFocusPropsTests,
+  wait,
+} from '#test-utils';
 
 describe('<Select.Popup />', () => {
   const { render } = createRenderer();
@@ -1843,6 +1849,46 @@ describe('<Select.Popup />', () => {
       expect(screen.getByTestId('trigger')).toHaveTextContent('a');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
       expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('is absent when a mouse press on an item closes the popup', async () => {
+      const { user } = await render(<TestSelect />);
+
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+
+      await user.click(screen.getByRole('option', { name: 'a' }));
+
+      expect(screen.getByTestId('trigger')).toHaveTextContent('a');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+    });
+
+    it('is absent when a drag from the trigger releases on an item', async () => {
+      await render(<TestSelect />);
+
+      fireEvent.mouseDown(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+
+      const option = screen.getByRole('option', { name: 'a' });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      for (let i = 0; i < 4; i += 1) {
+        fireEvent.pointerMove(option, { pointerType: 'mouse', buttons: 1, movementY: 2 });
+      }
+      await act(async () => {
+        await wait(100);
+      });
+      fireEvent.mouseUp(option);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).toHaveTextContent('a');
+      });
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
     });
 
     it('is removed when a pointer press opens the popup after a dismissal', async () => {

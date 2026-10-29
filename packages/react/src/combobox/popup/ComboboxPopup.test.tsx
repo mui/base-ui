@@ -257,6 +257,19 @@ describe('<Combobox.Popup />', () => {
       expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
     });
 
+    it('is absent when a mouse press on an item closes the popup', async () => {
+      const { user } = await render(<TestCombobox />);
+
+      await user.click(screen.getByTestId('input'));
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      expect(screen.getByTestId('input')).toHaveValue('Apple');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+    });
+
     it('is removed when a pointer press opens the popup after a dismissal', async () => {
       const { user } = await render(<TestCombobox />);
 
