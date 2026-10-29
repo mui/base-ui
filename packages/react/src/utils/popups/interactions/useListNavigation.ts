@@ -225,11 +225,10 @@ export interface UseListNavigationProps {
    */
   grid?: typeof gridNavigation | null | undefined;
   /**
-   * Whether Shift+Tab closes the open list.
-   * Root context menus leave this off so Shift+Tab stays inside the menu.
-   * @default true
+   * Whether Tab closes the open list the same way Shift+Tab does.
+   * @default false
    */
-  closeOnShiftTab?: boolean | undefined;
+  closeOnTab?: boolean | undefined;
 }
 
 /**
@@ -264,7 +263,7 @@ export function useListNavigation(
     externalTree,
     nestedReturnFocusRef,
     grid: navigateGrid,
-    closeOnShiftTab = true,
+    closeOnTab = false,
   } = props;
 
   const isGrid = navigateGrid != null;
@@ -769,8 +768,8 @@ export function useListNavigation(
     return {
       ...(!typeableComboboxReference ? ariaActiveDescendantProp : {}),
       onKeyDown(event: React.KeyboardEvent) {
-        // Close on Shift+Tab. A root context menu opts out so Shift+Tab stays inside.
-        if (event.key === 'Tab' && event.shiftKey && open && !virtual && closeOnShiftTab) {
+        // Close on Shift+Tab, and on Tab when `closeOnTab` is set.
+        if (event.key === 'Tab' && (event.shiftKey || closeOnTab) && open && !virtual) {
           // If the event originated from within a nested element (e.g., a Dialog opened from
           // within the menu), don't close the menu. The nested element has its own focus
           // management and should handle the Tab key.
@@ -810,7 +809,7 @@ export function useListNavigation(
     virtual,
     anchorElement,
     nestedReturnFocusRef,
-    closeOnShiftTab,
+    closeOnTab,
   ]);
 
   const trigger: ElementProps['trigger'] = React.useMemo(() => {
