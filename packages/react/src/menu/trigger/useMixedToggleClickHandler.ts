@@ -51,7 +51,7 @@ export function useMixedToggleClickHandler(params: UseMixedToggleClickHandlerPar
   }, [enabled, mouseDownAction, open]);
 }
 
-type MouseDownAction = 'open' | 'close';
+type MouseDownAction = 'open' | 'close' | 'none';
 
 export interface UseMixedToggleClickHandlerParameters {
   /**
