@@ -6,7 +6,7 @@ import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import {
@@ -35,7 +35,7 @@ import { useMixedToggleClickHandler } from './useMixedToggleClickHandler';
 import type { MenuHandle } from '../store/MenuHandle';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import type { MenuParent } from '../root/MenuRoot';
-import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+import { BASE_UI_SWIPE_IGNORE_SELECTOR, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { mergeProps } from '../../merge-props';
 
@@ -193,9 +193,19 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
+  const getClickType = useStableCallback(() => {
+    return (isOpenedByThisTrigger && isInMenubar) || shouldIgnoreDrag(triggerRef.current)
+      ? 'click'
+      : 'mousedown';
+  });
+
+  const getMouseDownAction = useStableCallback(() => {
+    return getClickType() === 'mousedown' ? 'open' : 'none';
+  });
+
   const click = useClick(store, {
     enabled: !disabled,
-    event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
+    event: getClickType,
     toggle: true,
     ignoreMouse: false,
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
@@ -208,7 +218,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const mixedToggleHandlers = useMixedToggleClickHandler({
     open: isOpenedByThisTrigger,
     enabled: isInMenubar,
-    mouseDownAction: 'open',
+    mouseDownAction: getMouseDownAction,
   });
 
   const localInteractionProps = React.useMemo(
@@ -240,7 +250,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       'aria-controls': controlsId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
-        if (store.select('open')) {
+        if (store.select('open') || shouldIgnoreDrag(triggerRef.current)) {
           return;
         }
 
@@ -407,4 +417,12 @@ function useMenuParent() {
   }, [menubarContext]);
 
   return parent;
+}
+
+function shouldIgnoreDrag(trigger: HTMLElement | null) {
+  if (trigger === null || trigger.matches(BASE_UI_SWIPE_IGNORE_SELECTOR)) {
+    return true;
+  }
+
+  return closest(trigger, '[draggable="true"]') !== null;
 }
