@@ -4807,6 +4807,47 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       }
     });
 
+    it.skipIf(isJSDOM).each([
+      { name: 'adds no scroll slack for a sub-pixel overlap', bottom: 500.4, expected: '' },
+      { name: 'adds scroll slack for an overlap above a pixel', bottom: 502, expected: '18px' },
+    ])('$name', async ({ bottom, expected }) => {
+      platformMock.android = true;
+      const innerHeight = mockResizableInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        const { scroll, input } = await renderAlignmentDrawer(430);
+        scroll.getBoundingClientRect = () =>
+          ({
+            top: bottom - 420,
+            bottom,
+            height: 420,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: bottom - 420,
+            toJSON: () => {},
+          }) as DOMRect;
+        expect(scroll.style.paddingBottom).toBe('');
+
+        await act(async () => {
+          input.focus({ preventScroll: true });
+          innerHeight.resize(500);
+          visualViewport.resize(500);
+        });
+        await act(async () => {
+          await flushAnimationFrames(10);
+        });
+
+        expect(scroll.style.paddingBottom).toBe(expected);
+      } finally {
+        platformMock.android = false;
+        visualViewport.restore();
+        innerHeight.restore();
+      }
+    });
+
     it.skipIf(isJSDOM)('does not treat a rotation as the keyboard on Android', async () => {
       platformMock.android = true;
       const innerHeight = mockResizableInnerHeight(800);

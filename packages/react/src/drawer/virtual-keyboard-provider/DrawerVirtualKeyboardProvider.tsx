@@ -354,8 +354,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       const scrollTargetRect = scrollTarget.getBoundingClientRect();
       const clippedBottom = Math.min(scrollTargetRect.bottom, keyboardViewport.bottom);
-      const overlap = Math.max(0, scrollTargetRect.bottom - keyboardViewport.bottom);
-      setKeyboardScrollSlack(scrollTarget, overlap);
+      // A sub-pixel overlap is rounding, not the keyboard covering anything.
+      const overlap = scrollTargetRect.bottom - keyboardViewport.bottom;
+      setKeyboardScrollSlack(scrollTarget, overlap > 1 ? overlap : 0);
 
       const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
       if (maxScrollTop <= 0) {
