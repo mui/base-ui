@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import type { UserEvent } from '@testing-library/user-event';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM } from '#test-utils';
@@ -443,6 +443,61 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
               await waitForPopupClosed();
             }
             expectActiveTrigger(null);
+          });
+
+          it('keeps the trigger a controlled `triggerId` moved the popup to while it closes', async () => {
+            const handle = getHandle();
+            let moveToTrigger2 = () => {};
+
+            function Controlled() {
+              const [open, setOpen] = React.useState(false);
+              const [triggerId, setTriggerId] = React.useState<string | null>(null);
+              moveToTrigger2 = () => setTriggerId('trigger-2');
+
+              return (
+                <div style={{ margin: 50 }}>
+                  <Fixture
+                    mode={mode}
+                    handle={handle}
+                    rootProps={{
+                      open,
+                      triggerId,
+                      onOpenChange: (
+                        nextOpen: boolean,
+                        details: { preventUnmountOnClose: () => void },
+                      ) => {
+                        if (!nextOpen) {
+                          // Keeps the closed popup mounted, so its content and position can be checked.
+                          details.preventUnmountOnClose();
+                          setTriggerId(null);
+                        }
+                        setOpen(nextOpen);
+                      },
+                    }}
+                    positionerProps={{ side: 'bottom', align: 'start' }}
+                  />
+                </div>
+              );
+            }
+
+            const { user } = await render(<Controlled />);
+
+            await openWith(primaryInteraction, user, getTrigger(1));
+            await waitForContent('1');
+            await act(async () => {
+              moveToTrigger2();
+            });
+            await waitForContent('2');
+            expectActiveTrigger(2);
+
+            await user.keyboard('[Escape]');
+            await waitFor(() => {
+              expect(getTrigger(2)).not.toHaveAttribute('data-popup-open');
+            });
+            await flushMicrotasks();
+
+            expect(screen.getByTestId('content').textContent).toBe('2');
+            await expectPositionerAlignedWith(getTrigger(2));
           });
 
           if (Viewport) {
