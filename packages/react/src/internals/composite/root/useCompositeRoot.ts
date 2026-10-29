@@ -4,6 +4,8 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import type { TextDirection } from '../../direction-context/DirectionContext';
@@ -98,6 +100,17 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const highlightedElementRef = React.useRef<HTMLElement | null>(null);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
+  const highlightedIndexRef = useValueAsRef(highlightedIndex);
+  // Runs `fn` in the next frame while the composite is still mounted. Not canceled on unmount:
+  // StrictMode re-runs effects without a new map change, so a canceled read would never run.
+  const requestFrameRead = (fn: () => void) => {
+    AnimationFrame.request(() => {
+      if (rootRef.current?.isConnected) {
+        fn();
+      }
+    });
+  };
+
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
     highlightedElementRef.current = elementsRef.current[index] ?? null;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
@@ -123,10 +136,28 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         // eligible item so a missing, hidden, or disabled replacement does not take the
         // composite out of the tab order.
         const replacement = elements[highlightedIndex];
-        if (!replacement || isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+        if (
+          !replacement ||
+          isListIndexDisabled(elements, highlightedIndex, disabledIndices, false)
+        ) {
           onHighlightedIndexChange(getFallbackIndex(elements, disabledIndices));
         } else {
           highlightedElementRef.current = replacement;
+          // Whether the replacement is hidden depends on computed styles. Reading them here would
+          // force a style recalculation in the commit that mounted it, so wait for the next frame.
+          requestFrameRead(() => {
+            const currentElements = elementsRef.current;
+            if (
+              highlightedElementRef.current === replacement &&
+              isListIndexDisabled(
+                currentElements,
+                currentElements.indexOf(replacement),
+                disabledIndices,
+              )
+            ) {
+              onHighlightedIndexChange(getFallbackIndex(currentElements, disabledIndices));
+            }
+          });
         }
       } else if (nextIndex !== highlightedIndex) {
         onHighlightedIndexChange(nextIndex);
@@ -146,21 +177,36 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     // and automatic indexes and leaves gaps.
     const activeIndex = activeItem ? (map.get(activeItem)?.index ?? -1) : -1;
 
-    if (activeIndex !== -1) {
-      onHighlightedIndexChange(activeIndex);
-    } else if (isListIndexDisabled(sortedElements, highlightedIndex, disabledIndices)) {
-      // The default highlighted item is disabled, so it should not hold the single
-      // roving tab stop: a natively disabled element is removed from the tab order,
-      // and an aria-disabled one should not be the entry point. Move the tab stop
-      // to the first enabled item. If every item is disabled, keep the current
-      // highlighted index.
+    // The default highlighted item may be disabled, so it should not hold the single
+    // roving tab stop: a natively disabled element is removed from the tab order,
+    // and an aria-disabled one should not be the entry point. Move the tab stop
+    // to the first enabled item. If every item is disabled, keep the current
+    // highlighted index.
+    const moveOffDisabledDefault = (index: number, checkVisibility: boolean) => {
+      if (!isListIndexDisabled(sortedElements, index, disabledIndices, checkVisibility)) {
+        return;
+      }
       const firstEnabledIndex = findNonDisabledListIndex(sortedElements, { disabledIndices });
       if (!isIndexOutOfListBounds(sortedElements, firstEnabledIndex)) {
         onHighlightedIndexChange(firstEnabledIndex);
       }
+    };
+
+    if (activeIndex !== -1) {
+      onHighlightedIndexChange(activeIndex);
+    } else {
+      moveOffDisabledDefault(highlightedIndex, false);
     }
 
-    scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
+    // Detecting a hidden default item and scrolling the active item into view read styles and
+    // layout. Reading them here would force the browser to recalculate both in the commit that
+    // mounted the composite, so wait for the next frame, which computes them anyway.
+    requestFrameRead(() => {
+      if (activeIndex === -1) {
+        moveOffDisabledDefault(highlightedIndexRef.current, true);
+      }
+      scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
+    });
   });
 
   useIsoLayoutEffect(() => {
