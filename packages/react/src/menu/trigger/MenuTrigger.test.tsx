@@ -10,7 +10,7 @@ import {
 } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { Menubar } from '@base-ui/react/menubar';
 import { BASE_UI_SWIPE_IGNORE_ATTRIBUTE, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
@@ -234,6 +234,7 @@ describe('<Menu.Trigger />', () => {
       const trigger = screen.getByRole('button', { name: 'Open' });
 
       await user.pointer({ keys: '[MouseLeft>]', target: trigger });
+      await act(waitSingleFrame);
 
       expect(trigger).toHaveAttribute('aria-expanded', String(opensOnMouseDown));
 
@@ -271,6 +272,7 @@ describe('<Menu.Trigger />', () => {
       const trigger = screen.getByRole('menuitem', { name: 'Open' });
 
       await user.pointer({ keys: '[MouseLeft>]', target: trigger });
+      await act(waitSingleFrame);
 
       expect(trigger).toHaveAttribute('aria-expanded', String(opensOnMouseDown));
 
