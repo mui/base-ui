@@ -18,9 +18,18 @@ export function useMixedToggleClickHandler(params: UseMixedToggleClickHandlerPar
       return EMPTY_OBJECT;
     }
 
+    function resolveMouseDownAction() {
+      return typeof mouseDownAction === 'function' ? mouseDownAction() : mouseDownAction;
+    }
+
     return {
       onMouseDown: (event: React.MouseEvent) => {
-        if ((mouseDownAction === 'open' && !open) || (mouseDownAction === 'close' && open)) {
+        const resolvedMouseDownAction = resolveMouseDownAction();
+
+        if (
+          (resolvedMouseDownAction === 'open' && !open) ||
+          (resolvedMouseDownAction === 'close' && open)
+        ) {
           ignoreClickRef.current = true;
 
           ownerDocument(event.currentTarget as Element).addEventListener(
@@ -42,6 +51,8 @@ export function useMixedToggleClickHandler(params: UseMixedToggleClickHandlerPar
   }, [enabled, mouseDownAction, open]);
 }
 
+type MouseDownAction = 'open' | 'close';
+
 export interface UseMixedToggleClickHandlerParameters {
   /**
    * Whether the mixed toggle click handler is enabled.
@@ -51,7 +62,7 @@ export interface UseMixedToggleClickHandlerParameters {
   /**
    * Determines what action is performed on mousedown.
    */
-  mouseDownAction: 'open' | 'close';
+  mouseDownAction: MouseDownAction | (() => MouseDownAction);
   /**
    * The current open state of the popup.
    */

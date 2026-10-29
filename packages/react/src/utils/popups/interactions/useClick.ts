@@ -10,6 +10,8 @@ import { isMouseLikePointerType, isVirtualPointerEvent } from '../event';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 
+type ClickType = 'click' | 'mousedown' | 'mousedown-only';
+
 export interface UseClickProps {
   /**
    * Whether the Hook is enabled, including all internal Effects and event
@@ -19,10 +21,10 @@ export interface UseClickProps {
   enabled?: boolean | undefined;
   /**
    * The type of event to use to determine a “click” with mouse input.
-   * Keyboard clicks work as normal.
+   * Keyboard clicks work as normal. A getter is read when the press is handled.
    * @default 'click'
    */
-  event?: 'click' | 'mousedown' | 'mousedown-only' | undefined;
+  event?: ClickType | (() => ClickType) | undefined;
   /**
    * Whether to toggle the open state with repeated clicks.
    * @default true
@@ -75,6 +77,10 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
   const touchOpenTimeout = useTimeout();
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
+    function resolveEventOption() {
+      return typeof eventOption === 'function' ? eventOption() : eventOption;
+    }
+
     function setOpenWithTouchDelay(
       nextOpen: boolean,
       nativeEvent: MouseEvent,
@@ -140,12 +146,13 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
         const pointerType = pointerTypeRef.current;
         const nativeEvent = event.nativeEvent;
         const open = store.select('open');
+        const resolvedEventOption = resolveEventOption();
 
         // Ignore all buttons except for the "main" button.
         // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
         if (
           event.button !== 0 ||
-          eventOption === 'click' ||
+          resolvedEventOption === 'click' ||
           (isMouseLikePointerType(pointerType, true) && ignoreMouse)
         ) {
           return;
@@ -190,13 +197,15 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
         });
       },
       onClick(event) {
-        if (eventOption === 'mousedown-only') {
+        const resolvedEventOption = resolveEventOption();
+
+        if (resolvedEventOption === 'mousedown-only') {
           return;
         }
 
         const pointerType = pointerTypeRef.current;
 
-        if (eventOption === 'mousedown' && pointerType) {
+        if (resolvedEventOption === 'mousedown' && pointerType) {
           pointerTypeRef.current = undefined;
           return;
         }
