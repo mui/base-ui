@@ -61,6 +61,7 @@ export interface UseMixedToggleClickHandlerParameters {
   enabled?: boolean | undefined;
   /**
    * Determines what action is performed on mousedown.
+   * A getter is read when the press is handled.
    */
   mouseDownAction: MouseDownAction | (() => MouseDownAction);
   /**
