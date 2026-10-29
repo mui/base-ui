@@ -16,8 +16,6 @@ import { firePointer, isJSDOM, waitSingleFrame } from '#test-utils';
 export function filterablePopupConformanceTests(config: FilterablePopupConformanceTestsConfig) {
   const { render, createComponent, itemRole } = config;
   const listRole = itemRole === 'option' ? 'listbox' : 'menu';
-  // A select's input is a combobox controlling its listbox, like a combobox's input in its popup.
-  const inputRole = itemRole === 'option' ? 'combobox' : 'searchbox';
 
   function ControlledTest(props: FilterablePopupTestProps & { open: boolean | undefined }) {
     const { open: openProp, ...otherProps } = props;
@@ -48,7 +46,7 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
   }
 
   async function findFocusedInput() {
-    const input = await screen.findByRole(inputRole, { name: 'Filter' });
+    const input = await screen.findByRole('searchbox', { name: 'Filter' });
     await waitFor(() => {
       expect(input).toHaveFocus();
     });
@@ -71,7 +69,7 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
 
           openWithPointer(trigger, { pointerType });
 
-          const input = await screen.findByRole(inputRole, { name: 'Filter' });
+          const input = await screen.findByRole('searchbox', { name: 'Filter' });
           await act(() => waitSingleFrame());
           await waitFor(() => {
             expect(input.matches(':focus')).toBe(focuses);
@@ -94,7 +92,7 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
           pressure: 0,
         });
 
-        const input = await screen.findByRole(inputRole, { name: 'Filter' });
+        const input = await screen.findByRole('searchbox', { name: 'Filter' });
         await waitFor(() => {
           expect(input).toHaveFocus();
         });
@@ -142,11 +140,11 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
 
       await setProps({ open: false });
       await waitFor(() => {
-        expect(screen.queryByRole(inputRole, { name: 'Filter' })).toBe(null);
+        expect(screen.queryByRole('searchbox', { name: 'Filter' })).toBe(null);
       });
       await setProps({ open: true });
 
-      const reopenedInput = await screen.findByRole(inputRole, { name: 'Filter' });
+      const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter' });
       await act(() => waitSingleFrame());
       expect(reopenedInput).not.toHaveAttribute('aria-activedescendant');
     });

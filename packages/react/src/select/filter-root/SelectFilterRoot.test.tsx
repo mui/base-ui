@@ -91,26 +91,24 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
   });
 
   describe('semantics', () => {
-    it('renders a combobox trigger that opens a dialog with a combobox input and a listbox', async () => {
+    it('renders a dialog with a searchbox and a listbox, and no combobox', async () => {
       await render(<Test root={{ defaultOpen: true }} />);
 
       const trigger = screen.getByTestId('trigger');
       const popup = screen.getByTestId('popup');
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       const list = screen.getByRole('listbox', { name: 'Country' });
 
       expect(trigger.tagName).toBe('BUTTON');
-      expect(trigger).toHaveAttribute('role', 'combobox');
+      expect(trigger).not.toHaveAttribute('role');
       expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
       expect(trigger).toHaveAttribute('aria-controls', popup.id);
       expect(popup).toHaveAttribute('role', 'dialog');
       expect(popup).toHaveAttribute('aria-labelledby', screen.getByText('Country').id);
       expect(popup).not.toHaveAttribute('aria-activedescendant');
-      expect(input).toHaveAttribute('aria-haspopup', 'listbox');
-      expect(input).toHaveAttribute('aria-expanded', 'true');
-      expect(input).toHaveAttribute('aria-autocomplete', 'list');
       expect(input).toHaveAttribute('aria-controls', list.id);
+      expect(screen.queryByRole('combobox')).toBe(null);
       expect(screen.getAllByRole('option')).toHaveLength(4);
       screen.getAllByRole('option').forEach((option) => {
         expect(option).toHaveAttribute('tabindex', '-1');
@@ -118,19 +116,39 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       });
     });
 
-    // The combobox role exposes the selected value apart from the name, as in a plain select.
-    it('exposes the selected value on the trigger', async () => {
-      await render(<Test root={{ defaultValue: 'jp' }} />);
-      const trigger = screen.getByRole('combobox', { name: 'Country' });
-      expect(trigger).toHaveTextContent('Japan');
+    // A plain button's value isn't exposed apart from its name, unlike the combobox role.
+    it('names the trigger with its label and the selected value', async () => {
+      const { user } = await render(<Test />);
+      expect(screen.getByRole('button', { name: 'Country' })).toBe(screen.getByTestId('trigger'));
+
+      await user.click(screen.getByTestId('trigger'));
+      await user.click(await screen.findByRole('option', { name: 'Japan' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Country Japan' })).toBe(
+          screen.getByTestId('trigger'),
+        );
+      });
     });
 
-    it('keeps required and read-only on the trigger', async () => {
-      await render(<Test root={{ defaultOpen: true, required: true, readOnly: true }} />);
-      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-required', 'true');
-      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-readonly', 'true');
-      expect(screen.getByRole('listbox')).not.toHaveAttribute('aria-required');
-      expect(screen.getByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
+    it('keeps an explicit trigger label', async () => {
+      await render(
+        <Select.FilterProvider>
+          <Select.Root defaultValue="jp" items={countries}>
+            <Select.Trigger data-testid="trigger" aria-label="Destination">
+              <Select.Value />
+            </Select.Trigger>
+          </Select.Root>
+        </Select.FilterProvider>,
+      );
+
+      expect(screen.getByTestId('trigger')).toHaveAccessibleName('Destination');
+    });
+
+    it('moves required to the listbox, which can carry it', async () => {
+      await render(<Test root={{ defaultOpen: true, required: true }} />);
+      expect(screen.getByTestId('trigger')).not.toHaveAttribute('aria-required');
+      expect(screen.getByRole('listbox')).toHaveAttribute('aria-required', 'true');
     });
 
     it('marks the list multiselectable in multiple mode', async () => {
@@ -160,7 +178,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(screen.queryByTestId('popup')).toBe(null);
 
       await user.keyboard('[ArrowDown]');
-      expect(await screen.findByRole('combobox', { name: 'Filter countries' })).not.toBe(null);
+      expect(await screen.findByRole('searchbox', { name: 'Filter countries' })).not.toBe(null);
     });
 
     it('leaves a plain select untouched', async () => {
@@ -218,7 +236,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       );
       expect(screen.getByRole('option', { name: 'France' })).not.toBe(null);
 
-      fireEvent.change(screen.getByRole('combobox', { name: 'Filter countries' }), {
+      fireEvent.change(screen.getByRole('searchbox', { name: 'Filter countries' }), {
         target: { value: 'zz' },
       });
       expect(screen.queryByRole('option', { name: 'France' })).toBe(null);
@@ -231,7 +249,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
   describe('filtering', () => {
     it('filters the options and shows the empty state', async () => {
       const { user } = await render(<Test root={{ defaultOpen: true }} />);
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -278,7 +296,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         </Select.FilterProvider>,
       );
 
-      const input = screen.getByRole('combobox', { name: 'Filter' });
+      const input = screen.getByRole('searchbox', { name: 'Filter' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -316,7 +334,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         </Select.FilterProvider>,
       );
 
-      const input = screen.getByRole('combobox', { name: 'Filter' });
+      const input = screen.getByRole('searchbox', { name: 'Filter' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -332,7 +350,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
           provider={{ filter: (text, query) => text.toLowerCase().startsWith(query) }}
         />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -349,7 +367,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(
         <Test root={{ defaultOpen: true, defaultValue: 'fr', onValueChange }} />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -380,7 +398,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
           }}
         />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -409,7 +427,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         </Dialog.Root>,
       );
       await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -418,7 +436,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await user.keyboard('[Escape]');
 
       await waitFor(() => {
-        expect(screen.queryByRole('combobox', { name: 'Filter countries' })).toBe(null);
+        expect(screen.queryByRole('searchbox', { name: 'Filter countries' })).toBe(null);
       });
       expect(screen.getByTestId('dialog')).toBeInTheDocument();
       expect(screen.getByTestId('trigger')).toHaveFocus();
@@ -437,7 +455,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
         const trigger = screen.getByTestId('trigger');
         await user.click(trigger);
-        const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+        const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
         await waitFor(() => {
           expect(input).toHaveFocus();
         });
@@ -473,7 +491,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
         const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
         await user.click(screen.getByTestId('trigger'));
-        const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+        const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
         await waitFor(() => {
           expect(input).toHaveFocus();
         });
@@ -507,7 +525,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(
         <Test root={{ defaultOpen: true, multiple: true }} provider={provider} />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -548,7 +566,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
     it('keeps the toggled item highlighted after the query clears', async () => {
       const { user } = await render(<Test root={{ defaultOpen: true, multiple: true }} />);
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -573,7 +591,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
     it('does not restore the toggled item when the query clears again', async () => {
       const { user } = await render(<Test root={{ defaultOpen: true, multiple: true }} />);
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -601,7 +619,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(
         <Test root={{ defaultOpen: true, multiple: true, defaultValue: ['de'] }} />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -631,7 +649,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await act(async () => screen.getByTestId('trigger').focus());
       await user.keyboard(`[${key}]`);
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -647,7 +665,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await act(async () => trigger.focus());
       await user.keyboard('[Enter]');
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -663,7 +681,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await act(async () => screen.getByTestId('trigger').focus());
       await user.keyboard('[ArrowDown]');
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -685,7 +703,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
       await user.click(screen.getByTestId('trigger'));
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -742,7 +760,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     it('navigates from the first visible option after typing when a value is selected', async () => {
       const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
       await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -775,7 +793,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await act(async () => screen.getByTestId('trigger').focus());
       await user.keyboard('[Enter]');
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -798,7 +816,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await act(async () => trigger.focus());
       await user.keyboard('[Enter]');
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -820,7 +838,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(<Test />);
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -840,7 +858,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(
         <Test root={{ defaultOpen: true }} provider={{ autoHighlight: true }} />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -865,7 +883,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(
         <Test root={{ defaultOpen: true, onItemHighlighted }} provider={{ autoHighlight: true }} />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -880,7 +898,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(
         <Test root={{ defaultOpen: true, onItemHighlighted }} provider={{ autoHighlight: true }} />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -902,7 +920,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(
         <Test root={{ defaultOpen: true }} provider={{ autoHighlight: 'always' }} />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveAttribute(
           'aria-activedescendant',
@@ -985,7 +1003,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     async function openWithKeyboard(user: Awaited<ReturnType<typeof render>>['user']) {
       await act(async () => screen.getByTestId('trigger').focus());
       await user.keyboard('[Enter]');
-      const input = await screen.findByRole('combobox', { name: 'Filter items' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -995,7 +1013,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     it('filters the root items and renders the matches from useFilteredItems', async () => {
       const { user } = await render(<Virtualized />);
       await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('combobox', { name: 'Filter items' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1124,7 +1142,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(<Virtualized root={{ defaultValue: 'v50' }} />);
       await user.click(screen.getByTestId('trigger'));
 
-      const input = await screen.findByRole('combobox', { name: 'Filter items' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'Item 50' })).toHaveAttribute('data-highlighted');
       });
@@ -1281,7 +1299,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     it('keeps the toggled item highlighted after a multiple select clears the query', async () => {
       const { user } = await render(<Virtualized root={{ multiple: true }} />);
       await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('combobox', { name: 'Filter items' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1311,7 +1329,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         <Virtualized root={{ onItemHighlighted }} provider={{ autoHighlight: true }} />,
       );
       await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('combobox', { name: 'Filter items' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1341,7 +1359,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       ];
       const { user } = await render(<Virtualized root={{ items, multiple: true }} />);
       await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('combobox', { name: 'Filter items' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1388,7 +1406,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(<Test root={{ readOnly: true, onValueChange }} />);
       await act(async () => screen.getByTestId('trigger').focus());
       await user.keyboard('[Enter]');
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1407,7 +1425,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await render(
         <Test root={{ defaultOpen: true, disabled: true }} provider={{ defaultValue: 'a' }} />,
       );
-      expect(screen.getByRole('combobox', { name: 'Filter countries' })).toBeDisabled();
+      expect(screen.getByRole('searchbox', { name: 'Filter countries' })).toBeDisabled();
       expect(screen.getByLabelText('Clear filter')).toBeDisabled();
     });
   });
@@ -1426,7 +1444,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await act(async () => screen.getByTestId('trigger').focus());
       await user.keyboard('[Enter]');
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1443,7 +1461,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     it('closes and returns focus to the trigger on Shift+Tab from the input', async () => {
       const { user } = await render(<Test root={{ defaultOpen: true }} />);
 
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1470,7 +1488,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
           }}
         />,
       );
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1483,7 +1501,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     it('keeps focus on the input after drag-to-select', async () => {
       await render(<Test root={{ multiple: true, highlightItemOnHover: false }} />);
       fireEvent.mouseDown(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1505,7 +1523,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
     it('keeps focus on the input when an option is pressed in multiple mode', async () => {
       const { user } = await render(<Test root={{ defaultOpen: true, multiple: true }} />);
-      const input = screen.getByRole('combobox', { name: 'Filter countries' });
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1516,6 +1534,55 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         'true',
       );
       expect(input).toHaveFocus();
+    });
+  });
+
+  describe('typing on the closed trigger', () => {
+    it('opens the select with the typed character as the query', async () => {
+      const { user } = await render(<Test />);
+      const trigger = screen.getByTestId('trigger');
+      await act(() => trigger.focus());
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      await user.keyboard('j');
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      expect(input).toHaveValue('j');
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Japan']);
+    });
+
+    it.skipIf(isJSDOM)('replaces the previous query when typed during the exit', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const style = document.createElement('style');
+      style.textContent =
+        '@keyframes select-filter-exit{to{opacity:0}}[role="dialog"][data-ending-style]{animation:select-filter-exit 10s linear}';
+      document.head.appendChild(style);
+      onTestFinished(() => style.remove());
+
+      const { user } = await render(<Test />);
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('fr');
+
+      // Shift+Tab closes the select and focuses the trigger while the popup animates out.
+      await user.keyboard('{Shift>}{Tab}{/Shift}');
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+      });
+      expect(screen.getByTestId('trigger')).toHaveFocus();
+      await user.keyboard('j');
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-open');
+      });
+      expect(input).toHaveValue('j');
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Japan']);
     });
   });
 
@@ -1552,7 +1619,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
         const { user } = await render(<ExternalFilter />);
         await user.click(screen.getByTestId('trigger'));
-        const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+        const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
         await waitFor(() => {
           expect(input).toHaveFocus();
         });
@@ -1585,7 +1652,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1601,7 +1668,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(onQueryChange.mock.calls[0][1].reason).toBe('popup-close');
 
       await user.click(trigger);
-      const reopenedInput = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter countries' });
       expect(reopenedInput).toHaveValue('');
       expect(screen.getAllByRole('option')).toHaveLength(4);
     });
@@ -1626,7 +1693,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const { user } = await render(<Controlled />);
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
-      await screen.findByRole('combobox', { name: 'Filter countries' });
+      await screen.findByRole('searchbox', { name: 'Filter countries' });
       expect(screen.getAllByRole('option')).toHaveLength(1);
 
       await user.keyboard('[Escape]');
@@ -1635,7 +1702,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       });
 
       await user.click(trigger);
-      const reopenedInput = await screen.findByRole('combobox', { name: 'Filter countries' });
+      const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter countries' });
       expect(reopenedInput).toHaveValue('jap');
       expect(screen.getAllByRole('option')).toHaveLength(1);
     });
@@ -1680,7 +1747,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const hiddenInput = screen.getByRole('textbox', { hidden: true });
       expect(hiddenInput).toHaveValue('CA');
 
-      const input = screen.getByRole('combobox', { name: 'Filter' });
+      const input = screen.getByRole('searchbox', { name: 'Filter' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -1752,7 +1819,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         </Select.FilterProvider>,
       );
 
-      const input = screen.getByRole('combobox', { name: 'Filter' });
+      const input = screen.getByRole('searchbox', { name: 'Filter' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
