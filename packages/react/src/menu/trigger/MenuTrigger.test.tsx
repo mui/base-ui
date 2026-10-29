@@ -11,7 +11,7 @@ import {
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+import { BASE_UI_SWIPE_IGNORE_ATTRIBUTE, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
   const { render } = createRenderer();
@@ -185,6 +185,61 @@ describe('<Menu.Trigger />', () => {
     } finally {
       host.remove();
     }
+  });
+
+  describe('with draggable or swipe-ignoring elements', () => {
+    it.each([
+      {
+        name: 'opens on click when inside a draggable element',
+        containerProp: { draggable: true },
+        opensOnMouseDown: false,
+      },
+      {
+        name: 'opens on click when the trigger is draggable',
+        triggerProps: { draggable: true },
+        opensOnMouseDown: false,
+      },
+      {
+        name: 'opens on mousedown when the trigger is not draggable',
+        triggerProps: { draggable: false },
+        opensOnMouseDown: true,
+      },
+      {
+        name: 'opens on mousedown when inside an element that ignores swipes',
+        containerProp: { [BASE_UI_SWIPE_IGNORE_ATTRIBUTE]: '' },
+        opensOnMouseDown: true,
+      },
+      {
+        name: 'opens on click when the trigger ignores swipes',
+        triggerProps: { [BASE_UI_SWIPE_IGNORE_ATTRIBUTE]: '' },
+        opensOnMouseDown: false,
+      },
+    ])('$name', async ({ containerProp, triggerProps, opensOnMouseDown }) => {
+      const { user } = await render(
+        <div {...containerProp}>
+          <Menu.Root>
+            <Menu.Trigger {...triggerProps}>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>One</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await user.pointer({ keys: '[MouseLeft>]', target: trigger });
+
+      expect(trigger).toHaveAttribute('aria-expanded', String(opensOnMouseDown));
+
+      await user.pointer({ keys: '[/MouseLeft]', target: trigger });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
   });
 
   describe('keyboard navigation', () => {
