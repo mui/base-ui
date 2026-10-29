@@ -158,6 +158,28 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     };
   }
 
+  function mockResizableInnerHeight(initialHeight: number) {
+    const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'innerHeight');
+    let innerHeight = initialHeight;
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      get: () => innerHeight,
+    });
+
+    return {
+      resize(nextHeight: number) {
+        innerHeight = nextHeight;
+        window.dispatchEvent(new Event('resize'));
+      },
+      restore() {
+        if (originalDescriptor) {
+          Object.defineProperty(window, 'innerHeight', originalDescriptor);
+        }
+      },
+    };
+  }
+
   async function flushAnimationFrames(count: number) {
     for (let i = 0; i < count; i += 1) {
       // eslint-disable-next-line no-await-in-loop
@@ -4177,28 +4199,6 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   });
 
   describe('layout viewport resized for the keyboard (Chrome on iOS)', () => {
-    function mockResizableInnerHeight(initialHeight: number) {
-      const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'innerHeight');
-      let innerHeight = initialHeight;
-
-      Object.defineProperty(window, 'innerHeight', {
-        configurable: true,
-        get: () => innerHeight,
-      });
-
-      return {
-        resize(nextHeight: number) {
-          innerHeight = nextHeight;
-          window.dispatchEvent(new Event('resize'));
-        },
-        restore() {
-          if (originalDescriptor) {
-            Object.defineProperty(window, 'innerHeight', originalDescriptor);
-          }
-        },
-      };
-    }
-
     function renderKeyboardDrawer() {
       return render(
         <Drawer.Root open modal={false}>
@@ -4758,6 +4758,128 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         platformMock.android = false;
         visualViewport.restore();
         restoreInnerHeight();
+      }
+    });
+
+    it.skipIf(isJSDOM).each([
+      {
+        name: 'reveals a covered field when the keyboard shrinks the layout viewport on Android',
+        android: true,
+        expected: [206],
+      },
+      {
+        name: 'does not treat a shrinking layout viewport as the keyboard elsewhere',
+        android: false,
+        expected: [],
+      },
+    ])('$name', async ({ android, expected }) => {
+      platformMock.android = android;
+      const innerHeight = mockResizableInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        const { scroll, input } = await renderAlignmentDrawer(650);
+        const scrollToSpy = vi.fn((options?: ScrollToOptions | number) => {
+          if (typeof options === 'object' && options !== null && options.top !== undefined) {
+            scroll.scrollTop = options.top;
+          }
+        });
+        scroll.scrollTo = scrollToSpy as unknown as typeof scroll.scrollTo;
+        expect(scroll.scrollTop).toBe(0);
+
+        await act(async () => {
+          input.focus({ preventScroll: true });
+          // `interactive-widget=resizes-content`: both viewports shrink together.
+          innerHeight.resize(500);
+          visualViewport.resize(500);
+        });
+        await act(async () => {
+          await flushAnimationFrames(10);
+        });
+
+        expect(scrollToSpy.mock.calls.map(([options]) => (options as ScrollToOptions).top)).toEqual(
+          expected,
+        );
+      } finally {
+        platformMock.android = false;
+        visualViewport.restore();
+        innerHeight.restore();
+      }
+    });
+
+    it.skipIf(isJSDOM).each([
+      { name: 'adds no scroll slack for a sub-pixel overlap', bottom: 500.4, expected: '' },
+      { name: 'adds scroll slack for an overlap above a pixel', bottom: 502, expected: '18px' },
+    ])('$name', async ({ bottom, expected }) => {
+      platformMock.android = true;
+      const innerHeight = mockResizableInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        const { scroll, input } = await renderAlignmentDrawer(430);
+        scroll.getBoundingClientRect = () =>
+          ({
+            top: bottom - 420,
+            bottom,
+            height: 420,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: bottom - 420,
+            toJSON: () => {},
+          }) as DOMRect;
+        expect(scroll.style.paddingBottom).toBe('');
+
+        await act(async () => {
+          input.focus({ preventScroll: true });
+          innerHeight.resize(500);
+          visualViewport.resize(500);
+        });
+        await act(async () => {
+          await flushAnimationFrames(10);
+        });
+
+        expect(scroll.style.paddingBottom).toBe(expected);
+      } finally {
+        platformMock.android = false;
+        visualViewport.restore();
+        innerHeight.restore();
+      }
+    });
+
+    it.skipIf(isJSDOM)('does not treat a rotation as the keyboard on Android', async () => {
+      platformMock.android = true;
+      const innerHeight = mockResizableInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      const innerWidthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+
+      try {
+        const { scroll, input } = await renderAlignmentDrawer(650);
+        const scrollToSpy = vi.fn();
+        scroll.scrollTo = scrollToSpy as unknown as typeof scroll.scrollTo;
+
+        await act(async () => {
+          input.focus({ preventScroll: true });
+          Object.defineProperty(window, 'innerWidth', {
+            configurable: true,
+            value: window.innerWidth + 400,
+          });
+          innerHeight.resize(500);
+          visualViewport.resize(500);
+        });
+        await act(async () => {
+          await flushAnimationFrames(10);
+        });
+
+        expect(scrollToSpy).not.toHaveBeenCalled();
+      } finally {
+        platformMock.android = false;
+        if (innerWidthDescriptor) {
+          Object.defineProperty(window, 'innerWidth', innerWidthDescriptor);
+        }
+        visualViewport.restore();
+        innerHeight.restore();
       }
     });
   });
