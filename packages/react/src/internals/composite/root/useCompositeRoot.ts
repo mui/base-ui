@@ -325,9 +325,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const props: HTMLProps = {
     ref: mergedRef,
     onFocus(event) {
-      const element = rootRef.current;
       const target = getTarget(event.nativeEvent);
-      if (!element || target == null || !isNativeInput(target) || isFromOutsideRoot(event)) {
+      if (target == null || !isNativeInput(target) || isFromOutsideRoot(event)) {
         return;
       }
       target.setSelectionRange(0, target.value.length);
