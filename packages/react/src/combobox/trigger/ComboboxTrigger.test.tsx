@@ -1516,8 +1516,9 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
+      const input = await screen.findByTestId('input');
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
+        expect(input).toHaveFocus();
       });
 
       await act(async () => {
