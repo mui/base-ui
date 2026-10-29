@@ -298,7 +298,7 @@ type PopupOpenState = Pick<
 >;
 
 export function createPopupOpenState(
-  state: PopupOpenState & Pick<PopupStoreState<unknown>, 'triggerIdProp'>,
+  state: S,
   open: boolean,
   trigger: Element | undefined,
   preventUnmountOnClose: boolean,
@@ -310,7 +310,7 @@ export function createPopupOpenState(
   const triggerId = trigger?.id ?? null;
   // A controlled `triggerId` can move the popup to another trigger without updating the stored id,
   // so the kept id is the one the popup currently resolves.
-  let activeTriggerId = state.triggerIdProp ?? state.activeTriggerId;
+  let activeTriggerId = activeTriggerIdSelector(state);
   let activeTriggerElement = state.activeTriggerElement;
 
   // A close keeps the active trigger when it names no trigger or names the active one, so exit
