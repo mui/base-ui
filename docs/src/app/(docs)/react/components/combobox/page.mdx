@@ -12,10 +12,10 @@ import { DemoComboboxHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
+- **Combobox is an input with predefined items**: Use Combobox when the input is the form control and its value is restricted to a set of predefined selectable items that are filtered as the user types. To add a search field inside a select's popup instead, use a [filterable Select](/react/components/select#filtering).
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
-- **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. `<Combobox.Label>` labels `<Combobox.Trigger>` and is intended for the [input-inside-popup](#input-inside-popup) pattern, where the trigger is the form control. See the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. See the [forms guide](/react/handbook/forms).
 - **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
 ## Anatomy
@@ -224,11 +224,9 @@ const CHIP_LIMIT = 3;
 
 #### Keeping the filter after selection
 
-In `multiple` mode, selecting an item clears the typed filter and closes the popup when the input is rendered outside it. To let users pick several results from one query, cancel the relevant change request.
+In `multiple` mode, selecting an item clears the typed filter and closes the popup. To let users pick several results from one query, cancel the `item-press` close request in `onOpenChange`.
 
-Which request to cancel depends on the input's placement. When the input is outside the popup, cancel the `item-press` close request in `onOpenChange`. When it is inside, cancel the clear request in `onInputValueChange`, marked with `eventDetails.isItemPress`.
-
-```jsx title="Input outside the popup"
+```jsx title="Keeping the filter after selection"
 <Combobox.Root
   multiple
   onOpenChange={(open, eventDetails) => {
@@ -241,40 +239,11 @@ Which request to cancel depends on the input's placement. When the input is outs
 </Combobox.Root>
 ```
 
-```jsx title="Input inside the popup"
-<Combobox.Root
-  multiple
-  onInputValueChange={(value, eventDetails) => {
-    if (eventDetails.isItemPress) {
-      eventDetails.cancel();
-    }
-  }}
->
-  {/* ... */}
-</Combobox.Root>
-```
-
 The typed filter still resets once the popup closes.
 
 ### Input inside popup
 
-`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
-
-import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
-
-<DemoComboboxInputInsidePopup />
-
-Use `<Combobox.Label>` to provide a visible label for the combobox trigger in this pattern:
-
-```tsx title="Using Combobox.Label to label a combobox"
-<Combobox.Root>
-  {/* @highlight */}
-  <Combobox.Label>Favorite fruit</Combobox.Label>
-  {/* ... */}
-</Combobox.Root>
-```
-
-`<Combobox.Label>` renders a `<div>`, so clicking it focuses the combobox trigger without opening the popup.
+To render the search field inside the popup, use a [filterable Select](/react/components/select#filtering) instead.
 
 ### Grouped
 

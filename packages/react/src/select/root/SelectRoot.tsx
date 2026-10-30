@@ -19,14 +19,22 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { SelectStore, selectors } from '../store';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIHighlightEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { REASONS } from '../../internals/reasons';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
 import {
+  compareItemEquality,
   defaultItemEquality,
   findSelectionIndex,
   isSelectedValueDirty,
@@ -40,15 +48,24 @@ import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
+import { SelectFilterProviderContext } from '../filter-provider/SelectFilterProviderContext';
 
-/**
- * Groups all parts of the select.
- * Doesn't render its own HTML element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRoot.Props<Value, Multiple>,
+/** Set by the filter root, which keeps real focus on its input inside the popup. */
+interface SelectRootInternalProps<
+  Value,
+  Multiple extends boolean | undefined,
+> extends SelectRoot.Props<Value, Multiple> {
+  /**
+   * Whether the select is wrapped in `Select.FilterProvider`. Real focus stays on `Select.Input`
+   * while the list is navigated with `aria-activedescendant`.
+   */
+  filterable?: boolean | undefined;
+  allowEscape?: boolean | undefined;
+  resetOnPointerLeave?: boolean | undefined;
+}
+
+export function SelectRootInternal<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRootInternalProps<Value, Multiple>,
 ): React.JSX.Element {
   const {
     id,
@@ -74,7 +91,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
     highlightItemOnHover = true,
+    onItemHighlighted: onItemHighlightedProp,
     children,
+    filterable = false,
+    allowEscape,
+    resetOnPointerLeave,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -182,12 +203,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           scrollUpArrowVisible: false,
           scrollDownArrowVisible: false,
           hasScrollArrows: false,
+          keyboardOpen: false,
+          navigateFromSelected: false,
+          inputProps: EMPTY_OBJECT,
+          highlightedItem: undefined,
         },
         {
           ...createPopupStoreContext(),
           isItemEqualToValue,
           setValue: NOOP,
           handleScrollArrowVisibility: NOOP,
+          syncHighlight: NOOP,
           listRef,
           popupRef,
           scrollHandlerRef,
@@ -201,6 +227,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           selectedItemTextRef,
           alignItemWithTriggerActiveRef,
           initialValueRef,
+          filterable,
         },
         selectors,
       ),
@@ -210,6 +237,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
+  const keyboardOpen = store.useState('keyboardOpen');
+  const navigateFromSelected = store.useState('navigateFromSelected');
   const triggerElement = store.useState('triggerElement');
 
   const previousOpenMethod = usePreviousValue(openMethod);
@@ -310,18 +339,64 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const dismiss = useDismiss(store);
 
+  const onItemHighlighted = useStableCallback(onItemHighlightedProp);
+  // The navigation event behind the next highlight change, reported as its reason.
+  const highlightEventRef = React.useRef<Event | undefined>(undefined);
+  const reportedHighlightRef = React.useRef<{ index: number | null; value: any }>({
+    index: null,
+    value: undefined,
+  });
+
+  // Filtering can move another item into the highlighted index, so the value is compared too.
+  function syncHighlight() {
+    const index = store.state.activeIndex;
+    const value = index === null ? undefined : valuesRef.current[index];
+    const reported = reportedHighlightRef.current;
+    // A hole is an index whose item hasn't registered its value yet; it syncs once it does.
+    if (
+      (index !== null && value === undefined) ||
+      (index === reported.index && compareItemEquality(value, reported.value, isItemEqualToValue))
+    ) {
+      return;
+    }
+    const event = highlightEventRef.current;
+    highlightEventRef.current = undefined;
+    reportedHighlightRef.current = { index, value };
+    if (onItemHighlightedProp) {
+      onItemHighlighted(
+        value,
+        createGenericEventDetails(getHighlightReason(event), event, { index: index ?? -1 }),
+      );
+    }
+  }
+
+  useIsoLayoutEffect(() => store.context.syncHighlight(), [activeIndex, store]);
+
+  const navigationSelectedIndex = filterable && !navigateFromSelected ? null : selectedIndex;
+
   const listNavigation = useListNavigation(store, {
     enabled: !disabled,
     listRef,
     activeIndex,
-    selectedIndex,
+    selectedIndex: navigationSelectedIndex,
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex) {
+    virtual: filterable,
+    // A filterable select keeps DOM focus on its input. Like an ordinary select, it opens on the
+    // selected option; without one, keyboard opens highlight the first option, or the last with
+    // ArrowUp. The input remains part of the arrow-key loop.
+    focusItemOnOpen: filterable ? keyboardOpen || navigationSelectedIndex !== null : undefined,
+    loopFocus: filterable,
+    allowEscape,
+    resetOnPointerLeave,
+    onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
 
+      if (nextActiveIndex !== store.state.activeIndex) {
+        highlightEventRef.current = event?.nativeEvent;
+      }
       store.set('activeIndex', nextActiveIndex);
     },
     focusItemOnHover: highlightItemOnHover,
@@ -329,8 +404,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const typeahead = useTypeahead(store, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
-    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
-    enabled: !disabled && (open || (!readOnly && !multiple)),
+    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't. In a
+    // filterable select the input owns typing, so typeahead would race the filter query.
+    enabled: !disabled && !filterable && (open || (!readOnly && !multiple)),
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -340,8 +416,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     // hidden, force-mounted items used for closed-trigger typeahead aren't dropped by the
     // `elementsRef`/visibility filter that `disabledIndices` deliberately sidesteps.
     disabledIndices: (index) => isElementDisabled(listRef.current[index]),
-    onMatch(index) {
+    onMatch(index, event) {
       if (open) {
+        if (index !== store.state.activeIndex) {
+          highlightEventRef.current = event.nativeEvent;
+        }
         store.set('activeIndex', index);
       } else {
         setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
@@ -352,12 +431,32 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
+  // In a filterable select the input holds real focus, so it takes the navigation's
+  // reference props (`aria-activedescendant` and the key handling) and the trigger keeps only
+  // the props that open the popup.
+  const openTriggerProps = React.useMemo(() => {
+    if (!filterable) {
+      return listNavigation.reference;
+    }
+    if (!listNavigation.trigger) {
+      return EMPTY_OBJECT;
+    }
+    // Focusing the trigger while the popup is open must not seed the virtual highlight.
+    const { onFocus, ...rest } = listNavigation.trigger;
+    return rest;
+  }, [filterable, listNavigation.reference, listNavigation.trigger]);
+
+  store.useSyncedValue(
+    'inputProps',
+    filterable ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT,
+  );
+
   // `Select.Trigger` applies the id itself from the store, so it's deliberately not merged here.
   const mergedTriggerProps = React.useMemo(
     () =>
       mergeProps(
         typeahead.reference,
-        listNavigation.reference,
+        openTriggerProps,
         dismiss.reference,
         click.reference,
         interactionTypeProps,
@@ -365,7 +464,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [
       click.reference,
       typeahead.reference,
-      listNavigation.reference,
+      openTriggerProps,
       dismiss.reference,
       interactionTypeProps,
     ],
@@ -392,6 +491,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   store.useContextCallback('isItemEqualToValue', isItemEqualToValue);
   store.useContextCallback('setValue', setValue);
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
+  store.useContextCallback('syncHighlight', syncHighlight);
 
   // The prop bags must be in the store before the parts render. `useSyncedValues` writes in a
   // layout effect, after all descendants have rendered.
@@ -528,6 +628,24 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
+/**
+ * Groups all parts of the select.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRoot.Props<Value, Multiple>,
+): React.JSX.Element {
+  const filter = React.useContext(SelectFilterProviderContext);
+  if (filter === null) {
+    return <SelectRootInternal {...props} />;
+  }
+
+  // Kept apart from the root's props, where the query's `value` would clash.
+  return <filter.Root {...props} filterOptions={filter.options} />;
+}
+
 type SelectInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? readonly Value[]
   : Value;
@@ -586,6 +704,19 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * @default true
    */
   highlightItemOnHover?: boolean | undefined;
+  /**
+   * Callback fired when an item is highlighted or unhighlighted.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation or typeahead.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'none'`: the highlight changed for another reason, such as filtering, the item list
+   *   changing, or the popup opening or closing.
+   */
+  onItemHighlighted?:
+    | ((itemValue: Value | undefined, eventDetails: SelectRoot.HighlightEventDetails) => void)
+    | undefined;
   /**
    * Whether the select popup is initially open.
    *
@@ -704,6 +835,19 @@ export type SelectRootOpenChangeEventDetails = SelectRootChangeEventDetails & {
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
+export type SelectRootHighlightEventReason =
+  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
+
+export type SelectRootHighlightEventDetails = BaseUIHighlightEventDetails<
+  SelectRootHighlightEventReason,
+  {
+    /**
+     * The index of the highlighted item in the list, or `-1` when no item is highlighted.
+     */
+    index: number;
+  }
+>;
+
 export namespace SelectRoot {
   export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
     Value,
@@ -714,4 +858,6 @@ export namespace SelectRoot {
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
   export type OpenChangeEventDetails = SelectRootOpenChangeEventDetails;
+  export type HighlightEventReason = SelectRootHighlightEventReason;
+  export type HighlightEventDetails = SelectRootHighlightEventDetails;
 }

@@ -19,6 +19,14 @@ export type * from './scroll-up-arrow/SelectScrollUpArrow';
 export type * from './group/SelectGroup';
 export type * from './group-label/SelectGroupLabel';
 export type * from './separator/SelectSeparator';
+export type * from './filter-provider/SelectFilterProvider';
+export type * from './input/SelectInput';
+export type * from './clear/SelectClear';
+export type * from './empty/SelectEmpty';
+export type {
+  Filter as SelectFilter,
+  GetFilterParameters as SelectFilterOptions,
+} from '../internals/filter';
 
 export * as SelectTriggerDataAttributes from './trigger/SelectTriggerDataAttributes';
 export * as SelectValueDataAttributes from './value/SelectValueDataAttributes';
@@ -32,4 +40,6 @@ export * as SelectItemIndicatorDataAttributes from './item-indicator/SelectItemI
 export * as SelectArrowDataAttributes from './arrow/SelectArrowDataAttributes';
 export * as SelectScrollDownArrowDataAttributes from './scroll-down-arrow/SelectScrollDownArrowDataAttributes';
 export * as SelectScrollUpArrowDataAttributes from './scroll-up-arrow/SelectScrollUpArrowDataAttributes';
+export * as SelectInputDataAttributes from './input/SelectInputDataAttributes';
+export * as SelectClearDataAttributes from './clear/SelectClearDataAttributes';
 export * as SelectSeparatorDataAttributes from '../separator/SeparatorDataAttributes';
