@@ -1,7 +1,7 @@
 import { REASONS } from '../../internals/reasons';
 import { createEventEmitter } from './createEventEmitter';
 import type { PopupEventMap } from './types';
-import type { PopupTreeEventMap } from './tree/PopupTreeStore';
+import type { PopupTreeEventMap } from './tree/PopupTreeRegistry';
 
 const popupEvents = createEventEmitter<PopupEventMap>();
 const treeEvents = createEventEmitter<PopupTreeEventMap>();

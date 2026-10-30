@@ -4,11 +4,11 @@ import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { PopupTreeStore } from './PopupTreeStore';
-import type { PopupNodeType } from './PopupTreeStore';
+import { PopupTreeRegistry } from './PopupTreeRegistry';
+import type { PopupNodeType } from './PopupTreeRegistry';
 
 const PopupTreeNodeContext = React.createContext<PopupNodeType | null>(null);
-const PopupTreeContext = React.createContext<PopupTreeStore | null>(null);
+const PopupTreeContext = React.createContext<PopupTreeRegistry | null>(null);
 
 /**
  * Returns the parent node id for nested floating elements, if available.
@@ -20,7 +20,7 @@ export const usePopupParentNodeId = (): string | null =>
 /**
  * Returns the nearest popup tree, if available.
  */
-export const usePopupTree = (externalTree?: PopupTreeStore): PopupTreeStore | null => {
+export const usePopupTree = (externalTree?: PopupTreeRegistry): PopupTreeRegistry | null => {
   const contextTree = React.useContext(PopupTreeContext);
   return externalTree ?? contextTree;
 };
@@ -29,7 +29,7 @@ export const usePopupTree = (externalTree?: PopupTreeStore): PopupTreeStore | nu
  * Registers a node into the `PopupTree`, returning its id.
  * @see https://floating-ui.com/docs/FloatingTree
  */
-export function usePopupNodeId(externalTree?: PopupTreeStore): string | undefined {
+export function usePopupNodeId(externalTree?: PopupTreeRegistry): string | undefined {
   const id = useId();
   const tree = usePopupTree(externalTree);
   const parentId = usePopupParentNodeId();
@@ -73,7 +73,7 @@ export function PopupTreeNode(props: PopupTreeNodeProps): React.JSX.Element {
 
 export interface PopupTreeProps {
   children?: React.ReactNode;
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: PopupTreeRegistry | undefined;
 }
 
 /**
@@ -90,6 +90,6 @@ export interface PopupTreeProps {
 export function PopupTree(props: PopupTreeProps): React.JSX.Element {
   const { children, externalTree } = props;
 
-  const tree = useRefWithInit(() => externalTree ?? new PopupTreeStore()).current;
+  const tree = useRefWithInit(() => externalTree ?? new PopupTreeRegistry()).current;
   return <PopupTreeContext.Provider value={tree}>{children}</PopupTreeContext.Provider>;
 }

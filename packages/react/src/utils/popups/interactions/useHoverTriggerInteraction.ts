@@ -9,7 +9,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { REASONS } from '../../../internals/reasons';
 import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../../internals/types';
 import { usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { Delay, PopupInteractionStore } from '../types';
 import { getHoverIntent } from './hoverIntent';
 import type { HoverIntentTriggerOptions } from './hoverIntent';
@@ -22,7 +22,7 @@ export interface UseHoverTriggerInteractionProps {
   delay?: Delay | (() => Delay) | undefined;
   move?: boolean | undefined;
   mouseOnly?: boolean | undefined;
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: PopupTreeRegistry | undefined;
   /**
    * Whether the hook controls the active trigger. When false, the props are
    * returned under the `trigger` key so they can be applied to inactive

@@ -11,7 +11,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 import { usePopupParentNodeId, usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import {
   getMaxListIndex,
@@ -215,7 +215,7 @@ export interface UseListNavigationProps {
   /**
    * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: PopupTreeRegistry | undefined;
   /**
    * Focus target used when a nested list returns to a virtually focused parent.
    */

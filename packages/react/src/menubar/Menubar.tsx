@@ -11,7 +11,7 @@ import type { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useBaseUiId } from '../internals/useBaseUiId';
-import type { PopupNodeOpenChangeDetails } from '../utils/popups/tree/PopupTreeStore';
+import type { PopupNodeOpenChangeDetails } from '../utils/popups/tree/PopupTreeRegistry';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import * as MenubarDataAttributes from './MenubarDataAttributes';
 import { REASONS } from '../internals/reasons';

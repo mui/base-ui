@@ -4,7 +4,7 @@ import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import { PopupTree } from '../tree/PopupTree';
-import { PopupTreeStore } from '../tree/PopupTreeStore';
+import { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import { useHoverPopupInteraction } from './useHoverPopupInteraction';
 import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
 
@@ -109,7 +109,7 @@ describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
   ])(
     'keeps the popup open when the pointer leaves it for the floating element of a $childState descendant',
     async ({ childOpen }) => {
-      const tree = new PopupTreeStore();
+      const tree = new PopupTreeRegistry();
       const childFloating = document.createElement('div');
       document.body.appendChild(childFloating);
       onTestFinished(() => childFloating.remove());

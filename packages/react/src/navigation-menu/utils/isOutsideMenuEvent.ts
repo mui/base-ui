@@ -1,5 +1,5 @@
 import { contains } from '@base-ui/utils/shadowDom';
-import type { PopupTreeStore } from '../../utils/popups/tree/PopupTreeStore';
+import type { PopupTreeRegistry } from '../../utils/popups/tree/PopupTreeRegistry';
 
 interface Targets {
   currentTarget: HTMLElement | null;
@@ -9,7 +9,7 @@ interface Targets {
 interface Params {
   popupElement: HTMLElement | null;
   rootRef: React.RefObject<HTMLDivElement | null>;
-  tree: PopupTreeStore | null;
+  tree: PopupTreeRegistry | null;
   nodeId: string | undefined;
 }
 

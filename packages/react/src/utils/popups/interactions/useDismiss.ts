@@ -16,7 +16,7 @@ import {
 import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
@@ -116,7 +116,7 @@ export interface UseDismissProps {
   /**
    * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: PopupTreeRegistry | undefined;
 }
 
 /**

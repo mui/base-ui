@@ -34,7 +34,7 @@ import { enqueueFocus } from './enqueueFocus';
 import { markOthers } from './markOthers';
 import { usePortalContext } from '../portal/FloatingPortal';
 import { usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../../internals/constants';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { resolveRef } from '../../resolveRef';
@@ -246,7 +246,7 @@ export interface FloatingFocusManagerProps {
   /**
    * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: PopupTreeRegistry | undefined;
   /**
    * Additional elements that should be treated as part of the floating subtree
    * even if they are rendered outside the floating element itself.

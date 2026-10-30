@@ -29,7 +29,7 @@ import type {
   PositioningInteractionStore,
   PopupPositioningContext,
 } from '../utils/popups/types';
-import type { PopupTreeStore } from '../utils/popups/tree/PopupTreeStore';
+import type { PopupTreeRegistry } from '../utils/popups/tree/PopupTreeRegistry';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../utils/popups/positioning/arrow';
@@ -841,7 +841,7 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    * popup. `true` locks the side only; `'placement'` also locks the alignment.
    */
   lazyFlip?: boolean | 'placement' | undefined;
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: PopupTreeRegistry | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision
    * middleware run. Used by Preview Card to position against a specific inline line box.

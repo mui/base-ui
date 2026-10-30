@@ -8,7 +8,7 @@ import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 
-import type { PopupTreeStore } from './tree/PopupTreeStore';
+import type { PopupTreeRegistry } from './tree/PopupTreeRegistry';
 import type { EventEmitter } from './createEventEmitter';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
@@ -224,5 +224,5 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
   /**
    * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: PopupTreeRegistry | undefined;
 }

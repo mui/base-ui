@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { PopupTreeStore } from './PopupTreeStore';
-import type { PopupNodeSnapshot, PopupNodeType } from './PopupTreeStore';
+import { PopupTreeRegistry } from './PopupTreeRegistry';
+import type { PopupNodeSnapshot, PopupNodeType } from './PopupTreeRegistry';
 
 function createContext(
   open: boolean,
@@ -17,7 +17,7 @@ function createContext(
 }
 
 function createTree(nodes: Array<PopupNodeType>) {
-  const tree = new PopupTreeStore();
+  const tree = new PopupTreeRegistry();
   nodes.forEach((node) => tree.addNode(node));
   return tree;
 }
@@ -25,9 +25,9 @@ function createTree(nodes: Array<PopupNodeType>) {
 const contextOpen = createContext(true);
 const contextClosed = createContext(false);
 
-describe('PopupTreeStore', () => {
+describe('PopupTreeRegistry', () => {
   it('leaves a removed node out of its queries', () => {
-    const tree = new PopupTreeStore();
+    const tree = new PopupTreeRegistry();
     const floating = document.createElement('div');
     const target = document.createElement('span');
     floating.appendChild(target);

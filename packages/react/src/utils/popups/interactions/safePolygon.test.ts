@@ -1,8 +1,8 @@
 import { vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { PopupTreeStore } from '../tree/PopupTreeStore';
+import { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { HandleCloseContext } from './useHoverShared';
-import type { PopupNodeSnapshot } from '../tree/PopupTreeStore';
+import type { PopupNodeSnapshot } from '../tree/PopupTreeRegistry';
 import { safePolygon } from './safePolygon';
 
 function createRect(left: number, top: number, width: number, height: number) {
@@ -47,7 +47,7 @@ function createHandleCloseContext({
   domReference: Element;
   floating: HTMLElement;
   onClose: () => void;
-  tree: PopupTreeStore;
+  tree: PopupTreeRegistry;
   placement?: 'top' | 'bottom' | 'left' | 'right';
   x?: number;
   y?: number;
@@ -141,7 +141,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new PopupTreeStore();
+    const tree = new PopupTreeRegistry();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -169,7 +169,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new PopupTreeStore();
+    const tree = new PopupTreeRegistry();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -198,7 +198,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new PopupTreeStore();
+    const tree = new PopupTreeRegistry();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -230,7 +230,7 @@ describe('safePolygon', () => {
       domReference.getBoundingClientRect = () => scenario.referenceRect;
       floating.getBoundingClientRect = () => scenario.floatingRect;
 
-      const tree = new PopupTreeStore();
+      const tree = new PopupTreeRegistry();
       const onClose = vi.fn();
       const context = createHandleCloseContext({
         domReference,
@@ -259,7 +259,7 @@ describe('safePolygon', () => {
       domReference.getBoundingClientRect = () => scenario.referenceRect;
       floating.getBoundingClientRect = () => scenario.floatingRect;
 
-      const tree = new PopupTreeStore();
+      const tree = new PopupTreeRegistry();
       const onClose = vi.fn();
       const context = createHandleCloseContext({
         domReference,
@@ -286,7 +286,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => scenario.referenceRect;
     floating.getBoundingClientRect = () => scenario.floatingRect;
 
-    const tree = new PopupTreeStore();
+    const tree = new PopupTreeRegistry();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,

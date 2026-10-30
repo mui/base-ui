@@ -75,10 +75,10 @@ export interface PopupNodeType {
 }
 
 /**
- * Stores and manages floating elements in a tree structure.
- * This is a backing store for the `PopupTree` component.
+ * Keeps the nodes of one popup tree, answers queries about them, and carries the tree's events.
+ * `PopupTree` provides it to the popups rendered inside it.
  */
-export class PopupTreeStore {
+export class PopupTreeRegistry {
   public readonly nodesRef: React.RefObject<Array<PopupNodeType>> = { current: [] };
 
   public readonly events: PopupTreeEvents = createEventEmitter();
