@@ -468,6 +468,46 @@ describe('<Menu.Trigger />', () => {
     },
   );
 
+  it('keeps a hover-opened menu open when mouseup lands on an item inside a shadow root', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = shadowRoot.appendChild(document.createElement('div'));
+
+    try {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal container={shadowRoot}>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+        { container },
+      );
+
+      const trigger = shadowRoot.querySelector('button') as HTMLElement;
+      await user.hover(trigger);
+      await waitFor(() => {
+        expect(shadowRoot.querySelector('[role="menu"]')).not.toBe(null);
+      });
+
+      const item = shadowRoot.querySelector('[role="menuitem"]') as HTMLElement;
+      fireEvent.mouseUp(item, { clientX: 1000, clientY: 1000 });
+      await flushMicrotasks();
+
+      expect(shadowRoot.querySelector('[role="menu"]')).not.toBe(null);
+    } finally {
+      await act(async () => {
+        host.remove();
+      });
+    }
+  });
+
   describe('preventBaseUIHandler', () => {
     it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
       const { user } = await render(
