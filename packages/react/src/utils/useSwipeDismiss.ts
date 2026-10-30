@@ -31,6 +31,7 @@ type SwipeProgressDetailsInternal = {
 
 const DEFAULT_SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
+const POINTER_CAPTURE_THRESHOLD = 5;
 const MIN_VELOCITY_DURATION_MS = 50;
 // Under one frame at 240 Hz, so it only damps near-simultaneous samples.
 const MIN_RELEASE_VELOCITY_DURATION_MS = 4;
@@ -410,7 +411,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       dragOffsetRef.current = { x: transform.x, y: transform.y };
       recordDragSample({ x: transform.x, y: transform.y }, swipeStartTimeRef.current);
 
-      if (!('touches' in event)) {
+      // Drag surfaces defer capture to `handleMoveCore`. A `trackDrag: false` surface (the swipe
+      // area) is a thin strip the pointer leaves within a few pixels, so it captures immediately.
+      if (!trackDrag && !('touches' in event)) {
         safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
       }
     }
@@ -624,6 +627,19 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const deltaY = clientY - dragStartPosRef.current.y;
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
+
+    // Capturing on press would retarget the eventual `click` to the dragged element, so presses on
+    // non-native interactive children (e.g. `<span role="radio">`) would never activate them.
+    if (
+      trackDrag &&
+      !('touches' in event) &&
+      deltaX * deltaX + deltaY * deltaY >= POINTER_CAPTURE_THRESHOLD * POINTER_CAPTURE_THRESHOLD
+    ) {
+      const element = elementRef.current;
+      if (element) {
+        safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
+      }
+    }
 
     let candidate: SwipeDirection | undefined;
     if (!intendedSwipeDirectionRef.current) {
@@ -993,6 +1009,15 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     } as React.CSSProperties;
   }, [dragDismissed, movementCssVars]);
 
+  const handlePointerLeave = useStableCallback((event: React.PointerEvent) => {
+    const element = elementRef.current;
+    if (isSwipingRef.current && event.pointerType !== 'touch' && element) {
+      // A pointer-events:none viewport stops receiving events outside its popup. Capture before
+      // leaving it so a sub-threshold drag still receives subsequent movement and release.
+      safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
+    }
+  });
+
   const getPointerProps = React.useCallback(() => {
     if (!enabled) {
       return {};
@@ -1001,10 +1026,11 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     return {
       onPointerDown: handleStart,
       onPointerMove: handleMove,
+      onPointerLeave: handlePointerLeave,
       onPointerUp: handleEnd,
       onPointerCancel: handleEnd,
     } as const;
-  }, [enabled, handleEnd, handleMove, handleStart]);
+  }, [enabled, handleEnd, handleMove, handlePointerLeave, handleStart]);
 
   const getTouchProps = React.useCallback(() => {
     if (!enabled) {
@@ -1111,6 +1137,7 @@ export interface UseSwipeDismissReturnValue {
   getPointerProps: () => {
     onPointerDown?: ((event: React.PointerEvent) => void) | undefined;
     onPointerMove?: ((event: React.PointerEvent) => void) | undefined;
+    onPointerLeave?: ((event: React.PointerEvent) => void) | undefined;
     onPointerUp?: ((event: React.PointerEvent) => void) | undefined;
     onPointerCancel?: ((event: React.PointerEvent) => void) | undefined;
   };
