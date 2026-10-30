@@ -15,6 +15,7 @@ import {
   BasePopupStore,
   createInitialPopupStoreState,
   createPopupStoreContext,
+  getPressPopupInstantType,
   popupStoreSelectors,
 } from '../../utils/popups/store';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -120,14 +121,10 @@ export class PopoverStore<Payload> extends BasePopupStore<
       });
     }
 
-    let instantType: State<Payload>['instantType'];
-    if (reason === REASONS.triggerPress && (eventDetails.event as MouseEvent).detail === 0) {
-      instantType = 'click';
-    } else if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
-      instantType = 'dismiss';
-    } else if (reason === REASONS.focusOut) {
-      instantType = 'focus';
-    }
+    const instantType: State<Payload>['instantType'] =
+      reason === REASONS.focusOut
+        ? 'focus'
+        : getPressPopupInstantType(nextOpen, reason, eventDetails.event);
 
     return { instantType };
   }

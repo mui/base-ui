@@ -584,6 +584,36 @@ export function getHoverPopupInstantType(
 }
 
 /**
+ * Whether a press comes from the keyboard or assistive technology. Those produce `detail === 0`
+ * clicks, while mouse-gesture clicks (including the drag-release click a menu item synthesizes)
+ * carry `detail >= 1`.
+ */
+export function isKeyboardClick(reason: string | null, event: Event | undefined): boolean {
+  return (
+    (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
+    (event as MouseEvent | undefined)?.detail === 0
+  );
+}
+
+/**
+ * The `instantType` of a popup that opens on press, such as a menu or a select. A keyboard press on
+ * the trigger or an item and a close with Escape skip the transition.
+ */
+export function getPressPopupInstantType(
+  nextOpen: boolean,
+  reason: string | null,
+  event: Event | undefined,
+): 'click' | 'dismiss' | undefined {
+  if (isKeyboardClick(reason, event)) {
+    return 'click';
+  }
+  if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
+    return 'dismiss';
+  }
+  return undefined;
+}
+
+/**
  * Store members a detached handle-backed trigger reads or invokes for trigger registration and data
  * forwarding. `set`/`update` are included only for trigger-count and trigger-data bookkeeping; on a
  * detached (inert) store they are intentionally no-ops, so a write through them is not guaranteed to

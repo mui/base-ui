@@ -1,8 +1,13 @@
 import type * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { Side } from '../../../internals/useAnchorPositioning';
-import { BasePopupStore, popupStoreSelectors } from '../store';
-import type { PopupOpenChangeEventDetails, PopupStoreContext, PopupStoreState } from '../store';
+import { BasePopupStore, getPressPopupInstantType, popupStoreSelectors } from '../store';
+import type {
+  PopupOpenChangeEventDetails,
+  PopupOpenChangeState,
+  PopupStoreContext,
+  PopupStoreState,
+} from '../store';
 
 /**
  * State common to popups that pick a value from a list of items: Select, Combobox and
@@ -23,6 +28,7 @@ export type ValuePopupState = PopupStoreState<unknown> & {
    */
   forceMounted: boolean;
   openMethod: InteractionType | null;
+  instantType: 'click' | 'dismiss' | undefined;
 
   activeIndex: number | null;
   selectedIndex: number | null;
@@ -64,6 +70,7 @@ export const valuePopupSelectors = {
 
   forceMounted: (state: S) => state.forceMounted,
   openMethod: (state: S) => state.openMethod,
+  instantType: (state: S) => state.instantType,
 
   activeIndex: (state: S) => state.activeIndex,
   selectedIndex: (state: S) => state.selectedIndex,
@@ -116,5 +123,15 @@ export abstract class ValuePopupStore<
 
   protected anchorsToActiveTrigger() {
     return false;
+  }
+
+  protected prepareOpenChange(
+    nextOpen: boolean,
+    eventDetails: ChangeEventDetails,
+  ): PopupOpenChangeState<State> {
+    // `State` is generic, so TypeScript can't see that `instantType` is one of its keys.
+    return {
+      instantType: getPressPopupInstantType(nextOpen, eventDetails.reason, eventDetails.event),
+    } as PopupOpenChangeState<State>;
   }
 }

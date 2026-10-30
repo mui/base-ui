@@ -18,9 +18,10 @@ import {
   BasePopupStore,
   createInitialPopupStoreState,
   createPopupStoreContext,
+  getPressPopupInstantType,
   popupStoreSelectors,
 } from '../../utils/popups/store';
-import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
+import { isKeyboardOpen } from '../utils/isKeyboardOpen';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -313,10 +314,8 @@ export class MenuStore<Payload> extends BasePopupStore<
         reason === REASONS.siblingOpen)
     ) {
       instantType = 'group';
-    } else if (isKeyboardClick(reason, nativeEvent)) {
-      instantType = 'click';
-    } else if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
-      instantType = 'dismiss';
+    } else {
+      instantType = getPressPopupInstantType(nextOpen, reason, nativeEvent);
     }
 
     // `instantType` lands in the same update that mounts the popup subtree: in React 17 legacy
