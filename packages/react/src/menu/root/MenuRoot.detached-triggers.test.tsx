@@ -2,6 +2,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
+import { Popover } from '@base-ui/react/popover';
 import { StoreInspector } from '@base-ui/utils/store';
 import { createRenderer, detachedTriggersConformanceTests, isJSDOM, wait } from '#test-utils';
 
@@ -701,6 +702,115 @@ describe('<MenuRoot />', () => {
       await expectOpenWith('Playback');
       await user.click(screen.getByRole('menuitem'));
       await expectClosed();
+    });
+  });
+
+  describe('triggers in different popovers', () => {
+    function renderMenuAcrossPopovers() {
+      const handle = Menu.createHandle();
+      const view = render(
+        <React.Fragment>
+          <Popover.Root defaultOpen>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-1">
+                  <Menu.Trigger handle={handle} id="menu-trigger-1">
+                    Menu 1
+                  </Menu.Trigger>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <Popover.Root defaultOpen>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-2">
+                  <Menu.Trigger handle={handle} id="menu-trigger-2">
+                    Menu 2
+                  </Menu.Trigger>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <Menu.Root handle={handle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="menu">
+                  <Menu.Item>Item</Menu.Item>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger delay={0}>More</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu">
+                          <Menu.Item>Nested item</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>,
+      );
+      return { handle, view };
+    }
+
+    async function switchToSecondTrigger(handle: ReturnType<typeof Menu.createHandle>) {
+      await act(async () => {
+        handle.open('menu-trigger-1');
+      });
+      expect(screen.getByRole('button', { name: 'Menu 1' })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+      await act(async () => {
+        handle.open('menu-trigger-2');
+      });
+      expect(screen.getByRole('button', { name: 'Menu 2' })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+    }
+
+    it('lets the first popover close on Escape after the menu moved to the second one and closed', async () => {
+      const { handle, view } = renderMenuAcrossPopovers();
+      const { user } = await view;
+      await switchToSecondTrigger(handle);
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByTestId('menu')).toBe(null);
+      });
+      await act(async () => {
+        screen.getByRole('button', { name: 'Menu 1' }).focus();
+      });
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-1')).toBe(null);
+      });
+    });
+
+    it('closes the whole menu from a submenu item after the menu moved to another popover', async () => {
+      const { handle, view } = renderMenuAcrossPopovers();
+      const { user } = await view;
+      await switchToSecondTrigger(handle);
+
+      await act(async () => {
+        screen.getByRole('menuitem', { name: 'More' }).focus();
+      });
+      await user.keyboard('{ArrowRight}');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Nested item' })).toHaveFocus();
+      });
+
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('menu')).toBe(null);
+      });
     });
   });
 });
