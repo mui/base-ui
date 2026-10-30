@@ -432,3 +432,11 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `RadioGroup.Props` (`RadioGroup`): `RadioGroupProps`
 - `RadioGroup.ChangeEventReason` (`RadioGroup`): `RadioGroupChangeEventReason`
 - `RadioGroup.ChangeEventDetails` (`RadioGroup`): `RadioGroupChangeEventDetails`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>

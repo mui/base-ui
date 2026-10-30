@@ -1393,6 +1393,17 @@ Maps \`Canonical\`: \`Alias\` — Use Canonical when its namespace is already im
 - \`Accordion.Trigger.Props\`: \`AccordionTriggerProps\`
 - \`Accordion.Panel.State\`: \`AccordionPanelState\`
 - \`Accordion.Panel.Props\`: \`AccordionPanelProps\`
+
+## External Type Links
+
+Maps \`Type\`: \`URL\` — the docs of a built-in type the page references.
+
+- \`Element\`: [https://developer.mozilla.org/docs/Web/API/Element](https://developer.mozilla.org/docs/Web/API/Element)
+- \`Event\`: [https://developer.mozilla.org/docs/Web/API/Event](https://developer.mozilla.org/docs/Web/API/Event)
+- \`KeyboardEvent\`: [https://developer.mozilla.org/docs/Web/API/KeyboardEvent](https://developer.mozilla.org/docs/Web/API/KeyboardEvent)
+- \`MouseEvent\`: [https://developer.mozilla.org/docs/Web/API/MouseEvent](https://developer.mozilla.org/docs/Web/API/MouseEvent)
+- \`PointerEvent\`: [https://developer.mozilla.org/docs/Web/API/PointerEvent](https://developer.mozilla.org/docs/Web/API/PointerEvent)
+- \`TouchEvent\`: [https://developer.mozilla.org/docs/Web/API/TouchEvent](https://developer.mozilla.org/docs/Web/API/TouchEvent)
 "
 `;
 

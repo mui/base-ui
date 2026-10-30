@@ -86,3 +86,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Form.ValidationMode`: `FormValidationMode`
 - `Form.SubmitEventReason`: `FormSubmitEventReason`
 - `Form.SubmitEventDetails`: `FormSubmitEventDetails`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `HTMLFormElement`: <https://developer.mozilla.org/docs/Web/API/HTMLFormElement>
