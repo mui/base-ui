@@ -112,7 +112,7 @@ describe('MenuStore', () => {
       expect(popoverTree.descendants('popover-1', false)).toEqual([]);
     });
 
-    it("places a submenu in its parent menu's tree, whatever trigger location it holds", () => {
+    it("places a submenu in its parent menu's tree and follows that tree", () => {
       const parentStore = new MenuStore();
       const store = new MenuStore({
         parent: { type: 'menu', store: parentStore },
@@ -123,12 +123,6 @@ describe('MenuStore', () => {
       expect(parentStore.state.ownTree.getNode('submenu')?.parentId).toBe('parent-menu');
 
       const popoverTree = new PopupTreeRegistry();
-      store.update({
-        triggerTreeLocation: { tree: new PopupTreeRegistry(), parentNodeId: 'elsewhere' },
-        activeTriggerElement: document.createElement('button'),
-      });
-      expect(parentStore.state.ownTree.getNode('submenu')?.parentId).toBe('parent-menu');
-
       parentStore.update({
         triggerTreeLocation: { tree: popoverTree, parentNodeId: 'popover' },
         activeTriggerElement: document.createElement('button'),

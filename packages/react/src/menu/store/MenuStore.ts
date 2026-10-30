@@ -116,19 +116,11 @@ export interface MenuCommittedOpenState {
 }
 
 /**
- * The location of the active trigger of a top-level menu. Submenus and context menus are placed
- * where their Root renders.
+ * Where the active trigger sits in a popup tree. Only `Menu.Trigger` reports a location, so
+ * submenus and context menus are placed where their Root renders.
  */
 function getActiveTriggerTreeLocation(state: State<unknown>): MenuTreeLocation | undefined {
-  if (
-    state.parent.type === 'menu' ||
-    state.parent.type === 'context-menu' ||
-    state.activeTriggerElement == null
-  ) {
-    return undefined;
-  }
-
-  return state.triggerTreeLocation;
+  return state.activeTriggerElement ? state.triggerTreeLocation : undefined;
 }
 
 const selectors = {
