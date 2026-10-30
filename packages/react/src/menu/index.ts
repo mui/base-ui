@@ -38,6 +38,7 @@ export * as MenuLinkItemDataAttributes from './link-item/MenuLinkItemDataAttribu
 export * as MenuPopupDataAttributes from './popup/MenuPopupDataAttributes';
 export * as MenuPositionerCssVariables from './positioner/MenuPositionerCssVars';
 export * as MenuPositionerDataAttributes from './positioner/MenuPositionerDataAttributes';
+export * as MenuRadioGroupDataAttributes from './radio-group/MenuRadioGroupDataAttributes';
 export * as MenuRadioItemDataAttributes from './radio-item/MenuRadioItemDataAttributes';
 export * as MenuRadioItemIndicatorDataAttributes from './radio-item-indicator/MenuRadioItemIndicatorDataAttributes';
 export * as MenuTriggerDataAttributes from './trigger/MenuTriggerDataAttributes';
