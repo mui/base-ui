@@ -3,7 +3,7 @@ import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-t
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { PopupTreeContext } from '../tree/PopupTree';
+import { PopupTreeContext, PopupTreeNode } from '../tree/PopupTree';
 import { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import { useHoverPopupInteraction } from './useHoverPopupInteraction';
 import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
@@ -143,6 +143,48 @@ describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
       });
 
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    },
+  );
+
+  it.each([
+    { name: 'stays open', childOpen: true },
+    { name: 'closes', childOpen: false },
+  ])(
+    'uses the node it renders in for a popup without its own node, and $name on leave',
+    async ({ childOpen }) => {
+      const tree = new PopupTreeRegistry();
+      tree.addNode({
+        id: 'child',
+        parentId: 'root',
+        context: {
+          open: childOpen,
+          elements: { floating: null, domReference: null },
+          rootStore: { context: {} },
+        },
+      });
+
+      render(
+        <PopupTreeContext.Provider value={tree}>
+          <PopupTreeNode id="root">
+            <App closeDelay={100} />
+          </PopupTreeNode>
+        </PopupTreeContext.Provider>,
+      );
+
+      const button = screen.getByRole('button');
+      fireEvent.mouseEnter(button);
+      await flushMicrotasks();
+
+      const tooltip = screen.getByRole('tooltip');
+      fireEvent(button, new MouseEvent('mouseleave', { relatedTarget: tooltip }));
+      fireEvent.mouseEnter(tooltip);
+      fireEvent.mouseLeave(tooltip, { relatedTarget: document.body });
+
+      await act(async () => {
+        vi.advanceTimersByTime(200);
+      });
+
+      expect(screen.queryByRole('tooltip') != null).toBe(childOpen);
     },
   );
 });
