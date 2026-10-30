@@ -278,8 +278,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const storeContext = store.context;
   const { events } = storeContext;
 
-  const getNodeId = useStableCallback(() => store.select('popupNodeId'));
-
   const ignoreInitialFocus = initialFocus === false;
   // A typeable combobox reference (e.g. input/textarea) with `initialFocus={false}`
   // has different focus semantics: focus is not trapped inside the floating element,
@@ -449,7 +447,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
 
       queueMicrotask(() => {
-        const nodeId = getNodeId();
+        const nodeId = store.select('popupNodeId');
         const triggers = store.context.triggerElements;
         const insideElements = getResolvedInsideElements();
         const isRelatedFocusGuard =
@@ -603,7 +601,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     restoreFocus,
     getTabbableContent,
     isUntrappedTypeableCombobox,
-    getNodeId,
     storeContext,
     blurTimeout,
     pointerDownTimeout,
@@ -625,7 +622,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     );
 
     const rootAncestorComboboxDomReference = tree
-      ?.ancestors(getNodeId())
+      ?.ancestors(store.select('popupNodeId'))
       .find((node) => isTypeableCombobox(node.context?.elements.domReference || null))?.context
       ?.elements.domReference;
 
@@ -667,7 +664,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     portalContext,
     isUntrappedTypeableCombobox,
     tree,
-    getNodeId,
+    store,
     nextFocusableElement,
     previousFocusableElement,
     getResolvedInsideElements,
@@ -891,7 +888,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const isFocusInsideFloatingTree =
         contains(floating, activeEl) ||
         insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||
-        tree?.descendantContains(getNodeId(), activeEl, /* includeClosed */ true);
+        tree?.descendantContains(store.select('popupNodeId'), activeEl, /* includeClosed */ true);
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
@@ -954,7 +951,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     events,
     tree,
     domReference,
-    getNodeId,
     getResolvedInsideElements,
     store,
   ]);
