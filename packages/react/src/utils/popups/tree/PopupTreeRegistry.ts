@@ -21,19 +21,19 @@ export interface PopupNodeOpenChangeDetails {
  */
 export interface PopupTreeEventMap {
   /**
-   * A hover-opened popup closed after the pointer left it.
+   * A node opened on hover closed after the pointer left it, so its ancestors can close too.
    */
   nodeHoverClose: MouseEvent;
   /**
-   * A tree member opened or closed.
+   * A node opened or closed.
    */
   nodeOpenChange: PopupNodeOpenChangeDetails;
   /**
-   * A menu item was hovered, so sibling submenus of other items can close.
+   * An item inside the node `nodeId` was hovered. `target` is the hovered item.
    */
   nodeItemHover: { nodeId: string | undefined; target: Element | null };
   /**
-   * A menu item was pressed, or a press that opened a menu was cancelled, so the open menus close.
+   * Asks the open nodes of the tree to close.
    */
   treeClose: {
     domEvent: Event | undefined;
