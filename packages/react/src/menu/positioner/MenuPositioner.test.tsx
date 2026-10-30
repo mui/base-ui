@@ -17,6 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { usePopoverRootContext } from '../../popover/root/PopoverRootContext';
 import { getMenuTreeEvents } from '../utils/menuTreeEvents';
 import type { MenuNodeOpenChangeDetails } from '../utils/menuTreeEvents';
 
@@ -750,7 +751,7 @@ describe('<Menu.Positioner />', () => {
       React.useEffect(() => {
         function handleMenuOpenChange(details: MenuNodeOpenChangeDetails) {
           const positionerMounted = document.querySelector('[data-testid="menu-positioner"]');
-          const entry = `open=${details.open} parent=${details.parentNodeId == null ? 'none' : 'set'} positioner=${positionerMounted != null}`;
+          const entry = `open=${details.open} parent=${details.parentNodeId ?? 'none'} positioner=${positionerMounted != null}`;
           log.push(entry);
         }
 
@@ -766,8 +767,14 @@ describe('<Menu.Positioner />', () => {
 
     it('fires while the positioner is mounted for a menu nested in a popover', async () => {
       const log: string[] = [];
+      let popoverNodeId: string | undefined;
+      function CapturePopoverNodeId() {
+        popoverNodeId = usePopoverRootContext().select('popupNodeId');
+        return null;
+      }
       const { user } = await render(
         <Popover.Root>
+          <CapturePopoverNodeId />
           <Popover.Trigger>Popover</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
@@ -801,12 +808,12 @@ describe('<Menu.Positioner />', () => {
       });
       log.push('menu closed');
 
-      // The menu's parent is the popover's node.
+      expect(popoverNodeId).toEqual(expect.any(String));
       expect(log).toEqual([
         'popover opened',
-        'open=true parent=set positioner=true',
+        `open=true parent=${popoverNodeId} positioner=true`,
         'menu opened',
-        'open=false parent=set positioner=true',
+        `open=false parent=${popoverNodeId} positioner=true`,
         'menu closed',
       ]);
     });
