@@ -461,7 +461,6 @@ export class HoverIntent {
     options: {
       closeDelay: number | (() => number);
       tree: PopupTreeRegistry | null;
-      nodeId: string | undefined;
     },
   ) {
     const { store } = this;
@@ -473,7 +472,7 @@ export class HoverIntent {
       return;
     }
 
-    const currentNodeId = this.store.select('popupNodeId') ?? options.nodeId;
+    const currentNodeId = this.store.select('popupNodeId');
     const relatedTarget = event.relatedTarget;
     const isMovingIntoDescendantFloating =
       tree &&

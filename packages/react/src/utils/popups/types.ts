@@ -61,7 +61,6 @@ export type PopupEvents = EventEmitter<PopupEventMap>;
 export interface FloatingPositioningData {
   placement: Placement;
   elements: ExtendedElements;
-  nodeId: string | undefined;
   refs: { floating: React.RefObject<HTMLElement | null> };
 }
 
@@ -174,7 +173,6 @@ export type PopupPositioningContext = Omit<
   'refs' | 'elements'
 > & {
   open: boolean;
-  nodeId: string | undefined;
   defaultPopupId: string | undefined;
   refs: ExtendedRefs;
   elements: ExtendedElements;
@@ -228,8 +226,4 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    * closed.
    */
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-  /**
-   * Unique node id when using `PopupTree`.
-   */
-  nodeId?: string | undefined;
 }

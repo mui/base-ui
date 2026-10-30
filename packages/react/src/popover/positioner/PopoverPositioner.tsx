@@ -35,7 +35,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
-    positioning: { nodeId },
   });
 
   const openReason = store.useState('openChangeReason');

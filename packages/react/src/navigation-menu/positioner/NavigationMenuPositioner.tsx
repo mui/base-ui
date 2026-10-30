@@ -129,7 +129,6 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     interactionStore,
     collisionAvoidance,
     shift: { rootBoundary: 'layoutViewport' },
-    nodeId,
     // Allows the menu to remain anchored without wobbling while its size
     // and position transition simultaneously when side=top or side=left.
     adaptiveOrigin,

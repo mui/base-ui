@@ -21,7 +21,7 @@ import type {
 export function useBaseUIFloating(
   options: UseFloatingOptions & { rootStore: PopupInteractionStore },
 ): UseFloatingReturn {
-  const { nodeId, rootStore: store } = options;
+  const { rootStore: store } = options;
 
   const anchor = store.useState('anchor');
   const positionerElement = store.useState('positionerElement');
@@ -93,10 +93,9 @@ export function useBaseUIFloating(
       defaultPopupId,
       refs,
       elements,
-      nodeId,
       rootStore: store,
     }),
-    [position, refs, elements, nodeId, store, open, defaultPopupId],
+    [position, refs, elements, store, open, defaultPopupId],
   );
 
   useIsoLayoutEffect(() => {
@@ -108,7 +107,7 @@ export function useBaseUIFloating(
   useIsoLayoutEffect(() => {
     store.context.positioning = context;
 
-    const node = tree?.getNode(nodeId);
+    const node = tree?.getNode(store.select('popupNodeId'));
     if (node) {
       node.context = context;
     }

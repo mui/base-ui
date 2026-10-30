@@ -35,7 +35,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     forwardedRef,
     keepMounted,
     positioning: {
-      nodeId,
       inline: createInlineMiddleware(inlineRectCoordsRef),
     },
   });

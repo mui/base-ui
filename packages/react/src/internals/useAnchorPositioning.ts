@@ -155,7 +155,6 @@ export function useAnchorPositioning(
     mounted,
     collisionAvoidance,
     shift,
-    nodeId,
     adaptiveOrigin,
     lazyFlip = false,
   } = params;
@@ -493,7 +492,6 @@ export function useAnchorPositioning(
     whileElementsMounted: keepMounted
       ? undefined
       : (...args) => autoUpdate(...args, autoUpdateOptions),
-    nodeId,
   });
 
   // An arrow that mounts or unmounts after the popup is positioned doesn't resize the positioner, so
@@ -824,7 +822,6 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    */
   interactionStore: PositioningInteractionStore;
   mounted: boolean;
-  nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
   shift?:

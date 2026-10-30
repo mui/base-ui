@@ -23,11 +23,6 @@ export type UseHoverPopupInteractionProps = {
    * @default 0
    */
   closeDelay?: number | (() => number) | undefined;
-  /**
-   * Tree node id override for floating elements that participate in the tree
-   * without a `PopupPositioningContext`, such as inline nested navigation menus.
-   */
-  nodeId?: string | undefined;
 };
 
 /**
@@ -37,7 +32,7 @@ export function useHoverPopupInteraction(
   store: PopupInteractionStore,
   parameters: UseHoverPopupInteractionProps = {},
 ): void {
-  const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
+  const { enabled = true, closeDelay: closeDelayProp = 0 } = parameters;
 
   const open = store.useState('open');
   const positionerElement = store.useState('positionerElement');
@@ -110,7 +105,7 @@ export function useHoverPopupInteraction(
         return;
       }
 
-      intent.onPopupMouseLeave(event, { closeDelay: closeDelayProp, tree, nodeId: nodeIdProp });
+      intent.onPopupMouseLeave(event, { closeDelay: closeDelayProp, tree });
     }
 
     function onPopupPointerDown(event: PointerEvent) {
@@ -143,7 +138,6 @@ export function useHoverPopupInteraction(
     positionerElement,
     store,
     closeDelayProp,
-    nodeIdProp,
     intent,
     tree,
     ownerNodeId,

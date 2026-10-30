@@ -51,7 +51,8 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
-  const menuPositionerContext = useMenuPositionerContext();
+  // Throws when the trigger isn't rendered inside a parent menu's positioner.
+  useMenuPositionerContext();
   const submenuRootContext = useMenuSubmenuRootContext();
 
   const { store, parentVirtualFocus } = context;
@@ -168,7 +169,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
-    nodeId: menuPositionerContext?.context.nodeId,
+    nodeId: parentMenuStore.useState('popupNodeId'),
   });
 
   const hoverEnabled = store.useState('hoverEnabled');

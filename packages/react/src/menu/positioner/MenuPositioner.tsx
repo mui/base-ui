@@ -99,7 +99,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       align: computedAlign,
       alignOffset,
       arrowPadding: contextMenu ? 0 : componentProps.arrowPadding,
-      nodeId: floatingNodeId,
       shift: contextMenu
         ? {
             crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
