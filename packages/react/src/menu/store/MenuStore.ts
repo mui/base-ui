@@ -27,7 +27,10 @@ import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
  * A place in a popup tree: the tree, and the node a menu placed there is nested in.
  */
 export interface MenuTreeLocation {
-  tree: PopupTreeRegistry;
+  /**
+   * The tree the trigger sits in. A trigger outside any tree leaves the menu in its own tree.
+   */
+  tree: PopupTreeRegistry | null;
   parentNodeId: string | null;
 }
 

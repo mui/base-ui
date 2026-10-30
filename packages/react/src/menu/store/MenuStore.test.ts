@@ -107,6 +107,19 @@ describe('MenuStore', () => {
       expect(triggerTree.getNode('menu')?.parentId).toBe(null);
     });
 
+    it('stays in its own tree while the active trigger sits outside any tree', () => {
+      const store = new MenuStore();
+      store.registerTreeNode('menu');
+      const node = store.state.ownTree.getNode('menu');
+
+      store.update({
+        triggerTreeLocation: { tree: null, parentNodeId: null },
+        activeTriggerElement: document.createElement('button'),
+      });
+
+      expect(store.state.ownTree.getNode('menu')).toBe(node);
+    });
+
     it('updates the parent in place when the active trigger moves within the same tree', () => {
       const store = new MenuStore();
       const popoverTree = new PopupTreeRegistry();

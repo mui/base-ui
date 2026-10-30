@@ -12,7 +12,6 @@ import { useClick } from '../../utils/popups/interactions/useClick';
 import { usePopupTree, usePopupParentNodeId } from '../../utils/popups/tree/PopupTree';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
-import { PopupTreeRegistry } from '../../utils/popups/tree/PopupTreeRegistry';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -80,17 +79,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
-  const floatingTreeRootFromContext = usePopupTree();
-
-  const floatingTreeRoot: PopupTreeRegistry = React.useMemo(() => {
-    return floatingTreeRootFromContext ?? new PopupTreeRegistry();
-  }, [floatingTreeRootFromContext]);
-
+  const tree = usePopupTree();
   const parentNodeId = usePopupParentNodeId();
-  const triggerTreeLocation = React.useMemo(
-    () => ({ tree: floatingTreeRoot, parentNodeId }),
-    [floatingTreeRoot, parentNodeId],
-  );
+  const triggerTreeLocation = React.useMemo(() => ({ tree, parentNodeId }), [tree, parentNodeId]);
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -151,7 +142,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       return;
     }
 
-    getMenuTreeEvents(floatingTreeRoot).emit('treeClose', {
+    getMenuTreeEvents(store.select('popupTree')).emit('treeClose', {
       domEvent: mouseEvent,
       reason: REASONS.cancelOpen,
     });
