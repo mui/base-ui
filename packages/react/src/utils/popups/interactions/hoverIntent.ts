@@ -38,7 +38,6 @@ export interface HoverIntentTriggerOptions {
   isHoverCloseActive: Latest<boolean>;
   triggerElementRef: Latest<Element | null>;
   mouseOnly: boolean;
-  tree: PopupTreeRegistry | null;
   shouldOpen: () => boolean;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
 }
@@ -298,10 +297,11 @@ export class HoverIntent {
       }
 
       const currentTrigger = options.triggerElementRef.current;
+      const tree = store.select('popupTree');
 
       this.safePolygonHandler = handleClose({
         ...handleCloseContextBase,
-        tree: options.tree,
+        tree,
         x: event.clientX,
         y: event.clientY,
         onClose: () => {
@@ -312,7 +312,7 @@ export class HoverIntent {
             !this.isClickLikeOpen() &&
             currentTrigger === store.select('anchorElement')
           ) {
-            this.closeWithDelay(event, options.delay.current, options.tree);
+            this.closeWithDelay(event, options.delay.current, tree);
           }
         },
       });
@@ -329,7 +329,7 @@ export class HoverIntent {
         : true;
 
     if (shouldClose) {
-      this.closeWithDelay(event, options.delay.current, options.tree);
+      this.closeWithDelay(event, options.delay.current, store.select('popupTree'));
     }
   }
 
@@ -473,7 +473,7 @@ export class HoverIntent {
       return;
     }
 
-    const currentNodeId = this.store.context.positioning?.nodeId ?? options.nodeId;
+    const currentNodeId = this.store.select('popupNodeId') ?? options.nodeId;
     const relatedTarget = event.relatedTarget;
     const isMovingIntoDescendantFloating =
       tree &&

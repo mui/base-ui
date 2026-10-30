@@ -192,7 +192,11 @@ const selectors = {
     return getActiveTriggerTreeLocation(state)?.tree ?? state.ownTree;
   },
   floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
+  popupNodeId: (state: State<unknown>) => state.floatingNodeId,
   floatingParentNodeId: (state: State<unknown>): string | null =>
+    getActiveTriggerTreeLocation(state)?.parentNodeId ?? state.rootParentNodeId,
+  popupTree: (state: State<unknown>): PopupTreeRegistry => selectors.floatingTreeRoot(state),
+  popupParentNodeId: (state: State<unknown>): string | null =>
     getActiveTriggerTreeLocation(state)?.parentNodeId ?? state.rootParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,

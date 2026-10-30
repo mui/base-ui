@@ -15,8 +15,6 @@ import {
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
@@ -113,10 +111,6 @@ export interface UseDismissProps {
    */
   bubbles?:
     boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
-  /**
-   * External PopupTree to use when the one provided by context can't be used.
-   */
-  externalTree?: PopupTreeRegistry | undefined;
 }
 
 /**
@@ -135,7 +129,6 @@ export function useDismiss(
     outsidePressEvent = 'sloppy',
     referencePress = alwaysFalse,
     bubbles,
-    externalTree,
   } = props;
 
   const open = store.useState('open');
@@ -143,7 +136,7 @@ export function useDismiss(
   const storeContext = store.context;
   const { events } = storeContext;
 
-  const tree = usePopupTree(externalTree);
+  const tree = store.useState('popupTree');
   const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );
@@ -221,7 +214,7 @@ export function useDismiss(
 
       if (
         !escapeKeyBubbles &&
-        tree?.hasBlockingChild(storeContext.positioning?.nodeId, 'escapeKeyBubbles')
+        tree?.hasBlockingChild(store.select('popupNodeId'), 'escapeKeyBubbles')
       ) {
         return;
       }
@@ -387,7 +380,7 @@ export function useDismiss(
     }
 
     function isEventWithinFloatingTree(event: Event) {
-      const nodeId = storeContext.positioning?.nodeId;
+      const nodeId = store.select('popupNodeId');
       const targetIsInsideChildren = tree
         ?.descendants(nodeId)
         .some((node) => isEventTargetWithin(event, node.context?.elements.floating));
@@ -522,7 +515,7 @@ export function useDismiss(
         return;
       }
 
-      if (tree?.hasBlockingChild(storeContext.positioning?.nodeId, 'outsidePressBubbles')) {
+      if (tree?.hasBlockingChild(store.select('popupNodeId'), 'outsidePressBubbles')) {
         return;
       }
 

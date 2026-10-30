@@ -29,7 +29,6 @@ import type {
   PositioningInteractionStore,
   PopupPositioningContext,
 } from '../utils/popups/types';
-import type { PopupTreeRegistry } from '../utils/popups/tree/PopupTreeRegistry';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../utils/popups/positioning/arrow';
@@ -159,7 +158,6 @@ export function useAnchorPositioning(
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
-    externalTree,
   } = params;
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
@@ -496,7 +494,6 @@ export function useAnchorPositioning(
       ? undefined
       : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
-    externalTree,
   });
 
   // An arrow that mounts or unmounts after the popup is positioned doesn't resize the positioner, so
@@ -841,7 +838,6 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    * popup. `true` locks the side only; `'placement'` also locks the alignment.
    */
   lazyFlip?: boolean | 'placement' | undefined;
-  externalTree?: PopupTreeRegistry | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision
    * middleware run. Used by Preview Card to position against a specific inline line box.

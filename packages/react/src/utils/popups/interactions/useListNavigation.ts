@@ -10,8 +10,6 @@ import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import { usePopupParentNodeId, usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import {
   getMaxListIndex,
@@ -213,9 +211,11 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * External PopupTree to use when the one provided by context can't be used.
+   * Whether the list reads its parent popup's orientation and refocuses the parent popup when a
+   * nested popup closes.
+   * @default true
    */
-  externalTree?: PopupTreeRegistry | undefined;
+  nestedNavigation?: boolean | undefined;
   /**
    * Focus target used when a nested list returns to a virtually focused parent.
    */
@@ -255,7 +255,7 @@ export function useListNavigation(
     parentOrientation,
     id,
     resetOnPointerLeave = true,
-    externalTree,
+    nestedNavigation = true,
     nestedReturnFocusRef,
     grid: navigateGrid,
   } = props;
@@ -292,8 +292,8 @@ export function useListNavigation(
 
   const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
-  const parentId = usePopupParentNodeId();
-  const tree = usePopupTree(externalTree);
+  const storeTree = store.useState('popupTree');
+  const tree = nestedNavigation ? storeTree : null;
 
   const focusItemOnOpenRef = React.useRef(focusItemOnOpen);
   const indexRef = React.useRef(selectedIndex ?? -1);
@@ -501,7 +501,7 @@ export function useListNavigation(
       return;
     }
 
-    const parent = tree.getNode(parentId)?.context?.elements.floating;
+    const parent = tree.getNode(store.select('popupParentNodeId'))?.context?.elements.floating;
     // `positionerElement` is null here (see the guard above), so resolve the owner document
     // from an in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling
     // back to the parent floating element when the reference is virtual (`anchorElement` is null).
@@ -513,7 +513,7 @@ export function useListNavigation(
     if (parent && !treeContainsActiveEl && isPointerModalityRef.current) {
       parent.focus({ preventScroll: true });
     }
-  }, [enabled, positionerElement, anchorElement, tree, parentId, virtual]);
+  }, [enabled, positionerElement, anchorElement, tree, store, virtual]);
 
   useIsoLayoutEffect(() => {
     previousOpenRef.current = open;
@@ -535,7 +535,10 @@ export function useListNavigation(
   });
 
   const getParentOrientation = useStableCallback(() => {
-    return parentOrientation ?? tree?.getNode(parentId)?.context?.rootStore.context.orientation;
+    return (
+      parentOrientation ??
+      tree?.getNode(store.select('popupParentNodeId'))?.context?.rootStore.context.orientation
+    );
   });
 
   const getMinEnabledIndex = useStableCallback(() => {

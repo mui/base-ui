@@ -105,7 +105,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
             rootBoundary: 'layoutViewport',
           }
         : undefined,
-      externalTree: floatingTreeRoot,
       lazyFlip: virtualFocus ? 'placement' : false,
     },
     state: { nested: parent.type === 'menu' },

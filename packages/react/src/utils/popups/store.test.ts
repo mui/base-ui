@@ -726,8 +726,7 @@ describe('BasePopupStore', () => {
 
   describe('interaction notification', () => {
     it('reports the change, the trigger named for the close and whether the popup is nested', () => {
-      const store = new TestPopupStore(() => {}, { open: true });
-      store.context.nested = true;
+      const store = new TestPopupStore(() => {}, { open: true, popupParentNodeId: 'parent' });
       store.closeTrigger = createConnectedButton();
       const onOpenChangeEvent = vi.fn();
       store.context.events.on('openChange', onOpenChangeEvent);

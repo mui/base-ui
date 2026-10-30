@@ -473,6 +473,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       anchor: triggerElement,
       positionerElement: hoverPopupElement,
     },
+    nodeId,
   });
 
   const hoverIntent = getHoverIntent(floatingRootStore);

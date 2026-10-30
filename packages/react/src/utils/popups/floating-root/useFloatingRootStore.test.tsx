@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
+import { PopupTree, PopupTreeNode } from '../tree/PopupTree';
+import { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import { useFloatingRootStore } from './useFloatingRootStore';
 import type { FloatingRootStore } from './FloatingRootStore';
 
@@ -28,5 +30,50 @@ describe('useFloatingRootStore', () => {
 
     expect(store?.select('anchor')).toBe(second);
     expect(store?.select('anchorElement')).toBe(second);
+  });
+
+  describe('popup tree membership', () => {
+    function Membership(props: {
+      nodeId: string | undefined;
+      onRender: (values: [PopupTreeRegistry | null, string | undefined, string | null]) => void;
+    }) {
+      const store = useFloatingRootStore({ nodeId: props.nodeId });
+      props.onRender([
+        store.select('popupTree'),
+        store.select('popupNodeId'),
+        store.select('popupParentNodeId'),
+      ]);
+      return null;
+    }
+
+    it('reads its tree, node id and parent on the first render', async () => {
+      const tree = new PopupTreeRegistry();
+      const renders: Array<[PopupTreeRegistry | null, string | undefined, string | null]> = [];
+
+      await render(
+        <PopupTree externalTree={tree}>
+          <PopupTreeNode id="parent">
+            <Membership nodeId="own" onRender={(values) => renders.push(values)} />
+          </PopupTreeNode>
+        </PopupTree>,
+      );
+
+      expect(renders[0]).toEqual([tree, 'own', 'parent']);
+    });
+
+    it('follows a node id that changes after the first render', async () => {
+      let store: FloatingRootStore | undefined;
+      function NodeIdTest(props: { nodeId: string }) {
+        store = useFloatingRootStore({ nodeId: props.nodeId });
+        return null;
+      }
+
+      const { setProps } = await render(<NodeIdTest nodeId="first" />);
+      expect(store?.select('popupNodeId')).toBe('first');
+
+      await setProps({ nodeId: 'second' });
+
+      expect(store?.select('popupNodeId')).toBe('second');
+    });
   });
 });

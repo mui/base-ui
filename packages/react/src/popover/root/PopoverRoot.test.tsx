@@ -29,6 +29,8 @@ import {
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
+import type { PopupTreeRegistry } from '../../utils/popups/tree/PopupTreeRegistry';
+import { usePopoverRootContext } from './PopoverRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 describe('<Popover.Root />', () => {
@@ -3246,6 +3248,48 @@ describe('<Popover.Root />', () => {
   });
 
   describe('popup tree membership', () => {
+    it('knows its tree, node and parent from the first render, and registers its node under that id', async () => {
+      const stores: Array<{ tree: unknown; nodeId: unknown; parentNodeId: unknown }> = [];
+      function Membership({ level }: { level: number }) {
+        const store = usePopoverRootContext();
+        stores[level] ??= {
+          tree: store.select('popupTree'),
+          nodeId: store.select('popupNodeId'),
+          parentNodeId: store.select('popupParentNodeId'),
+        };
+        return null;
+      }
+
+      await render(
+        <Popover.Root defaultOpen>
+          <Membership level={0} />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Root defaultOpen>
+                  <Membership level={1} />
+                  <Popover.Portal>
+                    <Popover.Positioner>
+                      <Popover.Popup>Inner</Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const [outer, inner] = stores;
+      expect(outer.tree).not.toBe(null);
+      expect(outer.nodeId).toEqual(expect.any(String));
+      expect(outer.parentNodeId).toBe(null);
+      expect(inner.tree).toBe(outer.tree);
+      expect(inner.parentNodeId).toBe(outer.nodeId);
+      const tree = outer.tree as PopupTreeRegistry;
+      expect(tree.getNode(inner.nodeId as string)?.parentId).toBe(outer.nodeId);
+    });
+
     it('closes on Escape and on an outside press while a kept-mounted popover nested in it is closed', async () => {
       const { user } = await render(
         <div>

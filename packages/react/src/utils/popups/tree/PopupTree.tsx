@@ -29,9 +29,17 @@ export const usePopupTree = (externalTree?: PopupTreeRegistry): PopupTreeRegistr
  * Registers a node into the `PopupTree`, returning its id.
  * @see https://floating-ui.com/docs/FloatingTree
  */
-export function usePopupNodeId(externalTree?: PopupTreeRegistry): string | undefined {
+export function usePopupNodeId(): string | undefined {
   const id = useId();
-  const tree = usePopupTree(externalTree);
+  useRegisterPopupNode(id);
+  return id;
+}
+
+/**
+ * Registers a node with the given id into the `PopupTree`, under the node this hook renders in.
+ */
+export function useRegisterPopupNode(id: string | undefined): void {
+  const tree = usePopupTree();
   const parentId = usePopupParentNodeId();
 
   useIsoLayoutEffect(() => {
@@ -45,8 +53,6 @@ export function usePopupNodeId(externalTree?: PopupTreeRegistry): string | undef
       tree?.removeNode(node);
     };
   }, [tree, id, parentId]);
-
-  return id;
 }
 
 export interface PopupTreeNodeProps {

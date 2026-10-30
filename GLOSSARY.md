@@ -52,7 +52,7 @@ The logic that decides when hovering a trigger opens its popup and when leaving 
 _Avoid_: hover state, useHover
 
 **Interaction store**:
-The store a popup's interactions read and write: whether it is open, its anchor, its positioner element (the Positioner part, or the Popup itself for popups without one, such as Dialog), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a `FloatingRootStore` fed from their own state.
+The store a popup's interactions read and write: whether it is open, its anchor, its positioner element (the Positioner part, or the Popup itself for popups without one, such as Dialog), its place in the popup tree (the tree, its own node and the node it's nested in), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a `FloatingRootStore` fed from their own state.
 _Avoid_: floating context
 
 **Floating UI modules**:

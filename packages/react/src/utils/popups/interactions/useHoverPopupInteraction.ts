@@ -7,7 +7,6 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import { usePopupParentNodeId, usePopupTree } from '../tree/PopupTree';
 import type { PopupInteractionStore } from '../types';
 import { getHoverIntent } from './hoverIntent';
 
@@ -44,8 +43,10 @@ export function useHoverPopupInteraction(
   const positionerElement = store.useState('positionerElement');
   const anchorElement = store.useState('anchorElement');
 
-  const tree = usePopupTree();
-  const parentId = usePopupParentNodeId();
+  const tree = store.useState('popupTree');
+  // The node whose open descendants keep this popup open: its own node, or for a popup that
+  // doesn't register one, the node it's nested in.
+  const ownerNodeId = store.select('popupNodeId') ?? store.select('popupParentNodeId');
   const intent = getHoverIntent(store);
 
   const childClosedTimeout = useTimeout();
@@ -77,14 +78,14 @@ export function useHoverPopupInteraction(
         anchorElement as HTMLElement | SVGSVGElement,
         positionerElement,
         tree,
-        parentId,
+        ownerNodeId,
       )
     ) {
       return intent.restoreOutsidePointerEvents;
     }
 
     return undefined;
-  }, [enabled, open, anchorElement, positionerElement, intent, tree, parentId]);
+  }, [enabled, open, anchorElement, positionerElement, intent, tree, ownerNodeId]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -92,7 +93,7 @@ export function useHoverPopupInteraction(
     }
 
     function hasParentChildren() {
-      return !!(parentId && tree?.descendants(parentId).length);
+      return !!(ownerNodeId && tree?.descendants(ownerNodeId).length);
     }
 
     function onFloatingMouseEnter() {
@@ -115,7 +116,7 @@ export function useHoverPopupInteraction(
     }
 
     function onNodeClosed(event: MouseEvent) {
-      if (!tree || !parentId || hasParentChildren()) {
+      if (!tree || !ownerNodeId || hasParentChildren()) {
         return;
       }
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
@@ -143,7 +144,7 @@ export function useHoverPopupInteraction(
     nodeIdProp,
     intent,
     tree,
-    parentId,
+    ownerNodeId,
     childClosedTimeout,
   ]);
 }

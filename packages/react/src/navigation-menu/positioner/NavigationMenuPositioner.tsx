@@ -106,6 +106,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   // The active trigger supplies the root store after the positioner has already rendered.
   const fallbackRootStore = useFloatingRootStore({
     open: keepMounted ? mounted : undefined,
+    nodeId,
   });
   const interactionStore = floatingRootStore || fallbackRootStore;
 

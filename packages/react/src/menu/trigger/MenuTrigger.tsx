@@ -181,7 +181,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     restMs: parent.type === undefined ? delay : undefined,
     delay: { close: closeDelay },
     triggerElementRef,
-    externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
   });
 

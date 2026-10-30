@@ -19,7 +19,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   const { store, open, mounted, payload } = usePopupRoot(
     props,
     (initialState, defaultPopupId) => new PreviewCardStore<Payload>(initialState, defaultPopupId),
-    { closeOnActiveTriggerUnmount: true },
+    { closeOnActiveTriggerUnmount: true, ownsTreeNode: true },
   );
 
   const activeTriggerId = store.useState('activeTriggerId');

@@ -170,12 +170,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const parent = store.useState('parent');
   const activeIndex = store.useState('activeIndex');
   const keyboardOpen = store.useState('keyboardOpen');
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
-
-  const nested = floatingParentNodeId != null;
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
@@ -340,7 +337,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
       return allowOutsidePressDismissalRef.current;
     },
-    externalTree: nested ? floatingTreeRoot : undefined,
   });
 
   const direction = useDirection();
@@ -371,7 +367,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
     // forwarded cross-axis keys while closed.
     openOnArrowKeyDown: parent.type !== 'context-menu' && !(virtualFocus && isSubmenu),
-    externalTree: !virtualFocus && nested ? floatingTreeRoot : undefined,
+    nestedNavigation: !virtualFocus,
     nestedReturnFocusRef: parentMenuStore?.context.virtualFocusRef,
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave,

@@ -90,6 +90,18 @@ export interface PopupInteractionReader {
    * The popup's id unless its element sets one.
    */
   (key: 'defaultPopupId'): string | undefined;
+  /**
+   * The popup tree the popup belongs to or reads, if any.
+   */
+  (key: 'popupTree'): PopupTreeRegistry | null;
+  /**
+   * The id of the popup's own node in its popup tree. Only tree members have one.
+   */
+  (key: 'popupNodeId'): string | undefined;
+  /**
+   * The id of the node the popup is nested in, if any.
+   */
+  (key: 'popupParentNodeId'): string | null;
 }
 
 /**
@@ -99,7 +111,6 @@ export interface PopupInteractionReader {
  */
 export interface PopupInteractionContext {
   readonly events: PopupEvents;
-  nested: boolean;
   readonly triggerElements: PopupTriggerMap;
   /**
    * The event that opened the popup. Written by `dispatchOpenChange`; NavigationMenu clears it.
@@ -221,8 +232,4 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    * Unique node id when using `PopupTree`.
    */
   nodeId?: string | undefined;
-  /**
-   * External PopupTree to use when the one provided by context can't be used.
-   */
-  externalTree?: PopupTreeRegistry | undefined;
 }

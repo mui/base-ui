@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { PopupTreeNode, usePopupNodeId } from '../../utils/popups/tree/PopupTree';
+import { PopupTreeNode, useRegisterPopupNode } from '../../utils/popups/tree/PopupTree';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import type {
@@ -29,7 +29,8 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 ) {
   const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
-  const nodeId = usePopupNodeId();
+  const nodeId = store.useState('popupNodeId');
+  useRegisterPopupNode(nodeId);
 
   const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,

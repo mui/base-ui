@@ -1,4 +1,5 @@
 import { ReactStore } from '@base-ui/utils/store';
+import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { PopupInteractionContext, PositioningInteractionStore, ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../createEventEmitter';
@@ -35,6 +36,18 @@ export interface FloatingRootState {
    * The popup's id unless its element sets one.
    */
   defaultPopupId: string | undefined;
+  /**
+   * The popup tree the popup belongs to or reads, if any.
+   */
+  popupTree: PopupTreeRegistry | null;
+  /**
+   * The id of the popup's own node in its popup tree. Only tree members have one.
+   */
+  popupNodeId: string | undefined;
+  /**
+   * The id of the node the popup is nested in, if any.
+   */
+  popupParentNodeId: string | null;
 }
 
 /**
@@ -57,6 +70,9 @@ const selectors = {
   anchor: (state: FloatingRootState) => state.anchorOverride ?? state.anchorElement,
   positionerElement: (state: FloatingRootState) => state.positionerElement,
   defaultPopupId: (state: FloatingRootState) => state.defaultPopupId,
+  popupTree: (state: FloatingRootState) => state.popupTree,
+  popupNodeId: (state: FloatingRootState) => state.popupNodeId,
+  popupParentNodeId: (state: FloatingRootState) => state.popupParentNodeId,
 };
 
 interface FloatingRootStoreOptions {
@@ -65,7 +81,9 @@ interface FloatingRootStoreOptions {
   positionerElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
   defaultPopupId: string | undefined;
-  nested: boolean;
+  popupTree: PopupTreeRegistry | null;
+  popupNodeId: string | undefined;
+  popupParentNodeId: string | null;
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
@@ -81,14 +99,13 @@ export class FloatingRootStore
   implements PositioningInteractionStore
 {
   constructor(options: FloatingRootStoreOptions) {
-    const { nested, onOpenChange, triggerElements, ...initialState } = options;
+    const { onOpenChange, triggerElements, ...initialState } = options;
 
     super(
       { ...initialState, transitionStatus: undefined, anchorOverride: null },
       {
         onOpenChange,
         events: createEventEmitter(),
-        nested,
         triggerElements,
       },
       selectors,
@@ -102,7 +119,13 @@ export class FloatingRootStore
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    dispatchOpenChange(this.context, this.state.open, newOpen, eventDetails);
+    dispatchOpenChange(
+      this.context,
+      this.state.popupParentNodeId != null,
+      this.state.open,
+      newOpen,
+      eventDetails,
+    );
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
 

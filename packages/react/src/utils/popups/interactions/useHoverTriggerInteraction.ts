@@ -8,8 +8,6 @@ import { contains } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
 import { REASONS } from '../../../internals/reasons';
 import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../../internals/types';
-import { usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { Delay, PopupInteractionStore } from '../types';
 import { getHoverIntent } from './hoverIntent';
 import type { HoverIntentTriggerOptions } from './hoverIntent';
@@ -22,7 +20,6 @@ export interface UseHoverTriggerInteractionProps {
   delay?: Delay | (() => Delay) | undefined;
   move?: boolean | undefined;
   mouseOnly?: boolean | undefined;
-  externalTree?: PopupTreeRegistry | undefined;
   /**
    * Whether the hook controls the active trigger. When false, the props are
    * returned under the `trigger` key so they can be applied to inactive
@@ -68,7 +65,6 @@ export function useHoverTriggerInteraction(
     restMs = 0,
     move = true,
     triggerElementRef = EMPTY_REF,
-    externalTree,
     isActiveTrigger = true,
     getHandleCloseContext,
     shouldOpen: shouldOpenProp,
@@ -76,8 +72,6 @@ export function useHoverTriggerInteraction(
   } = props;
 
   const { events } = store.context;
-
-  const tree = usePopupTree(externalTree);
 
   const intent = getHoverIntent(store);
   const isHoverCloseActiveRef = React.useRef(false);
@@ -150,7 +144,6 @@ export function useHoverTriggerInteraction(
       isHoverCloseActive: isHoverCloseActiveRef,
       triggerElementRef,
       mouseOnly,
-      tree,
       shouldOpen: checkShouldOpen,
       getHandleCloseContext,
     };
@@ -192,7 +185,6 @@ export function useHoverTriggerInteraction(
     move,
     restMsRef,
     triggerElementRef,
-    tree,
     enabledRef,
     getHandleCloseContext,
     checkShouldOpen,
