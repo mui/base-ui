@@ -2256,6 +2256,72 @@ describe('FloatingFocusManager', () => {
     });
   });
 
+  describe('prop: closeOnFocusOut', () => {
+    // The floating element stays mounted after it closes, as a popup does during its exit
+    // animation or after `preventUnmountOnClose()`.
+    function KeptMountedApp(props: { onOpenChange: (open: boolean, reason: string) => void }) {
+      const [open, setOpen] = React.useState(true);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange(nextOpen, eventDetails) {
+          props.onOpenChange(nextOpen, eventDetails.reason);
+          setOpen(nextOpen);
+        },
+      });
+
+      return (
+        <>
+          <FloatingFocusManager
+            store={context.rootStore}
+            modal={false}
+            initialFocus={false}
+            closeOnFocusOut
+          >
+            <div
+              role="dialog"
+              ref={refs.setFloating}
+              data-testid="floating"
+              data-open={String(open)}
+            />
+          </FloatingFocusManager>
+          <button data-testid="close" onClick={() => setOpen(false)}>
+            close
+          </button>
+          <button data-testid="reference" ref={refs.setReference} />
+          <button data-testid="last" />
+        </>
+      );
+    }
+
+    test.each([
+      {
+        name: 'closes the floating element while it is open',
+        closeFirst: false,
+        expectedCalls: [[false, 'focus-out']],
+      },
+      {
+        name: 'does not close again a floating element that already closed',
+        closeFirst: true,
+        expectedCalls: [],
+      },
+    ])('focus leaving the reference $name', async ({ closeFirst, expectedCalls }) => {
+      const handleOpenChange = vi.fn();
+      render(<KeptMountedApp onOpenChange={handleOpenChange} />);
+
+      if (closeFirst) {
+        fireEvent.click(screen.getByTestId('close'));
+      }
+      expect(screen.getByTestId('floating')).toHaveAttribute('data-open', String(!closeFirst));
+
+      act(() => screen.getByTestId('reference').focus());
+      await userEvent.tab();
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('last')).toHaveFocus();
+      expect(handleOpenChange.mock.calls).toEqual(expectedCalls);
+    });
+  });
+
   describe('prop: restoreFocus', () => {
     function App({ restoreFocus = true }: { restoreFocus?: boolean | 'popup' }) {
       const [isOpen, setIsOpen] = React.useState(false);
