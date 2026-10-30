@@ -23,6 +23,7 @@ import {
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
+  resetBrowserPointer,
   wait,
 } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
@@ -3017,6 +3018,8 @@ describe('<Popover.Root />', () => {
   });
 
   describe('nested popups from other families', () => {
+    beforeEach(resetBrowserPointer);
+
     function openPopoverOnHover() {
       const trigger = screen.getByRole('button', { name: 'Popover' });
       fireEvent.mouseEnter(trigger);
