@@ -64,7 +64,7 @@ describe('MenuStore', () => {
 
   describe('registerTreeNode', () => {
     it("registers one node in the menu's own tree, under the node the Root renders in", () => {
-      const store = new MenuStore({ rootParentNodeId: 'outer' });
+      const store = new MenuStore({ popupParentNodeId: 'outer' });
 
       store.registerTreeNode('menu');
 
@@ -72,7 +72,7 @@ describe('MenuStore', () => {
     });
 
     it("moves the same node to the active trigger's location and back when the trigger is gone", () => {
-      const store = new MenuStore({ rootParentNodeId: null });
+      const store = new MenuStore({ popupParentNodeId: null });
       const popoverTree = new PopupTreeRegistry();
       store.registerTreeNode('menu');
       const node = store.state.ownTree.getNode('menu');
@@ -116,7 +116,7 @@ describe('MenuStore', () => {
       const parentStore = new MenuStore();
       const store = new MenuStore({
         parent: { type: 'menu', store: parentStore },
-        rootParentNodeId: 'parent-menu',
+        popupParentNodeId: 'parent-menu',
       });
       store.subscribeToParentMenu();
       store.registerTreeNode('submenu');

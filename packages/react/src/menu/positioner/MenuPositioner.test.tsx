@@ -745,7 +745,7 @@ describe('<Menu.Positioner />', () => {
   describe('nodeOpenChange across popup families', () => {
     function MenuOpenChangeLog({ log }: { log: string[] }) {
       const { store } = useMenuRootContext();
-      const tree = store.useState('floatingTreeRoot');
+      const tree = store.useState('popupTree');
 
       React.useEffect(() => {
         function handleMenuOpenChange(details: MenuNodeOpenChangeDetails) {

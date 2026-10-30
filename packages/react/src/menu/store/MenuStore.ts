@@ -62,10 +62,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   ownTree: PopupTreeRegistry;
   /** Where the active trigger sits in a popup tree. */
   triggerTreeLocation: MenuTreeLocation | undefined;
-  /** The id of the tree node the Root renders inside, if any. */
-  rootParentNodeId: string | null;
-  /** The id of the menu's own node in its popup tree. */
-  floatingNodeId: string | undefined;
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
@@ -184,20 +180,15 @@ const selectors = {
       ? undefined
       : state.instantType,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
-  floatingTreeRoot: (state: State<unknown>): PopupTreeRegistry => {
+  popupTree: (state: State<unknown>): PopupTreeRegistry => {
     if (state.parent.type === 'menu') {
-      return state.parent.store.select('floatingTreeRoot');
+      return state.parent.store.select('popupTree');
     }
 
     return getActiveTriggerTreeLocation(state)?.tree ?? state.ownTree;
   },
-  floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
-  popupNodeId: (state: State<unknown>) => state.floatingNodeId,
-  floatingParentNodeId: (state: State<unknown>): string | null =>
-    getActiveTriggerTreeLocation(state)?.parentNodeId ?? state.rootParentNodeId,
-  popupTree: (state: State<unknown>): PopupTreeRegistry => selectors.floatingTreeRoot(state),
   popupParentNodeId: (state: State<unknown>): string | null =>
-    getActiveTriggerTreeLocation(state)?.parentNodeId ?? state.rootParentNodeId,
+    getActiveTriggerTreeLocation(state)?.parentNodeId ?? state.popupParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
@@ -258,8 +249,8 @@ export class MenuStore<Payload> extends BasePopupStore<
     let tree: PopupTreeRegistry | null = null;
 
     const sync = () => {
-      node.parentId = this.select('floatingParentNodeId');
-      const nextTree = this.select('floatingTreeRoot');
+      node.parentId = this.select('popupParentNodeId');
+      const nextTree = this.select('popupTree');
       if (nextTree !== tree) {
         tree?.removeNode(node);
         nextTree.addNode(node);
@@ -289,12 +280,12 @@ export class MenuStore<Payload> extends BasePopupStore<
     }
 
     let rootId = parent.store.select('rootId');
-    let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+    let floatingTreeRoot = parent.store.select('popupTree');
     let keyboardEventRelay = parent.store.select('keyboardEventRelay');
 
     return parent.store.subscribe(() => {
       const nextRootId = parent.store.select('rootId');
-      const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+      const nextFloatingTreeRoot = parent.store.select('popupTree');
       const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
 
       if (
@@ -490,8 +481,6 @@ function createInitialState<Payload>(
     openChangeReason: null,
     ownTree: new PopupTreeRegistry(),
     triggerTreeLocation: undefined,
-    rootParentNodeId: null,
-    floatingNodeId: undefined,
     itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,

@@ -68,7 +68,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       : rootContext.store;
   const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
-  const menuEvents = getMenuTreeEvents(store.useState('floatingTreeRoot'));
+  const menuEvents = getMenuTreeEvents(store.useState('popupTree'));
   const open = store.useState('open');
 
   const isContextMenu = contextMenuContext !== undefined;

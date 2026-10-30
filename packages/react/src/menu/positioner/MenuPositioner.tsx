@@ -40,15 +40,15 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const floatingTreeRoot = store.useState('popupTree');
   const menuEvents = getMenuTreeEvents(floatingTreeRoot);
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const floatingNodeId = store.useState('floatingNodeId');
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
+  const floatingNodeId = store.useState('popupNodeId');
+  const floatingParentNodeId = store.useState('popupParentNodeId');
   const domReference = store.useState('anchorElement');
 
   const { side } = componentProps;
@@ -121,7 +121,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         // a hover open it has pending. This mirrors the drop rule in `setOpen`.
         if (
           details.nodeId !== floatingNodeId &&
-          details.parentNodeId === store.select('floatingParentNodeId') &&
+          details.parentNodeId === store.select('popupParentNodeId') &&
           (store.state.open || store.state.openProp)
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
@@ -137,12 +137,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   }, [store, menuEvents, floatingNodeId]);
 
   React.useEffect(() => {
-    if (store.select('floatingParentNodeId') == null) {
+    if (store.select('popupParentNodeId') == null) {
       return undefined;
     }
 
     function onParentClose(details: MenuNodeOpenChangeDetails) {
-      if (details.open || details.nodeId !== store.select('floatingParentNodeId')) {
+      if (details.open || details.nodeId !== store.select('popupParentNodeId')) {
         return;
       }
 
@@ -171,7 +171,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
       // If an item within our parent menu is hovered, and this menu's trigger is not that item,
       // close this submenu. This ensures hovering a different item in the parent closes other branches.
-      if (!open || event.nodeId !== store.select('floatingParentNodeId')) {
+      if (!open || event.nodeId !== store.select('popupParentNodeId')) {
         return;
       }
 
