@@ -29,11 +29,11 @@ treeEvents.emit('nodeopenchange', {
   parentNodeId: null,
 });
 
-treeEvents.emit('close', { domEvent: undefined, reason: REASONS.itemPress });
+treeEvents.emit('treeclose', { domEvent: undefined, reason: REASONS.itemPress });
 // @ts-expect-error A close is only requested by an item press or a cancelled open.
-treeEvents.emit('close', { domEvent: undefined, reason: REASONS.escapeKey });
+treeEvents.emit('treeclose', { domEvent: undefined, reason: REASONS.escapeKey });
 
 // @ts-expect-error Only listed events can be listened to.
 treeEvents.on('unknown', () => {});
 // @ts-expect-error A listener receives the event's payload.
-treeEvents.on('itemhover', (event: MouseEvent) => event);
+treeEvents.on('nodeitemhover', (event: MouseEvent) => event);

@@ -109,10 +109,10 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
-    floatingTreeRoot.events.on('close', handleClose);
+    floatingTreeRoot.events.on('treeclose', handleClose);
 
     return () => {
-      floatingTreeRoot.events.off('close', handleClose);
+      floatingTreeRoot.events.off('treeclose', handleClose);
     };
   }, [floatingTreeRoot.events, store]);
 

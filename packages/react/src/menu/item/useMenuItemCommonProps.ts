@@ -94,14 +94,14 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
 
         // Inform the floating tree that a menu item within this menu was hovered/moved over
         // so unrelated descendant submenus can be closed.
-        menuEvents.emit('itemhover', {
+        menuEvents.emit('nodeitemhover', {
           nodeId,
           target: event.currentTarget,
         });
       },
       onClick(event: React.MouseEvent) {
         if (closeOnClick) {
-          menuEvents.emit('close', { domEvent: event.nativeEvent, reason: REASONS.itemPress });
+          menuEvents.emit('treeclose', { domEvent: event.nativeEvent, reason: REASONS.itemPress });
         }
       },
       onMouseUp(event: React.MouseEvent) {

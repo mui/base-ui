@@ -153,7 +153,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       return;
     }
 
-    floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
+    floatingTreeRoot.events.emit('treeclose', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
   React.useEffect(() => {

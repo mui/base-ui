@@ -200,9 +200,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('itemhover', onItemHover);
+    floatingTreeRoot.events.on('nodeitemhover', onItemHover);
     return () => {
-      floatingTreeRoot.events.off('itemhover', onItemHover);
+      floatingTreeRoot.events.off('nodeitemhover', onItemHover);
     };
   }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
 

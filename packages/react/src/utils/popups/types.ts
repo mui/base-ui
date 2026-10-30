@@ -91,7 +91,7 @@ export interface FloatingTreeEventMap {
   /**
    * A hover-opened popup closed after the pointer left it.
    */
-  'floating.closed': MouseEvent;
+  nodehoverclose: MouseEvent;
   /**
    * A tree member opened or closed.
    */
@@ -99,11 +99,11 @@ export interface FloatingTreeEventMap {
   /**
    * A menu item was hovered, so sibling submenus of other items can close.
    */
-  itemhover: { nodeId: string | undefined; target: Element | null };
+  nodeitemhover: { nodeId: string | undefined; target: Element | null };
   /**
    * A menu item was pressed, or a press that opened a menu was cancelled, so the open menus close.
    */
-  close: {
+  treeclose: {
     domEvent: Event | undefined;
     reason: typeof REASONS.itemPress | typeof REASONS.cancelOpen;
   };

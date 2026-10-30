@@ -518,7 +518,7 @@ export class HoverIntent {
   ) {
     const close = () => {
       this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      tree?.events.emit('floating.closed', event);
+      tree?.events.emit('nodehoverclose', event);
     };
 
     const closeDelay = getDelay(delay, 'close', this.pointerType);
