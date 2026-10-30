@@ -186,6 +186,7 @@ describe('<Tooltip.Root />', () => {
     openInteractions: ['hover', 'focus'],
     ariaExpanded: false,
     throwOnMissingTrigger: true,
+    closesOnActiveTriggerUnmount: true,
   });
 
   describe('does not re-render inactive triggers', () => {
@@ -443,7 +444,8 @@ describe('<Tooltip.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
-      // Focus handoff keeps the popup open across the switch, so `open`/`triggerCount` do not change.
+      // Focus handoff keeps the popup open across the switch, so `open` and the registered triggers
+      // do not change.
       await act(async () => trigger1.focus());
       await flushMicrotasks();
       expect(screen.getByTestId('content').textContent).toBe('1');

@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import type { ReactStore } from '@base-ui/utils/store';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './store';
 import { usePopupInteractionProps, useTriggerRegistration } from './popupStoreUtils';
 import { PopupTriggerMap } from './popupTriggerMap';
@@ -70,7 +69,8 @@ describe('PopupTriggerMap', () => {
 describe('useTriggerRegistration', () => {
   it('registers and unregisters closed triggers through the context map without notifying the store', () => {
     const store = createTestPopupStore();
-    const spy = vi.spyOn(store, 'set');
+    const spy = vi.fn();
+    store.subscribe(spy);
     const element = document.createElement('button');
 
     const { unmount } = render(
@@ -79,19 +79,20 @@ describe('useTriggerRegistration', () => {
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
     expect(store.context.triggerElements.hasElement(element)).toBe(true);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
   });
 
   it('re-registers closed triggers when the trigger id changes without notifying the store', () => {
     const store = createTestPopupStore();
-    const spy = vi.spyOn(store, 'set');
+    const spy = vi.fn();
+    store.subscribe(spy);
     const element = document.createElement('button');
 
     const { rerender, unmount } = render(
@@ -99,20 +100,20 @@ describe('useTriggerRegistration', () => {
     );
 
     expect(store.context.triggerElements.getById('first')).toBe(element);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     rerender(<TestTrigger id="second" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
     expect(store.context.triggerElements.getById('second')).toBe(element);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('second')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -123,14 +124,8 @@ describe('useTriggerRegistration', () => {
     let registerRef: ((element: Element | null) => void) | null = null;
 
     function Probe({ store }: { store: TestPopupStore }) {
-      const register = useTriggerRegistration('trigger', store);
-      registerRef = register;
-
-      useIsoLayoutEffect(() => {
-        register(element);
-        return () => register(null);
-      }, [register, store]);
-
+      const elementRef = React.useRef<Element | null>(element);
+      registerRef = useTriggerRegistration('trigger', elementRef, store);
       return null;
     }
 
@@ -159,17 +154,46 @@ describe('useTriggerRegistration', () => {
     expect(second.context.triggerElements.getById('trigger')).toBeUndefined();
   });
 
+  it('calls `onRegister` with the element on mount, id change and store change, but not on unmount', async () => {
+    const first = createTestPopupStore();
+    const second = createTestPopupStore();
+    const element = document.createElement('button');
+    const onRegister = vi.fn();
+
+    function Probe({ id, store }: { id: string; store: TestPopupStore }) {
+      const elementRef = React.useRef<Element | null>(element);
+      useTriggerRegistration(id, elementRef, store, onRegister);
+      return null;
+    }
+
+    const { rerender, unmount } = render(<Probe id="first" store={first} />);
+
+    expect(onRegister).toHaveBeenCalledTimes(1);
+    expect(onRegister).toHaveBeenLastCalledWith(element);
+
+    rerender(<Probe id="second" store={first} />);
+
+    expect(onRegister).toHaveBeenCalledTimes(2);
+    expect(onRegister).toHaveBeenLastCalledWith(element);
+
+    rerender(<Probe id="second" store={second} />);
+
+    expect(onRegister).toHaveBeenCalledTimes(3);
+    expect(onRegister).toHaveBeenLastCalledWith(element);
+    expect(second.context.triggerElements.getById('second')).toBe(element);
+
+    unmount();
+
+    expect(onRegister).toHaveBeenCalledTimes(3);
+    expect(second.context.triggerElements.getById('second')).toBeUndefined();
+  });
+
   describe('callers that pass the callback straight into a ref', () => {
     // Mirrors `Drawer.SwipeArea`: the callback is merged into the rendered element's ref, and the
     // migration effect is what re-registers it when the id changes.
     function RefOnlyTrigger({ id, store }: { id: string | undefined; store: TestPopupStore }) {
-      const register = useTriggerRegistration(id, store);
       const elementRef = React.useRef<HTMLButtonElement | null>(null);
-
-      useIsoLayoutEffect(() => {
-        register(elementRef.current);
-        return () => register(null);
-      }, [register, id, store]);
+      const register = useTriggerRegistration(id, elementRef, store);
 
       const handleRef = React.useCallback(
         (element: HTMLButtonElement | null) => {
@@ -217,7 +241,7 @@ describe('useTriggerRegistration', () => {
     });
   });
 
-  it('keeps triggerCount reactive while the popup is open', () => {
+  it('keeps the lone-trigger flag reactive while the popup is open', () => {
     const store = createTestPopupStore();
     const element = document.createElement('button');
     store.set('open', true);
@@ -225,11 +249,11 @@ describe('useTriggerRegistration', () => {
     const { unmount } = render(<TestTrigger id="trigger" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.hasLoneTrigger).toBe(true);
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.hasLoneTrigger).toBe(false);
   });
 });
 
@@ -268,7 +292,11 @@ describe('popupId selector', () => {
   it('associates a lone trigger with the popup id unless the popup opened without a trigger', () => {
     const store = createTestPopupStore();
 
-    store.update({ open: true, defaultPopupId: 'popup-id', triggerCount: 1 });
+    store.update({
+      open: true,
+      defaultPopupId: 'popup-id',
+      hasLoneTrigger: true,
+    });
     expect(store.select('triggerPopupId', 'trigger')).toBe('popup-id');
 
     store.set('openedWithoutTrigger', true);
