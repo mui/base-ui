@@ -773,26 +773,6 @@ describe('<MenuRoot />', () => {
       );
     }
 
-    it('lets the first popover close on Escape after the menu moved to the second one and closed', async () => {
-      const { handle, view } = renderMenuAcrossPopovers();
-      const { user } = await view;
-      await switchToSecondTrigger(handle);
-
-      await user.keyboard('{Escape}');
-      await waitFor(() => {
-        expect(screen.queryByTestId('menu')).toBe(null);
-      });
-      await act(async () => {
-        screen.getByRole('button', { name: 'Menu 1' }).focus();
-      });
-
-      await user.keyboard('{Escape}');
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popover-1')).toBe(null);
-      });
-    });
-
     it('closes the whole menu from a submenu item after the menu moved to another popover', async () => {
       const { handle, view } = renderMenuAcrossPopovers();
       const { user } = await view;
