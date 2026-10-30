@@ -15,6 +15,7 @@ import type { PopupNodeOpenChangeDetails } from '../utils/popups/tree/PopupTreeR
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import * as MenubarDataAttributes from './MenubarDataAttributes';
 import { REASONS } from '../internals/reasons';
+import { MENU_TREE_COMPONENT } from '../menu/utils/constants';
 
 const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
   hasSubmenuOpen(value) {
@@ -101,7 +102,11 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
 
   React.useEffect(() => {
     function onSubmenuOpenChange(details: PopupNodeOpenChangeDetails) {
-      if (details.component !== 'menu' || !details.nodeId || details.parentNodeId !== nodeId) {
+      if (
+        details.component !== MENU_TREE_COMPONENT ||
+        !details.nodeId ||
+        details.parentNodeId !== nodeId
+      ) {
         return;
       }
 

@@ -19,6 +19,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../i
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { MENU_TREE_COMPONENT } from '../utils/constants';
 import type { PopupNodeOpenChangeDetails } from '../../utils/popups/tree/PopupTreeRegistry';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
@@ -112,7 +113,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   React.useEffect(() => {
     function onMenuOpenChange(details: PopupNodeOpenChangeDetails) {
-      if (details.component !== 'menu') {
+      if (details.component !== MENU_TREE_COMPONENT) {
         return;
       }
 
@@ -146,7 +147,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
     function onParentClose(details: PopupNodeOpenChangeDetails) {
       if (
-        details.component !== 'menu' ||
+        details.component !== MENU_TREE_COMPONENT ||
         details.open ||
         details.nodeId !== store.select('floatingParentNodeId')
       ) {
@@ -208,7 +209,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   React.useEffect(() => {
     const eventDetails: PopupNodeOpenChangeDetails = {
-      component: 'menu',
+      component: MENU_TREE_COMPONENT,
       open,
       nodeId: floatingNodeId,
       parentNodeId: floatingParentNodeId,

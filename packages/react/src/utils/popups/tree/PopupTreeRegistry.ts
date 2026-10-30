@@ -4,16 +4,12 @@ import type { ExtendedElements, PopupInteractionContext } from '../types';
 import { createEventEmitter } from '../createEventEmitter';
 import type { EventEmitter } from '../createEventEmitter';
 
-/**
- * The components that announce their open changes to their popup tree.
- */
-export type PopupTreeComponent = 'menu';
-
 export interface PopupNodeOpenChangeDetails {
   /**
-   * The component that opened or closed. Listeners ignore the components they don't coordinate with.
+   * Identifies the component that opened or closed, so listeners can ignore the components they
+   * don't coordinate with.
    */
-  component: PopupTreeComponent;
+  component: string;
   open: boolean;
   reason: BaseUIEventReason | null;
   nodeId: string | undefined;

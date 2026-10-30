@@ -21,14 +21,6 @@ treeEvents.emit('nodeOpenChange', {
 });
 // @ts-expect-error The nodeOpenChange payload needs every field.
 treeEvents.emit('nodeOpenChange', { component: 'menu', open: true });
-treeEvents.emit('nodeOpenChange', {
-  // @ts-expect-error Only listed components announce their open changes.
-  component: 'popover',
-  open: true,
-  reason: REASONS.triggerPress,
-  nodeId: undefined,
-  parentNodeId: null,
-});
 
 treeEvents.emit('treeClose', { domEvent: undefined, reason: REASONS.itemPress });
 // @ts-expect-error A close is only requested by an item press or a cancelled open.
