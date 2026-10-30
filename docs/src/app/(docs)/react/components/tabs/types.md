@@ -479,3 +479,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Tabs.Panel.Props`: `TabsPanelProps`
 - `Tabs.List.State`: `TabsListState`
 - `Tabs.List.Props`: `TabsListProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>

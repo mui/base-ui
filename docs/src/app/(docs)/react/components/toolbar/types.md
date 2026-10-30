@@ -369,3 +369,9 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Toolbar.Link.Props`: `ToolbarLinkProps`
 - `Toolbar.Input.State`: `ToolbarInputState`
 - `Toolbar.Input.Props`: `ToolbarInputProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `HTMLAnchorElement`: <https://developer.mozilla.org/docs/Web/API/HTMLAnchorElement>
