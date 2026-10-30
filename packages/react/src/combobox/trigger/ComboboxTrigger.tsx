@@ -66,6 +66,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const rootId = store.useState('id');
   const comboboxLabelId = store.useState('labelId');
   const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const selectedValue = store.useState('selectedValue');
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
@@ -249,6 +250,27 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
             store.context.inputRef.current?.focus();
+            return;
+          }
+
+          if (event.key === 'Escape' && inputInsidePopup && !mounted && !readOnly) {
+            const isClear =
+              selectionMode === 'multiple' && Array.isArray(selectedValue)
+                ? selectedValue.length === 0
+                : selectedValue === null;
+
+            const details = createChangeEventDetails(REASONS.escapeKey, event.nativeEvent);
+
+            store.context.setInputValue('', details);
+
+            if (!isClear) {
+              const value = selectionMode === 'multiple' ? [] : null;
+              store.context.setSelectedValue(value, details);
+
+              if (!store.state.inline && !details.isPropagationAllowed) {
+                event.stopPropagation();
+              }
+            }
           }
         },
       },
