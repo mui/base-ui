@@ -17,7 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 
 import { useMenuRootContext } from '../root/MenuRootContext';
-import type { FloatingNodeOpenChangeDetails } from '../../utils/popups/types';
+import type { FloatingNodeOpenChangeDetails } from '../../utils/popups/tree/FloatingTreeStore';
 
 const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 

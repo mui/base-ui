@@ -7,9 +7,9 @@ import type {
 import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';
-import type { BaseUIEventReason, REASONS } from '../../internals/reasons';
 
 import type { FloatingTreeStore } from './tree/FloatingTreeStore';
+import type { FloatingEventEmitter } from './createEventEmitter';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
 
@@ -37,21 +37,6 @@ export interface ExtendedElements {
 }
 
 /**
- * An event emitter whose events and payloads are listed in `EventMap`.
- */
-export interface FloatingEventEmitter<EventMap extends object> {
-  emit<Name extends keyof EventMap & string>(event: Name, data: EventMap[Name]): void;
-  on<Name extends keyof EventMap & string>(
-    event: Name,
-    handler: (data: EventMap[Name]) => void,
-  ): void;
-  off<Name extends keyof EventMap & string>(
-    event: Name,
-    handler: (data: EventMap[Name]) => void,
-  ): void;
-}
-
-/**
  * The events of one popup's interaction hooks.
  */
 export interface FloatingEventMap {
@@ -67,49 +52,6 @@ export interface FloatingEventMap {
 }
 
 export type PopupEvents = FloatingEventEmitter<FloatingEventMap>;
-
-/**
- * The components that announce their open changes to their popup tree.
- */
-export type FloatingTreeComponent = 'menu';
-
-export interface FloatingNodeOpenChangeDetails {
-  /**
-   * The component that opened or closed. Listeners ignore the components they don't coordinate with.
-   */
-  component: FloatingTreeComponent;
-  open: boolean;
-  reason: BaseUIEventReason | null;
-  nodeId: string | undefined;
-  parentNodeId: string | null;
-}
-
-/**
- * The events shared by the popups of one popup tree.
- */
-export interface FloatingTreeEventMap {
-  /**
-   * A hover-opened popup closed after the pointer left it.
-   */
-  nodeHoverClose: MouseEvent;
-  /**
-   * A tree member opened or closed.
-   */
-  nodeOpenChange: FloatingNodeOpenChangeDetails;
-  /**
-   * A menu item was hovered, so sibling submenus of other items can close.
-   */
-  nodeItemHover: { nodeId: string | undefined; target: Element | null };
-  /**
-   * A menu item was pressed, or a press that opened a menu was cancelled, so the open menus close.
-   */
-  treeClose: {
-    domEvent: Event | undefined;
-    reason: typeof REASONS.itemPress | typeof REASONS.cancelOpen;
-  };
-}
-
-export type FloatingTreeEvents = FloatingEventEmitter<FloatingTreeEventMap>;
 
 /**
  * What `useFloating()` publishes about a positioned popup for the interaction hooks: its placement
@@ -227,35 +169,6 @@ export type PopupPositioningContext = Omit<
   elements: ExtendedElements;
   rootStore: PopupInteractionStore;
 };
-
-/**
- * What a popup tree member shares with the other members about its interactions.
- */
-type FloatingNodeInteraction = Pick<
-  PopupInteractionContext,
-  'orientation' | 'escapeKeyBubbles' | 'outsidePressBubbles'
->;
-
-/**
- * What a popup tree member publishes about itself for the other members: whether it is open, its
- * elements, and the interaction fields the other members read. The node holds the member's
- * positioning context, written in a layout effect after the member renders, so a node the member
- * no longer updates keeps the last `open` and `elements`. The interaction fields are read from the
- * member's interaction store, which its interaction hooks update in place.
- */
-export interface FloatingNodeSnapshot {
-  open: boolean;
-  elements: Pick<ExtendedElements, 'floating' | 'domReference'>;
-  rootStore: { context: FloatingNodeInteraction };
-}
-
-export interface FloatingNodeType {
-  id: string | undefined;
-  parentId: string | null;
-  context?: FloatingNodeSnapshot | undefined;
-}
-
-export type FloatingTreeType = FloatingTreeStore;
 
 export interface ElementProps {
   reference?: React.HTMLProps<Element> | undefined;

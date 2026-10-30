@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { FloatingNodeSnapshot, FloatingNodeType } from '../types';
 import { FloatingTreeStore } from './FloatingTreeStore';
+import type { FloatingNodeSnapshot, FloatingNodeType } from './FloatingTreeStore';
 
 function createContext(
   open: boolean,

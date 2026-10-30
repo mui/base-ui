@@ -7,12 +7,8 @@ import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import type {
-  Delay,
-  PopupInteractionStore,
-  PopupInteractionContext,
-  FloatingTreeType,
-} from '../types';
+import type { Delay, PopupInteractionStore, PopupInteractionContext } from '../types';
+import type { FloatingTreeType } from '../tree/FloatingTreeStore';
 import { isInteractiveElement } from '../element';
 import { isMouseLikePointerType } from '../event';
 import type { HandleClose, HandleCloseContextBase, HandleCloseOptions } from './useHoverShared';

@@ -19,7 +19,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../i
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { FloatingNodeOpenChangeDetails } from '../../utils/popups/types';
+import type { FloatingNodeOpenChangeDetails } from '../../utils/popups/tree/FloatingTreeStore';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';

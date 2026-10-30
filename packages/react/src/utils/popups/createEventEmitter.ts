@@ -1,4 +1,17 @@
-import type { FloatingEventEmitter } from './types';
+/**
+ * An event emitter whose events and payloads are listed in `EventMap`.
+ */
+export interface FloatingEventEmitter<EventMap extends object> {
+  emit<Name extends keyof EventMap & string>(event: Name, data: EventMap[Name]): void;
+  on<Name extends keyof EventMap & string>(
+    event: Name,
+    handler: (data: EventMap[Name]) => void,
+  ): void;
+  off<Name extends keyof EventMap & string>(
+    event: Name,
+    handler: (data: EventMap[Name]) => void,
+  ): void;
+}
 
 export function createEventEmitter<EventMap extends object>(): FloatingEventEmitter<EventMap> {
   const map = new Map<string, Set<(data: any) => void>>();

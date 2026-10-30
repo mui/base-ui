@@ -1,6 +1,7 @@
 import { REASONS } from '../../internals/reasons';
 import { createEventEmitter } from './createEventEmitter';
-import type { FloatingEventMap, FloatingTreeEventMap } from './types';
+import type { FloatingEventMap } from './types';
+import type { FloatingTreeEventMap } from './tree/FloatingTreeStore';
 
 const popupEvents = createEventEmitter<FloatingEventMap>();
 const treeEvents = createEventEmitter<FloatingTreeEventMap>();

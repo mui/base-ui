@@ -2,7 +2,7 @@ import { vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { HandleCloseContext } from './useHoverShared';
-import type { FloatingNodeSnapshot } from '../types';
+import type { FloatingNodeSnapshot } from '../tree/FloatingTreeStore';
 import { safePolygon } from './safePolygon';
 
 function createRect(left: number, top: number, width: number, height: number) {

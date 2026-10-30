@@ -1,5 +1,5 @@
 import { contains } from '@base-ui/utils/shadowDom';
-import type { FloatingTreeType } from '../../utils/popups/types';
+import type { FloatingTreeType } from '../../utils/popups/tree/FloatingTreeStore';
 
 interface Targets {
   currentTarget: HTMLElement | null;
