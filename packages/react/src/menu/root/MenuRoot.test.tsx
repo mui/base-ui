@@ -1163,6 +1163,26 @@ describe('<Menu.Root />', () => {
     });
 
     describe('nested menus', () => {
+      it('closes only a hover-opened submenu on Escape while focus stays on its trigger', async () => {
+        const { user } = await render(<TestMenu submenuTriggerProps={{ delay: 0 }} />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.hover(submenuTrigger);
+        await screen.findByTestId('submenu');
+        await act(async () => {
+          submenuTrigger.focus();
+        });
+        expect(screen.getByTestId('menu')).toBeVisible();
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).toBe(null);
+        });
+        expect(screen.getByTestId('menu')).toBeVisible();
+      });
+
       it.skipIf(isJSDOM).each([
         { orientation: 'vertical', direction: 'ltr', openKey: 'ArrowRight', closeKey: 'ArrowLeft' },
         { orientation: 'vertical', direction: 'rtl', openKey: 'ArrowLeft', closeKey: 'ArrowRight' },
@@ -1913,26 +1933,6 @@ describe('<Menu.Root />', () => {
     });
 
     describe('prop: closeParentOnEsc', () => {
-      it('closes only a hover-opened submenu on Escape while focus stays on its trigger', async () => {
-        const { user } = await render(<TestMenu submenuTriggerProps={{ delay: 0 }} />);
-
-        await user.click(screen.getByRole('button', { name: 'Toggle' }));
-        const submenuTrigger = await screen.findByTestId('submenu-trigger');
-        await user.hover(submenuTrigger);
-        await screen.findByTestId('submenu');
-        await act(async () => {
-          submenuTrigger.focus();
-        });
-        expect(screen.getByTestId('menu')).toBeVisible();
-
-        await user.keyboard('{Escape}');
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('submenu')).toBe(null);
-        });
-        expect(screen.getByTestId('menu')).toBeVisible();
-      });
-
       it('does not close the parent menu when the Escape key is pressed by default', async () => {
         const { user } = await render(<TestMenu />);
 
