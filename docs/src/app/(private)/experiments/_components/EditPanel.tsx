@@ -38,7 +38,7 @@ export async function getDependencyFiles(
     paths.map(async (path) => {
       let extension = extname(path);
 
-      if (extension === '') {
+      if (extension === '' || !existsSync(path)) {
         path = resolveExtensionlessFile(path, preferTs);
         extension = extname(path);
       }
