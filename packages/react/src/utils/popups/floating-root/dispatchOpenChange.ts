@@ -8,14 +8,14 @@ import type { PopupInteractionContext } from '../types';
  * it, then emits `openchange`.
  *
  * @param context The context of the interaction hooks' store.
- * @param nested Whether the popup is nested in another popup.
+ * @param parentNodeId The id of the popup tree node the popup is nested in, if any.
  * @param open Whether the popup is open before the change.
  * @param newOpen Whether the popup is open after the change.
  * @param eventDetails Details about the event that caused the change.
  */
 export function dispatchOpenChange(
   context: Pick<PopupInteractionContext, 'openEvent' | 'events'>,
-  nested: boolean,
+  parentNodeId: string | null,
   open: boolean,
   newOpen: boolean,
   eventDetails: BaseUIChangeEventDetails<string>,
@@ -37,7 +37,7 @@ export function dispatchOpenChange(
     open: newOpen,
     reason: eventDetails.reason,
     nativeEvent: event,
-    nested,
+    nested: parentNodeId != null,
     triggerElement: eventDetails.trigger,
   };
 

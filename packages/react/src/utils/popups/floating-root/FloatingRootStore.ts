@@ -128,7 +128,7 @@ export class FloatingRootStore
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
     dispatchOpenChange(
       this.context,
-      this.state.popupParentNodeId != null,
+      this.state.popupParentNodeId,
       this.state.open,
       newOpen,
       eventDetails,

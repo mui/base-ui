@@ -485,7 +485,7 @@ export abstract class BasePopupStore<
 
     dispatchOpenChange(
       this.context,
-      popupStoreSelectors.popupParentNodeId(this.state) != null,
+      this.state.popupParentNodeId,
       popupStoreSelectors.open(this.state),
       nextOpen,
       details,
