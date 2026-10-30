@@ -90,6 +90,7 @@ export interface PopupTreeProps {
 export function PopupTree(props: PopupTreeProps): React.JSX.Element {
   const { children, externalTree } = props;
 
-  const tree = useRefWithInit(() => externalTree ?? new PopupTreeRegistry()).current;
+  const ownTree = useRefWithInit(() => new PopupTreeRegistry()).current;
+  const tree = externalTree ?? ownTree;
   return <PopupTreeContext.Provider value={tree}>{children}</PopupTreeContext.Provider>;
 }
