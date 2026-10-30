@@ -5,9 +5,8 @@ import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTreeRegistry } from './PopupTreeRegistry';
-import type { PopupNodeType } from './PopupTreeRegistry';
 
-const PopupTreeNodeContext = React.createContext<PopupNodeType | null>(null);
+const PopupTreeNodeContext = React.createContext<string | undefined>(undefined);
 const PopupTreeContext = React.createContext<PopupTreeRegistry | null>(null);
 
 /**
@@ -15,15 +14,12 @@ const PopupTreeContext = React.createContext<PopupTreeRegistry | null>(null);
  * Returns `null` for top-level floating elements.
  */
 export const usePopupParentNodeId = (): string | null =>
-  React.useContext(PopupTreeNodeContext)?.id || null;
+  React.useContext(PopupTreeNodeContext) || null;
 
 /**
  * Returns the nearest popup tree, if available.
  */
-export const usePopupTree = (externalTree?: PopupTreeRegistry): PopupTreeRegistry | null => {
-  const contextTree = React.useContext(PopupTreeContext);
-  return externalTree ?? contextTree;
-};
+export const usePopupTree = (): PopupTreeRegistry | null => React.useContext(PopupTreeContext);
 
 /**
  * Registers a node into the `PopupTree`, returning its id.
@@ -67,14 +63,7 @@ export interface PopupTreeNodeProps {
  */
 export function PopupTreeNode(props: PopupTreeNodeProps): React.JSX.Element {
   const { children, id } = props;
-
-  const parentId = usePopupParentNodeId();
-
-  return (
-    <PopupTreeNodeContext.Provider value={React.useMemo(() => ({ id, parentId }), [id, parentId])}>
-      {children}
-    </PopupTreeNodeContext.Provider>
-  );
+  return <PopupTreeNodeContext.Provider value={id}>{children}</PopupTreeNodeContext.Provider>;
 }
 
 export interface PopupTreeProps {
