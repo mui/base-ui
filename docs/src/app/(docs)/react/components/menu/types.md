@@ -1855,3 +1855,21 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Clear.Props`: `MenuClearProps`
 - `Menu.Empty.State`: `MenuEmptyState`
 - `Menu.Empty.Props`: `MenuEmptyProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLAnchorElement`: <https://developer.mozilla.org/docs/Web/API/HTMLAnchorElement>
+- `HTMLDivElement`: <https://developer.mozilla.org/docs/Web/API/HTMLDivElement>
+- `HTMLElement`: <https://developer.mozilla.org/docs/Web/API/HTMLElement>
+- `InputEvent`: <https://developer.mozilla.org/docs/Web/API/InputEvent>
+- `Intl.LocalesArgument`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `ShadowRoot`: <https://developer.mozilla.org/docs/Web/API/ShadowRoot>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>
