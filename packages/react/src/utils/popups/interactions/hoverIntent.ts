@@ -302,6 +302,7 @@ export class HoverIntent {
       this.safePolygonHandler = handleClose({
         ...handleCloseContextBase,
         tree,
+        nodeId: store.select('popupNodeId'),
         x: event.clientX,
         y: event.clientY,
         onClose: () => {

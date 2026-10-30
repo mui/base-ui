@@ -21,7 +21,10 @@ export interface HandleCloseContext {
   leave?: boolean | undefined;
 }
 
-export type HandleCloseContextBase = Omit<HandleCloseContext, 'onClose' | 'tree' | 'x' | 'y'>;
+export type HandleCloseContextBase = Omit<
+  HandleCloseContext,
+  'onClose' | 'tree' | 'nodeId' | 'x' | 'y'
+>;
 
 export interface HandleClose {
   (context: HandleCloseContext): (event: MouseEvent) => void;

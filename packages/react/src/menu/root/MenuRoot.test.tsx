@@ -2488,6 +2488,52 @@ describe('<Menu.Root />', () => {
     });
 
     describe('prop: openOnHover', () => {
+      it.skipIf(isJSDOM)(
+        'keeps a hover-opened menu open while the pointer moves into its open submenu',
+        async () => {
+          ignoreActWarnings();
+          const { userEvent: pointer } = await import('vitest/browser');
+          await render(
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={0} closeDelay={0}>
+                Open
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="menu">
+                    <Menu.Item>Item</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>More</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="submenu">
+                            <Menu.Item>Deep</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          await pointer.hover(screen.getByRole('button', { name: 'Open' }));
+          await screen.findByTestId('menu');
+          await pointer.hover(screen.getByRole('menuitem', { name: 'Item' }));
+          await pointer.hover(screen.getByRole('menuitem', { name: 'More' }));
+          await screen.findByTestId('submenu');
+
+          await pointer.hover(screen.getByRole('menuitem', { name: 'Deep' }));
+          await act(async () => {
+            await wait(100);
+          });
+
+          expect(screen.queryByTestId('menu')).not.toBe(null);
+          expect(screen.queryByTestId('submenu')).not.toBe(null);
+        },
+      );
+
       it('opens when the trigger is hovered and closes when it is no longer hovered', async () => {
         await render(<TestMenu triggerProps={{ openOnHover: true, delay: 0 }} />);
 

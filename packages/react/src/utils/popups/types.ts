@@ -55,8 +55,7 @@ export type PopupEvents = EventEmitter<PopupEventMap>;
 
 /**
  * What `useFloating()` publishes about a positioned popup for the interaction hooks: its placement
- * and elements, and the id of its node in the popup tree. Written in a layout effect after every
- * render.
+ * and elements. Written in a layout effect after every render.
  */
 export interface FloatingPositioningData {
   placement: Placement;

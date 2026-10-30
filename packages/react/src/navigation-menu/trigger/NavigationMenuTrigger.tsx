@@ -494,7 +494,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return null;
     }
 
-    return getHandleCloseContext(triggerElementRef.current, hoverPopupElement, nodeId);
+    return getHandleCloseContext(triggerElementRef.current, hoverPopupElement);
   });
 
   function getScope() {
@@ -827,7 +827,6 @@ function getPlacementFromElements(
 function getHandleCloseContext(
   anchorElement: Element,
   positionerElement: HTMLElement,
-  nodeId: string | undefined,
 ): HandleCloseContextBase {
   return {
     placement: getPlacementFromElements(anchorElement, positionerElement),
@@ -835,6 +834,5 @@ function getHandleCloseContext(
       domReference: anchorElement,
       floating: positionerElement,
     },
-    nodeId,
   };
 }
