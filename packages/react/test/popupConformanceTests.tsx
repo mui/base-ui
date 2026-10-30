@@ -515,6 +515,45 @@ export function popupConformanceTests(config: PopupTestConfig) {
           expect(getPopup()).not.toBe(null);
         },
       );
+
+      // A combobox keeps focus in its input, so only popups that take focus can return it.
+      if (triggerMouseAction === 'click' && !combobox) {
+        it('returns focus to the trigger on a second Escape after a canceled Escape close', async () => {
+          let cancelClose = true;
+          const handleOpenChange = vi.fn(
+            (nextOpen: boolean, eventDetails: OpenChangeEventDetails) => {
+              if (!nextOpen && cancelClose) {
+                eventDetails.cancel();
+              }
+            },
+          );
+          const { user } = await render(
+            prepareComponent({ root: { onOpenChange: handleOpenChange } }),
+          );
+
+          await openWithTrigger(user);
+          await waitFor(() => {
+            expect(getPopup()).toContainElement(activeElement(document) as HTMLElement);
+          });
+
+          await user.keyboard('[Escape]');
+          await flushMicrotasks();
+          expect(handleOpenChange).toHaveBeenLastCalledWith(
+            false,
+            expect.objectContaining({ reason: REASONS.escapeKey }),
+          );
+          expect(getPopup()).toBeVisible();
+          expect(getPopup()).toContainElement(activeElement(document) as HTMLElement);
+
+          cancelClose = false;
+          await user.keyboard('[Escape]');
+
+          await waitFor(expectPopupClosed);
+          await waitFor(() => {
+            expect(getTrigger()).toHaveFocus();
+          });
+        });
+      }
     });
 
     if (expectedPopupRole || triggerMouseAction === 'click') {
