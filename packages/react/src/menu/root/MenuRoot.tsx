@@ -6,7 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { PopupTree } from '../../utils/popups/tree/PopupTree';
+import { PopupTreeContext } from '../../utils/popups/tree/PopupTree';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
@@ -569,8 +569,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   );
 
   if (parent.type === undefined || parent.type === 'context-menu') {
-    // set up a PopupTree to provide the context to nested menus
-    content = <PopupTree externalTree={floatingTreeRoot}>{content}</PopupTree>;
+    content = (
+      <PopupTreeContext.Provider value={floatingTreeRoot}>{content}</PopupTreeContext.Provider>
+    );
   }
 
   return content;

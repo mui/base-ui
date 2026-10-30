@@ -7,20 +7,22 @@ import { PopupTreeRegistry } from './PopupTreeRegistry';
 describe('PopupTree', () => {
   const { render } = createRenderer();
 
-  it('provides the external tree it currently receives', async () => {
+  it('provides its own tree and keeps it across renders', async () => {
     const seen: Array<PopupTreeRegistry | null> = [];
-    function ReadTree() {
+    function ReadTree(props: { label: string }) {
       seen.push(usePopupTree());
-      return null;
+      return props.label;
     }
-    const first = new PopupTreeRegistry();
-    const second = new PopupTreeRegistry();
 
-    const { setProps } = await render(<PopupTree externalTree={first}>{<ReadTree />}</PopupTree>);
-    expect(seen.at(-1)).toBe(first);
+    const { setProps } = await render(
+      <PopupTree>
+        <ReadTree label="first" />
+      </PopupTree>,
+    );
+    expect(seen.at(-1)).toBeInstanceOf(PopupTreeRegistry);
 
-    await setProps({ externalTree: second });
+    await setProps({ children: <ReadTree label="second" /> });
 
-    expect(seen.at(-1)).toBe(second);
+    expect(seen.at(-1)).toBe(seen[0]);
   });
 });

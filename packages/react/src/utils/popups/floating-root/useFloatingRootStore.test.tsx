@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
-import { PopupTree, PopupTreeNode } from '../tree/PopupTree';
+import { PopupTreeContext, PopupTreeNode } from '../tree/PopupTree';
 import { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import { useFloatingRootStore } from './useFloatingRootStore';
 import type { FloatingRootStore } from './FloatingRootStore';
@@ -51,11 +51,11 @@ describe('useFloatingRootStore', () => {
       const renders: Array<[PopupTreeRegistry | null, string | undefined, string | null]> = [];
 
       await render(
-        <PopupTree externalTree={tree}>
+        <PopupTreeContext.Provider value={tree}>
           <PopupTreeNode id="parent">
             <Membership nodeId="own" onRender={(values) => renders.push(values)} />
           </PopupTreeNode>
-        </PopupTree>,
+        </PopupTreeContext.Provider>,
       );
 
       expect(renders[0]).toEqual([tree, 'own', 'parent']);
@@ -84,11 +84,11 @@ describe('useFloatingRootStore', () => {
       }
       function Test(props: { tree: PopupTreeRegistry; parentId: string }) {
         return (
-          <PopupTree externalTree={props.tree}>
+          <PopupTreeContext.Provider value={props.tree}>
             <PopupTreeNode id={props.parentId}>
               <Membership />
             </PopupTreeNode>
-          </PopupTree>
+          </PopupTreeContext.Provider>
         );
       }
       const first = new PopupTreeRegistry();

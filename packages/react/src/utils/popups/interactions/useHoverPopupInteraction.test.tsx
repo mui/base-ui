@@ -3,7 +3,7 @@ import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-t
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { PopupTree } from '../tree/PopupTree';
+import { PopupTreeContext } from '../tree/PopupTree';
 import { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import { useHoverPopupInteraction } from './useHoverPopupInteraction';
 import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
@@ -124,9 +124,9 @@ describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
       });
 
       render(
-        <PopupTree externalTree={tree}>
+        <PopupTreeContext.Provider value={tree}>
           <App closeDelay={100} nodeId="root" />
-        </PopupTree>,
+        </PopupTreeContext.Provider>,
       );
 
       const button = screen.getByRole('button');

@@ -7,7 +7,10 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTreeRegistry } from './PopupTreeRegistry';
 
 const PopupTreeNodeContext = React.createContext<string | undefined>(undefined);
-const PopupTreeContext = React.createContext<PopupTreeRegistry | null>(null);
+/**
+ * Provides a popup tree the caller owns, such as a menu that moves between trees.
+ */
+export const PopupTreeContext = React.createContext<PopupTreeRegistry | null>(null);
 
 /**
  * Returns the parent node id for nested floating elements, if available.
@@ -68,7 +71,6 @@ export function PopupTreeNode(props: PopupTreeNodeProps): React.JSX.Element {
 
 export interface PopupTreeProps {
   children?: React.ReactNode;
-  externalTree?: PopupTreeRegistry | undefined;
 }
 
 /**
@@ -83,9 +85,8 @@ export interface PopupTreeProps {
  * @internal
  */
 export function PopupTree(props: PopupTreeProps): React.JSX.Element {
-  const { children, externalTree } = props;
+  const { children } = props;
 
-  const ownTree = useRefWithInit(() => new PopupTreeRegistry()).current;
-  const tree = externalTree ?? ownTree;
+  const tree = useRefWithInit(() => new PopupTreeRegistry()).current;
   return <PopupTreeContext.Provider value={tree}>{children}</PopupTreeContext.Provider>;
 }
