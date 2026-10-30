@@ -4,7 +4,9 @@ import * as ReactDOM from 'react-dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import {
   disableFocusInside,
   enableFocusInside,
@@ -46,6 +48,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     floatingRootStore,
     nested,
     transitionStatus,
+    prevTriggerElementRef,
   } = useNavigationMenuRootContext();
 
   const {
@@ -70,13 +73,11 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const keepMounted = useNavigationMenuPortalContext();
   const nodeId = useNavigationMenuTreeContext();
 
-  const initialInstantTimeout = useTimeout();
-  const resizeTimeout = useTimeout();
-
-  // When the menu is initially open, disable the positioner's transition for one frame
-  // so a default value does not animate in from the unpositioned portal state.
-  const [instant, setInstant] = React.useState(open);
-  const needsInitialInstantResetRef = React.useRef(open);
+  const [instant, setInstant] = React.useState(true);
+  const previousTriggerRef = React.useRef<Element | null>(null);
+  // Closing alone must not cancel an in-flight trigger-switch transition.
+  const openRef = useValueAsRef(open);
+  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false, true);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
@@ -106,6 +107,9 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   // The active trigger supplies the root store after the positioner has already rendered.
   const fallbackRootStore = useFloatingRootStore({
     open: keepMounted ? mounted : undefined,
+    // The active trigger store is released on close, but positioning must keep
+    // following its anchor until the popup finishes exiting.
+    elements: { anchor: prevTriggerElementRef.current ?? null, positionerElement },
   });
   const interactionStore = floatingRootStore || fallbackRootStore;
 
@@ -134,6 +138,39 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     adaptiveOrigin,
   });
 
+  useIsoLayoutEffect(() => {
+    const previousTrigger = previousTriggerRef.current;
+    previousTriggerRef.current = mounted ? domReference : null;
+
+    if (!openRef.current || !previousTrigger || !domReference) {
+      setInstant(true);
+      return undefined;
+    }
+
+    if (previousTrigger === domReference) {
+      return undefined;
+    }
+
+    // Only a hand-off between triggers should animate the position. Ordinary
+    // scroll and layout updates stay instant, including during the exit.
+    setInstant(false);
+    const controller = new AbortController();
+    runOnceAnimationsFinish(() => setInstant(true), controller.signal);
+    return () => controller.abort();
+  }, [domReference, mounted, openRef, runOnceAnimationsFinish]);
+
+  React.useEffect(() => {
+    if (!mounted || !positionerElement) {
+      return undefined;
+    }
+
+    function handleResize() {
+      ReactDOM.flushSync(() => setInstant(true));
+    }
+
+    return addEventListener(ownerWindow(positionerElement), 'resize', handleResize);
+  }, [mounted, positionerElement]);
+
   const state: NavigationMenuPositionerState = {
     open,
     side: positioning.side,
@@ -141,35 +178,6 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     anchorHidden: positioning.anchorHidden,
     instant,
   };
-
-  React.useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    if (needsInitialInstantResetRef.current) {
-      initialInstantTimeout.start(0, () => {
-        needsInitialInstantResetRef.current = false;
-
-        if (!resizeTimeout.isStarted()) {
-          setInstant(false);
-        }
-      });
-    }
-
-    function handleResize() {
-      ReactDOM.flushSync(() => {
-        setInstant(true);
-      });
-
-      resizeTimeout.start(100, () => {
-        setInstant(false);
-      });
-    }
-
-    const win = ownerWindow(positionerElement);
-    return addEventListener(win, 'resize', handleResize);
-  }, [open, initialInstantTimeout, resizeTimeout, positionerElement]);
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
