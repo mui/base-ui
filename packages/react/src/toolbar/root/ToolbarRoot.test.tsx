@@ -102,6 +102,80 @@ describe('<Toolbar.Root />', () => {
       },
     );
 
+    it.each<{ orientation: Orientation }>([
+      { orientation: 'horizontal' },
+      { orientation: 'vertical' },
+    ])(
+      'moves focus to the first and last items with Home and End, orientation: $orientation',
+      async ({ orientation }) => {
+        const { user } = await render(
+          <Toolbar.Root orientation={orientation}>
+            <Toolbar.Button />
+            <Toolbar.Link href="https://base-ui.com">Link</Toolbar.Link>
+            <Toolbar.Group>
+              <Toolbar.Button />
+              <Toolbar.Button />
+            </Toolbar.Group>
+          </Toolbar.Root>,
+        );
+        const [button1, , groupedButton2] = screen.getAllByRole('button');
+
+        await user.keyboard('[Tab]');
+        expect(button1).toHaveFocus();
+
+        await user.keyboard('[End]');
+        expect(groupedButton2).toHaveFocus();
+
+        await user.keyboard('[Home]');
+        expect(button1).toHaveFocus();
+      },
+    );
+
+    it('skips disabled, non-focusable items with Home and End', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button disabled focusableWhenDisabled={false} />
+          <Toolbar.Button />
+          <Toolbar.Button />
+          <Toolbar.Button disabled focusableWhenDisabled={false} />
+        </Toolbar.Root>,
+      );
+      const [, button2, button3] = screen.getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[End]');
+      expect(button3).toHaveFocus();
+
+      await user.keyboard('[Home]');
+      expect(button2).toHaveFocus();
+    });
+
+    it('keeps Home and End inside a Toolbar.Input that has text', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button />
+          <Toolbar.Input defaultValue="text" />
+          <Toolbar.Button />
+        </Toolbar.Root>,
+      );
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await user.keyboard('[Tab]');
+      await user.keyboard('[ArrowRight]');
+      expect(input).toHaveFocus();
+      input.setSelectionRange(2, 2);
+
+      await user.keyboard('[End]');
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(4);
+
+      await user.keyboard('[Home]');
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(0);
+    });
+
     it('does not wrap focus when loopFocus is false', async () => {
       const { user } = await render(
         <Toolbar.Root loopFocus={false}>
