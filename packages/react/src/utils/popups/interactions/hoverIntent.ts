@@ -312,7 +312,7 @@ export class HoverIntent {
             !this.isClickLikeOpen() &&
             currentTrigger === store.select('anchorElement')
           ) {
-            this.closeWithDelay(event, options.delay.current, tree);
+            this.closeWithDelay(event, options.delay.current);
           }
         },
       });
@@ -329,7 +329,7 @@ export class HoverIntent {
         : true;
 
     if (shouldClose) {
-      this.closeWithDelay(event, options.delay.current, store.select('popupTree'));
+      this.closeWithDelay(event, options.delay.current);
     }
   }
 
@@ -460,11 +460,10 @@ export class HoverIntent {
     event: MouseEvent,
     options: {
       closeDelay: number | (() => number);
-      tree: PopupTreeRegistry | null;
     },
   ) {
     const { store } = this;
-    const { tree } = options;
+    const tree = store.select('popupTree');
 
     if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
       // If the mouse is leaving the popup for another trigger, don't explicitly close the popup
@@ -492,7 +491,7 @@ export class HoverIntent {
 
     this.restoreOutsidePointerEvents();
     if (isHoverOpenEvent(this.store.context.openEvent?.type) && !this.isClickLikeOpen()) {
-      this.closeWithDelay(event, options.closeDelay, tree);
+      this.closeWithDelay(event, options.closeDelay);
     }
   }
 
@@ -506,14 +505,10 @@ export class HoverIntent {
     this.interactedInside = closest(target, '[aria-haspopup]') != null;
   }
 
-  private closeWithDelay(
-    event: MouseEvent,
-    delay: Delay | (() => Delay) | undefined,
-    tree: PopupTreeRegistry | null,
-  ) {
+  private closeWithDelay(event: MouseEvent, delay: Delay | (() => Delay) | undefined) {
     const close = () => {
       this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      tree?.events.emit('nodeHoverClose', event);
+      this.store.select('popupTree')?.events.emit('nodeHoverClose', event);
     };
 
     const closeDelay = getDelay(delay, 'close', this.pointerType);
