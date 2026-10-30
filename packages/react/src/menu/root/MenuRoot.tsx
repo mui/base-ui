@@ -361,7 +361,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
     // forwarded cross-axis keys while closed.
     openOnArrowKeyDown: parent.type !== 'context-menu' && !(virtualFocus && isSubmenu),
-    nestedNavigation: !virtualFocus,
     nestedReturnFocusRef: parentMenuStore?.context.virtualFocusRef,
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave,

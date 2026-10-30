@@ -211,12 +211,6 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * Whether the list reads its parent popup's orientation and refocuses the parent popup when a
-   * nested popup closes.
-   * @default true
-   */
-  nestedNavigation?: boolean | undefined;
-  /**
    * Focus target used when a nested list returns to a virtually focused parent.
    */
   nestedReturnFocusRef?: React.RefObject<HTMLElement | null> | undefined;
@@ -255,7 +249,6 @@ export function useListNavigation(
     parentOrientation,
     id,
     resetOnPointerLeave = true,
-    nestedNavigation = true,
     nestedReturnFocusRef,
     grid: navigateGrid,
   } = props;
@@ -292,8 +285,7 @@ export function useListNavigation(
 
   const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
-  const storeTree = store.useState('popupTree');
-  const tree = nestedNavigation ? storeTree : null;
+  const tree = store.useState('popupTree');
 
   const focusItemOnOpenRef = React.useRef(focusItemOnOpen);
   const indexRef = React.useRef(selectedIndex ?? -1);
