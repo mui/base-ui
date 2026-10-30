@@ -60,7 +60,7 @@ export class PopupTreeRegistry {
   }
 
   public removeNode(node: PopupNodeType) {
-    const index = this.nodes.findIndex((n) => n === node);
+    const index = this.nodes.indexOf(node);
     if (index !== -1) {
       this.nodes.splice(index, 1);
     }
@@ -91,15 +91,11 @@ export class PopupTreeRegistry {
    */
   public ancestors(id: string | undefined) {
     const allAncestors: Array<PopupNodeType> = [];
-    let currentParentId = this.getNode(id)?.parentId;
+    let node = this.getNode(this.getNode(id)?.parentId);
 
-    while (currentParentId) {
-      const currentNode = this.getNode(currentParentId);
-      currentParentId = currentNode?.parentId;
-
-      if (currentNode) {
-        allAncestors.push(currentNode);
-      }
+    while (node) {
+      allAncestors.push(node);
+      node = this.getNode(node.parentId);
     }
 
     return allAncestors;
