@@ -75,5 +75,33 @@ describe('useFloatingRootStore', () => {
 
       expect(store?.select('popupNodeId')).toBe('second');
     });
+
+    it('follows the tree and parent it renders in', async () => {
+      let store: FloatingRootStore | undefined;
+      function Membership() {
+        store = useFloatingRootStore({});
+        return null;
+      }
+      function Test(props: { tree: PopupTreeRegistry; parentId: string }) {
+        return (
+          <PopupTree externalTree={props.tree}>
+            <PopupTreeNode id={props.parentId}>
+              <Membership />
+            </PopupTreeNode>
+          </PopupTree>
+        );
+      }
+      const first = new PopupTreeRegistry();
+      const second = new PopupTreeRegistry();
+
+      const { setProps } = await render(<Test tree={first} parentId="first-parent" />);
+      expect(store?.select('popupTree')).toBe(first);
+      expect(store?.select('popupParentNodeId')).toBe('first-parent');
+
+      await setProps({ tree: second, parentId: 'second-parent' });
+
+      expect(store?.select('popupTree')).toBe(second);
+      expect(store?.select('popupParentNodeId')).toBe('second-parent');
+    });
   });
 });

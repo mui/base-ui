@@ -3176,10 +3176,10 @@ describe('<Popover.Root />', () => {
       });
     });
 
-    function renderPopoverWithMenuTriggers() {
+    function renderPopoverWithMenuTriggers(onOpenChange?: Popover.Root.Props['onOpenChange']) {
       const menuHandle = Menu.createHandle();
       return render(
-        <Popover.Root defaultOpen>
+        <Popover.Root defaultOpen onOpenChange={onOpenChange}>
           <Popover.Trigger>Popover</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
@@ -3209,7 +3209,8 @@ describe('<Popover.Root />', () => {
     }
 
     it('keeps the popover open while pressing between the triggers of a nested menu', async () => {
-      const { user } = await renderPopoverWithMenuTriggers();
+      const handlePopoverOpenChange = vi.fn();
+      const { user } = await renderPopoverWithMenuTriggers(handlePopoverOpenChange);
 
       const menuTrigger1 = screen.getByRole('button', { name: 'Menu 1' });
       const menuTrigger2 = screen.getByRole('button', { name: 'Menu 2' });
@@ -3224,6 +3225,7 @@ describe('<Popover.Root />', () => {
       expect(menuTrigger2).toHaveAttribute('aria-expanded', 'true');
       expect(menuTrigger1).toHaveAttribute('aria-expanded', 'false');
       expect(screen.getByTestId('popover-popup')).toBeVisible();
+      expect(handlePopoverOpenChange).not.toHaveBeenCalled();
     });
 
     it('closes on Escape after a nested menu that switched triggers has closed', async () => {

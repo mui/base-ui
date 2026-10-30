@@ -254,12 +254,31 @@ describe('PopupTreeRegistry', () => {
     expect(createTree(nodes).descendantContains('0', trigger, false, true)).toBe(true);
   });
 
+  it("descendantContains checks a closed descendant's trigger only with includeClosed", () => {
+    const trigger = document.createElement('button');
+    const nodes = [
+      { id: '0', parentId: null, context: contextOpen },
+      {
+        id: '1',
+        parentId: '0',
+        context: { ...createContext(false), elements: { floating: null, domReference: trigger } },
+      },
+    ];
+
+    expect(createTree(nodes).descendantContains('0', trigger, false, true)).toBe(false);
+    expect(createTree(nodes).descendantContains('0', trigger, true, true)).toBe(true);
+  });
+
   it('lists every node, including one whose parent is in another tree', () => {
     const nodes = [
       { id: '0', parentId: null, context: contextOpen },
       { id: '1', parentId: 'other-tree', context: contextOpen },
     ];
 
-    expect(createTree(nodes).nodes).toEqual(nodes);
+    const tree = createTree(nodes);
+
+    expect(tree.nodes).toEqual(nodes);
+    expect(tree.ancestors('1')).toEqual([]);
+    expect(tree.descendants('0', false)).toEqual([]);
   });
 });
