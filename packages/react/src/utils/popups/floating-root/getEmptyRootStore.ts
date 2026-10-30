@@ -12,9 +12,6 @@ export function getEmptyRootStore(): FloatingRootStore {
     anchorElement: null,
     triggerElements: new PopupTriggerMap(),
     defaultPopupId: undefined,
-    popupTree: null,
-    popupNodeId: undefined,
-    popupParentNodeId: null,
     onOpenChange: undefined,
   });
 }

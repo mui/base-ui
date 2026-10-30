@@ -81,9 +81,9 @@ interface FloatingRootStoreOptions {
   positionerElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
   defaultPopupId: string | undefined;
-  popupTree: PopupTreeRegistry | null;
-  popupNodeId: string | undefined;
-  popupParentNodeId: string | null;
+  popupTree?: PopupTreeRegistry | null | undefined;
+  popupNodeId?: string | undefined;
+  popupParentNodeId?: string | null | undefined;
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
@@ -102,7 +102,14 @@ export class FloatingRootStore
     const { onOpenChange, triggerElements, ...initialState } = options;
 
     super(
-      { ...initialState, transitionStatus: undefined, anchorOverride: null },
+      {
+        popupTree: null,
+        popupNodeId: undefined,
+        popupParentNodeId: null,
+        ...initialState,
+        transitionStatus: undefined,
+        anchorOverride: null,
+      },
       {
         onOpenChange,
         events: createEventEmitter(),
