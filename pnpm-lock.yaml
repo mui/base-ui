@@ -447,8 +447,8 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
       unist-util-visit-parents:
-        specifier: ^6.0.2
-        version: 6.0.2
+        specifier: ^6.1.0
+        version: 6.1.0
     devDependencies:
       '@mdx-js/mdx':
         specifier: 3.1.1
@@ -9121,8 +9121,8 @@ packages:
   unist-util-stringify-position@4.0.0:
     resolution: {integrity: sha512-0ASV06AAoKCDkS2+xw5RXJywruurpbC4JZSm7nr7MOt1ojAzvyyaO+UxZf18j8FCF6kmzCZKcAgN/yu2gm2XgQ==}
 
-  unist-util-visit-parents@6.0.2:
-    resolution: {integrity: sha512-goh1s1TBrqSqukSc8wrjwWhL0hiJxgA8m4kFxGlQ+8FYQ3C/m11FcTs4YYem7V664AhHVvgoQLk890Ssdsr2IQ==}
+  unist-util-visit-parents@6.1.0:
+    resolution: {integrity: sha512-vKXxz6O38sKDj1mtx/k2cWvkkFBuYGx6uGrlzBkVeWCRF/F8sdI0j3Wbkz/5rVNRRuVc8UrgRdbCxNhmYXgP3w==}
 
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
@@ -16589,7 +16589,7 @@ snapshots:
       '@types/mdast': 4.0.4
       escape-string-regexp: 5.0.0
       unist-util-is: 6.0.1
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
 
   mdast-util-from-markdown@2.1.0(supports-color@10.2.2):
     dependencies:
@@ -18390,7 +18390,7 @@ snapshots:
       mdast-util-phrasing: 4.1.0
       unified-lint-rule: 3.0.1
       unist-util-position: 5.0.0
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
       vfile-message: 4.0.3
 
   remark-lint-fenced-code-flag@4.2.0:
@@ -18400,7 +18400,7 @@ snapshots:
       quotation: 2.0.3
       unified-lint-rule: 3.0.1
       unist-util-position: 5.0.0
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
 
   remark-lint-heading-increment@4.0.1(supports-color@7.2.0):
     dependencies:
@@ -18408,7 +18408,7 @@ snapshots:
       devlop: 1.1.0
       mdast-util-mdx: 3.0.0(supports-color@7.2.0)
       unified-lint-rule: 3.0.1
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
       vfile-message: 4.0.3
     transitivePeerDependencies:
       - supports-color
@@ -18420,7 +18420,7 @@ snapshots:
       mdast-util-phrasing: 4.1.0
       unified-lint-rule: 3.0.1
       unist-util-position: 5.0.0
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
       vfile-message: 4.0.3
 
   remark-lint-no-duplicate-headings@4.0.1(supports-color@7.2.0):
@@ -18430,7 +18430,7 @@ snapshots:
       mdast-util-mdx: 3.0.0(supports-color@7.2.0)
       mdast-util-to-string: 4.0.0
       unified-lint-rule: 3.0.1
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
       vfile-message: 4.0.3
     transitivePeerDependencies:
       - supports-color
@@ -18439,7 +18439,7 @@ snapshots:
     dependencies:
       '@types/mdast': 4.0.4
       unified-lint-rule: 3.0.1
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
 
   remark-lint-no-heading-punctuation@4.0.1(supports-color@7.2.0):
     dependencies:
@@ -18447,7 +18447,7 @@ snapshots:
       mdast-util-mdx: 3.0.0(supports-color@7.2.0)
       mdast-util-to-string: 4.0.0
       unified-lint-rule: 3.0.1
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
     transitivePeerDependencies:
       - supports-color
 
@@ -18457,7 +18457,7 @@ snapshots:
       devlop: 1.1.0
       mdast-util-mdx: 3.0.0(supports-color@7.2.0)
       unified-lint-rule: 3.0.1
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
       vfile-message: 4.0.3
     transitivePeerDependencies:
       - supports-color
@@ -18470,7 +18470,7 @@ snapshots:
       micromark-util-normalize-identifier: 2.0.1
       unified-lint-rule: 3.0.1
       unist-util-position: 5.0.0
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
       vfile-location: 5.0.3
 
   remark-lint-no-unused-definitions@4.0.2:
@@ -18478,7 +18478,7 @@ snapshots:
       '@types/mdast': 4.0.4
       devlop: 1.1.0
       unified-lint-rule: 3.0.1
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
 
   remark-lint-table-pipes@5.0.1:
     dependencies:
@@ -18487,7 +18487,7 @@ snapshots:
       mdast-util-phrasing: 4.1.0
       unified-lint-rule: 3.0.1
       unist-util-position: 5.0.0
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
 
   remark-lint@10.0.1(supports-color@7.2.0):
     dependencies:
@@ -19569,7 +19569,7 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
 
-  unist-util-visit-parents@6.0.2:
+  unist-util-visit-parents@6.1.0:
     dependencies:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
@@ -19578,7 +19578,7 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
-      unist-util-visit-parents: 6.0.2
+      unist-util-visit-parents: 6.1.0
 
   universal-user-agent@7.0.3: {}
 
