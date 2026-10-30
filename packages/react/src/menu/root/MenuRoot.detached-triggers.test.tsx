@@ -5,6 +5,9 @@ import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { StoreInspector } from '@base-ui/utils/store';
 import { createRenderer, detachedTriggersConformanceTests, isJSDOM, wait } from '#test-utils';
+import type { MenuStore } from '../store/MenuStore';
+import { useMenuRootContext } from './MenuRootContext';
+import { usePopoverRootContext } from '../../popover/root/PopoverRootContext';
 
 describe('<MenuRoot />', () => {
   beforeEach(() => {
@@ -772,6 +775,61 @@ describe('<MenuRoot />', () => {
         'true',
       );
     }
+
+    it('places the menu under the node of the popover that holds its active trigger', async () => {
+      const handle = Menu.createHandle();
+      const popoverNodeIds: Record<string, string | undefined> = {};
+      let menuStore: MenuStore<unknown> | undefined;
+      function CapturePopoverNodeId({ name }: { name: string }) {
+        popoverNodeIds[name] = usePopoverRootContext().select('popupNodeId');
+        return null;
+      }
+      function CaptureMenuStore() {
+        menuStore = useMenuRootContext().store;
+        return null;
+      }
+      await render(
+        <React.Fragment>
+          {['first', 'second'].map((name) => (
+            <Popover.Root key={name} defaultOpen>
+              <CapturePopoverNodeId name={name} />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <Menu.Trigger handle={handle} id={`menu-trigger-${name}`}>
+                      {name}
+                    </Menu.Trigger>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          ))}
+          <Menu.Root handle={handle}>
+            <CaptureMenuStore />
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>,
+      );
+      expect(menuStore!.select('popupParentNodeId')).toBe(null);
+
+      await act(async () => {
+        handle.open('menu-trigger-first');
+      });
+      expect(menuStore!.select('popupParentNodeId')).toBe(popoverNodeIds.first);
+
+      await act(async () => {
+        handle.open('menu-trigger-second');
+      });
+      expect(menuStore!.select('popupParentNodeId')).toBe(popoverNodeIds.second);
+      const tree = menuStore!.select('popupTree');
+      expect(tree.getNode(menuStore!.select('popupNodeId'))?.parentId).toBe(popoverNodeIds.second);
+    });
 
     it('closes the whole menu from a submenu item after the menu moved to another popover', async () => {
       const { handle, view } = renderMenuAcrossPopovers();
