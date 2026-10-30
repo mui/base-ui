@@ -137,7 +137,7 @@ export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
 > {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {
-  loading: string | ToastManagerUpdateOptions<Data>;
+  loading: string | ToastManagerAddOptions<Data>;
   success:
     | string
     | ToastManagerUpdateOptions<Data>
