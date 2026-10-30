@@ -9,14 +9,9 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import {
-  useFloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../../utils/popups/tree/FloatingTree';
+import { usePopupTree, usePopupParentNodeId } from '../../utils/popups/tree/PopupTree';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
-import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -38,6 +33,7 @@ import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { mergeProps } from '../../merge-props';
+import { getMenuTreeEvents } from '../utils/menuTreeEvents';
 
 /**
  * A button that opens the menu.
@@ -83,14 +79,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
-  const floatingTreeRootFromContext = useFloatingTree();
-
-  const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
-    return floatingTreeRootFromContext ?? new FloatingTreeStore();
-  }, [floatingTreeRootFromContext]);
-
-  const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
-  const floatingParentNodeId = useFloatingParentNodeId();
+  const tree = usePopupTree();
+  const parentNodeId = usePopupParentNodeId();
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -100,9 +90,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       payload,
       closeDelay,
       parent,
-      floatingTreeRoot,
-      floatingNodeId,
-      floatingParentNodeId,
+      triggerTree: tree,
+      triggerParentNodeId: parentNodeId,
       keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
     },
   );
@@ -153,7 +142,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       return;
     }
 
-    floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
+    getMenuTreeEvents(store.select('popupTree')).emit('treeClose', {
+      domEvent: mouseEvent,
+      reason: REASONS.cancelOpen,
+    });
   });
 
   React.useEffect(() => {
@@ -184,7 +176,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     restMs: parent.type === undefined ? delay : undefined,
     delay: { close: closeDelay },
     triggerElementRef,
-    externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
   });
 

@@ -1,12 +1,15 @@
 import type {
+  Placement,
   UseFloatingOptions as UsePositionOptions,
   UseFloatingReturn as UsePositionFloatingReturn,
   VirtualElement,
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 
-import type { FloatingTreeStore } from './tree/FloatingTreeStore';
+import type { PopupTreeRegistry } from './tree/PopupTreeRegistry';
+import type { EventEmitter } from './createEventEmitter';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
 
@@ -33,10 +36,31 @@ export interface ExtendedElements {
   domReference: NarrowedElement<ReferenceType> | null;
 }
 
-export interface PopupEvents {
-  emit<T extends string>(event: T, data?: any): void;
-  on(event: string, handler: (data: any) => void): void;
-  off(event: string, handler: (data: any) => void): void;
+/**
+ * The events of one popup's interaction hooks.
+ */
+export interface PopupEventMap {
+  /**
+   * An accepted open change, emitted by `dispatchOpenChange`.
+   */
+  openChange: FloatingUIOpenChangeDetails;
+  /**
+   * A close request dropped because the popup was already closed, emitted by the popup store so a
+   * pending hover open is cancelled.
+   */
+  droppedClose: undefined;
+}
+
+export type PopupEvents = EventEmitter<PopupEventMap>;
+
+/**
+ * What `useFloating()` publishes about a positioned popup for the interaction hooks: its placement
+ * and elements. Written in a layout effect after every render.
+ */
+export interface FloatingPositioningData {
+  placement: Placement;
+  elements: ExtendedElements;
+  refs: { floating: React.RefObject<HTMLElement | null> };
 }
 
 /**
@@ -64,6 +88,18 @@ export interface PopupInteractionReader {
    * The popup's id unless its element sets one.
    */
   (key: 'defaultPopupId'): string | undefined;
+  /**
+   * The popup tree the popup belongs to or reads, if any.
+   */
+  (key: 'popupTree'): PopupTreeRegistry | null;
+  /**
+   * The id of the popup's own node in its popup tree. Only tree members have one.
+   */
+  (key: 'popupNodeId'): string | undefined;
+  /**
+   * The id of the node the popup is nested in, if any.
+   */
+  (key: 'popupParentNodeId'): string | null;
 }
 
 /**
@@ -73,7 +109,6 @@ export interface PopupInteractionReader {
  */
 export interface PopupInteractionContext {
   readonly events: PopupEvents;
-  nested: boolean;
   readonly triggerElements: PopupTriggerMap;
   /**
    * The event that opened the popup. Written by `dispatchOpenChange`; NavigationMenu clears it.
@@ -82,7 +117,7 @@ export interface PopupInteractionContext {
   /**
    * The popup's positioning. Written by `useFloating()`.
    */
-  positioning?: PopupPositioningContext | undefined;
+  positioning?: FloatingPositioningData | undefined;
   /**
    * The popup's list navigation orientation, which nested lists read from their parent. Written by
    * `useListNavigation`.
@@ -137,20 +172,11 @@ export type PopupPositioningContext = Omit<
   'refs' | 'elements'
 > & {
   open: boolean;
-  nodeId: string | undefined;
   defaultPopupId: string | undefined;
   refs: ExtendedRefs;
   elements: ExtendedElements;
   rootStore: PopupInteractionStore;
 };
-
-export interface FloatingNodeType {
-  id: string | undefined;
-  parentId: string | null;
-  context?: PopupPositioningContext | undefined;
-}
-
-export type FloatingTreeType = FloatingTreeStore;
 
 export interface ElementProps {
   reference?: React.HTMLProps<Element> | undefined;
@@ -199,12 +225,4 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    * closed.
    */
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-  /**
-   * Unique node id when using `FloatingTree`.
-   */
-  nodeId?: string | undefined;
-  /**
-   * External FloatingTree to use when the one provided by context can't be used.
-   */
-  externalTree?: FloatingTreeStore | undefined;
 }

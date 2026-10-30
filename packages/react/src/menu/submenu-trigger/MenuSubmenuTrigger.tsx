@@ -51,7 +51,8 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
-  const menuPositionerContext = useMenuPositionerContext();
+  // Throws when the trigger isn't rendered inside a parent menu's positioner.
+  useMenuPositionerContext();
   const submenuRootContext = useMenuSubmenuRootContext();
 
   const { store, parentVirtualFocus } = context;
@@ -63,7 +64,6 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const open = store.useState('open');
   const focusReturnedThroughGuardRef = React.useRef(false);
   const positionerElement = store.useState('positionerElement');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
@@ -169,7 +169,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
-    nodeId: menuPositionerContext?.context.nodeId,
+    nodeId: parentMenuStore.useState('popupNodeId'),
   });
 
   const hoverEnabled = store.useState('hoverEnabled');
@@ -183,7 +183,6 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     delay: { open: delay, close: closeDelay },
     shouldOpen: delay > 0 ? () => parentMenuStore.select('allowMouseEnter') : undefined,
     triggerElementRef,
-    externalTree: floatingTreeRoot,
     // Chrome can drop the trigger's `mouseleave` during a fast pointer sweep,
     // leaving a stale submenu open (see #5152) — cancel from `mouseout` too.
     guardStaleOpen: true,

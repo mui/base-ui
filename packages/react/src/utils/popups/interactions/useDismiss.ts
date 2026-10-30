@@ -15,8 +15,6 @@ import {
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
@@ -24,7 +22,6 @@ import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
 import { isEventTargetWithin, isRootElement } from '../element';
 import { isReactEvent, isVirtualClick } from '../event';
-import { getNodeChildren } from '../tree/nodes';
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -110,14 +107,10 @@ export interface UseDismissProps {
    * floating elements.
    * `escapeKey` also determines whether an Escape that reaches the document, rather than a
    * floating element, propagates to floating elements opened earlier, even when they share no
-   * `FloatingTree`.
+   * `PopupTree`.
    */
   bubbles?:
     boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
-  /**
-   * External FloatingTree to use when the one provided by context can't be used.
-   */
-  externalTree?: FloatingTreeStore | undefined;
 }
 
 /**
@@ -136,7 +129,6 @@ export function useDismiss(
     outsidePressEvent = 'sloppy',
     referencePress = alwaysFalse,
     bubbles,
-    externalTree,
   } = props;
 
   const open = store.useState('open');
@@ -144,7 +136,7 @@ export function useDismiss(
   const storeContext = store.context;
   const { events } = storeContext;
 
-  const tree = useFloatingTree(externalTree);
+  const tree = store.useState('popupTree');
   const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );
@@ -181,17 +173,6 @@ export function useDismiss(
     clearInsideReactTreeTimeout.clear();
     storeContext.insideReactTree = false;
   });
-
-  const hasBlockingChild = useStableCallback(
-    (bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles') => {
-      const nodeId = storeContext.positioning?.nodeId;
-      const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
-
-      return children.some(
-        (child) => child.context?.open && !child.context.rootStore.context[bubbleKey],
-      );
-    },
-  );
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
@@ -231,7 +212,10 @@ export function useDismiss(
         return;
       }
 
-      if (!escapeKeyBubbles && hasBlockingChild('escapeKeyBubbles')) {
+      if (
+        !escapeKeyBubbles &&
+        tree?.hasBlockingChild(store.select('popupNodeId'), 'escapeKeyBubbles')
+      ) {
         return;
       }
 
@@ -311,9 +295,9 @@ export function useDismiss(
       }
     }
 
-    events.on('openchange', handleOpenChange);
+    events.on('openChange', handleOpenChange);
     return () => {
-      events.off('openchange', handleOpenChange);
+      events.off('openChange', handleOpenChange);
     };
   }, [events]);
 
@@ -396,12 +380,10 @@ export function useDismiss(
     }
 
     function isEventWithinFloatingTree(event: Event) {
-      const nodeId = storeContext.positioning?.nodeId;
-      const targetIsInsideChildren =
-        tree &&
-        getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
-          isEventTargetWithin(event, node.context?.elements.floating),
-        );
+      const nodeId = store.select('popupNodeId');
+      const targetIsInsideChildren = tree
+        ?.descendants(nodeId)
+        .some((node) => isEventTargetWithin(event, node.context?.elements.floating));
 
       return isEventWithinOwnElements(event) || targetIsInsideChildren;
     }
@@ -533,7 +515,7 @@ export function useDismiss(
         return;
       }
 
-      if (hasBlockingChild('outsidePressBubbles')) {
+      if (tree?.hasBlockingChild(store.select('popupNodeId'), 'outsidePressBubbles')) {
         return;
       }
 
@@ -800,7 +782,6 @@ export function useDismiss(
     layer,
     clearInsideReactTree,
     getOutsidePressEventProp,
-    hasBlockingChild,
     isEventWithinOwnElements,
     tree,
     store,

@@ -4,7 +4,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useFloating as usePosition } from '@floating-ui/react-dom';
 import type { VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useFloatingTree } from '../tree/FloatingTree';
 import type {
   PopupPositioningContext,
   PopupInteractionStore,
@@ -22,7 +21,7 @@ import type {
 export function useBaseUIFloating(
   options: UseFloatingOptions & { rootStore: PopupInteractionStore },
 ): UseFloatingReturn {
-  const { nodeId, externalTree, rootStore: store } = options;
+  const { rootStore: store } = options;
 
   const anchor = store.useState('anchor');
   const positionerElement = store.useState('positionerElement');
@@ -34,7 +33,7 @@ export function useBaseUIFloating(
 
   const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
-  const tree = useFloatingTree(externalTree);
+  const tree = store.useState('popupTree');
 
   const storeElements = React.useMemo(
     () => ({
@@ -94,10 +93,9 @@ export function useBaseUIFloating(
       defaultPopupId,
       refs,
       elements,
-      nodeId,
       rootStore: store,
     }),
-    [position, refs, elements, nodeId, store, open, defaultPopupId],
+    [position, refs, elements, store, open, defaultPopupId],
   );
 
   useIsoLayoutEffect(() => {
@@ -109,7 +107,7 @@ export function useBaseUIFloating(
   useIsoLayoutEffect(() => {
     store.context.positioning = context;
 
-    const node = tree?.nodesRef.current.find((n) => n.id === nodeId);
+    const node = tree?.getNode(store.select('popupNodeId'));
     if (node) {
       node.context = context;
     }

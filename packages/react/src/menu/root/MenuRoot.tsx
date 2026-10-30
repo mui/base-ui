@@ -6,11 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import {
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../../utils/popups/tree/FloatingTree';
+import { PopupTreeContext } from '../../utils/popups/tree/PopupTree';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
@@ -117,8 +113,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   // at the generated fallback.
   const defaultPopupId = (renderedPopupId ?? generatedPopupId) || undefined;
 
-  const floatingParentNodeIdFromContext = useFloatingParentNodeId();
-
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
   // An initially open submenu should animate in only when the user watches it appear, i.e. when
   // its subtree mounts because the parent popup is playing its own enter transition. A parent
@@ -158,12 +152,10 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       return menuStore;
     },
     defaultPopupId,
-    { animateInitialOpen },
+    { animateInitialOpen, ownsTreeNode: true },
   );
 
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
-
-  const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
+  const floatingTreeRoot = store.useState('popupTree');
 
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
@@ -172,12 +164,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const parent = store.useState('parent');
   const activeIndex = store.useState('activeIndex');
   const keyboardOpen = store.useState('keyboardOpen');
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
-
-  const nested = floatingParentNodeId != null;
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
@@ -196,6 +185,16 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     openMethod,
     rootId,
   });
+
+  const popupNodeId = store.useState('popupNodeId');
+
+  useIsoLayoutEffect(() => {
+    if (!popupNodeId) {
+      return undefined;
+    }
+
+    return store.registerTreeNode(popupNodeId);
+  }, [store, popupNodeId]);
 
   const runOnceAnimationsFinish = useAnimationsFinished(store.context.popupRef);
 
@@ -249,30 +248,12 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     if (contextMenuContext && !parentMenuRootContext) {
       // This is a context menu root.
       // It doesn't support detached triggers yet, so we have to sync the parent context manually.
-      store.update({
-        parent: {
-          type: 'context-menu',
-          context: contextMenuContext,
-        },
-        floatingNodeId: floatingNodeIdFromContext,
-        floatingParentNodeId: floatingParentNodeIdFromContext,
-      });
-    } else if (parentMenuRootContext || !store.select('activeTriggerElement')) {
-      // Without an active trigger, the root must supply its own tree IDs.
-      // Read the store here: a trigger can register after render, before this effect.
-      store.update({
-        floatingNodeId: floatingNodeIdFromContext,
-        floatingParentNodeId: floatingParentNodeIdFromContext,
+      store.set('parent', {
+        type: 'context-menu',
+        context: contextMenuContext,
       });
     }
-  }, [
-    contextMenuContext,
-    parentMenuRootContext,
-    floatingNodeIdFromContext,
-    floatingParentNodeIdFromContext,
-    activeTriggerElement,
-    store,
-  ]);
+  }, [contextMenuContext, parentMenuRootContext, store]);
 
   React.useEffect(() => {
     if (!open) {
@@ -350,7 +331,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
       return allowOutsidePressDismissalRef.current;
     },
-    externalTree: nested ? floatingTreeRoot : undefined,
   });
 
   const direction = useDirection();
@@ -381,7 +361,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
     // forwarded cross-axis keys while closed.
     openOnArrowKeyDown: parent.type !== 'context-menu' && !(virtualFocus && isSubmenu),
-    externalTree: !virtualFocus && nested ? floatingTreeRoot : undefined,
     nestedReturnFocusRef: parentMenuStore?.context.virtualFocusRef,
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave,
@@ -590,8 +569,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   );
 
   if (parent.type === undefined || parent.type === 'context-menu') {
-    // set up a FloatingTree to provide the context to nested menus
-    content = <FloatingTree externalTree={floatingTreeRoot}>{content}</FloatingTree>;
+    content = (
+      <PopupTreeContext.Provider value={floatingTreeRoot}>{content}</PopupTreeContext.Provider>
+    );
   }
 
   return content;

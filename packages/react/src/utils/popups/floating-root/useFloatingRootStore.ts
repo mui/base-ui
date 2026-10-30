@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../popupTriggerMap';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { useFloatingParentNodeId } from '../tree/FloatingTree';
+import { usePopupParentNodeId, usePopupTree } from '../tree/PopupTree';
 import { FloatingRootStore } from './FloatingRootStore';
 import type { FloatingRootState as State } from './FloatingRootStore';
 
@@ -39,6 +39,10 @@ export interface UseFloatingRootStoreOptions {
         positionerElement?: HTMLElement | null | undefined;
       }
     | undefined;
+  /**
+   * The id of the popup's node in the popup tree, if it registers one.
+   */
+  nodeId?: string | undefined;
 }
 
 /**
@@ -47,10 +51,11 @@ export interface UseFloatingRootStoreOptions {
  * whenever they change; `onOpenChange` and the nesting flag are updated during render.
  */
 export function useFloatingRootStore(options: UseFloatingRootStoreOptions): FloatingRootStore {
-  const { open = false, onOpenChange, elements = {} } = options;
+  const { open = false, onOpenChange, elements = {}, nodeId } = options;
 
   const defaultPopupId = useId();
-  const nested = useFloatingParentNodeId() != null;
+  const popupTree = usePopupTree();
+  const popupParentNodeId = usePopupParentNodeId();
 
   const store = useRefWithInit(
     () =>
@@ -61,7 +66,9 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
         positionerElement: elements.positionerElement ?? null,
         triggerElements: new PopupTriggerMap(),
         defaultPopupId,
-        nested,
+        popupTree,
+        popupNodeId: nodeId,
+        popupParentNodeId,
       }),
   ).current;
 
@@ -82,8 +89,9 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
     store.update(valuesToSync);
   }, [open, defaultPopupId, elements.anchor, elements.positionerElement, store]);
 
+  store.useSyncedValues({ popupTree, popupNodeId: nodeId, popupParentNodeId });
+
   store.context.onOpenChange = onOpenChange;
-  store.context.nested = nested;
 
   return store;
 }

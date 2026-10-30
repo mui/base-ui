@@ -29,7 +29,6 @@ import type {
   PositioningInteractionStore,
   PopupPositioningContext,
 } from '../utils/popups/types';
-import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../utils/popups/positioning/arrow';
@@ -156,10 +155,8 @@ export function useAnchorPositioning(
     mounted,
     collisionAvoidance,
     shift,
-    nodeId,
     adaptiveOrigin,
     lazyFlip = false,
-    externalTree,
   } = params;
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
@@ -495,8 +492,6 @@ export function useAnchorPositioning(
     whileElementsMounted: keepMounted
       ? undefined
       : (...args) => autoUpdate(...args, autoUpdateOptions),
-    nodeId,
-    externalTree,
   });
 
   // An arrow that mounts or unmounts after the popup is positioned doesn't resize the positioner, so
@@ -827,7 +822,6 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    */
   interactionStore: PositioningInteractionStore;
   mounted: boolean;
-  nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
   shift?:
@@ -841,7 +835,6 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    * popup. `true` locks the side only; `'placement'` also locks the alignment.
    */
   lazyFlip?: boolean | 'placement' | undefined;
-  externalTree?: FloatingTreeStore | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision
    * middleware run. Used by Preview Card to position against a specific inline line box.

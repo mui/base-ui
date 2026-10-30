@@ -25,7 +25,6 @@ import {
   getPreviousTabbable,
 } from './tabbable';
 import type { FocusableElement } from './tabbable';
-import { getNodeAncestors, getNodeChildren } from '../tree/nodes';
 import { isElementVisible } from '../../../internals/composite/listIndex';
 import type { PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
@@ -34,8 +33,6 @@ import { createAttribute } from '../createAttribute';
 import { enqueueFocus } from './enqueueFocus';
 import { markOthers } from './markOthers';
 import { usePortalContext } from '../portal/FloatingPortal';
-import { useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../../internals/constants';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { resolveRef } from '../../resolveRef';
@@ -245,10 +242,6 @@ export interface FloatingFocusManagerProps {
    */
   beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null> | undefined;
   /**
-   * External FloatingTree to use when the one provided by context can't be used.
-   */
-  externalTree?: FloatingTreeStore | undefined;
-  /**
    * Additional elements that should be treated as part of the floating subtree
    * even if they are rendered outside the floating element itself.
    */
@@ -275,7 +268,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     nextFocusableElement,
     previousFocusableElement,
     beforeContentFocusGuardRef,
-    externalTree,
     getInsideElements,
   } = props;
 
@@ -285,8 +277,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const storeContext = store.context;
   const { events } = storeContext;
-
-  const getNodeId = useStableCallback(() => storeContext.positioning?.nodeId);
 
   const ignoreInitialFocus = initialFocus === false;
   // A typeable combobox reference (e.g. input/textarea) with `initialFocus={false}`
@@ -303,7 +293,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
   const openRef = useValueAsRef(open);
 
-  const tree = useFloatingTree(externalTree);
+  const tree = store.useState('popupTree');
   const portalContext = usePortalContext();
 
   const preventReturnFocusRef = React.useRef(false);
@@ -457,7 +447,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
 
       queueMicrotask(() => {
-        const nodeId = getNodeId();
+        const nodeId = store.select('popupNodeId');
         const triggers = store.context.triggerElements;
         const insideElements = getResolvedInsideElements();
         const isRelatedFocusGuard =
@@ -483,20 +473,21 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ) ||
           triggers.hasMatchingElement((trigger) => contains(trigger, relatedTarget)) ||
           isRelatedFocusGuard ||
-          (tree &&
-            (getNodeChildren(tree.nodesRef.current, nodeId).find(
+          tree?.descendantContains(
+            nodeId,
+            relatedTarget,
+            /* includeClosed */ false,
+            /* includeTriggers */ true,
+          ) ||
+          tree
+            ?.ancestors(nodeId)
+            .some(
               (node) =>
-                contains(node.context?.elements.floating, relatedTarget) ||
-                contains(node.context?.elements.domReference, relatedTarget),
-            ) ||
-              getNodeAncestors(tree.nodesRef.current, nodeId).find(
-                (node) =>
-                  [
-                    node.context?.elements.floating,
-                    getFloatingFocusElement(node.context?.elements.floating),
-                  ].includes(relatedTarget) ||
-                  node.context?.elements.domReference === relatedTarget,
-              )))
+                [
+                  node.context?.elements.floating,
+                  getFloatingFocusElement(node.context?.elements.floating),
+                ].includes(relatedTarget) || node.context?.elements.domReference === relatedTarget,
+            )
         );
 
         if (currentTarget === domReference && floatingFocusElement) {
@@ -610,7 +601,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     restoreFocus,
     getTabbableContent,
     isUntrappedTypeableCombobox,
-    getNodeId,
     storeContext,
     blurTimeout,
     pointerDownTimeout,
@@ -631,10 +621,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       portalContext?.portalNode?.querySelectorAll(`[${createAttribute('portal')}]`) || [],
     );
 
-    const ancestors = tree ? getNodeAncestors(tree.nodesRef.current, getNodeId()) : [];
-    const rootAncestorComboboxDomReference = ancestors.find((node) =>
-      isTypeableCombobox(node.context?.elements.domReference || null),
-    )?.context?.elements.domReference;
+    const rootAncestorComboboxDomReference = tree
+      ?.ancestors(store.select('popupNodeId'))
+      .find((node) => isTypeableCombobox(node.context?.elements.domReference || null))?.context
+      ?.elements.domReference;
 
     const controlInsideElements = [
       floating,
@@ -674,7 +664,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     portalContext,
     isUntrappedTypeableCombobox,
     tree,
-    getNodeId,
+    store,
     nextFocusableElement,
     previousFocusableElement,
     getResolvedInsideElements,
@@ -820,7 +810,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         return;
       }
 
-      if (details.nested) {
+      if (store.select('popupParentNodeId') != null) {
         preventReturnFocusRef.current = false;
       } else if (
         isVirtualClick(details.nativeEvent as MouseEvent) ||
@@ -851,7 +841,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
     }
 
-    events.on('openchange', onOpenChangeLocal);
+    events.on('openChange', onOpenChangeLocal);
 
     function getReturnElement(closeType: InteractionType) {
       const returnFocusValueOrFn = returnFocusRef.current;
@@ -891,17 +881,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     return () => {
-      events.off('openchange', onOpenChangeLocal);
+      events.off('openChange', onOpenChangeLocal);
 
       const activeEl = activeElement(doc);
       const insideElements = getResolvedInsideElements();
       const isFocusInsideFloatingTree =
         contains(floating, activeEl) ||
         insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||
-        (tree &&
-          getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
-            contains(node.context?.elements.floating, activeEl),
-          ));
+        tree?.descendantContains(store.select('popupNodeId'), activeEl, /* includeClosed */ true);
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
@@ -964,8 +951,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     events,
     tree,
     domReference,
-    getNodeId,
     getResolvedInsideElements,
+    store,
   ]);
 
   // Safari may randomly scroll to the bottom of the page if an input inside a popup has focus

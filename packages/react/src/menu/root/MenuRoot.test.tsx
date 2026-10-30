@@ -1163,6 +1163,26 @@ describe('<Menu.Root />', () => {
     });
 
     describe('nested menus', () => {
+      it('closes only a hover-opened submenu on Escape while focus stays on its trigger', async () => {
+        const { user } = await render(<TestMenu submenuTriggerProps={{ delay: 0 }} />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.hover(submenuTrigger);
+        await screen.findByTestId('submenu');
+        await act(async () => {
+          submenuTrigger.focus();
+        });
+        expect(screen.getByTestId('menu')).toBeVisible();
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).toBe(null);
+        });
+        expect(screen.getByTestId('menu')).toBeVisible();
+      });
+
       it.skipIf(isJSDOM).each([
         { orientation: 'vertical', direction: 'ltr', openKey: 'ArrowRight', closeKey: 'ArrowLeft' },
         { orientation: 'vertical', direction: 'rtl', openKey: 'ArrowLeft', closeKey: 'ArrowRight' },
@@ -2468,6 +2488,52 @@ describe('<Menu.Root />', () => {
     });
 
     describe('prop: openOnHover', () => {
+      it.skipIf(isJSDOM)(
+        'keeps a hover-opened menu open while the pointer moves into its open submenu',
+        async () => {
+          ignoreActWarnings();
+          const { userEvent: pointer } = await import('vitest/browser');
+          await render(
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={0} closeDelay={0}>
+                Open
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="menu">
+                    <Menu.Item>Item</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>More</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="submenu">
+                            <Menu.Item>Deep</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          await pointer.hover(screen.getByRole('button', { name: 'Open' }));
+          await screen.findByTestId('menu');
+          await pointer.hover(screen.getByRole('menuitem', { name: 'Item' }));
+          await pointer.hover(screen.getByRole('menuitem', { name: 'More' }));
+          await screen.findByTestId('submenu');
+
+          await pointer.hover(screen.getByRole('menuitem', { name: 'Deep' }));
+          await act(async () => {
+            await wait(100);
+          });
+
+          expect(screen.queryByTestId('menu')).not.toBe(null);
+          expect(screen.queryByTestId('submenu')).not.toBe(null);
+        },
+      );
+
       it('opens when the trigger is hovered and closes when it is no longer hovered', async () => {
         await render(<TestMenu triggerProps={{ openOnHover: true, delay: 0 }} />);
 

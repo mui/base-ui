@@ -13,7 +13,7 @@ import type { PopupInteractionContext } from '../types';
  * @param eventDetails Details about the event that caused the change.
  */
 export function dispatchOpenChange(
-  context: Pick<PopupInteractionContext, 'openEvent' | 'events' | 'nested'>,
+  context: Pick<PopupInteractionContext, 'openEvent' | 'events'>,
   open: boolean,
   newOpen: boolean,
   eventDetails: BaseUIChangeEventDetails<string>,
@@ -35,9 +35,8 @@ export function dispatchOpenChange(
     open: newOpen,
     reason: eventDetails.reason,
     nativeEvent: event,
-    nested: context.nested,
     triggerElement: eventDetails.trigger,
   };
 
-  context.events.emit('openchange', details);
+  context.events.emit('openChange', details);
 }

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
+import { PopupTreeNode, useRegisterPopupNode } from '../../utils/popups/tree/PopupTree';
 import type {
   Side,
   Align,
@@ -26,7 +26,8 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 ) {
   const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
-  const nodeId = useFloatingNodeId();
+  const nodeId = store.useState('popupNodeId');
+  useRegisterPopupNode(nodeId);
 
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
@@ -34,7 +35,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     forwardedRef,
     keepMounted,
     positioning: {
-      nodeId,
       inline: createInlineMiddleware(inlineRectCoordsRef),
     },
   });
@@ -48,7 +48,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   return (
     <PreviewCardPositionerContext.Provider value={positioning}>
-      <FloatingNode id={nodeId}>{element}</FloatingNode>
+      <PopupTreeNode id={nodeId}>{element}</PopupTreeNode>
     </PreviewCardPositionerContext.Provider>
   );
 });

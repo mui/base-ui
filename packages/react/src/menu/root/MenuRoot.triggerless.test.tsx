@@ -2,10 +2,10 @@ import * as React from 'react';
 import { beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { useMenuRootContext } from './MenuRootContext';
+import type { MenuStore } from '../store/MenuStore';
 
 function Popup({ children, ...props }: Menu.Portal.Props) {
   return (
@@ -229,40 +229,24 @@ describe('<Menu.Root /> without a trigger', () => {
     expect(changed).not.toHaveBeenCalled();
   });
 
-  it.each([false, true])(
-    'preserves real trigger registration, initially present=%s',
-    async (initialTrigger) => {
+  it.each([
+    { name: 'from the start', initialTrigger: true },
+    { name: 'later', initialTrigger: false },
+  ])(
+    'keeps one tree node for the menu when a real trigger renders $name',
+    async ({ initialTrigger }) => {
       const changed = vi.fn();
-      const registered = vi.fn();
-      const rootIds = vi.fn();
-      function CaptureTriggerIds() {
-        const { store } = useMenuRootContext();
-        useIsoLayoutEffect(() => {
-          registered(store, store.select('floatingNodeId'), store.select('floatingParentNodeId'));
-        }, [store]);
+      let menuStore: MenuStore<unknown> | undefined;
+      function CaptureStore() {
+        menuStore = useMenuRootContext().store;
         return null;
       }
       function Demo() {
         const [hasTrigger, setHasTrigger] = React.useState(initialTrigger);
-        useIsoLayoutEffect(() => {
-          if (hasTrigger) {
-            const [store, nodeId, parentNodeId] = registered.mock.lastCall!;
-            rootIds(
-              store.select('floatingNodeId'),
-              nodeId,
-              store.select('floatingParentNodeId'),
-              parentNodeId,
-            );
-          }
-        }, [hasTrigger]);
         return (
           <Menu.Root defaultOpen modal={false} onOpenChange={changed}>
-            {hasTrigger && (
-              <React.Fragment>
-                <Menu.Trigger>Options</Menu.Trigger>
-                <CaptureTriggerIds />
-              </React.Fragment>
-            )}
+            <CaptureStore />
+            {hasTrigger && <Menu.Trigger>Options</Menu.Trigger>}
             <Popup>
               <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger
@@ -291,15 +275,13 @@ describe('<Menu.Root /> without a trigger', () => {
       await focusItem('More');
       await user.keyboard('{F2}');
       const trigger = screen.getByRole('button', { name: 'Options' });
-      expect(rootIds).toHaveBeenCalled();
-      for (const [nodeId, triggerNodeId, parentNodeId, triggerParentNodeId] of rootIds.mock.calls) {
-        expect(triggerNodeId).toBeDefined();
-        expect(nodeId).toBe(triggerNodeId);
-        expect(parentNodeId).toBe(triggerParentNodeId);
-      }
       await user.keyboard('{ArrowRight}');
       await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Nested' })).toHaveFocus());
       expect(changed).not.toHaveBeenCalled();
+      const tree = menuStore!.select('popupTree');
+      const menuNodeId = menuStore!.select('popupNodeId');
+      expect(tree.nodes.filter((node) => node.id === menuNodeId)).toHaveLength(1);
+      expect(tree.nodes.some((node) => node.parentId === menuNodeId)).toBe(true);
       await user.keyboard('{Escape}');
       await waitFor(() => expect(screen.queryByRole('menuitem', { name: 'Nested' })).toBeNull());
       await user.keyboard('{Escape}');

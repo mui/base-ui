@@ -8,6 +8,7 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
+import { getMenuTreeEvents } from '../utils/menuTreeEvents';
 
 function preventMouseDownDefault(event: React.MouseEvent) {
   event.preventDefault();
@@ -67,7 +68,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       : rootContext.store;
   const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
-  const { events: menuEvents } = store.useState('floatingTreeRoot');
+  const menuEvents = getMenuTreeEvents(store.useState('popupTree'));
   const open = store.useState('open');
 
   const isContextMenu = contextMenuContext !== undefined;
@@ -94,14 +95,14 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
 
         // Inform the floating tree that a menu item within this menu was hovered/moved over
         // so unrelated descendant submenus can be closed.
-        menuEvents.emit('itemhover', {
+        menuEvents.emit('nodeItemHover', {
           nodeId,
           target: event.currentTarget,
         });
       },
       onClick(event: React.MouseEvent) {
         if (closeOnClick) {
-          menuEvents.emit('close', { domEvent: event.nativeEvent, reason: REASONS.itemPress });
+          menuEvents.emit('treeClose', { domEvent: event.nativeEvent, reason: REASONS.itemPress });
         }
       },
       onMouseUp(event: React.MouseEvent) {
