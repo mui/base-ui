@@ -532,9 +532,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
             }
           },
           onKeyDown(event: React.KeyboardEvent) {
-            // The Menubar's CompositeRoot captures keyboard events via
-            // event delegation. This works well when Menu.Root is nested inside Menubar,
-            // but with detached triggers we need to manually forward the event to the CompositeRoot.
+            // The Menubar's CompositeRoot ignores keys from its portaled menus, so forward them
+            // explicitly to move between the Menubar's menus.
             const relay = store.select('keyboardEventRelay');
             if (relay && !event.isPropagationStopped()) {
               relay(event);
