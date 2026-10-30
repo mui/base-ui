@@ -8,7 +8,7 @@ describe('<Accordion.Trigger />', () => {
 
   describeConformance(<Accordion.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render: (node) =>
       render(
@@ -33,6 +33,21 @@ describe('<Accordion.Trigger />', () => {
     const trigger = screen.getByRole('button', { name: 'Trigger' });
     expect(trigger).toBeDisabled();
     expect(trigger).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('adds data-disabled when only the trigger is disabled', async () => {
+    await render(
+      <Accordion.Root>
+        <Accordion.Item>
+          <Accordion.Header>
+            <Accordion.Trigger disabled>Trigger</Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>Panel</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute('data-disabled');
   });
 
   it('removes a disabled non-native trigger from the tab order', async () => {

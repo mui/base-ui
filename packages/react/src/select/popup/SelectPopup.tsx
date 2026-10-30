@@ -9,17 +9,16 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { clamp } from '@base-ui/utils/clamp';
-import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-react';
-import type { ClientRectObject } from '../../floating-ui-react';
+import { platform as floatingPlatform } from '@floating-ui/react-dom';
+import type { ClientRectObject } from '@floating-ui/react-dom';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { styleDisableScrollbar } from '../../utils/styles';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
@@ -32,11 +31,6 @@ import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scroll
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import * as SelectPositionerCssVars from '../positioner/SelectPositionerCssVars';
-
-const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
-  ...popupStateMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * A container for the select list.
@@ -54,7 +48,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
   const highlightItemOnHover = store.useState('highlightItemOnHover');
-  const floatingRootContext = useSelectFloatingContext();
   const {
     side,
     align,
@@ -180,7 +173,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.onOpenChangeComplete(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -426,7 +419,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: UIEvent) {
-      store.context.setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
+      store.setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
     }
 
     return addEventListener(win, 'resize', handleResize);
@@ -462,9 +455,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   };
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
     props: [
       popupProps,
       defaultProps,
@@ -477,7 +470,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     <React.Fragment>
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
-        context={floatingRootContext}
+        store={store}
         modal={false}
         disabled={!mounted}
         openInteractionType={openMethod}

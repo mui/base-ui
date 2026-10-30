@@ -114,7 +114,10 @@ export function MethodsReferenceAccordion({
                           {method.parameters.map((param) => (
                             <li key={param.name}>
                               <div className="MethodParamRow">
-                                <TableCode style={{ color: 'var(--color-navy)' }}>
+                                <TableCode
+                                  style={{ color: 'var(--color-navy)' }}
+                                  className="bui-ws-nw"
+                                >
                                   {param.name}
                                   {param.optional && '?'}
                                 </TableCode>

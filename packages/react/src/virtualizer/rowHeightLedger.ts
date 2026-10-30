@@ -151,9 +151,9 @@ export class RowHeightLedger<RowModel> {
   // The collection the samples describe. Filtering replaces the row array, but measurements from
   // the same keyed collection remain useful when the full list returns, so the samples are reset
   // only when the estimate or the logical collection changes.
-  private sampledRows: VirtualizerRow<RowModel>[];
-  private sampledEstimatedItemHeight: number | null;
-  private readonly knownRowIds: Set<React.Key>;
+  declare private sampledRows: VirtualizerRow<RowModel>[];
+  declare private sampledEstimatedItemHeight: number | null;
+  declare private readonly knownRowIds: Set<React.Key>;
 
   private inputs: RowHeightRefreshInputs<RowModel> | null = null;
   private lastRefreshInputs: unknown[] | null = null;

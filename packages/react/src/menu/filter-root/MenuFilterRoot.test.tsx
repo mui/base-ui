@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import {
   act,
@@ -19,6 +19,7 @@ import {
   firePointer,
   isJSDOM,
   resetBrowserPointer,
+  wait,
   waitSingleFrame,
 } from '#test-utils';
 
@@ -46,6 +47,44 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   const { render, renderToString } = createRenderer();
   // Strict Mode's double render would hide an extra commit from a render count.
   const { render: renderNonStrict } = createRenderer({ strict: false });
+
+  it.skipIf(isJSDOM)('keeps input focus after selecting an item by drag release', async () => {
+    ignoreActWarnings();
+    await render(
+      <Menu.FilterProvider>
+        <Menu.Root highlightItemOnHover={false}>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.CheckboxItem>Two</Menu.CheckboxItem>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Actions' }));
+
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Two' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    await wait(200);
+    fireEvent.mouseUp(checkbox);
+
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+    expect(input).toHaveFocus();
+  });
 
   describe('opening with a query', () => {
     it('keeps the matching items mounted', async () => {
@@ -103,6 +142,127 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   describe('filtering', () => {
+    it.skipIf(isJSDOM).each(['ArrowDown', 'ArrowUp'])(
+      'ignores %s in the input while the popup animates out',
+      async (key) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const onOpenChange = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root onOpenChange={onOpenChange}>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="filter-menu-exit-test">
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <style>{`
+              .filter-menu-exit-test[data-ending-style] {
+                animation: filter-menu-exit-test 10s linear;
+              }
+              @keyframes filter-menu-exit-test {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+            `}</style>
+          </Menu.FilterProvider>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard('[Escape]');
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+
+        await user.keyboard(`[${key}]`);
+
+        expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      },
+    );
+
+    it.skipIf(isJSDOM).each([
+      { name: 'an empty query', query: '', matches: 2 },
+      { name: 'a query', query: 're', matches: 1 },
+    ])(
+      'ignores text typed in the input while the popup animates out with $name',
+      async ({ query, matches }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider defaultValue={query} onValueChange={onValueChange}>
+            <Menu.Root>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="filter-menu-exit-typing-test">
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <style>{`
+              .filter-menu-exit-typing-test[data-ending-style] {
+                animation: filter-menu-exit-typing-test 10s linear;
+              }
+              @keyframes filter-menu-exit-typing-test {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+            `}</style>
+          </Menu.FilterProvider>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await waitFor(() => {
+          expect(screen.getAllByRole('menuitem')).toHaveLength(matches);
+        });
+
+        await user.keyboard('[Escape]');
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+        // The closing popup keeps showing the query it closed with.
+        expect(input).toHaveValue(query);
+        const changesBeforeTyping = onValueChange.mock.calls.map(([value, details]) => [
+          value,
+          details.reason,
+        ]);
+
+        await user.keyboard('n');
+
+        expect(onValueChange.mock.calls.map(([value, details]) => [value, details.reason])).toEqual(
+          changesBeforeTyping,
+        );
+        expect(input).toHaveValue(query);
+        expect(screen.getAllByRole('menuitem')).toHaveLength(matches);
+      },
+    );
+
     it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
@@ -1099,6 +1259,164 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await user.keyboard('[End]');
       expect(input.selectionStart).toBe(2);
       expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+    });
+
+    describe('Space', () => {
+      function SpaceTest(props: { onRenameClick: () => void }) {
+        return (
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item onClick={props.onRenameClick}>Rename</Menu.Item>
+                      <Menu.Item>Remove</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      it('activates the highlighted item while the input is empty', async () => {
+        const onRenameClick = vi.fn();
+        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
+
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await user.click(input);
+        await user.keyboard('[ArrowDown]');
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Rename' }).id,
+        );
+
+        await user.keyboard(' ');
+
+        expect(onRenameClick).toHaveBeenCalledTimes(1);
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).toBe(null);
+        });
+      });
+
+      it('does nothing while the input is empty and no item is highlighted', async () => {
+        const onRenameClick = vi.fn();
+        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
+
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await user.click(input);
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+
+        await user.keyboard(' ');
+
+        expect(input.value).toBe('');
+        expect(onRenameClick).not.toHaveBeenCalled();
+        expect(screen.getByRole('menu')).not.toBe(null);
+      });
+
+      it('types into a non-empty input with a highlighted item', async () => {
+        const onRenameClick = vi.fn();
+        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
+
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await user.click(input);
+        await user.keyboard('re[ArrowDown]');
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Rename' }).id,
+        );
+
+        await user.keyboard(' ');
+
+        expect(input.value).toBe('re ');
+        expect(onRenameClick).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('cross-axis arrow keys with a query', () => {
+      function SubmenuTest() {
+        return (
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.Input aria-label="Filter folders" />
+                                <Menu.List>
+                                  <Menu.Item>Archive</Menu.Item>
+                                </Menu.List>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      it('opens the highlighted submenu with ArrowRight only from the end of the text', async () => {
+        const { user } = await render(<SubmenuTest />);
+
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await user.click(input);
+        await user.keyboard('mo[ArrowDown]');
+        const trigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+        expect(input).toHaveAttribute('aria-activedescendant', trigger.id);
+        input.setSelectionRange(1, 1);
+
+        await user.keyboard('[ArrowRight]');
+        expect(input.selectionStart).toBe(2);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+        await user.keyboard('[ArrowRight]');
+        const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        await waitFor(() => {
+          expect(submenuInput).toHaveFocus();
+        });
+      });
+
+      it('closes the submenu with ArrowLeft only from the start of the text', async () => {
+        const { user } = await render(<SubmenuTest />);
+
+        const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await user.click(parentInput);
+        await user.keyboard('[ArrowDown][ArrowRight]');
+        const submenuInput = await screen.findByRole<HTMLInputElement>('searchbox', {
+          name: 'Filter folders',
+        });
+        await waitFor(() => {
+          expect(submenuInput).toHaveFocus();
+        });
+        await user.keyboard('ar');
+
+        await user.keyboard('[ArrowLeft][ArrowLeft]');
+        expect(submenuInput.selectionStart).toBe(0);
+        expect(submenuInput).toHaveFocus();
+
+        await user.keyboard('[ArrowLeft]');
+        await waitFor(() => {
+          expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
+        });
+        expect(parentInput).toHaveFocus();
+      });
     });
 
     it('uses Home and End for list navigation after an item is highlighted', async () => {
@@ -4424,6 +4742,299 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
     });
+
+    it.skipIf(isJSDOM).each([
+      {
+        name: 'Escape',
+        close: (user: ReturnType<typeof userEvent.setup>) => user.keyboard('[Escape]'),
+      },
+      {
+        name: 'an item press',
+        close: (user: ReturnType<typeof userEvent.setup>) =>
+          user.click(screen.getByRole('menuitem', { name: 'Apricot' })),
+      },
+      {
+        name: 'an outside press',
+        close: (user: ReturnType<typeof userEvent.setup>) => user.click(document.body),
+      },
+    ])(
+      'keeps externally filtered items while the popup animates out after $name',
+      async ({ close }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const fruits = ['Apple', 'Apricot', 'Banana'];
+        const onValueChange = vi.fn();
+
+        function ExternalFilterMenu() {
+          const { contains } = Menu.useFilter();
+          const [query, setQuery] = React.useState('');
+          const results = fruits.filter((fruit) => contains(fruit, query));
+
+          return (
+            <React.Fragment>
+              <style>{`
+                @keyframes filter-menu-external-exit-test {
+                  to { opacity: 0; }
+                }
+                .filter-menu-external-exit-test[data-ending-style] {
+                  animation: filter-menu-external-exit-test 10s linear;
+                }
+              `}</style>
+              <Menu.FilterProvider
+                filter={null}
+                value={query}
+                onValueChange={(value, eventDetails) => {
+                  onValueChange(value, eventDetails.reason);
+                  setQuery(value);
+                }}
+              >
+                <Menu.Root>
+                  <Menu.Trigger>Fruit</Menu.Trigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="popup" className="filter-menu-external-exit-test">
+                        <Menu.Input aria-label="Filter fruit" />
+                        <Menu.List>
+                          {results.map((fruit) => (
+                            <Menu.Item key={fruit}>{fruit}</Menu.Item>
+                          ))}
+                        </Menu.List>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.FilterProvider>
+            </React.Fragment>
+          );
+        }
+
+        function getItemNames() {
+          return screen.getAllByRole('menuitem').map((item) => item.textContent);
+        }
+
+        const { user } = await render(<ExternalFilterMenu />);
+
+        await user.click(screen.getByRole('button', { name: 'Fruit' }));
+        const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+        await user.type(input, 'ap');
+        await waitFor(() => {
+          expect(getItemNames()).toEqual(['Apple', 'Apricot']);
+        });
+
+        await close(user);
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(getItemNames()).toEqual(['Apple', 'Apricot']);
+        expect(input).toHaveValue('ap');
+        expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+        await waitFor(() => {
+          expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+        });
+      },
+    );
+  });
+
+  describe('closing with a query', () => {
+    function ControlledQueryMenu(props: {
+      onValueChange: (value: string, reason: string) => void;
+      rootProps?: Menu.Root.Props;
+    }) {
+      const [query, setQuery] = React.useState('');
+
+      return (
+        <React.Fragment>
+          <style>{`
+            @keyframes filter-menu-query-exit-test {
+              to { opacity: 0; }
+            }
+            .filter-menu-query-exit-test[data-ending-style] {
+              animation: filter-menu-query-exit-test 10s linear;
+            }
+          `}</style>
+          <Menu.FilterProvider
+            value={query}
+            onValueChange={(value, eventDetails) => {
+              props.onValueChange(value, eventDetails.reason);
+              setQuery(value);
+            }}
+          >
+            <Menu.Root {...props.rootProps}>
+              <Menu.Trigger>Fruit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup" className="filter-menu-query-exit-test">
+                    <Menu.Input aria-label="Filter fruit" />
+                    <Menu.List>
+                      <Menu.Item>Apple</Menu.Item>
+                      <Menu.Item>Apricot</Menu.Item>
+                      <Menu.Item>Banana</Menu.Item>
+                      {query !== '' && <Menu.Item label={query}>{`Create "${query}"`}</Menu.Item>}
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        </React.Fragment>
+      );
+    }
+
+    function getItemNames() {
+      return screen.getAllByRole('menuitem').map((item) => item.textContent);
+    }
+
+    async function openAndType(user: ReturnType<typeof userEvent.setup>, text: string) {
+      await user.click(screen.getByRole('button', { name: 'Fruit' }));
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      fireEvent.change(input, { target: { value: text } });
+      await waitFor(() => {
+        expect(getItemNames()).toEqual(['Apple', 'Apricot', `Create "${text}"`]);
+      });
+      return input;
+    }
+
+    it.skipIf(isJSDOM)(
+      'keeps an item rendered from the controlled query while the popup animates out',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const { user } = await render(<ControlledQueryMenu onValueChange={vi.fn()} />);
+        await openAndType(user, 'ap');
+
+        await user.keyboard('[Escape]');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(getItemNames()).toEqual(['Apple', 'Apricot', 'Create "ap"']);
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets the query when the popup reopens before its exit transition completes',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const onValueChange = vi.fn();
+
+        const { user } = await render(<ControlledQueryMenu onValueChange={onValueChange} />);
+        const input = await openAndType(user, 'ap');
+        onValueChange.mockClear();
+
+        await user.keyboard('[Escape]');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(input).toHaveValue('ap');
+
+        await user.click(screen.getByRole('button', { name: 'Fruit' }));
+
+        await waitFor(() => {
+          expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toHaveValue('');
+        });
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+        expect(getItemNames()).toEqual(['Apple', 'Apricot', 'Banana']);
+        expect(onValueChange).toHaveBeenCalledTimes(1);
+        expect(onValueChange).toHaveBeenCalledWith('', 'popup-close');
+      },
+    );
+
+    it('keeps the query until a popup that prevented unmounting is unmounted', async () => {
+      const onValueChange = vi.fn();
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+
+      const { user } = await render(
+        <ControlledQueryMenu
+          onValueChange={onValueChange}
+          rootProps={{
+            actionsRef,
+            onOpenChange(_, eventDetails) {
+              eventDetails.preventUnmountOnClose();
+            },
+          }}
+        />,
+      );
+      const input = await openAndType(user, 'ap');
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Fruit' })).toHaveAttribute(
+          'aria-expanded',
+          'false',
+        );
+      });
+      expect(input).toHaveValue('ap');
+      expect(getItemNames()).toEqual(['Apple', 'Apricot', 'Create "ap"']);
+      expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+    });
+
+    it.skipIf(isJSDOM)(
+      'resets the query when the menu is removed as its exit transition completes',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const onValueChange = vi.fn();
+
+        function RemovedOnCloseMenu() {
+          const [rendered, setRendered] = React.useState(true);
+
+          if (!rendered) {
+            return null;
+          }
+
+          return (
+            <ControlledQueryMenu
+              onValueChange={onValueChange}
+              rootProps={{
+                onOpenChangeComplete(open) {
+                  if (!open) {
+                    setRendered(false);
+                  }
+                },
+              }}
+            />
+          );
+        }
+
+        const { user } = await render(<RemovedOnCloseMenu />);
+        await openAndType(user, 'ap');
+
+        await user.keyboard('[Escape]');
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+
+        await waitFor(() => {
+          expect(screen.queryByRole('button', { name: 'Fruit' })).toBe(null);
+        });
+        expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+      },
+    );
   });
 
   describe('canceling changes', () => {
@@ -5109,6 +5720,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
       await user.hover(submenuTrigger);
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      // Let the root popup's initial focus land first so it can't steal focus from the click below.
+      await act(async () => {
+        await waitSingleFrame();
+      });
       fireEvent.mouseMove(submenuInput);
       await waitFor(() => {
         expect(submenuInput).toHaveAttribute('data-highlighted');
@@ -5168,6 +5783,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
         await user.hover(submenuTrigger);
         const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        // The root popup's initial focus runs a frame after mounting. Let it land so it can't
+        // steal focus from the tap below.
+        await act(async () => {
+          await waitSingleFrame();
+        });
 
         firePointer.down(submenuInput, { pointerType: 'touch', timeStamp: 10 });
         await act(async () => {
@@ -5888,54 +6508,5 @@ describe('filterable menu navigation regressions', () => {
     await user.keyboard('[ArrowDown]');
     expect(screen.getByRole('menuitem', { name: 'Match 1' })).toHaveAttribute('data-highlighted');
     expect(filter).not.toHaveBeenCalled();
-  });
-});
-
-describe('custom keyboard shortcuts in a filterable menu', () => {
-  const { render } = createRenderer();
-
-  it('moves the highlight from a shortcut bound on the input', async () => {
-    const actionsRef = React.createRef<Menu.Root.Actions>();
-
-    const { user } = await render(
-      <Menu.FilterProvider>
-        <Menu.Root open actionsRef={actionsRef}>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Input
-                  aria-label="Filter actions"
-                  onKeyDown={(event) => {
-                    if (event.ctrlKey && event.key === 'j') {
-                      event.preventDefault();
-                      actionsRef.current?.highlightItem('next');
-                    }
-                  }}
-                />
-                <Menu.List>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.List>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      </Menu.FilterProvider>,
-    );
-
-    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-    await act(async () => {
-      input.focus();
-    });
-    await user.keyboard('{Control>}j{/Control}');
-
-    await waitFor(() => {
-      expect(input).toHaveAttribute(
-        'aria-activedescendant',
-        screen.getByRole('menuitem', { name: 'Rename' }).id,
-      );
-    });
-    expect(input).toHaveFocus();
-    expect(input).toHaveValue('');
   });
 });

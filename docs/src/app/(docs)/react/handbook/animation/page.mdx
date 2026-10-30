@@ -190,6 +190,29 @@ Use this when Base UI can't detect your closing animation, for example when it 
 Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when the component closes, then call `unmount()` on the `actionsRef` passed to the `<Root>` once the animation finishes.
 This ends the closing phase, and `onOpenChangeComplete(false)` fires. Whether the popup leaves the DOM is still decided by `keepMounted`.
 
+If you need to wait for something before closing, control `open` and keep it `true` while you wait.
+After the `await`, call `eventDetails.preventUnmountOnClose()` and then set `open` to `false`.
+The request holds until the popup opens again, even if more close requests arrive while you wait, but not if you `cancel()` the close it belongs to.
+Don't call it before the `await`: an open request that arrives while you wait clears it.
+Only call it once you've decided to close: `cancel()` has no effect after an `await`, so if you keep the popup open instead, the request stays and the popup's next close won't unmount it.
+Navigation Menu only accepts `preventUnmountOnClose()` synchronously, in `onValueChange`.
+
+```jsx title="manual-unmount-after-await.tsx"
+<Popover.Root
+  open={open}
+  onOpenChange={async (nextOpen, eventDetails) => {
+    if (nextOpen) {
+      setOpen(true);
+      return;
+    }
+    await save();
+    eventDetails.preventUnmountOnClose(); // @highlight-text "preventUnmountOnClose"
+    setOpen(false);
+  }}
+  actionsRef={actionsRef}
+>
+```
+
 ```jsx title="manual-unmount.tsx"
 function App() {
   const [open, setOpen] = React.useState(false);

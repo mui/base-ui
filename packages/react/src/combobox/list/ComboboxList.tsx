@@ -6,14 +6,13 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
-  useComboboxFloatingContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { shouldScrollActiveIntoView } from '../../internals/list/scrollActivation';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { clickHighlightedItem } from '../utils/parts';
 import { VirtualizerHostProvider } from '../../virtualizer/host';
 import type { VirtualizerHost, VirtualizerHostState } from '../../virtualizer/host';
@@ -32,7 +31,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const { render, className, style, children, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
-  const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
   const { filteredItems, flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
@@ -52,13 +50,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
 
-  const setPositionerElement = useStableCallback((element) => {
-    store.set('positionerElement', element);
-  });
-
-  const setListElement = useStableCallback((element) => {
-    store.set('listElement', element);
-  });
+  const setPositionerElement = store.useStateSetter('positionerElement');
+  const setListElement = store.useStateSetter('listElement');
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.
@@ -123,7 +116,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     empty,
   };
 
-  const floatingId = floatingRootContext.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -133,7 +126,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       {
         children: resolvedChildren,
         tabIndex: -1,
-        id: floatingId,
+        id: defaultPopupId,
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         // On a grid the attribute describes cell editability, not selection, so it's left to the

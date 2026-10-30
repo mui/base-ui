@@ -1,5 +1,3 @@
-/* False positives - ESLint thinks we're calling a hook from a class component. */
-/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 import * as React from 'react';
 import { Store } from './Store';
@@ -92,7 +90,10 @@ export class ReactStore<
     const store = this;
     if (process.env.NODE_ENV !== 'production') {
       // Check that an object with the same shape is passed on every render
+      // The condition is a build-time constant, so the hook order is the same on every render.
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       React.useDebugValue(statePart, (p) => Object.keys(p));
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const keys = React.useRef<Array<keyof State>>(
         Object.keys(statePart) as Array<keyof State>,
       ).current;
@@ -140,8 +141,8 @@ export class ReactStore<
       if (previouslyControlled !== undefined && previouslyControlled !== isControlled) {
         console.error(
           `A component is changing the ${
-            isControlled ? '' : 'un'
-          }controlled state of ${key.toString()} to be ${isControlled ? 'un' : ''}controlled. Elements should not switch from uncontrolled to controlled (or vice versa).`,
+            previouslyControlled ? '' : 'un'
+          }controlled state of ${key.toString()} to be ${previouslyControlled ? 'un' : ''}controlled. Elements should not switch from uncontrolled to controlled (or vice versa).`,
         );
       }
     }
