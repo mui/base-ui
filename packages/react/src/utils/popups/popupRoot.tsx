@@ -127,7 +127,7 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
     closeOnActiveTriggerUnmount = false,
     animateInitialOpen = false,
     disabled = false,
-    ownsTreeNode = false,
+    ownsTreeNode,
   } = options;
 
   const store = usePopupRootStore(
@@ -294,13 +294,12 @@ interface PopupRootStoreHandle<Store> {
 function usePopupRootStore<Store extends PopupRootStore>(
   createStore: (defaultPopupId: string | undefined) => Store,
   defaultPopupId: string | undefined,
-  ownsTreeNode = false,
+  ownsTreeNode?: boolean,
 ): Store {
   const popupTree = usePopupTree();
   const popupParentNodeId = usePopupParentNodeId();
   // An id override skips the extra render React 17 needs to generate an id.
-  const generatedNodeId = useId(ownsTreeNode ? undefined : '');
-  const popupNodeId = ownsTreeNode ? generatedNodeId : undefined;
+  const popupNodeId = useId(ownsTreeNode ? undefined : '') || undefined;
 
   const store = useRefWithInit(() => {
     const createdStore = createStore(defaultPopupId);

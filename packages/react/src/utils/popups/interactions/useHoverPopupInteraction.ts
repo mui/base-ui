@@ -105,7 +105,7 @@ export function useHoverPopupInteraction(
         return;
       }
 
-      intent.onPopupMouseLeave(event, { closeDelay: closeDelayProp });
+      intent.onPopupMouseLeave(event, closeDelayProp);
     }
 
     function onPopupPointerDown(event: PointerEvent) {

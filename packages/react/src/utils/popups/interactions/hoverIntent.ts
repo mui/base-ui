@@ -457,14 +457,8 @@ export class HoverIntent {
     this.restoreOutsidePointerEvents();
   }
 
-  onPopupMouseLeave(
-    event: MouseEvent,
-    options: {
-      closeDelay: number | (() => number);
-    },
-  ) {
+  onPopupMouseLeave(event: MouseEvent, closeDelay: number | (() => number)) {
     const { store } = this;
-    const tree = store.select('popupTree');
 
     if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
       // If the mouse is leaving the popup for another trigger, don't explicitly close the popup
@@ -472,15 +466,15 @@ export class HoverIntent {
       return;
     }
 
-    const currentNodeId = this.store.select('popupNodeId');
-    const relatedTarget = event.relatedTarget;
-    const isMovingIntoDescendantFloating =
-      tree &&
-      currentNodeId &&
-      isElement(relatedTarget) &&
-      tree.descendantContains(currentNodeId, relatedTarget, /* includeClosed */ true);
-
-    if (isMovingIntoDescendantFloating) {
+    if (
+      store
+        .select('popupTree')
+        ?.descendantContains(
+          store.select('popupNodeId'),
+          event.relatedTarget as Element | null,
+          /* includeClosed */ true,
+        )
+    ) {
       return;
     }
 
@@ -492,7 +486,7 @@ export class HoverIntent {
 
     this.restoreOutsidePointerEvents();
     if (isHoverOpenEvent(this.store.context.openEvent?.type) && !this.isClickLikeOpen()) {
-      this.closeWithDelay(event, options.closeDelay);
+      this.closeWithDelay(event, closeDelay);
     }
   }
 
