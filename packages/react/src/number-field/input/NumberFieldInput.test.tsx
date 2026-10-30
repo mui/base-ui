@@ -53,6 +53,22 @@ describe('<NumberField.Input />', () => {
     expect(screen.queryByRole('textbox')).not.toBe(null);
   });
 
+  it('allows overriding the form provided by the root', async () => {
+    await render(
+      <React.Fragment>
+        <form id="root-form" />
+        <form id="input-form" data-testid="input-form" />
+        <NumberField.Root form="root-form">
+          <NumberField.Input form="input-form" />
+        </NumberField.Root>
+      </React.Fragment>,
+    );
+
+    expect(screen.getByRole<HTMLInputElement>('textbox').form).toBe(
+      screen.getByTestId('input-form'),
+    );
+  });
+
   it('should not allow non-numeric characters on change', async () => {
     await render(
       <NumberField.Root>
