@@ -19,8 +19,8 @@ import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../i
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { MENU_TREE_COMPONENT } from '../utils/constants';
-import type { PopupNodeOpenChangeDetails } from '../../utils/popups/tree/PopupTreeRegistry';
+import { getMenuTreeEvents } from '../utils/menuTreeEvents';
+import type { MenuNodeOpenChangeDetails } from '../utils/menuTreeEvents';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
@@ -41,6 +41,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const parent = store.useState('parent');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const menuEvents = getMenuTreeEvents(floatingTreeRoot);
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
@@ -111,11 +112,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   });
 
   React.useEffect(() => {
-    function onMenuOpenChange(details: PopupNodeOpenChangeDetails) {
-      if (details.component !== MENU_TREE_COMPONENT) {
-        return;
-      }
-
+    function onMenuOpenChange(details: MenuNodeOpenChangeDetails) {
       if (details.open) {
         if (details.parentNodeId === floatingNodeId) {
           store.set('hoverEnabled', false);
@@ -132,38 +129,33 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('nodeOpenChange', onMenuOpenChange);
+    menuEvents.on('nodeOpenChange', onMenuOpenChange);
 
     return () => {
-      floatingTreeRoot.events.off('nodeOpenChange', onMenuOpenChange);
+      menuEvents.off('nodeOpenChange', onMenuOpenChange);
     };
-  }, [store, floatingTreeRoot.events, floatingNodeId]);
+  }, [store, menuEvents, floatingNodeId]);
 
   React.useEffect(() => {
     if (store.select('floatingParentNodeId') == null) {
       return undefined;
     }
 
-    function onParentClose(details: PopupNodeOpenChangeDetails) {
-      if (
-        details.component !== MENU_TREE_COMPONENT ||
-        details.open ||
-        details.nodeId !== store.select('floatingParentNodeId')
-      ) {
+    function onParentClose(details: MenuNodeOpenChangeDetails) {
+      if (details.open || details.nodeId !== store.select('floatingParentNodeId')) {
         return;
       }
 
-      // A menu sends its own reasons only.
-      const reason = (details.reason ?? REASONS.siblingOpen) as MenuRoot.ChangeEventReason;
+      const reason: MenuRoot.ChangeEventReason = details.reason ?? REASONS.siblingOpen;
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
-    floatingTreeRoot.events.on('nodeOpenChange', onParentClose);
+    menuEvents.on('nodeOpenChange', onParentClose);
 
     return () => {
-      floatingTreeRoot.events.off('nodeOpenChange', onParentClose);
+      menuEvents.off('nodeOpenChange', onParentClose);
     };
-  }, [floatingTreeRoot.events, store]);
+  }, [menuEvents, store]);
 
   const closeTimeout = useTimeout();
 
@@ -200,23 +192,22 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('nodeItemHover', onItemHover);
+    menuEvents.on('nodeItemHover', onItemHover);
     return () => {
-      floatingTreeRoot.events.off('nodeItemHover', onItemHover);
+      menuEvents.off('nodeItemHover', onItemHover);
     };
-  }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
+  }, [menuEvents, open, triggerElement, store, closeTimeout]);
 
   React.useEffect(() => {
-    const eventDetails: PopupNodeOpenChangeDetails = {
-      component: MENU_TREE_COMPONENT,
+    const eventDetails: MenuNodeOpenChangeDetails = {
       open,
       nodeId: floatingNodeId,
       parentNodeId: floatingParentNodeId,
       reason: store.select('lastOpenChangeReason'),
     };
 
-    floatingTreeRoot.events.emit('nodeOpenChange', eventDetails);
-  }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
+    menuEvents.emit('nodeOpenChange', eventDetails);
+  }, [menuEvents, open, store, floatingNodeId, floatingParentNodeId]);
 
   useTriggerSwitchTransition({
     store,

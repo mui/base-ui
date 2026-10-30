@@ -8,6 +8,7 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
+import { getMenuTreeEvents } from '../utils/menuTreeEvents';
 
 function preventMouseDownDefault(event: React.MouseEvent) {
   event.preventDefault();
@@ -67,7 +68,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       : rootContext.store;
   const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
-  const { events: menuEvents } = store.useState('floatingTreeRoot');
+  const menuEvents = getMenuTreeEvents(store.useState('floatingTreeRoot'));
   const open = store.useState('open');
 
   const isContextMenu = contextMenuContext !== undefined;

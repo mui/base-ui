@@ -1,20 +1,7 @@
 import { contains } from '@base-ui/utils/shadowDom';
-import type { BaseUIEventReason, REASONS } from '../../../internals/reasons';
 import type { ExtendedElements, PopupInteractionContext } from '../types';
 import { createEventEmitter } from '../createEventEmitter';
 import type { EventEmitter } from '../createEventEmitter';
-
-export interface PopupNodeOpenChangeDetails {
-  /**
-   * Identifies the component that opened or closed, so listeners can ignore the components they
-   * don't coordinate with.
-   */
-  component: string;
-  open: boolean;
-  reason: BaseUIEventReason | null;
-  nodeId: string | undefined;
-  parentNodeId: string | null;
-}
 
 /**
  * The events shared by the popups of one popup tree.
@@ -24,21 +11,6 @@ export interface PopupTreeEventMap {
    * A node opened on hover closed after the pointer left it, so its ancestors can close too.
    */
   nodeHoverClose: MouseEvent;
-  /**
-   * A node opened or closed.
-   */
-  nodeOpenChange: PopupNodeOpenChangeDetails;
-  /**
-   * An item inside the node `nodeId` was hovered. `target` is the hovered item.
-   */
-  nodeItemHover: { nodeId: string | undefined; target: Element | null };
-  /**
-   * Asks the open nodes of the tree to close.
-   */
-  treeClose: {
-    domEvent: Event | undefined;
-    reason: typeof REASONS.itemPress | typeof REASONS.cancelOpen;
-  };
 }
 
 export type PopupTreeEvents = EventEmitter<PopupTreeEventMap>;

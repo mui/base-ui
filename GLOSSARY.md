@@ -31,7 +31,7 @@ _Avoid_: floating element, floating wrapper
 _In code_: `positionerElement` is the positioner in components that have one.
 
 **Popup tree**:
-The popups of one family that are nested inside each other, such as a menu and its submenus, plus anything from another family that registers in it, such as detached Menu triggers rendered inside a Popover. Tree members find their open descendants and ancestors through it, so a parent popup can tell that a child keeps an Escape press or an outside press from reaching it, or that the pointer is moving into a child. It also carries events the members share, such as a menu item being hovered.
+The popups of one family that are nested inside each other, such as a menu and its submenus, plus anything from another family that registers in it, such as detached Menu triggers rendered inside a Popover. Tree members find their open descendants and ancestors through it, so a parent popup can tell that a child keeps an Escape press or an outside press from reaching it, or that the pointer is moving into a child. It also carries events the members share, such as a hover-opened popup closing after the pointer left it. The menus in a tree also share events of their own, such as an item being hovered, which Menu keeps per tree.
 _Avoid_: floating tree
 
 **Tree member**:

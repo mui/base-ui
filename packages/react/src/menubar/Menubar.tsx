@@ -11,11 +11,11 @@ import type { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useBaseUiId } from '../internals/useBaseUiId';
-import type { PopupNodeOpenChangeDetails } from '../utils/popups/tree/PopupTreeRegistry';
+import { getMenuTreeEvents } from '../menu/utils/menuTreeEvents';
+import type { MenuNodeOpenChangeDetails } from '../menu/utils/menuTreeEvents';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import * as MenubarDataAttributes from './MenubarDataAttributes';
 import { REASONS } from '../internals/reasons';
-import { MENU_TREE_COMPONENT } from '../menu/utils/constants';
 
 const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
   hasSubmenuOpen(value) {
@@ -97,16 +97,12 @@ export const Menubar = React.forwardRef(function Menubar(
 
 function MenubarContent(props: React.PropsWithChildren<{}>) {
   const nodeId = usePopupNodeId();
-  const { events: menuEvents } = usePopupTree()!;
+  const menuEvents = getMenuTreeEvents(usePopupTree()!);
   const rootContext = useMenubarContext();
 
   React.useEffect(() => {
-    function onSubmenuOpenChange(details: PopupNodeOpenChangeDetails) {
-      if (
-        details.component !== MENU_TREE_COMPONENT ||
-        !details.nodeId ||
-        details.parentNodeId !== nodeId
-      ) {
+    function onSubmenuOpenChange(details: MenuNodeOpenChangeDetails) {
+      if (!details.nodeId || details.parentNodeId !== nodeId) {
         return;
       }
 

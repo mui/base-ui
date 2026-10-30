@@ -34,6 +34,7 @@ import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { mergeProps } from '../../merge-props';
+import { getMenuTreeEvents } from '../utils/menuTreeEvents';
 
 /**
  * A button that opens the menu.
@@ -150,7 +151,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       return;
     }
 
-    floatingTreeRoot.events.emit('treeClose', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
+    getMenuTreeEvents(floatingTreeRoot).emit('treeClose', {
+      domEvent: mouseEvent,
+      reason: REASONS.cancelOpen,
+    });
   });
 
   React.useEffect(() => {
