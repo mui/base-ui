@@ -14,6 +14,7 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
+import { createInlineMiddleware } from '../../utils/popups/inlineRect';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
@@ -34,7 +35,10 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
-    positioning: { nodeId },
+    positioning: {
+      nodeId,
+      inline: createInlineMiddleware(store.context.inlineRectCoordsRef),
+    },
   });
 
   const openReason = store.useState('openChangeReason');
