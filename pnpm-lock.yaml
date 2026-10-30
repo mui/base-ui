@@ -375,8 +375,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       es-toolkit:
-        specifier: ^1.52.0
-        version: 1.52.0
+        specifier: ^1.53.0
+        version: 1.53.0
       estree-util-value-to-estree:
         specifier: ^3.5.0
         version: 3.5.0
@@ -5623,6 +5623,9 @@ packages:
 
   es-toolkit@1.52.0:
     resolution: {integrity: sha512-XTNEJQh1tY1ZJVcf6ayP/2n4ZPyaHlW2FWs7xvw5ddPuhUVjLD3olQVQS7kf58JbAB48iL0uL/jerTrjtV3lDA==}
+
+  es-toolkit@1.53.0:
+    resolution: {integrity: sha512-3+AYXp9fmJ/UhHBMYj2/U+RaUouMD90SzoItyDOB2Za7W6dB7fQApFGnZPl2MF6K8/Tv1koh1JyirSx/kju6Pw==}
 
   esast-util-from-estree@2.0.0:
     resolution: {integrity: sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==}
@@ -11279,7 +11282,7 @@ snapshots:
       '@vitest/browser-playwright': 5.0.5(playwright@1.64.1)(vite@8.3.5(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.0.5)
       chalk: 6.0.1
       env-ci: 11.2.0
-      es-toolkit: 1.52.0
+      es-toolkit: 1.53.0
       execa: 10.2.1
       globby: 16.2.4
       react: 19.3.1
@@ -11368,7 +11371,7 @@ snapshots:
       clipboardy: 5.3.2
       content-type: 3.1.1
       env-ci: 11.2.0
-      es-toolkit: 1.52.0
+      es-toolkit: 1.53.0
       eslint: 10.13.0(jiti@2.7.0)(supports-color@7.2.0)
       eslint-config-prettier: 10.1.8(eslint@10.13.0(jiti@2.7.0)(supports-color@7.2.0))
       eslint-import-resolver-typescript: 4.4.5(eslint-plugin-import@2.32.0)(eslint@10.13.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
@@ -11453,7 +11456,7 @@ snapshots:
       '@wooorm/starry-night': 3.11.0
       autoprefixer: 10.6.1(postcss@8.5.31)
       chalk: 6.0.1
-      es-toolkit: 1.52.0
+      es-toolkit: 1.53.0
       fflate: 0.8.3
       hast-util-to-jsx-runtime: 2.3.6(supports-color@10.2.2)
       hast-util-to-text: 4.0.2
@@ -11508,7 +11511,7 @@ snapshots:
       chai: 6.3.0
       chai-dom: 1.12.1(chai@6.3.0)
       dom-accessibility-api: 0.7.1
-      es-toolkit: 1.52.0
+      es-toolkit: 1.53.0
       format-util: 1.0.5
       prop-types: 15.8.1
       react: 19.3.1
@@ -14800,6 +14803,8 @@ snapshots:
       is-symbol: 1.1.1
 
   es-toolkit@1.52.0: {}
+
+  es-toolkit@1.53.0: {}
 
   esast-util-from-estree@2.0.0:
     dependencies:
@@ -19396,7 +19401,7 @@ snapshots:
 
   typescript-api-extractor@1.0.0-beta.7:
     dependencies:
-      es-toolkit: 1.52.0
+      es-toolkit: 1.53.0
       typescript: 6.0.3
 
   typescript-eslint@8.72.0(@typescript/typescript6@6.0.2)(eslint@10.13.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0):
