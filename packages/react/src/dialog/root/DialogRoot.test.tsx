@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach, onTestFinished } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -2061,6 +2061,89 @@ describe('<Dialog.Root />', () => {
         expect(hasOwnScrollLock(document)).toBe(false);
       });
     });
+
+    it.skipIf(isJSDOM)(
+      'waits for an external html lock when body only clips horizontally',
+      async () => {
+        document.body.style.overflowX = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        const { setProps } = await render(
+          <Dialog.Root open={false}>
+            <div style={{ height: '200dvh' }} />
+            <Dialog.Portal>
+              <Dialog.Popup initialFocus={false} finalFocus={false}>
+                Dialog content
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+        expect(document.body.scrollHeight).toBe(document.body.clientHeight);
+        expect(getComputedStyle(document.body).overflowY).toBe('auto');
+
+        await setProps({ open: true });
+        await act(async () => {
+          await wait(0);
+        });
+        expect(document.body.style.overflowY).toBe('');
+
+        document.documentElement.style.removeProperty('overflow');
+        await waitFor(() => {
+          expect(getComputedStyle(document.body).overflowY).toBe('hidden');
+        });
+        await setProps({ open: false });
+        await waitFor(() => {
+          expect(getComputedStyle(document.body).overflowY).toBe('auto');
+        });
+        expect(document.body.style.overflowX).toBe('hidden');
+        expect(document.body.style.overflowY).toBe('');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'preserves body scroll position and content width while locked',
+      async () => {
+        const style = document.createElement('style');
+        style.textContent = `
+        html { height: 100dvh; overflow: hidden; }
+        body { margin: 0; height: 100%; overflow-y: auto; }
+        body::-webkit-scrollbar { width: 16px; height: 16px; }
+      `;
+        document.head.appendChild(style);
+        onTestFinished(() => style.remove());
+
+        const { setProps } = await render(
+          <Dialog.Root open={false}>
+            <div style={{ height: '200dvh' }} />
+            <Dialog.Portal>
+              <Dialog.Popup initialFocus={false} finalFocus={false}>
+                Dialog content
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+
+        expect(document.body.scrollHeight).toBeGreaterThan(document.body.clientHeight);
+        document.body.scrollTop = 100;
+        expect(document.body.scrollTop).toBe(100);
+        const contentWidth = document.body.clientWidth;
+        const originalGutter = document.body.style.scrollbarGutter;
+
+        await setProps({ open: true });
+        await waitFor(() => {
+          expect(getComputedStyle(document.body).overflowY).toBe('hidden');
+        });
+        expect(document.body.clientWidth).toBe(contentWidth);
+        expect(document.body.scrollTop).toBe(100);
+
+        await setProps({ open: false });
+        await waitFor(() => {
+          expect(getComputedStyle(document.body).overflowY).toBe('auto');
+        });
+        expect(document.body.clientWidth).toBe(contentWidth);
+        expect(document.body.scrollTop).toBe(100);
+        expect(document.body.style.scrollbarGutter).toBe(originalGutter);
+      },
+    );
   });
 
   it.skipIf(isJSDOM)(

@@ -13,8 +13,15 @@ let originalHtmlScrollBehavior = '';
 
 // The viewport's overflow comes from <html> when it establishes its own scroll container, and
 // propagates from <body> otherwise. An `overflow` style on the other element doesn't lock the page.
+// When <html> clips the viewport, a <body> with its own scroll container is what scrolls the page.
 function getViewportScroller(html: HTMLElement, body: HTMLElement) {
-  return isOverflowElement(html) ? html : body;
+  if (!isOverflowElement(html)) {
+    return body;
+  }
+  const htmlClipsViewport = /hidden|clip/.test(ownerWindow(html).getComputedStyle(html).overflowY);
+  const bodyScrolls =
+    htmlClipsViewport && isOverflowElement(body) && body.scrollHeight > body.clientHeight;
+  return bodyScrolls ? body : html;
 }
 
 function isPageScrollLocked(win: typeof window, html: HTMLElement, body: HTMLElement) {
@@ -74,7 +81,22 @@ function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   const originalElementToLockStyles = {
     overflowY: elementToLock.style.overflowY,
     overflowX: elementToLock.style.overflowX,
+    scrollbarGutter: elementToLock.style.scrollbarGutter,
   };
+
+  // A body-owned scrollbar isn't included in the viewport's inset measurement. Preserve its
+  // gutter without adding one on platforms with overlay scrollbars.
+  if (elementToLock === body) {
+    const bodyStyles = ownerWindow(body).getComputedStyle(body);
+    const bodyBorderWidth =
+      parseFloat(bodyStyles.borderLeftWidth) + parseFloat(bodyStyles.borderRightWidth);
+    const hasBodyScrollbar = body.offsetWidth - body.clientWidth > bodyBorderWidth;
+    if (hasBodyScrollbar) {
+      body.style.scrollbarGutter = bodyStyles.scrollbarGutter.includes('both-edges')
+        ? 'stable both-edges'
+        : 'stable';
+    }
+  }
 
   Object.assign(elementToLock.style, {
     overflowY: 'hidden',
