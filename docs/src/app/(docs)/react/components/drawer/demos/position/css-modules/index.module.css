@@ -66,13 +66,17 @@
   --backdrop-opacity: 0.2;
   --bleed: 3rem;
   position: fixed;
-  min-height: 100dvh;
   inset: 0;
   background-color: black;
   opacity: calc(var(--backdrop-opacity) * (1 - var(--drawer-swipe-progress)));
   transition-duration: 450ms;
   transition-property: opacity;
   transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
+  @supports (-webkit-touch-callout: none) {
+    min-height: 100dvh;
+  }
 
   @media (prefers-color-scheme: dark) {
     --backdrop-opacity: 0.7;
@@ -104,7 +108,7 @@
   --bleed: 3rem;
   box-sizing: border-box;
   width: 100%;
-  max-height: calc(80vh + var(--bleed));
+  max-height: calc(80% + var(--bleed));
   margin-bottom: calc(-1 * var(--bleed));
   padding: 1rem 1.5rem 1.5rem;
   padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
@@ -118,6 +122,10 @@
   transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
   transform: translateY(var(--drawer-swipe-movement-y));
+
+  @supports (-webkit-touch-callout: none) {
+    max-height: calc(80vh + var(--bleed));
+  }
 
   @media (prefers-color-scheme: dark) {
     border-top: 1px solid white;
