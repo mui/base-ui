@@ -5,6 +5,7 @@ import { Timeout } from '@base-ui/utils/useTimeout';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { PopupTreeRegistry } from '../../utils/popups/tree/PopupTreeRegistry';
+import type { PopupNodeType } from '../../utils/popups/tree/PopupTreeRegistry';
 import type { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/popups/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
@@ -21,6 +22,14 @@ import {
   popupStoreSelectors,
 } from '../../utils/popups/store';
 import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
+
+/**
+ * A place in a popup tree: the tree, and the node a menu placed there is nested in.
+ */
+export interface MenuTreeLocation {
+  tree: PopupTreeRegistry;
+  parentNodeId: string | null;
+}
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -49,9 +58,14 @@ export type State<Payload> = PopupStoreState<Payload> & {
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
-  floatingTreeRoot: PopupTreeRegistry;
+  /** The tree the menu joins when no active trigger places it in one. */
+  ownTree: PopupTreeRegistry;
+  /** Where the active trigger sits in a popup tree. */
+  triggerTreeLocation: MenuTreeLocation | undefined;
+  /** The id of the tree node the Root renders inside, if any. */
+  rootParentNodeId: string | null;
+  /** The id of the menu's own node in its popup tree. */
   floatingNodeId: string | undefined;
-  floatingParentNodeId: string | null;
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
@@ -103,6 +117,22 @@ export interface MenuCommittedOpenState {
   open: boolean;
   activeTriggerElement: Element | null;
   openChangeReason: MenuRoot.ChangeEventReason | null;
+}
+
+/**
+ * The location of the active trigger of a top-level menu. Submenus and context menus are placed
+ * where their Root renders.
+ */
+function getActiveTriggerTreeLocation(state: State<unknown>): MenuTreeLocation | undefined {
+  if (
+    state.parent.type === 'menu' ||
+    state.parent.type === 'context-menu' ||
+    state.activeTriggerElement == null
+  ) {
+    return undefined;
+  }
+
+  return state.triggerTreeLocation;
 }
 
 const selectors = {
@@ -159,10 +189,11 @@ const selectors = {
       return state.parent.store.select('floatingTreeRoot');
     }
 
-    return state.floatingTreeRoot;
+    return getActiveTriggerTreeLocation(state)?.tree ?? state.ownTree;
   },
   floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
-  floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
+  floatingParentNodeId: (state: State<unknown>): string | null =>
+    getActiveTriggerTreeLocation(state)?.parentNodeId ?? state.rootParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
@@ -211,6 +242,34 @@ export class MenuStore<Payload> extends BasePopupStore<
         this.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
       }
     });
+  }
+
+  /**
+   * Registers the menu's node in the popup tree its location names, and moves the same node
+   * whenever the location changes, so its snapshot follows it.
+   * @returns A function that removes the node and stops following the location.
+   */
+  registerTreeNode(id: string) {
+    const node: PopupNodeType = { id, parentId: null };
+    let tree: PopupTreeRegistry | null = null;
+
+    const sync = () => {
+      node.parentId = this.select('floatingParentNodeId');
+      const nextTree = this.select('floatingTreeRoot');
+      if (nextTree !== tree) {
+        tree?.removeNode(node);
+        nextTree.addNode(node);
+        tree = nextTree;
+      }
+    };
+
+    sync();
+    const unsubscribe = this.subscribe(sync);
+
+    return () => {
+      unsubscribe();
+      tree?.removeNode(node);
+    };
   }
 
   /**
@@ -425,9 +484,10 @@ function createInitialState<Payload>(
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
-    floatingTreeRoot: new PopupTreeRegistry(),
+    ownTree: new PopupTreeRegistry(),
+    triggerTreeLocation: undefined,
+    rootParentNodeId: null,
     floatingNodeId: undefined,
-    floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,

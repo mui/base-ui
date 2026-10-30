@@ -3174,12 +3174,9 @@ describe('<Popover.Root />', () => {
       });
     });
 
-    it('keeps the popover open while pressing between the triggers of a nested menu', async () => {
-      // Guards the press and focus path only. The detached menu triggers register in the popover's
-      // tree, and the previous trigger's node keeps its last snapshot after the switch (a known
-      // issue, pre-existing on master); nothing here depends on the popup tree.
+    function renderPopoverWithMenuTriggers() {
       const menuHandle = Menu.createHandle();
-      const { user } = await render(
+      return render(
         <Popover.Root defaultOpen>
           <Popover.Trigger>Popover</Popover.Trigger>
           <Popover.Portal>
@@ -3207,6 +3204,10 @@ describe('<Popover.Root />', () => {
           </Menu.Root>
         </Popover.Root>,
       );
+    }
+
+    it('keeps the popover open while pressing between the triggers of a nested menu', async () => {
+      const { user } = await renderPopoverWithMenuTriggers();
 
       const menuTrigger1 = screen.getByRole('button', { name: 'Menu 1' });
       const menuTrigger2 = screen.getByRole('button', { name: 'Menu 2' });
@@ -3221,6 +3222,26 @@ describe('<Popover.Root />', () => {
       expect(menuTrigger2).toHaveAttribute('aria-expanded', 'true');
       expect(menuTrigger1).toHaveAttribute('aria-expanded', 'false');
       expect(screen.getByTestId('popover-popup')).toBeVisible();
+    });
+
+    it('closes on Escape after a nested menu that switched triggers has closed', async () => {
+      const { user } = await renderPopoverWithMenuTriggers();
+
+      await user.click(screen.getByRole('button', { name: 'Menu 1' }));
+      await screen.findByRole('menuitem', { name: 'Item 1' });
+      await user.click(screen.getByRole('button', { name: 'Menu 2' }));
+      await screen.findByRole('menuitem', { name: 'Item 2' });
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByTestId('menu-popup')).toBe(null);
+      });
+      expect(screen.getByTestId('popover-popup')).toBeVisible();
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
     });
   });
 

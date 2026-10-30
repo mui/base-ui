@@ -39,11 +39,11 @@ A popup that registers a node in a popup tree: Popover, Preview Card, the Menu f
 _Avoid_: floating node
 
 **Family tree**:
-Each popup family keeps its own popup tree. A member nested in a popup of another family records that popup's node as its parent, but it registers in its own family's tree, so the other family's tree doesn't see it. Detached Menu triggers rendered inside a Popover are the exception: outside their Menu Root, they register in the Popover's tree, and the Menu's tree events go out on it.
+Each popup family keeps its own popup tree. A member nested in a popup of another family records that popup's node as its parent, but it registers in its own family's tree, so the other family's tree doesn't see it. Detached Menu triggers rendered inside a Popover are the exception: while one of them is the active trigger, the Menu's node sits in the Popover's tree under the Popover's node, and the Menu's tree events go out on it.
 _Avoid_: shared tree
 
 **Snapshot**:
-What a tree member publishes on its node for the other members: whether it is open, its floating and trigger elements, and its interaction data. Whether it is open and its elements are updated each time the member renders, so a node the member stops updating keeps the last ones. They can go stale: when a Menu switches triggers, the previous trigger's node keeps reporting the Menu as open, so a parent may still treat it as an open child (a known issue). The interaction data isn't copied: other members read the member's current values.
+What a tree member publishes on its node for the other members: whether it is open, its floating and trigger elements, and its interaction data. Whether it is open and its elements are updated each time the member renders, so a node the member stops updating keeps the last ones. A Menu has one node, which moves to wherever its active trigger sits in a popup tree, so switching triggers leaves no stale node behind. The interaction data isn't copied: other members read the member's current values.
 _Avoid_: floating context
 _In code_: a node's `context` field.
 

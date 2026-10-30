@@ -6,7 +6,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { PopupTree, usePopupNodeId, usePopupParentNodeId } from '../../utils/popups/tree/PopupTree';
+import { useId } from '@base-ui/utils/useId';
+import { PopupTree, usePopupParentNodeId } from '../../utils/popups/tree/PopupTree';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
@@ -113,7 +114,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   // at the generated fallback.
   const defaultPopupId = (renderedPopupId ?? generatedPopupId) || undefined;
 
-  const floatingParentNodeIdFromContext = usePopupParentNodeId();
+  const rootParentNodeId = usePopupParentNodeId();
+  const floatingNodeId = useId();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
   // An initially open submenu should animate in only when the user watches it appear, i.e. when
@@ -145,6 +147,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
           highlightItemOnHover,
           modal: parentFromContext.type === undefined ? modalProp : undefined,
           rootId,
+          floatingNodeId,
+          rootParentNodeId,
           instantType: seededInstantType,
         },
         initialPopupId,
@@ -158,8 +162,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   );
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-
-  const floatingNodeIdFromContext = usePopupNodeId(floatingTreeRoot);
 
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
@@ -191,7 +193,17 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
+    floatingNodeId,
+    rootParentNodeId,
   });
+
+  useIsoLayoutEffect(() => {
+    if (!floatingNodeId) {
+      return undefined;
+    }
+
+    return store.registerTreeNode(floatingNodeId);
+  }, [store, floatingNodeId]);
 
   const runOnceAnimationsFinish = useAnimationsFinished(store.context.popupRef);
 
@@ -245,30 +257,12 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     if (contextMenuContext && !parentMenuRootContext) {
       // This is a context menu root.
       // It doesn't support detached triggers yet, so we have to sync the parent context manually.
-      store.update({
-        parent: {
-          type: 'context-menu',
-          context: contextMenuContext,
-        },
-        floatingNodeId: floatingNodeIdFromContext,
-        floatingParentNodeId: floatingParentNodeIdFromContext,
-      });
-    } else if (parentMenuRootContext || !store.select('activeTriggerElement')) {
-      // Without an active trigger, the root must supply its own tree IDs.
-      // Read the store here: a trigger can register after render, before this effect.
-      store.update({
-        floatingNodeId: floatingNodeIdFromContext,
-        floatingParentNodeId: floatingParentNodeIdFromContext,
+      store.set('parent', {
+        type: 'context-menu',
+        context: contextMenuContext,
       });
     }
-  }, [
-    contextMenuContext,
-    parentMenuRootContext,
-    floatingNodeIdFromContext,
-    floatingParentNodeIdFromContext,
-    activeTriggerElement,
-    store,
-  ]);
+  }, [contextMenuContext, parentMenuRootContext, store]);
 
   React.useEffect(() => {
     if (!open) {
