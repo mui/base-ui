@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -184,7 +184,8 @@ describe('<Tabs.List />', () => {
       await setProps({ showMiddleTab: false });
 
       const tabs = screen.getAllByRole('tab', { hidden: true });
-      expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, -1, -1]);
+      // The hidden successor is detected in the frame after it takes the tab stop.
+      await waitFor(() => expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, -1, -1]));
     });
 
     it('can fall back to a tab that is focusable when disabled', async () => {

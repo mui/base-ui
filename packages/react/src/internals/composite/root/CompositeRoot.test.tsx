@@ -1,4 +1,4 @@
-import { expect, vi, describe, it } from 'vitest';
+import { afterEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -1172,7 +1172,8 @@ describe('Composite', () => {
       const { setProps } = await render(<App showLast />);
 
       const item3 = screen.getByTestId('3');
-      expect(item3).toHaveAttribute('tabindex', '0');
+      // The hidden first item is detected in the frame after mount.
+      await waitFor(() => expect(item3).toHaveAttribute('tabindex', '0'));
 
       act(() => item3.focus());
 
@@ -1207,6 +1208,99 @@ describe('Composite', () => {
 
       expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
+  describe('style and layout reads on mount', () => {
+    function stubAnimationFrames() {
+      const frames: FrameRequestCallback[] = [];
+      vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      return async () => {
+        await act(async () => {
+          frames.splice(0).forEach((callback) => callback(0));
+        });
+      };
+    }
+
+    function spyOnReads() {
+      const styles = vi.spyOn(window, 'getComputedStyle');
+      const clientWidth = vi.spyOn(Element.prototype, 'clientWidth', 'get');
+      return () => styles.mock.calls.length + clientWidth.mock.calls.length;
+    }
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    });
+
+    it('moves the tab stop off a hidden default item in the frame after mount', async () => {
+      const runFrames = stubAnimationFrames();
+      const reads = spyOnReads();
+
+      await render(
+        <CompositeRoot>
+          <CompositeItem data-testid="1" style={{ display: 'none' }} />
+          <CompositeItem data-testid="2" />
+        </CompositeRoot>,
+      );
+
+      expect(reads()).toBe(0);
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+
+      await runFrames();
+
+      expect(reads()).toBeGreaterThan(0);
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+    });
+
+    // jsdom elements have no `scrollTo`, so the scroll returns before reading layout.
+    it.skipIf(isJSDOM)('scrolls the active item into view in the frame after mount', async () => {
+      const runFrames = stubAnimationFrames();
+      const reads = spyOnReads();
+      const itemStyle = { flex: '0 0 80px', height: 20 };
+
+      await render(
+        <CompositeRoot
+          data-testid="root"
+          orientation="horizontal"
+          style={{ display: 'flex', width: 100, overflow: 'auto' }}
+        >
+          <CompositeItem style={itemStyle} />
+          <CompositeItem style={itemStyle} />
+          <CompositeItem data-testid="active" data-composite-item-active="" style={itemStyle} />
+        </CompositeRoot>,
+      );
+
+      const root = screen.getByTestId('root');
+      expect(reads()).toBe(0);
+      expect(screen.getByTestId('active')).toHaveAttribute('tabindex', '0');
+      expect(root.scrollLeft).toBe(0);
+
+      await runFrames();
+
+      expect(reads()).toBeGreaterThan(0);
+      expect(root.scrollLeft).toBeGreaterThan(0);
+    });
+
+    it('does not read after unmounting before the frame', async () => {
+      const runFrames = stubAnimationFrames();
+      const reads = spyOnReads();
+
+      const { unmount } = await render(
+        <CompositeRoot>
+          <CompositeItem data-testid="1" style={{ display: 'none' }} />
+          <CompositeItem data-testid="2" data-composite-item-active="" />
+        </CompositeRoot>,
+      );
+      unmount();
+
+      await runFrames();
+
+      expect(reads()).toBe(0);
     });
   });
 

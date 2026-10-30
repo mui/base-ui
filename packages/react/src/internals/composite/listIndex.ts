@@ -522,6 +522,11 @@ export function isListIndexDisabled(
   list: ReadonlyArray<HTMLElement | null>,
   index: number,
   disabledIndices?: DisabledIndices,
+  /**
+   * When `false`, hidden items are not detected. The visibility check reads computed styles,
+   * which forces a style recalculation while the DOM has pending changes.
+   */
+  checkVisibility = true,
 ) {
   const isExplicitlyDisabled =
     typeof disabledIndices === 'function'
@@ -537,10 +542,6 @@ export function isListIndexDisabled(
     return false;
   }
 
-  if (!isElementVisible(element)) {
-    return true;
-  }
-
   // A natively disabled element can never receive focus, so it must always be
   // skipped, even when `disabledIndices` marks it as enabled. Only
   // `aria-disabled` items can be focusable-while-disabled.
@@ -548,7 +549,11 @@ export function isListIndexDisabled(
     return true;
   }
 
-  return !disabledIndices && isElementDisabled(element);
+  if (!disabledIndices && isElementDisabled(element)) {
+    return true;
+  }
+
+  return checkVisibility && !isElementVisible(element);
 }
 
 export function isHiddenByStyles(styles: CSSStyleDeclaration) {
