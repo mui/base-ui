@@ -39,5 +39,5 @@ export function dispatchOpenChange(
     triggerElement: eventDetails.trigger,
   };
 
-  context.events.emit('openchange', details);
+  context.events.emit('openChange', details);
 }

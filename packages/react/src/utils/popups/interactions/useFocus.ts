@@ -102,9 +102,9 @@ export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}
       }
     }
 
-    events.on('openchange', onOpenChangeLocal);
+    events.on('openChange', onOpenChangeLocal);
     return () => {
-      events.off('openchange', onOpenChangeLocal);
+      events.off('openChange', onOpenChangeLocal);
     };
   }, [events, enabled, store]);
 

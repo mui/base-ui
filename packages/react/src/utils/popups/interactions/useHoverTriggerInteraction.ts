@@ -123,9 +123,9 @@ export function useHoverTriggerInteraction(
       }
     }
 
-    events.on('openchange', onOpenChangeLocal);
+    events.on('openChange', onOpenChangeLocal);
     return () => {
-      events.off('openchange', onOpenChangeLocal);
+      events.off('openChange', onOpenChangeLocal);
     };
   }, [enabled, events, intent]);
 

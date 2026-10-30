@@ -239,7 +239,7 @@ class TestPopupStore extends BasePopupStore<
       popupStoreSelectors,
     );
 
-    this.context.events.on('openchange', () => {
+    this.context.events.on('openChange', () => {
       this.steps.push('notify');
     });
     this.subscribe(() => {
@@ -332,7 +332,7 @@ describe('BasePopupStore', () => {
       const onOpenChange = vi.fn();
       const onDroppedClose = vi.fn();
       const store = new TestPopupStore(onOpenChange, { mounted });
-      store.context.events.on('droppedclose', onDroppedClose);
+      store.context.events.on('droppedClose', onDroppedClose);
 
       store.setOpen(false, createDetails(REASONS.triggerHover));
 
@@ -355,7 +355,7 @@ describe('BasePopupStore', () => {
       const onOpenChange = vi.fn();
       const onDroppedClose = vi.fn();
       const store = new TestPopupStore(onOpenChange, state);
-      store.context.events.on('droppedclose', onDroppedClose);
+      store.context.events.on('droppedClose', onDroppedClose);
 
       store.setOpen(false, createDetails(REASONS.escapeKey));
 
@@ -730,7 +730,7 @@ describe('BasePopupStore', () => {
       store.context.nested = true;
       store.closeTrigger = createConnectedButton();
       const onOpenChangeEvent = vi.fn();
-      store.context.events.on('openchange', onOpenChangeEvent);
+      store.context.events.on('openChange', onOpenChangeEvent);
       const event = new KeyboardEvent('keydown');
 
       store.setOpen(false, createChangeEventDetails(REASONS.escapeKey, event));

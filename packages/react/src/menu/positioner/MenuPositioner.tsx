@@ -132,10 +132,10 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('nodeopenchange', onMenuOpenChange);
+    floatingTreeRoot.events.on('nodeOpenChange', onMenuOpenChange);
 
     return () => {
-      floatingTreeRoot.events.off('nodeopenchange', onMenuOpenChange);
+      floatingTreeRoot.events.off('nodeOpenChange', onMenuOpenChange);
     };
   }, [store, floatingTreeRoot.events, floatingNodeId]);
 
@@ -158,10 +158,10 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
-    floatingTreeRoot.events.on('nodeopenchange', onParentClose);
+    floatingTreeRoot.events.on('nodeOpenChange', onParentClose);
 
     return () => {
-      floatingTreeRoot.events.off('nodeopenchange', onParentClose);
+      floatingTreeRoot.events.off('nodeOpenChange', onParentClose);
     };
   }, [floatingTreeRoot.events, store]);
 
@@ -200,9 +200,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('nodeitemhover', onItemHover);
+    floatingTreeRoot.events.on('nodeItemHover', onItemHover);
     return () => {
-      floatingTreeRoot.events.off('nodeitemhover', onItemHover);
+      floatingTreeRoot.events.off('nodeItemHover', onItemHover);
     };
   }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
 
@@ -215,7 +215,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       reason: store.select('lastOpenChangeReason'),
     };
 
-    floatingTreeRoot.events.emit('nodeopenchange', eventDetails);
+    floatingTreeRoot.events.emit('nodeOpenChange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
   useTriggerSwitchTransition({

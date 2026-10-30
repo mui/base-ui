@@ -852,7 +852,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
     }
 
-    events.on('openchange', onOpenChangeLocal);
+    events.on('openChange', onOpenChangeLocal);
 
     function getReturnElement(closeType: InteractionType) {
       const returnFocusValueOrFn = returnFocusRef.current;
@@ -892,7 +892,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     return () => {
-      events.off('openchange', onOpenChangeLocal);
+      events.off('openChange', onOpenChangeLocal);
 
       const activeEl = activeElement(doc);
       const insideElements = getResolvedInsideElements();

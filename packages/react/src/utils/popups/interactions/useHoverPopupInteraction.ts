@@ -98,12 +98,12 @@ export function useHoverPopupInteraction(
     function onFloatingMouseEnter() {
       intent.onPopupMouseEnter();
       childClosedTimeout.clear();
-      tree?.events.off('nodehoverclose', onNodeClosed);
+      tree?.events.off('nodeHoverClose', onNodeClosed);
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
       if (hasParentChildren() && tree) {
-        tree.events.on('nodehoverclose', onNodeClosed);
+        tree.events.on('nodeHoverClose', onNodeClosed);
         return;
       }
 
@@ -120,9 +120,9 @@ export function useHoverPopupInteraction(
       }
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
       childClosedTimeout.start(0, () => {
-        tree.events.off('nodehoverclose', onNodeClosed);
+        tree.events.off('nodeHoverClose', onNodeClosed);
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree.events.emit('nodehoverclose', event);
+        tree.events.emit('nodeHoverClose', event);
       });
     }
 
@@ -132,7 +132,7 @@ export function useHoverPopupInteraction(
       floating && addEventListener(floating, 'mouseleave', onFloatingMouseLeave),
       floating && addEventListener(floating, 'pointerdown', onPopupPointerDown, true),
       () => {
-        tree?.events.off('nodehoverclose', onNodeClosed);
+        tree?.events.off('nodeHoverClose', onNodeClosed);
       },
     );
   }, [

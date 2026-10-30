@@ -439,7 +439,7 @@ export abstract class BasePopupStore<
     // is dropped only when both are closed. A hover open may still be pending, so the hover
     // interaction hears about the dropped close to cancel it.
     if (!nextOpen && !this.state.open && !this.state.openProp) {
-      this.context.events.emit('droppedclose', undefined);
+      this.context.events.emit('droppedClose', undefined);
       return;
     }
 

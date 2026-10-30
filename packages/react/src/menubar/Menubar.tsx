@@ -117,10 +117,10 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
       }
     }
 
-    menuEvents.on('nodeopenchange', onSubmenuOpenChange);
+    menuEvents.on('nodeOpenChange', onSubmenuOpenChange);
 
     return () => {
-      menuEvents.off('nodeopenchange', onSubmenuOpenChange);
+      menuEvents.off('nodeOpenChange', onSubmenuOpenChange);
     };
   }, [menuEvents, nodeId, rootContext]);
 

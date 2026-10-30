@@ -7485,9 +7485,9 @@ describe('<Select.Root />', () => {
       function InteractionOpenChangeListener() {
         const store = useSelectRootContext();
         React.useEffect(() => {
-          store.context.events.on('openchange', handleInteractionOpenChange);
+          store.context.events.on('openChange', handleInteractionOpenChange);
           return () => {
-            store.context.events.off('openchange', handleInteractionOpenChange);
+            store.context.events.off('openChange', handleInteractionOpenChange);
           };
         }, [store]);
         return null;

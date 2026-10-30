@@ -302,9 +302,9 @@ export function useDismiss(
       }
     }
 
-    events.on('openchange', handleOpenChange);
+    events.on('openChange', handleOpenChange);
     return () => {
-      events.off('openchange', handleOpenChange);
+      events.off('openChange', handleOpenChange);
     };
   }, [events]);
 

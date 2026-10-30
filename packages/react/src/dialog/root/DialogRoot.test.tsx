@@ -2337,9 +2337,9 @@ function DialogOpenChangeSpy(props: {
       onOpenChange(details);
     }
 
-    store.context.events.on('openchange', handleOpenChange);
+    store.context.events.on('openChange', handleOpenChange);
     return () => {
-      store.context.events.off('openchange', handleOpenChange);
+      store.context.events.off('openChange', handleOpenChange);
     };
   }, [store, onOpenChange]);
 

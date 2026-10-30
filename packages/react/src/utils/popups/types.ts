@@ -58,12 +58,12 @@ export interface FloatingEventMap {
   /**
    * An accepted open change, emitted by `dispatchOpenChange`.
    */
-  openchange: FloatingUIOpenChangeDetails;
+  openChange: FloatingUIOpenChangeDetails;
   /**
    * A close request dropped because the popup was already closed, emitted by the popup store so a
    * pending hover open is cancelled.
    */
-  droppedclose: undefined;
+  droppedClose: undefined;
 }
 
 export type PopupEvents = FloatingEventEmitter<FloatingEventMap>;
@@ -91,19 +91,19 @@ export interface FloatingTreeEventMap {
   /**
    * A hover-opened popup closed after the pointer left it.
    */
-  nodehoverclose: MouseEvent;
+  nodeHoverClose: MouseEvent;
   /**
    * A tree member opened or closed.
    */
-  nodeopenchange: FloatingNodeOpenChangeDetails;
+  nodeOpenChange: FloatingNodeOpenChangeDetails;
   /**
    * A menu item was hovered, so sibling submenus of other items can close.
    */
-  nodeitemhover: { nodeId: string | undefined; target: Element | null };
+  nodeItemHover: { nodeId: string | undefined; target: Element | null };
   /**
    * A menu item was pressed, or a press that opened a menu was cancelled, so the open menus close.
    */
-  treeclose: {
+  treeClose: {
     domEvent: Event | undefined;
     reason: typeof REASONS.itemPress | typeof REASONS.cancelOpen;
   };

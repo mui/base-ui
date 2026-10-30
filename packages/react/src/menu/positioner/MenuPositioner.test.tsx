@@ -741,7 +741,7 @@ describe('<Menu.Positioner />', () => {
 
   // StrictMode would run the emitting effect twice, so these tests render without it and count
   // every emission.
-  describe('nodeopenchange across popup families', () => {
+  describe('nodeOpenChange across popup families', () => {
     function MenuOpenChangeLog({ log }: { log: string[] }) {
       const { store } = useMenuRootContext();
       const tree = store.useState('floatingTreeRoot');
@@ -753,9 +753,9 @@ describe('<Menu.Positioner />', () => {
           log.push(entry);
         }
 
-        tree.events.on('nodeopenchange', handleMenuOpenChange);
+        tree.events.on('nodeOpenChange', handleMenuOpenChange);
         return () => {
-          tree.events.off('nodeopenchange', handleMenuOpenChange);
+          tree.events.off('nodeOpenChange', handleMenuOpenChange);
         };
       }, [tree, log]);
 
