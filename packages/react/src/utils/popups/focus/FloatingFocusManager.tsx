@@ -33,8 +33,8 @@ import { createAttribute } from '../createAttribute';
 import { enqueueFocus } from './enqueueFocus';
 import { markOthers } from './markOthers';
 import { usePortalContext } from '../portal/FloatingPortal';
-import { useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
+import { usePopupTree } from '../tree/PopupTree';
+import type { PopupTreeStore } from '../tree/PopupTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../../internals/constants';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { resolveRef } from '../../resolveRef';
@@ -244,9 +244,9 @@ export interface FloatingFocusManagerProps {
    */
   beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null> | undefined;
   /**
-   * External FloatingTree to use when the one provided by context can't be used.
+   * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore | undefined;
+  externalTree?: PopupTreeStore | undefined;
   /**
    * Additional elements that should be treated as part of the floating subtree
    * even if they are rendered outside the floating element itself.
@@ -302,7 +302,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
   const openRef = useValueAsRef(open);
 
-  const tree = useFloatingTree(externalTree);
+  const tree = usePopupTree(externalTree);
   const portalContext = usePortalContext();
 
   const preventReturnFocusRef = React.useRef(false);

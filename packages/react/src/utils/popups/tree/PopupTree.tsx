@@ -4,35 +4,35 @@ import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { FloatingTreeStore } from './FloatingTreeStore';
-import type { FloatingNodeType, FloatingTreeType } from './FloatingTreeStore';
+import { PopupTreeStore } from './PopupTreeStore';
+import type { PopupNodeType } from './PopupTreeStore';
 
-const FloatingNodeContext = React.createContext<FloatingNodeType | null>(null);
-const FloatingTreeContext = React.createContext<FloatingTreeType | null>(null);
+const PopupTreeNodeContext = React.createContext<PopupNodeType | null>(null);
+const PopupTreeContext = React.createContext<PopupTreeStore | null>(null);
 
 /**
  * Returns the parent node id for nested floating elements, if available.
  * Returns `null` for top-level floating elements.
  */
-export const useFloatingParentNodeId = (): string | null =>
-  React.useContext(FloatingNodeContext)?.id || null;
+export const usePopupParentNodeId = (): string | null =>
+  React.useContext(PopupTreeNodeContext)?.id || null;
 
 /**
- * Returns the nearest floating tree context, if available.
+ * Returns the nearest popup tree, if available.
  */
-export const useFloatingTree = (externalTree?: FloatingTreeStore): FloatingTreeType | null => {
-  const contextTree = React.useContext(FloatingTreeContext) as FloatingTreeType | null;
+export const usePopupTree = (externalTree?: PopupTreeStore): PopupTreeStore | null => {
+  const contextTree = React.useContext(PopupTreeContext);
   return externalTree ?? contextTree;
 };
 
 /**
- * Registers a node into the `FloatingTree`, returning its id.
+ * Registers a node into the `PopupTree`, returning its id.
  * @see https://floating-ui.com/docs/FloatingTree
  */
-export function useFloatingNodeId(externalTree?: FloatingTreeStore): string | undefined {
+export function usePopupNodeId(externalTree?: PopupTreeStore): string | undefined {
   const id = useId();
-  const tree = useFloatingTree(externalTree);
-  const parentId = useFloatingParentNodeId();
+  const tree = usePopupTree(externalTree);
+  const parentId = usePopupParentNodeId();
 
   useIsoLayoutEffect(() => {
     if (!id) {
@@ -49,7 +49,7 @@ export function useFloatingNodeId(externalTree?: FloatingTreeStore): string | un
   return id;
 }
 
-export interface FloatingNodeProps {
+export interface PopupTreeNodeProps {
   children?: React.ReactNode;
   id: string | undefined;
 }
@@ -59,21 +59,21 @@ export interface FloatingNodeProps {
  * @see https://floating-ui.com/docs/FloatingTree
  * @internal
  */
-export function FloatingNode(props: FloatingNodeProps): React.JSX.Element {
+export function PopupTreeNode(props: PopupTreeNodeProps): React.JSX.Element {
   const { children, id } = props;
 
-  const parentId = useFloatingParentNodeId();
+  const parentId = usePopupParentNodeId();
 
   return (
-    <FloatingNodeContext.Provider value={React.useMemo(() => ({ id, parentId }), [id, parentId])}>
+    <PopupTreeNodeContext.Provider value={React.useMemo(() => ({ id, parentId }), [id, parentId])}>
       {children}
-    </FloatingNodeContext.Provider>
+    </PopupTreeNodeContext.Provider>
   );
 }
 
-export interface FloatingTreeProps {
+export interface PopupTreeProps {
   children?: React.ReactNode;
-  externalTree?: FloatingTreeStore | undefined;
+  externalTree?: PopupTreeStore | undefined;
 }
 
 /**
@@ -87,9 +87,9 @@ export interface FloatingTreeProps {
  * @see https://floating-ui.com/docs/FloatingTree
  * @internal
  */
-export function FloatingTree(props: FloatingTreeProps): React.JSX.Element {
+export function PopupTree(props: PopupTreeProps): React.JSX.Element {
   const { children, externalTree } = props;
 
-  const tree = useRefWithInit(() => externalTree ?? new FloatingTreeStore()).current;
-  return <FloatingTreeContext.Provider value={tree}>{children}</FloatingTreeContext.Provider>;
+  const tree = useRefWithInit(() => externalTree ?? new PopupTreeStore()).current;
+  return <PopupTreeContext.Provider value={tree}>{children}</PopupTreeContext.Provider>;
 }

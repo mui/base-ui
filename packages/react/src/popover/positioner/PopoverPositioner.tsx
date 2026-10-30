@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
+import { PopupTreeNode, usePopupNodeId } from '../../utils/popups/tree/PopupTree';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import type {
@@ -29,7 +29,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 ) {
   const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
-  const nodeId = useFloatingNodeId();
+  const nodeId = usePopupNodeId();
 
   const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
@@ -65,7 +65,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       {mounted && trueModalNonHover && (
         <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
       )}
-      <FloatingNode id={nodeId}>{element}</FloatingNode>
+      <PopupTreeNode id={nodeId}>{element}</PopupTreeNode>
     </PopoverPositionerContext.Provider>
   );
 });

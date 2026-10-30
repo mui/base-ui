@@ -1,7 +1,7 @@
 /**
  * An event emitter whose events and payloads are listed in `EventMap`.
  */
-export interface FloatingEventEmitter<EventMap extends object> {
+export interface EventEmitter<EventMap extends object> {
   emit<Name extends keyof EventMap & string>(event: Name, data: EventMap[Name]): void;
   on<Name extends keyof EventMap & string>(
     event: Name,
@@ -13,7 +13,7 @@ export interface FloatingEventEmitter<EventMap extends object> {
   ): void;
 }
 
-export function createEventEmitter<EventMap extends object>(): FloatingEventEmitter<EventMap> {
+export function createEventEmitter<EventMap extends object>(): EventEmitter<EventMap> {
   const map = new Map<string, Set<(data: any) => void>>();
   return {
     emit(event, data) {

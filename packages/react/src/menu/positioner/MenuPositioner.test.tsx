@@ -17,7 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 
 import { useMenuRootContext } from '../root/MenuRootContext';
-import type { FloatingNodeOpenChangeDetails } from '../../utils/popups/tree/FloatingTreeStore';
+import type { PopupNodeOpenChangeDetails } from '../../utils/popups/tree/PopupTreeStore';
 
 const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 
@@ -747,7 +747,7 @@ describe('<Menu.Positioner />', () => {
       const tree = store.useState('floatingTreeRoot');
 
       React.useEffect(() => {
-        function handleMenuOpenChange(details: FloatingNodeOpenChangeDetails) {
+        function handleMenuOpenChange(details: PopupNodeOpenChangeDetails) {
           const positionerMounted = document.querySelector('[data-testid="menu-positioner"]');
           const entry = `open=${details.open} parent=${details.parentNodeId == null ? 'none' : 'set'} positioner=${positionerMounted != null}`;
           log.push(entry);

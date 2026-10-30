@@ -8,7 +8,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 import type { Delay, PopupInteractionStore, PopupInteractionContext } from '../types';
-import type { FloatingTreeType } from '../tree/FloatingTreeStore';
+import type { PopupTreeStore } from '../tree/PopupTreeStore';
 import { isInteractiveElement } from '../element';
 import { isMouseLikePointerType } from '../event';
 import type { HandleClose, HandleCloseContextBase, HandleCloseOptions } from './useHoverShared';
@@ -38,7 +38,7 @@ export interface HoverIntentTriggerOptions {
   isHoverCloseActive: Latest<boolean>;
   triggerElementRef: Latest<Element | null>;
   mouseOnly: boolean;
-  tree: FloatingTreeType | null;
+  tree: PopupTreeStore | null;
   shouldOpen: () => boolean;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
 }
@@ -414,7 +414,7 @@ export class HoverIntent {
   blockOutsidePointerEventsForPopup(
     triggerElement: HTMLElement | SVGSVGElement,
     positionerElement: HTMLElement,
-    tree: FloatingTreeType | null,
+    tree: PopupTreeStore | null,
     parentId: string | null,
   ): boolean {
     if (
@@ -460,7 +460,7 @@ export class HoverIntent {
     event: MouseEvent,
     options: {
       closeDelay: number | (() => number);
-      tree: FloatingTreeType | null;
+      tree: PopupTreeStore | null;
       nodeId: string | undefined;
     },
   ) {
@@ -510,7 +510,7 @@ export class HoverIntent {
   private closeWithDelay(
     event: MouseEvent,
     delay: Delay | (() => Delay) | undefined,
-    tree: FloatingTreeType | null,
+    tree: PopupTreeStore | null,
   ) {
     const close = () => {
       this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));

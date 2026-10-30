@@ -7,7 +7,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
+import { usePopupParentNodeId, usePopupTree } from '../tree/PopupTree';
 import type { PopupInteractionStore } from '../types';
 import { getHoverIntent } from './hoverIntent';
 
@@ -44,8 +44,8 @@ export function useHoverPopupInteraction(
   const positionerElement = store.useState('positionerElement');
   const anchorElement = store.useState('anchorElement');
 
-  const tree = useFloatingTree();
-  const parentId = useFloatingParentNodeId();
+  const tree = usePopupTree();
+  const parentId = usePopupParentNodeId();
   const intent = getHoverIntent(store);
 
   const childClosedTimeout = useTimeout();

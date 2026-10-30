@@ -1,8 +1,8 @@
 'use client';
-import { useFloatingTree } from '../../src/utils/popups/tree/FloatingTree';
-import type { FloatingTreeStore } from '../../src/utils/popups/tree/FloatingTreeStore';
+import { usePopupTree } from '../../src/utils/popups/tree/PopupTree';
+import type { PopupTreeStore } from '../../src/utils/popups/tree/PopupTreeStore';
 
-type FixtureTree = Omit<FloatingTreeStore, 'events'> & {
+type FixtureTree = Omit<PopupTreeStore, 'events'> & {
   events: {
     emit(event: string, data?: any): void;
     on(event: string, handler: (data: any) => void): void;
@@ -15,5 +15,5 @@ type FixtureTree = Omit<FloatingTreeStore, 'events'> & {
  * events.
  */
 export function useFixtureTree() {
-  return useFloatingTree() as FixtureTree | null;
+  return usePopupTree() as FixtureTree | null;
 }

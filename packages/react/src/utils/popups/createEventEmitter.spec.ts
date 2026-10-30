@@ -1,10 +1,10 @@
 import { REASONS } from '../../internals/reasons';
 import { createEventEmitter } from './createEventEmitter';
-import type { FloatingEventMap } from './types';
-import type { FloatingTreeEventMap } from './tree/FloatingTreeStore';
+import type { PopupEventMap } from './types';
+import type { PopupTreeEventMap } from './tree/PopupTreeStore';
 
-const popupEvents = createEventEmitter<FloatingEventMap>();
-const treeEvents = createEventEmitter<FloatingTreeEventMap>();
+const popupEvents = createEventEmitter<PopupEventMap>();
+const treeEvents = createEventEmitter<PopupTreeEventMap>();
 
 popupEvents.emit('droppedClose', undefined);
 // @ts-expect-error Every event takes a payload argument, even one without data.

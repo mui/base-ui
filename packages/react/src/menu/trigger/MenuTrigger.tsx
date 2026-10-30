@@ -10,13 +10,13 @@ import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import {
-  useFloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../../utils/popups/tree/FloatingTree';
+  usePopupTree,
+  usePopupNodeId,
+  usePopupParentNodeId,
+} from '../../utils/popups/tree/PopupTree';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
-import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
+import { PopupTreeStore } from '../../utils/popups/tree/PopupTreeStore';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -83,14 +83,14 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
-  const floatingTreeRootFromContext = useFloatingTree();
+  const floatingTreeRootFromContext = usePopupTree();
 
-  const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
-    return floatingTreeRootFromContext ?? new FloatingTreeStore();
+  const floatingTreeRoot: PopupTreeStore = React.useMemo(() => {
+    return floatingTreeRootFromContext ?? new PopupTreeStore();
   }, [floatingTreeRootFromContext]);
 
-  const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
-  const floatingParentNodeId = useFloatingParentNodeId();
+  const floatingNodeId = usePopupNodeId(floatingTreeRoot);
+  const floatingParentNodeId = usePopupParentNodeId();
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,

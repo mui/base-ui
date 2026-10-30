@@ -6,11 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import {
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../../utils/popups/tree/FloatingTree';
+import { PopupTree, usePopupNodeId, usePopupParentNodeId } from '../../utils/popups/tree/PopupTree';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
@@ -117,7 +113,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   // at the generated fallback.
   const defaultPopupId = (renderedPopupId ?? generatedPopupId) || undefined;
 
-  const floatingParentNodeIdFromContext = useFloatingParentNodeId();
+  const floatingParentNodeIdFromContext = usePopupParentNodeId();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
   // An initially open submenu should animate in only when the user watches it appear, i.e. when
@@ -163,7 +159,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
 
-  const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
+  const floatingNodeIdFromContext = usePopupNodeId(floatingTreeRoot);
 
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
@@ -590,8 +586,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   );
 
   if (parent.type === undefined || parent.type === 'context-menu') {
-    // set up a FloatingTree to provide the context to nested menus
-    content = <FloatingTree externalTree={floatingTreeRoot}>{content}</FloatingTree>;
+    // set up a PopupTree to provide the context to nested menus
+    content = <PopupTree externalTree={floatingTreeRoot}>{content}</PopupTree>;
   }
 
   return content;

@@ -2,18 +2,18 @@ import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIEventReason, REASONS } from '../../../internals/reasons';
 import type { ExtendedElements, PopupInteractionContext } from '../types';
 import { createEventEmitter } from '../createEventEmitter';
-import type { FloatingEventEmitter } from '../createEventEmitter';
+import type { EventEmitter } from '../createEventEmitter';
 
 /**
  * The components that announce their open changes to their popup tree.
  */
-export type FloatingTreeComponent = 'menu';
+export type PopupTreeComponent = 'menu';
 
-export interface FloatingNodeOpenChangeDetails {
+export interface PopupNodeOpenChangeDetails {
   /**
    * The component that opened or closed. Listeners ignore the components they don't coordinate with.
    */
-  component: FloatingTreeComponent;
+  component: PopupTreeComponent;
   open: boolean;
   reason: BaseUIEventReason | null;
   nodeId: string | undefined;
@@ -23,7 +23,7 @@ export interface FloatingNodeOpenChangeDetails {
 /**
  * The events shared by the popups of one popup tree.
  */
-export interface FloatingTreeEventMap {
+export interface PopupTreeEventMap {
   /**
    * A hover-opened popup closed after the pointer left it.
    */
@@ -31,7 +31,7 @@ export interface FloatingTreeEventMap {
   /**
    * A tree member opened or closed.
    */
-  nodeOpenChange: FloatingNodeOpenChangeDetails;
+  nodeOpenChange: PopupNodeOpenChangeDetails;
   /**
    * A menu item was hovered, so sibling submenus of other items can close.
    */
@@ -45,12 +45,12 @@ export interface FloatingTreeEventMap {
   };
 }
 
-export type FloatingTreeEvents = FloatingEventEmitter<FloatingTreeEventMap>;
+export type PopupTreeEvents = EventEmitter<PopupTreeEventMap>;
 
 /**
  * What a popup tree member shares with the other members about its interactions.
  */
-type FloatingNodeInteraction = Pick<
+type PopupNodeInteraction = Pick<
   PopupInteractionContext,
   'orientation' | 'escapeKeyBubbles' | 'outsidePressBubbles'
 >;
@@ -62,34 +62,32 @@ type FloatingNodeInteraction = Pick<
  * no longer updates keeps the last `open` and `elements`. The interaction fields are read from the
  * member's interaction store, which its interaction hooks update in place.
  */
-export interface FloatingNodeSnapshot {
+export interface PopupNodeSnapshot {
   open: boolean;
   elements: Pick<ExtendedElements, 'floating' | 'domReference'>;
-  rootStore: { context: FloatingNodeInteraction };
+  rootStore: { context: PopupNodeInteraction };
 }
 
-export interface FloatingNodeType {
+export interface PopupNodeType {
   id: string | undefined;
   parentId: string | null;
-  context?: FloatingNodeSnapshot | undefined;
+  context?: PopupNodeSnapshot | undefined;
 }
-
-export type FloatingTreeType = FloatingTreeStore;
 
 /**
  * Stores and manages floating elements in a tree structure.
- * This is a backing store for the `FloatingTree` component.
+ * This is a backing store for the `PopupTree` component.
  */
-export class FloatingTreeStore {
-  public readonly nodesRef: React.RefObject<Array<FloatingNodeType>> = { current: [] };
+export class PopupTreeStore {
+  public readonly nodesRef: React.RefObject<Array<PopupNodeType>> = { current: [] };
 
-  public readonly events: FloatingTreeEvents = createEventEmitter();
+  public readonly events: PopupTreeEvents = createEventEmitter();
 
-  public addNode(node: FloatingNodeType) {
+  public addNode(node: PopupNodeType) {
     this.nodesRef.current.push(node);
   }
 
-  public removeNode(node: FloatingNodeType) {
+  public removeNode(node: PopupNodeType) {
     const index = this.nodesRef.current.findIndex((n) => n === node);
     if (index !== -1) {
       this.nodesRef.current.splice(index, 1);
@@ -107,7 +105,7 @@ export class FloatingTreeStore {
    * Returns the descendants of a node, in tree order. With `onlyOpen`, closed descendants are left
    * out, but their own descendants are still searched.
    */
-  public descendants(id: string | undefined, onlyOpen = true): Array<FloatingNodeType> {
+  public descendants(id: string | undefined, onlyOpen = true): Array<PopupNodeType> {
     return this.nodesRef.current
       .filter((node) => node.parentId === id)
       .flatMap((child) => [
@@ -120,7 +118,7 @@ export class FloatingTreeStore {
    * Returns the ancestors of a node, nearest first.
    */
   public ancestors(id: string | undefined) {
-    const allAncestors: Array<FloatingNodeType> = [];
+    const allAncestors: Array<PopupNodeType> = [];
     let currentParentId = this.getNode(id)?.parentId;
 
     while (currentParentId) {

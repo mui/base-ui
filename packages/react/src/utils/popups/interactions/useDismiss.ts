@@ -15,8 +15,8 @@ import {
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
+import { usePopupTree } from '../tree/PopupTree';
+import type { PopupTreeStore } from '../tree/PopupTreeStore';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
@@ -109,14 +109,14 @@ export interface UseDismissProps {
    * floating elements.
    * `escapeKey` also determines whether an Escape that reaches the document, rather than a
    * floating element, propagates to floating elements opened earlier, even when they share no
-   * `FloatingTree`.
+   * `PopupTree`.
    */
   bubbles?:
     boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
   /**
-   * External FloatingTree to use when the one provided by context can't be used.
+   * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore | undefined;
+  externalTree?: PopupTreeStore | undefined;
 }
 
 /**
@@ -143,7 +143,7 @@ export function useDismiss(
   const storeContext = store.context;
   const { events } = storeContext;
 
-  const tree = useFloatingTree(externalTree);
+  const tree = usePopupTree(externalTree);
   const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );

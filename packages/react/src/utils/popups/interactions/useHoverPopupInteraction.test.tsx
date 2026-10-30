@@ -3,8 +3,8 @@ import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-t
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { FloatingTree } from '../tree/FloatingTree';
-import { FloatingTreeStore } from '../tree/FloatingTreeStore';
+import { PopupTree } from '../tree/PopupTree';
+import { PopupTreeStore } from '../tree/PopupTreeStore';
 import { useHoverPopupInteraction } from './useHoverPopupInteraction';
 import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
 
@@ -109,7 +109,7 @@ describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
   ])(
     'keeps the popup open when the pointer leaves it for the floating element of a $childState descendant',
     async ({ childOpen }) => {
-      const tree = new FloatingTreeStore();
+      const tree = new PopupTreeStore();
       const childFloating = document.createElement('div');
       document.body.appendChild(childFloating);
       onTestFinished(() => childFloating.remove());
@@ -124,9 +124,9 @@ describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
       });
 
       render(
-        <FloatingTree externalTree={tree}>
+        <PopupTree externalTree={tree}>
           <App closeDelay={100} nodeId="root" />
-        </FloatingTree>,
+        </PopupTree>,
       );
 
       const button = screen.getByRole('button');

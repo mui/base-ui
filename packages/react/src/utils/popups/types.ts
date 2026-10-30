@@ -8,8 +8,8 @@ import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 
-import type { FloatingTreeStore } from './tree/FloatingTreeStore';
-import type { FloatingEventEmitter } from './createEventEmitter';
+import type { PopupTreeStore } from './tree/PopupTreeStore';
+import type { EventEmitter } from './createEventEmitter';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
 
@@ -39,7 +39,7 @@ export interface ExtendedElements {
 /**
  * The events of one popup's interaction hooks.
  */
-export interface FloatingEventMap {
+export interface PopupEventMap {
   /**
    * An accepted open change, emitted by `dispatchOpenChange`.
    */
@@ -51,7 +51,7 @@ export interface FloatingEventMap {
   droppedClose: undefined;
 }
 
-export type PopupEvents = FloatingEventEmitter<FloatingEventMap>;
+export type PopupEvents = EventEmitter<PopupEventMap>;
 
 /**
  * What `useFloating()` publishes about a positioned popup for the interaction hooks: its placement
@@ -218,11 +218,11 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    */
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   /**
-   * Unique node id when using `FloatingTree`.
+   * Unique node id when using `PopupTree`.
    */
   nodeId?: string | undefined;
   /**
-   * External FloatingTree to use when the one provided by context can't be used.
+   * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore | undefined;
+  externalTree?: PopupTreeStore | undefined;
 }

@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../popupTriggerMap';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { useFloatingParentNodeId } from '../tree/FloatingTree';
+import { usePopupParentNodeId } from '../tree/PopupTree';
 import { FloatingRootStore } from './FloatingRootStore';
 import type { FloatingRootState as State } from './FloatingRootStore';
 
@@ -50,7 +50,7 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
   const { open = false, onOpenChange, elements = {} } = options;
 
   const defaultPopupId = useId();
-  const nested = useFloatingParentNodeId() != null;
+  const nested = usePopupParentNodeId() != null;
 
   const store = useRefWithInit(
     () =>

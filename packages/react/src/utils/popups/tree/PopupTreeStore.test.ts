@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { FloatingTreeStore } from './FloatingTreeStore';
-import type { FloatingNodeSnapshot, FloatingNodeType } from './FloatingTreeStore';
+import { PopupTreeStore } from './PopupTreeStore';
+import type { PopupNodeSnapshot, PopupNodeType } from './PopupTreeStore';
 
 function createContext(
   open: boolean,
   options: {
     floating?: HTMLElement;
-    interaction?: FloatingNodeSnapshot['rootStore']['context'];
+    interaction?: PopupNodeSnapshot['rootStore']['context'];
   } = {},
 ) {
   return {
     open,
     elements: { floating: options.floating ?? null, domReference: null },
     rootStore: { context: options.interaction ?? {} },
-  } satisfies FloatingNodeSnapshot;
+  } satisfies PopupNodeSnapshot;
 }
 
-function createTree(nodes: Array<FloatingNodeType>) {
-  const tree = new FloatingTreeStore();
+function createTree(nodes: Array<PopupNodeType>) {
+  const tree = new PopupTreeStore();
   nodes.forEach((node) => tree.addNode(node));
   return tree;
 }
@@ -25,9 +25,9 @@ function createTree(nodes: Array<FloatingNodeType>) {
 const contextOpen = createContext(true);
 const contextClosed = createContext(false);
 
-describe('FloatingTreeStore', () => {
+describe('PopupTreeStore', () => {
   it('leaves a removed node out of its queries', () => {
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeStore();
     const floating = document.createElement('div');
     const target = document.createElement('span');
     floating.appendChild(target);

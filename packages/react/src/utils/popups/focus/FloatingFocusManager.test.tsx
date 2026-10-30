@@ -20,12 +20,7 @@ import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { FloatingFocusManager } from './FloatingFocusManager';
-import {
-  FloatingNode,
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../tree/FloatingTree';
+import { PopupTreeNode, PopupTree, usePopupNodeId, usePopupParentNodeId } from '../tree/PopupTree';
 import { FloatingPortal } from '../portal/FloatingPortal';
 import { useClick } from '../interactions/useClick';
 import { useDismiss } from '../interactions/useDismiss';
@@ -173,7 +168,7 @@ interface DialogProps {
 
 function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
   const [open, setOpen] = React.useState(passedOpen);
-  const nodeId = useFloatingNodeId();
+  const nodeId = usePopupNodeId();
 
   const { refs, context } = useFloating({
     open,
@@ -187,7 +182,7 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
   ]);
 
   return (
-    <FloatingNode id={nodeId}>
+    <PopupTreeNode id={nodeId}>
       {React.cloneElement(
         children,
         getReferenceProps({ ref: refs.setReference, ...children.props }),
@@ -203,7 +198,7 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
           </FloatingFocusManager>
         )}
       </FloatingPortal>
-    </FloatingNode>
+    </PopupTreeNode>
   );
 }
 
@@ -329,13 +324,13 @@ describe('FloatingFocusManager', () => {
 
       test('always returns to the reference for nested elements', async () => {
         const NestedDialog: React.FC<DialogProps> = (props) => {
-          const parentId = useFloatingParentNodeId();
+          const parentId = usePopupParentNodeId();
 
           if (parentId == null) {
             return (
-              <FloatingTree>
+              <PopupTree>
                 <Dialog {...props} />
-              </FloatingTree>
+              </PopupTree>
             );
           }
 
@@ -1172,7 +1167,7 @@ describe('FloatingFocusManager', () => {
           sideChildren,
         }: Props) => {
           const [internalOpen, setOpen] = React.useState(false);
-          const nodeId = useFloatingNodeId();
+          const nodeId = usePopupNodeId();
           const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
 
           const { refs, context } = useFloating({
@@ -1187,7 +1182,7 @@ describe('FloatingFocusManager', () => {
           ]);
 
           return (
-            <FloatingNode id={nodeId}>
+            <PopupTreeNode id={nodeId}>
               {children &&
                 React.cloneElement(
                   children,
@@ -1205,18 +1200,18 @@ describe('FloatingFocusManager', () => {
                 )}
               </FloatingPortal>
               {sideChildren}
-            </FloatingNode>
+            </PopupTreeNode>
           );
         };
 
         const NestedDialog: React.FC<Props> = (props) => {
-          const parentId = useFloatingParentNodeId();
+          const parentId = usePopupParentNodeId();
 
           if (parentId == null) {
             return (
-              <FloatingTree>
+              <PopupTree>
                 <Dialog {...props} />
-              </FloatingTree>
+              </PopupTree>
             );
           }
 

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
+import { PopupTreeNode } from '../../utils/popups/tree/PopupTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -19,7 +19,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../i
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { FloatingNodeOpenChangeDetails } from '../../utils/popups/tree/FloatingTreeStore';
+import type { PopupNodeOpenChangeDetails } from '../../utils/popups/tree/PopupTreeStore';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
@@ -111,7 +111,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   });
 
   React.useEffect(() => {
-    function onMenuOpenChange(details: FloatingNodeOpenChangeDetails) {
+    function onMenuOpenChange(details: PopupNodeOpenChangeDetails) {
       if (details.component !== 'menu') {
         return;
       }
@@ -144,7 +144,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       return undefined;
     }
 
-    function onParentClose(details: FloatingNodeOpenChangeDetails) {
+    function onParentClose(details: PopupNodeOpenChangeDetails) {
       if (
         details.component !== 'menu' ||
         details.open ||
@@ -207,7 +207,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
 
   React.useEffect(() => {
-    const eventDetails: FloatingNodeOpenChangeDetails = {
+    const eventDetails: PopupNodeOpenChangeDetails = {
       component: 'menu',
       open,
       nodeId: floatingNodeId,
@@ -262,7 +262,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           cutout={backdropCutout}
         />
       )}
-      <FloatingNode id={floatingNodeId}>
+      <PopupTreeNode id={floatingNodeId}>
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
@@ -270,7 +270,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         >
           {element}
         </CompositeList>
-      </FloatingNode>
+      </PopupTreeNode>
     </MenuPositionerContext.Provider>
   );
 });

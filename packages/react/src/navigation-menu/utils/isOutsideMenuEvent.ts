@@ -1,5 +1,5 @@
 import { contains } from '@base-ui/utils/shadowDom';
-import type { FloatingTreeType } from '../../utils/popups/tree/FloatingTreeStore';
+import type { PopupTreeStore } from '../../utils/popups/tree/PopupTreeStore';
 
 interface Targets {
   currentTarget: HTMLElement | null;
@@ -9,7 +9,7 @@ interface Targets {
 interface Params {
   popupElement: HTMLElement | null;
   rootRef: React.RefObject<HTMLDivElement | null>;
-  tree: FloatingTreeType | null;
+  tree: PopupTreeStore | null;
   nodeId: string | undefined;
 }
 

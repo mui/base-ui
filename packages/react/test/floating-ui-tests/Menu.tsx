@@ -10,11 +10,11 @@ import { useCompositeListItem } from '../../src/internals/composite/list/useComp
 import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
-  FloatingNode,
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../../src/utils/popups/tree/FloatingTree';
+  PopupTreeNode,
+  PopupTree,
+  usePopupNodeId,
+  usePopupParentNodeId,
+} from '../../src/utils/popups/tree/PopupTree';
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
@@ -87,8 +87,8 @@ export const MenuComponent = React.forwardRef<
   const labelsRef = React.useRef<Array<string | null>>([]);
 
   const tree = useFixtureTree();
-  const nodeId = useFloatingNodeId();
-  const parentId = useFloatingParentNodeId();
+  const nodeId = usePopupNodeId();
+  const parentId = usePopupParentNodeId();
   const isNested = parentId != null;
   const orientation = orientationOption ?? (grid ? 'both' : 'vertical');
 
@@ -209,7 +209,7 @@ export const MenuComponent = React.forwardRef<
   }, [allowHover]);
 
   return (
-    <FloatingNode id={nodeId}>
+    <PopupTreeNode id={nodeId}>
       <button
         type="button"
         ref={useMergedRefsN([refs.setReference, item.ref, forwardedRef])}
@@ -303,7 +303,7 @@ export const MenuComponent = React.forwardRef<
           )}
         </CompositeList>
       </MenuContext.Provider>
-    </FloatingNode>
+    </PopupTreeNode>
   );
 });
 
@@ -375,13 +375,13 @@ export const Menu = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
 >(function MenuWrapper(props, ref) {
-  const parentId = useFloatingParentNodeId();
+  const parentId = usePopupParentNodeId();
 
   if (parentId === null) {
     return (
-      <FloatingTree>
+      <PopupTree>
         <MenuComponent {...props} ref={ref} />
-      </FloatingTree>
+      </PopupTree>
     );
   }
 
