@@ -348,8 +348,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.3.0)(react@19.3.1)
       '@mui/internal-docs-infra':
-        specifier: 0.13.1-canary.21
-        version: 0.13.1-canary.21(@types/react@19.3.0)(next@16.4.2(@babel/core@8.0.7)(@playwright/test@1.64.1)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)
+        specifier: 0.13.1-canary.27
+        version: 0.13.1-canary.27(@types/react@19.3.0)(next@16.4.2(@babel/core@8.0.7)(@playwright/test@1.64.1)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)
       '@next/mdx':
         specifier: ^16.4.2
         version: 16.4.2(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@22.20.5))(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.3.0)(react@19.3.1))
@@ -2397,8 +2397,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.13.1-canary.21':
-    resolution: {integrity: sha512-MCqsc7j8vjm3j6aAJh7kNn/CIrfQOpxO57HxJDaoTr6vbjpvM1+kl/KZpV0wYwRU/OR8tOYyHSzl233fKCvytA==}
+  '@mui/internal-docs-infra@0.13.1-canary.27':
+    resolution: {integrity: sha512-DsUAyaSrJ8BCQEzhVIZQFmSFG34gYVTGwvXvsrOGRC06GV0fb67EustRU5AXLZ9aNjhO2slEW7Xxff0xXPJeUg==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -2432,6 +2432,12 @@ packages:
         optional: true
       '@emotion/react':
         optional: true
+
+  '@mui/internal-typescript-api-extractor@0.1.1-canary.1':
+    resolution: {integrity: sha512-qO14IwkNvZw9fi6YT4DbDJlX+Yq0ZHHmIP42P8tyO5W2EQoyAyfq/jRgf7orfqVzbk9XOzBRR/FSAV0lmVhZsw==}
+    engines: {node: '>=22.12.0'}
+    peerDependencies:
+      typescript: ^5.8 || ^6.0
 
   '@napi-rs/keyring-darwin-arm64@2.1.2':
     resolution: {integrity: sha512-vsInUWUzWS6/WzR/TFNwmdtmwKWjnnR8TOpvZ/pjjxDAkJB/waz37PWzp2b8AFcw1aCcq2aQ7k2vvbLQy8pTrw==}
@@ -9005,10 +9011,6 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-beta.7:
-    resolution: {integrity: sha512-aM4Nsec9X76xXOnz9RJ+B5rATt6rPlGbfnxJn+QHvicM8lQTeGap3W8Hztq2x6HKtfiRBhiPsyYZBuM00pllMg==}
-    engines: {node: '>=22'}
-
   typescript-eslint@8.72.0:
     resolution: {integrity: sha512-r26Fkc8As+mZvqp7SLsMmNFyYUup/6CjK7/eHBHmhOw6GH6n6YFxHVFrG0jN1c5CMpDzelLPxvgeCOzx7BjN+A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -11441,12 +11443,13 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.13.1-canary.21(@types/react@19.3.0)(next@16.4.2(@babel/core@8.0.7)(@playwright/test@1.64.1)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)':
+  '@mui/internal-docs-infra@0.13.1-canary.27(@types/react@19.3.0)(next@16.4.2(@babel/core@8.0.7)(@playwright/test@1.64.1)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)':
     dependencies:
       '@babel/runtime': 8.0.7
       '@csstools/postcss-light-dark-function': 3.0.7(postcss@8.5.31)
       '@csstools/postcss-relative-color-syntax': 4.0.15(postcss@8.5.31)
       '@csstools/postcss-stepped-value-functions': 5.0.9(postcss@8.5.31)
+      '@mui/internal-typescript-api-extractor': 0.1.1-canary.1(@typescript/typescript6@6.0.2)
       '@orama/orama': 3.1.18
       '@orama/plugin-qps': 3.1.18
       '@orama/stemmers': 3.1.18
@@ -11480,7 +11483,6 @@ snapshots:
       remark-typography: 0.8.10
       sucrase: 3.35.1
       typescript: '@typescript/typescript6@6.0.2'
-      typescript-api-extractor: 1.0.0-beta.7
       uint8-to-base64: 0.2.1
       unified: 11.0.5
       unist-util-visit: 5.1.0
@@ -11520,6 +11522,11 @@ snapshots:
       - '@vitest/utils'
       - vite
       - vitest
+
+  '@mui/internal-typescript-api-extractor@0.1.1-canary.1(@typescript/typescript6@6.0.2)':
+    dependencies:
+      '@babel/runtime': 8.0.7
+      typescript: '@typescript/typescript6@6.0.2'
 
   '@napi-rs/keyring-darwin-arm64@2.1.2':
     optional: true
@@ -19393,11 +19400,6 @@ snapshots:
       reflect.getprototypeof: 1.0.10
 
   typedarray@0.0.6: {}
-
-  typescript-api-extractor@1.0.0-beta.7:
-    dependencies:
-      es-toolkit: 1.52.0
-      typescript: 6.0.3
 
   typescript-eslint@8.72.0(@typescript/typescript6@6.0.2)(eslint@10.13.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0):
     dependencies:
