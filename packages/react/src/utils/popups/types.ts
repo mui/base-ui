@@ -7,8 +7,7 @@ import type {
 import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';
-import type { REASONS } from '../../internals/reasons';
-import type { MenuOpenEventDetails } from '../../menu/utils/types';
+import type { BaseUIEventReason, REASONS } from '../../internals/reasons';
 
 import type { FloatingTreeStore } from './tree/FloatingTreeStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -70,6 +69,22 @@ export interface FloatingEventMap {
 export type PopupEvents = FloatingEventEmitter<FloatingEventMap>;
 
 /**
+ * The components that announce their open changes to their popup tree.
+ */
+export type FloatingTreeComponent = 'menu';
+
+export interface FloatingNodeOpenChangeDetails {
+  /**
+   * The component that opened or closed. Listeners ignore the components they don't coordinate with.
+   */
+  component: FloatingTreeComponent;
+  open: boolean;
+  reason: BaseUIEventReason | null;
+  nodeId: string | undefined;
+  parentNodeId: string | null;
+}
+
+/**
  * The events shared by the popups of one popup tree.
  */
 export interface FloatingTreeEventMap {
@@ -78,9 +93,9 @@ export interface FloatingTreeEventMap {
    */
   'floating.closed': MouseEvent;
   /**
-   * A menu opened or closed.
+   * A tree member opened or closed.
    */
-  menuopenchange: MenuOpenEventDetails;
+  nodeopenchange: FloatingNodeOpenChangeDetails;
   /**
    * A menu item was hovered, so sibling submenus of other items can close.
    */

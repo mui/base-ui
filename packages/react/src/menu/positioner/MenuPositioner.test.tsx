@@ -17,7 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 
 import { useMenuRootContext } from '../root/MenuRootContext';
-import type { MenuOpenEventDetails } from '../utils/types';
+import type { FloatingNodeOpenChangeDetails } from '../../utils/popups/types';
 
 const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 
@@ -741,21 +741,21 @@ describe('<Menu.Positioner />', () => {
 
   // StrictMode would run the emitting effect twice, so these tests render without it and count
   // every emission.
-  describe('menuopenchange across popup families', () => {
+  describe('nodeopenchange across popup families', () => {
     function MenuOpenChangeLog({ log }: { log: string[] }) {
       const { store } = useMenuRootContext();
       const tree = store.useState('floatingTreeRoot');
 
       React.useEffect(() => {
-        function handleMenuOpenChange(details: MenuOpenEventDetails) {
+        function handleMenuOpenChange(details: FloatingNodeOpenChangeDetails) {
           const positionerMounted = document.querySelector('[data-testid="menu-positioner"]');
           const entry = `open=${details.open} parent=${details.parentNodeId == null ? 'none' : 'set'} positioner=${positionerMounted != null}`;
           log.push(entry);
         }
 
-        tree.events.on('menuopenchange', handleMenuOpenChange);
+        tree.events.on('nodeopenchange', handleMenuOpenChange);
         return () => {
-          tree.events.off('menuopenchange', handleMenuOpenChange);
+          tree.events.off('nodeopenchange', handleMenuOpenChange);
         };
       }, [tree, log]);
 

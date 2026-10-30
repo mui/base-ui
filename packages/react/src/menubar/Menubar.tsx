@@ -11,7 +11,7 @@ import type { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useBaseUiId } from '../internals/useBaseUiId';
-import type { MenuOpenEventDetails } from '../menu/utils/types';
+import type { FloatingNodeOpenChangeDetails } from '../utils/popups/types';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import * as MenubarDataAttributes from './MenubarDataAttributes';
 import { REASONS } from '../internals/reasons';
@@ -100,8 +100,8 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   const rootContext = useMenubarContext();
 
   React.useEffect(() => {
-    function onSubmenuOpenChange(details: MenuOpenEventDetails) {
-      if (!details.nodeId || details.parentNodeId !== nodeId) {
+    function onSubmenuOpenChange(details: FloatingNodeOpenChangeDetails) {
+      if (details.component !== 'menu' || !details.nodeId || details.parentNodeId !== nodeId) {
         return;
       }
 
@@ -117,10 +117,10 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
       }
     }
 
-    menuEvents.on('menuopenchange', onSubmenuOpenChange);
+    menuEvents.on('nodeopenchange', onSubmenuOpenChange);
 
     return () => {
-      menuEvents.off('menuopenchange', onSubmenuOpenChange);
+      menuEvents.off('nodeopenchange', onSubmenuOpenChange);
     };
   }, [menuEvents, nodeId, rootContext]);
 

@@ -11,18 +11,20 @@ popupEvents.emit('droppedclose');
 // @ts-expect-error Only listed events can be emitted.
 popupEvents.emit('unknown', undefined);
 
-treeEvents.emit('menuopenchange', {
+treeEvents.emit('nodeopenchange', {
+  component: 'menu',
   open: true,
   reason: REASONS.triggerPress,
   nodeId: undefined,
   parentNodeId: null,
 });
-// @ts-expect-error The menuopenchange payload needs every field.
-treeEvents.emit('menuopenchange', { open: true });
-treeEvents.emit('menuopenchange', {
+// @ts-expect-error The nodeopenchange payload needs every field.
+treeEvents.emit('nodeopenchange', { component: 'menu', open: true });
+treeEvents.emit('nodeopenchange', {
+  // @ts-expect-error Only listed components announce their open changes.
+  component: 'popover',
   open: true,
-  // @ts-expect-error The reason must be a Menu.Root open change reason.
-  reason: REASONS.incrementPress,
+  reason: REASONS.triggerPress,
   nodeId: undefined,
   parentNodeId: null,
 });
