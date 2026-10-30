@@ -38,6 +38,37 @@ describe('<Combobox.ItemIndicator />', () => {
     },
   }));
 
+  it('removes the default checkmark when `children={null}` is passed alongside `render`', async () => {
+    // See https://github.com/mui/base-ui/issues/4752 — `render` alone does not clear the
+    // default glyph (that would change behavior for call sites using `render` only to swap
+    // the tag); pairing it with `children={null}` is the documented way to opt out.
+    await render(
+      <Combobox.Root defaultOpen defaultValue="apple">
+        <Combobox.Input />
+        <Combobox.Portal keepMounted>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">
+                  apple
+                  <Combobox.ItemIndicator
+                    keepMounted
+                    render={<span data-testid="custom-indicator" className="my-check" />}
+                  >
+                    {null}
+                  </Combobox.ItemIndicator>
+                </Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const indicator = screen.getByTestId('custom-indicator');
+    expect(indicator.textContent).toBe('');
+  });
+
   it('updates a mounted indicator when its item becomes unselected', async () => {
     const { user } = await render(
       <Combobox.Root defaultOpen defaultValue="apple">
