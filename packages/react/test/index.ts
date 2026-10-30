@@ -3,7 +3,9 @@ export { advanceReactClock } from './advanceReactClock';
 export { pasteText } from './clipboard';
 export { createFormDataSpy } from './formData';
 export { createRenderer } from './createRenderer';
+export { createDOMRect, setElementClientHeight, setElementScrollState } from './layoutMocks';
 export { mergeRefs } from './mergeRefs';
+export { mockResizeObserver } from './mockResizeObserver';
 export { mockRuntimeLocale } from './mockRuntimeLocale';
 export {
   enterWithMouse,
@@ -15,6 +17,16 @@ export {
 export { resetBrowserPointer } from './resetBrowserPointer';
 export { isScrollLocked } from './scrollLock';
 export { useTestInteractions } from './useTestInteractions';
+export {
+  TestListItem,
+  TestGroupLabel,
+  TestVirtualizedList,
+  createItems as createVirtualizerItems,
+  renderItem as renderVirtualizerItem,
+  renderItemOf as renderVirtualizerItemOf,
+  type TestItem as VirtualizerTestItem,
+  type TestVirtualizedListProps,
+} from './virtualizerHosts';
 export * from './wait';
 export { waitForPositioned } from './waitForPositioned';
 

@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
+import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
 import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
+import { useVirtualizerGroupHeader, VirtualizerItemContext } from '../../virtualizer/host';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 /**
@@ -20,6 +22,24 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
 
   const store = useComboboxRootContext();
   const grid = store.useState('grid');
+
+  if (process.env.NODE_ENV !== 'production') {
+    // The build-time environment never changes during a component's lifetime.
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const virtualGroup = useVirtualizerGroupHeader();
+    // Read without `useVirtualizerItem`, which would count a group as an item part.
+    const virtualItem = React.useContext(VirtualizerItemContext);
+    React.useEffect(() => {
+      if (virtualGroup != null || virtualItem != null) {
+        warn(
+          `<${store.context.componentName}.Group> was rendered inside <Virtualizer>, which ` +
+            'wraps each group in its own `role="group"` element. Return only ' +
+            `<${store.context.componentName}.GroupLabel> from \`renderGroupHeader\`.`,
+        );
+      }
+    }, [store, virtualGroup, virtualItem]);
+    /* eslint-enable react-hooks/rules-of-hooks */
+  }
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 

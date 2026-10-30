@@ -2,6 +2,7 @@ import type { HTMLProps } from '../internals/types';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
+import type { VirtualizerRegistry } from '../virtualizer/host';
 import type { AdaptiveOriginMiddleware } from '../utils/popups/positioning/adaptiveOriginConstants';
 import type { PopupInteractionReader, PositioningInteractionStore } from '../utils/popups/types';
 import { popupStoreSelectors } from '../utils/popups/store';
@@ -15,6 +16,8 @@ export type State = ValuePopupState & {
   items: readonly any[] | undefined;
 
   inline: boolean;
+
+  highlightType: AriaCombobox.HighlightEventReason;
 
   listProps: HTMLProps;
   inputProps: HTMLProps;
@@ -42,8 +45,14 @@ export type State = ValuePopupState & {
   name: string | undefined;
   form: string | undefined;
   grid: boolean;
-  virtualized: boolean;
+  externallyVirtualized: boolean;
+  /**
+   * Whether every item is temporarily mounted so browser autofill can read their rendered labels.
+   * Published across the virtualization seam as `windowingSuspended`.
+   */
+  renderAllRows: boolean;
   openOnInputClick: boolean;
+  isItemDisabled?: ((item: any, index: number) => boolean) | undefined;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
   hasInputValue: boolean;
@@ -59,6 +68,13 @@ export type State = ValuePopupState & {
  * `selectors`, so writing to a ref never notifies subscribers.
  */
 export type ComboboxStoreContext = ValuePopupContext<AriaCombobox.OpenChangeEventDetails> & {
+  /**
+   * Part namespace of the root this store belongs to, so diagnostics name the parts the reader
+   * actually has in their tree. `AriaCombobox` backs more than one public component.
+   */
+  readonly componentName: string;
+  /** Coordinates the built-in virtualizer with the items rendered outside it. */
+  readonly virtualizationRegistry: VirtualizerRegistry;
   /** The popup element. */
   readonly popupRef: React.RefObject<HTMLDivElement | null>;
   /** The empty-state element. */
@@ -102,6 +118,28 @@ export type ComboboxStoreContext = ValuePopupContext<AriaCombobox.OpenChangeEven
   requestSubmit: () => void;
 };
 
+type VirtualizationStore = {
+  state: { renderAllRows: boolean };
+  set: (key: 'renderAllRows', value: boolean) => void;
+};
+
+/**
+ * Mounts or releases the whole collection for a browser autofill label pass.
+ *
+ * A built-in `<Virtualizer>` reads this as its windowing being suspended, and re-measures its
+ * viewport when it is cleared, or when it mounts again after the list was released.
+ *
+ * Repeating a request is not a new pass, so an unchanged value publishes nothing: a redundant
+ * notification would arm a viewport restore for a suspension that never happened.
+ */
+export function setVirtualizationRenderAllRows(store: VirtualizationStore, renderAllRows: boolean) {
+  if (store.state.renderAllRows === renderAllRows) {
+    return;
+  }
+
+  store.set('renderAllRows', renderAllRows);
+}
+
 export const selectors = {
   ...valuePopupSelectors,
   items: (state: State) => state.items,
@@ -126,6 +164,7 @@ export const selectors = {
 
   inline: (state: State) => state.inline,
 
+  highlightType: (state: State) => state.highlightType,
   isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const selectedValue = state.selectedValue;
@@ -156,7 +195,9 @@ export const selectors = {
   name: (state: State) => state.name,
   form: (state: State) => state.form,
   grid: (state: State) => state.grid,
-  virtualized: (state: State) => state.virtualized,
+  externallyVirtualized: (state: State) => state.externallyVirtualized,
+  renderAllRows: (state: State) => state.renderAllRows,
+  isItemDisabled: (state: State) => state.isItemDisabled,
   autoHighlight: (state: State) => state.autoHighlight,
   instantType: (state: State) => state.instantType,
   adaptiveOrigin: (state: State) => state.adaptiveOrigin,
