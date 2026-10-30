@@ -94,7 +94,11 @@ export class HoverIntent {
    */
   handleCloseOptions: HandleCloseOptions | undefined = undefined;
 
-  constructor(private readonly store: PopupInteractionStore) {}
+  constructor(private readonly store: PopupInteractionStore) {
+    // A close request while the popup is already closed isn't an open change, but it still
+    // cancels a pending open. The emitter lives as long as this intent, so it needs no cleanup.
+    store.context.events.on('droppedclose', () => this.cancel());
+  }
 
   private isClickLikeOpen() {
     return isClickLikeOpenEvent(this.store.context.openEvent?.type, this.interactedInside);

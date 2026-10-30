@@ -2,7 +2,6 @@ import type { HTMLProps } from '../internals/types';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 import type { Group } from '../internals/resolveValueLabel';
-import { REASONS } from '../internals/reasons';
 import { popupStoreSelectors } from '../utils/popups/store';
 import type { SelectRoot } from './root/SelectRoot';
 import { ValuePopupStore, valuePopupSelectors } from '../utils/popups/value-popup/ValuePopupStore';
@@ -123,14 +122,6 @@ export class SelectStore extends ValuePopupStore<
 > {
   protected getAnchorElement(state: Readonly<State>) {
     return state.triggerElement;
-  }
-
-  protected isOpenChangeIgnored(
-    nextOpen: boolean,
-    eventDetails: SelectRoot.OpenChangeEventDetails,
-  ) {
-    // `actionsRef.close()` does nothing while the select is closed.
-    return eventDetails.reason === REASONS.imperativeAction && !nextOpen && !this.select('open');
   }
 
   protected prepareUnmount() {

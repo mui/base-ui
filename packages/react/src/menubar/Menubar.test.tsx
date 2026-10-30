@@ -89,7 +89,7 @@ describe('<Menubar />', () => {
     });
   });
 
-  it('reports a delayed touch click it ignores to a controlled menu', async () => {
+  it('keeps a controlled menu open on a delayed touch click it ignores, until the cooldown ends', async () => {
     const onEditOpenChange = vi.fn();
 
     function ControlledEditMenubar() {
@@ -147,11 +147,22 @@ describe('<Menubar />', () => {
         editTrigger,
         new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
       );
+      expect(onEditOpenChange).toHaveBeenLastCalledWith(true, 'trigger-focus');
+      expect(editTrigger).toHaveAttribute('data-popup-open');
+
+      await act(async () => {
+        vi.advanceTimersByTime(310);
+      });
     } finally {
       vi.useRealTimers();
     }
 
-    // The menu ignores the click only after reporting it, so a controlled menu follows the report.
+    // Once the cooldown ends, a touch click closes the menu again.
+    fireEvent(
+      editTrigger,
+      new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+    );
+
     expect(onEditOpenChange).toHaveBeenLastCalledWith(false, 'trigger-press');
     await waitFor(() => {
       expect(screen.queryByTestId('edit-menu')).toBe(null);
