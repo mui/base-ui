@@ -81,7 +81,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const compositeRootContext = useCompositeRootContext(true);
   const tree = usePopupTree();
   const parentNodeId = usePopupParentNodeId();
-  const triggerTreeLocation = React.useMemo(() => ({ tree, parentNodeId }), [tree, parentNodeId]);
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -91,7 +90,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       payload,
       closeDelay,
       parent,
-      triggerTreeLocation,
+      triggerTree: tree,
+      triggerParentNodeId: parentNodeId,
       keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
     },
   );

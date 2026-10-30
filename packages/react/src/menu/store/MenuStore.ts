@@ -23,17 +23,6 @@ import {
 } from '../../utils/popups/store';
 import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
 
-/**
- * A place in a popup tree: the tree, and the node a menu placed there is nested in.
- */
-export interface MenuTreeLocation {
-  /**
-   * The tree the trigger sits in. A trigger outside any tree leaves the menu in its own tree.
-   */
-  tree: PopupTreeRegistry | null;
-  parentNodeId: string | null;
-}
-
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean | undefined;
@@ -63,8 +52,14 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openChangeReason: MenuRoot.ChangeEventReason | null;
   /** The tree the menu joins when no active trigger places it in one. */
   ownTree: PopupTreeRegistry;
-  /** Where the active trigger sits in a popup tree. */
-  triggerTreeLocation: MenuTreeLocation | undefined;
+  /**
+   * The tree the active trigger sits in. A trigger outside any tree leaves the menu in its own
+   * tree. Only `Menu.Trigger` reports one, so submenus and context menus stay where their Root
+   * renders.
+   */
+  triggerTree: PopupTreeRegistry | null | undefined;
+  /** The node the active trigger sits in, or `undefined` when no trigger reported one. */
+  triggerParentNodeId: string | null | undefined;
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
@@ -116,14 +111,6 @@ export interface MenuCommittedOpenState {
   open: boolean;
   activeTriggerElement: Element | null;
   openChangeReason: MenuRoot.ChangeEventReason | null;
-}
-
-/**
- * Where the active trigger sits in a popup tree. Only `Menu.Trigger` reports a location, so
- * submenus and context menus are placed where their Root renders.
- */
-function getActiveTriggerTreeLocation(state: State<unknown>): MenuTreeLocation | undefined {
-  return state.activeTriggerElement ? state.triggerTreeLocation : undefined;
 }
 
 const selectors = {
@@ -180,12 +167,12 @@ const selectors = {
       return state.parent.store.select('popupTree');
     }
 
-    return getActiveTriggerTreeLocation(state)?.tree ?? state.ownTree;
+    return (state.activeTriggerElement && state.triggerTree) || state.ownTree;
   },
-  popupParentNodeId: (state: State<unknown>): string | null => {
-    const location = getActiveTriggerTreeLocation(state);
-    return location ? location.parentNodeId : state.popupParentNodeId;
-  },
+  popupParentNodeId: (state: State<unknown>): string | null =>
+    state.activeTriggerElement && state.triggerParentNodeId !== undefined
+      ? state.triggerParentNodeId
+      : state.popupParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
@@ -477,7 +464,8 @@ function createInitialState<Payload>(
     instantType: undefined,
     openChangeReason: null,
     ownTree: new PopupTreeRegistry(),
-    triggerTreeLocation: undefined,
+    triggerTree: undefined,
+    triggerParentNodeId: undefined,
     itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,

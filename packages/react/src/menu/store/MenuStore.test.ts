@@ -79,7 +79,8 @@ describe('MenuStore', () => {
       expect(node).not.toBe(undefined);
 
       store.update({
-        triggerTreeLocation: { tree: popoverTree, parentNodeId: 'popover' },
+        triggerTree: popoverTree,
+        triggerParentNodeId: 'popover',
         activeTriggerElement: document.createElement('button'),
       });
 
@@ -98,7 +99,8 @@ describe('MenuStore', () => {
       const store = new MenuStore({ popupParentNodeId: 'outer' });
       const triggerTree = new PopupTreeRegistry();
       store.update({
-        triggerTreeLocation: { tree: triggerTree, parentNodeId: null },
+        triggerTree,
+        triggerParentNodeId: null,
         activeTriggerElement: document.createElement('button'),
       });
 
@@ -113,7 +115,8 @@ describe('MenuStore', () => {
       const node = store.state.ownTree.getNode('menu');
 
       store.update({
-        triggerTreeLocation: { tree: null, parentNodeId: null },
+        triggerTree: null,
+        triggerParentNodeId: null,
         activeTriggerElement: document.createElement('button'),
       });
 
@@ -124,14 +127,15 @@ describe('MenuStore', () => {
       const store = new MenuStore();
       const popoverTree = new PopupTreeRegistry();
       store.update({
-        triggerTreeLocation: { tree: popoverTree, parentNodeId: 'popover-1' },
+        triggerTree: popoverTree,
+        triggerParentNodeId: 'popover-1',
         activeTriggerElement: document.createElement('button'),
       });
       store.registerTreeNode('menu');
       const node = popoverTree.getNode('menu');
       expect(node?.parentId).toBe('popover-1');
 
-      store.set('triggerTreeLocation', { tree: popoverTree, parentNodeId: 'popover-2' });
+      store.set('triggerParentNodeId', 'popover-2');
 
       expect(popoverTree.getNode('menu')).toBe(node);
       expect(node?.parentId).toBe('popover-2');
@@ -150,7 +154,8 @@ describe('MenuStore', () => {
 
       const popoverTree = new PopupTreeRegistry();
       parentStore.update({
-        triggerTreeLocation: { tree: popoverTree, parentNodeId: 'popover' },
+        triggerTree: popoverTree,
+        triggerParentNodeId: 'popover',
         activeTriggerElement: document.createElement('button'),
       });
 
@@ -166,7 +171,8 @@ describe('MenuStore', () => {
 
       unregister();
       store.update({
-        triggerTreeLocation: { tree: popoverTree, parentNodeId: 'popover' },
+        triggerTree: popoverTree,
+        triggerParentNodeId: 'popover',
         activeTriggerElement: document.createElement('button'),
       });
 
