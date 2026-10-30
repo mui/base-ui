@@ -54,6 +54,12 @@ export default function Tabs3DTransformExperiment() {
     switchTabTimeout.start(220, switchTab);
   });
 
+  const handleValueChange = useStableCallback((nextValue: TabValue | null) => {
+    if (nextValue !== null) {
+      setValue(nextValue);
+    }
+  });
+
   return (
     <main className={classes.experiment}>
       <header className={classes.header}>
@@ -81,7 +87,7 @@ export default function Tabs3DTransformExperiment() {
       <section className={classes.stage}>
         <div className={classes.scene}>
           <div className={classes.card} data-rotated={rotated ? '' : undefined}>
-            <Tabs.Root className={classes.tabs} value={value} onValueChange={setValue}>
+            <Tabs.Root className={classes.tabs} value={value} onValueChange={handleValueChange}>
               <Tabs.List className={classes.list}>
                 {TABS.map((tab) => (
                   <Tabs.Tab className={classes.tab} key={tab.value} value={tab.value}>
