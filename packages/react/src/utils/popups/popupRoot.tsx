@@ -298,7 +298,8 @@ function usePopupRootStore<Store extends PopupRootStore>(
 ): Store {
   const popupTree = usePopupTree();
   const popupParentNodeId = usePopupParentNodeId();
-  const generatedNodeId = useId();
+  // An id override skips the extra render React 17 needs to generate an id.
+  const generatedNodeId = useId(ownsTreeNode ? undefined : '');
   const popupNodeId = ownsTreeNode ? generatedNodeId : undefined;
 
   const store = useRefWithInit(() => {

@@ -179,8 +179,10 @@ const selectors = {
 
     return getActiveTriggerTreeLocation(state)?.tree ?? state.ownTree;
   },
-  popupParentNodeId: (state: State<unknown>): string | null =>
-    getActiveTriggerTreeLocation(state)?.parentNodeId ?? state.popupParentNodeId,
+  popupParentNodeId: (state: State<unknown>): string | null => {
+    const location = getActiveTriggerTreeLocation(state);
+    return location ? location.parentNodeId : state.popupParentNodeId;
+  },
   itemProps: (state: State<unknown>) => state.itemProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>

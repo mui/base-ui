@@ -46,7 +46,9 @@ export function useHoverPopupInteraction(
   const tree = store.useState('popupTree');
   // The node whose open descendants keep this popup open: its own node, or for a popup that
   // doesn't register one, the node it's nested in.
-  const ownerNodeId = store.select('popupNodeId') ?? store.select('popupParentNodeId');
+  const nodeId = store.useState('popupNodeId');
+  const parentNodeId = store.useState('popupParentNodeId');
+  const ownerNodeId = nodeId ?? parentNodeId;
   const intent = getHoverIntent(store);
 
   const childClosedTimeout = useTimeout();
