@@ -27,13 +27,12 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const open = store.useState('open');
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
-  const instantType = store.useState('instantType');
 
   const { element, positioning } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: { side: componentProps.side ?? 'top' },
-    state: { instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType },
+    instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : undefined,
     inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
   });
 

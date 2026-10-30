@@ -10,7 +10,7 @@
   transition-timing-function: var(--easing);
   transition-duration: var(--animation-duration);
 
-  /* Disable transitions when data-instant is set (used for the initial positioning of the popup) */
+  /* Keep anchor tracking instant outside transitions between triggers. */
   &[data-instant] {
     transition: none;
   }
@@ -107,6 +107,10 @@
   height: 6px;
   overflow: clip;
   transition: left calc(var(--animation-duration)) var(--easing);
+
+  &[data-instant] {
+    transition: none;
+  }
 
   &[data-side='top'] {
     bottom: -6px;

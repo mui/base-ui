@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { UseAnchorPositioningReturnValue } from '../../internals/useAnchorPositioning';
+import type { PopupPositioning } from '../../utils/popups/popupPositioner';
 
 export type MenuPositionerContext = Pick<
-  UseAnchorPositioningReturnValue,
-  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles' | 'context'
+  PopupPositioning,
+  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles' | 'context' | 'instant'
 >;
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | undefined>(
