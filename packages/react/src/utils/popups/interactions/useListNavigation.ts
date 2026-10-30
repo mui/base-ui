@@ -506,7 +506,7 @@ export function useListNavigation(
     // from an in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling
     // back to the parent floating element when the reference is virtual (`anchorElement` is null).
     const activeEl = activeElement(ownerDocument(anchorElement ?? parent ?? null));
-    const treeContainsActiveEl = tree.nodesRef.current.some((node) =>
+    const treeContainsActiveEl = tree.nodes.some((node) =>
       contains(node.context?.elements.floating, activeEl),
     );
 

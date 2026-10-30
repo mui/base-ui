@@ -353,7 +353,7 @@ export const MenuItem = React.forwardRef<
           if (
             event.key === 'ArrowRight' &&
             // If the root reference is in a menubar, close parents
-            tree?.nodesRef.current[0].context?.elements.domReference?.closest('[role="menubar"]')
+            tree?.nodes[0].context?.elements.domReference?.closest('[role="menubar"]')
           ) {
             closeParents(menu.parent);
           }

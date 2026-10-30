@@ -220,7 +220,7 @@ describe('PopupTreeRegistry', () => {
     expect(createTree(nodes).hasBlockingChild('0', 'escapeKeyBubbles')).toBe(true);
   });
 
-  it('descendantContains checks open descendants, or all of them when onlyOpen is false', () => {
+  it('descendantContains checks open descendants, or all of them with includeClosed', () => {
     const openFloating = document.createElement('div');
     const closedFloating = document.createElement('div');
     const target = document.createElement('span');
@@ -235,7 +235,31 @@ describe('PopupTreeRegistry', () => {
 
     expect(createTree(nodes).descendantContains('0', target)).toBe(true);
     expect(createTree(nodes).descendantContains('0', closedTarget)).toBe(false);
-    expect(createTree(nodes).descendantContains('0', closedTarget, false)).toBe(true);
+    expect(createTree(nodes).descendantContains('0', closedTarget, true)).toBe(true);
     expect(createTree(nodes).descendantContains('1', target)).toBe(false);
+  });
+
+  it("descendantContains checks a descendant's trigger with includeTriggers", () => {
+    const trigger = document.createElement('button');
+    const nodes = [
+      { id: '0', parentId: null, context: contextOpen },
+      {
+        id: '1',
+        parentId: '0',
+        context: { ...createContext(true), elements: { floating: null, domReference: trigger } },
+      },
+    ];
+
+    expect(createTree(nodes).descendantContains('0', trigger)).toBe(false);
+    expect(createTree(nodes).descendantContains('0', trigger, false, true)).toBe(true);
+  });
+
+  it('lists every node, including one whose parent is in another tree', () => {
+    const nodes = [
+      { id: '0', parentId: null, context: contextOpen },
+      { id: '1', parentId: 'other-tree', context: contextOpen },
+    ];
+
+    expect(createTree(nodes).nodes).toEqual(nodes);
   });
 });

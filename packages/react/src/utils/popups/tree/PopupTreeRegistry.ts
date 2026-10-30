@@ -47,18 +47,22 @@ export interface PopupNodeType {
  * `PopupTree` provides it to the popups rendered inside it.
  */
 export class PopupTreeRegistry {
-  public readonly nodesRef: React.RefObject<Array<PopupNodeType>> = { current: [] };
+  /**
+   * Every node registered in the tree, including members whose parent is in another family's tree.
+   * Only `addNode` and `removeNode` change it.
+   */
+  public readonly nodes: Array<PopupNodeType> = [];
 
   public readonly events: PopupTreeEvents = createEventEmitter();
 
   public addNode(node: PopupNodeType) {
-    this.nodesRef.current.push(node);
+    this.nodes.push(node);
   }
 
   public removeNode(node: PopupNodeType) {
-    const index = this.nodesRef.current.findIndex((n) => n === node);
+    const index = this.nodes.findIndex((n) => n === node);
     if (index !== -1) {
-      this.nodesRef.current.splice(index, 1);
+      this.nodes.splice(index, 1);
     }
   }
 
@@ -66,7 +70,7 @@ export class PopupTreeRegistry {
    * Returns the node with the given id.
    */
   public getNode(id: string | null | undefined) {
-    return this.nodesRef.current.find((node) => node.id === id);
+    return this.nodes.find((node) => node.id === id);
   }
 
   /**
@@ -74,7 +78,7 @@ export class PopupTreeRegistry {
    * out, but their own descendants are still searched.
    */
   public descendants(id: string | undefined, onlyOpen = true): Array<PopupNodeType> {
-    return this.nodesRef.current
+    return this.nodes
       .filter((node) => node.parentId === id)
       .flatMap((child) => [
         ...(!onlyOpen || child.context?.open ? [child] : []),
@@ -113,15 +117,20 @@ export class PopupTreeRegistry {
   }
 
   /**
-   * Whether the floating element of a descendant of a node contains the target.
+   * Whether the popup of a descendant of a node contains the target.
+   * @param includeClosed Whether closed descendants count too. Only open ones do by default.
+   * @param includeTriggers Whether a descendant's trigger counts as well as its popup.
    */
   public descendantContains(
     id: string | undefined,
     target: Element | null | undefined,
-    onlyOpen = true,
+    includeClosed = false,
+    includeTriggers = false,
   ) {
-    return this.descendants(id, onlyOpen).some((node) =>
-      contains(node.context?.elements.floating, target),
+    return this.descendants(id, !includeClosed).some(
+      (node) =>
+        contains(node.context?.elements.floating, target) ||
+        (includeTriggers && contains(node.context?.elements.domReference, target)),
     );
   }
 }

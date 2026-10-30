@@ -475,13 +475,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ) ||
           triggers.hasMatchingElement((trigger) => contains(trigger, relatedTarget)) ||
           isRelatedFocusGuard ||
-          tree
-            ?.descendants(nodeId)
-            .some(
-              (node) =>
-                contains(node.context?.elements.floating, relatedTarget) ||
-                contains(node.context?.elements.domReference, relatedTarget),
-            ) ||
+          tree?.descendantContains(
+            nodeId,
+            relatedTarget,
+            /* includeClosed */ false,
+            /* includeTriggers */ true,
+          ) ||
           tree
             ?.ancestors(nodeId)
             .some(
@@ -892,7 +891,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const isFocusInsideFloatingTree =
         contains(floating, activeEl) ||
         insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||
-        tree?.descendantContains(getNodeId(), activeEl, false);
+        tree?.descendantContains(getNodeId(), activeEl, /* includeClosed */ true);
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;

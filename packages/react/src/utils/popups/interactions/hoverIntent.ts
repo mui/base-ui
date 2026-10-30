@@ -479,7 +479,7 @@ export class HoverIntent {
       tree &&
       currentNodeId &&
       isElement(relatedTarget) &&
-      tree.descendantContains(currentNodeId, relatedTarget, false);
+      tree.descendantContains(currentNodeId, relatedTarget, /* includeClosed */ true);
 
     if (isMovingIntoDescendantFloating) {
       return;
