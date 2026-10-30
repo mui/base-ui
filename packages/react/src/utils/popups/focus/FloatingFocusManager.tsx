@@ -813,7 +813,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         return;
       }
 
-      if (details.nested) {
+      if (store.select('popupParentNodeId') != null) {
         preventReturnFocusRef.current = false;
       } else if (
         isVirtualClick(details.nativeEvent as MouseEvent) ||
@@ -956,6 +956,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     domReference,
     getNodeId,
     getResolvedInsideElements,
+    store,
   ]);
 
   // Safari may randomly scroll to the bottom of the page if an input inside a popup has focus

@@ -101,7 +101,6 @@ export class TooltipStore<Payload> extends BasePopupStore<
   cancelPendingOpen(event: MouseEvent | PointerEvent) {
     dispatchOpenChange(
       this.context,
-      this.state.popupParentNodeId,
       this.select('open'),
       false,
       createChangeEventDetails(REASONS.triggerPress, event),

@@ -483,13 +483,7 @@ export abstract class BasePopupStore<
       return;
     }
 
-    dispatchOpenChange(
-      this.context,
-      this.state.popupParentNodeId,
-      popupStoreSelectors.open(this.state),
-      nextOpen,
-      details,
-    );
+    dispatchOpenChange(this.context, popupStoreSelectors.open(this.state), nextOpen, details);
 
     const extraState = this.prepareOpenChange(nextOpen, details);
 

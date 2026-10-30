@@ -126,13 +126,7 @@ export class FloatingRootStore
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    dispatchOpenChange(
-      this.context,
-      this.state.popupParentNodeId,
-      this.state.open,
-      newOpen,
-      eventDetails,
-    );
+    dispatchOpenChange(this.context, this.state.open, newOpen, eventDetails);
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
 
