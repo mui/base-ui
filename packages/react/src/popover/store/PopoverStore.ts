@@ -1,23 +1,24 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { ReactStore } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
-import { NullStore } from '../../utils/NullStore';
-import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
+import { NullStore } from '../../utils/popups/NullStore';
+import type {
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerStoreKeys,
+} from '../../utils/popups/store';
 import {
-  attachPreventUnmountOnClose,
+  BasePopupStore,
   createInitialPopupStoreState,
+  createPopupStoreContext,
   popupStoreSelectors,
-  PopupTriggerMap,
-  createPopupOpenState,
-} from '../../utils/popups';
+} from '../../utils/popups/store';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -64,8 +65,12 @@ const selectors = {
   // changes don't re-render every inactive trigger.
   isTouchPressOpen: (state: State<unknown>, openOnHover: boolean) =>
     openOnHover && state.openMethod === 'touch' && state.openChangeReason === REASONS.triggerPress,
+  // A hover-opened popover disables its focus manager, so there's nothing for the guards to
+  // forward focus to; native tab order applies instead.
   hasTriggerFocusGuards: (state: State<unknown>, triggerId: string | undefined) =>
-    popupStoreSelectors.isOpenedByTrigger(state, triggerId) && !state.focusManagerModal,
+    popupStoreSelectors.isOpenedByTrigger(state, triggerId) &&
+    !state.focusManagerModal &&
+    state.openChangeReason !== REASONS.triggerHover,
   modal: (state: State<unknown>) => state.modal,
   titleElementId: (state: State<unknown>) => state.titleElementId,
   descriptionElementId: (state: State<unknown>) => state.descriptionElementId,
@@ -89,98 +94,48 @@ export type PopoverHandleStore<Payload> = Pick<
   PopupTriggerStoreKeys | 'setOpen'
 >;
 
-export class PopoverStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class PopoverStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  Selectors
+  Selectors,
+  PopoverRoot.ChangeEventDetails
 > {
-  constructor(
-    initialState: Partial<State<Payload>>,
-    floatingId: string | undefined,
-    nested: boolean,
-  ) {
-    const triggerElements = new PopupTriggerMap();
+  constructor(initialState: Partial<State<Payload>>, defaultPopupId: string | undefined) {
     super(
-      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
-      createInitialContext(triggerElements),
+      createInitialState<Payload>(initialState, defaultPopupId),
+      createInitialContext(),
       selectors,
     );
   }
 
-  setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
-    const isHover = eventDetails.reason === REASONS.triggerHover;
-    const isKeyboardClick =
-      eventDetails.reason === REASONS.triggerPress &&
-      (eventDetails.event as MouseEvent).detail === 0;
-    const isDismissClose =
-      !nextOpen && (eventDetails.reason === REASONS.escapeKey || eventDetails.reason == null);
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
+    const reason = eventDetails.reason;
 
-    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
-      eventDetails as PopoverRoot.ChangeEventDetails,
-    );
-
-    const activeTriggerId = this.select('activeTriggerId');
-
-    if (
-      !nextOpen &&
-      eventDetails.reason === REASONS.closePress &&
-      eventDetails.trigger == null &&
-      activeTriggerId != null
-    ) {
-      eventDetails.trigger =
-        this.context.triggerElements.getById(activeTriggerId) ??
-        this.select('activeTriggerElement') ??
-        undefined;
-    }
-
-    this.context.onOpenChange?.(nextOpen, eventDetails as PopoverRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    const changeState = () => {
-      const popupOpenState = createPopupOpenState(
-        this.state,
-        nextOpen,
-        eventDetails.trigger,
-        shouldPreventUnmountOnClose(),
-      ) as ReturnType<typeof createPopupOpenState> & {
-        openChangeReason: PopoverRoot.ChangeEventReason;
-      };
-
-      popupOpenState.openChangeReason = eventDetails.reason;
-      this.update(popupOpenState);
-    };
-
-    if (isHover) {
+    if (reason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the popover if it's open.
       // If they clicked within 500ms of the popover opening, keep it open.
       this.context.stickIfOpen = true;
       this.context.stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
         this.context.stickIfOpen = false;
       });
-
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
     }
 
     let instantType: State<Payload>['instantType'];
-    if (isKeyboardClick) {
+    if (reason === REASONS.triggerPress && (eventDetails.event as MouseEvent).detail === 0) {
       instantType = 'click';
-    } else if (isDismissClose) {
+    } else if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
       instantType = 'dismiss';
-    } else if (eventDetails.reason === REASONS.focusOut) {
+    } else if (reason === REASONS.focusOut) {
       instantType = 'focus';
     }
-    this.set('instantType', instantType);
-  };
+
+    return { instantType };
+  }
+
+  protected prepareUnmount() {
+    this.context.stickIfOpen = true;
+    return { openChangeReason: null };
+  }
 }
 
 /**
@@ -191,11 +146,9 @@ export class PopoverStore<Payload> extends ReactStore<
  * helpers that expect `setOpen` without it ever taking effect while detached.
  */
 export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
-  const triggerElements = new PopupTriggerMap();
-
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
-    Object.freeze(createInitialContext(triggerElements)),
+    Object.freeze(createInitialState<Payload>(undefined)),
+    Object.freeze(createInitialContext()),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
@@ -203,12 +156,10 @@ export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  triggerElements: PopupTriggerMap,
-  floatingId?: string | undefined,
-  nested = false,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     modal: false,
     focusManagerModal: false,
@@ -230,16 +181,13 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(): Context {
   return {
-    popupRef: React.createRef<HTMLElement>(),
-    onOpenChange: undefined,
-    onOpenChangeComplete: undefined,
+    ...createPopupStoreContext(),
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     stickIfOpenTimeout: new Timeout(),
     stickIfOpen: true,
-    triggerElements,
   };
 }

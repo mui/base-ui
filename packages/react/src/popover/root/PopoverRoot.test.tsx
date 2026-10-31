@@ -1,7 +1,9 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
+import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
@@ -12,10 +14,18 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, isScrollLocked, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  enterWithMouse,
+  isJSDOM,
+  isScrollLocked,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
@@ -23,6 +33,186 @@ describe('<Popover.Root />', () => {
   });
 
   const { render, clock } = createRenderer();
+
+  describe('closing before the popup attaches', () => {
+    it.skipIf(isJSDOM)('waits for the closing animation once the popup attaches', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        useIsoLayoutEffect(() => {
+          setOpen(false);
+        }, []);
+        return (
+          <React.Fragment>
+            <style>
+              {`@keyframes popover-test-exit { from { opacity: 1; } to { opacity: 0; } }
+                .popover-test-popup[data-ending-style] { animation: popover-test-exit 300ms; }`}
+            </style>
+            <Popover.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup className="popover-test-popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const popup = await screen.findByRole('dialog', { hidden: true });
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
+    });
+
+    it('unmounts the popup when a layout effect closes it on mount', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        useIsoLayoutEffect(() => {
+          setOpen(false);
+        }, []);
+        return (
+          <Popover.Root
+            open={open}
+            onOpenChange={setOpen}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Popover.Trigger data-testid="trigger">Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      await render(<App />);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
+    });
+
+    it('unmounts the popup when a layout effect closes it right after a press opens it', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        useIsoLayoutEffect(() => {
+          if (open) {
+            setOpen(false);
+          }
+        }, [open]);
+        return (
+          <Popover.Root
+            open={open}
+            onOpenChange={setOpen}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Popover.Trigger data-testid="trigger">Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
+    });
+  });
+
+  describe('hover intent across opens', () => {
+    clock.withFakeTimers();
+
+    function App() {
+      return (
+        <Popover.Root modal={false}>
+          <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+            Toggle
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner">
+              <Popover.Popup>
+                <button type="button" aria-haspopup="menu">
+                  More
+                </button>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    function hoverOpen(trigger: HTMLElement) {
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+    }
+
+    function leave(trigger: HTMLElement) {
+      fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+      fireEvent.mouseMove(document.body);
+    }
+
+    it('closes a later hover open on leave after a press inside an earlier one', async () => {
+      await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      hoverOpen(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'More' }), { pointerType: 'mouse' });
+      leave(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+      clock.tick(100);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      hoverOpen(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      leave(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+  });
 
   popupConformanceTests({
     createComponent: (props) => (
@@ -1220,6 +1410,8 @@ describe('<Popover.Root />', () => {
           );
 
           const outsideButton = shadowRoot.querySelector('[data-testid="outside"]') as HTMLElement;
+          const activeTrigger = shadowRoot.querySelector('[aria-expanded="true"]');
+          expect(activeTrigger).not.toBe(null);
 
           fireEvent.click(outsideButton);
 
@@ -1229,7 +1421,7 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
-          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(activeTrigger);
         } finally {
           await act(async () => {
             host.remove();
@@ -1253,6 +1445,8 @@ describe('<Popover.Root />', () => {
             />,
             { container },
           );
+          const activeTrigger = shadowRoot.querySelector('[aria-expanded="true"]');
+          expect(activeTrigger).not.toBe(null);
 
           fireEvent.click(document.body);
 
@@ -1262,7 +1456,7 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
-          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(activeTrigger);
         } finally {
           await act(async () => {
             host.remove();
@@ -1658,6 +1852,40 @@ describe('<Popover.Root />', () => {
         expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
       });
 
+      it('unmounts when `close` and `unmount` are called in one batch while controlled', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+
+        function App() {
+          const [open, setOpen] = React.useState(true);
+          return (
+            <TestPopover
+              rootProps={{
+                open,
+                actionsRef,
+                onOpenChangeComplete,
+                onOpenChange: (nextOpen, details) => {
+                  if (!nextOpen) {
+                    details.preventUnmountOnClose();
+                  }
+                  setOpen(nextOpen);
+                },
+              }}
+            />
+          );
+        }
+
+        await render(<App />);
+
+        await act(async () => {
+          actionsRef.current!.close();
+          actionsRef.current!.unmount();
+        });
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+      });
+
       it('still unmounts on a later close after `unmount` was called while open', async () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
         const onOpenChangeComplete = vi.fn();
@@ -1762,6 +1990,123 @@ describe('<Popover.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByText('Content')).toBe(null);
         });
+      });
+
+      it('clears the active trigger when `unmount` is called right after a controlled close', async () => {
+        let setOpenExternal!: (open: boolean) => void;
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          setOpenExternal = setOpen;
+          const actionsRef = React.useRef<Popover.Root.Actions | null>(null);
+
+          // Runs before the Root re-renders with the synced `open` prop, so the unmount is deferred
+          // to the closing commit.
+          React.useEffect(() => {
+            if (!open) {
+              actionsRef.current?.unmount();
+            }
+          }, [open]);
+
+          return (
+            <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+              <Popover.Trigger>Trigger 1</Popover.Trigger>
+              <Popover.Trigger>Trigger 2</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        await act(async () => setOpenExternal(false));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        await act(async () => setOpenExternal(true));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      it('clears the active trigger when a popup part calls `unmount` as a controlled close renders', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let setOpenExternal!: (open: boolean) => void;
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+
+        // Its layout effect runs before the Root's in the commit that renders the popup as closed.
+        function UnmountOnClose({ open }: { open: boolean }) {
+          React.useLayoutEffect(() => {
+            if (!open) {
+              actionsRef.current?.unmount();
+            }
+          }, [open]);
+          return null;
+        }
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          setOpenExternal = setOpen;
+
+          return (
+            <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+              <Popover.Trigger>Trigger 1</Popover.Trigger>
+              <Popover.Trigger>Trigger 2</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup
+                    data-testid="popup"
+                    render={(props, state) => (
+                      <div {...props}>
+                        <UnmountOnClose open={state.open} />
+                      </div>
+                    )}
+                  />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        // A pending exit animation leaves the part's `unmount` call as the only one.
+        Object.defineProperty(screen.getByTestId('popup'), 'getAnimations', {
+          value: () => [{ finished: new Promise(() => {}) }],
+          configurable: true,
+        });
+
+        await act(async () => setOpenExternal(false));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        await act(async () => setOpenExternal(true));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       });
     });
 
@@ -1938,64 +2283,76 @@ describe('<Popover.Root />', () => {
 
     describe.skipIf(isJSDOM)('scroll locking', () => {
       describe('touch scroll lock', () => {
-        it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
-          await render(
-            <Popover.Root modal>
-              <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner
-                  data-testid="positioner"
-                  style={{ width: 'calc(100vw - 10px)' }}
-                >
-                  <Popover.Popup>Content</Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>,
-          );
+        it.each([
+          { name: 'unmounted while closed', keepMounted: false },
+          { name: 'kept mounted while closed', keepMounted: true },
+        ])(
+          'applies scroll lock when a touch-opened popup $name covers the viewport width',
+          async ({ keepMounted }) => {
+            await render(
+              <Popover.Root modal>
+                <Popover.Trigger>Open</Popover.Trigger>
+                <Popover.Portal keepMounted={keepMounted}>
+                  <Popover.Positioner
+                    data-testid="positioner"
+                    style={{ width: 'calc(100vw - 10px)' }}
+                  >
+                    <Popover.Popup>Content</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>,
+            );
 
-          const trigger = screen.getByRole('button', { name: 'Open' });
+            const trigger = screen.getByRole('button', { name: 'Open' });
 
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-          fireEvent.click(trigger, { detail: 1 });
+            fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+            fireEvent.mouseDown(trigger);
+            fireEvent.click(trigger, { detail: 1 });
 
-          const popup = await screen.findByRole('dialog');
-          const doc = popup.ownerDocument;
+            const popup = await screen.findByRole('dialog');
+            const doc = popup.ownerDocument;
 
-          await waitFor(() => {
-            expect(isScrollLocked(doc)).toBe(true);
-          });
-        });
-
-        it('does not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
-          await render(
-            <Popover.Root modal>
-              <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner data-testid="positioner" style={{ width: '240px' }}>
-                  <Popover.Popup>Content</Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Open' });
-
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-          fireEvent.click(trigger, { detail: 1 });
-
-          const popup = await screen.findByRole('dialog');
-          const doc = popup.ownerDocument;
-
-          await act(async () => {
-            await new Promise<void>((resolve) => {
-              requestAnimationFrame(() => resolve());
+            await waitFor(() => {
+              expect(isScrollLocked(doc)).toBe(true);
             });
-          });
+          },
+        );
 
-          expect(isScrollLocked(doc)).toBe(false);
-        });
+        it.each([
+          { name: 'unmounted while closed', keepMounted: false },
+          { name: 'kept mounted while closed', keepMounted: true },
+        ])(
+          'does not apply scroll lock when a touch-opened popup $name is narrower than the viewport',
+          async ({ keepMounted }) => {
+            await render(
+              <Popover.Root modal>
+                <Popover.Trigger>Open</Popover.Trigger>
+                <Popover.Portal keepMounted={keepMounted}>
+                  <Popover.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                    <Popover.Popup>Content</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>,
+            );
+
+            const trigger = screen.getByRole('button', { name: 'Open' });
+
+            fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+            fireEvent.mouseDown(trigger);
+            fireEvent.click(trigger, { detail: 1 });
+
+            const popup = await screen.findByRole('dialog');
+            const doc = popup.ownerDocument;
+
+            await act(async () => {
+              await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => resolve());
+              });
+            });
+
+            expect(isScrollLocked(doc)).toBe(false);
+          },
+        );
       });
     });
 
@@ -2248,6 +2605,48 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  it('keeps the popover open when Escape closes a nested dialog after a backdrop press', async () => {
+    const onPopoverOpenChange = vi.fn();
+    const { user } = await render(
+      <Popover.Root defaultOpen onOpenChange={onPopoverOpenChange}>
+        <Popover.Trigger>Popover trigger</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup data-testid="popover">
+              <Dialog.Root disablePointerDismissal>
+                <Dialog.Trigger>Open dialog</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Backdrop data-testid="backdrop" />
+                  <Dialog.Popup data-testid="dialog">
+                    <input data-testid="input" />
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open dialog' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('input')).toHaveFocus();
+    });
+
+    // `disablePointerDismissal` keeps the dialog open, but the press still moves focus to the body.
+    await user.click(screen.getByTestId('backdrop'));
+    expect(document.activeElement).toBe(document.body);
+    expect(screen.queryByTestId('dialog')).not.toBe(null);
+
+    await user.keyboard('[Escape]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('dialog')).toBe(null);
+    });
+    expect(screen.queryByTestId('popover')).not.toBe(null);
+    expect(onPopoverOpenChange).not.toHaveBeenCalled();
+  });
+
   describe('preventUnmountOnClose()', () => {
     it('does not leak from a canceled close into a synchronous second close', async () => {
       const popover = Popover.createHandle();
@@ -2378,6 +2777,238 @@ describe('<Popover.Root />', () => {
       await user.click(screen.getByRole('button', { name: 'Toggle' }));
       await waitFor(() => {
         expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+  });
+  describe('close requests', () => {
+    it('reports the active trigger for an outside press close', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <div>
+          <button type="button">Outside</button>
+          <Popover.Root onOpenChange={onOpenChange}>
+            <Popover.Trigger>Trigger A</Popover.Trigger>
+            <Popover.Trigger>Trigger B</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+      const triggerB = screen.getByRole('button', { name: 'Trigger B' });
+
+      await user.click(triggerB);
+      expect(screen.queryByText('Content')).not.toBe(null);
+      fireEvent.click(screen.getByRole('button', { name: 'Outside' }));
+      await waitFor(() => {
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      expect(onOpenChange).toHaveBeenCalledTimes(2);
+      expect(onOpenChange.mock.calls[1][1].reason).toBe(REASONS.outsidePress);
+      expect(onOpenChange.mock.calls[1][1].trigger).toBe(triggerB);
+    });
+
+    it('marks a close without a reason as a dismissal', async () => {
+      const handle = Popover.createHandle();
+      await render(
+        <Popover.Root handle={handle} defaultOpen>
+          <Popover.Trigger handle={handle}>Trigger</Popover.Trigger>
+          <Popover.Portal keepMounted>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+
+      await act(async () => {
+        handle.store.setOpen(
+          false,
+          createChangeEventDetails(undefined as unknown as typeof REASONS.none),
+        );
+      });
+
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
+  });
+
+  describe('hover open after a dismissal', () => {
+    it('renders the open popup without the dismissal instant type', async () => {
+      const renders: { open: boolean; instant: string | undefined }[] = [];
+
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={0}>
+            Trigger
+          </Popover.Trigger>
+          <Popover.Portal keepMounted>
+            <Popover.Positioner>
+              <Popover.Popup
+                data-testid="popup"
+                className={(state) => {
+                  renders.push({ open: state.open, instant: state.instant });
+                  return undefined;
+                }}
+              >
+                Content
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+      await user.unhover(trigger);
+      renders.length = 0;
+
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+
+      expect(renders.find((entry) => entry.open)).toEqual({ open: true, instant: undefined });
+    });
+
+    it('cancels a pending hover open when the `close` action is called', async () => {
+      const onOpenChange = vi.fn();
+      const actionsRef = React.createRef<Popover.Root.Actions>();
+      await render(
+        <Popover.Root actionsRef={actionsRef} onOpenChange={onOpenChange}>
+          <Popover.Trigger openOnHover delay={100}>
+            Trigger
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      enterWithMouse(screen.getByRole('button', { name: 'Trigger' }));
+      await act(async () => {
+        actionsRef.current!.close();
+      });
+      await act(async () => {
+        await wait(200);
+      });
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+  });
+  describe('after a close from a trigger', () => {
+    function App() {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => setOpen(true)}>
+            Open externally
+          </button>
+          <Popover.Root open={open} onOpenChange={setOpen}>
+            <Popover.Trigger>Trigger A</Popover.Trigger>
+            <Popover.Trigger>Trigger B</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup">Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <Popover.Root>
+            <Popover.Trigger>Other popover</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="other-popup">Other content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>
+      );
+    }
+
+    it('closes when that trigger is pressed after a controlled open without a trigger', async () => {
+      const { user } = await render(<App />);
+      const triggerA = screen.getByRole('button', { name: 'Trigger A' });
+
+      await user.click(triggerA);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+      await user.click(triggerA);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Open externally' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+
+      await user.click(triggerA);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+
+    it('returns focus to that trigger when a later open started from the body', async () => {
+      const { user } = await render(<App />);
+      const triggerA = screen.getByRole('button', { name: 'Trigger A' });
+      const otherTrigger = screen.getByRole('button', { name: 'Other popover' });
+
+      await user.click(triggerA);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+      await user.click(triggerA);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+
+      // Another popover is the last one opened from a focused element.
+      await user.click(otherTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('other-popup')).not.toBe(null);
+      });
+      await user.click(otherTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('other-popup')).toBe(null);
+      });
+
+      await act(async () => {
+        otherTrigger.blur();
+      });
+      expect(document.activeElement).toBe(document.body);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Open externally' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveFocus();
+      });
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(triggerA).toHaveFocus();
       });
     });
   });

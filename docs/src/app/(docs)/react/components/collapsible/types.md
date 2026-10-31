@@ -67,7 +67,12 @@ type CollapsibleRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -88,9 +93,10 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type | Description                                 |
-| :-------------- | :--- | :------------------------------------------ |
-| data-panel-open | -    | Present when the collapsible panel is open. |
+| Attribute       | Type | Description                                              |
+| :-------------- | :--- | :------------------------------------------------------- |
+| data-panel-open | -    | Present when the collapsible panel is open.              |
+| data-disabled   | -    | Present when the trigger or the collapsible is disabled. |
 
 ### Trigger.Props
 
@@ -219,6 +225,8 @@ Data attributes of [Trigger](#trigger).
 declare namespace CollapsibleTriggerDataAttributes {
   /** Present when the collapsible panel is open. */
   const panelOpen: 'data-panel-open';
+  /** Present when the trigger or the collapsible is disabled. */
+  const disabled: 'data-disabled';
 }
 ```
 
@@ -241,3 +249,14 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Collapsible.Trigger.Props`: `CollapsibleTriggerProps`
 - `Collapsible.Panel.State`: `CollapsiblePanelState`
 - `Collapsible.Panel.Props`: `CollapsiblePanelProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

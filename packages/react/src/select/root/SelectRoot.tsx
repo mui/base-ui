@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
@@ -10,26 +9,20 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  useClick,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useTypeahead,
-} from '../../floating-ui-react';
-import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
+import { SelectRootContext, SelectSelectionContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
-import { selectors } from '../store';
-import type { SelectStoreContext, State as StoreState } from '../store';
+import { SelectStore, selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -39,11 +32,14 @@ import {
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
+import { getHiddenInputType } from '../../internals/getHiddenInputType';
+import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
+import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Groups all parts of the select.
@@ -92,6 +88,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     disabled: fieldDisabled,
     validation,
     validationMode,
+    setValidityData,
   } = useFieldRootContext();
 
   const generatedId = useLabelableId({ id });
@@ -104,13 +101,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     default: multiple ? (defaultValue ?? EMPTY_ARRAY) : defaultValue,
     name: 'Select',
     state: 'value',
-  });
-
-  const [open, setOpenUnwrapped] = useControlled({
-    controlled: openProp,
-    default: defaultOpen,
-    name: 'Select',
-    state: 'open',
   });
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
@@ -131,16 +121,47 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
   const initialValueRef = React.useRef(value);
 
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+  // Calls `onOpenChange` for every open change that isn't ignored, then applies the select's own
+  // handling of an accepted change before the store commits it.
+  const handleOpenChange = useStableCallback(
+    (nextOpen: boolean, eventDetails: SelectRoot.OpenChangeEventDetails) => {
+      onOpenChange?.(nextOpen, eventDetails);
 
-  const store = useRefWithInit(
-    () =>
-      new ReactStore<StoreState, SelectStoreContext, typeof selectors>(
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      if (
+        !nextOpen &&
+        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
+      ) {
+        setTouched(true);
+        setFocused(false);
+
+        if (validationMode === 'onBlur') {
+          validation.commit(value);
+        }
+      }
+    },
+  );
+
+  const { store, open } = useSingleAnchorPopupRoot(
+    {
+      open: openProp,
+      defaultOpen,
+      onOpenChange: handleOpenChange,
+      onOpenChangeComplete,
+      actionsRef,
+    },
+    (initialState, defaultPopupId) =>
+      new SelectStore(
         {
+          ...createInitialPopupStoreState(defaultPopupId),
+          ...initialState,
           id: generatedId,
           labelId: undefined,
           modal,
-          multiple,
+          selectionMode: multiple ? 'multiple' : 'single',
           disabled,
           readOnly,
           required,
@@ -148,22 +169,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           itemToStringLabel,
           itemToStringValue,
           isItemEqualToValue,
-          value,
-          open,
-          // Seeded with the initial values of `useUnmountAfterClose`, which is called after the
-          // store because its unmount cleanup writes to it. `useSyncedValues` keeps them in sync.
-          mounted: open,
-          transitionStatus: undefined,
+          selectedValue: value,
           items,
-          forceMount: false,
+          forceMounted: false,
           openMethod: null,
           activeIndex: null,
           selectedIndex: null,
-          popupProps: EMPTY_OBJECT,
-          triggerProps: EMPTY_OBJECT,
           itemRoot: { props: EMPTY_OBJECT, multiple, disabled, readOnly, isItemEqualToValue },
           triggerElement: null,
-          positionerElement: null,
           listElement: null,
           popupSide: null,
           scrollUpArrowVisible: false,
@@ -171,10 +184,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           hasScrollArrows: false,
         },
         {
+          ...createPopupStoreContext(),
+          isItemEqualToValue,
           setValue: NOOP,
-          setOpen: NOOP,
           handleScrollArrowVisibility: NOOP,
-          onOpenChangeComplete: NOOP,
           listRef,
           popupRef,
           scrollHandlerRef,
@@ -191,33 +204,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         },
         selectors,
       ),
-  ).current;
+  );
 
-  const [preventUnmountOnClose, setPreventUnmountOnClose] = React.useState(false);
-  const {
-    mounted,
-    transitionStatus,
-    forceUnmount: handleUnmount,
-  } = useUnmountAfterClose({
-    open,
-    ref: popupRef,
-    preventUnmountOnClose,
-    setPreventUnmountOnClose,
-    onUnmount() {
-      store.update({
-        activeIndex: null,
-        openMethod: null,
-        scrollUpArrowVisible: false,
-        scrollDownArrowVisible: false,
-      });
-      onOpenChangeComplete?.(false);
-    },
-  });
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
   const triggerElement = store.useState('triggerElement');
-  const positionerElement = store.useState('positionerElement');
 
   const previousOpenMethod = usePreviousValue(openMethod);
   const renderedOpenMethod = openMethod ?? previousOpenMethod;
@@ -285,48 +278,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     validation.change(value);
   });
 
-  const setOpen = useStableCallback(
-    (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
-      const openEventDetails = eventDetails as SelectRoot.OpenChangeEventDetails;
-      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
-      onOpenChange?.(nextOpen, openEventDetails);
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      if (!nextOpen) {
-        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
-      }
-      setOpenUnwrapped(nextOpen);
-
-      if (
-        !nextOpen &&
-        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
-      ) {
-        setTouched(true);
-        setFocused(false);
-
-        if (validationMode === 'onBlur') {
-          validation.commit(value);
-        }
-      }
-    },
-  );
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({
-      unmount: handleUnmount,
-      close: () => {
-        if (store.state.open) {
-          setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-        }
-      },
-    }),
-    [handleUnmount, setOpen, store],
-  );
-
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
@@ -349,26 +300,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
-  const floatingContext = useFloatingRootContext({
-    open,
-    onOpenChange: setOpen,
-    elements: {
-      reference: triggerElement,
-      floating: positionerElement,
-    },
-  });
-
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
   // user can see the available options and which one is selected. Committing a value is blocked
   // separately in `SelectItem` and in the hidden input's autofill handler.
-  const click = useClick(floatingContext, {
+  const click = useClick(store, {
     enabled: !disabled,
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingContext);
+  const dismiss = useDismiss(store);
 
-  const listNavigation = useListNavigation(floatingContext, {
+  const listNavigation = useListNavigation(store, {
     enabled: !disabled,
     listRef,
     activeIndex,
@@ -385,7 +327,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const typeahead = useTypeahead(floatingContext, {
+  const typeahead = useTypeahead(store, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     enabled: !disabled && (open || (!readOnly && !multiple)),
@@ -447,17 +389,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [itemProps, multiple, disabled, readOnly, isItemEqualToValue],
   );
 
+  store.useContextCallback('isItemEqualToValue', isItemEqualToValue);
   store.useContextCallback('setValue', setValue);
-  store.useContextCallback('setOpen', setOpen);
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   // The prop bags must be in the store before the parts render. `useSyncedValues` writes in a
   // layout effect, after all descendants have rendered.
   useOnFirstRender(() => {
     store.update({
       popupProps,
-      triggerProps: mergedTriggerProps,
+      activeTriggerProps: mergedTriggerProps,
       itemRoot,
     });
   });
@@ -465,17 +406,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   store.useSyncedValues({
     id: generatedId,
     modal,
-    multiple,
+    selectionMode: multiple ? 'multiple' : 'single',
     disabled,
     readOnly,
     required,
     highlightItemOnHover,
-    value,
-    open,
-    mounted,
-    transitionStatus,
+    selectedValue: value,
     popupProps,
-    triggerProps: mergedTriggerProps,
+    activeTriggerProps: mergedTriggerProps,
     itemRoot,
     items,
     itemToStringLabel,
@@ -508,11 +446,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
+  const selection = React.useMemo(() => ({ value, multiple }), [value, multiple]);
+
   return (
     <SelectRootContext.Provider value={store}>
-      <SelectFloatingContext.Provider value={floatingContext}>
+      <SelectSelectionContext.Provider value={selection}>
         {children}
-      </SelectFloatingContext.Provider>
+      </SelectSelectionContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
@@ -563,20 +503,22 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               }
             }
 
-            store.set('forceMount', true);
+            store.set('forceMounted', true);
             queueMicrotask(handleChange);
           },
         })}
         id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
         form={form}
         name={hiddenInputName}
+        type={getHiddenInputType(setValidityData !== NOOP, name, autoComplete, required, inputRef)}
         autoComplete={autoComplete}
         value={serializedValue}
         disabled={disabled}
         required={required && !(multiple && hasSelectedValue)}
         readOnly={readOnly}
         ref={ref}
-        style={name ? visuallyHiddenInput : visuallyHidden}
+        style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         tabIndex={-1}
         aria-hidden
         suppressHydrationWarning

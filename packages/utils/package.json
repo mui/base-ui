@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/utils",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": "MUI Team",
   "description": "A collection of React utility functions for Base UI.",
   "license": "MIT",
@@ -35,12 +35,12 @@
   },
   "devDependencies": {
     "@testing-library/react": "16.3.3",
-    "@testing-library/user-event": "14.6.7",
+    "@testing-library/user-event": "14.6.8",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/use-sync-external-store": "1.7.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "peerDependencies": {

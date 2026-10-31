@@ -1203,3 +1203,13 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Toast.Positioner.Props`: `ToastPositionerProps`
 - `Toast.Arrow.State`: `ToastArrowState`
 - `Toast.Arrow.Props`: `ToastArrowProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `HTMLButtonElement`: <https://developer.mozilla.org/docs/Web/API/HTMLButtonElement>
+- `HTMLElement`: <https://developer.mozilla.org/docs/Web/API/HTMLElement>
+- `Promise`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise>
+- `ShadowRoot`: <https://developer.mozilla.org/docs/Web/API/ShadowRoot>

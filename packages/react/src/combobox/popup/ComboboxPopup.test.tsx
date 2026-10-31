@@ -1,8 +1,8 @@
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { createRenderer, describeConformance } from '#test-utils';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Combobox.Popup />', () => {
   const { render } = createRenderer();
@@ -119,6 +119,50 @@ describe('<Combobox.Popup />', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('passes the close type of an item press to a finalFocus function', async () => {
+    const finalFocus = vi.fn(() => false);
+
+    const { user } = await render(
+      <Combobox.Root>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup finalFocus={finalFocus}>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+                <Combobox.Item value="b">b</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+
+    await user.click(input);
+    // user-event's synthetic clicks carry no pointer type, so the mouse press is dispatched
+    // directly.
+    const option = await screen.findByRole('option', { name: 'a' });
+    fireEvent.pointerDown(option, { pointerType: 'mouse' });
+    fireEvent.click(option, { detail: 1 });
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+    expect(finalFocus).toHaveBeenLastCalledWith('mouse');
+
+    await act(async () => {
+      input.focus();
+    });
+    await user.keyboard('{ArrowDown}');
+    await screen.findByRole('listbox');
+    await user.keyboard('{ArrowDown}{Enter}');
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+    expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+  });
+
   it('returns focus to an explicitly provided element when the popup closes', async () => {
     function Test() {
       const finalFocusRef = React.useRef<HTMLButtonElement | null>(null);
@@ -151,10 +195,15 @@ describe('<Combobox.Popup />', () => {
     });
   });
 
-  it('applies data-instant="dismiss" when closed with Escape', async () => {
-    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+  it.skipIf(isJSDOM)(
+    'applies data-instant="dismiss" when closed with Escape',
+    async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
 
-    const style = `
+      const style = `
       @keyframes combobox-close-test {
         to {
           opacity: 0;
@@ -166,37 +215,37 @@ describe('<Combobox.Popup />', () => {
       }
     `;
 
-    const { user } = await render(
-      <React.Fragment>
-        {/* eslint-disable-next-line react/no-danger */}
-        <style dangerouslySetInnerHTML={{ __html: style }} />
-        <Combobox.Root defaultOpen>
-          <Combobox.Input />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup data-testid="popup" className="animation-test-popup">
-                <Combobox.List>
-                  <Combobox.Item value="a">a</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>
-        ,
-      </React.Fragment>,
-    );
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Combobox.Root defaultOpen>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </React.Fragment>,
+      );
 
-    const popup = await screen.findByTestId('popup');
-    expect(popup).not.toHaveAttribute('data-instant');
+      const popup = await screen.findByTestId('popup');
+      expect(popup).not.toHaveAttribute('data-instant');
 
-    await user.keyboard('{Escape}');
+      await user.keyboard('{Escape}');
 
-    // The close animation is long so the popup stays mounted during the exit transition.
-    await waitFor(() => {
-      expect(popup).toHaveAttribute('data-ending-style');
-    });
-    expect(popup).toHaveAttribute('data-instant', 'dismiss');
-  });
+      // The close animation is long so the popup stays mounted during the exit transition.
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+      expect(popup).toHaveAttribute('data-instant', 'dismiss');
+    },
+  );
 
   it('clears data-instant when the popup is reopened', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

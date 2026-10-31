@@ -16,7 +16,7 @@ Renders a `<div>` element.
 | value\*          | `number`                                                                                 | -       | The current value.                                                                                                                                                                            |
 | aria-valuetext   | `string`                                                                                 | -       | A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.                                                                                        |
 | getAriaValueText | `((formattedValue: string, value: number) => string)`                                    | -       | A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.                                                   |
-| locale           | `Intl.LocalesArgument`                                                                   | -       | The locale used by `Intl.NumberFormat` when formatting the value.&#xA;Defaults to the user's runtime locale.                                                                                  |
+| locale           | `Intl.LocalesArgument`                                                                   | -       | The locale used by `Intl.NumberFormat` when formatting the value.&#xA;Defaults to the user's runtime locale.&#xA;When server rendering, `en-US` is used until hydration.                      |
 | min              | `number`                                                                                 | `0`     | The minimum value                                                                                                                                                                             |
 | max              | `number`                                                                                 | `100`   | The maximum value                                                                                                                                                                             |
 | format           | `Intl.NumberFormatOptions`                                                               | -       | Options to format the value.                                                                                                                                                                  |
@@ -150,3 +150,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Meter.Value.Props`: `MeterValueProps`
 - `Meter.Label.State`: `MeterLabelState`
 - `Meter.Label.Props`: `MeterLabelProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Intl.LocalesArgument`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument>
+- `Intl.NumberFormatOptions`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options>

@@ -2,27 +2,20 @@
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { contains, getTarget } from '../../floating-ui-react/utils';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import { getComboboxPopupId } from '../root/utils';
 import { useListEmpty } from '../utils/parts';
-
-const stateAttributesMapping: StateAttributesMapping<ComboboxPopupState> = {
-  ...popupStateMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * A container for the list.
@@ -38,7 +31,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
-  const floatingRootContext = useComboboxFloatingContext();
 
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -56,9 +48,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   useIsoLayoutEffect(() => {
     // Prefer the rendered DOM id, which a `render` prop element or function may override.
-    store.set('popupId', store.context.popupRef.current?.id || popupId);
+    store.set('popupElementId', store.context.popupRef.current?.id || popupId);
     return () => {
-      store.set('popupId', undefined);
+      store.set('popupElementId', undefined);
     };
   }, [store, popupId]);
 
@@ -67,7 +59,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.onOpenChangeComplete(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -84,7 +76,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     props: [
       popupProps,
       {
@@ -103,7 +95,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
   });
 
   // Default initial focus logic:
@@ -128,7 +120,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      store={store.interactions}
       disabled={!mounted}
       modal={focusManagerModal}
       openInteractionType={openMethod}

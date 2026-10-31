@@ -37,6 +37,31 @@ describe('<Collapsible.Trigger />', () => {
     expect(trigger).not.toHaveAttribute('aria-disabled');
   });
 
+  it('stays disabled when the root is disabled and `disabled={false}` is passed', async () => {
+    const onOpenChange = vi.fn();
+    const { user } = await render(
+      <Collapsible.Root disabled onOpenChange={onOpenChange}>
+        <Collapsible.Trigger disabled={false}>Trigger</Collapsible.Trigger>
+      </Collapsible.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    expect(trigger).toBeDisabled();
+
+    await user.click(trigger);
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('adds data-disabled when only the trigger is disabled', async () => {
+    await render(
+      <Collapsible.Root>
+        <Collapsible.Trigger disabled>Trigger</Collapsible.Trigger>
+      </Collapsible.Root>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute('data-disabled');
+  });
+
   it('removes a disabled non-native trigger from the tab order', async () => {
     const { user } = await render(
       <Collapsible.Root disabled>

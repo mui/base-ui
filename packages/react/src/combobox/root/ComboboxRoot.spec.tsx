@@ -121,17 +121,17 @@ const groupItemsReadonly = [
   items={objectItems}
   defaultValue={objectItems[0]}
   itemToStringLabel={(item) => {
-    // @ts-expect-error
+    // @ts-expect-error Items have value and label fields, but no x field.
     item.x;
     return item.label;
   }}
   itemToStringValue={(item) => {
-    // @ts-expect-error
+    // @ts-expect-error Items have value and label fields, but no x field.
     item.x;
     return item.value;
   }}
   isItemEqualToValue={(a, b) => {
-    // @ts-expect-error
+    // @ts-expect-error Neither item in the equality callback has an x field.
     a.x === b.x;
     return a.value === b.value;
   }}
@@ -146,7 +146,7 @@ const groupItemsReadonly = [
     return item;
   }}
   isItemEqualToValue={(a, b) => {
-    // @ts-expect-error
+    // @ts-expect-error String values have no x property.
     a.x === b.x;
     return a === b;
   }}
@@ -154,7 +154,7 @@ const groupItemsReadonly = [
 
 <Combobox.Root
   multiple
-  // @ts-expect-error
+  // @ts-expect-error Multiple selection requires an array default value.
   defaultValue="javascript"
   onValueChange={(value) => {
     value.pop();
@@ -171,10 +171,10 @@ const groupItemsReadonly = [
 
 <Combobox.Root
   multiple={false}
-  // @ts-expect-error
+  // @ts-expect-error Single selection does not accept an array default value.
   defaultValue={['javascript', 'typescript']}
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error Single selection does not produce an array.
     value.pop();
   }}
 />;
@@ -182,7 +182,7 @@ const groupItemsReadonly = [
 <Combobox.Root
   defaultValue="javascript"
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error Single selection does not produce an array.
     value.pop();
   }}
 />;
@@ -200,7 +200,7 @@ function App() {
     <Combobox.Root
       multiple={multiple}
       onValueChange={(value) => {
-        // @ts-expect-error
+        // @ts-expect-error A dynamic multiple flag does not guarantee an array value.
         value.pop();
       }}
     />
@@ -210,7 +210,7 @@ function App() {
 <Combobox.Root
   items={['a', 'b', 'c']}
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error Items alone do not infer the value type for this callback.
     value.length;
   }}
 />;
@@ -219,7 +219,7 @@ function App() {
   items={['a', 'b', 'c']}
   defaultValue="test"
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error The selection can be cleared, so value may be null.
     value.length;
   }}
 />;
@@ -265,7 +265,7 @@ function App2() {
     <Combobox.Root
       value={value}
       onValueChange={(newValue) => {
-        // @ts-expect-error
+        // @ts-expect-error The selection can be cleared even when the current value is a string.
         newValue.length;
         // @ts-expect-error - user is forced to type useState with null
         // even if they don't want to allow null
@@ -281,7 +281,7 @@ function App3() {
     <Combobox.Root
       value={value}
       onValueChange={(newValue) => {
-        // @ts-expect-error
+        // @ts-expect-error The selected value may be null.
         newValue.length;
         setValue(newValue);
       }}
