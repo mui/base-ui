@@ -346,14 +346,10 @@ export function useDismiss(
       // even when the composition began while the popup was closed.
       // https://bugs.webkit.org/show_bug.cgi?id=165004
       compositionEndPendingRef.current = true;
-      compositionTimeout.start(
-        // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
-        // Only apply to WebKit for the test to remain 0ms.
-        platform.engine.webkit ? 5 : 0,
-        () => {
-          compositionEndPendingRef.current = false;
-        },
-      );
+      // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
+      compositionTimeout.start(5, () => {
+        compositionEndPendingRef.current = false;
+      });
     }
 
     function suppressImmediateOutsideClickAfterPreventedStart() {
@@ -755,7 +751,7 @@ export function useDismiss(
               closeOnEscapeKeyDown(event);
             }
           }),
-          addEventListener(doc, 'compositionend', handleCompositionEnd),
+          platform.engine.webkit && addEventListener(doc, 'compositionend', handleCompositionEnd),
         ),
       outsidePressEnabled &&
         mergeCleanups(

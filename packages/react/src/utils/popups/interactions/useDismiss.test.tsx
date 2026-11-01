@@ -211,35 +211,22 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
-    test('does not dismiss with the escape key that ends a composition spanning a reopen', async () => {
-      function PersistentDismiss() {
-        const [open, setOpen] = React.useState(true);
-        const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-        const { getReferenceProps, getFloatingProps } = useTestInteractions([
-          useDismiss(context.rootStore),
-        ]);
+    test('dismisses with escape key pressed right after a composition ends', async () => {
+      const onClose = vi.fn();
 
-        return (
-          <React.Fragment>
-            <button {...getReferenceProps({ ref: refs.setReference })} />
-            <button onClick={() => setOpen(true)}>open</button>
-            <button onClick={() => setOpen(false)}>close</button>
-            {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
-          </React.Fragment>
-        );
-      }
+      render(<App onClose={onClose} escapeKey />);
 
-      render(<PersistentDismiss />);
+      const textbox = screen.getByRole('textbox');
 
-      fireEvent.compositionStart(document.body);
-      fireEvent.click(screen.getByRole('button', { name: 'close' }));
-      fireEvent.click(screen.getByRole('button', { name: 'open' }));
+      await act(async () => {
+        textbox.focus();
+      });
 
-      // Safari fires `compositionend` before the `keydown` that ends the composition.
-      fireEvent.compositionEnd(document.body);
-      fireEvent.keyDown(document.body, { key: 'Escape' });
-      await flushMicrotasks();
-      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      fireEvent.compositionStart(textbox);
+      fireEvent.compositionEnd(textbox);
+      fireEvent.keyDown(textbox, { key: 'Escape' });
+
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
 
     test('dismisses with escape key after closing during IME composition', async () => {
