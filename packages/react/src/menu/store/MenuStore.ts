@@ -255,9 +255,16 @@ export class MenuStore<Payload> extends BasePopupStore<
       return true;
     }
 
-    // Read the store directly, as relayed tree events and stale hover timers can request a close
-    // after the state changed but before the Root re-rendered.
-    if (!nextOpen && !this.select('open')) {
+    // Some mobile browsers fire `focus` and then a delayed `click` for one tap. Without this guard,
+    // a menu that opened on focus would close on the click right away.
+    const nativeEvent = eventDetails.event as Event | undefined;
+    if (
+      !nextOpen &&
+      eventDetails.reason !== REASONS.itemPress &&
+      nativeEvent?.type === 'click' &&
+      (nativeEvent as PointerEvent).pointerType === 'touch' &&
+      !this.context.allowTouchToClose
+    ) {
       return true;
     }
 
@@ -271,21 +278,9 @@ export class MenuStore<Payload> extends BasePopupStore<
   }
 
   protected getCloseTrigger() {
-    // Keep the previous trigger so exit animations play and focus is returned correctly.
-    return this.context.getCommittedOpenState!().activeTriggerElement ?? undefined;
-  }
-
-  protected isOpenChangeDropped(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
-    // Some mobile browsers fire `focus` and then a delayed `click` for one tap. Without this guard,
-    // a menu that opened on focus would close on the click right away.
-    const nativeEvent = eventDetails.event as Event | undefined;
-    return (
-      !nextOpen &&
-      eventDetails.reason !== REASONS.itemPress &&
-      nativeEvent?.type === 'click' &&
-      (nativeEvent as PointerEvent).pointerType === 'touch' &&
-      !this.context.allowTouchToClose
-    );
+    // Reports the trigger the Root last rendered, which repeated requests are compared against.
+    // The store can already hold a newer trigger from a request that hasn't rendered yet.
+    return this.context.getCommittedOpenState!().activeTriggerElement;
   }
 
   protected isCommittedSynchronously() {
