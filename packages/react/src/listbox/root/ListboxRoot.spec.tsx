@@ -64,3 +64,6 @@ function ControlledMultiple() {
 
 // @ts-expect-error -- Listbox doesn't take part in form submission
 <Listbox.Root name="fruit" />;
+
+// @ts-expect-error -- focus doesn't wrap, following the APG listbox pattern
+<Listbox.Root loopFocus />;

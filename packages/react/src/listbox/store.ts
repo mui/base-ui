@@ -21,7 +21,6 @@ export type State = {
   orientation: 'vertical' | 'horizontal';
 
   disabled: boolean;
-  loopFocus: boolean;
   highlightItemOnHover: boolean;
 };
 
@@ -64,7 +63,6 @@ export const selectors = {
   orientation: createSelector((state: State) => state.orientation),
 
   disabled: createSelector((state: State) => state.disabled),
-  loopFocus: createSelector((state: State) => state.loopFocus),
   highlightItemOnHover: createSelector((state: State) => state.highlightItemOnHover),
 };
 
@@ -99,7 +97,6 @@ function createInitialState(): State {
     listElement: null,
     orientation: 'vertical',
     disabled: false,
-    loopFocus: true,
     highlightItemOnHover: true,
   };
 }
