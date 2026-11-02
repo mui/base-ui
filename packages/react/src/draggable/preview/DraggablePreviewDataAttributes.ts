@@ -2,7 +2,7 @@ import { TransitionStatusDataAttributes } from '../../internals/stateAttributesM
 
 /**
  * Present on the drag preview, whether it's a clone of the source or custom content.
- * A clone keeps the source's classes, so use this attribute to tell them apart in CSS
+ * A clone keeps the source's classes, so use this attribute in CSS to tell them apart,
  * and to exclude the preview from queries over the source's siblings, such as
  * `:scope > :not([data-drag-preview])`.
  */

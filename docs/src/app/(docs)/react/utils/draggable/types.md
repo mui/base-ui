@@ -845,7 +845,7 @@ source while dragging. The children read React context from above the nearest `<
 
 | Attribute         | Type | Description                                                                                                                                                                                                                                                                                                                          |
 | :---------------- | :--- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-drag-preview | -    | Present on the drag preview, whether it's a clone of the source or custom content.&#xA;A clone keeps the source's classes, so use this attribute to tell them apart in CSS&#xA;and to exclude the preview from queries over the source's siblings, such as&#xA;`:scope > :not([data-drag-preview])`.                                 |
+| data-drag-preview | -    | Present on the drag preview, whether it's a clone of the source or custom content.&#xA;A clone keeps the source's classes, so use this attribute in CSS to tell them apart,&#xA;and to exclude the preview from queries over the source's siblings, such as&#xA;`:scope > :not([data-drag-preview])`.                                |
 | data-dropped      | -    | Present on the preview while it ends after a drop on a target. Absent when it ends&#xA;after a release outside every target.                                                                                                                                                                                                         |
 | data-ending-style | -    | Present on the preview while it ends after a deliberate release. A `translate`&#xA;transition then moves it to the source's final position, or back to the source&#xA;after a release outside every target. Without one, it ends where it was released.&#xA;The preview stays mounted until animations started by this state finish. |
 
@@ -2447,7 +2447,7 @@ Data attributes of [Preview](#preview).
 declare namespace DraggablePreviewDataAttributes {
   /**
    * Present on the drag preview, whether it's a clone of the source or custom content.
-   * A clone keeps the source's classes, so use this attribute to tell them apart in CSS
+   * A clone keeps the source's classes, so use this attribute in CSS to tell them apart,
    * and to exclude the preview from queries over the source's siblings, such as
    * `:scope > :not([data-drag-preview])`.
    */
