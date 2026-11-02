@@ -4,10 +4,7 @@ import type { Store } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useFieldRootContext } from '../../internals/field-root-context';
-import { fieldValidityMapping } from '../../internals/field-constants';
 import { useLabel } from '../../internals/labelable-provider';
-import type { FieldRoot } from '../../field';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 
 function getDefaultLabelId(rootId: string | undefined) {
@@ -30,8 +27,6 @@ export const ListboxLabel = React.forwardRef(function ListboxLabel(
   };
   delete elementPropsWithoutId.id;
 
-  const fieldRootContext = useFieldRootContext();
-
   const store = useListboxRootContext();
   const controlElement = store.useState('listElement');
   const rootId = store.useState('id');
@@ -53,13 +48,11 @@ export const ListboxLabel = React.forwardRef(function ListboxLabel(
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    state: fieldRootContext.state,
     props: [labelProps, elementProps],
-    stateAttributesMapping: fieldValidityMapping,
   });
 });
 
-export type ListboxLabelState = FieldRoot.State;
+export interface ListboxLabelState {}
 export type ListboxLabelProps = Omit<BaseUIComponentProps<'div', ListboxLabelState>, 'id'>;
 
 export namespace ListboxLabel {
