@@ -49,13 +49,13 @@ describe('useId with the React 17 id fallback', () => {
   it("generates an id if one isn't provided", () => {
     render(<TestComponent />);
 
-    expect(screen.getByTestId('target').id).toMatch(/^mui-\d+$/);
+    expect(screen.getByTestId('target').id).toMatch(/^base-ui-\d+$/);
   });
 
   it('generates an id with the provided prefix', () => {
-    render(<TestComponent prefix="base-ui" />);
+    render(<TestComponent prefix="custom" />);
 
-    expect(screen.getByTestId('target').id).toMatch(/^base-ui-\d+$/);
+    expect(screen.getByTestId('target').id).toMatch(/^custom-\d+$/);
   });
 
   it('generates an id when the provided id is removed', () => {
@@ -65,7 +65,7 @@ describe('useId with the React 17 id fallback', () => {
 
     setProps({ id: undefined });
 
-    expect(screen.getByTestId('target').id).toMatch(/^mui-\d+$/);
+    expect(screen.getByTestId('target').id).toMatch(/^base-ui-\d+$/);
   });
 
   // Every render is inspected rather than just the resulting DOM.
@@ -94,7 +94,7 @@ describe('useId with the React 17 id fallback', () => {
 
     const generatedId = screen.getByTestId('target').id;
 
-    expect(generatedId).toMatch(/^mui-\d+$/);
+    expect(generatedId).toMatch(/^base-ui-\d+$/);
 
     setProps({ id: 'some-id' });
 
@@ -118,7 +118,7 @@ describe('useId with the React 17 id fallback', () => {
   it('returns an empty string id override as-is', () => {
     const { setProps } = render(<TestComponent />);
 
-    expect(screen.getByTestId('target').id).toMatch(/^mui-\d+$/);
+    expect(screen.getByTestId('target').id).toMatch(/^base-ui-\d+$/);
 
     setProps({ id: '' });
 
@@ -135,7 +135,7 @@ describe('useId with the React 17 id fallback', () => {
     // The server emits no id, so generating the fallback any earlier than the passive
     // effect would put an id on the first client pass and mismatch the markup.
     expect(renderedIds[0]).toBe(undefined);
-    expect(screen.getByTestId('target').id).toMatch(/^mui-\d+$/);
+    expect(screen.getByTestId('target').id).toMatch(/^base-ui-\d+$/);
   });
 
   it('returns undefined on the server', () => {
