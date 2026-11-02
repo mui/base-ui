@@ -9,6 +9,9 @@ import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext'
 /**
  * An icon that indicates that the trigger button opens a menu.
  *
+ * To render this without the default arrow glyph when using `render`, also pass
+ * `children={null}` — for example `<NavigationMenu.Icon children={null} render={<CustomIcon />} />`.
+ *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
 export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
