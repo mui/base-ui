@@ -41,7 +41,11 @@ const VARIANTS = [
 export default function TabsOverflowExperiment() {
   const [activeValues, setActiveValues] = React.useState(() => VARIANTS.map(() => 0));
 
-  const handleValueChange = (variantIndex: number) => (value: number) => {
+  const handleValueChange = (variantIndex: number) => (value: number | null) => {
+    if (value === null) {
+      return;
+    }
+
     setActiveValues((prev) => {
       const next = [...prev];
       next[variantIndex] = value;

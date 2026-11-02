@@ -26,7 +26,11 @@ export function InstallationBlock(props: InstallationBlockProps) {
     }
   }, [globalPreference]);
 
-  const handleValueChange = useStableCallback((newValue: string) => {
+  const handleValueChange = useStableCallback((newValue: string | null) => {
+    if (newValue === null) {
+      return;
+    }
+
     setValue(newValue);
     setGlobalPreference(newValue);
   });
