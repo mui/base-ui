@@ -142,14 +142,11 @@ Renders a `<div>` element.
 
 **Item Data Attributes:**
 
-| Attribute             | Type | Description                                                                                          |
-| :-------------------- | :--- | :--------------------------------------------------------------------------------------------------- |
-| data-selected         | -    | Present when the listbox item is selected.                                                           |
-| data-highlighted      | -    | Present when the listbox item is highlighted.                                                        |
-| data-dragging         | -    | Present when the listbox item is being dragged.                                                      |
-| data-disabled         | -    | Present when the listbox item is disabled.                                                           |
-| data-drop-target      | -    | Present when the listbox item is a drop target.                                                      |
-| data-drop-target-edge | -    | Indicates the closest edge when the item is a drop target.&#xA;The value is `'before'` or `'after'`. |
+| Attribute        | Type | Description                                   |
+| :--------------- | :--- | :-------------------------------------------- |
+| data-selected    | -    | Present when the listbox item is selected.    |
+| data-highlighted | -    | Present when the listbox item is highlighted. |
+| data-disabled    | -    | Present when the listbox item is disabled.    |
 
 ### Item.Props
 
@@ -165,12 +162,6 @@ type ListboxItemState = {
   selected: boolean;
   /** Whether the item is highlighted. */
   highlighted: boolean;
-  /** Whether the item is currently being dragged. */
-  dragging: boolean;
-  /** Whether the item is a drop target. */
-  dropTarget: boolean;
-  /** The edge closest to the pointer when the item is a drop target (`'before'` or `'after'`), or `null`. */
-  dropTargetEdge: string | null;
 };
 ```
 
@@ -309,57 +300,6 @@ type ListboxItemIndicatorState = {
 };
 ```
 
-### DragAndDropProvider
-
-Enables drag-and-drop reordering when rendered inside `Listbox.Root`.
-Renders no DOM element of its own.
-
-**DragAndDropProvider Props:**
-
-| Prop           | Type                                                                                                                                         | Default | Description                                                                                                                                                                                                                               |
-| :------------- | :------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| canDrag        | `((item: ListboxDragAndDropItem<Value>) => boolean)`                                                                                         | -       | Determines whether a given item can initiate drag-and-drop.&#xA;Defaults to allowing all non-disabled items.                                                                                                                              |
-| canDrop        | `((sourceItems: ListboxDragAndDropItem<Value>[], targetItem: ListboxDragAndDropItem<Value>, edge: ListboxDragAndDropTargetEdge) => boolean)` | -       | Determines whether the dragged items can be dropped relative to a target item.&#xA;Defaults to allowing all drops.                                                                                                                        |
-| onItemsReorder | `((event: ListboxDragAndDropProviderOnItemsReorderEvent<Value>) => void)`                                                                    | -       | Event handler called when items are reordered via drag-and-drop or keyboard.&#xA;`items` contains the moved item(s). `referenceItem` is the item that was&#xA;dropped on or moved next to, and `edge` indicates placement relative to it. |
-| children       | `React.ReactNode`                                                                                                                            | -       | -                                                                                                                                                                                                                                         |
-
-### DragAndDropProvider.Props
-
-Re-export of [DragAndDropProvider](#draganddropprovider) props.
-
-### DragAndDropProvider.State
-
-```typescript
-type ListboxDragAndDropProviderState = {};
-```
-
-### ItemDragHandle
-
-A drag handle within a listbox item for initiating drag-and-drop reordering.
-Renders a `<div>` element.
-
-When placed inside a `Listbox.Item` within `Listbox.DragAndDropProvider`,
-the drag operation will be restricted to start only from this handle
-whenever the provider allows dragging for that item.
-
-**ItemDragHandle Props:**
-
-| Prop      | Type                                                                                                 | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Listbox.ItemDragHandle.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Listbox.ItemDragHandle.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Listbox.ItemDragHandle.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### ItemDragHandle.Props
-
-Re-export of [ItemDragHandle](#itemdraghandle) props.
-
-### ItemDragHandle.State
-
-```typescript
-type ListboxItemDragHandleState = {};
-```
-
 ### LoadingTrigger
 
 A sentinel element that triggers loading more items when scrolled into view.
@@ -404,15 +344,6 @@ declare namespace ListboxItemDataAttributes {
   const highlighted: 'data-highlighted';
   /** Present when the listbox item is disabled. */
   const disabled: 'data-disabled';
-  /** Present when the listbox item is being dragged. */
-  const dragging: 'data-dragging';
-  /** Present when the listbox item is a drop target. */
-  const dropTarget: 'data-drop-target';
-  /**
-   * Indicates the closest edge when the item is a drop target.
-   * The value is `'before'` or `'after'`.
-   */
-  const dropTargetEdge: 'data-drop-target-edge';
 }
 ```
 
@@ -443,14 +374,6 @@ affect the selected items in the listbox.
 type SelectionMode = 'single' | 'multiple' | 'explicit-multiple';
 ```
 
-## External Types
-
-### ListboxDragAndDropTargetEdge
-
-```typescript
-type ListboxDragAndDropTargetEdge = 'before' | 'after';
-```
-
 ## Export Groups
 
 - `Listbox.Root`: `Listbox.Root`, `Listbox.Root.Props`, `Listbox.Root.State`, `Listbox.Root.Actions`, `Listbox.Root.ChangeEventReason`, `Listbox.Root.ChangeEventDetails`
@@ -459,12 +382,10 @@ type ListboxDragAndDropTargetEdge = 'before' | 'after';
 - `Listbox.Item`: `Listbox.Item`, `Listbox.Item.State`, `Listbox.Item.Props`
 - `Listbox.ItemIndicator`: `Listbox.ItemIndicator`, `Listbox.ItemIndicator.State`, `Listbox.ItemIndicator.Props`
 - `Listbox.ItemText`: `Listbox.ItemText`, `Listbox.ItemText.State`, `Listbox.ItemText.Props`
-- `Listbox.ItemDragHandle`: `Listbox.ItemDragHandle`, `Listbox.ItemDragHandle.State`, `Listbox.ItemDragHandle.Props`
-- `Listbox.DragAndDropProvider`: `Listbox.DragAndDropProvider`, `Listbox.DragAndDropProvider.Props`, `Listbox.DragAndDropProvider.State`
 - `Listbox.Group`: `Listbox.Group`, `Listbox.Group.State`, `Listbox.Group.Props`
 - `Listbox.GroupLabel`: `Listbox.GroupLabel`, `Listbox.GroupLabel.State`, `Listbox.GroupLabel.Props`
 - `Listbox.LoadingTrigger`: `Listbox.LoadingTrigger`, `Listbox.LoadingTrigger.State`, `Listbox.LoadingTrigger.Props`
-- `Default`: `SelectionMode`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootActions`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxItemDragHandleState`, `ListboxItemDragHandleProps`, `ListboxDragAndDropProviderState`, `ListboxDragAndDropProviderProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`, `ListboxLoadingTriggerState`, `ListboxLoadingTriggerProps`
+- `Default`: `SelectionMode`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootActions`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`, `ListboxLoadingTriggerState`, `ListboxLoadingTriggerProps`
 
 ## Canonical Types
 
@@ -485,10 +406,6 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Listbox.ItemIndicator.Props`: `ListboxItemIndicatorProps`
 - `Listbox.ItemText.State`: `ListboxItemTextState`
 - `Listbox.ItemText.Props`: `ListboxItemTextProps`
-- `Listbox.ItemDragHandle.State`: `ListboxItemDragHandleState`
-- `Listbox.ItemDragHandle.Props`: `ListboxItemDragHandleProps`
-- `Listbox.DragAndDropProvider.Props`: `ListboxDragAndDropProviderProps`
-- `Listbox.DragAndDropProvider.State`: `ListboxDragAndDropProviderState`
 - `Listbox.Group.State`: `ListboxGroupState`
 - `Listbox.Group.Props`: `ListboxGroupProps`
 - `Listbox.GroupLabel.State`: `ListboxGroupLabelState`

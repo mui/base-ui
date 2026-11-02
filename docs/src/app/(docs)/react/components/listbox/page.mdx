@@ -25,19 +25,16 @@ import { Listbox } from '@base-ui/react/listbox';
 
 <Listbox.Root>
   <Listbox.Label />
-  <Listbox.DragAndDropProvider>
-    <Listbox.List>
-      <Listbox.Item>
-        <Listbox.ItemIndicator />
-        <Listbox.ItemText />
-        <Listbox.ItemDragHandle />
-      </Listbox.Item>
-      <Listbox.Group>
-        <Listbox.GroupLabel />
-      </Listbox.Group>
-      <Listbox.LoadingTrigger />
-    </Listbox.List>
-  </Listbox.DragAndDropProvider>
+  <Listbox.List>
+    <Listbox.Item>
+      <Listbox.ItemIndicator />
+      <Listbox.ItemText />
+    </Listbox.Item>
+    <Listbox.Group>
+      <Listbox.GroupLabel />
+    </Listbox.Group>
+    <Listbox.LoadingTrigger />
+  </Listbox.List>
 </Listbox.Root>;
 ```
 
@@ -63,37 +60,6 @@ import { DemoListboxLazyLoading } from './demos/lazy-loading';
 
 <DemoListboxLazyLoading />
 
-### Drag and drop
-
-Wrap reorderable content in `Listbox.DragAndDropProvider` and provide `onItemsReorder` on the provider.
-Use the provider's `canDrag` and `canDrop` predicates to control which items can be dragged or dropped, and use `Listbox.ItemDragHandle` to restrict drag initiation to a handle.
-Items can also be reordered with the keyboard using <kbd>Alt</kbd> + Arrow keys.
-
-Use `canDrop` to constrain reordering within a `Listbox.Group` or apply other custom drop rules.
-
-In `multiple` or `explicit-multiple` mode, dragging a selected item moves all selected items together, preserving their relative order.
-
-import { DemoListboxDragAndDrop } from './demos/drag-and-drop';
-import { DemoListboxDragWithinGroups } from './demos/drag-within-groups';
-
-<DemoListboxDragAndDrop />
-
-### Drag within groups
-
-Pass `canDrop` to `Listbox.DragAndDropProvider` to keep reordering inside the current `Listbox.Group`. This example only accepts drops when every dragged item belongs to the same group as the target item.
-
-The same `canDrop` callback can also enforce other drop target rules, such as preventing drops around locked items or only allowing certain item types to be reordered next to each other. Because it receives the dragged items, the target item, and the drop edge, you can use it to express custom placement logic in one place.
-
-<DemoListboxDragWithinGroups />
-
-### Custom keyboard shortcuts
-
-You can add custom keyboard shortcuts by handling `onKeyDown` on `Listbox.List` and updating the items array directly. This example uses <kbd>]</kbd> and <kbd>[</kbd> to move the focused item to the beginning or the end of the list.
-
-import { DemoListboxCustomShortcuts } from './demos/custom-shortcuts';
-
-<DemoListboxCustomShortcuts />
-
 ## API reference
 
 import { TypesListbox } from './types';
@@ -110,10 +76,6 @@ import { TypesListbox } from './types';
 
 <TypesListbox.List />
 
-### DragAndDropProvider
-
-<TypesListbox.DragAndDropProvider />
-
 ### Item
 
 <TypesListbox.Item />
@@ -125,10 +87,6 @@ import { TypesListbox } from './types';
 ### ItemIndicator
 
 <TypesListbox.ItemIndicator />
-
-### ItemDragHandle
-
-<TypesListbox.ItemDragHandle />
 
 ### Group
 
@@ -148,8 +106,6 @@ export const metadata = {
     'Listbox',
     'Option List',
     'Multi Select',
-    'Drag and Drop List',
-    'Reorderable List',
     'Accessible Listbox',
     'Lazy Loading List',
     'Headless React Components',
