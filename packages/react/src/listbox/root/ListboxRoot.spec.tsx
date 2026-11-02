@@ -61,3 +61,6 @@ function ControlledMultiple() {
 
 // @ts-expect-error -- Listbox has no part that displays the selected value
 <Listbox.Root itemToStringLabel={(item: string) => item} />;
+
+// @ts-expect-error -- Listbox doesn't take part in form submission
+<Listbox.Root name="fruit" />;

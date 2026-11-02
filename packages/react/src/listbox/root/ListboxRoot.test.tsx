@@ -1425,40 +1425,4 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'a' })).not.toHaveAttribute('data-selected');
     });
   });
-
-  describe('form integration', () => {
-    it('should render hidden input with value', async () => {
-      await render(
-        <Listbox.Root name="fruit" defaultValue="apple">
-          <Listbox.List>
-            <Listbox.Item value="apple">Apple</Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      const hiddenInput = document.querySelector('input[name="fruit"]') as HTMLInputElement;
-      expect(hiddenInput).not.toBeNull();
-      expect(hiddenInput.value).toBe('apple');
-    });
-
-    it('should render multiple hidden inputs for multi-select', async () => {
-      await render(
-        <Listbox.Root multiple name="fruits" defaultValue={['apple', 'banana']}>
-          <Listbox.List>
-            <Listbox.Item value="apple">Apple</Listbox.Item>
-            <Listbox.Item value="banana">Banana</Listbox.Item>
-            <Listbox.Item value="cherry">Cherry</Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      const hiddenInputs = document.querySelectorAll(
-        'input[name="fruits"]',
-      ) as NodeListOf<HTMLInputElement>;
-      expect(hiddenInputs.length).toBe(2);
-
-      const values = Array.from(hiddenInputs).map((input) => input.value);
-      expect(values).toEqual(['apple', 'banana']);
-    });
-  });
 });

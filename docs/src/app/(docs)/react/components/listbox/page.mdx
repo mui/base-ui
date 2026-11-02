@@ -12,9 +12,9 @@ import { DemoListboxHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Always visible**: Unlike [Select](https://base-ui.com/react/components/select), the Listbox is always open and does not use a popup or trigger. Use it when all options should be visible at once.
+- **Prefer Select for forms**: Use [Select](/react/components/select) instead of Listbox for selection in forms.
 - **Multi-select support**: Set `multiple` to allow selecting more than one item. The value is then an array.
-- **Form controls must have an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered. See the [forms guide](https://base-ui.com/react/handbook/forms).
+- **Provide an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered.
 
 ## Anatomy
 
