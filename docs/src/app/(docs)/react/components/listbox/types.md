@@ -22,10 +22,8 @@ Doesn't render its own HTML element.
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                             | -            | Custom comparison logic used to determine if a listbox item value matches the current selected value.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                            |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                            | -            | Converts an object value to a string label for display.                                                                                                                                                                                                                                                                  |
 | itemToStringValue    | `((itemValue: Value) => string)`                                            | -            | Converts an object value to a string representation for form submission.                                                                                                                                                                                                                                                 |
-| loading              | `boolean`                                                                   | `false`      | Whether items are currently being loaded.                                                                                                                                                                                                                                                                                |
 | loopFocus            | `boolean`                                                                   | `true`       | Whether keyboard navigation loops back to the first/last item.                                                                                                                                                                                                                                                           |
 | onHighlightChange    | `((value: Value \| null, element: HTMLElement \| null) => void)`            | -            | Event handler called when the highlighted item changes.&#xA;Receives the highlighted item's value and DOM element, or `null` for both&#xA;when no item is highlighted.                                                                                                                                                   |
-| onLoadMore           | `(() => void)`                                                              | -            | Event handler called when more items should be loaded.                                                                                                                                                                                                                                                                   |
 | selectionMode        | `SelectionMode`                                                             | `'single'`   | Determines how user interactions affect the selection. `'single'` — Only one item can be selected at a time.`'multiple'` — Clicking toggles items. Shift+Click selects a range.`'explicit-multiple'` — Like a file browser: plain click replaces the selection,&#xA;Ctrl/Cmd+Click toggles, Shift+Click selects a range. |
 | disabled             | `boolean`                                                                   | `false`      | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                    |
 | required             | `boolean`                                                                   | `false`      | Whether the user must choose a value before submitting a form.                                                                                                                                                                                                                                                           |
@@ -300,36 +298,6 @@ type ListboxItemIndicatorState = {
 };
 ```
 
-### LoadingTrigger
-
-A sentinel element that triggers loading more items when scrolled into view.
-Renders a `<div>` element.
-
-Place at the end of the listbox items. When it becomes visible in the
-scrollable list container, the `onLoadMore` callback on `Listbox.Root` is called.
-
-**LoadingTrigger Props:**
-
-| Prop        | Type                                                                                                 | Default | Description                                                                                                                                                                                   |
-| :---------- | :--------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className   | `string \| ((state: Listbox.LoadingTrigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `React.CSSProperties \| ((state: Listbox.LoadingTrigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| keepMounted | `boolean`                                                                                            | -       | Whether to keep the HTML element in the DOM when not loading.                                                                                                                                 |
-| render      | `ReactElement \| ((props: HTMLProps, state: Listbox.LoadingTrigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### LoadingTrigger.Props
-
-Re-export of [LoadingTrigger](#loadingtrigger) props.
-
-### LoadingTrigger.State
-
-```typescript
-type ListboxLoadingTriggerState = {
-  /** Whether items are currently being loaded. */
-  loading: boolean;
-};
-```
-
 ## Additional Types
 
 ### ListboxItemDataAttributes
@@ -384,8 +352,7 @@ type SelectionMode = 'single' | 'multiple' | 'explicit-multiple';
 - `Listbox.ItemText`: `Listbox.ItemText`, `Listbox.ItemText.State`, `Listbox.ItemText.Props`
 - `Listbox.Group`: `Listbox.Group`, `Listbox.Group.State`, `Listbox.Group.Props`
 - `Listbox.GroupLabel`: `Listbox.GroupLabel`, `Listbox.GroupLabel.State`, `Listbox.GroupLabel.Props`
-- `Listbox.LoadingTrigger`: `Listbox.LoadingTrigger`, `Listbox.LoadingTrigger.State`, `Listbox.LoadingTrigger.Props`
-- `Default`: `SelectionMode`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootActions`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`, `ListboxLoadingTriggerState`, `ListboxLoadingTriggerProps`
+- `Default`: `SelectionMode`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootActions`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
 
 ## Canonical Types
 
@@ -410,5 +377,3 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Listbox.Group.Props`: `ListboxGroupProps`
 - `Listbox.GroupLabel.State`: `ListboxGroupLabelState`
 - `Listbox.GroupLabel.Props`: `ListboxGroupLabelProps`
-- `Listbox.LoadingTrigger.State`: `ListboxLoadingTriggerState`
-- `Listbox.LoadingTrigger.Props`: `ListboxLoadingTriggerProps`

@@ -33,7 +33,6 @@ import { Listbox } from '@base-ui/react/listbox';
     <Listbox.Group>
       <Listbox.GroupLabel />
     </Listbox.Group>
-    <Listbox.LoadingTrigger />
   </Listbox.List>
 </Listbox.Root>;
 ```
@@ -51,14 +50,6 @@ The `selectionMode` prop controls how items are selected:
 import { DemoListboxMultiSelection } from './demos/multi-selection';
 
 <DemoListboxMultiSelection />
-
-### Lazy loading
-
-Use `Listbox.LoadingTrigger` as a sentinel at the end of the list. When it scrolls into view, the `onLoadMore` callback fires.
-
-import { DemoListboxLazyLoading } from './demos/lazy-loading';
-
-<DemoListboxLazyLoading />
 
 ## API reference
 
@@ -96,10 +87,6 @@ import { TypesListbox } from './types';
 
 <TypesListbox.GroupLabel />
 
-### LoadingTrigger
-
-<TypesListbox.LoadingTrigger />
-
 export const metadata = {
   keywords: [
     'React Listbox Component',
@@ -107,7 +94,6 @@ export const metadata = {
     'Option List',
     'Multi Select',
     'Accessible Listbox',
-    'Lazy Loading List',
     'Headless React Components',
     'Base UI',
   ],
