@@ -1632,6 +1632,52 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('popup-1')).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
+
+    it('stays open if clicked within the patient threshold after a hover switch', async () => {
+      await render(<TestNavigationMenu />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+
+      fireEvent.click(trigger1);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+
+      fireEvent.mouseEnter(trigger2);
+      await flushMicrotasks();
+
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+
+      fireEvent.click(trigger2);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('closes if clicked after the patient threshold after a hover switch', async () => {
+      await render(<TestNavigationMenu />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+
+      fireEvent.click(trigger1);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+
+      fireEvent.mouseEnter(trigger2);
+      await flushMicrotasks();
+
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.click(trigger2);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-2')).toBe(null);
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+    });
   });
 
   describe('prop: defaultValue', () => {
