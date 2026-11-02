@@ -6,4 +6,3 @@ export { ListboxItemIndicator as ItemIndicator } from './item-indicator/ListboxI
 export { ListboxItemText as ItemText } from './item-text/ListboxItemText';
 export { ListboxGroup as Group } from './group/ListboxGroup';
 export { ListboxGroupLabel as GroupLabel } from './group-label/ListboxGroupLabel';
-export { ListboxLoadingTrigger as LoadingTrigger } from './loading-trigger/ListboxLoadingTrigger';

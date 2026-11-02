@@ -53,8 +53,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     inputRef,
     actionsRef,
     onHighlightChange,
-    loading = false,
-    onLoadMore,
     children,
   } = props;
 
@@ -99,9 +97,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
           itemToStringValue,
           isItemEqualToValue,
           value,
-          loading,
-          loadingProp: loading,
-          hasOnLoadMore: onLoadMore !== undefined,
           orientation,
           disabled,
           name,
@@ -175,7 +170,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   store.useContextCallback('setValue', setValue);
 
   store.context.validation = validation;
-  store.context.onLoadMore = onLoadMore;
 
   React.useImperativeHandle(
     actionsRef,
@@ -221,9 +215,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       itemToStringLabel,
       itemToStringValue,
       isItemEqualToValue,
-      loading,
-      loadingProp: loading,
-      hasOnLoadMore: onLoadMore !== undefined,
       orientation,
       disabled,
       name,
@@ -239,8 +230,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
-    loading,
-    onLoadMore,
     orientation,
     disabled,
     name,
@@ -429,15 +418,6 @@ export interface ListboxRootProps<Value> {
    * when no item is highlighted.
    */
   onHighlightChange?: ((value: Value | null, element: HTMLElement | null) => void) | undefined;
-  /**
-   * Whether items are currently being loaded.
-   * @default false
-   */
-  loading?: boolean | undefined;
-  /**
-   * Event handler called when more items should be loaded.
-   */
-  onLoadMore?: (() => void) | undefined;
 }
 
 export interface ListboxRootState {}

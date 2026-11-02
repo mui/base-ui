@@ -23,11 +23,6 @@ export type State = {
 
   listElement: HTMLElement | null;
 
-  // Loading state
-  loading: boolean;
-  loadingProp: boolean;
-  hasOnLoadMore: boolean;
-
   orientation: 'vertical' | 'horizontal';
 
   disabled: boolean;
@@ -45,7 +40,6 @@ export type Context = {
   lastSelectedIndexRef: React.RefObject<number | null>;
   validation: UseFieldValidationReturnValue;
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
-  onLoadMore: (() => void) | undefined;
 };
 
 export const selectors = {
@@ -74,10 +68,6 @@ export const selectors = {
   }),
 
   listElement: createSelector((state: State) => state.listElement),
-
-  loading: createSelector((state: State) => state.loading),
-  loadingProp: createSelector((state: State) => state.loadingProp),
-  hasOnLoadMore: createSelector((state: State) => state.hasOnLoadMore),
 
   orientation: createSelector((state: State) => state.orientation),
 
@@ -109,9 +99,6 @@ function createInitialState(): State {
     value: [],
     activeIndex: null,
     listElement: null,
-    loading: false,
-    loadingProp: false,
-    hasOnLoadMore: false,
     orientation: 'vertical',
     disabled: false,
     name: undefined,
@@ -138,6 +125,5 @@ function createInitialContext(): Context {
       change: () => {},
     },
     setValue: () => {},
-    onLoadMore: undefined,
   };
 }
