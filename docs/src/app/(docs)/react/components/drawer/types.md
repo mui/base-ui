@@ -652,9 +652,10 @@ Provides keyboard-aware focus and scroll handling for bottom-sheet drawers with 
 
 **VirtualKeyboardProvider Props:**
 
-| Prop     | Type              | Default | Description |
-| :------- | :---------------- | :------ | :---------- |
-| children | `React.ReactNode` | -       | -           |
+| Prop           | Type              | Default    | Description                                                                                                                                                      |
+| :------------- | :---------------- | :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| scrollBehavior | `ScrollBehavior`  | `'smooth'` | The scroll behavior used to keep the focused field visible above the software keyboard.&#xA;When reduced motion is preferred, `'smooth'` is treated as `'auto'`. |
+| children       | `React.ReactNode` | -          | -                                                                                                                                                                |
 
 ### VirtualKeyboardProvider.Props
 
