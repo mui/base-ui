@@ -70,3 +70,6 @@ function ControlledMultiple() {
 
 // @ts-expect-error -- use the Item's `label` prop to override the typeahead text
 <Listbox.ItemText />;
+
+// @ts-expect-error -- set the id on `Listbox.List`, which renders the listbox element
+<Listbox.Root id="artists" />;

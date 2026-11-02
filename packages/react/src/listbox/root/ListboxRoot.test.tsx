@@ -1409,6 +1409,49 @@ describe('<Listbox.Root />', () => {
       const label = document.getElementById(labelId!);
       expect(label).toHaveTextContent('Choose one');
     });
+
+    it('keeps the label linked when the list has its own id', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.Label>Artists</Listbox.Label>
+          <Listbox.List id="artists">
+            <Listbox.Item value="a">a</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox', { name: 'Artists' });
+      expect(list).toHaveAttribute('id', 'artists');
+      expect(list).not.toHaveFocus();
+
+      fireEvent.click(screen.getByText('Artists'));
+
+      expect(list).toHaveFocus();
+    });
+
+    it('focuses the list from the label after the list id changes', async () => {
+      function App({ listId }: { listId: string }) {
+        return (
+          <Listbox.Root>
+            <Listbox.Label>Artists</Listbox.Label>
+            <Listbox.List id={listId}>
+              <Listbox.Item value="a">a</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App listId="first" />);
+      await setProps({ listId: 'second' });
+
+      const list = screen.getByRole('listbox', { name: 'Artists' });
+      expect(list).toHaveAttribute('id', 'second');
+      expect(list).not.toHaveFocus();
+
+      fireEvent.click(screen.getByText('Artists'));
+
+      expect(list).toHaveFocus();
+    });
   });
 
   describe('controlled value', () => {
