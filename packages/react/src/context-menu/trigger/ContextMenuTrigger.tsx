@@ -3,6 +3,7 @@ import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isVirtualClick, stopEvent } from '../../utils/popups/event';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -17,7 +18,7 @@ import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 const LONG_PRESS_DELAY = 500;
 
 /**
- * An area that opens the menu on right click or long press.
+ * An area that opens the menu on right click, long press, or a keyboard shortcut.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
@@ -50,21 +51,29 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpRef = React.useRef(false);
   const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
 
+  useIsoLayoutEffect(() => {
+    if (triggerRef.current) {
+      setAnchor(triggerRef.current);
+    }
+  }, [setAnchor]);
+
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
 
     initialCursorPointRef.current = { x, y };
 
-    setAnchor({
-      getBoundingClientRect() {
-        return DOMRect.fromRect({
-          width: isTouchEvent ? 10 : 0,
-          height: isTouchEvent ? 10 : 0,
-          x,
-          y,
-        });
+    setAnchor(
+      triggerRef.current ?? {
+        getBoundingClientRect() {
+          return DOMRect.fromRect({
+            width: isTouchEvent ? 10 : 0,
+            height: isTouchEvent ? 10 : 0,
+            x,
+            y,
+          });
+        },
       },
-    });
+    );
 
     allowMouseUpRef.current = false;
     actionsRef.current?.setOpen(true, createChangeEventDetails(REASONS.triggerPress, event));
@@ -88,12 +97,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
     stopEvent(event);
 
-    const rect = trigger.getBoundingClientRect();
-    setAnchor({
-      getBoundingClientRect() {
-        return DOMRect.fromRect({ width: 0, height: 0, x: rect.left, y: rect.bottom });
-      },
-    });
+    setAnchor(trigger);
     initialCursorPointRef.current = null;
     store.setActiveIndex(0, REASONS.keyboard, event.nativeEvent);
     actionsRef.current?.setOpen(

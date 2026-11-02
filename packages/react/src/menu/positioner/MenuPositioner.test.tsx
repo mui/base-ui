@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
-import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
@@ -45,6 +45,13 @@ describe('<Menu.Positioner />', () => {
   beforeEach(() => {
     useAnchorPositioningSpy.mockClear();
   });
+
+  function lastCallFor(positioner: HTMLElement) {
+    const calls = useAnchorPositioningSpy.mock.calls.filter(
+      ([params]) => params.interactionStore.select('positionerElement') === positioner,
+    );
+    return calls[calls.length - 1]?.[0];
+  }
 
   it('throws when rendered outside Menu.Portal', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -109,13 +116,6 @@ describe('<Menu.Positioner />', () => {
       );
     }
 
-    function lastCallFor(positioner: HTMLElement) {
-      const calls = useAnchorPositioningSpy.mock.calls.filter(
-        ([params]) => params.interactionStore.select('positionerElement') === positioner,
-      );
-      return calls[calls.length - 1]?.[0];
-    }
-
     it('uses the dropdown default for a context menu', async () => {
       await render(
         <ContextMenu.Root>
@@ -168,6 +168,44 @@ describe('<Menu.Positioner />', () => {
         collisionAvoidance,
       );
     });
+  });
+
+  it('uses the trigger element as the anchor when opened by right click', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger">Area</ContextMenu.Trigger>
+        <ContextMenu.Portal keepMounted>
+          <ContextMenu.Positioner data-testid="positioner">
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.contextMenu(trigger, { button: 2, detail: 1 });
+    await flushMicrotasks();
+
+    expect(lastCallFor(screen.getByTestId('positioner'))?.anchor).toBe(trigger);
+  });
+
+  it('uses the trigger element as the anchor when opened by keyboard', async () => {
+    const { user } = await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger">Area</ContextMenu.Trigger>
+        <ContextMenu.Portal keepMounted>
+          <ContextMenu.Positioner data-testid="positioner">
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    await user.tab();
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+
+    expect(lastCallFor(screen.getByTestId('positioner'))?.anchor).toBe(trigger);
   });
 
   it('leaves lazy flipping off for a plain menu', async () => {

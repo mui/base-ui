@@ -8,7 +8,8 @@ import type { BaseUIChangeEventDetails } from '../../types';
 import type { MenuRoot } from '../../menu/root/MenuRoot';
 
 /**
- * A component that creates a context menu activated by right clicking or long pressing.
+ * A component that creates a context menu activated by right clicking, long pressing, or a
+ * keyboard shortcut.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
@@ -67,8 +68,8 @@ export interface ContextMenuRootProps extends Omit<
   | 'closeDelay'
   | 'closeParentOnEsc'
   | 'onOpenChange'
-  // Context Menu opens from a pointer position rather than a registered trigger, so the
-  // render-function form of `children` (which receives the active trigger's payload) is not applicable.
+  // Context Menu does not register its trigger with the menu root, so the render-function form of
+  // `children` (which receives the active trigger's payload) is not applicable.
   | 'children'
 > {
   /**
