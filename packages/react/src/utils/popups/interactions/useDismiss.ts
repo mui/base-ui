@@ -594,9 +594,13 @@ export function useDismiss(
         return;
       }
 
-      const unsubscribe = addEventListener(target, event.type, () => {
-        listener(event);
+      // If propagation stops before the target, this runs on the next event of the type to reach
+      // it instead, which must not be handled as the stopped one.
+      const unsubscribe = addEventListener(target, event.type, (currentEvent) => {
         unsubscribe();
+        if (currentEvent === event) {
+          listener(event);
+        }
       });
     }
 
