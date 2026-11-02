@@ -31,7 +31,8 @@ export const calEventMoveKind = Draggable.createKind<EventMoveDragPayload>(
 export const calEventResizeKind = Draggable.createKind<EventResizeDragPayload>(
   'baseUiPlusCalendar/event-resize',
 );
-export const calEventCreateKind = Draggable.createKind<EventCreateDragPayload, EventCreateDragData>(
+// The drag data is where a timed create began, in ms, snapped at pickup.
+export const calEventCreateKind = Draggable.createKind<EventCreateDragPayload, number>(
   'baseUiPlusCalendar/event-create',
 );
 export const calDayCellKind = Draggable.createKind<DayCellDropPayload>(
@@ -73,11 +74,6 @@ export interface EventCreateDragPayload {
   /** The day the create gesture began on, in ms. */
   anchorMs: number;
   allDay: boolean;
-}
-
-export interface EventCreateDragData {
-  /** Where a timed create began, in ms, snapped at pickup. */
-  anchorMs: number;
 }
 
 export interface DayCellDropPayload {
@@ -536,7 +532,7 @@ export function resolveDropPreview(
     // snapped at gesture start, and the column's `snap` handles the pointer.
     if (calDayColumnKind.matches(dropTarget)) {
       const pointerMs = timedMsAt(targetDayMs);
-      const anchorMs = source.dragData?.anchorMs ?? sourcePayload.anchorMs;
+      const anchorMs = source.dragData ?? sourcePayload.anchorMs;
       const lo = Math.min(anchorMs, pointerMs);
       const hi = Math.max(anchorMs, pointerMs);
       return {

@@ -15,7 +15,8 @@ import {
 import type { DragPreview } from './syntheticPreview';
 import { start } from '../core/lifecycleManager';
 import type { DragSessionController, DragSessionSensor } from '../core/lifecycleManager';
-import { getRegistration, getRegistrationOwner } from '../draggableRegistry';
+import { getRegistrationOwner } from '../draggableRegistry';
+import { readSourceParameters } from '../dragSource';
 import { getClosedShadowRootsByHost } from '../dropTarget';
 import type { DraggableConfig } from '../draggable';
 import { elementFromPointIgnoring, resolveElementReference } from '../utils';
@@ -204,10 +205,7 @@ export function createPreviewAndStartSession(
     // new node (see `retargetDragSource`), and only that node is registered.
     let latest: DraggableConfig<any, any> = draggableParameters;
     const getLatestParameters = (): DraggableConfig<any, any> => {
-      const current = getRegistration(dragSource.element)?.();
-      if (current !== undefined && current.kind.id === dragSource.kind) {
-        latest = current;
-      }
+      latest = readSourceParameters(dragSource) ?? latest;
       return latest;
     };
 

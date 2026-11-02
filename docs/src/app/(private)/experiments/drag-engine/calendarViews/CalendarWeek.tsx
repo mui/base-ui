@@ -392,12 +392,9 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         const offsetPx = input.clientY - rect.top;
         const rawMs = dayMsRef.current + offsetPx * (HOUR_MS / hourPxRef.current);
         const snapped = snapToMinutes(rawMs, snapRef.current);
-        eventDetails.source.updateDragData({
-          anchorMs: Math.max(
-            dayMsRef.current,
-            Math.min(dayMsRef.current + DAY_MS - MINUTE_MS, snapped),
-          ),
-        });
+        eventDetails.source.updateDragData(
+          Math.max(dayMsRef.current, Math.min(dayMsRef.current + DAY_MS - MINUTE_MS, snapped)),
+        );
       }}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {

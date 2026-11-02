@@ -3,6 +3,7 @@ import { getSharedSlot } from './sharedState';
 import { getRegistration, refreshDraggableStaticSetup } from './draggableRegistry';
 import { dragSourceStore, notifyDragSourceUpdated } from './dragSessionStore';
 import { getActiveSession } from './core/dragSession';
+import type { DraggableConfig } from './draggable';
 
 // Set while a `payload` prop change is being published, until the next microtask.
 const propSync = getSharedSlot('dragSource.propSync', () => ({ notifying: false }));
@@ -26,8 +27,8 @@ export function createDragSource(
     handle: dragHandle,
     // Once the element unregisters or changes kind, returns the last value this record read.
     get payload() {
-      const parameters = getRegistration(source.element)?.();
-      if (parameters?.kind.id === kind) {
+      const parameters = readSourceParameters(source);
+      if (parameters) {
         payload = parameters.payload;
       }
       return payload;
@@ -46,20 +47,29 @@ export function createDragSource(
 }
 
 /**
+ * The latest parameters registered on the source's element, or `undefined` once the
+ * element unregisters or its kind no longer matches the drag's.
+ */
+export function readSourceParameters(
+  source: DraggableRootRecord,
+): DraggableConfig<any, any> | undefined {
+  const parameters = getRegistration(source.element)?.();
+  return parameters?.kind.id === source.kind ? parameters : undefined;
+}
+
+/**
  * Apply a registered source's latest parameters: gesture styles follow `disabled` and
  * `handle`, and a changed `payload` reaches `useActiveDrag()` during its drag. Moving
  * the styles mid-drag is harmless: `touch-action` no longer applies to the gesture,
  * and the root lock prevents text selection.
  */
 export function refreshDragSource(element: HTMLElement): void {
-  const parameters = refreshDraggableStaticSetup(element);
+  refreshDraggableStaticSetup(element);
   const source = getActiveSession()?.source;
   if (
-    parameters === undefined ||
     source?.element !== element ||
-    source.kind !== parameters.kind.id ||
     // Already published, for example by a drag data update in the same commit.
-    Object.is(dragSourceStore.state?.payload, parameters.payload)
+    Object.is(dragSourceStore.state?.payload, source.payload)
   ) {
     return;
   }

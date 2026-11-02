@@ -45,7 +45,7 @@ const item = Draggable.createKind('item');
 </Draggable.Provider>;
 ```
 
-`<Draggable.Root>` holds a draggable item's settings and event handlers, and `<Draggable.Trigger>` inside it is the element the user picks up. `<Draggable.Target>` is where they drop it. They all need a `<Draggable.Provider>` above them. The provider and the root render no element of their own.
+`<Draggable.Root>` holds a draggable item's settings and event handlers, and `<Draggable.Trigger>` inside it is the element the user picks up. Render one trigger per root. `<Draggable.Target>` is where they drop it. They all need a `<Draggable.Provider>` above them. The provider and the root render no element of their own.
 
 The remaining parts are optional:
 

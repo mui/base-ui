@@ -42,7 +42,6 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   parameters: RegisterSourceParameters<TPayload, TDragData>,
   collisionOptions?: {
     context: DraggableCollisionContextValue;
-    payload: unknown;
     snap?: RegisterTargetParameters<TPayload, unknown, TDragData>['snap'] | undefined;
     enabled: boolean;
     element?: ((element: HTMLElement) => HTMLElement) | undefined;
@@ -105,7 +104,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
         const collision = currentOptions.collision;
         participant = {
           kind: currentOptions.parameters.kind,
-          payload: collision?.payload,
+          payload: currentOptions.parameters.payload,
           // The cast holds because the provider disables participants of another kind.
           snap: collision?.snap as CollisionParticipant['snap'],
           // A disabled source is still a destination. Only `collision={false}` opts out.
@@ -127,6 +126,18 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   // Stable merged ref for `elementRef` and the engine registration. A node swapped in
   // mid-drag takes over the drag when it registers (see `retargetPreviewSource`).
   const ref = useRefWithInit(() => (node: HTMLElement | null) => {
+    if (process.env.NODE_ENV !== 'production') {
+      // A node swap detaches the old node first, so a second node arriving while
+      // one is attached means two Triggers share this ref.
+      if (node && elementRef.current && node !== elementRef.current) {
+        warn(
+          'A Draggable.Root contains more than one mounted Draggable.Trigger. ' +
+            'Only the last one is registered, and unmounting either unregisters it, ' +
+            'so the others are inert and look broken. ' +
+            'Render a single Trigger per Root, wrapping each item in its own Draggable.Root.',
+        );
+      }
+    }
     elementRef.current = node;
     registrationRef(node);
   }).current;

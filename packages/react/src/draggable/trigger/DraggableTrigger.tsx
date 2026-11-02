@@ -16,6 +16,7 @@ const stateAttributesMapping: StateAttributesMapping<DraggableTriggerState> = {
 /**
  * The element the user picks up and drops on a matching drop target.
  * While dragging, a clone of the element follows the pointer by default.
+ * Render one per `<Draggable.Root>`.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)

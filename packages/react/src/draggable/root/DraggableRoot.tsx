@@ -99,7 +99,6 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
     collisionContext
       ? {
           context: collisionContext,
-          payload,
           enabled: collision,
           element: collisionElement,
           snap,
@@ -158,7 +157,8 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = React.Attributes &
       | undefined;
     /**
      * Returns the element measured for collisions, for example a padded row wrapper
-     * so that the gaps between items count too. Defaults to the root's own element.
+     * so that the gaps between items count too. Receives the trigger's element,
+     * which is the default.
      */
     collisionElement?: ((element: HTMLElement) => HTMLElement) | undefined;
     /**
