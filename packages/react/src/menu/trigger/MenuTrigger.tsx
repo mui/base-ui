@@ -82,6 +82,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
   const parent = useMenuParent();
+  const isInMenubar = parent.type === 'menubar';
   const compositeRootContext = useCompositeRootContext(true);
   const floatingTreeRootFromContext = useFloatingTree();
 
@@ -103,11 +104,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       floatingTreeRoot,
       floatingNodeId,
       floatingParentNodeId,
-      keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
+      // Only a Menubar navigates between menus with keys pressed inside them.
+      keyboardEventRelay: isInMenubar ? compositeRootContext?.relayKeyboardEvent : undefined,
     },
   );
-
-  const isInMenubar = parent.type === 'menubar';
 
   const rootDisabled = store.useState('disabled');
 
