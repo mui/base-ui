@@ -1,99 +1,31 @@
 'use client';
 import * as React from 'react';
-import { NOOP } from '@base-ui/utils/empty';
 import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
-import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
-import { itemMapping } from '../utils/stateAttributesMapping';
-import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
-import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import { useSelectableMenuItem } from '../item/useMenuItem';
 
 const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
   componentProps: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const {
-    render,
-    className,
-    id: idProp,
-    label,
-    nativeButton = false,
-    disabled: disabledProp = false,
-    closeOnClick = false,
-    value,
-    style,
-    ...elementProps
-  } = componentProps;
-
-  const { store } = useMenuRootContext();
+  const { value } = componentProps;
   const {
     value: selectedValue,
     setValue: setSelectedValue,
     disabled: groupDisabled,
   } = useMenuRadioGroupContext();
 
-  const listItem = useCompositeListItem({ guess: true, label });
-  const id = useBaseUiId(idProp);
-
-  const highlighted = store.useState('isActive', listItem.index);
-  const nodeId = store.useState('floatingNodeId');
-  const itemProps = store.useState('itemProps');
-  const rootDisabled = store.useState('disabled');
-
-  const disabled = disabledProp || groupDisabled || rootDisabled;
-  const checked = selectedValue === value;
-
-  const { getItemProps, itemRef } = useMenuItem({
-    closeOnClick,
-    disabled,
-    highlighted,
-    id,
-    store,
-    nativeButton,
-    nodeId,
-    itemMetadata: REGULAR_ITEM,
-  });
-
-  const state: MenuRadioItemState = React.useMemo(
-    () => ({
-      disabled,
-      highlighted,
-      checked,
-    }),
-    [disabled, highlighted, checked],
+  return useSelectableMenuItem(
+    componentProps,
+    forwardedRef,
+    selectedValue === value,
+    'menuitemradio',
+    MenuRadioItemContext,
+    (details) => setSelectedValue(value, details),
+    groupDisabled,
   );
-
-  function handleClick(event: React.MouseEvent) {
-    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
-      preventUnmountOnClose: NOOP,
-    });
-
-    setSelectedValue(value, details);
-  }
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    stateAttributesMapping: itemMapping,
-    props: [
-      itemProps,
-      {
-        role: 'menuitemradio',
-        'aria-checked': checked,
-        onClick: handleClick,
-      },
-      elementProps,
-      getItemProps,
-    ],
-    ref: [itemRef, forwardedRef, listItem.ref],
-  });
-
-  return <MenuRadioItemContext.Provider value={state}>{element}</MenuRadioItemContext.Provider>;
 });
 
 /**
