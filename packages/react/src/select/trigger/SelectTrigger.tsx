@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { contains } from '@base-ui/utils/shadowDom';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -13,7 +13,7 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateM
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
+import { isPressReleasedInside } from '../../utils/popups/pressRelease';
 import { getFloatingFocusElement } from '../../utils/popups/element';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button';
@@ -183,18 +183,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          const mouseUpTarget = getTarget(mouseEvent) as Element | null;
-
-          // Don't treat the release as an outside press when it lands on the trigger or inside
-          // the popup positioner (or their children).
-          if (
-            contains(triggerRef.current, mouseUpTarget) ||
-            contains(positionerRef.current, mouseUpTarget)
-          ) {
-            return;
-          }
-
-          if (isMouseWithinBounds(mouseEvent, triggerRef.current)) {
+          if (isPressReleasedInside(mouseEvent, triggerRef.current, positionerRef.current)) {
             return;
           }
 
