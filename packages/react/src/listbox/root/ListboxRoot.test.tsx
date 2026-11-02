@@ -2,7 +2,7 @@ import { expect, vi, describe, it, beforeEach } from 'vitest';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 
 describe('<Listbox.Root />', () => {
@@ -60,6 +60,97 @@ describe('<Listbox.Root />', () => {
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
       expect(handleValueChange.mock.calls[0][0]).toBe('b');
+    });
+  });
+
+  describe('prop: onItemHighlighted', () => {
+    function renderList(onItemHighlighted: Listbox.Root.Props<string>['onItemHighlighted']) {
+      return render(
+        <Listbox.Root onItemHighlighted={onItemHighlighted}>
+          <Listbox.List>
+            <Listbox.Item value="apple">Apple</Listbox.Item>
+            <Listbox.Item value="banana">Banana</Listbox.Item>
+            <Listbox.Item value="cherry">Cherry</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+    }
+
+    it('reports keyboard navigation with the keyboard reason', async () => {
+      const handleItemHighlighted = vi.fn();
+      await renderList(handleItemHighlighted);
+
+      const list = screen.getByRole('listbox');
+      await act(async () => list.focus());
+      handleItemHighlighted.mockClear();
+
+      fireEvent.keyDown(list, { key: 'End' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Cherry' })).toHaveAttribute('data-highlighted');
+      expect(handleItemHighlighted).toHaveBeenCalledTimes(1);
+      const [itemValue, eventDetails] = handleItemHighlighted.mock.calls[0];
+      expect(itemValue).toBe('cherry');
+      expect(eventDetails.reason).toBe('keyboard');
+      expect(eventDetails.index).toBe(2);
+      expect(eventDetails.event.type).toBe('keydown');
+    });
+
+    it('reports typeahead with the keyboard reason', async () => {
+      const handleItemHighlighted = vi.fn();
+      await renderList(handleItemHighlighted);
+
+      const list = screen.getByRole('listbox');
+      await act(async () => list.focus());
+      handleItemHighlighted.mockClear();
+
+      fireEvent.keyDown(list, { key: 'b' });
+      await flushMicrotasks();
+
+      expect(handleItemHighlighted).toHaveBeenCalledTimes(1);
+      expect(handleItemHighlighted.mock.calls[0][0]).toBe('banana');
+      expect(handleItemHighlighted.mock.calls[0][1].reason).toBe('keyboard');
+    });
+
+    it('reports hovering with the pointer reason', async () => {
+      const handleItemHighlighted = vi.fn();
+      await renderList(handleItemHighlighted);
+
+      fireEvent.mouseMove(screen.getByRole('option', { name: 'Banana' }));
+
+      expect(handleItemHighlighted).toHaveBeenCalledTimes(1);
+      const [itemValue, eventDetails] = handleItemHighlighted.mock.calls[0];
+      expect(itemValue).toBe('banana');
+      expect(eventDetails.reason).toBe('pointer');
+      expect(eventDetails.index).toBe(1);
+    });
+
+    it('reports the pointer leaving an item as an unhighlight', async () => {
+      const handleItemHighlighted = vi.fn();
+      await renderList(handleItemHighlighted);
+
+      const banana = screen.getByRole('option', { name: 'Banana' });
+      fireEvent.mouseMove(banana);
+      expect(banana).toHaveAttribute('data-highlighted');
+
+      fireEvent.mouseLeave(banana);
+      await waitFor(() => expect(handleItemHighlighted).toHaveBeenCalledTimes(2));
+
+      const [itemValue, eventDetails] = handleItemHighlighted.mock.calls[1];
+      expect(itemValue).toBe(undefined);
+      expect(eventDetails.reason).toBe('pointer');
+      expect(eventDetails.index).toBe(-1);
+    });
+
+    it('reports focus without navigation with the none reason', async () => {
+      const handleItemHighlighted = vi.fn();
+      await renderList(handleItemHighlighted);
+
+      await act(async () => screen.getByRole('option', { name: 'Cherry' }).focus());
+
+      expect(handleItemHighlighted).toHaveBeenCalledTimes(1);
+      expect(handleItemHighlighted.mock.calls[0][0]).toBe('cherry');
+      expect(handleItemHighlighted.mock.calls[0][1].reason).toBe('none');
     });
   });
 

@@ -1,29 +1,33 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import type { ListboxStore } from '../store';
+import type { ListboxRoot } from '../root/ListboxRoot';
 
 interface ResolvedHighlight<Value> {
-  activeIndex: number | null;
-  value: Value | null;
-  element: HTMLElement | null;
+  index: number;
+  value: Value | undefined;
 }
 
 /**
- * Manages the `onHighlightChange` callback for the listbox.
+ * Calls `onItemHighlighted` when the highlighted item changes.
  *
- * Subscribes to the store's `activeIndex` and resolves the corresponding
- * item value and DOM element.
+ * Subscribes to the store's `activeIndex`, resolves the highlighted item's value,
+ * and derives the reason from the event recorded by `store.setActiveIndex()`.
  */
 export function useHighlightChangeNotifier<Value>(params: {
   store: ListboxStore;
-  onHighlightChange: ((value: Value | null, element: HTMLElement | null) => void) | undefined;
+  onItemHighlighted:
+    | ((itemValue: Value | undefined, eventDetails: ListboxRoot.HighlightEventDetails) => void)
+    | undefined;
 }): void {
-  const { store, onHighlightChange } = params;
+  const { store, onItemHighlighted } = params;
 
-  const stableOnHighlightChange = useStableCallback(
-    (highlightedValue: Value | null, highlightedElement: HTMLElement | null) => {
-      onHighlightChange?.(highlightedValue, highlightedElement);
+  const stableOnItemHighlighted = useStableCallback(
+    (itemValue: Value | undefined, eventDetails: ListboxRoot.HighlightEventDetails) => {
+      onItemHighlighted?.(itemValue, eventDetails);
     },
   );
 
@@ -33,26 +37,18 @@ export function useHighlightChangeNotifier<Value>(params: {
     const activeIndex = store.state.activeIndex;
 
     if (activeIndex == null) {
-      return { activeIndex: null, value: null, element: null };
+      return { index: -1, value: undefined };
     }
 
-    const itemValue = store.context.valuesRef.current[activeIndex] as Value | undefined;
-    const listEl = store.state.listElement;
-    const element = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[activeIndex] ?? null;
-
     return {
-      activeIndex,
-      value: itemValue ?? null,
-      element,
+      index: activeIndex,
+      value: store.context.valuesRef.current[activeIndex] as Value | undefined,
     };
   });
 
   const areHighlightsEqual = useStableCallback(
     (prev: ResolvedHighlight<Value> | null, next: ResolvedHighlight<Value>) => {
-      if (prev == null) {
-        return false;
-      }
-      if (prev.activeIndex !== next.activeIndex || prev.element !== next.element) {
+      if (prev == null || prev.index !== next.index) {
         return false;
       }
       if (prev.value == null || next.value == null) {
@@ -63,7 +59,7 @@ export function useHighlightChangeNotifier<Value>(params: {
   );
 
   React.useEffect(() => {
-    if (!onHighlightChange) {
+    if (!onItemHighlighted) {
       lastReportedHighlightRef.current = null;
       return undefined;
     }
@@ -78,12 +74,19 @@ export function useHighlightChangeNotifier<Value>(params: {
       }
 
       lastReportedHighlightRef.current = nextHighlight;
-      stableOnHighlightChange(nextHighlight.value, nextHighlight.element);
+
+      const event = store.context.highlightEvent;
+      stableOnItemHighlighted(
+        nextHighlight.value,
+        createGenericEventDetails(getHighlightReason(event), event, {
+          index: nextHighlight.index,
+        }),
+      );
     });
   }, [
     store,
-    onHighlightChange,
-    stableOnHighlightChange,
+    onItemHighlighted,
+    stableOnItemHighlighted,
     resolveHighlightedItem,
     areHighlightsEqual,
   ]);

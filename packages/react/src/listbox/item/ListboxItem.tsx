@@ -178,19 +178,19 @@ export const ListboxItem = React.memo(
       const currentIndex = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
       const resolvedIndex = currentIndex === -1 ? index : currentIndex;
 
-      store.set('activeIndex', resolvedIndex);
+      store.setActiveIndex(resolvedIndex, event.nativeEvent);
     }
 
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
       tabIndex: highlighted ? 0 : -1,
-      onFocus() {
-        store.set('activeIndex', index);
+      onFocus(event) {
+        store.setActiveIndex(index, event.nativeEvent);
       },
-      onMouseMove() {
+      onMouseMove(event) {
         if (highlightItemOnHover) {
-          store.set('activeIndex', index);
+          store.setActiveIndex(index, event.nativeEvent);
           itemRef.current?.focus();
         }
       },
@@ -199,9 +199,10 @@ export const ListboxItem = React.memo(
           return;
         }
 
+        const nativeEvent = event.nativeEvent;
         highlightTimeout.start(0, () => {
           if (store.state.activeIndex === index) {
-            store.set('activeIndex', null);
+            store.setActiveIndex(null, nativeEvent);
           }
         });
       },

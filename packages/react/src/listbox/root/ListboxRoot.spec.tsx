@@ -46,3 +46,15 @@ function ControlledMultiple() {
 
 // @ts-expect-error -- `multiple="opt-in"` doesn't accept a single value
 <Listbox.Root multiple="opt-in" defaultValue="a" />;
+<Listbox.Root<string>
+  onItemHighlighted={(itemValue, eventDetails) => {
+    expectType<string | undefined, typeof itemValue>(itemValue);
+    expectType<number, typeof eventDetails.index>(eventDetails.index);
+    if (eventDetails.reason === 'pointer') {
+      expectType<MouseEvent | PointerEvent, typeof eventDetails.event>(eventDetails.event);
+    }
+  }}
+/>;
+
+// @ts-expect-error -- the old prop name is gone
+<Listbox.Root onHighlightChange={() => {}} />;

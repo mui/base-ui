@@ -15,7 +15,10 @@ import { useFieldRootContext } from '../../internals/field-root-context';
 import { useRegisterFieldControl } from '../../internals/field-register-control';
 import { useFormContext } from '../../internals/form-context';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIHighlightEventDetails,
+} from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useLabelableId } from '../../internals/labelable-provider';
 import { stringifyAsValue } from '../../internals/resolveValueLabel';
@@ -56,7 +59,7 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     itemToStringValue,
     inputRef,
     actionsRef,
-    onHighlightChange,
+    onItemHighlighted,
     children,
   } = props;
 
@@ -257,7 +260,7 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
 
   useHighlightChangeNotifier<Value>({
     store,
-    onHighlightChange,
+    onItemHighlighted,
   });
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
@@ -445,11 +448,17 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
       ) => void)
     | undefined;
   /**
-   * Event handler called when the highlighted item changes.
-   * Receives the highlighted item's value and DOM element, or `null` for both
-   * when no item is highlighted.
+   * Callback fired when an item is highlighted or unhighlighted.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation or typeahead.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'none'`: the highlight changed for another reason, such as an item receiving focus.
    */
-  onHighlightChange?: ((value: Value | null, element: HTMLElement | null) => void) | undefined;
+  onItemHighlighted?:
+    | ((itemValue: Value | undefined, eventDetails: ListboxRootHighlightEventDetails) => void)
+    | undefined;
 }
 
 export interface ListboxRootState {}
@@ -458,6 +467,19 @@ export type ListboxRootChangeEventReason =
   typeof REASONS.itemPress | typeof REASONS.listNavigation | typeof REASONS.none;
 
 export type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
+
+export type ListboxRootHighlightEventReason =
+  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
+
+export type ListboxRootHighlightEventDetails = BaseUIHighlightEventDetails<
+  ListboxRootHighlightEventReason,
+  {
+    /**
+     * The index of the highlighted item in the list, or `-1` when no item is highlighted.
+     */
+    index: number;
+  }
+>;
 
 export namespace ListboxRoot {
   export type Props<
@@ -468,4 +490,6 @@ export namespace ListboxRoot {
   export type Actions<Value> = ListboxRootActions<Value>;
   export type ChangeEventReason = ListboxRootChangeEventReason;
   export type ChangeEventDetails = ListboxRootChangeEventDetails;
+  export type HighlightEventReason = ListboxRootHighlightEventReason;
+  export type HighlightEventDetails = ListboxRootHighlightEventDetails;
 }
