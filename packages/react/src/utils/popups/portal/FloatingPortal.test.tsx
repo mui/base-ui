@@ -285,7 +285,7 @@ describe.each([
     const mounts: boolean[] = [];
     const startViewTransition = document.startViewTransition.bind(document);
     const startViewTransitionSpy = vi.spyOn(document, 'startViewTransition');
-    const started = new Promise<ViewTransition>((resolve) => {
+    const started = new Promise<ReturnType<typeof startViewTransition>>((resolve) => {
       startViewTransitionSpy.mockImplementation((...args) => {
         const transition = startViewTransition(...args);
         resolve(transition);
@@ -379,7 +379,7 @@ describe.each([
     ignoreActWarnings();
     const startViewTransition = document.startViewTransition.bind(document);
     const startViewTransitionSpy = vi.spyOn(document, 'startViewTransition');
-    const started = new Promise<ViewTransition>((resolve) => {
+    const started = new Promise<ReturnType<typeof startViewTransition>>((resolve) => {
       startViewTransitionSpy.mockImplementation((...args) => {
         const transition = startViewTransition(...args);
         resolve(transition);

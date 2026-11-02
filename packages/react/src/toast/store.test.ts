@@ -198,6 +198,42 @@ describe('ToastStore', () => {
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ status: 'ok' });
   });
 
+  it('uses the loading id to update an existing toast while the promise is pending', async () => {
+    const store = createStore([{ id: 'custom-id', title: 'Previous' }]);
+    let resolvePromise: (value: string) => void = () => {
+      throw new Error('Promise resolver should be assigned before resolving.');
+    };
+    const promise = new Promise<string>((resolve) => {
+      resolvePromise = resolve;
+    });
+
+    expect(selectors.toast(store.state, 'custom-id')?.title).toBe('Previous');
+
+    const pending = store.promiseToast(promise, {
+      loading: { id: 'custom-id', title: 'Saving' },
+      success: { title: 'Saved' },
+      error: 'Failed',
+    });
+
+    expect(store.state.toasts).toHaveLength(1);
+    expect(selectors.toast(store.state, 'custom-id')).toMatchObject({
+      title: 'Saving',
+      type: 'loading',
+    });
+
+    store.updateToast('custom-id', { title: 'Still saving' });
+
+    expect(selectors.toast(store.state, 'custom-id')?.title).toBe('Still saving');
+
+    resolvePromise('done');
+    await pending;
+
+    expect(selectors.toast(store.state, 'custom-id')).toMatchObject({
+      title: 'Saved',
+      type: 'success',
+    });
+  });
+
   it('stores a function passed as custom data on a promise toast', async () => {
     const store = createStore([]);
     const loadingValue = () => 'loading';

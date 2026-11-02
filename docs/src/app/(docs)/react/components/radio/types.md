@@ -213,3 +213,9 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Radio.Root.Props`: `RadioRootProps`
 - `Radio.Indicator.Props`: `RadioIndicatorProps`
 - `Radio.Indicator.State`: `RadioIndicatorState`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>

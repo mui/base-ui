@@ -2,7 +2,13 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
-import { createFormDataSpy, createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createFormDataSpy,
+  createRenderer,
+  describeConformance,
+  hiddenInputSizeTests,
+  isJSDOM,
+} from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 
@@ -15,6 +21,11 @@ describe('<Switch.Root />', () => {
     button: true,
     render,
   }));
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <Switch.Root {...props} />,
+  });
 
   describe('interactions', () => {
     it('tolerates imperative interaction in its ref callback before the hidden input mounts', async () => {

@@ -6,7 +6,7 @@ import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -31,7 +31,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
-  const floatingRootStore = useComboboxFloatingContext();
 
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -48,9 +47,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   useIsoLayoutEffect(() => {
     // Prefer the rendered DOM id, which a `render` prop element or function may override.
-    store.set('popupId', store.context.popupRef.current?.id || popupId);
+    store.set('popupElementId', store.context.popupRef.current?.id || popupId);
     return () => {
-      store.set('popupId', undefined);
+      store.set('popupElementId', undefined);
     };
   }, [store, popupId]);
 
@@ -59,7 +58,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.onOpenChangeComplete(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -75,7 +74,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     props: [
       popupProps,
       {
@@ -119,7 +118,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   return (
     <FloatingFocusManager
-      store={floatingRootStore}
+      store={store.interactions}
       disabled={!mounted}
       modal={focusManagerModal}
       openInteractionType={openMethod}
