@@ -26,10 +26,10 @@ export default function ExampleListboxMultiSelection() {
               <Listbox.ItemIndicator className="col-start-1">
                 <CheckIcon className="size-3" />
               </Listbox.ItemIndicator>
-              <Listbox.ItemText className="col-start-2 flex flex-col gap-0.5">
+              <div className="col-start-2 flex flex-col gap-0.5">
                 <span className="font-semibold">{title}</span>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">{artist}</span>
-              </Listbox.ItemText>
+              </div>
             </Listbox.Item>
           ))}
         </Listbox.List>

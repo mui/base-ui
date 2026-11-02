@@ -121,7 +121,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                       | Default | Description                                                                                                                                                                                   |
 | :----------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                   | -       | Specifies the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
+| label        | `string`                                                                                   | -       | Overrides the text used for keyboard text navigation.&#xA;Falls back to the rendered text when not provided.                                                                                  |
 | value        | `any`                                                                                      | `null`  | A unique value that identifies this listbox item.                                                                                                                                             |
 | nativeButton | `boolean`                                                                                  | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                  | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
@@ -224,29 +224,6 @@ Re-export of [Label](#label) props.
 type ListboxLabelState = {};
 ```
 
-### ItemText
-
-A text label of the listbox item.
-Renders a `<div>` element.
-
-**ItemText Props:**
-
-| Prop      | Type                                                                                           | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Listbox.ItemText.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Listbox.ItemText.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Listbox.ItemText.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### ItemText.Props
-
-Re-export of [ItemText](#itemtext) props.
-
-### ItemText.State
-
-```typescript
-type ListboxItemTextState = {};
-```
-
 ### ItemIndicator
 
 Indicates whether the listbox item is selected.
@@ -314,10 +291,9 @@ declare namespace ListboxListDataAttributes {
 - `Listbox.List`: `Listbox.List`, `Listbox.List.Props`, `Listbox.List.State`
 - `Listbox.Item`: `Listbox.Item`, `Listbox.Item.State`, `Listbox.Item.Props`
 - `Listbox.ItemIndicator`: `Listbox.ItemIndicator`, `Listbox.ItemIndicator.State`, `Listbox.ItemIndicator.Props`
-- `Listbox.ItemText`: `Listbox.ItemText`, `Listbox.ItemText.State`, `Listbox.ItemText.Props`
 - `Listbox.Group`: `Listbox.Group`, `Listbox.Group.State`, `Listbox.Group.Props`
 - `Listbox.GroupLabel`: `Listbox.GroupLabel`, `Listbox.GroupLabel.State`, `Listbox.GroupLabel.Props`
-- `Default`: `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
+- `Default`: `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
 
 ## Canonical Types
 
@@ -337,8 +313,6 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Listbox.Item.Props`: `ListboxItemProps`
 - `Listbox.ItemIndicator.State`: `ListboxItemIndicatorState`
 - `Listbox.ItemIndicator.Props`: `ListboxItemIndicatorProps`
-- `Listbox.ItemText.State`: `ListboxItemTextState`
-- `Listbox.ItemText.Props`: `ListboxItemTextProps`
 - `Listbox.Group.State`: `ListboxGroupState`
 - `Listbox.Group.Props`: `ListboxGroupProps`
 - `Listbox.GroupLabel.State`: `ListboxGroupLabelState`
