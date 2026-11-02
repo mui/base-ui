@@ -1,5 +1,165 @@
 # Versions
 
+## v1.9.0
+
+<!-- generated comparing v1.8.0...master -->
+
+_Oct 9, 2026_
+
+### General changes
+
+- Export `CssVariables` and `DataAttributes` types (#5243) by @superhooman
+- Fix stale focused field state (#5345) by @atomiks
+- Fix animation waits retaining detached elements (#5719) by @flaviendelangle
+- Keep item registration in sync when items change under Strict Mode (#5862) by @atomiks
+- Avoid re-rendering inactive triggers on open and close (#5865) by @atomiks
+
+### Accordion
+
+- Fix `<Accordion.Trigger>`'s `data-value` and `data-index` attributes (#5705) by @cpruijsen
+- Apply the native `disabled` attribute to `<Accordion.Trigger>` when using native buttons (#5607) by @atomiks
+- Expand `hiddenUntilFound` panels synchronously on `beforematch` (#5514) by @aarongarciah
+
+### Alert Dialog
+
+- Don't associate a programmatically opened popup with a trigger that did not open it (#5641) by @michaldudak
+
+### Autocomplete
+
+- Fix `autoHighlight` for asynchronous results (#5818) by @atomiks
+- Pass the originating event to `onItemHighlighted`. Pointer events may be `MouseEvent` or `PointerEvent`; typing reports the reason `none` (#5838) by @atomiks
+- Decouple automatic unmounting from `actionsRef`. Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` to opt out of automatic unmounting (#5734) by @michaldudak
+
+### Checkbox
+
+- Prefer `aria-label` over associated labels (#5787) by @atomiks
+
+### Collapsible
+
+- Apply the native `disabled` attribute to `<Collapsible.Trigger>` when using native buttons (#5607) by @atomiks
+- Finish closing when the render function removes the panel (#5890) by @michaldudak
+- Restore animations when a removed panel reopens (#5891) by @michaldudak
+- Expand `hiddenUntilFound` panels synchronously on `beforematch` (#5514) by @aarongarciah
+
+### Combobox
+
+- Fix stale chip focus after returning to the input (#5879) by @mdm317
+- Fix `autoHighlight` for asynchronous results (#5818) by @atomiks
+- Decouple automatic unmounting from `actionsRef`. Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` to opt out of automatic unmounting (#5734) by @michaldudak
+- Fix label focus in Shadow DOM (#5871) by @lyzno1
+- Pass the originating event to `onItemHighlighted`. Pointer events may be `MouseEvent` or `PointerEvent`; typing reports the reason `none` (#5838) by @atomiks
+- Reset typeahead state when closing without moving focus (#5816) by @mdm317
+- Accept readonly arrays for multiple values (#5710) by @MonstraG
+- Share item indicator implementation (#5728) by @flaviendelangle
+- Improve mount performance of large lists (#5819) by @atomiks
+- Combine item store subscriptions (#5863) by @atomiks
+
+### Dialog
+
+- Keep parent open when closing a nested dialog in a closed shadow root (#5780) by @atomiks
+- Don't associate a programmatically opened popup with a trigger that did not open it (#5641) by @michaldudak
+
+### Drawer
+
+- Preserve swipe release velocity after a trailing stationary pointer event (#5658) by @padd60
+- Fix swipe release velocity on 120 Hz input (#5845) by @atomiks
+- Remove excess virtual keyboard scroll space (#5768) by @atomiks
+- Avoid excess keyboard spacing in Chrome on iOS (#5774) by @atomiks
+- Fix native focus scrolling on iOS 27 (#5769) by @atomiks
+- Handle CloseWatcher close requests from the cancel event (#5770) by @atomiks
+- Add `x` and `y` options to `data-base-ui-swipe-ignore` (#5808) by @citrus
+- Scroll instead of swiping when a drag starts on an SVG (#5844) by @atomiks
+- Avoid touch event overhead while the drawer is closed (#5864) by @atomiks
+- Preserve item taps when dismissing the virtual keyboard (#5882) by @atomiks
+- Avoid retaining unmounted drawers in `<Drawer.Provider>` (#5921) by @atomiks
+- Don't associate a programmatically opened popup with a trigger that did not open it (#5641) by @michaldudak
+
+### Field
+
+- Avoid warnings when an uncontrolled `<Field.Control>`'s `defaultValue` changes (#5881) by @atomiks
+- Fix label focus in Shadow DOM (#5871) by @lyzno1
+
+### Menu
+
+- Add menu filtering behavior with `<Menu.FilterProvider>`, `<Menu.Input>`, and the `onItemHighlighted` callback (preview) (#5527, #5838, #5840, #5868) by @atomiks and @jjenzz
+- Fix nested menus without a root trigger (#5645) by @LukasTy
+- Fix event listener cleanup in `<Menu.Trigger>` (#5764) by @sai6855
+- Release parent menu subscriptions when a submenu unmounts (#5833) by @santiago-ramos-02
+- Pass the native event to `onOpenChange` when an item press closes the menu (#5789) by @michaldudak
+- Close submenu when focus returns through its guard (#5793) by @jjenzz
+- Toggle submenus on repeated trigger activation (#5824) by @jjenzz
+- Reset typeahead state when closing without moving focus (#5816) by @mdm317
+- Fix focus guard loop when the trigger is the only tabbable element (#5733) by @atomiks
+- Fix hover-out animations when switching between detached triggers (#4261) by @michaldudak
+- Don't start a viewport transition when the trigger remounts while closed (#5887) by @michaldudak
+- Keep transition state consistent when reopening a retained popup (#5738) by @LukasTy
+- Improve mount performance of large lists (#5819) by @atomiks
+
+### Number Field
+
+- Fire `<NumberField.ScrubArea>`'s `onClick` once per click (#5889) by @michaldudak
+
+### OTP Field
+
+- Fix Safari IME composition over-filling slots (#5098) by @atomiks
+
+### Popover
+
+- Fix focus guard loop when the trigger is the only tabbable element (#5733) by @atomiks
+- Fix hover-out animations when switching between detached triggers (#4261) by @michaldudak
+- Don't start a viewport transition when the trigger remounts while closed (#5887) by @michaldudak
+- Keep transition state consistent when reopening a retained popup (#5738) by @LukasTy
+
+### Preview Card
+
+- Don't start a viewport transition when the trigger remounts while closed (#5887) by @michaldudak
+
+### Radio Group
+
+- Prefer `aria-label` over associated labels (#5787) by @atomiks
+- Prevent ignored arrow keys from selecting on refocus (#5643) by @tjdsksro90
+- Correct `inputRef` forwarding and cleanup (#5775) by @lyzno1
+
+### Scroll Area
+
+- Remove presentational viewport role (#5813) by @sarthakmalik0810
+
+### Select
+
+- Decouple automatic unmounting from `actionsRef`. Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` to opt out of automatic unmounting (#5734) by @michaldudak
+- Fix label focus in Shadow DOM (#5871) by @lyzno1
+- Reset typeahead state when closing without moving focus (#5816) by @mdm317
+- Synchronize root props through the store (#5589) by @flaviendelangle
+- Share item indicator implementation (#5728) by @flaviendelangle
+- Improve mount performance of large lists (#5819) by @atomiks
+- Combine item store subscriptions (#5863) by @atomiks
+- Accept readonly arrays for multiple values (#5710) by @MonstraG
+
+### Slider
+
+- Fix label focus in Shadow DOM (#5871) by @lyzno1
+- End drags on `touchcancel` and `pointercancel` (#5639) by @brijeshb42
+- Fix touch track taps not firing `onValueCommitted` (#5779) by @atomiks
+- Preserve single-element array values on pointer interaction (#5781) by @atomiks
+
+### Switch
+
+- Prefer `aria-label` over associated labels (#5787) by @atomiks
+
+### Tabs
+
+- Fix selecting tabs with function values (#5886) by @michaldudak
+
+### Toast
+
+- Keep timers paused during overlapping interactions (#5809) by @lyzno1
+
+### Tooltip
+
+- Don't start a viewport transition when the trigger remounts while closed (#5887) by @michaldudak
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @brijeshb42, @citrus, @cpruijsen, @flaviendelangle, @jjenzz, @LukasTy, @lyzno1, @mdm317, @michaldudak, @MonstraG, @padd60, @sai6855, @santiago-ramos-02, @sarthakmalik0810, @superhooman, @tjdsksro90
+
 ## v1.8.0
 
 <!-- generated comparing v1.7.0...master -->

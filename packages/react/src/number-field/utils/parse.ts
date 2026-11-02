@@ -7,8 +7,7 @@ const HAN_NUMERALS = '零〇一二三四五六七八九';
 // Arabic-Indic (U+0660–0669), Persian (U+06F0–06F9), and fullwidth (U+FF10–FF19) digits are
 // contiguous ranges whose bases are divisible by 16, so `charCode % 16` is the digit value for
 // all three systems.
-const NON_ASCII_DIGIT_RE = /[٠-٩۰-۹０-９]/g;
-const HAN_RE = /[零〇一二三四五六七八九]/g;
+const NON_ASCII_DIGIT_RE = /[٠-٩۰-۹０-９]/;
 
 export const PERCENTAGES = ['%', '٪', '％', '﹪'];
 export const PERMILLE = ['‰', '؉'];
@@ -19,8 +18,6 @@ export const FULLWIDTH_GROUP = '，'; // U+FF0C
 
 export const PERCENT_RE = /[%٪％﹪]/;
 export const PERMILLE_RE = /[‰؉]/;
-const PERCENT_GLOBAL_RE = /[%٪％﹪]/g;
-const PERMILLE_GLOBAL_RE = /[‰؉]/g;
 
 // Detection regexes (non-global to avoid lastIndex side effects). Arabic-Indic and Persian
 // digits share one regex because both resolve to the `ar` locale heuristic.
@@ -51,8 +48,6 @@ const FORMAT_CONTROL_GLOBAL_RE = /\p{Cf}/gu;
 export const PLUS_SIGNS_WITH_ASCII = ['+', '＋', '﹢'];
 export const MINUS_SIGNS_WITH_ASCII = ['-', '−', '－', '‒', '–', '—', '﹣'];
 
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 function shiftDecimal(value: number, exponentDelta: number) {
   const [coefficient, exponent = '0'] = String(value).split('e');
   return Number(`${coefficient}e${Number(exponent) + exponentDelta}`);
@@ -63,17 +58,44 @@ export const ANY_PLUS_RE = /[+＋﹢]/gu;
 export const ANY_MINUS_DETECT_RE = /[-−－‒–—﹣]/;
 export const ANY_PLUS_DETECT_RE = /[+＋﹢]/;
 
-// A representative value with a grouping separator and a fractional part, so that the formatter
+// Representative values with a grouping separator and a fractional part, so that the formatter
 // emits every locale-specific part (group, decimal, currency, unit, literal, exponent, …). Shared
-// so the locale-detail and allowed-character derivations enumerate the same parts.
-const SAMPLE_FORMAT_NUMBER = 11111.1;
+// so the locale-detail and allowed-character derivations enumerate the same parts. Some locales
+// only group from 6 digits (`11111.1` but `123,456.7` in ee), while compact notation abbreviates
+// 7 digits but can still group 5 (`1,1 Mio.` but `11.111` in de), so both sizes are needed.
+const SAMPLE_FORMAT_NUMBERS = [1111111.1, 11111.1];
+
+// Labels change with the plural form (`1 foot` but `2 feet`, `1 день`, `2 дня` and `5 дней`), so
+// these values cover each form, including ones for 7–10 (`7 n-acra` in ga) and for the last
+// fraction digit (`1,01 euro` but `1,02 eura` in bs).
+const PLURAL_FORM_NUMBERS = [0, 1, 2, 3, 5, 6, 7, 11, 21, 100, 0.02, 1.01, 1.5, 1.49, 1e6];
+
+function formatPartsOf(
+  values: number[],
+  locale?: Intl.LocalesArgument,
+  options?: Intl.NumberFormatOptions,
+) {
+  const formatter = getFormatter(locale, options);
+  return values.flatMap((value) => formatter.formatToParts(value));
+}
 
 /**
- * Returns the `Intl.NumberFormat` parts of a representative number, which surface every
+ * Returns the `Intl.NumberFormat` parts of representative numbers, which surface every
  * non-numeric symbol a given locale/format renders.
  */
 export function getFormatParts(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
-  return getFormatter(locale, options).formatToParts(SAMPLE_FORMAT_NUMBER);
+  return formatPartsOf(SAMPLE_FORMAT_NUMBERS, locale, options);
+}
+
+/**
+ * Returns the parts of the representative numbers and of every plural form, so each currency and
+ * unit label the format can render is included.
+ */
+export function getAllFormatParts(
+  locale?: Intl.LocalesArgument,
+  options?: Intl.NumberFormatOptions,
+) {
+  return formatPartsOf([...SAMPLE_FORMAT_NUMBERS, ...PLURAL_FORM_NUMBERS], locale, options);
 }
 
 export function getNumberLocaleDetails(
@@ -88,20 +110,29 @@ export function getNumberLocaleDetails(
   });
 
   // The formatting options may omit the decimal separator (e.g. integer formats), so resolve it
-  // from the plain locale formatter, which renders one for every locale and numbering system. This
-  // overrides any options-derived decimal too, which is safe because the separator is
-  // locale-determined and identical across format styles. The ASCII seed is a formality to keep
-  // the separator non-optional for callers; it is always replaced below.
-  let decimal = '.';
-  getFormatter(locale)
-    .formatToParts(0.1)
-    .forEach((part) => {
-      if (part.type === 'decimal') {
-        decimal = part.value;
-      }
-    });
+  // separately. This overrides any options-derived decimal too, which is safe because the separator
+  // doesn't depend on the format style.
+  return { ...result, decimal: getDecimalSeparator(locale, options?.numberingSystem) };
+}
 
-  return { ...result, decimal };
+// The decimal separator depends on the locale and its numbering system (ur uses `.` with Latin
+// digits but `،` with Arabic ones). Every formatter renders one for 0.1.
+function getDecimalSeparator(locale?: Intl.LocalesArgument, numberingSystem?: string) {
+  return (
+    getFormatter(locale, { numberingSystem, useGrouping: false })
+      .formatToParts(0.1)
+      .find((part) => part.type === 'decimal')?.value ?? '.'
+  );
+}
+
+// The digits 0–9 of the formatter's numbering system, such as `০`–`৯` for bn-BD.
+export function getLocaleDigits(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
+  return Array.from(
+    getFormatter(locale, {
+      numberingSystem: options?.numberingSystem,
+      useGrouping: false,
+    }).format(9876543210),
+  ).reverse();
 }
 
 export function parseNumber(
@@ -111,21 +142,6 @@ export function parseNumber(
 ) {
   // Normalize control characters and whitespace; remove bidi/format controls
   let input = formattedNumber.replace(FORMAT_CONTROL_GLOBAL_RE, '').trim();
-
-  // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
-  input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
-
-  let isNegative = false;
-
-  // Strips a matched sign (leading "-12" / trailing "1234-") while recording negativity.
-  const takeSign = (match: string, sign: string) => {
-    if (sign === '-') {
-      isNegative = true;
-    }
-    return '';
-  };
-
-  input = input.replace(/([+-])\s*$/, takeSign).replace(/^\s*([+-])/, takeSign);
 
   // Heuristic locale detection
   let computedLocale = locale;
@@ -137,79 +153,110 @@ export function parseNumber(
     }
   }
 
-  const { group, decimal, currency, exponentSeparator } = getNumberLocaleDetails(
-    computedLocale,
-    options,
-  );
+  const { group, decimal, exponentSeparator } = getNumberLocaleDetails(computedLocale, options);
+  const localeDigits = getLocaleDigits(computedLocale, options);
 
-  // Build robust unit regex from all unit parts (such as "km/h")
-  const unitParts = getFormatter(computedLocale, options)
-    .formatToParts(1)
-    .filter((p) => p.type === 'unit')
-    .map((p) => escapeRegExp(p.value));
-  const unitRegex = unitParts.length ? new RegExp(unitParts.join('|'), 'g') : null;
+  // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
+  input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
 
-  let groupRegex: RegExp | null = null;
-  if (group) {
-    const isSpaceGroup = /\p{Zs}/u.test(group);
-    const isApostropheGroup = group === "'" || group === '’';
+  let isNegative = false;
 
-    // Check if the group separator is a space-like character.
-    // If so, we'll replace all such characters with an empty string.
-    if (isSpaceGroup) {
-      groupRegex = /\p{Zs}/gu;
-    } else if (isApostropheGroup) {
-      // Some environments format numbers with ASCII apostrophe and others with a curly apostrophe.
-      groupRegex = /['’]/g;
-    } else {
-      groupRegex = new RegExp(escapeRegExp(group), 'g');
+  // Strips a matched sign (leading "-12" / trailing "1234-") or the opening parenthesis of an
+  // accounting negative ("(12)") while recording negativity.
+  const takeSign = (match: string, sign: string) => {
+    if (sign !== '+') {
+      isNegative = true;
     }
+    return '';
+  };
+
+  input = input.replace(/^\s*([+-])/, takeSign);
+
+  // Remove the formatter's own labels while they still match exactly, so a `.` inside a label
+  // (`st. C`) can't be read as a separator.
+  getAllFormatParts(computedLocale, options)
+    .filter((part) => part.type === 'currency' || part.type === 'unit')
+    .map((part) => part.value.replace(FORMAT_CONTROL_GLOBAL_RE, ''))
+    // Longest first, so a short label (`g`) can't cut into a longer one (`grame` in ak)
+    .sort((a, b) => b.length - a.length)
+    .forEach((label) => {
+      input = input.replaceAll(label, '');
+    });
+
+  // Numeral systems to ASCII digits
+  const toAsciiDigits = (text: string) =>
+    text.replace(/[\p{Nd}零〇一二三四五六七八九]/gu, (ch) => {
+      const localeDigit = localeDigits.indexOf(ch);
+      const hanDigit = HAN_NUMERALS.indexOf(ch);
+      if (localeDigit !== -1) {
+        return String(localeDigit);
+      }
+      if (hanDigit !== -1) {
+        return String(Math.max(hanDigit - 1, 0));
+      }
+      return NON_ASCII_DIGIT_RE.test(ch) ? String(ch.charCodeAt(0) % 16) : ch;
+    });
+
+  input = toAsciiDigits(input);
+  // The exponent separator can contain digits (`×۱۰^` in fa-IR), typed in either numeral system
+  if (exponentSeparator) {
+    input = input.replaceAll(toAsciiDigits(exponentSeparator), 'e');
+  }
+  // Read a trailing sign once labels, digits and exponents are resolved (`12 kg-`, `一二-`). A
+  // hyphen right after a letter belongs to a partly deleted label (`US-` from `US-Dollar`) or an
+  // unfinished exponent (`1.3e-`).
+  input = input.replace(/(?<![\p{L}\p{M}])([+-])\s*$/u, takeSign);
+
+  // Accounting formats show negatives in parentheses, such as `($1.00)`. The opening one is enough,
+  // so deleting the closing one while editing still reads as negative.
+  if (options?.currencySign === 'accounting') {
+    input = input.replace(/^\s*(\()/, takeSign);
   }
 
-  const replacements: Array<[RegExp | null, string | ((m: string) => string)]> = [
-    [groupRegex, ''],
-    [new RegExp(escapeRegExp(decimal), 'g'), '.'],
-    // Fullwidth/Arabic punctuation
-    [/[．٫]/g, '.'], // FULLWIDTH_DECIMAL, ARABIC DECIMAL SEPARATOR (U+066B)
-    [/[，٬]/g, ''], // FULLWIDTH_GROUP, ARABIC THOUSANDS SEPARATOR (U+066C)
-    // Currency & unit labels
-    [currency ? new RegExp(escapeRegExp(currency), 'g') : null, ''],
-    [unitRegex, ''],
-    [PERCENT_GLOBAL_RE, ''],
-    [PERMILLE_GLOBAL_RE, ''],
-    [exponentSeparator ? new RegExp(escapeRegExp(exponentSeparator), 'g') : null, 'e'],
-    // Numeral systems to ASCII digits
-    [NON_ASCII_DIGIT_RE, (ch: string) => String(ch.charCodeAt(0) % 16)],
-    [HAN_RE, (ch: string) => String(Math.max(HAN_NUMERALS.indexOf(ch) - 1, 0))],
-  ];
+  if (group) {
+    let groupPattern: string | RegExp = group;
+    if (/\p{Zs}/u.test(group)) {
+      groupPattern = /\p{Zs}/gu;
+    } else if (/['’]/.test(group)) {
+      // Some environments format numbers with ASCII apostrophe and others with a curly apostrophe.
+      groupPattern = /['’]/g;
+    }
+    input = input.replaceAll(groupPattern, '');
+  }
+  // Once groups are gone, a decimal always comes before a digit, so drop dots that don't, such
+  // as the one left by a partially deleted unit label (`21,5 st.`). Symbols removed below don't
+  // count (`0.，25`, `0.%25`).
+  input = input.replace(/\.(?![，٬%٪％﹪‰؉]*\d)/g, '');
 
-  let unformatted = replacements.reduce((acc, [regex, replacement]) => {
-    return regex ? acc.replace(regex, replacement as any) : acc;
-  }, input);
+  let unformatted = input
+    .replaceAll(decimal, '.')
+    // A `numberingSystem` option changes the separator, but users may still type the locale's
+    // usual one (`21,7` in de with Arabic digits)
+    .replaceAll(getDecimalSeparator(computedLocale), '.')
+    .replace(/[．٫]/g, '.') // FULLWIDTH_DECIMAL, ARABIC DECIMAL SEPARATOR (U+066B)
+    .replace(/[，٬%٪％﹪‰؉]/g, '') // FULLWIDTH_GROUP, ARABIC THOUSANDS SEPARATOR, percent, permille
+    // Remove the space a prefix label leaves behind (`R$ 13,00` → ` 13.00`), which would otherwise
+    // separate the sign from the digits
+    .trim();
 
   // Mixed-locale safety: keep only the last '.' as decimal
-  const lastDot = unformatted.lastIndexOf('.');
-  if (lastDot !== -1) {
-    unformatted = `${unformatted.slice(0, lastDot).replace(/\./g, '')}.${unformatted.slice(lastDot + 1).replace(/\./g, '')}`;
-  }
+  unformatted = unformatted.replace(/\.(?=[^.]*\.)/g, '');
 
   // Guard against Infinity inputs (ASCII and symbol)
   if (/^[-+]?Infinity$/i.test(input) || input.includes('∞')) {
     return null;
   }
 
-  const parseTarget = (isNegative ? '-' : '') + unformatted;
+  let num = parseFloat((isNegative ? '-' : '') + unformatted);
 
-  let num = parseFloat(parseTarget);
-
-  const style = options?.style;
-  const isUnitPercent = style === 'unit' && options?.unit === 'percent';
-  const hasPercentSymbol = PERCENT_RE.test(formattedNumber) || style === 'percent';
-  const hasPermilleSymbol = PERMILLE_RE.test(formattedNumber);
-
-  if (hasPermilleSymbol) {
+  // Check for a typed `%` after the labels are gone, so a unit whose label contains one
+  // (`celsius-per-percent`) isn't rescaled
+  if (PERMILLE_RE.test(input)) {
     num = shiftDecimal(num, -3);
-  } else if (!isUnitPercent && hasPercentSymbol) {
+  } else if (
+    !(options?.style === 'unit' && options.unit === 'percent') &&
+    (PERCENT_RE.test(input) || options?.style === 'percent')
+  ) {
     num = shiftDecimal(num, -2);
   }
 

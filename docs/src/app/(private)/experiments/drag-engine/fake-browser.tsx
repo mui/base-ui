@@ -1212,7 +1212,7 @@ function BookmarkDialog({
   const handleUrlChange = useStableCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(event.target.value);
   });
-  const handleSubmit = useStableCallback((event: React.FormEvent) => {
+  const handleSubmit = useStableCallback((event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (editor && name.trim()) {
       onSave(name.trim(), nodeType === 'bookmark' ? url : null);

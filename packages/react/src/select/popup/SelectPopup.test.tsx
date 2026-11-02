@@ -1,4 +1,4 @@
-import { expect, describe, it, afterEach } from 'vitest';
+import { expect, describe, it, afterEach, vi } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { Toolbar } from '@base-ui/react/toolbar';
@@ -1725,14 +1725,44 @@ describe('<Select.Popup />', () => {
     });
   });
 
+  it('passes the keyboard close type of an item press to a finalFocus function', async () => {
+    const finalFocus = vi.fn(() => true);
+
+    const { user } = await render(
+      <Select.Root>
+        <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup finalFocus={finalFocus}>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    await act(async () => {
+      trigger.focus();
+    });
+    await user.keyboard('{ArrowDown}');
+    await screen.findByRole('listbox');
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
+    });
+    await user.keyboard('{Enter}');
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+    expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+  });
+
   popupFocusPropsTests({
     render,
     initialFocus: false,
     triggerRole: 'combobox',
     alwaysMounted: true,
-    // Known gap: an item press closes the Select through its own `setOpen`, which skips the
-    // open-change event that records the close type, so `finalFocus` receives '' rather than 'mouse'.
-    mouseCloseType: '',
     createComponent: ({ children, finalFocus }) => (
       <Select.Root>
         <Select.Trigger>Open</Select.Trigger>

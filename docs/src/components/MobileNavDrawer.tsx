@@ -79,7 +79,7 @@ interface MobileNavDrawerContentProps {
   focusSearchOnOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenChangeComplete: Drawer.Root.Props['onOpenChangeComplete'];
-  onOpenChangeCompleteRef: React.MutableRefObject<((open: boolean) => void) | null>;
+  onOpenChangeCompleteRef: React.RefObject<((open: boolean) => void) | null>;
   open: boolean;
   searchTracking: ReturnType<typeof useSearchTracking>;
   sitemap: SearchSitemapLoader | undefined;
@@ -304,6 +304,7 @@ function MobileNavPopupImpl({
       // Pressing Escape during IME composition only cancels the composition;
       // it must not clear the committed query. `keyCode === 229` covers
       // Safari, where `isComposing` is unreliable.
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- Safari needs the legacy IME key code because isComposing is unreliable.
       if (event.nativeEvent.isComposing || event.keyCode === 229) {
         return;
       }

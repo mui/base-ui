@@ -5,7 +5,13 @@ import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createFormDataSpy, createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createFormDataSpy,
+  createRenderer,
+  describeConformance,
+  hiddenInputSizeTests,
+  isJSDOM,
+} from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
   const { render, renderToString } = createRenderer();
@@ -19,6 +25,11 @@ describe('<Checkbox.Root />', () => {
     button: true,
     render,
   }));
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <Checkbox.Root {...props} />,
+  });
 
   describe('ARIA attributes', () => {
     it('sets the correct aria attributes', async () => {
@@ -1795,6 +1806,29 @@ describe('<Checkbox.Root />', () => {
         <Field.Root>
           <Field.Label>
             <Checkbox.Root aria-label="notes.txt" />
+            notes.txt
+          </Field.Label>
+        </Field.Root>
+      </React.Fragment>,
+    );
+
+    const [nativeLabelled, fieldLabelled] = screen.getAllByRole('checkbox');
+    expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+    expect(nativeLabelled).toHaveAccessibleName('lease.pdf');
+    expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+    expect(fieldLabelled).toHaveAccessibleName('notes.txt');
+  });
+
+  it("prefers a render element's `aria-label` over an associated label", async () => {
+    await render(
+      <React.Fragment>
+        <label>
+          <Checkbox.Root render={<span aria-label="lease.pdf" />} />
+          lease.pdf
+        </label>
+        <Field.Root>
+          <Field.Label>
+            <Checkbox.Root render={<span aria-label="notes.txt" />} />
             notes.txt
           </Field.Label>
         </Field.Root>

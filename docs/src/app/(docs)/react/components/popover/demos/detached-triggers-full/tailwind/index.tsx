@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { Avatar } from '@base-ui/react/avatar';
 
 const demoPopover = Popover.createHandle<React.ComponentType>();
 
@@ -89,14 +88,13 @@ function ProfilePanel() {
       <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 text-sm font-bold">
         Jason Eventon
       </Popover.Title>
-      <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex h-12 w-12 items-center justify-center overflow-hidden bg-neutral-200 dark:bg-neutral-800 align-middle text-sm leading-none font-bold text-neutral-950 dark:text-white select-none">
-        <Avatar.Image
-          src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
-          width="48"
-          height="48"
-          className="h-full w-full object-cover"
-        />
-      </Avatar.Root>
+      <img
+        src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
+        width="48"
+        height="48"
+        alt=""
+        className="col-start-1 col-end-2 row-start-1 row-end-3 h-12 w-12 object-cover bg-neutral-200 dark:bg-neutral-800"
+      />
       <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm text-neutral-600 dark:text-neutral-400">
         Pro plan
       </span>

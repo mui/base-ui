@@ -6,7 +6,7 @@ import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
-import { Logo } from 'docs/src/components/Logo';
+import { LogoLink } from 'docs/src/components/LogoLink';
 import { SearchControls } from 'docs/src/components/SearchControls';
 
 export default function Layout({ children }: React.PropsWithChildren) {
@@ -37,7 +37,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
           >
             <header className="bui-d-c">
               <div className="bui-gcs-1 bui-gce-4">
-                <Logo aria-label="Base UI" />
+                <LogoLink />
               </div>
               <nav
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-5 bui-gce-8 bp2:bui-gcs-5 bp2:bui-gce-9 bp3:bui-gcs-5 bp3:bui-gce-7"
@@ -51,6 +51,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
                 <Link className="Text sz-1" href="https://base-ui.com/r/discord">
                   Discord
+                </Link>
+                <Link className="Text sz-1" href="/blog">
+                  Blog
                 </Link>
               </nav>
               <div className="bui-d-n bp3:bui-d-f bui-fd-c bui-g-2 bui-ai-s bui-gcs-7 bui-gce-9">

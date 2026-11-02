@@ -1,4 +1,4 @@
-import { INTERACTIVE_ELEMENT_SELECTOR } from '../../floating-ui-react/utils/constants';
+import { INTERACTIVE_ELEMENT_SELECTOR } from '../popups/constants';
 import { getComposedParentElement } from './utils';
 import { getClosedShadowRootsByHost } from './dropTarget';
 

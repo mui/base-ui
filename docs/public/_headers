@@ -7,6 +7,9 @@
 /*.md
   Content-Type: text/markdown; charset=utf-8
 
+/blog/rss.xml
+  Content-Type: application/rss+xml; charset=utf-8
+
 /performance/*
   X-Robots-Tag: noindex
 

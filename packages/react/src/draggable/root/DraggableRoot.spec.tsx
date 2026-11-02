@@ -311,9 +311,9 @@ void GenericCardWithoutRestatement;
 <Draggable.Root kind={marker} draggable />;
 <Draggable.Root kind={marker} onDragStartCapture={() => {}} />;
 <Draggable.Root kind={marker} onDragEndCapture={() => {}} />;
-// @ts-expect-error
+// @ts-expect-error Drop target handlers belong on `Draggable.Target`.
 <Draggable.Root kind={marker} onDraggableEnter={() => {}} />;
-// @ts-expect-error
+// @ts-expect-error Drop target handlers belong on `Draggable.Target`.
 <Draggable.Root kind={marker} onDraggableLeave={() => {}} />;
 <Draggable.Root kind={marker} onDragOver={() => {}} />;
 <Draggable.Root kind={marker} onDragExit={() => {}} />;

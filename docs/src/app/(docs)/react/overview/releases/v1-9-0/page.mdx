@@ -1,0 +1,156 @@
+# v1.9.0
+
+<Subtitle>Oct 9, 2026</Subtitle>
+<Meta name="description" content="v1.9.0 release notes. Oct 9, 2026." />
+
+## General changes
+
+- Export `CssVariables` and `DataAttributes` types ([#5243](https://github.com/mui/base-ui/pull/5243))
+- Fix stale focused field state ([#5345](https://github.com/mui/base-ui/pull/5345))
+- Fix animation waits retaining detached elements ([#5719](https://github.com/mui/base-ui/pull/5719))
+- Keep item registration in sync when items change under Strict Mode ([#5862](https://github.com/mui/base-ui/pull/5862))
+- Avoid re-rendering inactive triggers on open and close ([#5865](https://github.com/mui/base-ui/pull/5865))
+
+## Accordion
+
+- Fix `<Accordion.Trigger>`'s `data-value` and `data-index` attributes ([#5705](https://github.com/mui/base-ui/pull/5705))
+- Apply the native `disabled` attribute to `<Accordion.Trigger>` when using native buttons ([#5607](https://github.com/mui/base-ui/pull/5607))
+- Expand `hiddenUntilFound` panels synchronously on `beforematch` ([#5514](https://github.com/mui/base-ui/pull/5514))
+
+## Alert Dialog
+
+- Don't associate a programmatically opened popup with a trigger that did not open it ([#5641](https://github.com/mui/base-ui/pull/5641))
+
+## Autocomplete
+
+- Fix `autoHighlight` for asynchronous results ([#5818](https://github.com/mui/base-ui/pull/5818))
+- Pass the originating event to `onItemHighlighted`. Pointer events may be `MouseEvent` or `PointerEvent`; typing reports the reason `none` ([#5838](https://github.com/mui/base-ui/pull/5838))
+- Decouple automatic unmounting from `actionsRef`. Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` to opt out of automatic unmounting ([#5734](https://github.com/mui/base-ui/pull/5734))
+
+## Checkbox
+
+- Prefer `aria-label` over associated labels ([#5787](https://github.com/mui/base-ui/pull/5787))
+
+## Collapsible
+
+- Apply the native `disabled` attribute to `<Collapsible.Trigger>` when using native buttons ([#5607](https://github.com/mui/base-ui/pull/5607))
+- Finish closing when the render function removes the panel ([#5890](https://github.com/mui/base-ui/pull/5890))
+- Restore animations when a removed panel reopens ([#5891](https://github.com/mui/base-ui/pull/5891))
+- Expand `hiddenUntilFound` panels synchronously on `beforematch` ([#5514](https://github.com/mui/base-ui/pull/5514))
+
+## Combobox
+
+- Fix stale chip focus after returning to the input ([#5879](https://github.com/mui/base-ui/pull/5879))
+- Fix `autoHighlight` for asynchronous results ([#5818](https://github.com/mui/base-ui/pull/5818))
+- Decouple automatic unmounting from `actionsRef`. Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` to opt out of automatic unmounting ([#5734](https://github.com/mui/base-ui/pull/5734))
+- Fix label focus in Shadow DOM ([#5871](https://github.com/mui/base-ui/pull/5871))
+- Pass the originating event to `onItemHighlighted`. Pointer events may be `MouseEvent` or `PointerEvent`; typing reports the reason `none` ([#5838](https://github.com/mui/base-ui/pull/5838))
+- Reset typeahead state when closing without moving focus ([#5816](https://github.com/mui/base-ui/pull/5816))
+- Accept readonly arrays for multiple values ([#5710](https://github.com/mui/base-ui/pull/5710))
+- Share item indicator implementation ([#5728](https://github.com/mui/base-ui/pull/5728))
+- Improve mount performance of large lists ([#5819](https://github.com/mui/base-ui/pull/5819))
+- Combine item store subscriptions ([#5863](https://github.com/mui/base-ui/pull/5863))
+
+## Dialog
+
+- Keep parent open when closing a nested dialog in a closed shadow root ([#5780](https://github.com/mui/base-ui/pull/5780))
+- Don't associate a programmatically opened popup with a trigger that did not open it ([#5641](https://github.com/mui/base-ui/pull/5641))
+
+## Drawer
+
+- Preserve swipe release velocity after a trailing stationary pointer event ([#5658](https://github.com/mui/base-ui/pull/5658))
+- Fix swipe release velocity on 120 Hz input ([#5845](https://github.com/mui/base-ui/pull/5845))
+- Remove excess virtual keyboard scroll space ([#5768](https://github.com/mui/base-ui/pull/5768))
+- Avoid excess keyboard spacing in Chrome on iOS ([#5774](https://github.com/mui/base-ui/pull/5774))
+- Fix native focus scrolling on iOS 27 ([#5769](https://github.com/mui/base-ui/pull/5769))
+- Handle CloseWatcher close requests from the cancel event ([#5770](https://github.com/mui/base-ui/pull/5770))
+- Add `x` and `y` options to `data-base-ui-swipe-ignore` ([#5808](https://github.com/mui/base-ui/pull/5808))
+- Scroll instead of swiping when a drag starts on an SVG ([#5844](https://github.com/mui/base-ui/pull/5844))
+- Avoid touch event overhead while the drawer is closed ([#5864](https://github.com/mui/base-ui/pull/5864))
+- Preserve item taps when dismissing the virtual keyboard ([#5882](https://github.com/mui/base-ui/pull/5882))
+- Avoid retaining unmounted drawers in `<Drawer.Provider>` ([#5921](https://github.com/mui/base-ui/pull/5921))
+- Don't associate a programmatically opened popup with a trigger that did not open it ([#5641](https://github.com/mui/base-ui/pull/5641))
+
+## Field
+
+- Avoid warnings when an uncontrolled `<Field.Control>`'s `defaultValue` changes ([#5881](https://github.com/mui/base-ui/pull/5881))
+- Fix label focus in Shadow DOM ([#5871](https://github.com/mui/base-ui/pull/5871))
+
+## Menu
+
+- Add menu filtering behavior with `<Menu.FilterProvider>`, `<Menu.Input>`, and the `onItemHighlighted` callback (preview) ([#5527](https://github.com/mui/base-ui/pull/5527), [#5838](https://github.com/mui/base-ui/pull/5838), [#5840](https://github.com/mui/base-ui/pull/5840), [#5868](https://github.com/mui/base-ui/pull/5868))
+- Fix nested menus without a root trigger ([#5645](https://github.com/mui/base-ui/pull/5645))
+- Fix event listener cleanup in `<Menu.Trigger>` ([#5764](https://github.com/mui/base-ui/pull/5764))
+- Release parent menu subscriptions when a submenu unmounts ([#5833](https://github.com/mui/base-ui/pull/5833))
+- Pass the native event to `onOpenChange` when an item press closes the menu ([#5789](https://github.com/mui/base-ui/pull/5789))
+- Close submenu when focus returns through its guard ([#5793](https://github.com/mui/base-ui/pull/5793))
+- Toggle submenus on repeated trigger activation ([#5824](https://github.com/mui/base-ui/pull/5824))
+- Reset typeahead state when closing without moving focus ([#5816](https://github.com/mui/base-ui/pull/5816))
+- Fix focus guard loop when the trigger is the only tabbable element ([#5733](https://github.com/mui/base-ui/pull/5733))
+- Fix hover-out animations when switching between detached triggers ([#4261](https://github.com/mui/base-ui/pull/4261))
+- Don't start a viewport transition when the trigger remounts while closed ([#5887](https://github.com/mui/base-ui/pull/5887))
+- Keep transition state consistent when reopening a retained popup ([#5738](https://github.com/mui/base-ui/pull/5738))
+- Improve mount performance of large lists ([#5819](https://github.com/mui/base-ui/pull/5819))
+
+## Number Field
+
+- Fire `<NumberField.ScrubArea>`'s `onClick` once per click ([#5889](https://github.com/mui/base-ui/pull/5889))
+
+## OTP Field
+
+- Fix Safari IME composition over-filling slots ([#5098](https://github.com/mui/base-ui/pull/5098))
+
+## Popover
+
+- Fix focus guard loop when the trigger is the only tabbable element ([#5733](https://github.com/mui/base-ui/pull/5733))
+- Fix hover-out animations when switching between detached triggers ([#4261](https://github.com/mui/base-ui/pull/4261))
+- Don't start a viewport transition when the trigger remounts while closed ([#5887](https://github.com/mui/base-ui/pull/5887))
+- Keep transition state consistent when reopening a retained popup ([#5738](https://github.com/mui/base-ui/pull/5738))
+
+## Preview Card
+
+- Don't start a viewport transition when the trigger remounts while closed ([#5887](https://github.com/mui/base-ui/pull/5887))
+
+## Radio Group
+
+- Prefer `aria-label` over associated labels ([#5787](https://github.com/mui/base-ui/pull/5787))
+- Prevent ignored arrow keys from selecting on refocus ([#5643](https://github.com/mui/base-ui/pull/5643))
+- Correct `inputRef` forwarding and cleanup ([#5775](https://github.com/mui/base-ui/pull/5775))
+
+## Scroll Area
+
+- Remove presentational viewport role ([#5813](https://github.com/mui/base-ui/pull/5813))
+
+## Select
+
+- Decouple automatic unmounting from `actionsRef`. Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` to opt out of automatic unmounting ([#5734](https://github.com/mui/base-ui/pull/5734))
+- Fix label focus in Shadow DOM ([#5871](https://github.com/mui/base-ui/pull/5871))
+- Reset typeahead state when closing without moving focus ([#5816](https://github.com/mui/base-ui/pull/5816))
+- Synchronize root props through the store ([#5589](https://github.com/mui/base-ui/pull/5589))
+- Share item indicator implementation ([#5728](https://github.com/mui/base-ui/pull/5728))
+- Improve mount performance of large lists ([#5819](https://github.com/mui/base-ui/pull/5819))
+- Combine item store subscriptions ([#5863](https://github.com/mui/base-ui/pull/5863))
+- Accept readonly arrays for multiple values ([#5710](https://github.com/mui/base-ui/pull/5710))
+
+## Slider
+
+- Fix label focus in Shadow DOM ([#5871](https://github.com/mui/base-ui/pull/5871))
+- End drags on `touchcancel` and `pointercancel` ([#5639](https://github.com/mui/base-ui/pull/5639))
+- Fix touch track taps not firing `onValueCommitted` ([#5779](https://github.com/mui/base-ui/pull/5779))
+- Preserve single-element array values on pointer interaction ([#5781](https://github.com/mui/base-ui/pull/5781))
+
+## Switch
+
+- Prefer `aria-label` over associated labels ([#5787](https://github.com/mui/base-ui/pull/5787))
+
+## Tabs
+
+- Fix selecting tabs with function values ([#5886](https://github.com/mui/base-ui/pull/5886))
+
+## Toast
+
+- Keep timers paused during overlapping interactions ([#5809](https://github.com/mui/base-ui/pull/5809))
+
+## Tooltip
+
+- Don't start a viewport transition when the trigger remounts while closed ([#5887](https://github.com/mui/base-ui/pull/5887))
