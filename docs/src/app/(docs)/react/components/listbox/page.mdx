@@ -13,7 +13,7 @@ import { DemoListboxHero } from './demos/hero';
 ## Usage guidelines
 
 - **Always visible**: Unlike [Select](https://base-ui.com/react/components/select), the Listbox is always open and does not use a popup or trigger. Use it when all options should be visible at once.
-- **Multi-select support**: Set `selectionMode="multiple"` or `"explicit-multiple"` to allow selecting more than one item.
+- **Multi-select support**: Set `multiple` to allow selecting more than one item. The value is then an array.
 - **Form controls must have an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered. See the [forms guide](https://base-ui.com/react/handbook/forms).
 
 ## Anatomy
@@ -39,13 +39,13 @@ import { Listbox } from '@base-ui/react/listbox';
 
 ## Examples
 
-### Selection modes
+### Multiple selection
 
-The `selectionMode` prop controls how items are selected:
+Add the `multiple` prop to let users select more than one item. The value is an array of the selected items.
 
-- `"single"` (default): clicking an item selects it and deselects any other.
-- `"multiple"`: every click toggles an item. Hold <kbd>Shift</kbd> and click to select a contiguous range.
-- `"explicit-multiple"`: clicking an item replaces the selection. Hold <kbd>Ctrl</kbd>/<kbd>⌘</kbd> and click to toggle, or <kbd>Shift</kbd> and click to select a range.
+Clicking an item, or pressing <kbd>Space</kbd>, adds or removes it. Hold <kbd>Shift</kbd> and click to select a range.
+
+Set `multiple="opt-in"` to make a press replace the selection instead, like a file manager. Clicking an item or pressing <kbd>Space</kbd> selects only that item. Hold <kbd>Ctrl</kbd>/<kbd>⌘</kbd> and click, or press <kbd>Ctrl</kbd>+<kbd>Space</kbd>, to add or remove an item, and hold <kbd>Shift</kbd> and click to select a range.
 
 import { DemoListboxMultiSelection } from './demos/multi-selection';
 

@@ -12,7 +12,7 @@ import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { compareItemEquality } from '../../internals/itemEquality';
 import { useCompositeRoot, CompositeList } from '../../internals/composite';
 import { useListboxRootContext } from '../root/ListboxRootContext';
-import { selectionReducer, isMultipleSelectionMode } from '../utils/selectionReducer';
+import { selectionReducer } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
 
 /**
@@ -35,7 +35,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const orientation = store.useState('orientation');
   const loopFocus = store.useState('loopFocus');
   const disabled = store.useState('disabled');
-  const selectionMode = store.useState('selectionMode');
+  const multiple = store.useState('multiple');
   const direction = useDirection();
   const { disabledItemsRef, labelsRef, lastSelectedIndexRef, setValue, typingRef, valuesRef } =
     store.context;
@@ -135,7 +135,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
    * Single-item selection (Enter/Space) is handled in ListboxItem.
    */
   const handleSelectionKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    if (!isMultipleSelectionMode(selectionMode)) {
+    if (!multiple) {
       return;
     }
 
@@ -228,7 +228,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     id: id ? `${id}-list` : undefined,
     role: 'listbox',
     'aria-labelledby': labelId,
-    'aria-multiselectable': isMultipleSelectionMode(selectionMode) || undefined,
+    'aria-multiselectable': multiple ? true : undefined,
     'aria-orientation': orientation,
     tabIndex: disabled ? undefined : 0,
     onKeyDown(event: React.KeyboardEvent) {
@@ -240,14 +240,14 @@ export const ListboxList = React.forwardRef(function ListboxList(
       composite.props.onKeyDown?.(event);
 
       // Escape: deselect all items (multi-select modes only)
-      if (event.key === 'Escape' && isMultipleSelectionMode(selectionMode)) {
+      if (event.key === 'Escape' && multiple) {
         const currentValue = store.state.value;
         if (Array.isArray(currentValue) && currentValue.length > 0) {
           dispatchSelection({ type: 'clear' }, event.nativeEvent);
         }
       }
 
-      // Selection keyboard shortcuts (runs for multiple/explicit-multiple modes)
+      // Selection keyboard shortcuts (multiple selection only)
       handleSelectionKeyDown(event);
 
       // Handle typeahead

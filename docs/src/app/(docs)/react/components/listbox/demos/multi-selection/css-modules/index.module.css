@@ -1,9 +1,3 @@
-.Row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-
 .Field {
   display: flex;
   flex-direction: column;
