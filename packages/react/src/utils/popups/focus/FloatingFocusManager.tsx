@@ -69,6 +69,7 @@ function getEventType(event: Event, lastInteractionType?: InteractionType): Inte
 }
 
 const LIST_LIMIT = 20;
+const ModalFocusContext = React.createContext<HTMLElement | null>(null);
 let previouslyFocusedElements: WeakRef<Element>[] = [];
 
 function clearDisconnectedPreviouslyFocusedElements() {
@@ -305,6 +306,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
+  const parentModalElement = React.useContext(ModalFocusContext);
+  const parentModalElementRef = useValueAsRef(parentModalElement);
 
   const preventReturnFocusRef = React.useRef(false);
   const isPointerDownRef = React.useRef(false);
@@ -880,7 +883,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         : referenceReturnElement || previousReturnElement;
 
       if (!defaultReturnElement) {
-        defaultReturnElement = getPreviouslyFocusedElement() || null;
+        // Dialogs do not register floating tree nodes. Inside an open modal, skip the content
+        // it marks and fall back to the modal popup itself.
+        const parentModal = parentModalElementRef.current;
+        defaultReturnElement = parentModal?.isConnected
+          ? getPreviouslyFocusedElement(true) || parentModal
+          : getPreviouslyFocusedElement() || null;
       }
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
@@ -906,7 +914,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
       const closeType = closeTypeRef.current;
-      const returnElement = getReturnElement(closeType);
 
       const job = { cancelled: false };
       pendingReturnFocusRef.current = job;
@@ -915,9 +922,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (pendingReturnFocusRef.current === job) {
           pendingReturnFocusRef.current = null;
         }
+        // Resolve after the closing popup's markers have been removed. An open parent
+        // modal still marks background content, so it remains ineligible for fallback.
+        const returnElement = getReturnElement(closeType);
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
-        let tabbableReturnElement = getFirstTabbableElement(returnElement);
+        // The enclosing modal fallback focuses the popup itself, like `restoreFocus="popup"`.
+        let tabbableReturnElement =
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          returnElement === parentModalElementRef.current
+            ? returnElement
+            : getFirstTabbableElement(returnElement);
         // A hidden element, such as an item in a closed Select or `keepMounted` Menu, can't take
         // focus. Use the newest visible element focused before it instead, unless the closing
         // commit already moved focus (e.g. `autoFocus`).
@@ -966,6 +981,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     domReference,
     getNodeId,
     getResolvedInsideElements,
+    parentModalElementRef,
   ]);
 
   // Safari may randomly scroll to the bottom of the page if an input inside a popup has focus
@@ -1021,7 +1037,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
 
   return (
-    <React.Fragment>
+    <ModalFocusContext.Provider
+      value={!disabled && open && modal ? floatingFocusElement : parentModalElement}
+    >
       {shouldRenderGuards && (
         <FocusGuard
           data-type="inside"
@@ -1065,6 +1083,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           }}
         />
       )}
-    </React.Fragment>
+    </ModalFocusContext.Provider>
   );
 }
