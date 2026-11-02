@@ -603,3 +603,11 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Field.Item.State`: `FieldItemState`
 - `Field.Item.Props`: `FieldItemProps`
 - `Field.ValidityData`: `FieldValidityData`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `Promise`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise>

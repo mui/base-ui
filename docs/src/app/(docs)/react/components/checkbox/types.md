@@ -266,3 +266,11 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Checkbox.Root.ChangeEventDetails`: `CheckboxRootChangeEventDetails`
 - `Checkbox.Indicator.State`: `CheckboxIndicatorState`
 - `Checkbox.Indicator.Props`: `CheckboxIndicatorProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>

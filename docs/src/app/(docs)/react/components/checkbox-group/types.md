@@ -103,3 +103,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `CheckboxGroup.Props`: `CheckboxGroupProps`
 - `CheckboxGroup.ChangeEventReason`: `CheckboxGroupChangeEventReason`
 - `CheckboxGroup.ChangeEventDetails`: `CheckboxGroupChangeEventDetails`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
