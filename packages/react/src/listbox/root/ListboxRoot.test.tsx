@@ -1257,6 +1257,30 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('typeahead', () => {
+    it('matches the label prop instead of the rendered text', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.List>
+            <Listbox.Item value="apple">Apple</Listbox.Item>
+            <Listbox.Item value="kiwi" label="Kiwi">
+              <span>Green</span> <span>Kiwi</span>
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      await act(async () => list.focus());
+
+      fireEvent.keyDown(list, { key: 'k' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Green Kiwi' })).toHaveAttribute(
+        'data-highlighted',
+        '',
+      );
+    });
+
     it('should highlight matching item when typing', async () => {
       await render(
         <Listbox.Root>

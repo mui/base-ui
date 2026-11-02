@@ -65,3 +65,6 @@ function ControlledMultiple() {
 
 // @ts-expect-error -- focus doesn't wrap, following the APG listbox pattern
 <Listbox.Root loopFocus />;
+
+// @ts-expect-error -- use the Item's `label` prop to override the typeahead text
+<Listbox.ItemText />;

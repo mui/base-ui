@@ -37,10 +37,10 @@ export default function ExampleListbox() {
                   <Listbox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Listbox.ItemIndicator>
-                  <Listbox.ItemText className={styles.ItemText}>
+                  <div className={styles.ItemText}>
                     <span className={styles.ItemTitle}>{title}</span>
                     <span className={styles.ItemArtist}>{artist}</span>
-                  </Listbox.ItemText>
+                  </div>
                 </Listbox.Item>
               ))}
             </Listbox.Group>
