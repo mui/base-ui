@@ -1,6 +1,6 @@
 import { isElement } from '@floating-ui/utils/dom';
 import type * as React from 'react';
-import { getTarget } from '@base-ui/utils/shadowDom';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { isInteractiveElement } from '../../utils/popups/element';
@@ -18,6 +18,11 @@ export function handleInputPress(
 
   const target = getTarget(event.nativeEvent);
   const targetElement = isElement(target) ? target : null;
+
+  if (targetElement && !contains(event.currentTarget, targetElement)) {
+    return;
+  }
+
   if (
     targetElement !== event.currentTarget &&
     (shouldIgnoreTarget?.(targetElement) || isInteractiveElement(targetElement))
