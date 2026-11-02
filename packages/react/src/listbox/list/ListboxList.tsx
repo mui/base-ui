@@ -40,8 +40,11 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const { disabledItemsRef, labelsRef, lastSelectedIndexRef, setValue, typingRef, valuesRef } =
     store.context;
 
+  // The keydown being handled by the list, so composite navigation can report it.
+  const keyDownEventRef = React.useRef<KeyboardEvent | undefined>(undefined);
+
   const onHighlightedIndexChange = useStableCallback((index: number) => {
-    store.set('activeIndex', index);
+    store.setActiveIndex(index, keyDownEventRef.current);
   });
 
   const composite = useCompositeRoot({
@@ -99,7 +102,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       const index = (startIndex + i) % length;
       const label = labels[index];
       if (label && label.toLowerCase().startsWith(searchString)) {
-        store.set('activeIndex', index);
+        store.setActiveIndex(index, event.nativeEvent);
         const element = composite.elementsRef.current[index];
         element?.focus();
         break;
@@ -146,7 +149,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     const isItemEqualToValue = store.state.isItemEqualToValue;
 
     function focusItem(targetIndex: number) {
-      store.set('activeIndex', targetIndex);
+      store.setActiveIndex(targetIndex, event.nativeEvent);
       elements[targetIndex]?.focus();
     }
 
@@ -237,7 +240,9 @@ export const ListboxList = React.forwardRef(function ListboxList(
       }
 
       // Let composite handle unmodified arrow keys, Home, End
+      keyDownEventRef.current = event.nativeEvent;
       composite.props.onKeyDown?.(event);
+      keyDownEventRef.current = undefined;
 
       // Escape: deselect all items (multi-select modes only)
       if (event.key === 'Escape' && multiple) {
