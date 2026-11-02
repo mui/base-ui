@@ -5,6 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useLabel } from '../../internals/labelable-provider';
+import { focusElementWithVisible } from '../../internals/labelable-provider/useLabel';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 
 function getDefaultLabelId(rootId: string | undefined) {
@@ -28,7 +29,6 @@ export const ListboxLabel = React.forwardRef(function ListboxLabel(
   delete elementPropsWithoutId.id;
 
   const store = useListboxRootContext();
-  const controlElement = store.useState('listElement');
   const rootId = store.useState('id');
 
   const defaultLabelId = getDefaultLabelId(rootId);
@@ -40,10 +40,18 @@ export const ListboxLabel = React.forwardRef(function ListboxLabel(
     (store as Store<{ labelId: string | undefined }>).set('labelId', resolvedLabelId);
   });
 
+  // Focus the list element directly, so a custom or changed `id` on the list can't break it.
+  function focusList() {
+    const listElement = store.state.listElement;
+    if (listElement) {
+      focusElementWithVisible(listElement);
+    }
+  }
+
   const labelProps = useLabel({
     id: defaultLabelId,
-    fallbackControlId: controlElement?.id ?? rootId,
     setLabelId,
+    focusControl: focusList,
   });
 
   return useRenderElement('div', componentProps, {

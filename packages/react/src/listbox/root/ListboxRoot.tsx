@@ -26,7 +26,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   props: ListboxRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const {
-    id,
     value: valueProp,
     defaultValue,
     onValueChange,
@@ -40,7 +39,7 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     children,
   } = props;
 
-  const generatedId = useBaseUiId(id);
+  const generatedId = useBaseUiId();
 
   const multiple = multipleProp !== false;
 
@@ -148,10 +147,6 @@ type ListboxOutputValue<Value, Multiple extends boolean | 'opt-in' | undefined> 
 
 export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | undefined = false> {
   children?: React.ReactNode;
-  /**
-   * The id of the Listbox.
-   */
-  id?: string | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
