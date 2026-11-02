@@ -1430,6 +1430,63 @@ describe('<Dialog.Root />', () => {
     expect(handleOpenChange.mock.calls.length).toBe(0);
   });
 
+  it('closes a trap-focus dialog without a backdrop on pointerdown outside, before the click', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <div>
+        <button data-testid="outside">Outside</button>
+        <Dialog.Root defaultOpen modal="trap-focus" onOpenChange={handleOpenChange}>
+          <Dialog.Portal>
+            <Dialog.Popup>Dialog</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </div>,
+    );
+
+    const outside = screen.getByTestId('outside');
+    expect(outside.closest('[aria-hidden]')).toHaveAttribute('aria-hidden', 'true');
+
+    fireEvent.pointerDown(outside, { button: 0, pointerType: 'mouse' });
+    await flushMicrotasks();
+
+    expect(screen.queryByRole('dialog')).toBe(null);
+    expect(handleOpenChange).toHaveBeenCalledTimes(1);
+    expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+    // Closing on the press start lifts `aria-hidden` before the press can move focus outside.
+    expect(outside.closest('[aria-hidden]')).toBe(null);
+  });
+
+  it('keeps a trap-focus dialog with a backdrop open on pointerdown on the backdrop and closes it on click', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Dialog.Root defaultOpen modal="trap-focus" onOpenChange={handleOpenChange}>
+        <Dialog.Portal>
+          <Dialog.Backdrop data-testid="backdrop" />
+          <Dialog.Popup>Dialog</Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    const backdrop = screen.getByTestId('backdrop');
+
+    fireEvent.pointerDown(backdrop, { button: 0, pointerType: 'mouse' });
+    fireEvent.mouseDown(backdrop, { button: 0 });
+    await flushMicrotasks();
+
+    expect(screen.getByRole('dialog')).not.toBe(null);
+    expect(handleOpenChange).not.toHaveBeenCalled();
+
+    fireEvent.click(backdrop);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+    expect(handleOpenChange).toHaveBeenCalledTimes(1);
+    expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+  });
+
   it('closes one sibling dialog per Escape press when several open together', async () => {
     function SiblingDialog({ name }: { name: string }) {
       return (
