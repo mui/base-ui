@@ -280,16 +280,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
 
     if (nextIndex === highlightedIndex && (isForwardKey || isBackwardKey)) {
-      if (loopFocus && nextIndex === maxIndex && isForwardKey) {
-        nextIndex = minIndex;
-        if (onLoop) {
-          nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-        }
-      } else if (loopFocus && nextIndex === minIndex && isBackwardKey) {
-        nextIndex = maxIndex;
-        if (onLoop) {
-          nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-        }
+      if (loopFocus && nextIndex === (isForwardKey ? maxIndex : minIndex)) {
+        nextIndex = wrappedOnLoop(event, highlightedIndex, isForwardKey ? minIndex : maxIndex);
       } else {
         nextIndex = findNonDisabledListIndex(elementsRef.current, {
           startingIndex: nextIndex,
