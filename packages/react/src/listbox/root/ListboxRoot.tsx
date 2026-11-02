@@ -33,7 +33,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     disabled = false,
     multiple: multipleProp = false,
     orientation = 'vertical',
-    loopFocus = true,
     highlightItemOnHover = true,
     isItemEqualToValue = defaultItemEquality,
     itemToStringLabel,
@@ -78,7 +77,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
           value: selectedValues,
           orientation,
           disabled,
-          loopFocus,
           highlightItemOnHover,
         },
         {
@@ -116,7 +114,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
       isItemEqualToValue,
       orientation,
       disabled,
-      loopFocus,
       highlightItemOnHover,
     });
   }, [
@@ -128,7 +125,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     isItemEqualToValue,
     orientation,
     disabled,
-    loopFocus,
     highlightItemOnHover,
   ]);
 
@@ -176,11 +172,6 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * @default 'vertical'
    */
   orientation?: 'vertical' | 'horizontal' | undefined;
-  /**
-   * Whether keyboard navigation loops back to the first/last item.
-   * @default true
-   */
-  loopFocus?: boolean | undefined;
   /**
    * Whether moving the pointer over items should highlight them.
    * @default true
