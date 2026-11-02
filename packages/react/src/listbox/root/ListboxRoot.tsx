@@ -84,10 +84,8 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   const labelsRef = React.useRef<Array<string | null>>([]);
   const valuesRef = React.useRef<Array<any>>([]);
   const disabledItemsRef = React.useRef<Array<boolean | undefined>>([]);
-  const groupIdsRef = React.useRef<Array<string | undefined>>([]);
   const typingRef = React.useRef(false);
   const lastSelectedIndexRef = React.useRef<number | null>(null);
-  const pointerMoveSuppressedRef = React.useRef(false);
   const highlightTimeout = useTimeout();
   const highlightFrame = useAnimationFrame();
 
@@ -115,10 +113,8 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
           valuesRef,
           labelsRef,
           disabledItemsRef,
-          groupIdsRef,
           typingRef,
           lastSelectedIndexRef,
-          pointerMoveSuppressedRef,
           validation,
         },
       ),
@@ -253,12 +249,10 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     highlightItemOnHover,
   ]);
 
-  const { requestHighlightReconcile } = useHighlightChangeNotifier<Value>({
+  useHighlightChangeNotifier<Value>({
     store,
     onHighlightChange,
   });
-
-  store.useContextCallback('requestHighlightReconcile', requestHighlightReconcile);
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
 

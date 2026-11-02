@@ -2,7 +2,6 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import { ListboxGroupContext } from './ListboxGroupContext';
 
 /**
@@ -18,15 +17,13 @@ export const ListboxGroup = React.forwardRef(function ListboxGroup(
   const { className, render, style, ...elementProps } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
-  const groupId = useBaseUiId() ?? '';
 
   const contextValue: ListboxGroupContext = React.useMemo(
     () => ({
       labelId,
       setLabelId,
-      groupId,
     }),
-    [labelId, setLabelId, groupId],
+    [labelId, setLabelId],
   );
 
   const element = useRenderElement('div', componentProps, {

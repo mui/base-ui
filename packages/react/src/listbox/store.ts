@@ -23,11 +23,6 @@ export type State = {
 
   listElement: HTMLElement | null;
 
-  // DnD state
-  /** Indices of all items currently being dragged (multi-select drags all selected items). */
-  dragActiveIndices: number[] | null;
-  dropTargetIndex: number | null;
-
   // Loading state
   loading: boolean;
   loadingProp: boolean;
@@ -46,13 +41,10 @@ export type Context = {
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
-  groupIdsRef: React.RefObject<Array<string | undefined>>;
   typingRef: React.RefObject<boolean>;
   lastSelectedIndexRef: React.RefObject<number | null>;
-  pointerMoveSuppressedRef: React.RefObject<boolean>;
   validation: UseFieldValidationReturnValue;
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
-  requestHighlightReconcile: () => void;
   onLoadMore: (() => void) | undefined;
 };
 
@@ -82,14 +74,6 @@ export const selectors = {
   }),
 
   listElement: createSelector((state: State) => state.listElement),
-
-  dragActiveIndices: createSelector((state: State) => state.dragActiveIndices),
-  dropTargetIndex: createSelector((state: State) => state.dropTargetIndex),
-  isDragging: createSelector(
-    (state: State, index: number) =>
-      state.dragActiveIndices != null && state.dragActiveIndices.includes(index),
-  ),
-  isDropTarget: createSelector((state: State, index: number) => state.dropTargetIndex === index),
 
   loading: createSelector((state: State) => state.loading),
   loadingProp: createSelector((state: State) => state.loadingProp),
@@ -125,8 +109,6 @@ function createInitialState(): State {
     value: [],
     activeIndex: null,
     listElement: null,
-    dragActiveIndices: null,
-    dropTargetIndex: null,
     loading: false,
     loadingProp: false,
     hasOnLoadMore: false,
@@ -144,10 +126,8 @@ function createInitialContext(): Context {
     valuesRef: { current: [] },
     labelsRef: { current: [] },
     disabledItemsRef: { current: [] },
-    groupIdsRef: { current: [] },
     typingRef: { current: false },
     lastSelectedIndexRef: { current: null },
-    pointerMoveSuppressedRef: { current: false },
     validation: {
       getValidationProps: (_disabled, props = {}) => props,
       inputRef: { current: null },
@@ -158,7 +138,6 @@ function createInitialContext(): Context {
       change: () => {},
     },
     setValue: () => {},
-    requestHighlightReconcile: () => {},
     onLoadMore: undefined,
   };
 }

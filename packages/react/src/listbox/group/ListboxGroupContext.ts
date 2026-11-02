@@ -4,11 +4,6 @@ import * as React from 'react';
 export interface ListboxGroupContext {
   labelId: string | undefined;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  /**
-   * A stable identifier for the group, exposed to drag-and-drop predicates
-   * rendered within `Listbox.DragAndDropProvider`.
-   */
-  groupId: string;
 }
 
 export const ListboxGroupContext = React.createContext<ListboxGroupContext | undefined>(undefined);
