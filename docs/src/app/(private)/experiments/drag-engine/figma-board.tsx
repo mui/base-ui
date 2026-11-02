@@ -457,10 +457,8 @@ function BoardCard({
 
   return (
     <Draggable.Root
-      ref={cardRef}
       kind={cardKind}
       payload={card.id}
-      // Record where the pointer grabbed the card, in client px, for the drop math.
       onMoveStart={(eventDetails) => {
         const rect = eventDetails.source.element.getBoundingClientRect();
         eventDetails.source.updateDragData({
@@ -469,11 +467,7 @@ function BoardCard({
         });
       }}
       disabled={editing}
-      data-compensate-preview={compensatePreview ? '' : undefined}
-      // Modifiers also apply to drop resolution, so a release off the board still lands
-      // on the surface. The rect is in client space, so this works at any zoom.
       modifiers={Draggable.restrictToElement(surfaceRef)}
-      // Escape also runs the end handler, so commit only a release over the surface.
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
           if (!eventDetails.source.dragData) {
@@ -504,74 +498,79 @@ function BoardCard({
           onMove(eventDetails.source.payload, Math.round(position.x), Math.round(position.y));
         }
       }}
-      className={(state) =>
-        clsx(styles.card, selected && styles.cardSelected, state.dragging && styles.cardDragging)
-      }
-      style={{ left: card.x, top: card.y, width: CARD_WIDTH, zIndex: card.z }}
-      role="button"
-      tabIndex={0}
-      aria-label={card.text || 'Empty card'}
-      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Delete Backspace"
-      onPointerDown={(event) => {
-        if (editing) {
-          return;
-        }
-        onSelect(card.id);
-        // Keep keyboard focus on the card so Delete/Backspace target it.
-        event.currentTarget.focus();
-      }}
-      onKeyDown={(event) => {
-        // The textarea stops key events from bubbling while editing, so this
-        // only runs when the card itself is focused.
-        if (event.key === 'Delete' || event.key === 'Backspace') {
-          event.preventDefault();
-          onDelete(card.id);
-          return;
-        }
-        const step = event.shiftKey ? 10 : 1;
-        const directions: Record<string, [number, number]> = {
-          ArrowUp: [0, -step],
-          ArrowDown: [0, step],
-          ArrowLeft: [-step, 0],
-          ArrowRight: [step, 0],
-        };
-        const delta = directions[event.key];
-        if (delta) {
-          event.preventDefault();
-          const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
-          const position = clampToSurface(card.x + delta[0], card.y + delta[1], height);
-          onMove(card.id, Math.round(position.x), Math.round(position.y));
-          onSelect(card.id);
-        }
-      }}
-      onDoubleClick={(event) => {
-        event.stopPropagation();
-        onEdit(card.id);
-      }}
     >
-      {editing ? (
-        <textarea
-          ref={textareaRef}
-          className={styles.textarea}
-          value={card.text}
-          placeholder="Type…"
-          rows={1}
-          onChange={(event) => onChangeText(card.id, event.target.value)}
-          onBlur={() => onEndEdit(card.id)}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              event.currentTarget.blur();
-            }
-            // Keep edit keystrokes (including Backspace) inside the textarea.
-            event.stopPropagation();
-          }}
-        />
-      ) : (
-        <CardText text={card.text} />
-      )}
-      {/* In transform mode, `data-compensate-preview` lets CSS scale the clone back to
+      <Draggable.Trigger
+        ref={cardRef}
+        data-compensate-preview={compensatePreview ? '' : undefined}
+        className={(state) =>
+          clsx(styles.card, selected && styles.cardSelected, state.dragging && styles.cardDragging)
+        }
+        style={{ left: card.x, top: card.y, width: CARD_WIDTH, zIndex: card.z }}
+        role="button"
+        tabIndex={0}
+        aria-label={card.text || 'Empty card'}
+        aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Delete Backspace"
+        onPointerDown={(event) => {
+          if (editing) {
+            return;
+          }
+          onSelect(card.id);
+          // Keep keyboard focus on the card so Delete/Backspace target it.
+          event.currentTarget.focus();
+        }}
+        onKeyDown={(event) => {
+          // The textarea stops key events from bubbling while editing, so this
+          // only runs when the card itself is focused.
+          if (event.key === 'Delete' || event.key === 'Backspace') {
+            event.preventDefault();
+            onDelete(card.id);
+            return;
+          }
+          const step = event.shiftKey ? 10 : 1;
+          const directions: Record<string, [number, number]> = {
+            ArrowUp: [0, -step],
+            ArrowDown: [0, step],
+            ArrowLeft: [-step, 0],
+            ArrowRight: [step, 0],
+          };
+          const delta = directions[event.key];
+          if (delta) {
+            event.preventDefault();
+            const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
+            const position = clampToSurface(card.x + delta[0], card.y + delta[1], height);
+            onMove(card.id, Math.round(position.x), Math.round(position.y));
+            onSelect(card.id);
+          }
+        }}
+        onDoubleClick={(event) => {
+          event.stopPropagation();
+          onEdit(card.id);
+        }}
+      >
+        {editing ? (
+          <textarea
+            ref={textareaRef}
+            className={styles.textarea}
+            value={card.text}
+            placeholder="Type…"
+            rows={1}
+            onChange={(event) => onChangeText(card.id, event.target.value)}
+            onBlur={() => onEndEdit(card.id)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.currentTarget.blur();
+              }
+              // Keep edit keystrokes (including Backspace) inside the textarea.
+              event.stopPropagation();
+            }}
+          />
+        ) : (
+          <CardText text={card.text} />
+        )}
+        {/* In transform mode, `data-compensate-preview` lets CSS scale the clone back to
           the source's painted size. CSS `zoom` already applies to the clone. */}
-      <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
+        <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

@@ -14,12 +14,12 @@ const otherKind = Draggable.createKind<{ n: number }>('other');
 function SourceProbe(props: { id?: string }) {
   const source = Draggable.useActiveDrag(probeKind);
   return (
-    <Draggable.Root
-      kind={probeKind}
-      payload={probePayload}
-      data-testid={`source-${props.id ?? 'noid'}`}
-      data-source-kind={source?.payload.kind ?? 'none'}
-    />
+    <Draggable.Root kind={probeKind} payload={probePayload}>
+      <Draggable.Trigger
+        data-testid={`source-${props.id ?? 'noid'}`}
+        data-source-kind={source?.payload.kind ?? 'none'}
+      />
+    </Draggable.Root>
   );
 }
 
@@ -105,7 +105,9 @@ describe('Draggable.useActiveDrag', () => {
     await renderDnd(
       <React.Fragment>
         <SourceProbe id="probe" />
-        <Draggable.Root kind={otherKind} payload={{ n: 1 }} data-testid="other" />
+        <Draggable.Root kind={otherKind} payload={{ n: 1 }}>
+          <Draggable.Trigger data-testid="other" />
+        </Draggable.Root>
         <AnyObserver />
       </React.Fragment>,
     );
@@ -136,12 +138,9 @@ describe('Draggable.useActiveDrag', () => {
       // A new payload object on every render. Each one re-notifies the observers,
       // which re-render this component and pass yet another object.
       return (
-        <Draggable.Root
-          kind={cardKind}
-          payload={{ id }}
-          data-testid="card"
-          data-active={source?.payload.id ?? 'none'}
-        />
+        <Draggable.Root kind={cardKind} payload={{ id }}>
+          <Draggable.Trigger data-testid="card" data-active={source?.payload.id ?? 'none'} />
+        </Draggable.Root>
       );
     }
 

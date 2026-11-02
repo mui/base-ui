@@ -23,31 +23,31 @@ function Widget({
   onKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
-    <Draggable.Root
-      kind={widgetKind}
-      payload={widget.id}
-      className={WIDGET_CLASS}
-      data-widget-id={widget.id}
-      tabIndex={0}
-      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-      onKeyDown={(event) => onKeyDown(event, widget.id)}
-    >
-      <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
-        <GripIcon className="shrink-0 text-neutral-400 dark:text-neutral-500" />
-        <span>{widget.title}</span>
-      </div>
-      <div className="flex flex-1 flex-col justify-center px-3 py-2.5">
-        <strong className="text-xl leading-6 font-medium">{widget.value}</strong>
-        <span className="text-xs leading-4 text-neutral-500 dark:text-neutral-400">
-          {widget.detail}
-        </span>
-      </div>
-      {/* @highlight-start @focus @padding 1 */}
-      <Draggable.Preview className={BADGE_CLASS} offset="pointer">
-        <span className={BADGE_VALUE_CLASS}>{widget.value}</span>
-        {widget.title}
-      </Draggable.Preview>
-      {/* @highlight-end */}
+    <Draggable.Root kind={widgetKind} payload={widget.id}>
+      <Draggable.Trigger
+        className={WIDGET_CLASS}
+        data-widget-id={widget.id}
+        tabIndex={0}
+        aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+        onKeyDown={(event) => onKeyDown(event, widget.id)}
+      >
+        <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
+          <GripIcon className="shrink-0 text-neutral-400 dark:text-neutral-500" />
+          <span>{widget.title}</span>
+        </div>
+        <div className="flex flex-1 flex-col justify-center px-3 py-2.5">
+          <strong className="text-xl leading-6 font-medium">{widget.value}</strong>
+          <span className="text-xs leading-4 text-neutral-500 dark:text-neutral-400">
+            {widget.detail}
+          </span>
+        </div>
+        {/* @highlight-start @focus @padding 1 */}
+        <Draggable.Preview className={BADGE_CLASS} offset="pointer">
+          <span className={BADGE_VALUE_CLASS}>{widget.value}</span>
+          {widget.title}
+        </Draggable.Preview>
+        {/* @highlight-end */}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

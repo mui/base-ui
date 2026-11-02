@@ -30,19 +30,22 @@ const Task = React.memo(function Task({
         kind={taskKind}
         payload={task}
         collisionElement={getTaskRow}
-        data-sortable-item
-        render={<button type="button" aria-label={task} />}
-        className="box-border min-h-10 w-full cursor-grab select-none border border-neutral-950 bg-white px-4 py-2 text-sm leading-5 text-neutral-950 data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-950 dark:text-white"
         modifiers={Draggable.restrictToVerticalAxis}
-        aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-        onKeyDown={(event) => {
-          if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-            event.preventDefault();
-            onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
-          }
-        }}
       >
-        {task}
+        <Draggable.Trigger
+          data-sortable-item
+          render={<button type="button" aria-label={task} />}
+          className="box-border min-h-10 w-full cursor-grab select-none border border-neutral-950 bg-white px-4 py-2 text-sm leading-5 text-neutral-950 data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-950 dark:text-white"
+          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+          onKeyDown={(event) => {
+            if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+              event.preventDefault();
+              onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
+            }
+          }}
+        >
+          {task}
+        </Draggable.Trigger>
       </Draggable.Root>
     </div>
   );

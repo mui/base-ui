@@ -13,6 +13,7 @@ describe('Draggable namespace', () => {
         'Provider',
         'Root',
         'Target',
+        'Trigger',
         'Viewport',
         'anyKind',
         'createGlobalKind',

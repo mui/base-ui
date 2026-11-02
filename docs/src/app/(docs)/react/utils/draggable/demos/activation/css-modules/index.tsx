@@ -94,30 +94,31 @@ function Puck({
 }) {
   return (
     <Draggable.Root
-      className={styles.Puck}
       kind={puckKind}
-      // @highlight-start @focus @padding 3
       activation={mode.activation}
-      // @highlight-end
-      role="img"
-      aria-label="Puck"
-      onPointerDown={(event) => {
-        if (
-          mode.id !== 'immediate' &&
-          (!hasDoubleClickActivation(mode.activation) || event.pointerType === 'mouse')
-        ) {
-          onPhaseChange('waiting');
-        }
-      }}
-      onPointerUp={() => onPhaseChange('ready')}
-      onPointerCancel={() => onPhaseChange('ready')}
       onMoveStart={() => onPhaseChange('dragging')}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.reason !== 'drop') {
           onPhaseChange('ready');
         }
       }}
-    />
+    >
+      <Draggable.Trigger
+        className={styles.Puck}
+        role="img"
+        aria-label="Puck"
+        onPointerDown={(event) => {
+          if (
+            mode.id !== 'immediate' &&
+            (!hasDoubleClickActivation(mode.activation) || event.pointerType === 'mouse')
+          ) {
+            onPhaseChange('waiting');
+          }
+        }}
+        onPointerUp={() => onPhaseChange('ready')}
+        onPointerCancel={() => onPhaseChange('ready')}
+      />
+    </Draggable.Root>
   );
 }
 

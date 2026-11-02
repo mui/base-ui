@@ -101,20 +101,18 @@ const Card = React.memo(function Card({
   onKeyDown: (event: React.KeyboardEvent<HTMLElement>, task: Task) => void;
 }) {
   return (
-    <Draggable.Root
-      kind={taskKind}
-      payload={task}
-      previewKey={task.id}
-      disabled={!draggable}
-      data-card
-      data-id={task.id}
-      tabIndex={0}
-      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
-      onKeyDown={(event) => onKeyDown(event, task)}
-      className={styles.Card}
-    >
-      <GripIcon className={styles.Grip} />
-      {task.label}
+    <Draggable.Root kind={taskKind} payload={task} previewKey={task.id} disabled={!draggable}>
+      <Draggable.Trigger
+        data-card
+        data-id={task.id}
+        tabIndex={0}
+        aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
+        onKeyDown={(event) => onKeyDown(event, task)}
+        className={styles.Card}
+      >
+        <GripIcon className={styles.Grip} />
+        {task.label}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 });

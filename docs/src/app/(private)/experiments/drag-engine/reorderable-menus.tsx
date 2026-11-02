@@ -183,34 +183,34 @@ function ReorderableItem(props: ReorderableItemProps) {
   });
 
   return (
-    <Item
-      className={styles.item}
-      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-      onKeyDown={handleKeyDown}
-      render={
-        <Draggable.Root
-          kind={menuItemKind}
-          payload={entry.id}
-          modifiers={Draggable.restrictToVerticalAxis}
-          onMoveStart={list.onMoveStart}
-          onMoveEnd={(eventDetails) => {
-            try {
-              if (eventDetails.target !== null) {
-                list.onDrop();
-              }
-            } finally {
-              list.onMoveEnd();
-            }
-          }}
-        />
-      }
+    <Draggable.Root
+      kind={menuItemKind}
+      payload={entry.id}
+      modifiers={Draggable.restrictToVerticalAxis}
+      onMoveStart={list.onMoveStart}
+      onMoveEnd={(eventDetails) => {
+        try {
+          if (eventDetails.target !== null) {
+            list.onDrop();
+          }
+        } finally {
+          list.onMoveEnd();
+        }
+      }}
     >
-      <GripIcon className={styles.icon} />
-      {entry.label}
-      {/* Constrain only the clone. The pointer must remain free so a release
+      <Item
+        className={styles.item}
+        aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+        onKeyDown={handleKeyDown}
+        render={<Draggable.Trigger />}
+      >
+        <GripIcon className={styles.icon} />
+        {entry.label}
+        {/* Constrain only the clone. The pointer must remain free so a release
           outside the popup lands on no target and restores the order. */}
-      <Draggable.Preview modifiers={Draggable.restrictToElement(popupRef)} />
-    </Item>
+        <Draggable.Preview modifiers={Draggable.restrictToElement(popupRef)} />
+      </Item>
+    </Draggable.Root>
   );
 }
 

@@ -54,7 +54,6 @@ describe('sensor session startup', () => {
           <Draggable.Root
             kind={kind}
             payload="event"
-            data-testid="source"
             activation={{ pen: { type: 'immediate' } }}
             onBeforeMoveStart={({ source }) => {
               candidate = source;
@@ -65,7 +64,9 @@ describe('sensor session startup', () => {
             }}
             onMoveStart={onMoveStart}
           >
-            <Draggable.Preview kind={kind}>{preview}</Draggable.Preview>
+            <Draggable.Trigger data-testid="source">
+              <Draggable.Preview kind={kind}>{preview}</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </React.Fragment>
       );
@@ -129,16 +130,15 @@ describe('sensor session startup', () => {
     const latestEnd = vi.fn();
     const nextEnd = vi.fn();
     const { rerender, engine } = await renderDnd(
-      <Draggable.Root
-        data-testid="source"
-        kind={original}
-        payload="first"
-        onMoveEnd={originalEnd}
-      />,
+      <Draggable.Root kind={original} payload="first" onMoveEnd={originalEnd}>
+        <Draggable.Trigger data-testid="source" />
+      </Draggable.Root>,
     );
     await lift(screen.getByTestId('source'));
     await rerender(
-      <Draggable.Root data-testid="source" kind={next} payload={{ id: 1 }} onMoveEnd={nextEnd} />,
+      <Draggable.Root kind={next} payload={{ id: 1 }} onMoveEnd={nextEnd}>
+        <Draggable.Trigger data-testid="source" />
+      </Draggable.Root>,
     );
     act(() => engine.cancelDrag());
     expect(nextEnd).not.toHaveBeenCalled();
@@ -146,12 +146,9 @@ describe('sensor session startup', () => {
     expect(originalEnd.mock.calls[0][0].source.payload).toBe('first');
 
     await rerender(
-      <Draggable.Root
-        data-testid="source"
-        kind={original}
-        payload="second"
-        onMoveEnd={latestEnd}
-      />,
+      <Draggable.Root kind={original} payload="second" onMoveEnd={latestEnd}>
+        <Draggable.Trigger data-testid="source" />
+      </Draggable.Root>,
     );
     await lift(screen.getByTestId('source'));
     act(() => engine.cancelDrag());
@@ -175,7 +172,6 @@ describe('sensor session startup', () => {
     const { engine } = await renderDnd(
       <React.Fragment>
         <Draggable.Root
-          data-testid="source"
           kind={kind}
           payload="initial"
           onMoveStart={({ source }) => {
@@ -184,7 +180,9 @@ describe('sensor session startup', () => {
             expect(source.dragData).toEqual({ offset: 12 });
           }}
           onMoveEnd={onMoveEnd}
-        />
+        >
+          <Draggable.Trigger data-testid="source" />
+        </Draggable.Root>
         <ActiveData />
       </React.Fragment>,
     );
@@ -222,13 +220,8 @@ describe('sensor session startup', () => {
     function Demo({ payload, label }: { payload: string; label: string }) {
       return (
         <React.Fragment>
-          <Draggable.Root
-            kind={kind}
-            payload={payload}
-            onMoveStart={onMoveStart}
-            data-testid="source"
-          >
-            {label}
+          <Draggable.Root kind={kind} payload={payload} onMoveStart={onMoveStart}>
+            <Draggable.Trigger data-testid="source">{label}</Draggable.Trigger>
           </Draggable.Root>
           <ActiveData />
         </React.Fragment>
@@ -252,7 +245,9 @@ describe('sensor session startup', () => {
     function Demo({ payload }: { payload: string }) {
       return (
         <React.Fragment>
-          <Draggable.Root data-testid="source" kind={kind} payload={payload} />
+          <Draggable.Root kind={kind} payload={payload}>
+            <Draggable.Trigger data-testid="source" />
+          </Draggable.Root>
           <Observer />
         </React.Fragment>
       );
@@ -275,8 +270,10 @@ describe('sensor session startup', () => {
     function Demo({ label }: { label: string }) {
       return (
         <React.Fragment>
-          <Draggable.Root data-testid="source" kind={kind} payload="item">
-            <output data-testid="label">{label}</output>
+          <Draggable.Root kind={kind} payload="item">
+            <Draggable.Trigger data-testid="source">
+              <output data-testid="label">{label}</output>
+            </Draggable.Trigger>
           </Draggable.Root>
           <Observer />
         </React.Fragment>

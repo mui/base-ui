@@ -334,8 +334,10 @@ function KanbanColumn({
 function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
   const payload = React.useMemo(() => ({ id: card.id, fromColumn: columnId }), [card.id, columnId]);
   return (
-    <Draggable.Root kind={cardKind} payload={payload} data-card className={styles.Card}>
-      {card.title}
+    <Draggable.Root kind={cardKind} payload={payload}>
+      <Draggable.Trigger data-card className={styles.Card}>
+        {card.title}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

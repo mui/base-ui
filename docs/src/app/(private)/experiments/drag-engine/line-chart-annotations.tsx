@@ -546,12 +546,9 @@ function AnnotationDraggable(props: {
   return (
     <Draggable.Root
       kind={annotationKind}
-      aria-label={label}
-      // Snapshot the annotation at pickup, since state follows the pointer afterward.
       onMoveStart={(eventDetails) => {
         eventDetails.source.updateDragData({ handle, snapshot: annotation });
       }}
-      // A press can also select or edit, so the drag waits for 3px of movement.
       activation={{ mouse: { type: 'distance', distance: 3 } }}
       modifiers={modifiers}
       disabled={disabled}
@@ -584,14 +581,18 @@ function AnnotationDraggable(props: {
               ),
         );
       }}
-      className={className}
-      style={style}
-      onDoubleClick={onDoubleClick}
-      onPointerDown={() => select(annotation.id)}
     >
-      {children}
-      {/* No preview: the annotation itself moves, so a line redraws with its endpoint. */}
-      <Draggable.Preview disabled />
+      <Draggable.Trigger
+        aria-label={label}
+        className={className}
+        style={style}
+        onDoubleClick={onDoubleClick}
+        onPointerDown={() => select(annotation.id)}
+      >
+        {children}
+        {/* No preview: the annotation itself moves, so a line redraws with its endpoint. */}
+        <Draggable.Preview disabled />
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

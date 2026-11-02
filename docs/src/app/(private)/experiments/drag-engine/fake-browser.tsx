@@ -480,53 +480,60 @@ function DraggableEntry({
   });
 
   const payload = React.useMemo(() => ({ type: 'existing' as const, id: node.id }), [node.id]);
-  const draggable = (
-    <Draggable.Root<AcceptedBookmarkDragPayload>
-      ref={handleRef}
-      className={clsx(styles.entry, layout === 'horizontal' ? styles.barItem : styles.menuItem)}
-      data-bookmark-id={node.id}
-      data-layout={layout}
-      data-drop-before={indicatorBefore ? '' : undefined}
-      data-drop-after={indicatorAfter ? '' : undefined}
-      data-drop-inside={indicatorInside ? '' : undefined}
-      data-cut={clipboard?.type === 'cut' && clipboard.id === node.id ? '' : undefined}
-      aria-keyshortcuts={
-        node.type === 'folder' ? 'Control+Enter Meta+Enter Shift+F10' : 'Shift+F10'
-      }
-      kind={bookmarkKind}
-      payload={payload}
-      title={node.type === 'bookmark' ? `${node.name}\n${node.url}` : node.name}
-      activation={{ mouse: { type: 'distance', distance: 4 } }}
-      onBeforeMoveStart={handleBeforeDragStart}
-      render={<button type="button" aria-label={node.name} />}
-    >
-      <BookmarkIcon node={node} />
-      <span className={styles.entryLabel}>{node.name}</span>
-      {node.type === 'folder' && layout === 'vertical' && <ChevronIcon />}
-      <DropZones
-        node={node}
-        parentId={parentId}
-        index={index}
-        surfaceId={surfaceId}
-        layout={layout}
-      />
-      <Draggable.Preview className={styles.dragPreview} offset="pointer">
+  const trigger = (
+    <Draggable.Trigger
+        ref={handleRef}
+        className={clsx(styles.entry, layout === 'horizontal' ? styles.barItem : styles.menuItem)}
+        data-bookmark-id={node.id}
+        data-layout={layout}
+        data-drop-before={indicatorBefore ? '' : undefined}
+        data-drop-after={indicatorAfter ? '' : undefined}
+        data-drop-inside={indicatorInside ? '' : undefined}
+        data-cut={clipboard?.type === 'cut' && clipboard.id === node.id ? '' : undefined}
+        aria-keyshortcuts={
+          node.type === 'folder' ? 'Control+Enter Meta+Enter Shift+F10' : 'Shift+F10'
+        }
+        title={node.type === 'bookmark' ? `${node.name}\n${node.url}` : node.name}
+        render={<button type="button" aria-label={node.name} />}
+      >
         <BookmarkIcon node={node} />
-        <span>{node.name}</span>
-      </Draggable.Preview>
-    </Draggable.Root>
+        <span className={styles.entryLabel}>{node.name}</span>
+        {node.type === 'folder' && layout === 'vertical' && <ChevronIcon />}
+        <DropZones
+          node={node}
+          parentId={parentId}
+          index={index}
+          surfaceId={surfaceId}
+          layout={layout}
+        />
+        <Draggable.Preview className={styles.dragPreview} offset="pointer">
+          <BookmarkIcon node={node} />
+          <span>{node.name}</span>
+        </Draggable.Preview>
+      </Draggable.Trigger>
   );
 
+  let entry: React.ReactElement;
   if (entryType === 'menu-page') {
-    return <Menu.Item nativeButton render={draggable} />;
+    entry = <Menu.Item nativeButton render={trigger} />;
+  } else if (entryType === 'menu-folder') {
+    entry = <Menu.SubmenuTrigger nativeButton render={trigger} />;
+  } else if (entryType === 'menubar-folder') {
+    entry = <Menu.Trigger openOnHover={isDragging ? false : undefined} render={trigger} />;
+  } else {
+    entry = <CompositeItem tag="button" render={trigger} props={[{ role: 'menuitem' }]} />;
   }
-  if (entryType === 'menu-folder') {
-    return <Menu.SubmenuTrigger nativeButton render={draggable} />;
-  }
-  if (entryType === 'menubar-folder') {
-    return <Menu.Trigger openOnHover={isDragging ? false : undefined} render={draggable} />;
-  }
-  return <CompositeItem tag="button" render={draggable} props={[{ role: 'menuitem' }]} />;
+
+  return (
+    <Draggable.Root<AcceptedBookmarkDragPayload>
+      kind={bookmarkKind}
+      payload={payload}
+      activation={{ mouse: { type: 'distance', distance: 4 } }}
+      onBeforeMoveStart={handleBeforeDragStart}
+    >
+      {entry}
+    </Draggable.Root>
+  );
 }
 
 function MenuPopup({ folderId }: { folderId: string }) {
@@ -917,68 +924,71 @@ function BrowserTabs({
           const node = { name: tab.name, type: 'bookmark' as const, url: tab.url };
 
           return (
-            <Tabs.Tab
+            <Draggable.Root<AcceptedBookmarkDragPayload>
               key={tab.id}
-              id={getBrowserTabElementId(tab.id)}
-              aria-controls={getBrowserTabPanelId(tab.id)}
-              ref={(element) => registerTabElement(tab.id, element)}
-              className={styles.browserTab}
-              value={tab.id}
-              data-tab-drop-before={
-                dropIntent?.type === 'insert' && dropIntent.index === index ? '' : undefined
-              }
-              data-tab-drop-replace={
-                dropIntent?.type === 'replace' && dropIntent.tabId === tab.id ? '' : undefined
-              }
-              title={`${tab.name}\n${tab.url}`}
-              render={
-                <Draggable.Root<AcceptedBookmarkDragPayload>
-                  kind={tabKind}
-                  payload={tabPayloads[index]}
-                  onBeforeMoveStart={handleBeforeDragStart}
-                  onMoveStart={handleDragStart}
-                  onMoveEnd={(eventDetails) => {
-                    try {
-                      if (eventDetails.target !== null) {
-                        handleDrop();
-                      }
-                    } finally {
-                      handleDragEnd();
-                    }
-                  }}
-                  render={
-                    <Draggable.Target<AcceptedBookmarkDragPayload, TabDropTargetPayload>
-                      accept={acceptedTabKinds}
-                      kind={tabDropKind}
-                      payload={tabTargetPayloads[index]}
-                      trackDragOver={false}
-                      onDraggableMove={handleDrag}
-                      render={
-                        <button
-                          type="button"
-                          aria-label={tab.name}
-                          aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Delete"
-                          onKeyDown={handleKeyDown}
-                        />
-                      }
-                    />
+              kind={tabKind}
+              payload={tabPayloads[index]}
+              onBeforeMoveStart={handleBeforeDragStart}
+              onMoveStart={handleDragStart}
+              onMoveEnd={(eventDetails) => {
+                try {
+                  if (eventDetails.target !== null) {
+                    handleDrop();
                   }
-                />
-              }
+                } finally {
+                  handleDragEnd();
+                }
+              }}
             >
-              <BookmarkIcon node={node} />
-              <span className={styles.tabLabel}>{tab.name}</span>
-              <span
-                className={styles.closeTab}
-                data-close-tab=""
-                title={`Close ${tab.name}`}
-                onPointerDown={handleClosePointerDown}
-                onClick={handleCloseClick}
-                aria-hidden="true"
+              <Tabs.Tab
+                id={getBrowserTabElementId(tab.id)}
+                aria-controls={getBrowserTabPanelId(tab.id)}
+                ref={(element) => registerTabElement(tab.id, element)}
+                className={styles.browserTab}
+                value={tab.id}
+                data-tab-drop-before={
+                  dropIntent?.type === 'insert' && dropIntent.index === index ? '' : undefined
+                }
+                data-tab-drop-replace={
+                  dropIntent?.type === 'replace' && dropIntent.tabId === tab.id ? '' : undefined
+                }
+                title={`${tab.name}\n${tab.url}`}
+                render={
+                  <Draggable.Trigger
+                    render={
+                      <Draggable.Target<AcceptedBookmarkDragPayload, TabDropTargetPayload>
+                        accept={acceptedTabKinds}
+                        kind={tabDropKind}
+                        payload={tabTargetPayloads[index]}
+                        trackDragOver={false}
+                        onDraggableMove={handleDrag}
+                        render={
+                          <button
+                            type="button"
+                            aria-label={tab.name}
+                            aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Delete"
+                            onKeyDown={handleKeyDown}
+                          />
+                        }
+                      />
+                    }
+                  />
+                }
               >
-                ×
-              </span>
-            </Tabs.Tab>
+                <BookmarkIcon node={node} />
+                <span className={styles.tabLabel}>{tab.name}</span>
+                <span
+                  className={styles.closeTab}
+                  data-close-tab=""
+                  title={`Close ${tab.name}`}
+                  onPointerDown={handleClosePointerDown}
+                  onClick={handleCloseClick}
+                  aria-hidden="true"
+                >
+                  ×
+                </span>
+              </Tabs.Tab>
+            </Draggable.Root>
           );
         })}
       </Tabs.List>

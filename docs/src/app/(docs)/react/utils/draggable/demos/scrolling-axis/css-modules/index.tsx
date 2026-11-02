@@ -113,23 +113,22 @@ export default function AxisLane() {
             }}
           >
             {stops.map((stop, index) => (
-              <Draggable.Root
-                key={stop.id}
-                kind={stopKind}
-                payload={stop.id}
-                data-stop
-                render={<button type="button" aria-label={stop.label} />}
-                aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-                onKeyDown={(event) => {
-                  if (event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-                    event.preventDefault();
-                    moveStop(stop.id, event.key === 'ArrowLeft' ? index - 1 : index + 2);
-                  }
-                }}
-                className={styles.Stop}
-              >
-                <GripIcon className={styles.Grip} />
-                {stop.label}
+              <Draggable.Root key={stop.id} kind={stopKind} payload={stop.id}>
+                <Draggable.Trigger
+                  data-stop
+                  render={<button type="button" aria-label={stop.label} />}
+                  aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+                  onKeyDown={(event) => {
+                    if (event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+                      event.preventDefault();
+                      moveStop(stop.id, event.key === 'ArrowLeft' ? index - 1 : index + 2);
+                    }
+                  }}
+                  className={styles.Stop}
+                >
+                  <GripIcon className={styles.Grip} />
+                  {stop.label}
+                </Draggable.Trigger>
               </Draggable.Root>
             ))}
           </Draggable.Target>

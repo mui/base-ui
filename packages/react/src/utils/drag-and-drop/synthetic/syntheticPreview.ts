@@ -26,7 +26,7 @@ import { setSourceSettling } from '../settlingSources';
 import { getActiveSession } from '../core/dragSession';
 import { retargetDragSource } from '../dragSource';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
-import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
+import * as DraggableTriggerDataAttributes from '../../../draggable/trigger/DraggableTriggerDataAttributes';
 import { containConsumerError, getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
 /** What `getElementScale` reports for an element with no ancestor transform. */
@@ -432,7 +432,7 @@ export function createSyntheticPreview(
       return;
     }
 
-    sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
+    sourceElement.removeAttribute(DraggableTriggerDataAttributes.dragging);
     setSourceSettling(sourceElement, false);
     if (settling) {
       // A fresh drag from the destination can begin before this one settles.
@@ -441,7 +441,7 @@ export function createSyntheticPreview(
     }
 
     sourceElement = element;
-    sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
+    sourceElement.setAttribute(DraggableTriggerDataAttributes.dragging, '');
     if (settling) {
       setSourceSettling(sourceElement, true);
     }
@@ -474,7 +474,7 @@ export function createSyntheticPreview(
           frame.cancel();
           settlingWatchdog.clear();
           endingPreview.destroy();
-          sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
+          sourceElement.removeAttribute(DraggableTriggerDataAttributes.dragging);
           setSourceSettling(sourceElement, false);
           settling = false;
         },
@@ -538,7 +538,7 @@ export function createSyntheticPreview(
     }
 
     endingPreview?.destroy();
-    sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
+    sourceElement.removeAttribute(DraggableTriggerDataAttributes.dragging);
   }
 
   return {
@@ -580,7 +580,7 @@ export function createSyntheticPreview(
     },
     markSourceDragging(): void {
       finishEndingPreview(sourceElement);
-      sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
+      sourceElement.setAttribute(DraggableTriggerDataAttributes.dragging, '');
     },
     identity: sourceIdentity,
     showContent,

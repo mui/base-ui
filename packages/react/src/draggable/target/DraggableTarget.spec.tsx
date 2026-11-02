@@ -263,11 +263,9 @@ const ref: React.Ref<HTMLDivElement> = null;
 />;
 
 // One element, both roles: the drop target composes onto the drag source.
-<Draggable.Root
-  kind={card}
-  payload={{ id: 'a' }}
-  render={<Draggable.Target accept={card} payload={{ index: 0 }} />}
-/>;
+<Draggable.Root kind={card} payload={{ id: 'a' }}>
+  <Draggable.Trigger render={<Draggable.Target accept={card} payload={{ index: 0 }} />} />
+</Draggable.Root>;
 
 // An extracted handler typed for another payload is rejected: the payload type comes
 // from `payload`.

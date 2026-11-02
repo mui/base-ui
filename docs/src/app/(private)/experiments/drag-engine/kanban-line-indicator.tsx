@@ -311,17 +311,17 @@ function DraggableCard({
   // The preview is the default clone. `.card[data-drag-preview]` only adds a shadow.
   const payload = React.useMemo(() => ({ id: card.id, fromColumn: columnId }), [card.id, columnId]);
   return (
-    <Draggable.Root
-      kind={cardKind}
-      payload={payload}
-      data-card
-      role="button"
-      tabIndex={0}
-      className={(state) => clsx(styles.card, state.dragging && styles.cardDragging)}
-    >
-      {card.title}
-      {/* Keep the preview inside the board. */}
-      <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
+    <Draggable.Root kind={cardKind} payload={payload}>
+      <Draggable.Trigger
+        data-card
+        role="button"
+        tabIndex={0}
+        className={(state) => clsx(styles.card, state.dragging && styles.cardDragging)}
+      >
+        {card.title}
+        {/* Keep the preview inside the board. */}
+        <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

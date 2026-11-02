@@ -212,54 +212,57 @@ function DraggableTab(props: DraggableTabProps) {
     .join(' ');
 
   return (
-    <Tabs.Tab
-      className={styles.Tab}
-      value={item.id}
-      data-drag-disabled={draggable ? undefined : ''}
-      render={
-        <Draggable.Root
-          kind={kind}
-          payload={item.id}
-          disabled={!draggable}
-          modifiers={Draggable.restrictToHorizontalAxis}
-          onBeforeMoveStart={handleBeforeDragStart}
-          onMoveStart={onMoveStart}
-          onMoveEnd={(eventDetails) => {
-            try {
-              if (eventDetails.target !== null) {
-                onDrop();
-              }
-            } finally {
-              onMoveEnd();
-            }
-          }}
-          render={
-            <button
-              type="button"
-              aria-label={item.label}
-              aria-keyshortcuts={shortcuts || undefined}
-              onKeyDown={handleKeyDown}
-            />
+    <Draggable.Root
+      kind={kind}
+      payload={item.id}
+      disabled={!draggable}
+      modifiers={Draggable.restrictToHorizontalAxis}
+      onBeforeMoveStart={handleBeforeDragStart}
+      onMoveStart={onMoveStart}
+      onMoveEnd={(eventDetails) => {
+        try {
+          if (eventDetails.target !== null) {
+            onDrop();
           }
-        />
-      }
+        } finally {
+          onMoveEnd();
+        }
+      }}
     >
-      <span className={styles.TabLabel}>{item.label}</span>
-      {closable && (
-        <span
-          className={styles.Close}
-          data-close-tab=""
-          title={`Close ${item.label}`}
-          onPointerDown={handleClosePointerDown}
-          onClick={handleCloseClick}
-          aria-hidden="true"
-        >
-          <CloseIcon />
-        </span>
-      )}
-      {/* Keep the clone in the list without clamping the pointer used to resolve insertion slots. */}
-      <Draggable.Preview modifiers={Draggable.restrictToElement(listRef)} />
-    </Tabs.Tab>
+      <Tabs.Tab
+        className={styles.Tab}
+        value={item.id}
+        data-drag-disabled={draggable ? undefined : ''}
+        render={
+          <Draggable.Trigger
+            render={
+              <button
+                type="button"
+                aria-label={item.label}
+                aria-keyshortcuts={shortcuts || undefined}
+                onKeyDown={handleKeyDown}
+              />
+            }
+          />
+        }
+      >
+        <span className={styles.TabLabel}>{item.label}</span>
+        {closable && (
+          <span
+            className={styles.Close}
+            data-close-tab=""
+            title={`Close ${item.label}`}
+            onPointerDown={handleClosePointerDown}
+            onClick={handleCloseClick}
+            aria-hidden="true"
+          >
+            <CloseIcon />
+          </span>
+        )}
+        {/* Keep the clone in the list without clamping the pointer used to resolve insertion slots. */}
+        <Draggable.Preview modifiers={Draggable.restrictToElement(listRef)} />
+      </Tabs.Tab>
+    </Draggable.Root>
   );
 }
 

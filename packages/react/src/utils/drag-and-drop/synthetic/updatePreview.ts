@@ -4,7 +4,7 @@ import { getActiveSession } from '../core/dragSession';
 import { createDragPreviewElement } from './cloneDragPreview';
 import { updatePreviewContent } from './updatePreviewContent';
 import type { DragPreview } from './syntheticPreview';
-import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
+import * as DraggableTriggerDataAttributes from '../../../draggable/trigger/DraggableTriggerDataAttributes';
 
 // The previews with an update scheduled, so calls in one frame share it.
 const scheduled = new WeakSet<DragPreview>();
@@ -62,7 +62,10 @@ function refreshClone(handle: DragPreview, source: HTMLElement): void {
   if (!current || !source.isConnected) {
     return;
   }
-  const dragState = [DraggableRootDataAttributes.dragging, DraggableRootDataAttributes.settling]
+  const dragState = [
+    DraggableTriggerDataAttributes.dragging,
+    DraggableTriggerDataAttributes.settling,
+  ]
     .map((name) => [name, source.getAttribute(name)] as const)
     .filter(([, value]) => value !== null);
   for (const [name] of dragState) {

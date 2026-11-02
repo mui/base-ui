@@ -18,7 +18,12 @@ describe('Draggable.Provider', () => {
   const { renderDnd } = createDndRenderer();
 
   it.each([
-    ['Root', <Draggable.Root />],
+    [
+      'Root',
+      <Draggable.Root>
+        <Draggable.Trigger />
+      </Draggable.Root>,
+    ],
     ['Target', <Draggable.Target />],
     ['Viewport', <Draggable.Viewport />],
     ['CollisionProvider', <Draggable.CollisionProvider kind={collisionKind} />],
@@ -43,8 +48,10 @@ describe('Draggable.Provider', () => {
       <React.Fragment>
         <ShellMonitor />
         <Draggable.Provider>
-          <Draggable.Root data-testid="source">
-            <Draggable.Preview disabled />
+          <Draggable.Root>
+            <Draggable.Trigger data-testid="source">
+              <Draggable.Preview disabled />
+            </Draggable.Trigger>
           </Draggable.Root>
         </Draggable.Provider>
       </React.Fragment>,
@@ -60,8 +67,10 @@ describe('Draggable.Provider', () => {
     const onDrop = vi.fn();
     await renderDnd(
       <React.Fragment>
-        <Draggable.Root data-testid="source">
-          <Draggable.Preview disabled />
+        <Draggable.Root>
+          <Draggable.Trigger data-testid="source">
+            <Draggable.Preview disabled />
+          </Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Target data-testid="target" onDraggableDrop={onDrop} />
       </React.Fragment>,
@@ -78,8 +87,10 @@ describe('Draggable.Provider', () => {
     const card = Draggable.createKind('provider-card');
     await renderDnd(
       <React.Fragment>
-        <Draggable.Root kind={card} data-testid="source">
-          <Draggable.Preview disabled />
+        <Draggable.Root kind={card}>
+          <Draggable.Trigger data-testid="source">
+            <Draggable.Preview disabled />
+          </Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Target data-testid="target" onDraggableDrop={onDrop} />
       </React.Fragment>,
@@ -95,8 +106,10 @@ describe('Draggable.Provider', () => {
     const card = Draggable.createKind('provider-card');
     await renderDnd(
       <React.Fragment>
-        <Draggable.Root data-testid="source">
-          <Draggable.Preview disabled />
+        <Draggable.Root>
+          <Draggable.Trigger data-testid="source">
+            <Draggable.Preview disabled />
+          </Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Target data-testid="target" accept={card} onDraggableDrop={onDrop} />
       </React.Fragment>,
@@ -111,8 +124,10 @@ describe('Draggable.Provider', () => {
     const onDrop = vi.fn();
     await renderDnd(
       <React.Fragment>
-        <Draggable.Root data-testid="source">
-          <Draggable.Preview disabled />
+        <Draggable.Root>
+          <Draggable.Trigger data-testid="source">
+            <Draggable.Preview disabled />
+          </Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Provider>
           <Draggable.Target data-testid="target" onDraggableDrop={onDrop} />
@@ -130,8 +145,10 @@ describe('Draggable.Provider', () => {
     const onDrop = vi.fn();
     await renderDnd(
       <React.Fragment>
-        <Draggable.Root kind={kind} data-testid="source">
-          <Draggable.Preview disabled />
+        <Draggable.Root kind={kind}>
+          <Draggable.Trigger data-testid="source">
+            <Draggable.Preview disabled />
+          </Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Provider>
           <Draggable.Target accept={kind} data-testid="target" onDraggableDrop={onDrop} />
@@ -149,10 +166,12 @@ describe('Draggable.Provider', () => {
       return <span data-testid="custom-preview">Preview</span>;
     }
     await renderDnd(
-      <Draggable.Root data-testid="source">
-        <Draggable.Preview>
-          <PreviewContent />
-        </Draggable.Preview>
+      <Draggable.Root>
+        <Draggable.Trigger data-testid="source">
+          <Draggable.Preview>
+            <PreviewContent />
+          </Draggable.Preview>
+        </Draggable.Trigger>
       </Draggable.Root>,
     );
     await lift(screen.getByTestId('source'));

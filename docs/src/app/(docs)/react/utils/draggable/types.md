@@ -6,9 +6,9 @@
 
 ### Root
 
-An element that can be picked up with the pointer and dropped on a matching drop target.
-While dragging, a clone of the element follows the pointer by default.
-Renders a `<div>` element.
+Groups the parts of a draggable item and holds its drag settings and event handlers.
+Doesn't render its own HTML element: `<Draggable.Trigger>` renders the element that
+the user picks up.
 
 **Root Props:**
 
@@ -30,38 +30,10 @@ Renders a `<div>` element.
 | snap              | `Draggable.Target.SnapSteps \| ((context: Draggable.Target.ResolutionContext<TPayload, TDragData>) => Draggable.Target.SnapSteps \| undefined)` | -            | Divides this item into equal steps for `getSnappedLocalPoint()` when another item&#xA;is dragged over it. Accepts step counts or a function returning them.&#xA;Doesn't affect the preview's position.                                                                                                                                                                                            |
 | disabled          | `boolean`                                                                                                                                       | `false`      | Whether dragging is disabled. Pointer presses keep their normal behavior.&#xA;Use `onBeforeMoveStart` when the decision depends on the gesture.                                                                                                                                                                                                                                                   |
 | children          | `React.ReactNode`                                                                                                                               | -            | -                                                                                                                                                                                                                                                                                                                                                                                                 |
-| className         | `string \| ((state: Draggable.Root.State) => string \| undefined)`                                                                              | -            | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                          |
-| style             | `React.CSSProperties \| ((state: Draggable.Root.State) => React.CSSProperties \| undefined)`                                                    | -            | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                       |
-| render            | `ReactElement \| ((props: HTMLProps, state: Draggable.Root.State) => ReactElement)`                                                             | -            | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                     |
-
-**Root Data Attributes:**
-
-| Attribute     | Type | Description                                                                                                                                                                                                                                            |
-| :------------ | :--- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-dragging | -    | Present on the source element while it is being dragged, and until its preview&#xA;has settled after the drop. A preview never carries this attribute, so a&#xA;`[data-dragging]` rule that dims or hides the source leaves the preview fully visible. |
-| data-disabled | -    | Present while the draggable is disabled.                                                                                                                                                                                                               |
-| data-settling | -    | Present on the source after a deliberate release, on a target or outside every&#xA;target, until its preview's ending animation finishes. Use it to keep the source&#xA;styled as a placeholder until then.                                            |
 
 ### Root.Props
 
 Re-export of [Root](#root) props.
-
-### Root.State
-
-```typescript
-type DraggableRootState = {
-  /** Whether this element is being dragged. */
-  dragging: boolean;
-  /**
-   * Whether this element's preview is still running its ending animation after the drop.
-   * The source keeps `[data-dragging]` until then, so `dragging || settling`
-   * matches that attribute.
-   */
-  settling: boolean;
-  /** Whether the draggable is disabled. */
-  disabled: boolean;
-};
-```
 
 ### Root.Activation
 
@@ -100,7 +72,12 @@ type DraggableRootBeforeMoveStartEventDetails<TPayload = unknown, TDragData = un
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** The pointer state at pickup. */
   input: Draggable.Input;
@@ -377,6 +354,49 @@ Doesn't render its own HTML element.
 
 Re-export of [Provider](#provider) props.
 
+### Trigger
+
+The element the user picks up and drops on a matching drop target.
+While dragging, a clone of the element follows the pointer by default.
+Renders a `<div>` element.
+
+**Trigger Props:**
+
+| Prop      | Type                                                                                            | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Draggable.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Draggable.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Draggable.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Trigger Data Attributes:**
+
+| Attribute     | Type | Description                                                                                                                                                                                                                                            |
+| :------------ | :--- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data-dragging | -    | Present on the source element while it is being dragged, and until its preview&#xA;has settled after the drop. A preview never carries this attribute, so a&#xA;`[data-dragging]` rule that dims or hides the source leaves the preview fully visible. |
+| data-disabled | -    | Present while the draggable is disabled.                                                                                                                                                                                                               |
+| data-settling | -    | Present on the source after a deliberate release, on a target or outside every&#xA;target, until its preview's ending animation finishes. Use it to keep the source&#xA;styled as a placeholder until then.                                            |
+
+### Trigger.Props
+
+Re-export of [Trigger](#trigger) props.
+
+### Trigger.State
+
+```typescript
+type DraggableTriggerState = {
+  /** Whether this element is being dragged. */
+  dragging: boolean;
+  /**
+   * Whether this element's preview is still running its ending animation after the drop.
+   * The element keeps `[data-dragging]` until then, so `dragging || settling`
+   * matches that attribute.
+   */
+  settling: boolean;
+  /** Whether the draggable is disabled. */
+  disabled: boolean;
+};
+```
+
 ### Viewport
 
 A scroll container that scrolls automatically when a drag nears its edges.
@@ -437,7 +457,12 @@ type DraggableViewportDragScrollEventDetails<TSourcePayload = unknown, TDragData
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** The item being dragged. */
   source: Draggable.Root.Record<TSourcePayload, TDragData>;
@@ -723,7 +748,7 @@ const card = Draggable.createKind<Card>('card');
 type ReturnValue = Draggable.Kind<TPayload, TDragData>;
 ```
 
-### Root.Modifier
+### DraggableRootModifier
 
 A function that constrains the drag position. It receives the proposed point and
 returns the point to use. Use it to lock an axis, snap to a grid, or keep the drag
@@ -2442,29 +2467,6 @@ declare namespace DraggablePreviewDataAttributes {
 }
 ```
 
-### DraggableRootDataAttributes
-
-Data attributes of [Root](#root).
-
-```typescript
-declare namespace DraggableRootDataAttributes {
-  /**
-   * Present on the source element while it is being dragged, and until its preview
-   * has settled after the drop. A preview never carries this attribute, so a
-   * `[data-dragging]` rule that dims or hides the source leaves the preview fully visible.
-   */
-  const dragging: 'data-dragging';
-  /**
-   * Present on the source after a deliberate release, on a target or outside every
-   * target, until its preview's ending animation finishes. Use it to keep the source
-   * styled as a placeholder until then.
-   */
-  const settling: 'data-settling';
-  /** Present while the draggable is disabled. */
-  const disabled: 'data-disabled';
-}
-```
-
 ### DraggableTargetDataAttributes
 
 Data attributes of [Target](#target).
@@ -2493,6 +2495,29 @@ declare namespace DraggableTargetDataAttributes {
    */
   const rejected: 'data-rejected';
   /** Present while the drop target is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### DraggableTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace DraggableTriggerDataAttributes {
+  /**
+   * Present on the source element while it is being dragged, and until its preview
+   * has settled after the drop. A preview never carries this attribute, so a
+   * `[data-dragging]` rule that dims or hides the source leaves the preview fully visible.
+   */
+  const dragging: 'data-dragging';
+  /**
+   * Present on the source after a deliberate release, on a target or outside every
+   * target, until its preview's ending animation finishes. Use it to keep the source
+   * styled as a placeholder until then.
+   */
+  const settling: 'data-settling';
+  /** Present while the draggable is disabled. */
   const disabled: 'data-disabled';
 }
 ```
@@ -2706,7 +2731,8 @@ type matches =
 
 ## Export Groups
 
-- `Draggable.Root`: `Draggable.Root`, `Draggable.Root.Activation`, `Draggable.Root.ActivationConfig`, `Draggable.Root.Record`, `Draggable.Root.Modifier`, `Draggable.Root.Modifiers`, `Draggable.Root.ModifierContext`, `Draggable.Root.ElementReference`, `Draggable.Root.BeforeMoveStartEventDetails`, `Draggable.Root.BeforeMoveStartEventReason`, `Draggable.Root.MoveStartEventDetails`, `Draggable.Root.MoveStartEventReason`, `Draggable.Root.MoveEventDetails`, `Draggable.Root.MoveEventReason`, `Draggable.Root.TargetChangeEventDetails`, `Draggable.Root.TargetChangeEventReason`, `Draggable.Root.MoveEndEventDetails`, `Draggable.Root.MoveEndEventReason`, `Draggable.Root.State`, `Draggable.Root.Props`
+- `Draggable.Root`: `Draggable.Root`, `Draggable.Root.Activation`, `Draggable.Root.ActivationConfig`, `Draggable.Root.Record`, `Draggable.Root.Modifier`, `Draggable.Root.Modifiers`, `Draggable.Root.ModifierContext`, `Draggable.Root.ElementReference`, `Draggable.Root.BeforeMoveStartEventDetails`, `Draggable.Root.BeforeMoveStartEventReason`, `Draggable.Root.MoveStartEventDetails`, `Draggable.Root.MoveStartEventReason`, `Draggable.Root.MoveEventDetails`, `Draggable.Root.MoveEventReason`, `Draggable.Root.TargetChangeEventDetails`, `Draggable.Root.TargetChangeEventReason`, `Draggable.Root.MoveEndEventDetails`, `Draggable.Root.MoveEndEventReason`, `Draggable.Root.Props`
+- `Draggable.Trigger`: `Draggable.Trigger`, `Draggable.Trigger.State`, `Draggable.Trigger.Props`
 - `Draggable.Handle`: `Draggable.Handle`, `Draggable.Handle.Reference`, `Draggable.Handle.State`, `Draggable.Handle.Props`
 - `Draggable.Preview`: `Draggable.Preview`, `Draggable.Preview.Offset`, `Draggable.Preview.OffsetParameters`, `Draggable.Preview.Container`, `Draggable.Preview.Settings`, `Draggable.Preview.Parameters`, `Draggable.Preview.RenderParameters`, `Draggable.Preview.State`, `Draggable.Preview.Props`
 - `Draggable.Provider`: `Draggable.Provider`, `Draggable.Provider.Props`
@@ -2718,7 +2744,7 @@ type matches =
 - `Draggable.useManager`: `Draggable.useManager`, `Draggable.useManager.ReturnValue`, `Draggable.useManager.RegisterSourceParameters`, `Draggable.useManager.RegisterTargetParameters`, `Draggable.useManager.RegisterViewportParameters`, `Draggable.useManager.RegisterMonitorParameters`
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`
-- `Default`: `Draggable.anyKind`, `Draggable.Accept`, `Draggable.AcceptedKind`, `Draggable.Input`, `Draggable.Kind`, `Draggable.Location`, `Draggable.LocationHistory`, `Draggable.PointerType`, `Draggable.Position`, `DraggableRootDataAttributes`, `DraggableHandleDataAttributes`, `DraggablePreviewCssVariables`, `DraggablePreviewDataAttributes`, `DraggableTargetDataAttributes`, `DraggableViewportDataAttributes`, `DraggableProviderProps`, `DraggablePointerType`, `DraggableInput`, `DraggablePosition`, `DraggableLocation`, `DraggableLocationHistory`, `DraggableKind`, `DraggableAccept`, `DraggableAcceptedKind`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootRecord`, `DraggableRootElementReference`, `DraggableRootModifierContext`, `DraggableRootModifier`, `DraggableRootModifiers`, `DraggableRootBeforeMoveStartEventDetails`, `DraggableRootBeforeMoveStartEventReason`, `DraggableRootMoveStartEventDetails`, `DraggableRootMoveStartEventReason`, `DraggableRootMoveEventDetails`, `DraggableRootMoveEventReason`, `DraggableRootTargetChangeEventDetails`, `DraggableRootTargetChangeEventReason`, `DraggableRootMoveEndEventDetails`, `DraggableRootMoveEndEventReason`, `DraggableRootActivation`, `DraggableRootActivationConfig`, `DraggableHandleState`, `DraggableHandleProps`, `DraggableHandleReference`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewRenderParameters`, `DraggablePreviewOffsetParameters`, `DraggablePreviewOffset`, `DraggablePreviewContainer`, `DraggablePreviewSettings`, `DraggablePreviewParameters`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetLocalPoint`, `DraggableTargetSnapSteps`, `DraggableTargetSnappedLocalPointOptions`, `DraggableTargetRecord`, `DraggableTargetResolutionContext`, `DraggableTargetStartEventDetails`, `DraggableTargetStartEventReason`, `DraggableTargetMoveEventDetails`, `DraggableTargetMoveEventReason`, `DraggableTargetEnterEventDetails`, `DraggableTargetEnterEventReason`, `DraggableTargetLeaveEventDetails`, `DraggableTargetLeaveEventReason`, `DraggableTargetDropEventDetails`, `DraggableTargetDropEventReason`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableViewportOverflowMargin`, `DraggableViewportMaxSpeedContext`, `DraggableViewportDragScrollDirection`, `DraggableViewportDragScrollEventDetails`, `DraggableViewportDragScrollEventReason`, `DraggableCollisionProviderProps`, `DraggableCollisionProviderMoveStartEventDetails`, `DraggableCollisionProviderMoveStartEventReason`, `DraggableCollisionProviderCollisionChangeEventDetails`, `DraggableCollisionProviderCollisionChangeEventReason`, `DraggableCollisionProviderMoveEndEventDetails`, `DraggableCollisionProviderMoveEndEventReason`, `UseActiveDragReturnValue`, `UseDraggableMonitorParameters`, `UseDraggableManagerReturnValue`, `DraggableManagerRegisterSourceParameters`, `DraggableManagerRegisterTargetParameters`, `DraggableManagerRegisterViewportParameters`, `DraggableManagerRegisterMonitorParameters`
+- `Default`: `Draggable.anyKind`, `Draggable.Accept`, `Draggable.AcceptedKind`, `Draggable.Input`, `Draggable.Kind`, `Draggable.Location`, `Draggable.LocationHistory`, `Draggable.PointerType`, `Draggable.Position`, `DraggableTriggerDataAttributes`, `DraggableHandleDataAttributes`, `DraggablePreviewCssVariables`, `DraggablePreviewDataAttributes`, `DraggableTargetDataAttributes`, `DraggableViewportDataAttributes`, `DraggableProviderProps`, `DraggablePointerType`, `DraggableInput`, `DraggablePosition`, `DraggableLocation`, `DraggableLocationHistory`, `DraggableKind`, `DraggableAccept`, `DraggableAcceptedKind`, `DraggableRootProps`, `DraggableRootRecord`, `DraggableRootElementReference`, `DraggableRootModifierContext`, `DraggableRootModifier`, `DraggableRootModifiers`, `DraggableRootBeforeMoveStartEventDetails`, `DraggableRootBeforeMoveStartEventReason`, `DraggableRootMoveStartEventDetails`, `DraggableRootMoveStartEventReason`, `DraggableRootMoveEventDetails`, `DraggableRootMoveEventReason`, `DraggableRootTargetChangeEventDetails`, `DraggableRootTargetChangeEventReason`, `DraggableRootMoveEndEventDetails`, `DraggableRootMoveEndEventReason`, `DraggableRootActivation`, `DraggableRootActivationConfig`, `DraggableTriggerState`, `DraggableTriggerProps`, `DraggableHandleState`, `DraggableHandleProps`, `DraggableHandleReference`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewRenderParameters`, `DraggablePreviewOffsetParameters`, `DraggablePreviewOffset`, `DraggablePreviewContainer`, `DraggablePreviewSettings`, `DraggablePreviewParameters`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetLocalPoint`, `DraggableTargetSnapSteps`, `DraggableTargetSnappedLocalPointOptions`, `DraggableTargetRecord`, `DraggableTargetResolutionContext`, `DraggableTargetStartEventDetails`, `DraggableTargetStartEventReason`, `DraggableTargetMoveEventDetails`, `DraggableTargetMoveEventReason`, `DraggableTargetEnterEventDetails`, `DraggableTargetEnterEventReason`, `DraggableTargetLeaveEventDetails`, `DraggableTargetLeaveEventReason`, `DraggableTargetDropEventDetails`, `DraggableTargetDropEventReason`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableViewportOverflowMargin`, `DraggableViewportMaxSpeedContext`, `DraggableViewportDragScrollDirection`, `DraggableViewportDragScrollEventDetails`, `DraggableViewportDragScrollEventReason`, `DraggableCollisionProviderProps`, `DraggableCollisionProviderMoveStartEventDetails`, `DraggableCollisionProviderMoveStartEventReason`, `DraggableCollisionProviderCollisionChangeEventDetails`, `DraggableCollisionProviderCollisionChangeEventReason`, `DraggableCollisionProviderMoveEndEventDetails`, `DraggableCollisionProviderMoveEndEventReason`, `UseActiveDragReturnValue`, `UseDraggableMonitorParameters`, `UseDraggableManagerReturnValue`, `DraggableManagerRegisterSourceParameters`, `DraggableManagerRegisterTargetParameters`, `DraggableManagerRegisterViewportParameters`, `DraggableManagerRegisterMonitorParameters`
 - `Draggable.updatePreview`
 - `Draggable.restrictToVerticalAxis`
 - `Draggable.restrictToHorizontalAxis`
@@ -2748,8 +2774,9 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Draggable.Root.TargetChangeEventReason`: `DraggableRootTargetChangeEventReason`
 - `Draggable.Root.MoveEndEventDetails`: `DraggableRootMoveEndEventDetails`
 - `Draggable.Root.MoveEndEventReason`: `DraggableRootMoveEndEventReason`
-- `Draggable.Root.State`: `DraggableRootState`
 - `Draggable.Root.Props`: `DraggableRootProps`
+- `Draggable.Trigger.State`: `DraggableTriggerState`
+- `Draggable.Trigger.Props`: `DraggableTriggerProps`
 - `Draggable.Handle.Reference`: `DraggableHandleReference`
 - `Draggable.Handle.State`: `DraggableHandleState`
 - `Draggable.Handle.Props`: `DraggableHandleProps`
@@ -2801,3 +2828,17 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Draggable.LocationHistory`: `DraggableLocationHistory`
 - `Draggable.PointerType`: `DraggablePointerType`
 - `Draggable.Position`: `DraggablePosition`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `DOMRect`: <https://developer.mozilla.org/docs/Web/API/DOMRect>
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLElement`: <https://developer.mozilla.org/docs/Web/API/HTMLElement>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `Window`: <https://developer.mozilla.org/docs/Web/API/Window>

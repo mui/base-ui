@@ -8,7 +8,14 @@ describe('Draggable native events', () => {
   const { render } = createRenderer();
 
   for (const [name, Part] of [
-    ['Root', (props: React.DOMAttributes<HTMLDivElement>) => <Draggable.Root {...props} />],
+    [
+      'Trigger',
+      (props: React.DOMAttributes<HTMLDivElement>) => (
+        <Draggable.Root>
+          <Draggable.Trigger {...props} />
+        </Draggable.Root>
+      ),
+    ],
     ['Target', (props: React.DOMAttributes<HTMLDivElement>) => <Draggable.Target {...props} />],
     ['Viewport', (props: React.DOMAttributes<HTMLDivElement>) => <Draggable.Viewport {...props} />],
   ] as const) {
@@ -22,9 +29,11 @@ describe('Draggable native events', () => {
       await render(
         <Draggable.Provider>
           <Draggable.Root onMoveStart={onMoveStart}>
-            <Draggable.Target accept={Draggable.anyKind} onDraggableDrop={onDraggableDrop}>
-              <Part {...props} />
-            </Draggable.Target>
+            <Draggable.Trigger>
+              <Draggable.Target accept={Draggable.anyKind} onDraggableDrop={onDraggableDrop}>
+                <Part {...props} />
+              </Draggable.Target>
+            </Draggable.Trigger>
           </Draggable.Root>
         </Draggable.Provider>,
       );

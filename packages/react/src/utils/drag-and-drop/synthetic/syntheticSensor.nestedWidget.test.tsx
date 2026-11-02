@@ -65,15 +65,17 @@ describe('syntheticDrag nested pointer widgets', () => {
   async function renderCard(onMoveStart: () => void) {
     await renderDnd(
       <Draggable.Root kind={testDragKind} onMoveStart={onMoveStart}>
-        <Slider.Root defaultValue={50}>
-          <Slider.Control data-testid="control">
-            <Slider.Track>
-              <Slider.Indicator />
-              <Slider.Thumb data-testid="thumb" />
-            </Slider.Track>
-          </Slider.Control>
-        </Slider.Root>
-        <span data-testid="label">Card</span>
+        <Draggable.Trigger>
+          <Slider.Root defaultValue={50}>
+            <Slider.Control data-testid="control">
+              <Slider.Track>
+                <Slider.Indicator />
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>
+          <span data-testid="label">Card</span>
+        </Draggable.Trigger>
       </Draggable.Root>,
     );
     const control = screen.getByTestId('control');
@@ -103,10 +105,12 @@ describe('syntheticDrag nested pointer widgets', () => {
     // Like a scroll-area thumb, which takes capture on the pressed element.
     await renderDnd(
       <Draggable.Root kind={testDragKind} onMoveStart={onMoveStart}>
-        <div
-          data-testid="knob"
-          onPointerDown={(event) => event.currentTarget.setPointerCapture(event.pointerId)}
-        />
+        <Draggable.Trigger>
+          <div
+            data-testid="knob"
+            onPointerDown={(event) => event.currentTarget.setPointerCapture(event.pointerId)}
+          />
+        </Draggable.Trigger>
       </Draggable.Root>,
     );
     const knob = screen.getByTestId('knob');

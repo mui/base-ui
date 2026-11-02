@@ -1,7 +1,7 @@
 import { Store } from '@base-ui/utils/store';
 import type { ReadonlyStore } from '@base-ui/utils/store';
 import { getSharedSlot } from './sharedState';
-import * as DraggableRootDataAttributes from '../../draggable/root/DraggableRootDataAttributes';
+import * as DraggableTriggerDataAttributes from '../../draggable/trigger/DraggableTriggerDataAttributes';
 
 const store = getSharedSlot(
   'dragSettlingSources',
@@ -16,7 +16,7 @@ export const settlingSourcesStore: ReadonlyStore<ReadonlySet<Element>> = store;
 
 /** The engine is the only writer of `[data-settling]`, so the DOM and the store agree. */
 export function setSourceSettling(element: Element, settling: boolean): void {
-  element.toggleAttribute(DraggableRootDataAttributes.settling, settling);
+  element.toggleAttribute(DraggableTriggerDataAttributes.settling, settling);
   if (store.state.has(element) === settling) {
     return;
   }

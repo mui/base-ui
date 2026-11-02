@@ -41,31 +41,31 @@ export default function DraggableHero() {
         >
           {/* @focus-start @min 8 */}
           {/* @highlight-start */}
-          <Draggable.Root
-            ref={cardRef}
-            modifiers={Draggable.restrictToElement(surfaceRef)}
-            // @highlight-end
-            className={styles.Card}
-            style={{ left: position.x, top: position.y }}
-            tabIndex={0}
-            aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
-            onKeyDown={(event) => {
-              if (!event.altKey) {
-                return;
-              }
-              const direction = [
-                { key: 'ArrowLeft', x: -20, y: 0 },
-                { key: 'ArrowRight', x: 20, y: 0 },
-                { key: 'ArrowUp', x: 0, y: -20 },
-                { key: 'ArrowDown', x: 0, y: 20 },
-              ].find((entry) => entry.key === event.key);
-              if (direction) {
-                event.preventDefault();
-                placeCard(position.x + direction.x, position.y + direction.y);
-              }
-            }}
-          >
-            Drag me
+          <Draggable.Root modifiers={Draggable.restrictToElement(surfaceRef)}>
+            <Draggable.Trigger
+              ref={cardRef}
+              className={styles.Card}
+              style={{ left: position.x, top: position.y }}
+              tabIndex={0}
+              aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
+              onKeyDown={(event) => {
+                if (!event.altKey) {
+                  return;
+                }
+                const direction = [
+                  { key: 'ArrowLeft', x: -20, y: 0 },
+                  { key: 'ArrowRight', x: 20, y: 0 },
+                  { key: 'ArrowUp', x: 0, y: -20 },
+                  { key: 'ArrowDown', x: 0, y: 20 },
+                ].find((entry) => entry.key === event.key);
+                if (direction) {
+                  event.preventDefault();
+                  placeCard(position.x + direction.x, position.y + direction.y);
+                }
+              }}
+            >
+              Drag me
+            </Draggable.Trigger>
           </Draggable.Root>
           {/* @focus-end */}
         </Draggable.Target>

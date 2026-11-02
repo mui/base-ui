@@ -21,9 +21,7 @@ describe.skipIf(isJSDOM)('Draggable.CollisionProvider (real hit testing)', () =>
         <Draggable.Root
           kind={kind}
           payload="a"
-          data-testid="source"
           activation={{ mouse: { type: 'immediate' } }}
-          style={{ position: 'fixed', top: 0, left: 0, width: 100, height: 100 }}
           onMove={({ location }) => {
             if (location.current.targets[0]?.payload === 'b') {
               targetRef.current!.style.top = '400px';
@@ -33,15 +31,19 @@ describe.skipIf(isJSDOM)('Draggable.CollisionProvider (real hit testing)', () =>
             targetRef.current!.style.top = '600px';
           }}
         >
-          <Draggable.Preview disabled />
+          <Draggable.Trigger
+            data-testid="source"
+            style={{ position: 'fixed', top: 0, left: 0, width: 100, height: 100 }}
+          >
+            <Draggable.Preview disabled />
+          </Draggable.Trigger>
         </Draggable.Root>
-        <Draggable.Root
-          ref={targetRef}
-          kind={kind}
-          payload="b"
-          snap={{ y: 4 }}
-          style={{ position: 'fixed', top: 200, left: 0, width: 100, height: 100 }}
-        />
+        <Draggable.Root kind={kind} payload="b" snap={{ y: 4 }}>
+          <Draggable.Trigger
+            ref={targetRef}
+            style={{ position: 'fixed', top: 200, left: 0, width: 100, height: 100 }}
+          />
+        </Draggable.Root>
       </Draggable.CollisionProvider>,
     );
     const source = screen.getByTestId('source');

@@ -173,14 +173,13 @@ const ColumnHeader = React.memo(function ColumnHeader({
         kind={columnKind}
         collisionElement={getCollisionElement}
         payload={column.id}
-        // The axis lock also pins the hit test to the header row, so headers keep
-        // matching wherever the pointer is over the grid.
         modifiers={Draggable.restrictToHorizontalAxis}
-        className={styles.headerCellInner}
       >
-        {column.label}
-        {/* Keep the default clone inside the grid. */}
-        <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
+        <Draggable.Trigger className={styles.headerCellInner}>
+          {column.label}
+          {/* Keep the default clone inside the grid. */}
+          <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
+        </Draggable.Trigger>
       </Draggable.Root>
       <Menu.Root>
         <Menu.Trigger
@@ -230,29 +229,30 @@ const GridRow = React.memo(function GridRow({
         collisionElement={getCollisionElement}
         payload={row.id}
         modifiers={Draggable.restrictToVerticalAxis}
-        className={styles.rowInner}
       >
-        <Draggable.Preview
-          className={clsx(theme.tokens, styles.rowGhost)}
-          // A small chip just off the pointer.
-          offset={{ x: 14, y: 10 }}
-          // Keep the preview inside the grid.
-          modifiers={Draggable.restrictToElement(boundaryRef)}
-        >
-          {row.cells.name}
-        </Draggable.Preview>
-        {/* Rows drag from the handle only. */}
-        <Draggable.Handle className={styles.rowHandle} aria-label="Reorder row">
-          <DragHandleIcon />
-        </Draggable.Handle>
-        {/* Spacers stand in for the unmounted columns, so mounted cells land at their true x. */}
-        <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
-        {columns.map((column) => (
-          <div key={column.id} className={styles.cell} style={{ width: column.width }}>
-            {row.cells[column.id]}
-          </div>
-        ))}
-        <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
+        <Draggable.Trigger className={styles.rowInner}>
+          <Draggable.Preview
+            className={clsx(theme.tokens, styles.rowGhost)}
+            // A small chip just off the pointer.
+            offset={{ x: 14, y: 10 }}
+            // Keep the preview inside the grid.
+            modifiers={Draggable.restrictToElement(boundaryRef)}
+          >
+            {row.cells.name}
+          </Draggable.Preview>
+          {/* Rows drag from the handle only. */}
+          <Draggable.Handle className={styles.rowHandle} aria-label="Reorder row">
+            <DragHandleIcon />
+          </Draggable.Handle>
+          {/* Spacers stand in for the unmounted columns, so mounted cells land at their true x. */}
+          <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
+          {columns.map((column) => (
+            <div key={column.id} className={styles.cell} style={{ width: column.width }}>
+              {row.cells[column.id]}
+            </div>
+          ))}
+          <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
+        </Draggable.Trigger>
       </Draggable.Root>
     </div>
   );

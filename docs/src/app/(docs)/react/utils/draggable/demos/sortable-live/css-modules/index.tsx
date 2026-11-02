@@ -31,19 +31,22 @@ const Task = React.memo(function Task({
         kind={taskKind}
         payload={task}
         collisionElement={getTaskRow}
-        data-sortable-item
-        render={<button type="button" aria-label={task} />}
-        className={styles.Item}
         modifiers={Draggable.restrictToVerticalAxis}
-        aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-        onKeyDown={(event) => {
-          if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-            event.preventDefault();
-            onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
-          }
-        }}
       >
-        {task}
+        <Draggable.Trigger
+          data-sortable-item
+          render={<button type="button" aria-label={task} />}
+          className={styles.Item}
+          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+          onKeyDown={(event) => {
+            if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+              event.preventDefault();
+              onSwap(task, event.key === 'ArrowUp' ? 'up' : 'down');
+            }
+          }}
+        >
+          {task}
+        </Draggable.Trigger>
       </Draggable.Root>
     </div>
   );

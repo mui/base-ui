@@ -19,13 +19,13 @@ function Board(props: {
 }) {
   return (
     <Draggable.Provider>
-      <Draggable.Root
-        kind={card}
-        render={<button type="button" />}
-        onMoveEnd={props.onMoveEnd}
-        style={{ position: 'fixed', left: 0, top: 0, width: 100, height: 30 }}
-      >
-        Write the spec
+      <Draggable.Root kind={card} onMoveEnd={props.onMoveEnd}>
+        <Draggable.Trigger
+          render={<button type="button" />}
+          style={{ position: 'fixed', left: 0, top: 0, width: 100, height: 30 }}
+        >
+          Write the spec
+        </Draggable.Trigger>
       </Draggable.Root>
       <Draggable.Target
         accept={card}

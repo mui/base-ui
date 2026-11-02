@@ -91,35 +91,37 @@ function FolderTile({
   const handleKeyDown = useKeyboardControls(() => onOpen(node.id));
 
   return (
-    <Draggable.Root
-      kind={nodeKind}
-      payload={node.id}
-      role="button"
-      tabIndex={0}
-      className={styles.Item}
-      onClick={() => onOpen(node.id)}
-      onKeyDownCapture={handleKeyDown}
-      render={
-        <Draggable.Target
-          accept={nodeKind}
-          canDrop={({ source }) => canDropInto(nodes, node.id, source.payload)}
-          onDraggableDrop={(eventDetails) => onMove(eventDetails.source.payload, node.id)}
-        />
-      }
-    >
-      <FolderIcon className={styles.Icon} />
-      <span className={styles.Label}>{node.name}</span>
-      <NodePreview node={node} />
+    <Draggable.Root kind={nodeKind} payload={node.id}>
+      <Draggable.Trigger
+        role="button"
+        tabIndex={0}
+        className={styles.Item}
+        onClick={() => onOpen(node.id)}
+        onKeyDownCapture={handleKeyDown}
+        render={
+          <Draggable.Target
+            accept={nodeKind}
+            canDrop={({ source }) => canDropInto(nodes, node.id, source.payload)}
+            onDraggableDrop={(eventDetails) => onMove(eventDetails.source.payload, node.id)}
+          />
+        }
+      >
+        <FolderIcon className={styles.Icon} />
+        <span className={styles.Label}>{node.name}</span>
+        <NodePreview node={node} />
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }
 
 function FileTile({ node }: { node: FileNode }) {
   return (
-    <Draggable.Root kind={nodeKind} payload={node.id} tabIndex={0} className={styles.Item}>
-      <FileIcon className={styles.Icon} />
-      <span className={styles.Label}>{node.name}</span>
-      <NodePreview node={node} />
+    <Draggable.Root kind={nodeKind} payload={node.id}>
+      <Draggable.Trigger tabIndex={0} className={styles.Item}>
+        <FileIcon className={styles.Icon} />
+        <span className={styles.Label}>{node.name}</span>
+        <NodePreview node={node} />
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

@@ -17,42 +17,23 @@ import type {
   DraggableTargetSnapSteps,
   DraggableTargetResolutionContext,
 } from '../target/DraggableTarget';
-import { useRenderElement } from '../../internals/useRenderElement';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import type { BaseUIComponentProps } from '../../internals/types';
 import type { RegisterSourceParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
-const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
-  // The engine sets `data-dragging` after it builds and measures the preview, so the
-  // clone never inherits it. Rendering it from React could land it before the clone.
-  dragging: () => null,
-  // The engine sets `data-settling` too, in step with the preview it settles.
-  settling: () => null,
-};
-
 /**
- * An element that can be picked up with the pointer and dropped on a matching drop target.
- * While dragging, a clone of the element follows the pointer by default.
- * Renders a `<div>` element.
+ * Groups the parts of a draggable item and holds its drag settings and event handlers.
+ * Doesn't render its own HTML element: `<Draggable.Trigger>` renders the element that
+ * the user picks up.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
-export const DraggableRoot = React.forwardRef(function DraggableRoot<
-  TPayload = undefined,
-  TDragData = unknown,
->(
+export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragData = unknown>(
   componentProps: DraggableRootPropsBase<TPayload, TDragData>,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    // Rendering props
-    className,
-    render,
-    style,
-    // Drag source props
+    children,
     kind,
     payload,
     previewKey,
@@ -69,8 +50,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     onMove,
     onTargetChange,
     onMoveEnd,
-    // Props forwarded to the DOM element
-    ...elementProps
   } = componentProps;
 
   const draggableContext = useDraggableContext();
@@ -128,64 +107,34 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
       : undefined,
   );
 
-  const state: DraggableRoot.State = {
-    dragging,
-    settling,
-    disabled: disabled ?? false,
-  };
-
   const contextValue = React.useMemo(
     () => ({
       registerHandle,
       previewHandle,
       previewContext: draggableContext,
+      triggerRef: ref,
+      dragging,
+      settling,
       disabled: disabled ?? false,
     }),
-    [registerHandle, previewHandle, draggableContext, disabled],
+    [registerHandle, previewHandle, draggableContext, ref, dragging, settling, disabled],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, ref],
-    props: elementProps,
-    stateAttributesMapping,
-  });
-
   return (
-    <DraggableRootContext.Provider value={contextValue}>{element}</DraggableRootContext.Provider>
+    <DraggableRootContext.Provider value={contextValue}>{children}</DraggableRootContext.Provider>
   );
   // One generic signature, as in `Select.Root`. `Props` requires `payload` when the
   // kind declares one, so `kind={card}` without a payload is a type error. A generic
   // wrapper can spread its `Props<Payload>` through, since both infer from the same alias.
-}) as <TPayload = undefined, TDragData = unknown>(
+} as <TPayload = undefined, TDragData = unknown>(
   props: DraggableRootProps<TPayload, TDragData>,
 ) => React.JSX.Element;
 
-export interface DraggableRootState {
-  /**
-   * Whether this element is being dragged.
-   */
-  dragging: boolean;
-  /**
-   * Whether this element's preview is still running its ending animation after the drop.
-   * The source keeps `[data-dragging]` until then, so `dragging || settling`
-   * matches that attribute.
-   */
-  settling: boolean;
-  /**
-   * Whether the draggable is disabled.
-   */
-  disabled: boolean;
-}
-
 // Every `Draggable.Root` prop, with `kind` and `payload` optional.
 // `DraggableRootProps` requires both when the kind declares a payload.
-type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
-  BaseUIComponentProps<'div', DraggableRootState>,
-  // - `children` is widened below.
-  // - `draggable` would start native dragging alongside the pointer sensor.
-  'children' | 'draggable'
-> &
+// `React.Attributes` adds `key`, which a generic wrapper's spread of an open `Props`
+// needs in common with JSX's `IntrinsicAttributes`.
+type DraggableRootPropsBase<TPayload, TDragData = unknown> = React.Attributes &
   // `Draggable.Preview` and `Draggable.Handle` children declare the preview and handle.
   Omit<RegisterSourceParameters<TPayload, TDragData>, 'preview' | 'handle' | 'kind'> & {
     children?: React.ReactNode | undefined;
@@ -440,7 +389,6 @@ export namespace DraggableRoot {
     TDragData = unknown,
   > = DraggableRootMoveEndEventDetails<TPayload, TDragData>;
   export type MoveEndEventReason = DraggableRootMoveEndEventReason;
-  export type State = DraggableRootState;
   export type Props<TPayload = undefined, TDragData = unknown> = DraggableRootProps<
     TPayload,
     TDragData

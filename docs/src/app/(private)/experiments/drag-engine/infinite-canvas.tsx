@@ -189,9 +189,6 @@ function InfiniteCanvasContent() {
               key={note.id}
               kind={noteKind}
               payload={note.id}
-              role="button"
-              className={styles.note}
-              style={{ left: note.x, top: note.y }}
               onMoveStart={() => {
                 dragStartCameraRef.current = cameraRef.current;
               }}
@@ -220,7 +217,13 @@ function InfiniteCanvasContent() {
                 );
               }}
             >
-              {note.label}
+              <Draggable.Trigger
+                role="button"
+                className={styles.note}
+                style={{ left: note.x, top: note.y }}
+              >
+                {note.label}
+              </Draggable.Trigger>
             </Draggable.Root>
           ))}
         </div>

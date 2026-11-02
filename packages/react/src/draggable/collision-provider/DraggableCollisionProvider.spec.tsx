@@ -68,7 +68,9 @@ const marker = Draggable.createKind('marker');
     expectType<Element, typeof element>(element);
     return { x: 4, y: 8 };
   }}
-/>;
+>
+  <Draggable.Trigger />
+</Draggable.Root>;
 
 // A kind without a payload types the callbacks with `undefined`.
 <Draggable.CollisionProvider

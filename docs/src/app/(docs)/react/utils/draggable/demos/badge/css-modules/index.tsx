@@ -19,29 +19,29 @@ function Widget({
   onKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
-    <Draggable.Root
-      kind={widgetKind}
-      payload={widget.id}
-      className={styles.Widget}
-      data-widget-id={widget.id}
-      tabIndex={0}
-      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-      onKeyDown={(event) => onKeyDown(event, widget.id)}
-    >
-      <div className={styles.WidgetHeader}>
-        <GripIcon className={styles.Grip} />
-        <span>{widget.title}</span>
-      </div>
-      <div className={styles.WidgetBody}>
-        <strong>{widget.value}</strong>
-        <span>{widget.detail}</span>
-      </div>
-      {/* @highlight-start @focus @padding 1 */}
-      <Draggable.Preview className={styles.Badge} offset="pointer">
-        <span className={styles.BadgeValue}>{widget.value}</span>
-        {widget.title}
-      </Draggable.Preview>
-      {/* @highlight-end */}
+    <Draggable.Root kind={widgetKind} payload={widget.id}>
+      <Draggable.Trigger
+        className={styles.Widget}
+        data-widget-id={widget.id}
+        tabIndex={0}
+        aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+        onKeyDown={(event) => onKeyDown(event, widget.id)}
+      >
+        <div className={styles.WidgetHeader}>
+          <GripIcon className={styles.Grip} />
+          <span>{widget.title}</span>
+        </div>
+        <div className={styles.WidgetBody}>
+          <strong>{widget.value}</strong>
+          <span>{widget.detail}</span>
+        </div>
+        {/* @highlight-start @focus @padding 1 */}
+        <Draggable.Preview className={styles.Badge} offset="pointer">
+          <span className={styles.BadgeValue}>{widget.value}</span>
+          {widget.title}
+        </Draggable.Preview>
+        {/* @highlight-end */}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

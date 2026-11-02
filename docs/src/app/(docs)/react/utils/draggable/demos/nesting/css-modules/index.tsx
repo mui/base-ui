@@ -39,17 +39,17 @@ function Layer({
   onKeyDown: (event: React.KeyboardEvent<HTMLElement>, id: LayerId) => void;
 }) {
   return (
-    <Draggable.Root
-      kind={layerKind}
-      payload={id}
-      className={styles.Layer}
-      data-layer-id={id}
-      tabIndex={0}
-      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-      onKeyDown={(event) => onKeyDown(event, id)}
-    >
-      {id === 'chart' ? <ChartIcon /> : <NoteIcon />}
-      {id === 'chart' ? 'Chart' : 'Note'}
+    <Draggable.Root kind={layerKind} payload={id}>
+      <Draggable.Trigger
+        className={styles.Layer}
+        data-layer-id={id}
+        tabIndex={0}
+        aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+        onKeyDown={(event) => onKeyDown(event, id)}
+      >
+        {id === 'chart' ? <ChartIcon /> : <NoteIcon />}
+        {id === 'chart' ? 'Chart' : 'Note'}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

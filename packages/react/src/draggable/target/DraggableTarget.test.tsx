@@ -1093,12 +1093,10 @@ describe('Draggable.Target', () => {
   describe('composed onto a Draggable.Root', () => {
     it('registers both roles on a single element', async () => {
       await renderDnd(
-        <Draggable.Root
-          kind={cardKind}
-          payload={{ id: 'a' }}
-          render={<Draggable.Target accept={cardKind} />}
-        >
-          Card
+        <Draggable.Root kind={cardKind} payload={{ id: 'a' }}>
+          <Draggable.Trigger render={<Draggable.Target accept={cardKind} />}>
+            Card
+          </Draggable.Trigger>
         </Draggable.Root>,
       );
 
@@ -1109,11 +1107,9 @@ describe('Draggable.Target', () => {
 
     it('reflects the drop target drag-over state on the composed element', async () => {
       const { engine } = await renderDnd(
-        <Draggable.Root
-          kind={cardKind}
-          payload={{ id: 'a' }}
-          render={<Draggable.Target data-testid="item" accept={cardKind} />}
-        />,
+        <Draggable.Root kind={cardKind} payload={{ id: 'a' }}>
+          <Draggable.Trigger render={<Draggable.Target data-testid="item" accept={cardKind} />} />
+        </Draggable.Root>,
       );
       const source = createElement();
       engine.registerSource(source, { kind: cardKind, payload: { id: 'a' } });
@@ -1137,14 +1133,12 @@ describe('Draggable.Target', () => {
       // drop target's drag-over state must not clobber it.
       await renderDnd(
         <React.Fragment>
-          <Draggable.Root
-            kind={itemKind}
-            render={<Draggable.Target data-testid="a" accept={itemKind} />}
-          />
-          <Draggable.Root
-            kind={itemKind}
-            render={<Draggable.Target data-testid="b" accept={itemKind} />}
-          />
+          <Draggable.Root kind={itemKind}>
+            <Draggable.Trigger render={<Draggable.Target data-testid="a" accept={itemKind} />} />
+          </Draggable.Root>
+          <Draggable.Root kind={itemKind}>
+            <Draggable.Trigger render={<Draggable.Target data-testid="b" accept={itemKind} />} />
+          </Draggable.Root>
         </React.Fragment>,
       );
       const a = screen.getByTestId('a');

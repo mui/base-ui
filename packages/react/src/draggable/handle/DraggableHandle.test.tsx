@@ -15,13 +15,21 @@ describe('<Draggable.Handle />', () => {
   describeConformance(<Draggable.Handle />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
-      return renderDnd(<Draggable.Root kind={testDragKind}>{node}</Draggable.Root>);
+      return renderDnd(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger>{node}</Draggable.Trigger>
+        </Draggable.Root>,
+      );
     },
   }));
 
   dragRegistrationConformanceTests({
     render: renderDnd,
-    wrapper: ({ children }) => <Draggable.Root kind={testDragKind}>{children}</Draggable.Root>,
+    wrapper: ({ children }) => (
+      <Draggable.Root kind={testDragKind}>
+        <Draggable.Trigger>{children}</Draggable.Trigger>
+      </Draggable.Root>
+    ),
     createComponent: ({ key, ...props }) => <Draggable.Handle key={key} {...props} />,
     // The root moves its gesture styles to its registered handle.
     isRegistered: (element) => element.style.touchAction === 'manipulation',
@@ -32,10 +40,12 @@ describe('<Draggable.Handle />', () => {
     try {
       function Card({ withFirst }: { withFirst: boolean }) {
         return (
-          <Draggable.Root kind={testDragKind} data-testid="card">
-            <span data-testid="body">content</span>
-            {withFirst && <Draggable.Handle data-testid="handle-a">a</Draggable.Handle>}
-            <Draggable.Handle data-testid="handle-b">b</Draggable.Handle>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="card">
+              <span data-testid="body">content</span>
+              {withFirst && <Draggable.Handle data-testid="handle-a">a</Draggable.Handle>}
+              <Draggable.Handle data-testid="handle-b">b</Draggable.Handle>
+            </Draggable.Trigger>
           </Draggable.Root>
         );
       }
@@ -66,11 +76,13 @@ describe('<Draggable.Handle />', () => {
   it('keeps the drag through a handle swap mid-drag and moves the gesture styles to the new handle', async () => {
     function Card({ handleId }: { handleId: string }) {
       return (
-        <Draggable.Root kind={testDragKind} data-testid="card">
-          <span data-testid="body">content</span>
-          <Draggable.Handle key={handleId} data-testid={handleId}>
-            grip
-          </Draggable.Handle>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="card">
+            <span data-testid="body">content</span>
+            <Draggable.Handle key={handleId} data-testid={handleId}>
+              grip
+            </Draggable.Handle>
+          </Draggable.Trigger>
         </Draggable.Root>
       );
     }
@@ -133,13 +145,17 @@ describe('<Draggable.Handle />', () => {
             }
           }}
         >
-          <Draggable.Root kind={kind} payload="a" data-testid="a">
-            <Draggable.Preview disabled />
+          <Draggable.Root kind={kind} payload="a">
+            <Draggable.Trigger data-testid="a">
+              <Draggable.Preview disabled />
+            </Draggable.Trigger>
           </Draggable.Root>
-          <Draggable.Root kind={kind} payload="b" data-testid="b" data-over={over === 'b'}>
-            <Draggable.Handle ref={() => {}} data-testid="handle-b">
-              grip
-            </Draggable.Handle>
+          <Draggable.Root kind={kind} payload="b">
+            <Draggable.Trigger data-testid="b" data-over={over === 'b'}>
+              <Draggable.Handle ref={() => {}} data-testid="handle-b">
+                grip
+              </Draggable.Handle>
+            </Draggable.Trigger>
           </Draggable.Root>
         </Draggable.CollisionProvider>
       );
@@ -178,11 +194,13 @@ describe('<Draggable.Handle />', () => {
       // while no handle was mounted.
       function Card({ handleId }: { handleId: string }) {
         return (
-          <Draggable.Root kind={testDragKind} data-testid="card" ref={() => {}}>
-            <span data-testid="body">content</span>
-            <Draggable.Handle key={handleId} data-testid={handleId}>
-              grip
-            </Draggable.Handle>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="card" ref={() => {}}>
+              <span data-testid="body">content</span>
+              <Draggable.Handle key={handleId} data-testid={handleId}>
+                grip
+              </Draggable.Handle>
+            </Draggable.Trigger>
           </Draggable.Root>
         );
       }
@@ -213,9 +231,11 @@ describe('<Draggable.Handle />', () => {
     function Card({ disabled }: { disabled?: boolean }) {
       return (
         <Draggable.Root kind={testDragKind} disabled={disabled}>
-          <Draggable.Handle data-testid="handle" className={className} style={style}>
-            grip
-          </Draggable.Handle>
+          <Draggable.Trigger>
+            <Draggable.Handle data-testid="handle" className={className} style={style}>
+              grip
+            </Draggable.Handle>
+          </Draggable.Trigger>
         </Draggable.Root>
       );
     }

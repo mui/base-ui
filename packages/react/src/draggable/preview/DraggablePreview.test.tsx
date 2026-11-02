@@ -21,9 +21,11 @@ describe('Draggable.Preview', () => {
   it.each([undefined, null, false])('clones the source with static %s children', (children) => {
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root data-testid="drag">
-          Source content
-          <Draggable.Preview>{children}</Draggable.Preview>
+        <Draggable.Root>
+          <Draggable.Trigger data-testid="drag">
+            Source content
+            <Draggable.Preview>{children}</Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );
@@ -36,9 +38,11 @@ describe('Draggable.Preview', () => {
   it.each([null, false])('hides the preview when a render function returns %s', (children) => {
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root data-testid="drag">
-          Source content
-          <Draggable.Preview>{() => children}</Draggable.Preview>
+        <Draggable.Root>
+          <Draggable.Trigger data-testid="drag">
+            Source content
+            <Draggable.Preview>{() => children}</Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );
@@ -55,9 +59,11 @@ describe('Draggable.Preview', () => {
     rtlRender(
       <DraggableProvider>
         <div data-testid="list">
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            Source
-            <Draggable.Preview>{children}</Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              Source
+              <Draggable.Preview>{children}</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
           <div data-testid="sibling" />
         </div>
@@ -87,7 +93,9 @@ describe('Draggable.Preview', () => {
       rtlRender(
         <DraggableProvider>
           <Draggable.Root>
-            <Draggable.Preview {...props} />
+            <Draggable.Trigger>
+              <Draggable.Preview {...props} />
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>,
       );
@@ -103,7 +111,9 @@ describe('Draggable.Preview', () => {
       rtlRender(
         <DraggableProvider>
           <Draggable.Root>
-            <Draggable.Preview render={<span />}>Preview</Draggable.Preview>
+            <Draggable.Trigger>
+              <Draggable.Preview render={<span />}>Preview</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>,
       );
@@ -119,15 +129,17 @@ describe('Draggable.Preview', () => {
     try {
       rtlRender(
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview
-              data-testid="preview"
-              modifiers={({ point }) => point}
-              offset={{ x: 0, y: 0 }}
-              container={container}
-            >
-              Preview
-            </Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview
+                data-testid="preview"
+                modifiers={({ point }) => point}
+                offset={{ x: 0, y: 0 }}
+                container={container}
+              >
+                Preview
+              </Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>,
       );
@@ -150,10 +162,12 @@ describe('Draggable.Preview', () => {
     const container = vi.fn(() => document.body);
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview disabled container={container}>
-            Preview
-          </Draggable.Preview>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag">
+            <Draggable.Preview disabled container={container}>
+              Preview
+            </Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );
@@ -173,8 +187,10 @@ describe('Draggable.Preview', () => {
     const renderPreview = vi.fn(() => 'Preview');
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview kind={otherKind}>{renderPreview}</Draggable.Preview>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag">
+            <Draggable.Preview kind={otherKind}>{renderPreview}</Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );
@@ -197,9 +213,11 @@ describe('Draggable.Preview', () => {
         rtlRender(
           <DraggableProvider>
             <Draggable.Root kind={testDragKind}>
-              <DraggableProvider>
-                <Draggable.Preview>Preview</Draggable.Preview>
-              </DraggableProvider>
+              <Draggable.Trigger>
+                <DraggableProvider>
+                  <Draggable.Preview>Preview</Draggable.Preview>
+                </DraggableProvider>
+              </Draggable.Trigger>
             </Draggable.Root>
           </DraggableProvider>,
         ),
@@ -216,8 +234,10 @@ describe('Draggable.Preview', () => {
       return (
         <DraggableProvider>
           {props.withRow ? (
-            <Draggable.Root kind={testDragKind} data-testid="drag">
-              <Draggable.Preview>Preview content</Draggable.Preview>
+            <Draggable.Root kind={testDragKind}>
+              <Draggable.Trigger data-testid="drag">
+                <Draggable.Preview>Preview content</Draggable.Preview>
+              </Draggable.Trigger>
             </Draggable.Root>
           ) : null}
         </DraggableProvider>
@@ -266,15 +286,17 @@ describe('Draggable.Preview', () => {
     try {
       rtlRender(
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview
-              offset={(offsetParameters) => {
-                parameters = offsetParameters;
-                throw new Error('offset failed');
-              }}
-            >
-              <span data-testid="preview">Preview</span>
-            </Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview
+                offset={(offsetParameters) => {
+                  parameters = offsetParameters;
+                  throw new Error('offset failed');
+                }}
+              >
+                <span data-testid="preview">Preview</span>
+              </Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
           <div data-testid="sibling" />
         </DraggableProvider>,
@@ -309,8 +331,8 @@ describe('Draggable.Preview', () => {
     it('ends right after dropping a cloned preview', () => {
       rtlRender(
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            Source content
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">Source content</Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>,
       );
@@ -336,13 +358,17 @@ describe('Draggable.Preview', () => {
     rtlRender(
       <React.Fragment>
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="a">
-            <Draggable.Preview>Preview A</Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="a">
+              <Draggable.Preview>Preview A</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="b">
-            <Draggable.Preview>Preview B</Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="b">
+              <Draggable.Preview>Preview B</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>
       </React.Fragment>,
@@ -385,10 +411,12 @@ describe('Draggable.Preview', () => {
     async function hoverTarget(update: boolean) {
       rtlRender(
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview>
-              <TargetStatus update={update} />
-            </Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview>
+                <TargetStatus update={update} />
+              </Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
           <Draggable.Target accept={Draggable.anyKind} data-testid="target" />
         </DraggableProvider>,
@@ -432,13 +460,14 @@ describe('Draggable.Preview', () => {
         <DraggableProvider>
           <Draggable.Root
             kind={testDragKind}
-            data-testid="drag"
             onMove={(eventDetails) => {
               eventDetails.source.updateDragData(eventDetails.location.current.input.clientX);
               Draggable.updatePreview();
             }}
           >
-            <Draggable.Preview>{renderContent}</Draggable.Preview>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview>{renderContent}</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>,
       );
@@ -462,8 +491,10 @@ describe('Draggable.Preview', () => {
       const renderContent = vi.fn(() => <span>Preview</span>);
       rtlRender(
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview>{renderContent}</Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview>{renderContent}</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>,
       );
@@ -486,8 +517,10 @@ describe('Draggable.Preview', () => {
       const renderContent = vi.fn(() => <span>Preview</span>);
       rtlRender(
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview>{renderContent}</Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview>{renderContent}</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>,
       );
@@ -503,8 +536,10 @@ describe('Draggable.Preview', () => {
       function Fixture(props: { label: string }) {
         return (
           <DraggableProvider>
-            <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-              {props.label}
+            <Draggable.Root kind={testDragKind}>
+              <Draggable.Trigger data-testid="drag" className="Card">
+                {props.label}
+              </Draggable.Trigger>
             </Draggable.Root>
           </DraggableProvider>
         );
@@ -545,11 +580,13 @@ describe('Draggable.Preview', () => {
         <DraggableProvider>
           <table>
             <tbody data-testid="body">
-              <Draggable.Root kind={testDragKind} data-testid="drag" render={<tr />}>
-                <td>Source</td>
-                <Draggable.Preview render={render}>
-                  <td>Preview</td>
-                </Draggable.Preview>
+              <Draggable.Root kind={testDragKind}>
+                <Draggable.Trigger data-testid="drag" render={<tr />}>
+                  <td>Source</td>
+                  <Draggable.Preview render={render}>
+                    <td>Preview</td>
+                  </Draggable.Preview>
+                </Draggable.Trigger>
               </Draggable.Root>
             </tbody>
           </table>
@@ -583,9 +620,11 @@ describe('Draggable.Preview', () => {
       rtlRender(
         <DraggableProvider>
           <ul>
-            <Draggable.Root kind={testDragKind} data-testid="drag" render={<li />}>
-              Source
-              <Draggable.Preview render={render}>Preview</Draggable.Preview>
+            <Draggable.Root kind={testDragKind}>
+              <Draggable.Trigger data-testid="drag" render={<li />}>
+                Source
+                <Draggable.Preview render={render}>Preview</Draggable.Preview>
+              </Draggable.Trigger>
             </Draggable.Root>
           </ul>
         </DraggableProvider>,
@@ -608,8 +647,10 @@ describe('Draggable.Preview', () => {
     function Fixture(props: { mounted: boolean }) {
       return props.mounted ? (
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview>Preview content</Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview>Preview content</Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>
       ) : null;

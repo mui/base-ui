@@ -135,38 +135,6 @@ export default function CanvasPan() {
                 key={pin.id}
                 kind={pinKind}
                 payload={pin.id}
-                data-pin-id={pin.id}
-                tabIndex={0}
-                aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown Delete"
-                onFocus={(event) => {
-                  if (event.currentTarget.matches(':focus-visible')) {
-                    moveCamera(pin.x - 40, pin.y - 40);
-                  }
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === 'Delete') {
-                    event.preventDefault();
-                    restoreFocusRef.current = true;
-                    archivePin(pin.id);
-                    return;
-                  }
-                  if (!event.altKey) {
-                    return;
-                  }
-                  const direction = [
-                    { key: 'ArrowLeft', x: -20, y: 0 },
-                    { key: 'ArrowRight', x: 20, y: 0 },
-                    { key: 'ArrowUp', x: 0, y: -20 },
-                    { key: 'ArrowDown', x: 0, y: 20 },
-                  ].find((entry) => entry.key === event.key);
-                  if (direction) {
-                    event.preventDefault();
-                    movePin(pin.id, direction.x, direction.y);
-                    moveCamera(pin.x + direction.x - 40, pin.y + direction.y - 40);
-                  }
-                }}
-                className={PIN_CLASS}
-                style={{ left: pin.x, top: pin.y }}
                 onMoveEnd={(eventDetails) => {
                   if (eventDetails.reason !== 'outside-release') {
                     return;
@@ -184,9 +152,44 @@ export default function CanvasPan() {
                   }
                 }}
               >
-                {pin.label}
-                {/* Keep the preview inside the board so it doesn't trail over the page. */}
-                <Draggable.Preview modifiers={Draggable.restrictToElement(viewportRef)} />
+                <Draggable.Trigger
+                  data-pin-id={pin.id}
+                  tabIndex={0}
+                  aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown Delete"
+                  onFocus={(event) => {
+                    if (event.currentTarget.matches(':focus-visible')) {
+                      moveCamera(pin.x - 40, pin.y - 40);
+                    }
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Delete') {
+                      event.preventDefault();
+                      restoreFocusRef.current = true;
+                      archivePin(pin.id);
+                      return;
+                    }
+                    if (!event.altKey) {
+                      return;
+                    }
+                    const direction = [
+                      { key: 'ArrowLeft', x: -20, y: 0 },
+                      { key: 'ArrowRight', x: 20, y: 0 },
+                      { key: 'ArrowUp', x: 0, y: -20 },
+                      { key: 'ArrowDown', x: 0, y: 20 },
+                    ].find((entry) => entry.key === event.key);
+                    if (direction) {
+                      event.preventDefault();
+                      movePin(pin.id, direction.x, direction.y);
+                      moveCamera(pin.x + direction.x - 40, pin.y + direction.y - 40);
+                    }
+                  }}
+                  className={PIN_CLASS}
+                  style={{ left: pin.x, top: pin.y }}
+                >
+                  {pin.label}
+                  {/* Keep the preview inside the board so it doesn't trail over the page. */}
+                  <Draggable.Preview modifiers={Draggable.restrictToElement(viewportRef)} />
+                </Draggable.Trigger>
               </Draggable.Root>
             ))}
           </div>

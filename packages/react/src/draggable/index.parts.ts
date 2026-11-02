@@ -1,4 +1,5 @@
 export { DraggableRoot as Root } from './root/DraggableRoot';
+export { DraggableTrigger as Trigger } from './trigger/DraggableTrigger';
 export { DraggableHandle as Handle } from './handle/DraggableHandle';
 export { DraggablePreview as Preview } from './preview/DraggablePreview';
 export { DraggableProvider as Provider } from './DraggableProvider';

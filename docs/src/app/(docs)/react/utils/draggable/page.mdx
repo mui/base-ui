@@ -33,8 +33,10 @@ const item = Draggable.createKind('item');
   <Draggable.Viewport>
     <Draggable.CollisionProvider kind={item}>
       <Draggable.Root kind={item}>
-        <Draggable.Handle />
-        <Draggable.Preview />
+        <Draggable.Trigger>
+          <Draggable.Handle />
+          <Draggable.Preview />
+        </Draggable.Trigger>
       </Draggable.Root>
     </Draggable.CollisionProvider>
 
@@ -43,7 +45,7 @@ const item = Draggable.createKind('item');
 </Draggable.Provider>;
 ```
 
-`<Draggable.Root>` is the element the user picks up, and `<Draggable.Target>` is where they drop it. Both need a `<Draggable.Provider>` above them. The provider renders no element of its own.
+`<Draggable.Root>` holds a draggable item's settings and event handlers, and `<Draggable.Trigger>` inside it is the element the user picks up. `<Draggable.Target>` is where they drop it. They all need a `<Draggable.Provider>` above them. The provider and the root render no element of their own.
 
 The remaining parts are optional:
 
@@ -63,7 +65,9 @@ The type argument of `createKind` sets the type of the item's `payload`. The pay
 ```tsx title="Declaring a kind with a payload"
 const card = Draggable.createKind<string>('card');
 
-<Draggable.Root kind={card} payload={id} />;
+<Draggable.Root kind={card} payload={id}>
+  <Draggable.Trigger />
+</Draggable.Root>;
 <Draggable.Target
   accept={card}
   onDraggableDrop={(eventDetails) => move(eventDetails.source.payload)}
@@ -75,7 +79,9 @@ A kind declared with a payload type requires the `payload` prop. Omit the type a
 ```tsx title="A kind without a payload"
 const divider = Draggable.createKind('divider');
 
-<Draggable.Root kind={divider} />;
+<Draggable.Root kind={divider}>
+  <Draggable.Trigger />
+</Draggable.Root>;
 ```
 
 Base UI compares payloads by identity. Prefer a primitive such as an ID, as above. When the payload has to be an object, memoize it so that unrelated re-renders don't replace it. A new object during a drag re-notifies `useActiveDrag` subscribers:
@@ -83,7 +89,9 @@ Base UI compares payloads by identity. Prefer a primitive such as an ID, as abo
 ```tsx title="A memoized object payload"
 const payload = React.useMemo(() => ({ id, column }), [id, column]);
 
-<Draggable.Root kind={card} payload={payload} />;
+<Draggable.Root kind={card} payload={payload}>
+  <Draggable.Trigger />
+</Draggable.Root>;
 ```
 
 Each `createKind` call returns a new kind, so two calls with the same name don't match. Declare each kind once, usually at module scope, and share that value between the sources and targets of an interaction. The name is only for debugging.
@@ -126,30 +134,25 @@ To type a handler you define separately, use the types on its component's namesp
 <Draggable.Root
   kind={card}
   payload={id}
-  // Fires just before the drag starts. Call `eventDetails.cancel()` to prevent it.
   onBeforeMoveStart={(eventDetails) => {
     if (eventDetails.input.altKey) {
       eventDetails.cancel();
     }
   }}
-  // Fires once when the drag starts. The preview exists by then, so you
-  // can measure or restyle the source.
   onMoveStart={(eventDetails) => console.log('lifted', eventDetails.source.payload)}
-  // Fires when the drop targets under the pointer change.
   onTargetChange={(eventDetails) => console.log('over', eventDetails.target?.payload ?? 'nothing')}
-  // Fires as the pointer moves, at most once per animation frame.
   onMove={(eventDetails) => {
     const { clientX, clientY } = eventDetails.location.current.input;
     console.log('at', clientX, clientY);
   }}
-  // Fires once when the drag ends, whether it was dropped, released
-  // outside a target, or canceled.
   onMoveEnd={(eventDetails) => {
     if (eventDetails.target) {
       console.log('dropped on', eventDetails.target.payload);
     }
   }}
-/>
+>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 Commit a successful drop in `onMoveEnd`. There, `eventDetails.target` is the target that received the drop. It's `null` when the drag was canceled or released elsewhere. `eventDetails.canceled` is `true` for a cancel, such as <kbd>Esc</kbd> or `cancelDrag()`, and `false` for a release. `eventDetails.reason` gives the specific cause. A source can land on targets of any kind, so `eventDetails.target.payload` is `unknown` until you narrow it with the target's [kind](#identifying-a-target). If the handler also clears temporary state, wrap the commit in `try/finally` so the cleanup runs even when the commit throws:
@@ -167,7 +170,9 @@ Commit a successful drop in `onMoveEnd`. There, `eventDetails.target` is the tar
       clearDragState();
     }
   }}
-/>
+>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 Apart from `onBeforeMoveStart`, every handler's `eventDetails` also carry a `location` history:
@@ -393,10 +398,12 @@ By default, a press anywhere on the element can start a drag. Render `<Draggable
 
 ```tsx title="Dragging by a handle"
 <Draggable.Root kind={card} payload={id}>
-  <Draggable.Handle>
-    <GripIcon aria-hidden="true" />
-  </Draggable.Handle>
-  {label}
+  <Draggable.Trigger>
+    <Draggable.Handle>
+      <GripIcon aria-hidden="true" />
+    </Draggable.Handle>
+    {label}
+  </Draggable.Trigger>
 </Draggable.Root>
 ```
 
@@ -411,7 +418,9 @@ The handle renders a `<span>` and isn't focusable. Give keyboard users other con
 Pass `disabled` to `<Draggable.Root>` to stop users from picking up an item. Clicks and context menus on the element keep working.
 
 ```tsx title="A pinned item"
-<Draggable.Root kind={card} payload={id} disabled={pinned} />
+<Draggable.Root kind={card} payload={id} disabled={pinned}>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 When the decision depends on the gesture itself, for example on which handle the user pressed or on a modifier key, use `onBeforeMoveStart` instead. It fires just before a drag starts. Call `eventDetails.cancel()` to prevent it:
@@ -425,7 +434,9 @@ When the decision depends on the gesture itself, for example on which handle the
       eventDetails.cancel();
     }
   }}
-/>
+>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 ### Storing data during a drag
@@ -445,7 +456,9 @@ const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
   onMove={(eventDetails) => {
     console.log(eventDetails.source.payload, eventDetails.source.dragData?.grabOffsetX);
   }}
-/>;
+>
+  <Draggable.Trigger />
+</Draggable.Root>;
 ```
 
 To show drag data in a [custom preview](#custom-preview), call [`Draggable.updatePreview()`](#updatepreview) after updating it. The payload is read-only and always follows the `payload` prop, so store anything decided at pickup, such as the items of a multi-selection drag, as drag data.
@@ -475,7 +488,9 @@ Pass `activation` to change the thresholds. It takes one activation method for e
     mouse: { type: 'distance', distance: 10 },
     touch: { type: 'press-hold', delay: 150 },
   }}
-/>
+>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 The available methods are:
@@ -495,13 +510,17 @@ Pass an array to allow several methods at once. The first one to complete starts
     { type: 'distance', distance: 12 },
     { type: 'press-hold', delay: 250 },
   ]}
-/>
+>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 Set a pointer type to `false` to turn off pickup for it. Only do this if your app offers another way to do the same thing with that input, such as move buttons that work with touch, or a custom pen gesture. Unlisted pointer types keep their defaults. In an activation array, `false` overrides every method for that pointer type, including double-click and double-tap pickup.
 
 ```tsx title="Disable touch and pen pickup"
-<Draggable.Root kind={card} payload={id} activation={{ touch: false, pen: false }} />
+<Draggable.Root kind={card} payload={id} activation={{ touch: false, pen: false }}>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 #### Double-click pickup
@@ -515,7 +534,9 @@ Combine it with another method to keep drag-to-pick-up as well, or use a per-poi
   kind={card}
   payload={id}
   activation={[{ mouse: { type: 'distance', distance: 5 } }, { mouse: { type: 'double-click' } }]}
-/>
+>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 Avoid this method on items whose double-click already opens or edits content. Base UI consumes the click that drops the item, so it doesn't also activate what's underneath.
@@ -527,7 +548,9 @@ For these pickups, `eventDetails.reason` in `onBeforeMoveStart` and `onMoveStart
 A drag follows the pointer freely by default. Pass `modifiers` to `<Draggable.Root>` to keep it on one axis, snap it to a grid, or contain it within an element. Modifiers affect both the preview and the point Base UI uses to find drop targets.
 
 ```tsx title="Locking a list to one axis"
-<Draggable.Root kind={card} payload={id} modifiers={Draggable.restrictToVerticalAxis} />
+<Draggable.Root kind={card} payload={id} modifiers={Draggable.restrictToVerticalAxis}>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 The built-in modifiers are:
@@ -545,7 +568,9 @@ Pass an array to apply several modifiers in order. Each one receives the previou
   kind={tile}
   payload={id}
   modifiers={[Draggable.snapToGrid(20), Draggable.restrictToParentElement]}
-/>
+>
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 In the demo below, `restrictToElement` keeps each widget inside the dashed frame. The modifier constrains the drop position too, so the slot outside the frame never activates.
@@ -608,8 +633,10 @@ Render `<Draggable.Preview>` without children to configure where the clone appea
 
 ```tsx title="Placing the clone under the pointer"
 <Draggable.Root kind={card} payload={id}>
-  {label}
-  <Draggable.Preview offset="pointer" />
+  <Draggable.Trigger>
+    {label}
+    <Draggable.Preview offset="pointer" />
+  </Draggable.Trigger>
 </Draggable.Root>
 ```
 
@@ -617,8 +644,10 @@ Pass `disabled` to drag without any preview. The drag still runs and targets sti
 
 ```tsx title="Dragging without a preview"
 <Draggable.Root kind={shape} payload={id}>
-  {label}
-  <Draggable.Preview disabled />
+  <Draggable.Trigger>
+    {label}
+    <Draggable.Preview disabled />
+  </Draggable.Trigger>
 </Draggable.Root>
 ```
 
@@ -628,11 +657,13 @@ Pass children to `<Draggable.Preview>` to show something other than a clone. Kee
 
 ```tsx title="A badge instead of a clone"
 <Draggable.Root kind={widget} payload={id}>
-  {title}
-  <Draggable.Preview className="Badge" offset="pointer">
-    <span>{value}</span>
+  <Draggable.Trigger>
     {title}
-  </Draggable.Preview>
+    <Draggable.Preview className="Badge" offset="pointer">
+      <span>{value}</span>
+      {title}
+    </Draggable.Preview>
+  </Draggable.Trigger>
 </Draggable.Root>
 ```
 
@@ -647,11 +678,13 @@ Refs inside the preview point at the off-screen elements, which have no layout t
 The preview renders a `<div>` by default. Next to a table row or a list item, pass `render` so the preview is valid there. React warns about an invalid preview element in a table or a `<select>`, and Base UI warns in a list:
 
 ```tsx title="Previewing a table row"
-<Draggable.Root kind={row} payload={id} render={<tr />}>
-  <td>{name}</td>
-  <Draggable.Preview render={<tr />} className="RowPreview">
+<Draggable.Root kind={row} payload={id}>
+  <Draggable.Trigger render={<tr />}>
     <td>{name}</td>
-  </Draggable.Preview>
+    <Draggable.Preview render={<tr />} className="RowPreview">
+      <td>{name}</td>
+    </Draggable.Preview>
+  </Draggable.Trigger>
 </Draggable.Root>
 ```
 
@@ -679,10 +712,12 @@ const event = Draggable.createKind<string, { time: string }>('event');
     }
   }}
 >
-  {title}
-  <Draggable.Preview kind={event}>
-    {({ source }) => <span className="Chip">{source.dragData?.time}</span>}
-  </Draggable.Preview>
+  <Draggable.Trigger>
+    {title}
+    <Draggable.Preview kind={event}>
+      {({ source }) => <span className="Chip">{source.dragData?.time}</span>}
+    </Draggable.Preview>
+  </Draggable.Trigger>
 </Draggable.Root>;
 ```
 
@@ -762,7 +797,9 @@ Pick the closest container that works. Outside the source's ancestors, descendan
 During a mouse or pen drag, Base UI sets the cursor to `grabbing` over the whole document, whatever is under the pointer. Pass a different CSS cursor as `dragCursor`, or `false` to manage the cursor yourself. Set the resting cursor in your own styles:
 
 ```tsx title="Changing the drag cursor"
-<Draggable.Root kind={card} payload={id} dragCursor="move" />
+<Draggable.Root kind={card} payload={id} dragCursor="move">
+  <Draggable.Trigger />
+</Draggable.Root>
 ```
 
 ```css title="The resting cursor"
@@ -966,11 +1003,9 @@ Use the `render` prop to give one element two roles. For example, an item that a
 ```tsx title="A source that is also a target"
 const item = Draggable.createKind<string>('item');
 
-<Draggable.Root
-  kind={item}
-  payload={id}
-  render={<Draggable.Target accept={item} payload={id} />}
-/>;
+<Draggable.Root kind={item} payload={id}>
+  <Draggable.Trigger render={<Draggable.Target accept={item} payload={id} />} />
+</Draggable.Root>;
 ```
 
 Don't use this pattern to build a sortable list. `<Draggable.CollisionProvider>` handles that case, including the dragged item's own position and which side of an item the pointer is on. See [Sorting a list](#sorting-a-list).
@@ -1161,6 +1196,14 @@ export function SortableItem<Payload = undefined>(
 }
 ```
 
+Like `<Draggable.Root>`, the wrapper renders no element, so render a `<Draggable.Trigger>` inside it:
+
+```tsx title="Using the wrapper"
+<SortableItem kind={card} payload={id}>
+  <Draggable.Trigger>{label}</Draggable.Trigger>
+</SortableItem>
+```
+
 A wrapper that destructures its props can't forward the rest as is. While `Payload` is generic, TypeScript can't tell whether `payload` is required. Declare `kind` and `payload` explicitly in that case. The wrapper then requires both, so pass `payload={undefined}` for a kind without a payload:
 
 ```tsx title="A wrapper that adds a handle"
@@ -1173,10 +1216,12 @@ export function SortableItem<Payload>({
 }): React.JSX.Element {
   return (
     <Draggable.Root {...props}>
-      <Draggable.Handle>
-        <span aria-hidden="true">⠿</span>
-      </Draggable.Handle>
-      {children}
+      <Draggable.Trigger>
+        <Draggable.Handle>
+          <span aria-hidden="true">⠿</span>
+        </Draggable.Handle>
+        {children}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }
@@ -1207,6 +1252,10 @@ import { TypesDraggable, TypesDraggableAdditional } from './types';
 ### Root
 
 <TypesDraggable.Root />
+
+### Trigger
+
+<TypesDraggable.Trigger />
 
 ### Handle
 

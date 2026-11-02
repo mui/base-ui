@@ -25,25 +25,26 @@ function Widget({
     <Draggable.Root
       kind={widgetKind}
       payload={widget.id}
-      data-widget-id={widget.id}
-      tabIndex={0}
-      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-      onKeyDown={(event) => onKeyDown(event, widget.id)}
-      className={WIDGET_CLASS}
-      // @highlight-start @focus @padding 3
       modifiers={Draggable.restrictToElement(frameRef)}
-      // @highlight-end
     >
-      <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
-        <GripIcon className="shrink-0 text-neutral-400 dark:text-neutral-500" />
-        <span>{widget.title}</span>
-      </div>
-      <div className="flex flex-1 flex-col justify-center px-3 py-2.5">
-        <strong className="text-xl leading-6 font-medium">{widget.value}</strong>
-        <span className="text-xs leading-4 text-neutral-500 dark:text-neutral-400">
-          {widget.detail}
-        </span>
-      </div>
+      <Draggable.Trigger
+        data-widget-id={widget.id}
+        tabIndex={0}
+        aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+        onKeyDown={(event) => onKeyDown(event, widget.id)}
+        className={WIDGET_CLASS}
+      >
+        <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
+          <GripIcon className="shrink-0 text-neutral-400 dark:text-neutral-500" />
+          <span>{widget.title}</span>
+        </div>
+        <div className="flex flex-1 flex-col justify-center px-3 py-2.5">
+          <strong className="text-xl leading-6 font-medium">{widget.value}</strong>
+          <span className="text-xs leading-4 text-neutral-500 dark:text-neutral-400">
+            {widget.detail}
+          </span>
+        </div>
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

@@ -9,7 +9,7 @@ import {
 import { getSharedSlot } from '../sharedState';
 import * as DraggablePreviewCssVars from '../../../draggable/preview/DraggablePreviewCssVars';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
-import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
+import * as DraggableTriggerDataAttributes from '../../../draggable/trigger/DraggableTriggerDataAttributes';
 import {
   PREVIEW_ELEMENT_ATTRIBUTE,
   adoptStyleSheet,
@@ -684,10 +684,10 @@ function prepareDragPreviewClone(
 
   const applyPostInsertion = copyLiveState(sourceNodes, cloneNodes, win);
   sanitize(element, cloneNodes);
-  element.removeAttribute(DraggableRootDataAttributes.dragging);
+  element.removeAttribute(DraggableTriggerDataAttributes.dragging);
   // Set while the previous preview settles. A
   // `[data-settling] { color: transparent }` rule would hide the preview's text.
-  element.removeAttribute(DraggableRootDataAttributes.settling);
+  element.removeAttribute(DraggableTriggerDataAttributes.settling);
   // The clone is appended last, so an `<ol>` would number it as the last item.
   if (!element.hasAttribute('value')) {
     const ordinal = getListItemOrdinal(source);

@@ -162,29 +162,6 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
     <Draggable.Root
       kind={calEventCreateKind}
       payload={createPayload}
-      render={
-        <Draggable.Target
-          kind={calDayCellKind}
-          accept={CAL_DRAG_KINDS}
-          payload={cellPayload}
-          onDraggableMove={(eventDetails) => {
-            const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
-            if (!next) {
-              return;
-            }
-            const current = dropPreviewRef.current;
-            if (
-              !current ||
-              current.start !== next.start ||
-              current.end !== next.end ||
-              current.intent !== next.intent ||
-              current.allDay !== next.allDay
-            ) {
-              setDropPreview(next);
-            }
-          }}
-        />
-      }
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
           // The release can land on a target no move reached yet, so resolve the
@@ -206,14 +183,40 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
           });
         }
       }}
-      className={styles.monthDayCell}
-      data-cal-day
-      data-today={today ? 'true' : undefined}
-      data-outside={inMonth ? undefined : 'true'}
     >
-      <span className={styles.monthDayHeader}>{dayNum}</span>
-      {/* No clone of the cell: the drop preview in the grid shows the range being created. */}
-      <Draggable.Preview disabled />
+      <Draggable.Trigger
+        render={
+          <Draggable.Target
+            kind={calDayCellKind}
+            accept={CAL_DRAG_KINDS}
+            payload={cellPayload}
+            onDraggableMove={(eventDetails) => {
+              const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
+              if (!next) {
+                return;
+              }
+              const current = dropPreviewRef.current;
+              if (
+                !current ||
+                current.start !== next.start ||
+                current.end !== next.end ||
+                current.intent !== next.intent ||
+                current.allDay !== next.allDay
+              ) {
+                setDropPreview(next);
+              }
+            }}
+          />
+        }
+        className={styles.monthDayCell}
+        data-cal-day
+        data-today={today ? 'true' : undefined}
+        data-outside={inMonth ? undefined : 'true'}
+      >
+        <span className={styles.monthDayHeader}>{dayNum}</span>
+        {/* No clone of the cell: the drop preview in the grid shows the range being created. */}
+        <Draggable.Preview disabled />
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }
@@ -266,34 +269,37 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
           });
         }
       }}
-      className={styles.monthEventBar}
-      style={style}
-      role="button"
-      tabIndex={0}
-      data-continues-before={segment.continuesFromBefore ? 'true' : undefined}
-      data-continues-after={segment.continuesAfter ? 'true' : undefined}
-      title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
     >
-      {/* Replaces the default clone of the bar. Renders at the `Draggable.Provider`, not here. */}
-      <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview}>
-          <div className={styles.dragPreviewTitle}>{event.title}</div>
-          <div className={styles.dragPreviewMeta}>
-            {formatRange(event.start, event.end, event.allDay)}
+      <Draggable.Trigger
+        className={styles.monthEventBar}
+        style={style}
+        role="button"
+        tabIndex={0}
+        data-continues-before={segment.continuesFromBefore ? 'true' : undefined}
+        data-continues-after={segment.continuesAfter ? 'true' : undefined}
+        title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
+      >
+        {/* Replaces the default clone of the bar. Renders at the `Draggable.Provider`, not here. */}
+        <Draggable.Preview offset="pointer">
+          <div className={styles.dragPreview}>
+            <div className={styles.dragPreviewTitle}>{event.title}</div>
+            <div className={styles.dragPreviewMeta}>
+              {formatRange(event.start, event.end, event.allDay)}
+            </div>
           </div>
-        </div>
-      </Draggable.Preview>
-      {showLeftResize && <MonthResizeHandle event={event} edge="start" />}
-      <span style={{ flex: '1 1 auto', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {showTime && (
-          <span style={{ opacity: 0.7, marginRight: 4 }}>
-            {new Date(event.start).getHours().toString().padStart(2, '0')}:
-            {new Date(event.start).getMinutes().toString().padStart(2, '0')}
-          </span>
-        )}
-        {event.title}
-      </span>
-      {showRightResize && <MonthResizeHandle event={event} edge="end" />}
+        </Draggable.Preview>
+        {showLeftResize && <MonthResizeHandle event={event} edge="start" />}
+        <span style={{ flex: '1 1 auto', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {showTime && (
+            <span style={{ opacity: 0.7, marginRight: 4 }}>
+              {new Date(event.start).getHours().toString().padStart(2, '0')}:
+              {new Date(event.start).getMinutes().toString().padStart(2, '0')}
+            </span>
+          )}
+          {event.title}
+        </span>
+        {showRightResize && <MonthResizeHandle event={event} edge="end" />}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }
@@ -315,7 +321,6 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
   );
   return (
     <Draggable.Root
-      render={<span />}
       kind={calEventResizeKind}
       payload={resizePayload}
       onMoveEnd={(eventDetails) => {
@@ -333,19 +338,23 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
           });
         }
       }}
-      className={styles.monthResizeHandle}
-      style={edge === 'start' ? { left: 0, right: 'auto' } : undefined}
-      aria-hidden="true"
     >
-      {/* The handle is only a few pixels wide, so attach the card to the pointer. */}
-      <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview}>
-          <div className={styles.dragPreviewTitle}>{event.title}</div>
-          <div className={styles.dragPreviewMeta}>
-            {edge === 'start' ? 'Resize start' : 'Resize end'}
+      <Draggable.Trigger
+        render={<span />}
+        className={styles.monthResizeHandle}
+        style={edge === 'start' ? { left: 0, right: 'auto' } : undefined}
+        aria-hidden="true"
+      >
+        {/* The handle is only a few pixels wide, so attach the card to the pointer. */}
+        <Draggable.Preview offset="pointer">
+          <div className={styles.dragPreview}>
+            <div className={styles.dragPreviewTitle}>{event.title}</div>
+            <div className={styles.dragPreviewMeta}>
+              {edge === 'start' ? 'Resize start' : 'Resize end'}
+            </div>
           </div>
-        </div>
-      </Draggable.Preview>
+        </Draggable.Preview>
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

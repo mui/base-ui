@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent, screen, render as rawRender } from '@testing-library/react';
-import { describeConformance, dragRegistrationConformanceTests, firePointer } from '#test-utils';
+import { dragRegistrationConformanceTests, firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import {
@@ -31,7 +31,7 @@ function rtlRender(ui: React.ReactElement) {
 const cardKind = Draggable.createKind<{ id: string }>('card');
 
 /** The engine sets `data-dragging`, so tests read `state.dragging` through `className`. */
-function draggingClass(state: Draggable.Root.State) {
+function draggingClass(state: Draggable.Trigger.State) {
   return state.dragging ? 'dragging' : 'idle';
 }
 
@@ -43,18 +43,15 @@ function TestDraggable<TPayload = undefined>(props: {
   // `Draggable.Root` requires `payload` once `TPayload` is declared, but most
   // fixtures pass none, so widen the props type.
   const Root = Draggable.Root as React.ComponentType<any>;
-  return <Root kind={testDragKind} {...options} data-testid={testId} className={draggingClass} />;
+  return (
+    <Root kind={testDragKind} {...options}>
+      <Draggable.Trigger data-testid={testId} className={draggingClass} />
+    </Root>
+  );
 }
 
 describe('Draggable.Root', () => {
   const { renderDnd } = createDndRenderer();
-
-  describeConformance(<Draggable.Root kind={testDragKind} />, () => ({
-    refInstanceof: window.HTMLDivElement,
-    render(node) {
-      return renderDnd(node);
-    },
-  }));
 
   dragRegistrationConformanceTests({
     render: renderDnd,
@@ -63,8 +60,9 @@ describe('Draggable.Root', () => {
         key={key}
         kind={testDragKind}
         onMoveStart={(eventDetails) => onEvent?.(eventDetails.source.element)}
-        {...props}
-      />
+      >
+        <Draggable.Trigger {...props} />
+      </Draggable.Root>
     ),
     // The gesture styles are ref-counted, so they stay while any registration holds the node.
     isRegistered: (element) => element.style.touchAction === 'manipulation',
@@ -79,7 +77,9 @@ describe('Draggable.Root', () => {
     try {
       await renderDnd(
         <Draggable.CollisionProvider kind={cardKind}>
-          <Draggable.Root />
+          <Draggable.Root>
+            <Draggable.Trigger />
+          </Draggable.Root>
         </Draggable.CollisionProvider>,
       );
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('has no explicit kind'));
@@ -149,7 +149,9 @@ describe('Draggable.Root', () => {
         onBeforeMoveStart={onBeforeMoveStart}
         onMoveStart={onMoveStart}
       >
-        <Draggable.Handle data-testid="handle" />
+        <Draggable.Trigger>
+          <Draggable.Handle data-testid="handle" />
+        </Draggable.Trigger>
       </Draggable.Root>,
     );
     const handle = screen.getByTestId('handle');
@@ -231,12 +233,13 @@ describe('Draggable.Root', () => {
     function Swappable({ swapped }: { swapped: boolean }) {
       // The key swaps the DOM node while the registration lives on.
       return (
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid={swapped ? 'b' : 'a'}
-          className={draggingClass}
-          render={(props) => <div key={swapped ? 'b' : 'a'} {...props} />}
-        />
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger
+            data-testid={swapped ? 'b' : 'a'}
+            className={draggingClass}
+            render={(props) => <div key={swapped ? 'b' : 'a'} {...props} />}
+          />
+        </Draggable.Root>
       );
     }
 
@@ -267,12 +270,12 @@ describe('Draggable.Root', () => {
     };
     function Swappable({ swapped }: { swapped: boolean }) {
       return (
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid={swapped ? 'b' : 'a'}
-          modifiers={probe}
-          render={(props) => <div key={swapped ? 'b' : 'a'} {...props} />}
-        />
+        <Draggable.Root kind={testDragKind} modifiers={probe}>
+          <Draggable.Trigger
+            data-testid={swapped ? 'b' : 'a'}
+            render={(props) => <div key={swapped ? 'b' : 'a'} {...props} />}
+          />
+        </Draggable.Root>
       );
     }
 
@@ -299,7 +302,11 @@ describe('Draggable.Root', () => {
   });
 
   it('keeps the drag through a disabled flip mid-drag and updates the gesture styles at once', async () => {
-    const { rerender } = await renderDnd(<Draggable.Root kind={testDragKind} data-testid="drag" />);
+    const { rerender } = await renderDnd(
+      <Draggable.Root kind={testDragKind}>
+        <Draggable.Trigger data-testid="drag" />
+      </Draggable.Root>,
+    );
     const el = screen.getByTestId('drag');
     el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -307,7 +314,11 @@ describe('Draggable.Root', () => {
     await flushRaf();
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(el);
 
-    await rerender(<Draggable.Root kind={testDragKind} data-testid="drag" disabled />);
+    await rerender(
+      <Draggable.Root kind={testDragKind} disabled>
+        <Draggable.Trigger data-testid="drag" />
+      </Draggable.Root>,
+    );
 
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(el);
     expect(el).toHaveAttribute('data-dragging');
@@ -329,16 +340,16 @@ describe('Draggable.Root', () => {
     const onDrop = vi.fn();
     function Inline({ tick }: { tick: number }) {
       return (
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          data-tick={tick}
-          className={draggingClass}
-          onMoveEnd={splitEnd(onDrop, onMoveEnd)}
-          ref={(node) => {
-            void node;
-          }}
-        />
+        <Draggable.Root kind={testDragKind} onMoveEnd={splitEnd(onDrop, onMoveEnd)}>
+          <Draggable.Trigger
+            data-testid="drag"
+            data-tick={tick}
+            className={draggingClass}
+            ref={(node) => {
+              void node;
+            }}
+          />
+        </Draggable.Root>
       );
     }
 
@@ -379,8 +390,10 @@ describe('Draggable.Root', () => {
     // would outlive the test in a real browser.
     function Source({ mounted }: { mounted: boolean }) {
       return mounted ? (
-        <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview disabled />
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag">
+            <Draggable.Preview disabled />
+          </Draggable.Trigger>
         </Draggable.Root>
       ) : null;
     }
@@ -448,16 +461,18 @@ describe('Draggable.Root', () => {
   });
 
   it('resolves className and style callbacks from the disabled and dragging state', async () => {
-    const className = (state: Draggable.Root.State) =>
+    const className = (state: Draggable.Trigger.State) =>
       [state.disabled ? 'is-disabled' : 'is-enabled', state.dragging ? 'is-dragging' : 'is-idle']
         .filter(Boolean)
         .join(' ');
-    const style = (state: Draggable.Root.State) => ({
+    const style = (state: Draggable.Trigger.State) => ({
       opacity: state.dragging ? '0.5' : '1',
       cursor: state.disabled ? 'not-allowed' : 'grab',
     });
     const { rerender } = await renderDnd(
-      <Draggable.Root kind={testDragKind} data-testid="drag" className={className} style={style} />,
+      <Draggable.Root kind={testDragKind}>
+        <Draggable.Trigger data-testid="drag" className={className} style={style} />
+      </Draggable.Root>,
     );
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -478,13 +493,9 @@ describe('Draggable.Root', () => {
     expect(source.style.opacity).toBe('1');
 
     await rerender(
-      <Draggable.Root
-        kind={testDragKind}
-        data-testid="drag"
-        className={className}
-        style={style}
-        disabled
-      />,
+      <Draggable.Root kind={testDragKind} disabled>
+        <Draggable.Trigger data-testid="drag" className={className} style={style} />
+      </Draggable.Root>,
     );
 
     expect(source).toHaveClass('is-disabled', 'is-idle');
@@ -497,10 +508,11 @@ describe('Draggable.Root', () => {
       await renderDnd(
         <Draggable.Root
           kind={testDragKind}
-          data-testid="drag"
           activation={{ mouse: { type: 'distance', distance: 40 } }}
           onMoveStart={onMoveStart}
-        />,
+        >
+          <Draggable.Trigger data-testid="drag" />
+        </Draggable.Root>,
       );
       const el = screen.getByTestId('drag');
       el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -516,10 +528,11 @@ describe('Draggable.Root', () => {
       await renderDnd(
         <Draggable.Root
           kind={testDragKind}
-          data-testid="drag"
           activation={{ type: 'immediate' }}
           onMoveStart={onMoveStart}
-        />,
+        >
+          <Draggable.Trigger data-testid="drag" />
+        </Draggable.Root>,
       );
       const el = screen.getByTestId('drag');
       el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -545,7 +558,6 @@ describe('Draggable.Root', () => {
       await renderDnd(
         <Draggable.Root
           kind={testDragKind}
-          data-testid="drag"
           modifiers={Draggable.restrictToVerticalAxis}
           onMove={({ location }) => {
             moves.push({
@@ -553,7 +565,9 @@ describe('Draggable.Root', () => {
               y: location.current.input.clientY,
             });
           }}
-        />,
+        >
+          <Draggable.Trigger data-testid="drag" />
+        </Draggable.Root>,
       );
       const el = screen.getByTestId('drag');
       el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -602,7 +616,11 @@ describe('Draggable.Root', () => {
     });
 
     it('forwards dragCursor to the pointer sensor cursor lock', async () => {
-      await renderDnd(<Draggable.Root kind={testDragKind} data-testid="drag" dragCursor="copy" />);
+      await renderDnd(
+        <Draggable.Root kind={testDragKind} dragCursor="copy">
+          <Draggable.Trigger data-testid="drag" />
+        </Draggable.Root>,
+      );
       const el = screen.getByTestId('drag');
       el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -633,9 +651,14 @@ describe('Draggable.Root', () => {
         );
       }
 
-      await renderDnd(<Draggable.Root kind={testDragKind} data-testid="drag" />, {
-        wrapper: DynamicCSPProvider,
-      });
+      await renderDnd(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag" />
+        </Draggable.Root>,
+        {
+          wrapper: DynamicCSPProvider,
+        },
+      );
       const el = screen.getByTestId('drag');
       el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -666,23 +689,24 @@ describe('Draggable.Root', () => {
 
     it('preserves inline gesture styles changed while disabling', async () => {
       const { rerender } = await renderDnd(
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          style={{ touchAction: 'pan-y', userSelect: 'text' }}
-        />,
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger
+            data-testid="drag"
+            style={{ touchAction: 'pan-y', userSelect: 'text' }}
+          />
+        </Draggable.Root>,
       );
       const el = screen.getByTestId('drag');
       expect(el.style.touchAction).toBe('manipulation');
       expect(el.style.userSelect).toBe('none');
 
       await rerender(
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          disabled
-          style={{ touchAction: 'none', userSelect: 'auto' }}
-        />,
+        <Draggable.Root kind={testDragKind} disabled>
+          <Draggable.Trigger
+            data-testid="drag"
+            style={{ touchAction: 'none', userSelect: 'auto' }}
+          />
+        </Draggable.Root>,
       );
 
       expect(el.style.touchAction).toBe('none');
@@ -693,8 +717,10 @@ describe('Draggable.Root', () => {
   describe('default clone preview', () => {
     function PlainDraggable() {
       return (
-        <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-          Card
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag" className="Card">
+            Card
+          </Draggable.Trigger>
         </Draggable.Root>
       );
     }
@@ -729,16 +755,17 @@ describe('Draggable.Root', () => {
     it('reports settling in its state while the preview settles after the drop', async () => {
       // `[data-dragging]` stays on the source until the preview has settled. A
       // component that renders it from React needs `dragging || settling`.
-      const states: Draggable.Root.State[] = [];
+      const states: Draggable.Trigger.State[] = [];
       await renderDnd(
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          className={(state) => {
-            states.push(state);
-            return undefined;
-          }}
-        />,
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger
+            data-testid="drag"
+            className={(state) => {
+              states.push(state);
+              return undefined;
+            }}
+          />
+        </Draggable.Root>,
       );
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -791,14 +818,8 @@ describe('Draggable.Root', () => {
       registerCleanup(() => vi.unstubAllGlobals());
       function Card({ mountKey, payload }: { mountKey: string; payload: { id: string } }) {
         return (
-          <Draggable.Root
-            key={mountKey}
-            kind={cardKind}
-            payload={payload}
-            previewKey="card-a"
-            data-testid="drag"
-          >
-            Card
+          <Draggable.Root key={mountKey} kind={cardKind} payload={payload} previewKey="card-a">
+            <Draggable.Trigger data-testid="drag">Card</Draggable.Trigger>
           </Draggable.Root>
         );
       }
@@ -915,8 +936,8 @@ describe('Draggable.Root', () => {
       registerCleanup(() => vi.unstubAllGlobals());
       const onMoveEnd = vi.fn();
       const { engine } = await renderDnd(
-        <Draggable.Root kind={testDragKind} data-testid="drag" onMoveEnd={onMoveEnd}>
-          Card
+        <Draggable.Root kind={testDragKind} onMoveEnd={onMoveEnd}>
+          <Draggable.Trigger data-testid="drag">Card</Draggable.Trigger>
         </Draggable.Root>,
       );
       const source = screen.getByTestId('drag');
@@ -953,9 +974,11 @@ describe('Draggable.Root', () => {
   describe('Draggable.Preview clone', () => {
     function ClonedPreviewDraggable(props: { previewProps?: Draggable.Preview.Props }) {
       return (
-        <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-          Card
-          <Draggable.Preview {...props.previewProps} />
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag" className="Card">
+            Card
+            <Draggable.Preview {...props.previewProps} />
+          </Draggable.Trigger>
         </Draggable.Root>
       );
     }
@@ -1013,13 +1036,15 @@ describe('Draggable.Root', () => {
         return (
           <React.Fragment>
             <div ref={boundsRef} data-testid="bounds" />
-            <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-              {/* Pin the preview to the pointer so the assertions below read the
+            <Draggable.Root kind={testDragKind}>
+              <Draggable.Trigger data-testid="drag" className="Card">
+                {/* Pin the preview to the pointer so the assertions below read the
                   clamp alone, not the grab offset the `'source'` default would add. */}
-              <Draggable.Preview
-                modifiers={Draggable.restrictToElement(boundsRef)}
-                offset="pointer"
-              />
+                <Draggable.Preview
+                  modifiers={Draggable.restrictToElement(boundsRef)}
+                  offset="pointer"
+                />
+              </Draggable.Trigger>
             </Draggable.Root>
           </React.Fragment>
         );
@@ -1073,11 +1098,13 @@ describe('Draggable.Root', () => {
         // duplicate `Handle`, that warns instead of crashing production.
         expect(() =>
           rtlRender(
-            <Draggable.Root kind={testDragKind} data-testid="drag">
-              <Draggable.Preview>
-                <span>x</span>
-              </Draggable.Preview>
-              <Draggable.Preview />
+            <Draggable.Root kind={testDragKind}>
+              <Draggable.Trigger data-testid="drag">
+                <Draggable.Preview>
+                  <span>x</span>
+                </Draggable.Preview>
+                <Draggable.Preview />
+              </Draggable.Trigger>
             </Draggable.Root>,
           ),
         ).not.toThrow();
@@ -1092,10 +1119,12 @@ describe('Draggable.Root', () => {
       // clear the first declaration so the second doesn't trigger the one-preview warning.
       rtlRender(
         <React.StrictMode>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview>
-              <span data-testid="preview">x</span>
-            </Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview>
+                <span data-testid="preview">x</span>
+              </Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </React.StrictMode>,
       );
@@ -1112,14 +1141,16 @@ describe('Draggable.Root', () => {
       // or a valid swap would trigger the one-preview check.
       function Swappable(props: { cloned: boolean }) {
         return (
-          <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-            {props.cloned ? (
-              <Draggable.Preview />
-            ) : (
-              <Draggable.Preview>
-                <span data-testid="preview">x</span>
-              </Draggable.Preview>
-            )}
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag" className="Card">
+              {props.cloned ? (
+                <Draggable.Preview />
+              ) : (
+                <Draggable.Preview>
+                  <span data-testid="preview">x</span>
+                </Draggable.Preview>
+              )}
+            </Draggable.Trigger>
           </Draggable.Root>
         );
       }
@@ -1140,14 +1171,16 @@ describe('Draggable.Root', () => {
       // The reverse order, with a host declaring after a clone's cleanup.
       function Swappable(props: { cloned: boolean }) {
         return (
-          <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-            {props.cloned ? (
-              <Draggable.Preview />
-            ) : (
-              <Draggable.Preview>
-                <span data-testid="preview">x</span>
-              </Draggable.Preview>
-            )}
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag" className="Card">
+              {props.cloned ? (
+                <Draggable.Preview />
+              ) : (
+                <Draggable.Preview>
+                  <span data-testid="preview">x</span>
+                </Draggable.Preview>
+              )}
+            </Draggable.Trigger>
           </Draggable.Root>
         );
       }
@@ -1173,8 +1206,10 @@ describe('Draggable.Root', () => {
     }) {
       const { options, preview, previewProps } = props;
       return (
-        <Draggable.Root kind={testDragKind} {...options} data-testid="drag">
-          <Draggable.Preview {...previewProps}>{preview}</Draggable.Preview>
+        <Draggable.Root kind={testDragKind} {...options}>
+          <Draggable.Trigger data-testid="drag">
+            <Draggable.Preview {...previewProps}>{preview}</Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       );
     }
@@ -1182,10 +1217,12 @@ describe('Draggable.Root', () => {
     it('renders custom content without cloning the source', async () => {
       function CardWithPreview() {
         return (
-          <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-            <Draggable.Preview>
-              <span data-testid="preview">chip</span>
-            </Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag" className="Card">
+              <Draggable.Preview>
+                <span data-testid="preview">chip</span>
+              </Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         );
       }
@@ -1221,10 +1258,12 @@ describe('Draggable.Root', () => {
 
     it('shows no preview at all when disabled', async () => {
       rtlRender(
-        <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-          <Draggable.Preview disabled>
-            <span data-testid="preview">x</span>
-          </Draggable.Preview>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag" className="Card">
+            <Draggable.Preview disabled>
+              <span data-testid="preview">x</span>
+            </Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>,
       );
       const source = screen.getByTestId('drag');
@@ -1239,10 +1278,12 @@ describe('Draggable.Root', () => {
 
     it('forwards its remaining props onto the rendered element', async () => {
       rtlRender(
-        <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview id="chip" data-chip="yes" aria-label="Card chip">
-            <span data-testid="preview">chip</span>
-          </Draggable.Preview>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag">
+            <Draggable.Preview id="chip" data-chip="yes" aria-label="Card chip">
+              <span data-testid="preview">chip</span>
+            </Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>,
       );
       const source = screen.getByTestId('drag');
@@ -1419,7 +1460,6 @@ describe('Draggable.Root', () => {
             <div ref={boundsRef} data-testid="bounds" />
             <Draggable.Root
               kind={testDragKind}
-              data-testid="drag"
               onMove={({ location }) => {
                 committedPoints.push({
                   x: location.current.input.clientX,
@@ -1427,13 +1467,15 @@ describe('Draggable.Root', () => {
                 });
               }}
             >
-              {/* Pin to the pointer so the assertions read the clamp alone. */}
-              <Draggable.Preview
-                modifiers={Draggable.restrictToElement(boundsRef)}
-                offset="pointer"
-              >
-                <span data-testid="preview">x</span>
-              </Draggable.Preview>
+              <Draggable.Trigger data-testid="drag">
+                {/* Pin to the pointer so the assertions read the clamp alone. */}
+                <Draggable.Preview
+                  modifiers={Draggable.restrictToElement(boundsRef)}
+                  offset="pointer"
+                >
+                  <span data-testid="preview">x</span>
+                </Draggable.Preview>
+              </Draggable.Trigger>
             </Draggable.Root>
           </React.Fragment>
         );
@@ -1539,8 +1581,10 @@ describe('Draggable.Root', () => {
           <React.Fragment>
             <div ref={containerRef} data-testid="container" />
             <DraggableProvider>
-              <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-                <Draggable.Preview container={containerRef} />
+              <Draggable.Root kind={testDragKind}>
+                <Draggable.Trigger data-testid="drag" className="Card">
+                  <Draggable.Preview container={containerRef} />
+                </Draggable.Trigger>
               </Draggable.Root>
             </DraggableProvider>
           </React.Fragment>
@@ -1566,8 +1610,10 @@ describe('Draggable.Root', () => {
           <React.Fragment>
             <div ref={setContainer} data-testid="late-container" />
             <DraggableProvider>
-              <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-                <Draggable.Preview container={container ?? undefined} />
+              <Draggable.Root kind={testDragKind}>
+                <Draggable.Trigger data-testid="drag" className="Card">
+                  <Draggable.Preview container={container ?? undefined} />
+                </Draggable.Trigger>
               </Draggable.Root>
             </DraggableProvider>
           </React.Fragment>
@@ -1588,7 +1634,11 @@ describe('Draggable.Root', () => {
       let rowCommits = 0;
       const Row = React.memo(function Row() {
         rowCommits += 1;
-        return <Draggable.Root kind={testDragKind} data-testid="drag" />;
+        return (
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag" />
+          </Draggable.Root>
+        );
       });
 
       function Wiring() {

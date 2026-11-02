@@ -40,10 +40,12 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
       <ThemeContext.Provider value="dark">
         <DraggableProvider>
           <div className="dark">
-            <Draggable.Root kind={testDragKind} data-testid="drag">
-              <Draggable.Preview className="Badge">
-                <ThemedBadge />
-              </Draggable.Preview>
+            <Draggable.Root kind={testDragKind}>
+              <Draggable.Trigger data-testid="drag">
+                <Draggable.Preview className="Badge">
+                  <ThemedBadge />
+                </Draggable.Preview>
+              </Draggable.Trigger>
             </Draggable.Root>
           </div>
         </DraggableProvider>
@@ -78,14 +80,12 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     `;
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          style={{ width: '120px', height: '30px' }}
-        >
-          <Draggable.Preview className="Badge">
-            <span data-testid="preview">Preview</span>
-          </Draggable.Preview>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag" style={{ width: '120px', height: '30px' }}>
+            <Draggable.Preview className="Badge">
+              <span data-testid="preview">Preview</span>
+            </Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );
@@ -120,10 +120,12 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
       style.textContent = `.Badge { transform: scale(2); transition: translate 200ms 100ms, box-shadow 300ms; } ${endingRule}`;
       rtlRender(
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview className="Badge">
-              <span data-testid="preview">Preview</span>
-            </Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview className="Badge">
+                <span data-testid="preview">Preview</span>
+              </Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>,
       );
@@ -169,10 +171,12 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     }
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview>
-            <Drawing />
-          </Draggable.Preview>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag">
+            <Draggable.Preview>
+              <Drawing />
+            </Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );
@@ -198,10 +202,12 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     style.textContent = `.Badge { height: 40px; } ${css}`;
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview className="Badge" style={ownStyle} offset="pointer">
-            Preview
-          </Draggable.Preview>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag">
+            <Draggable.Preview className="Badge" style={ownStyle} offset="pointer">
+              Preview
+            </Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );
@@ -227,10 +233,12 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     style.textContent = '[popover] { transition: translate 200ms; }';
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview>
-            <span data-testid="preview">Preview</span>
-          </Draggable.Preview>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag">
+            <Draggable.Preview>
+              <span data-testid="preview">Preview</span>
+            </Draggable.Preview>
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );
@@ -247,14 +255,16 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     function Fixture(props: { shift: number }) {
       return (
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview
-              className="Badge"
-              style={{ translate: `${props.shift}px 0px` }}
-              offset="pointer"
-            >
-              Preview
-            </Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview
+                className="Badge"
+                style={{ translate: `${props.shift}px 0px` }}
+                offset="pointer"
+              >
+                Preview
+              </Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>
       );
@@ -279,10 +289,12 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     function Fixture(props: { tone: string }) {
       return (
         <DraggableProvider>
-          <Draggable.Root kind={testDragKind} data-testid="drag">
-            <Draggable.Preview className={props.tone}>
-              <span data-testid="preview">Preview</span>
-            </Draggable.Preview>
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-testid="drag">
+              <Draggable.Preview className={props.tone}>
+                <span data-testid="preview">Preview</span>
+              </Draggable.Preview>
+            </Draggable.Trigger>
           </Draggable.Root>
         </DraggableProvider>
       );
@@ -305,10 +317,12 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     style.textContent = '.Card > span { color: rgb(255, 0, 0); }';
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-          <span>Source</span>
-          <div className="Slot" />
-          <Draggable.Preview container={(source) => source.querySelector<HTMLElement>('.Slot')} />
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag" className="Card">
+            <span>Source</span>
+            <div className="Slot" />
+            <Draggable.Preview container={(source) => source.querySelector<HTMLElement>('.Slot')} />
+          </Draggable.Trigger>
         </Draggable.Root>
       </DraggableProvider>,
     );

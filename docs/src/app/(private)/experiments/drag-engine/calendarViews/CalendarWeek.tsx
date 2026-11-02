@@ -189,29 +189,6 @@ function WeekAllDayCell(props: { dayMs: number }) {
     <Draggable.Root
       kind={calEventCreateKind}
       payload={createPayload}
-      render={
-        <Draggable.Target
-          kind={calAllDayRowKind}
-          accept={CAL_DRAG_KINDS}
-          payload={cellPayload}
-          onDraggableMove={(eventDetails) => {
-            const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
-            if (!next) {
-              return;
-            }
-            const current = dropPreviewRef.current;
-            if (
-              !current ||
-              current.start !== next.start ||
-              current.end !== next.end ||
-              current.intent !== next.intent ||
-              current.allDay !== next.allDay
-            ) {
-              setDropPreview(next);
-            }
-          }}
-        />
-      }
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
           consumeDropPreview();
@@ -231,10 +208,36 @@ function WeekAllDayCell(props: { dayMs: number }) {
           });
         }
       }}
-      className={styles.weekAllDayCell}
     >
-      {/* No clone of the cell: the drop preview in the grid shows the range being created. */}
-      <Draggable.Preview disabled />
+      <Draggable.Trigger
+        render={
+          <Draggable.Target
+            kind={calAllDayRowKind}
+            accept={CAL_DRAG_KINDS}
+            payload={cellPayload}
+            onDraggableMove={(eventDetails) => {
+              const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
+              if (!next) {
+                return;
+              }
+              const current = dropPreviewRef.current;
+              if (
+                !current ||
+                current.start !== next.start ||
+                current.end !== next.end ||
+                current.intent !== next.intent ||
+                current.allDay !== next.allDay
+              ) {
+                setDropPreview(next);
+              }
+            }}
+          />
+        }
+        className={styles.weekAllDayCell}
+      >
+        {/* No clone of the cell: the drop preview in the grid shows the range being created. */}
+        <Draggable.Preview disabled />
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }
@@ -257,7 +260,6 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      // An all-day bar only moves between days, because the timed grid refuses all-day drags.
       payload={movePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
@@ -274,26 +276,29 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
           });
         }
       }}
-      className={styles.monthEventBar}
-      style={{
-        gridColumn: `${segment.startCol + 1} / span ${segment.span}`,
-        gridRow: segment.track + 1,
-      }}
-      role="button"
-      tabIndex={0}
-      data-continues-before={segment.continuesFromBefore ? 'true' : undefined}
-      data-continues-after={segment.continuesAfter ? 'true' : undefined}
-      title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
     >
-      <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview}>
-          <div className={styles.dragPreviewTitle}>{event.title}</div>
-          <div className={styles.dragPreviewMeta}>
-            {formatRange(event.start, event.end, event.allDay)}
+      <Draggable.Trigger
+        className={styles.monthEventBar}
+        style={{
+          gridColumn: `${segment.startCol + 1} / span ${segment.span}`,
+          gridRow: segment.track + 1,
+        }}
+        role="button"
+        tabIndex={0}
+        data-continues-before={segment.continuesFromBefore ? 'true' : undefined}
+        data-continues-after={segment.continuesAfter ? 'true' : undefined}
+        title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
+      >
+        <Draggable.Preview offset="pointer">
+          <div className={styles.dragPreview}>
+            <div className={styles.dragPreviewTitle}>{event.title}</div>
+            <div className={styles.dragPreviewMeta}>
+              {formatRange(event.start, event.end, event.allDay)}
+            </div>
           </div>
-        </div>
-      </Draggable.Preview>
-      {event.title}
+        </Draggable.Preview>
+        {event.title}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }
@@ -379,36 +384,6 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
   return (
     <Draggable.Root
       kind={calEventCreateKind}
-      render={
-        <Draggable.Target
-          kind={calDayColumnKind}
-          accept={CAL_DRAG_KINDS}
-          payload={columnPayload}
-          canDrop={({ source }) => {
-            // All-day drags belong in the all-day row.
-            return !source.payload.allDay;
-          }}
-          // One day divides into `DAY_MS / snap` slots. It's a callback because the
-          // snap setting can change at runtime.
-          snap={() => ({ y: DAY_MS / (snapRef.current * MINUTE_MS) })}
-          onDraggableMove={(eventDetails) => {
-            const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
-            if (!next) {
-              return;
-            }
-            const current = dropPreviewRef.current;
-            if (
-              !current ||
-              current.start !== next.start ||
-              current.end !== next.end ||
-              current.intent !== next.intent ||
-              current.allDay !== next.allDay
-            ) {
-              setDropPreview(next);
-            }
-          }}
-        />
-      }
       payload={payload}
       onMoveStart={(eventDetails) => {
         const input = eventDetails.location.initial.input;
@@ -442,28 +417,61 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           });
         }
       }}
-      className={styles.weekColumn}
     >
-      <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview}>
-          <div className={styles.dragPreviewTitle}>New event</div>
-        </div>
-      </Draggable.Preview>
-      {segments.map((seg) => (
-        <WeekTimedEvent key={`${seg.event.id}-${seg.visibleStart}`} dayMs={dayMs} segment={seg} />
-      ))}
-      {previewBlock && dropPreview && (
-        <div
-          className={styles.weekDropPreview}
-          data-intent={dropPreview.intent}
-          style={{ top: previewBlock.top, height: previewBlock.height }}
-        >
-          {dropPreview.intent === 'create' ? 'New event' : ''}
-          <div className={styles.weekEventTime}>
-            {formatTime(dropPreview.start)} – {formatTime(dropPreview.end)}
+      <Draggable.Trigger
+        render={
+          <Draggable.Target
+            kind={calDayColumnKind}
+            accept={CAL_DRAG_KINDS}
+            payload={columnPayload}
+            canDrop={({ source }) => {
+              // All-day drags belong in the all-day row.
+              return !source.payload.allDay;
+            }}
+            // One day divides into `DAY_MS / snap` slots. It's a callback because the
+            // snap setting can change at runtime.
+            snap={() => ({ y: DAY_MS / (snapRef.current * MINUTE_MS) })}
+            onDraggableMove={(eventDetails) => {
+              const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
+              if (!next) {
+                return;
+              }
+              const current = dropPreviewRef.current;
+              if (
+                !current ||
+                current.start !== next.start ||
+                current.end !== next.end ||
+                current.intent !== next.intent ||
+                current.allDay !== next.allDay
+              ) {
+                setDropPreview(next);
+              }
+            }}
+          />
+        }
+        className={styles.weekColumn}
+      >
+        <Draggable.Preview offset="pointer">
+          <div className={styles.dragPreview}>
+            <div className={styles.dragPreviewTitle}>New event</div>
           </div>
-        </div>
-      )}
+        </Draggable.Preview>
+        {segments.map((seg) => (
+          <WeekTimedEvent key={`${seg.event.id}-${seg.visibleStart}`} dayMs={dayMs} segment={seg} />
+        ))}
+        {previewBlock && dropPreview && (
+          <div
+            className={styles.weekDropPreview}
+            data-intent={dropPreview.intent}
+            style={{ top: previewBlock.top, height: previewBlock.height }}
+          >
+            {dropPreview.intent === 'create' ? 'New event' : ''}
+            <div className={styles.weekEventTime}>
+              {formatTime(dropPreview.start)} – {formatTime(dropPreview.end)}
+            </div>
+          </div>
+        )}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }
@@ -507,26 +515,29 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
           });
         }
       }}
-      className={styles.weekEvent}
-      style={{ top, height }}
-      role="button"
-      tabIndex={0}
-      title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
     >
-      <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview}>
-          <div className={styles.dragPreviewTitle}>{event.title}</div>
-          <div className={styles.dragPreviewMeta}>
-            {formatRange(event.start, event.end, event.allDay)}
+      <Draggable.Trigger
+        className={styles.weekEvent}
+        style={{ top, height }}
+        role="button"
+        tabIndex={0}
+        title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
+      >
+        <Draggable.Preview offset="pointer">
+          <div className={styles.dragPreview}>
+            <div className={styles.dragPreviewTitle}>{event.title}</div>
+            <div className={styles.dragPreviewMeta}>
+              {formatRange(event.start, event.end, event.allDay)}
+            </div>
           </div>
+        </Draggable.Preview>
+        {segment.isStartSegment && <WeekResizeHandle event={event} edge="start" />}
+        <div className={styles.weekEventTitle}>{event.title}</div>
+        <div className={styles.weekEventTime}>
+          {formatTime(event.start)} – {formatTime(event.end)}
         </div>
-      </Draggable.Preview>
-      {segment.isStartSegment && <WeekResizeHandle event={event} edge="start" />}
-      <div className={styles.weekEventTitle}>{event.title}</div>
-      <div className={styles.weekEventTime}>
-        {formatTime(event.start)} – {formatTime(event.end)}
-      </div>
-      {segment.isEndSegment && <WeekResizeHandle event={event} edge="end" />}
+        {segment.isEndSegment && <WeekResizeHandle event={event} edge="end" />}
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }
@@ -548,7 +559,6 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
   );
   return (
     <Draggable.Root
-      render={<span />}
       kind={calEventResizeKind}
       payload={resizePayload}
       onMoveEnd={(eventDetails) => {
@@ -566,17 +576,21 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
           });
         }
       }}
-      className={edge === 'start' ? styles.weekResizeTop : styles.weekResizeBottom}
-      aria-hidden="true"
     >
-      <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview}>
-          <div className={styles.dragPreviewTitle}>{event.title}</div>
-          <div className={styles.dragPreviewMeta}>
-            {edge === 'start' ? 'Resize start' : 'Resize end'}
+      <Draggable.Trigger
+        render={<span />}
+        className={edge === 'start' ? styles.weekResizeTop : styles.weekResizeBottom}
+        aria-hidden="true"
+      >
+        <Draggable.Preview offset="pointer">
+          <div className={styles.dragPreview}>
+            <div className={styles.dragPreviewTitle}>{event.title}</div>
+            <div className={styles.dragPreviewMeta}>
+              {edge === 'start' ? 'Resize start' : 'Resize end'}
+            </div>
           </div>
-        </div>
-      </Draggable.Preview>
+        </Draggable.Preview>
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

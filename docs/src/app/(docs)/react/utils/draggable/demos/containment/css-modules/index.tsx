@@ -24,23 +24,24 @@ function Widget({
     <Draggable.Root
       kind={widgetKind}
       payload={widget.id}
-      data-widget-id={widget.id}
-      tabIndex={0}
-      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-      onKeyDown={(event) => onKeyDown(event, widget.id)}
-      className={styles.Widget}
-      // @highlight-start @focus @padding 3
       modifiers={Draggable.restrictToElement(frameRef)}
-      // @highlight-end
     >
-      <div className={styles.WidgetHeader}>
-        <GripIcon className={styles.Grip} />
-        <span>{widget.title}</span>
-      </div>
-      <div className={styles.WidgetBody}>
-        <strong>{widget.value}</strong>
-        <span>{widget.detail}</span>
-      </div>
+      <Draggable.Trigger
+        data-widget-id={widget.id}
+        tabIndex={0}
+        aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+        onKeyDown={(event) => onKeyDown(event, widget.id)}
+        className={styles.Widget}
+      >
+        <div className={styles.WidgetHeader}>
+          <GripIcon className={styles.Grip} />
+          <span>{widget.title}</span>
+        </div>
+        <div className={styles.WidgetBody}>
+          <strong>{widget.value}</strong>
+          <span>{widget.detail}</span>
+        </div>
+      </Draggable.Trigger>
     </Draggable.Root>
   );
 }

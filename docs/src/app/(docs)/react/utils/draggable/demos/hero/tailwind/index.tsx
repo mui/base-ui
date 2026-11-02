@@ -39,31 +39,31 @@ export default function DraggableHero() {
         >
           {/* @focus-start @min 8 */}
           {/* @highlight-start */}
-          <Draggable.Root
-            ref={cardRef}
-            modifiers={Draggable.restrictToElement(surfaceRef)}
-            // @highlight-end
-            className="absolute box-border flex h-10 w-32 cursor-grab items-center justify-center border border-neutral-950 bg-white text-sm leading-5 text-neutral-950 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:data-[drag-preview]:shadow-none"
-            style={{ left: position.x, top: position.y }}
-            tabIndex={0}
-            aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
-            onKeyDown={(event) => {
-              if (!event.altKey) {
-                return;
-              }
-              const direction = [
-                { key: 'ArrowLeft', x: -20, y: 0 },
-                { key: 'ArrowRight', x: 20, y: 0 },
-                { key: 'ArrowUp', x: 0, y: -20 },
-                { key: 'ArrowDown', x: 0, y: 20 },
-              ].find((entry) => entry.key === event.key);
-              if (direction) {
-                event.preventDefault();
-                placeCard(position.x + direction.x, position.y + direction.y);
-              }
-            }}
-          >
-            Drag me
+          <Draggable.Root modifiers={Draggable.restrictToElement(surfaceRef)}>
+            <Draggable.Trigger
+              ref={cardRef}
+              className="absolute box-border flex h-10 w-32 cursor-grab items-center justify-center border border-neutral-950 bg-white text-sm leading-5 text-neutral-950 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:data-[drag-preview]:shadow-none"
+              style={{ left: position.x, top: position.y }}
+              tabIndex={0}
+              aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
+              onKeyDown={(event) => {
+                if (!event.altKey) {
+                  return;
+                }
+                const direction = [
+                  { key: 'ArrowLeft', x: -20, y: 0 },
+                  { key: 'ArrowRight', x: 20, y: 0 },
+                  { key: 'ArrowUp', x: 0, y: -20 },
+                  { key: 'ArrowDown', x: 0, y: 20 },
+                ].find((entry) => entry.key === event.key);
+                if (direction) {
+                  event.preventDefault();
+                  placeCard(position.x + direction.x, position.y + direction.y);
+                }
+              }}
+            >
+              Drag me
+            </Draggable.Trigger>
           </Draggable.Root>
           {/* @focus-end */}
         </Draggable.Target>
