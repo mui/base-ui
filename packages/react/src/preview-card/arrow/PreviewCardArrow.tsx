@@ -20,7 +20,8 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   const { render, className, style, ...elementProps } = componentProps;
 
   const store = usePreviewCardRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles, instant } =
+    usePreviewCardPositionerContext();
 
   const open = store.useState('open');
 
@@ -29,6 +30,7 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     side,
     align,
     uncentered: arrowUncentered,
+    instant,
   };
 
   const element = useRenderElement('div', componentProps, {
@@ -58,6 +60,10 @@ export interface PreviewCardArrowState {
    * Whether the arrow cannot be centered on the anchor.
    */
   uncentered: boolean;
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: string | undefined;
 }
 
 export interface PreviewCardArrowProps extends BaseUIComponentProps<'div', PreviewCardArrowState> {}

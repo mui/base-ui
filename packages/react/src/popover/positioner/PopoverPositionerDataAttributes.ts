@@ -22,3 +22,8 @@ export const side = CommonPopupDataAttributes.side;
  * @type {'start' | 'center' | 'end'}
  */
 export const align = CommonPopupDataAttributes.align;
+/**
+ * Present when position transitions should be skipped.
+ * @type {'click' | 'dismiss' | 'focus' | 'trigger-change'}
+ */
+export const instant = 'data-instant';

@@ -2,7 +2,14 @@ import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests, resetBrowserPointer } from '#test-utils';
+import {
+  createRenderer,
+  isJSDOM,
+  popupConformanceTests,
+  resetBrowserPointer,
+  recordTransitions,
+  waitSingleFrame,
+} from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../internals/reasons';
@@ -1176,6 +1183,105 @@ describe('<Tooltip.Root />', () => {
         expect(screen.getByText('Content')).not.toBe(null);
       });
     });
+  });
+
+  describe.skipIf(isJSDOM)('prop: disabled', () => {
+    it.each([
+      { name: 'without a pending trigger switch', switchBeforeDisabling: false },
+      { name: 'during a pending trigger switch', switchBeforeDisabling: true },
+    ])(
+      'resumes instant scroll tracking after re-enabling a kept-mounted tooltip disabled $name',
+      async ({ switchBeforeDisabling }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        function Test({ disabled = false, triggerId = 'first' }) {
+          return (
+            <div data-testid="scroller" style={{ width: 400, height: 200, overflow: 'auto' }}>
+              <style>{`
+                .disabled-tracking-positioner { transition: transform 60s linear; }
+                .disabled-tracking-positioner[data-instant] { transition: none; }
+                .disabled-tracking-popup { opacity: 1; transition: opacity 100ms linear; }
+                .disabled-tracking-popup[data-starting-style],
+                .disabled-tracking-popup[data-ending-style] { opacity: 0; }
+                .disabled-tracking-popup[data-instant] { transition: none; }
+              `}</style>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  gap: 40,
+                  paddingTop: 40,
+                  width: 300,
+                  height: 500,
+                }}
+              >
+                <MultipleDetachedTriggersTooltip
+                  rootProps={{ open: true, triggerId, disabled }}
+                  triggerProps={{ id: 'first' }}
+                  portalProps={{ keepMounted: true }}
+                  positionerProps={{
+                    className: 'disabled-tracking-positioner',
+                    side: 'right',
+                    align: 'start',
+                  }}
+                  popupProps={{
+                    className: 'disabled-tracking-popup',
+                    style: { width: 80, height: 30 },
+                  }}
+                />
+              </div>
+            </div>
+          );
+        }
+
+        const { setProps } = await render(<Test />);
+        const positioner = screen.getByTestId('positioner');
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => expect(positioner.style.transition).toBe(''));
+        await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+        expect(positioner).toHaveAttribute('data-instant');
+
+        const trigger = screen.getByTestId(switchBeforeDisabling ? 'trigger-2' : 'trigger');
+        const move = recordTransitions(positioner, { pause: true });
+        if (switchBeforeDisabling) {
+          await setProps({ triggerId: trigger.id });
+        }
+        await waitFor(() => expect(move.started).toHaveLength(switchBeforeDisabling ? 1 : 0));
+        expect(positioner.getAnimations()).toHaveLength(switchBeforeDisabling ? 1 : 0);
+        expect(positioner.hasAttribute('data-instant')).toBe(!switchBeforeDisabling);
+
+        // Keep the controlled open prop true: disabling hides the tooltip without committing a
+        // close, and its short exit finishes while the positioner move is still pending.
+        await setProps({ disabled: true, triggerId: trigger.id });
+        await waitFor(() => expect(positioner).toHaveAttribute('hidden'));
+        await setProps({ disabled: false, triggerId: trigger.id });
+        await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+        expect(positioner).not.toHaveAttribute('hidden');
+        expect(positioner).toHaveAttribute('data-instant');
+        expect(positioner.getAnimations()).toHaveLength(0);
+
+        const transitions = recordTransitions(positioner);
+        const previousTop = positioner.getBoundingClientRect().top;
+        expect(previousTop).toBeCloseTo(trigger.getBoundingClientRect().top, 0);
+        await act(async () => {
+          screen.getByTestId('scroller').scrollTop += 20;
+        });
+        await waitFor(() =>
+          expect(positioner.getBoundingClientRect().top).toBeCloseTo(previousTop - 20, 0),
+        );
+        await act(async () => {
+          await waitSingleFrame();
+          await waitSingleFrame();
+        });
+
+        expect(transitions.started).toEqual([]);
+        expect(positioner.getBoundingClientRect().top).toBeCloseTo(
+          trigger.getBoundingClientRect().top,
+          0,
+        );
+      },
+    );
   });
 
   describe('preventUnmountOnClose()', () => {

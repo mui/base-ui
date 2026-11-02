@@ -172,6 +172,15 @@ This includes animating its position, size, and content.
 To animate the popover's position, apply CSS transitions to the `left`, `right`, `top`, and `bottom` properties of the **Positioner** part.
 To animate its size, transition the `width` and `height` of the **Popup** part.
 
+Disable these position transitions when **Positioner** has the `data-instant` attribute.
+This keeps the popup attached to its anchor during scrolling, resizing, and exit animations, while allowing transitions between triggers.
+
+```css
+.Positioner[data-instant] {
+  transition: none;
+}
+```
+
 #### Content
 
 The popover also supports content transitions.

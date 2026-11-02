@@ -20,17 +20,17 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   const { render, className, style, ...elementProps } = componentProps;
 
   const store = useTooltipRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useTooltipPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles, instant } =
+    useTooltipPositionerContext();
 
   const open = store.useState('open');
-  const instantType = store.useState('instantType');
 
   const state: TooltipArrowState = {
     open,
     side,
     align,
     uncentered: arrowUncentered,
-    instant: instantType,
+    instant,
   };
 
   const element = useRenderElement('div', componentProps, {
@@ -63,7 +63,7 @@ export interface TooltipArrowState {
   /**
    * Whether transitions should be skipped.
    */
-  instant: 'delay' | 'dismiss' | 'focus' | undefined;
+  instant: string | undefined;
 }
 
 export interface TooltipArrowProps extends BaseUIComponentProps<'div', TooltipArrowState> {}

@@ -73,7 +73,7 @@ export interface PreviewCardPositionerState {
   /**
    * Whether transitions should be skipped.
    */
-  instant: 'dismiss' | 'focus' | undefined;
+  instant: 'dismiss' | 'focus' | 'trigger-change' | undefined;
 }
 
 export interface PreviewCardPositionerProps
