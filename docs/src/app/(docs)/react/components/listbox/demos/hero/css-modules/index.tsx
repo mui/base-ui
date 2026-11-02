@@ -26,7 +26,7 @@ const songGroups = [
 export default function ExampleListbox() {
   return (
     <div className={styles.Field}>
-      <Listbox.Root defaultValue={['billie-jean']}>
+      <Listbox.Root defaultValue="billie-jean">
         <Listbox.Label className={styles.Label}>Playlist</Listbox.Label>
         <Listbox.List className={styles.List}>
           {songGroups.map((group) => (

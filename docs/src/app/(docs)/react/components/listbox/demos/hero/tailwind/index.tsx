@@ -25,7 +25,7 @@ const songGroups = [
 export default function ExampleListbox() {
   return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root defaultValue={['billie-jean']}>
+      <Listbox.Root defaultValue="billie-jean">
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-neutral-900 dark:text-neutral-100">
           Playlist
         </Listbox.Label>

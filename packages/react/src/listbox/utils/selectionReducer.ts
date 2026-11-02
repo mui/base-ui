@@ -2,17 +2,6 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 
 /**
- * The selection mode determines how user interactions (clicks, keyboard)
- * affect the selected items in the listbox.
- *
- * - `'single'`  — Only one item can be selected at a time. Clicking replaces the selection.
- * - `'multiple'`  — Clicking toggles items. Shift+Click selects a range.
- * - `'explicit-multiple'`  — Like a file browser: clicking replaces the selection,
- *    Ctrl/Cmd+Click toggles individual items, Shift+Click selects a range.
- */
-export type SelectionMode = 'single' | 'multiple' | 'explicit-multiple';
-
-/**
  * Typed actions that describe selection intent. Both click handlers and
  * keyboard handlers produce these; the pure `selectionReducer` computes
  * the next value array.
@@ -115,11 +104,4 @@ export function selectionReducer(
     default:
       return currentValue;
   }
-}
-
-/**
- * Returns true if the given selection mode supports multiple selected items.
- */
-export function isMultipleSelectionMode(mode: SelectionMode): boolean {
-  return mode === 'multiple' || mode === 'explicit-multiple';
 }

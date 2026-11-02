@@ -15,7 +15,7 @@ describe('<Listbox.Root />', () => {
   describe('prop: defaultValue', () => {
     it('should select the item by default', async () => {
       await render(
-        <Listbox.Root defaultValue={['b']}>
+        <Listbox.Root defaultValue="b">
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -31,7 +31,7 @@ describe('<Listbox.Root />', () => {
   describe('prop: value (controlled)', () => {
     it('should select the item matching the value', async () => {
       await render(
-        <Listbox.Root value={['a']}>
+        <Listbox.Root value="a">
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -59,14 +59,14 @@ describe('<Listbox.Root />', () => {
       fireEvent.click(screen.getByRole('option', { name: 'b' }));
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['b']);
+      expect(handleValueChange.mock.calls[0][0]).toBe('b');
     });
   });
 
   describe('single selection', () => {
     it('should select an item on click and deselect previous', async () => {
       function TestComponent() {
-        const [value, setValue] = React.useState<string[]>(['a']);
+        const [value, setValue] = React.useState<string | null>('a');
         return (
           <Listbox.Root value={value} onValueChange={(v) => setValue(v)}>
             <Listbox.List>
@@ -95,11 +95,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="multiple"
-          defaultValue={['a']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple defaultValue={['a']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -126,16 +122,12 @@ describe('<Listbox.Root />', () => {
     });
   });
 
-  describe('explicit multiple selection', () => {
+  describe('prop: multiple="opt-in"', () => {
     it('should replace the selection on plain click', async () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="explicit-multiple"
-          defaultValue={['a', 'b']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple="opt-in" defaultValue={['a', 'b']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -154,11 +146,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="explicit-multiple"
-          defaultValue={['a', 'b']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple="opt-in" defaultValue={['a', 'b']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -181,11 +169,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="explicit-multiple"
-          defaultValue={['a', 'b']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple="opt-in" defaultValue={['a', 'b']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -206,11 +190,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="explicit-multiple"
-          defaultValue={['a']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -258,9 +238,12 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'a' })).toBeInTheDocument();
     });
 
-    it('should set aria-multiselectable when multiple', async () => {
+    it.each([
+      { name: 'multiple', multiple: true },
+      { name: 'opt-in mode', multiple: 'opt-in' as const },
+    ])('should set aria-multiselectable with $name', async ({ multiple }) => {
       await render(
-        <Listbox.Root selectionMode="multiple">
+        <Listbox.Root multiple={multiple}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
           </Listbox.List>
@@ -272,7 +255,7 @@ describe('<Listbox.Root />', () => {
 
     it('should set aria-selected on selected items', async () => {
       await render(
-        <Listbox.Root defaultValue={['a']}>
+        <Listbox.Root defaultValue="a">
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -346,7 +329,7 @@ describe('<Listbox.Root />', () => {
 
       await flushMicrotasks();
 
-      expect(handleValueChange).toHaveBeenCalledWith(['b'], expect.anything());
+      expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
     });
 
     it('should select item with Space key', async () => {
@@ -374,7 +357,7 @@ describe('<Listbox.Root />', () => {
 
       await flushMicrotasks();
 
-      expect(handleValueChange).toHaveBeenCalledWith(['b'], expect.anything());
+      expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
     });
   });
 
@@ -383,7 +366,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -409,7 +392,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -447,11 +430,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="multiple"
-          defaultValue={['a', 'b']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -482,11 +461,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="multiple"
-          defaultValue={['c']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple defaultValue={['c']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -517,7 +492,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -545,7 +520,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -577,7 +552,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -614,7 +589,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -646,7 +621,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -669,11 +644,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="multiple"
-          defaultValue={['a', 'b', 'c']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple defaultValue={['a', 'b', 'c']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -696,7 +667,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b" disabled>
@@ -721,7 +692,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b" disabled>
@@ -777,11 +748,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="multiple"
-          defaultValue={['a', 'b']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -814,11 +781,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="multiple"
-          defaultValue={['a']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple defaultValue={['a']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b" disabled>
@@ -843,7 +806,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -866,11 +829,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root
-          selectionMode="multiple"
-          defaultValue={['d']}
-          onValueChange={handleValueChange}
-        >
+        <Listbox.Root multiple defaultValue={['d']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -910,7 +869,7 @@ describe('<Listbox.Root />', () => {
 
         await render(
           <Listbox.Root
-            selectionMode="multiple"
+            multiple
             orientation="horizontal"
             defaultValue={[]}
             onValueChange={handleValueChange}
@@ -946,7 +905,7 @@ describe('<Listbox.Root />', () => {
 
         await render(
           <Listbox.Root
-            selectionMode="multiple"
+            multiple
             orientation="horizontal"
             defaultValue={[]}
             onValueChange={handleValueChange}
@@ -982,7 +941,7 @@ describe('<Listbox.Root />', () => {
 
         await render(
           <Listbox.Root
-            selectionMode="multiple"
+            multiple
             orientation="horizontal"
             defaultValue={[]}
             onValueChange={handleValueChange}
@@ -1020,7 +979,7 @@ describe('<Listbox.Root />', () => {
         await render(
           <DirectionProvider direction="rtl">
             <Listbox.Root
-              selectionMode="multiple"
+              multiple
               orientation="horizontal"
               defaultValue={[]}
               onValueChange={handleValueChange}
@@ -1059,7 +1018,7 @@ describe('<Listbox.Root />', () => {
         await render(
           <DirectionProvider direction="rtl">
             <Listbox.Root
-              selectionMode="multiple"
+              multiple
               orientation="horizontal"
               defaultValue={[]}
               onValueChange={handleValueChange}
@@ -1098,7 +1057,7 @@ describe('<Listbox.Root />', () => {
         await render(
           <DirectionProvider direction="rtl">
             <Listbox.Root
-              selectionMode="multiple"
+              multiple
               orientation="horizontal"
               defaultValue={[]}
               onValueChange={handleValueChange}
@@ -1164,7 +1123,7 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b" disabled>
@@ -1346,10 +1305,10 @@ describe('<Listbox.Root />', () => {
   describe('controlled value', () => {
     it('should update selection when value prop changes externally', async () => {
       function TestComponent() {
-        const [value, setValue] = React.useState<string[]>(['a']);
+        const [value, setValue] = React.useState<string | null>('a');
         return (
           <div>
-            <button type="button" onClick={() => setValue(['b'])}>
+            <button type="button" onClick={() => setValue('b')}>
               switch
             </button>
             <Listbox.Root value={value} onValueChange={(v) => setValue(v)}>
@@ -1379,7 +1338,7 @@ describe('<Listbox.Root />', () => {
   describe('form integration', () => {
     it('should render hidden input with value', async () => {
       await render(
-        <Listbox.Root name="fruit" defaultValue={['apple']}>
+        <Listbox.Root name="fruit" defaultValue="apple">
           <Listbox.List>
             <Listbox.Item value="apple">Apple</Listbox.Item>
           </Listbox.List>
@@ -1393,7 +1352,7 @@ describe('<Listbox.Root />', () => {
 
     it('should render multiple hidden inputs for multi-select', async () => {
       await render(
-        <Listbox.Root selectionMode="multiple" name="fruits" defaultValue={['apple', 'banana']}>
+        <Listbox.Root multiple name="fruits" defaultValue={['apple', 'banana']}>
           <Listbox.List>
             <Listbox.Item value="apple">Apple</Listbox.Item>
             <Listbox.Item value="banana">Banana</Listbox.Item>

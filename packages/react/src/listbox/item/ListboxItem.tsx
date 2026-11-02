@@ -18,7 +18,7 @@ import { useCompositeListItem } from '../../internals/composite';
 import { findItemIndex } from '../../internals/itemEquality';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { ListboxItemContext } from './ListboxItemContext';
-import { selectionReducer, isMultipleSelectionMode } from '../utils/selectionReducer';
+import { selectionReducer } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
 
 function useListItemValueRegistration(params: {
@@ -76,7 +76,8 @@ export const ListboxItem = React.memo(
 
     const highlightTimeout = useTimeout();
 
-    const selectionMode = store.useState('selectionMode');
+    const multiple = store.useState('multiple');
+    const optInMode = multiple === 'opt-in';
     const highlightItemOnHover = store.useState('highlightItemOnHover');
     const rootDisabled = store.useState('disabled');
     const highlighted = store.useState('isActive', listItem.index);
@@ -125,23 +126,21 @@ export const ListboxItem = React.memo(
     });
 
     /**
-     * Maps a click event (with modifier keys) to a SelectionAction based on
-     * the current selectionMode, then dispatches it through the reducer.
+     * Maps a click event (with modifier keys) to a SelectionAction,
+     * then dispatches it through the reducer.
      */
     function commitSelection(
       event: MouseEvent | KeyboardEvent,
       {
         shiftKey = false,
         ctrlKey = false,
-      }: {
-        shiftKey?: boolean | undefined;
-        ctrlKey?: boolean | undefined;
-      } = {},
+      }: { shiftKey?: boolean | undefined; ctrlKey?: boolean | undefined } = {},
     ) {
       let action: SelectionAction;
 
-      if (shiftKey && isMultipleSelectionMode(selectionMode)) {
-        if (selectionMode === 'explicit-multiple' && ctrlKey) {
+      if (shiftKey && multiple) {
+        if (optInMode && ctrlKey) {
+          // Ctrl/Cmd+Shift adds the range to the existing selection.
           const anchorIndex = lastSelectedIndexRef.current;
           action =
             anchorIndex === null
@@ -150,14 +149,11 @@ export const ListboxItem = React.memo(
         } else {
           action = { type: 'extendTo', index, anchorIndex: lastSelectedIndexRef.current };
         }
-      } else if (selectionMode === 'multiple') {
-        // In 'multiple' mode, every click toggles
-        action = { type: 'toggle', index };
-      } else if (selectionMode === 'explicit-multiple' && ctrlKey) {
-        // In 'explicit-multiple' mode, Ctrl/Cmd+Click toggles
+      } else if (multiple && (!optInMode || ctrlKey)) {
+        // `multiple` toggles on every press; `multiple="opt-in"` toggles with Ctrl/Cmd.
         action = { type: 'toggle', index };
       } else {
-        // 'single' or 'explicit-multiple' without modifier → replace
+        // Single selection, or `multiple="opt-in"` without a modifier.
         action = { type: 'select', index };
       }
 

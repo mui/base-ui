@@ -3,20 +3,20 @@ import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { compareItemEquality } from '../internals/itemEquality';
 import type { FieldRootContextType } from '../internals/field-root-context';
 import type { ListboxRoot } from './root/ListboxRoot';
-import type { SelectionMode } from './utils/selectionReducer';
 
 type UseFieldValidationReturnValue = FieldRootContextType['validation'];
 
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
-  selectionMode: SelectionMode;
+  /** `'opt-in'` when pressing an item without a modifier replaces the selection. */
+  multiple: boolean | 'opt-in';
 
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
-  /** Always an array, regardless of selection mode. */
+  /** The selected values. An array even when `multiple` is `false`. */
   value: any[];
 
   activeIndex: number | null;
@@ -45,7 +45,7 @@ export type Context = {
 export const selectors = {
   id: createSelector((state: State) => state.id),
   labelId: createSelector((state: State) => state.labelId),
-  selectionMode: createSelector((state: State) => state.selectionMode),
+  multiple: createSelector((state: State) => state.multiple),
 
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   itemToStringValue: createSelector((state: State) => state.itemToStringValue),
@@ -92,7 +92,7 @@ function createInitialState(): State {
   return {
     id: undefined,
     labelId: undefined,
-    selectionMode: 'single',
+    multiple: false,
     itemToStringLabel: undefined,
     itemToStringValue: undefined,
     isItemEqualToValue: Object.is,

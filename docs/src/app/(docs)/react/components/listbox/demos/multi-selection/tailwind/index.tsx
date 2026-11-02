@@ -11,25 +11,10 @@ const songs = [
 
 export default function ExampleListboxMultiSelection() {
   return (
-    <div className="flex flex-wrap gap-6">
-      <SongList label="multiple" selectionMode="multiple" />
-      <SongList label="explicit-multiple" selectionMode="explicit-multiple" />
-    </div>
-  );
-}
-
-function SongList({
-  label,
-  selectionMode,
-}: {
-  label: string;
-  selectionMode: 'multiple' | 'explicit-multiple';
-}) {
-  return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root selectionMode={selectionMode} defaultValue={['bohemian-rhapsody']}>
+      <Listbox.Root multiple defaultValue={['bohemian-rhapsody']}>
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-neutral-900 dark:text-neutral-100">
-          {label}
+          Playlist
         </Listbox.Label>
         <Listbox.List className="box-border w-64 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-500">
           {songs.map(({ title, artist, value }) => (
