@@ -36,6 +36,167 @@ describe('<ContextMenu.Trigger />', () => {
     }
   });
 
+  it('is focusable by default', async () => {
+    const { user } = await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    expect(trigger).toHaveAttribute('tabindex', '0');
+
+    await user.tab();
+
+    expect(trigger).toHaveFocus();
+  });
+
+  it('allows overriding the default tabIndex', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger" tabIndex={-1}>
+          Right click me
+        </ContextMenu.Trigger>
+      </ContextMenu.Root>,
+    );
+
+    expect(screen.getByTestId('trigger')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('is removed from the tab order when disabled', async () => {
+    await render(
+      <ContextMenu.Root disabled>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+      </ContextMenu.Root>,
+    );
+
+    expect(screen.getByTestId('trigger')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('focuses the first item when opened from the keyboard', async () => {
+    const { user } = await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>First action</ContextMenu.Item>
+              <ContextMenu.Item>Second action</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    await user.tab();
+    expect(trigger).toHaveFocus();
+
+    fireEvent.contextMenu(trigger, { button: 0, detail: 0 });
+    await flushMicrotasks();
+
+    expect(screen.getByRole('menuitem', { name: 'First action' })).toHaveFocus();
+  });
+
+  it('opens and focuses the first item on Shift+F10', async () => {
+    const { user } = await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>First action</ContextMenu.Item>
+              <ContextMenu.Item>Second action</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    await user.tab();
+    expect(trigger).toHaveFocus();
+
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+
+    expect(screen.getByRole('menuitem', { name: 'First action' })).toHaveFocus();
+  });
+
+  it('opens and focuses the first item on the Context Menu key', async () => {
+    const { user } = await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>First action</ContextMenu.Item>
+              <ContextMenu.Item>Second action</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    await user.tab();
+    expect(trigger).toHaveFocus();
+
+    await user.keyboard('{ContextMenu}');
+
+    expect(screen.getByRole('menuitem', { name: 'First action' })).toHaveFocus();
+  });
+
+  it('focuses the menu when opened by right-click', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>First action</ContextMenu.Item>
+              <ContextMenu.Item>Second action</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    fireEvent.contextMenu(screen.getByTestId('trigger'), { button: 2, detail: 0 });
+    await flushMicrotasks();
+
+    expect(screen.getByRole('menu')).toHaveFocus();
+  });
+
+  it('does not treat a touch context-menu event as keyboard input', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>First action</ContextMenu.Item>
+              <ContextMenu.Item>Second action</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const event = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      detail: 0,
+    });
+    Object.defineProperty(event, 'pointerType', { value: 'touch' });
+    await act(async () => {
+      screen.getByTestId('trigger').dispatchEvent(event);
+    });
+    await flushMicrotasks();
+
+    expect(screen.getByRole('menu')).toHaveFocus();
+  });
+
   it('should open menu on right click (context menu event)', async () => {
     await render(
       <ContextMenu.Root>
@@ -49,7 +210,7 @@ describe('<ContextMenu.Trigger />', () => {
     );
 
     const trigger = screen.getByTestId('trigger');
-    fireEvent.contextMenu(trigger);
+    fireEvent.contextMenu(trigger, { button: 2, detail: 1 });
     await flushMicrotasks();
 
     expect(screen.queryByRole('menu')).not.toBe(null);
@@ -89,7 +250,7 @@ describe('<ContextMenu.Trigger />', () => {
     );
 
     const trigger = screen.getByTestId('trigger');
-    fireEvent.contextMenu(trigger);
+    fireEvent.contextMenu(trigger, { button: 2, detail: 1 });
     await flushMicrotasks();
 
     expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
@@ -111,7 +272,7 @@ describe('<ContextMenu.Trigger />', () => {
 
     const trigger = screen.getByTestId('trigger');
     fireEvent.mouseDown(trigger);
-    fireEvent.contextMenu(trigger);
+    fireEvent.contextMenu(trigger, { button: 2, detail: 1 });
 
     clock.tick(499);
 
@@ -141,7 +302,7 @@ describe('<ContextMenu.Trigger />', () => {
 
     const trigger = screen.getByTestId('trigger');
     fireEvent.mouseDown(trigger);
-    fireEvent.contextMenu(trigger);
+    fireEvent.contextMenu(trigger, { button: 2, detail: 1 });
 
     clock.tick(501);
 
@@ -165,7 +326,7 @@ describe('<ContextMenu.Trigger />', () => {
       </ContextMenu.Root>,
     );
 
-    fireEvent.contextMenu(screen.getByTestId('trigger'));
+    fireEvent.contextMenu(screen.getByTestId('trigger'), { button: 2, detail: 1 });
     clock.tick(501);
     fireEvent.mouseUp(screen.getByTestId('positioner'));
 
@@ -196,7 +357,7 @@ describe('<ContextMenu.Trigger />', () => {
       </ContextMenu.Root>,
     );
 
-    fireEvent.contextMenu(screen.getByTestId('trigger'));
+    fireEvent.contextMenu(screen.getByTestId('trigger'), { button: 2, detail: 1 });
     clock.tick(501);
     fireEvent.mouseUp(screen.getByTestId('submenu-popup'));
 
@@ -227,7 +388,7 @@ describe('<ContextMenu.Trigger />', () => {
     }
 
     await render(<Test />);
-    fireEvent.contextMenu(screen.getByTestId('trigger'));
+    fireEvent.contextMenu(screen.getByTestId('trigger'), { button: 2, detail: 1 });
 
     await act(async () => {
       hideTrigger();
@@ -256,7 +417,7 @@ describe('<ContextMenu.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      fireEvent.contextMenu(trigger);
+      fireEvent.contextMenu(trigger, { button: 2, detail: 1 });
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup')).toBe(null);
@@ -609,7 +770,7 @@ describe('<ContextMenu.Trigger />', () => {
     const innerTrigger = screen.getByText('inner');
     const outerTrigger = screen.getByText('outer');
 
-    fireEvent.contextMenu(innerTrigger);
+    fireEvent.contextMenu(innerTrigger, { button: 2, detail: 1 });
     await flushMicrotasks();
 
     expect(screen.queryByTestId('inner-menu')).not.toBe(null);
@@ -620,7 +781,7 @@ describe('<ContextMenu.Trigger />', () => {
 
     expect(screen.queryByTestId('inner-menu')).toBe(null);
 
-    fireEvent.contextMenu(outerTrigger);
+    fireEvent.contextMenu(outerTrigger, { button: 2, detail: 1 });
     await flushMicrotasks();
 
     expect(screen.queryByTestId('outer-menu')).not.toBe(null);
