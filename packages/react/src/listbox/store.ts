@@ -1,10 +1,7 @@
 import type * as React from 'react';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { compareItemEquality } from '../internals/itemEquality';
-import type { FieldRootContextType } from '../internals/field-root-context';
 import type { ListboxRoot } from './root/ListboxRoot';
-
-type UseFieldValidationReturnValue = FieldRootContextType['validation'];
 
 export type State = {
   id: string | undefined;
@@ -13,7 +10,6 @@ export type State = {
   multiple: boolean | 'opt-in';
 
   itemToStringLabel: ((item: any) => string) | undefined;
-  itemToStringValue: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
   /** The selected values. An array even when `multiple` is `false`. */
@@ -26,8 +22,6 @@ export type State = {
   orientation: 'vertical' | 'horizontal';
 
   disabled: boolean;
-  name: string | undefined;
-  required: boolean;
   loopFocus: boolean;
   highlightItemOnHover: boolean;
 };
@@ -38,7 +32,6 @@ export type Context = {
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
   typingRef: React.RefObject<boolean>;
   lastSelectedIndexRef: React.RefObject<number | null>;
-  validation: UseFieldValidationReturnValue;
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
   /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
   highlightEvent: Event | undefined;
@@ -50,7 +43,6 @@ export const selectors = {
   multiple: createSelector((state: State) => state.multiple),
 
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
-  itemToStringValue: createSelector((state: State) => state.itemToStringValue),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
@@ -74,8 +66,6 @@ export const selectors = {
   orientation: createSelector((state: State) => state.orientation),
 
   disabled: createSelector((state: State) => state.disabled),
-  name: createSelector((state: State) => state.name),
-  required: createSelector((state: State) => state.required),
   loopFocus: createSelector((state: State) => state.loopFocus),
   highlightItemOnHover: createSelector((state: State) => state.highlightItemOnHover),
 };
@@ -106,15 +96,12 @@ function createInitialState(): State {
     labelId: undefined,
     multiple: false,
     itemToStringLabel: undefined,
-    itemToStringValue: undefined,
     isItemEqualToValue: Object.is,
     value: [],
     activeIndex: null,
     listElement: null,
     orientation: 'vertical',
     disabled: false,
-    name: undefined,
-    required: false,
     loopFocus: true,
     highlightItemOnHover: true,
   };
@@ -127,15 +114,6 @@ function createInitialContext(): Context {
     disabledItemsRef: { current: [] },
     typingRef: { current: false },
     lastSelectedIndexRef: { current: null },
-    validation: {
-      getValidationProps: (_disabled, props = {}) => props,
-      inputRef: { current: null },
-      registeredInputs: new Map(),
-      registerInput: () => {},
-      getInputControl: () => null,
-      commit: async () => {},
-      change: () => {},
-    },
     setValue: () => {},
     highlightEvent: undefined,
   };
