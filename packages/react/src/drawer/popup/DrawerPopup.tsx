@@ -17,13 +17,13 @@ import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
 import * as DrawerPopupCssVars from './DrawerPopupCssVars';
 import * as DrawerPopupDataAttributes from './DrawerPopupDataAttributes';
 import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
+import { usePopupOpenChangeComplete } from '../../utils/popups/popupParts';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
@@ -292,15 +292,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     };
   }, [notifyParentHasNestedDrawer, open, transitionStatus]);
 
-  useOpenChangeComplete({
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (open) {
-        store.context.onOpenChangeComplete?.(true);
-      }
-    },
-  });
+  usePopupOpenChangeComplete(store, open);
 
   const resolvedInitialFocus = initialFocus === undefined ? popupRef : initialFocus;
 

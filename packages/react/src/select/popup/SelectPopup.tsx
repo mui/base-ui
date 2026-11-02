@@ -19,7 +19,7 @@ import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { styleDisableScrollbar } from '../../utils/styles';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { usePopupOpenChangeComplete } from '../../utils/popups/popupParts';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -168,15 +168,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   React.useImperativeHandle(store.context.scrollHandlerRef, () => handleScroll, [handleScroll]);
 
-  useOpenChangeComplete({
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (open) {
-        store.context.onOpenChangeComplete?.(true);
-      }
-    },
-  });
+  usePopupOpenChangeComplete(store, open);
 
   const state: SelectPopupState = {
     open,

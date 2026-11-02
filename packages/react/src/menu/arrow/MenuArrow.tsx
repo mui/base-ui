@@ -2,10 +2,9 @@
 import * as React from 'react';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupStateMapping } from '../../utils/popups/popupStateMapping';
+import { usePopupArrow } from '../../utils/popups/popupParts';
 
 /**
  * Displays an element positioned against the menu anchor.
@@ -17,29 +16,13 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
   componentProps: MenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
   const { store } = useMenuRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
-  const open = store.useState('open');
-
-  const state: MenuArrowState = {
-    open,
-    side,
-    align,
-    uncentered: arrowUncentered,
-  };
-
-  return useRenderElement('div', componentProps, {
-    ref: [arrowRef, forwardedRef],
-    stateAttributesMapping: popupStateMapping,
-    state,
-    props: {
-      style: arrowStyles,
-      'aria-hidden': true,
-      ...elementProps,
-    },
-  });
+  return usePopupArrow(
+    componentProps,
+    forwardedRef,
+    store.useState('open'),
+    useMenuPositionerContext(),
+  );
 });
 
 export interface MenuArrowState {

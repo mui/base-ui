@@ -10,7 +10,7 @@ import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { usePopupOpenChangeComplete } from '../../utils/popups/popupParts';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
@@ -53,15 +53,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     };
   }, [store, popupId]);
 
-  useOpenChangeComplete({
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (open) {
-        store.context.onOpenChangeComplete?.(true);
-      }
-    },
-  });
+  usePopupOpenChangeComplete(store, open);
 
   const state: ComboboxPopupState = {
     open,

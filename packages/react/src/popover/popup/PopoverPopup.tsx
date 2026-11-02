@@ -10,7 +10,6 @@ import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { REASONS } from '../../internals/reasons';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
@@ -21,6 +20,7 @@ import {
   FOCUSABLE_POPUP_PROPS,
   createDefaultInitialFocus,
 } from '../../utils/popups/popupStoreUtils';
+import { usePopupOpenChangeComplete } from '../../utils/popups/popupParts';
 
 /**
  * A container for the popover contents.
@@ -56,15 +56,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const openOnHover = store.useState('openOnHover');
   const closeDelay = store.useState('closeDelay');
 
-  useOpenChangeComplete({
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (open) {
-        store.context.onOpenChangeComplete?.(true);
-      }
-    },
-  });
+  usePopupOpenChangeComplete(store, open);
 
   useHoverPopupInteraction(store, { enabled: openOnHover && !disabled, closeDelay });
 

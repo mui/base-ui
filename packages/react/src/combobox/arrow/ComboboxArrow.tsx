@@ -2,10 +2,9 @@
 import * as React from 'react';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupStateMapping } from '../../utils/popups/popupStateMapping';
+import { usePopupArrow } from '../../utils/popups/popupParts';
 
 /**
  * Displays an element positioned against the anchor.
@@ -17,30 +16,13 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
   componentProps: ComboboxArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
   const store = useComboboxRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useComboboxPositionerContext();
-
-  const open = store.useState('open');
-
-  const state: ComboboxArrowState = {
-    open,
-    side,
-    align,
-    uncentered: arrowUncentered,
-  };
-
-  return useRenderElement('div', componentProps, {
-    ref: [arrowRef, forwardedRef],
-    stateAttributesMapping: popupStateMapping,
-    state,
-    props: {
-      style: arrowStyles,
-      'aria-hidden': true,
-      ...elementProps,
-    },
-  });
+  return usePopupArrow(
+    componentProps,
+    forwardedRef,
+    store.useState('open'),
+    useComboboxPositionerContext(),
+  );
 });
 
 export interface ComboboxArrowState {
