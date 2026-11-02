@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { ContextMenuRoot } from './ContextMenuRoot';
 
 export interface ContextMenuRootContext {
-  anchor: Element | { getBoundingClientRect: () => DOMRect };
+  anchor: { getBoundingClientRect: () => DOMRect };
   setAnchor: React.Dispatch<React.SetStateAction<ContextMenuRootContext['anchor']>>;
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
