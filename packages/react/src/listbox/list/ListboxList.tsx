@@ -33,7 +33,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const labelId = store.useState('labelId');
   const activeIndex = store.useState('activeIndex');
   const orientation = store.useState('orientation');
-  const loopFocus = store.useState('loopFocus');
   const disabled = store.useState('disabled');
   const multiple = store.useState('multiple');
   const direction = useDirection();
@@ -49,7 +48,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
   const composite = useCompositeRoot({
     orientation,
-    loopFocus,
+    // The APG listbox pattern doesn't wrap focus from the last option to the first.
+    loopFocus: false,
     highlightedIndex: activeIndex ?? 0,
     onHighlightedIndexChange,
     direction,
