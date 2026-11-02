@@ -18,7 +18,6 @@ Doesn't render its own HTML element.
 | value                | `Value[] \| Value \| null`                                                                    | -            | The value of the listbox. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | onValueChange        | `((value: Value[] \| Value \| null, eventDetails: Listbox.Root.ChangeEventDetails) => void)`  | -            | Event handler called when the value of the listbox changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | highlightItemOnHover | `boolean`                                                                                     | `true`       | Whether moving the pointer over items should highlight them.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| actionsRef           | `React.Ref<Listbox.Root.Actions<Value>>`                                                      | -            | A ref to imperative actions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                               | -            | Custom comparison logic used to determine if a listbox item value matches the current selected value.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                                                                                                                                                                                           |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                              | -            | Converts an object value to a string label for display.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | itemToStringValue    | `((itemValue: Value) => string)`                                                              | -            | Converts an object value to a string representation for form submission.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -40,22 +39,6 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type ListboxRootState = {};
-```
-
-### Root.Actions
-
-```typescript
-type ListboxRootActions<Value> = {
-  /**
-   * Sets the highlighted item by value. Focuses the item and scrolls it into view.
-   * Useful when reordering items externally and needing to restore highlight.
-   *
-   * When called after a reorder, pass the item's DOM element as the second
-   * argument for reliable matching — the element reference survives React's
-   * keyed reconciliation even when its position changes.
-   */
-  highlightValue: (value: Value, element?: HTMLElement | null) => void;
-};
 ```
 
 ### Root.ChangeEventReason
@@ -345,7 +328,7 @@ declare namespace ListboxListDataAttributes {
 
 ## Export Groups
 
-- `Listbox.Root`: `Listbox.Root`, `Listbox.Root.Props`, `Listbox.Root.State`, `Listbox.Root.Actions`, `Listbox.Root.ChangeEventReason`, `Listbox.Root.ChangeEventDetails`, `Listbox.Root.HighlightEventReason`, `Listbox.Root.HighlightEventDetails`
+- `Listbox.Root`: `Listbox.Root`, `Listbox.Root.Props`, `Listbox.Root.State`, `Listbox.Root.ChangeEventReason`, `Listbox.Root.ChangeEventDetails`, `Listbox.Root.HighlightEventReason`, `Listbox.Root.HighlightEventDetails`
 - `Listbox.Label`: `Listbox.Label`, `Listbox.Label.State`, `Listbox.Label.Props`
 - `Listbox.List`: `Listbox.List`, `Listbox.List.Props`, `Listbox.List.State`
 - `Listbox.Item`: `Listbox.Item`, `Listbox.Item.State`, `Listbox.Item.Props`
@@ -353,7 +336,7 @@ declare namespace ListboxListDataAttributes {
 - `Listbox.ItemText`: `Listbox.ItemText`, `Listbox.ItemText.State`, `Listbox.ItemText.Props`
 - `Listbox.Group`: `Listbox.Group`, `Listbox.Group.State`, `Listbox.Group.Props`
 - `Listbox.GroupLabel`: `Listbox.GroupLabel`, `Listbox.GroupLabel.State`, `Listbox.GroupLabel.Props`
-- `Default`: `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootActions`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
+- `Default`: `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
 
 ## Canonical Types
 
@@ -361,7 +344,6 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 
 - `Listbox.Root.Props`: `ListboxRootProps`
 - `Listbox.Root.State`: `ListboxRootState`
-- `Listbox.Root.Actions`: `ListboxRootActions`
 - `Listbox.Root.ChangeEventReason`: `ListboxRootChangeEventReason`
 - `Listbox.Root.ChangeEventDetails`: `ListboxRootChangeEventDetails`
 - `Listbox.Root.HighlightEventReason`: `ListboxRootHighlightEventReason`

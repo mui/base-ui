@@ -7,8 +7,6 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { useFieldRootContext } from '../../internals/field-root-context';
@@ -22,16 +20,11 @@ import type {
 import { REASONS } from '../../internals/reasons';
 import { useLabelableId } from '../../internals/labelable-provider';
 import { stringifyAsValue } from '../../internals/resolveValueLabel';
-import {
-  compareItemEquality,
-  defaultItemEquality,
-  findItemIndex,
-} from '../../internals/itemEquality';
+import { compareItemEquality, defaultItemEquality } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { ListboxRootContext } from './ListboxRootContext';
 import { ListboxStore } from '../store';
 import { useHighlightChangeNotifier } from '../utils/useHighlightChangeNotifier';
-import { afterDomSettle } from '../utils/afterDomSettle';
 
 /**
  * Groups all parts of the listbox.
@@ -58,7 +51,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     itemToStringLabel,
     itemToStringValue,
     inputRef,
-    actionsRef,
     onItemHighlighted,
     children,
   } = props;
@@ -101,8 +93,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   const disabledItemsRef = React.useRef<Array<boolean | undefined>>([]);
   const typingRef = React.useRef(false);
   const lastSelectedIndexRef = React.useRef<number | null>(null);
-  const highlightTimeout = useTimeout();
-  const highlightFrame = useAnimationFrame();
 
   const store = useRefWithInit(
     () =>
@@ -190,42 +180,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   store.useContextCallback('setValue', setValue);
 
   store.context.validation = validation;
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({
-      highlightValue(itemValue: Value, element?: HTMLElement | null) {
-        // After a reorder, the composite item indices are stale until
-        // two render cycles complete. Wait for the DOM to settle before
-        // looking up the new index.
-        afterDomSettle(highlightTimeout, highlightFrame, () => {
-          const listEl = store.state.listElement;
-          if (!listEl) {
-            return;
-          }
-
-          let target = element;
-
-          if (!target || !target.isConnected) {
-            const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
-            if (idx !== -1) {
-              target = listEl.querySelectorAll<HTMLElement>('[role="option"]')[idx];
-            }
-          }
-
-          if (target) {
-            const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
-            if (idx !== -1) {
-              store.set('activeIndex', idx);
-              target.focus();
-              target.scrollIntoView({ block: 'nearest' });
-            }
-          }
-        });
-      },
-    }),
-    [store, valuesRef, isItemEqualToValue, highlightTimeout, highlightFrame],
-  );
 
   useIsoLayoutEffect(() => {
     store.update({
@@ -339,18 +293,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   );
 }
 
-export interface ListboxRootActions<Value> {
-  /**
-   * Sets the highlighted item by value. Focuses the item and scrolls it into view.
-   * Useful when reordering items externally and needing to restore highlight.
-   *
-   * When called after a reorder, pass the item's DOM element as the second
-   * argument for reliable matching — the element reference survives React's
-   * keyed reconciliation even when its position changes.
-   */
-  highlightValue: (value: Value, element?: HTMLElement | null) => void;
-}
-
 type ListboxInputValue<Value, Multiple extends boolean | 'opt-in' | undefined> = Multiple extends
   true | 'opt-in'
   ? readonly Value[]
@@ -363,10 +305,6 @@ type ListboxOutputValue<Value, Multiple extends boolean | 'opt-in' | undefined> 
 
 export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | undefined = false> {
   children?: React.ReactNode;
-  /**
-   * A ref to imperative actions.
-   */
-  actionsRef?: React.Ref<ListboxRootActions<Value>> | undefined;
   /**
    * A ref to access the hidden input element.
    */
@@ -487,7 +425,6 @@ export namespace ListboxRoot {
     Multiple extends boolean | 'opt-in' | undefined = false,
   > = ListboxRootProps<Value, Multiple>;
   export type State = ListboxRootState;
-  export type Actions<Value> = ListboxRootActions<Value>;
   export type ChangeEventReason = ListboxRootChangeEventReason;
   export type ChangeEventDetails = ListboxRootChangeEventDetails;
   export type HighlightEventReason = ListboxRootHighlightEventReason;
