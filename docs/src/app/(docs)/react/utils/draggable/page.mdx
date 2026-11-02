@@ -134,17 +134,24 @@ To type a handler you define separately, use the types on its component's namesp
 <Draggable.Root
   kind={card}
   payload={id}
+  // Fires just before the drag starts. Call `eventDetails.cancel()` to prevent it.
   onBeforeMoveStart={(eventDetails) => {
     if (eventDetails.input.altKey) {
       eventDetails.cancel();
     }
   }}
+  // Fires once when the drag starts. The preview exists by then, so you
+  // can measure or restyle the source.
   onMoveStart={(eventDetails) => console.log('lifted', eventDetails.source.payload)}
+  // Fires when the drop targets under the pointer change.
   onTargetChange={(eventDetails) => console.log('over', eventDetails.target?.payload ?? 'nothing')}
+  // Fires as the pointer moves, at most once per animation frame.
   onMove={(eventDetails) => {
     const { clientX, clientY } = eventDetails.location.current.input;
     console.log('at', clientX, clientY);
   }}
+  // Fires once when the drag ends, whether it was dropped, released
+  // outside a target, or canceled.
   onMoveEnd={(eventDetails) => {
     if (eventDetails.target) {
       console.log('dropped on', eventDetails.target.payload);

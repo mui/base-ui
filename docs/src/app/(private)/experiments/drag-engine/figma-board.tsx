@@ -459,6 +459,7 @@ function BoardCard({
     <Draggable.Root
       kind={cardKind}
       payload={card.id}
+      // Record where the pointer grabbed the card, in client px, for the drop math.
       onMoveStart={(eventDetails) => {
         const rect = eventDetails.source.element.getBoundingClientRect();
         eventDetails.source.updateDragData({
@@ -467,7 +468,10 @@ function BoardCard({
         });
       }}
       disabled={editing}
+      // Modifiers also apply to drop resolution, so a release off the board still lands
+      // on the surface. The rect is in client space, so this works at any zoom.
       modifiers={Draggable.restrictToElement(surfaceRef)}
+      // Escape also runs the end handler, so commit only a release over the surface.
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
           if (!eventDetails.source.dragData) {

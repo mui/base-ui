@@ -29,13 +29,13 @@ function TouchScrollContent() {
       {/* Room above the draggable for an upward swipe to stay inside the viewport. */}
       <div style={{ height: 300 }} />
       {mounted && (
-        <Draggable.Root
-          data-testid="drag-source"
-          kind={itemKind}
-          activation={{ touch: { type: 'press-hold', delay: 250 } }}
-          style={{ width: 200, height: 100, background: 'lightgray' }}
-        >
-          Hold to drag
+        <Draggable.Root kind={itemKind} activation={{ touch: { type: 'press-hold', delay: 250 } }}>
+          <Draggable.Trigger
+            data-testid="drag-source"
+            style={{ width: 200, height: 100, background: 'lightgray' }}
+          >
+            Hold to drag
+          </Draggable.Trigger>
         </Draggable.Root>
       )}
       <Draggable.Target

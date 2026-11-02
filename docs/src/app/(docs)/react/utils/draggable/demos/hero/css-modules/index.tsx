@@ -44,6 +44,7 @@ export default function DraggableHero() {
           <Draggable.Root modifiers={Draggable.restrictToElement(surfaceRef)}>
             <Draggable.Trigger
               ref={cardRef}
+              // @highlight-end
               className={styles.Card}
               style={{ left: position.x, top: position.y }}
               tabIndex={0}

@@ -260,6 +260,7 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
   return (
     <Draggable.Root
       kind={calEventMoveKind}
+      // An all-day bar only moves between days, because the timed grid refuses all-day drags.
       payload={movePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {

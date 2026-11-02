@@ -21,13 +21,14 @@ function PostDragClickContent() {
 
   return (
     <React.Fragment>
-      <Draggable.Root
-        data-testid="drag-source"
-        kind={itemKind}
-        onClick={() => setSourceClicks((count) => count + 1)}
-        style={{ width: 200, height: 100, background: 'lightgray' }}
-      >
-        Drag
+      <Draggable.Root kind={itemKind}>
+        <Draggable.Trigger
+          data-testid="drag-source"
+          onClick={() => setSourceClicks((count) => count + 1)}
+          style={{ width: 200, height: 100, background: 'lightgray' }}
+        >
+          Drag
+        </Draggable.Trigger>
       </Draggable.Root>
       <output data-testid="click-status">
         {JSON.stringify({ documentClicks, sourceClicks, endCount })}

@@ -25,7 +25,9 @@ function Widget({
     <Draggable.Root
       kind={widgetKind}
       payload={widget.id}
+      // @highlight-start @focus @padding 3
       modifiers={Draggable.restrictToElement(frameRef)}
+      // @highlight-end
     >
       <Draggable.Trigger
         data-widget-id={widget.id}

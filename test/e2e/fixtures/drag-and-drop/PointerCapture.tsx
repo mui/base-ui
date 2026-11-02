@@ -24,13 +24,13 @@ function PointerCaptureContent() {
     <div style={{ display: 'flex', gap: 80 }}>
       <div style={{ width: 120, height: 60 }}>
         {sourceMounted && (
-          <Draggable.Root
-            data-testid="drag-source"
-            kind={itemKind}
-            onMoveStart={() => setSourceMounted(false)}
-            style={{ width: 120, height: 60, background: 'lightgray' }}
-          >
-            Drag
+          <Draggable.Root kind={itemKind} onMoveStart={() => setSourceMounted(false)}>
+            <Draggable.Trigger
+              data-testid="drag-source"
+              style={{ width: 120, height: 60, background: 'lightgray' }}
+            >
+              Drag
+            </Draggable.Trigger>
           </Draggable.Root>
         )}
       </div>

@@ -173,6 +173,8 @@ const ColumnHeader = React.memo(function ColumnHeader({
         kind={columnKind}
         collisionElement={getCollisionElement}
         payload={column.id}
+        // The axis lock also pins the hit test to the header row, so headers keep
+        // matching wherever the pointer is over the grid.
         modifiers={Draggable.restrictToHorizontalAxis}
       >
         <Draggable.Trigger className={styles.headerCellInner}>

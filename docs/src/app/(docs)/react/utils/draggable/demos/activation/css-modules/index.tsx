@@ -95,7 +95,9 @@ function Puck({
   return (
     <Draggable.Root
       kind={puckKind}
+      // @highlight-start @focus @padding 3
       activation={mode.activation}
+      // @highlight-end
       onMoveStart={() => onPhaseChange('dragging')}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.reason !== 'drop') {
