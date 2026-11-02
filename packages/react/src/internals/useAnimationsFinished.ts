@@ -83,12 +83,14 @@ const flushBeforePaint = createFlushBeforePaint();
  * @param batch - Whether completions ready in the same microtask may be coalesced into a single
  * commit. A batched callback runs before earlier callbacks' React updates have committed, so only
  * opt in when the callback doesn't read state that another completion can change.
+ * @param subtree - Whether to also wait for animations on descendants.
  * @returns A function that takes a callback to execute once all animations have finished, and an optional AbortSignal to abort the callback
  */
 export function useAnimationsFinished(
   elementOrRef: React.RefObject<HTMLElement | null> | HTMLElement | null,
   waitForStartingStyleRemoved = false,
   batch = false,
+  subtree = false,
 ) {
   const frame = useAnimationFrame();
 
@@ -141,7 +143,11 @@ export function useAnimationsFinished(
       }
 
       function exec() {
-        getAnimationsBatched([resolvedElement, waitForAnimations]);
+        if (subtree) {
+          waitForAnimations(resolvedElement.getAnimations({ subtree: true }));
+        } else {
+          getAnimationsBatched([resolvedElement, waitForAnimations]);
+        }
       }
 
       function waitForAnimations(animations: Animation[]) {
@@ -151,6 +157,20 @@ export function useAnimationsFinished(
         ).then(
           () => {
             if (!signal?.aborted) {
+              if (subtree) {
+                // A descendant's size transition can start a frame after the move.
+                // Include animations that started after the initial snapshot too.
+                const unfinished = resolvedElement
+                  .getAnimations({ subtree: true })
+                  .filter(
+                    (animation) =>
+                      isFiniteAnimation(animation) && animation.playState !== 'finished',
+                  );
+                if (unfinished.length) {
+                  waitForAnimations(unfinished);
+                  return;
+                }
+              }
               done();
             }
           },
