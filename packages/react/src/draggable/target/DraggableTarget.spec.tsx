@@ -342,12 +342,9 @@ const dragSlot = Draggable.createKind<SlotPayload, { entered: boolean }>('drag-s
     expectType<{ entered: boolean } | undefined, typeof eventDetails.currentTarget.dragData>(
       eventDetails.currentTarget.dragData,
     );
-    eventDetails.currentTarget.updatePayload({ index: 1 });
     eventDetails.currentTarget.updateDragData({ entered: true });
     // @ts-expect-error the target has its own drag data type.
     eventDetails.currentTarget.updateDragData({ offset: 1 });
-    // @ts-expect-error the target keeps its payload type.
-    eventDetails.currentTarget.updatePayload({ id: 'a' });
   }}
 />;
 

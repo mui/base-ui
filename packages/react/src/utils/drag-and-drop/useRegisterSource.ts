@@ -9,7 +9,6 @@ import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
 import { registerDraggableElement } from './draggable';
 import type { DraggableConfig } from './draggable';
-import { setParticipantOwner } from './participantData';
 import { getActiveSession } from './core/dragSession';
 import { clearPublishedDragPreview, publishDragPreview } from './overlay/dragPreviewStore';
 import type { RegisterSourceParameters } from './registrationTypes';
@@ -27,7 +26,7 @@ export function createRegisterSource(
   return <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
     get: () => RegisterSourceParameters<TPayload, TDragData>,
-    payloadOwner?: object,
+    owner?: object,
   ): DragCleanupFn => {
     const initial = get();
 
@@ -101,11 +100,7 @@ export function createRegisterSource(
       return normalized;
     };
 
-    if (payloadOwner) {
-      setParticipantOwner(getNormalized, payloadOwner);
-    }
-
-    return registerDraggableElement(element, initial, getNormalized, payloadOwner);
+    return registerDraggableElement(element, initial, getNormalized, owner);
   };
 }
 

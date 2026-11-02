@@ -342,25 +342,6 @@ describe('engine.registerSource', () => {
     },
   );
 
-  it('keeps an imperatively updated payload throughout the drag', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const payload = { key: 'value' };
-    const onMove = vi.fn();
-    engine.registerSource(el, {
-      payload: { key: 'initial' },
-      onMoveStart: ({ source }) => source.updatePayload(payload),
-      onMove,
-    });
-
-    fireDrag.dragStart(el);
-    await flushRaf();
-    await dragOver(el, { clientX: 40, clientY: 40 });
-    await dragOver(el, { clientX: 80, clientY: 80 });
-
-    expect(onMove.mock.lastCall?.[0].source.payload).toBe(payload);
-  });
-
   it('keeps a function payload as data', async () => {
     const { engine } = await renderDnd();
     const el = createElement();

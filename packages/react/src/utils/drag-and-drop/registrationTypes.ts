@@ -72,7 +72,7 @@ export interface InternalDragEngine extends Omit<
   registerSource: <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
     getParameters: () => RegisterSourceParameters<TPayload, TDragData>,
-    payloadOwner?: object,
+    owner?: object,
   ) => () => void;
   registerTarget: <
     TSourcePayload = unknown,

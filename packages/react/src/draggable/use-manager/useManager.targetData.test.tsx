@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer } from '../../../test/dndEngine';
@@ -20,20 +20,21 @@ setupDragEngineTests();
 const sourceKind = Draggable.createKind('source');
 const targetKind = Draggable.createKind<string, number>('target');
 
-describe('drop target imperative data', () => {
+describe('drop target record data', () => {
   const { renderDnd } = createDndRenderer();
 
-  it('persists payload overrides across drags until the declared payload changes', async () => {
+  it("reads its registration's latest payload and keeps the last one after a kind change", async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
-    let declaredPayload = 'initial';
+    let kind = targetKind;
+    let payload = 'initial';
     let current: DraggableTargetRecord<string, number> | undefined;
     engine.registerSource(source, { kind: sourceKind });
     engine.registerTarget(target, () => ({
       accept: sourceKind,
-      kind: targetKind,
-      payload: declaredPayload,
+      kind,
+      payload,
       onDraggableEnter: ({ currentTarget: record }) => {
         current = record;
       },
@@ -41,18 +42,11 @@ describe('drop target imperative data', () => {
 
     await lift(source);
     await dragEnter(target);
-    current!.updatePayload('override');
-    expect(current!.payload).toBe('override');
-    cancel();
-
-    await lift(source);
-    await dragEnter(target);
-    expect(current!.payload).toBe('override');
-    cancel();
-
-    declaredPayload = 'changed';
-    await lift(source);
-    await dragEnter(target);
+    expect(current!.payload).toBe('initial');
+    payload = 'changed';
+    expect(current!.payload).toBe('changed');
+    kind = Draggable.createKind<string, number>('other-target');
+    payload = 'other';
     expect(current!.payload).toBe('changed');
     cancel();
   });
@@ -90,15 +84,14 @@ describe('drop target imperative data', () => {
     await dragEnter(target);
     expect(current!.dragData).toBeUndefined();
     expect(finished.dragData).toBe(42);
-    // The finished record still writes the registration's payload, but not this drag's data.
-    finished.updatePayload('from finished record');
+    // The finished record writes only its own drag's data.
     finished.updateDragData(7);
-    expect(current!.payload).toBe('from finished record');
+    expect(finished.dragData).toBe(7);
     expect(current!.dragData).toBeUndefined();
     cancel();
   });
 
-  it('shares updates with subsequent callbacks while keeping nested targets independent', async () => {
+  it('shares drag data with later callbacks while keeping nested targets independent', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const outer = createElement();
@@ -119,7 +112,6 @@ describe('drop target imperative data', () => {
       kind: targetKind,
       payload: 'inner',
       onDraggableEnter: ({ currentTarget }) => {
-        currentTarget.updatePayload('updated');
         currentTarget.updateDragData(7);
       },
       onDraggableLeave: ({ currentTarget }) => {
@@ -132,11 +124,11 @@ describe('drop target imperative data', () => {
     cancel();
     expect(observed).toEqual([
       ['outer', undefined],
-      ['updated', 7],
+      ['inner', 7],
     ]);
   });
 
-  it('preserves overrides on unrelated React renders and applies changed props between drags', async () => {
+  it('reads a changed payload prop on a record handed out earlier in the drag', async () => {
     let current: DraggableTargetRecord<string, number> | undefined;
     function Target({ payload, revision }: { payload: string; revision: number }) {
       return (
@@ -157,19 +149,12 @@ describe('drop target imperative data', () => {
     engine.registerSource(source, { kind: sourceKind });
     await lift(source);
     await dragEnter(screen.getByTestId('target'));
-    act(() => current!.updatePayload('override'));
+    const record = current!;
     await rerender(<Target payload="initial" revision={1} />);
-    expect(current!.payload).toBe('override');
+    expect(record.payload).toBe('initial');
     await rerender(<Target payload="changed" revision={2} />);
-    expect(current!.payload).toBe('changed');
-    act(() => current!.updatePayload('second override'));
-    cancel();
-
-    await rerender(<Target payload="between drags" revision={3} />);
-    await rerender(<Target payload="changed" revision={4} />);
-    await lift(source);
-    await dragEnter(screen.getByTestId('target'));
-    expect(current!.payload).toBe('changed');
+    expect(current).toBe(record);
+    expect(record.payload).toBe('changed');
     cancel();
   });
 
@@ -203,25 +188,21 @@ describe('drop target imperative data', () => {
 
     await lift(source);
     await dragEnter(cellA);
-    records.get(cellA)!.updatePayload('a');
     records.get(cellA)!.updateDragData(1);
 
     await dragEnter(cellB);
-    expect(records.get(cellB)!.payload).toBe('cell');
     expect(records.get(cellB)!.dragData).toBeUndefined();
-    records.get(cellB)!.updatePayload('b');
     records.get(cellB)!.updateDragData(2);
 
     await dragEnter(cellA);
     // Unregistering one cell leaves the others' data alone.
     unregisterB();
     await dragOver(cellA);
-    expect(records.get(cellA)!.payload).toBe('a');
     expect(records.get(cellA)!.dragData).toBe(1);
     cancel();
   });
 
-  it('discards payload overrides when an imperative target unregisters', async () => {
+  it('discards drag data when an imperative target unregisters', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
@@ -243,12 +224,10 @@ describe('drop target imperative data', () => {
     const unregister = engine.registerTarget(target, getParameters);
     await lift(source);
     await dragEnter(target);
-    current!.updatePayload('override');
     current!.updateDragData(1);
     unregister();
     engine.registerTarget(target, getParameters);
     await dragEnter(target);
-    expect(current!.payload).toBe('initial');
     expect(current!.dragData).toBeUndefined();
     cancel();
   });

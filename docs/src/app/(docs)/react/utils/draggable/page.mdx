@@ -78,7 +78,7 @@ const divider = Draggable.createKind('divider');
 <Draggable.Root kind={divider} />;
 ```
 
-Base UI compares payloads by identity. Prefer a primitive such as an ID, as above. When the payload has to be an object, memoize it so that unrelated re-renders don't replace it. A new object during a drag re-notifies `useActiveDrag` subscribers and discards any `updatePayload` call:
+Base UI compares payloads by identity. Prefer a primitive such as an ID, as above. When the payload has to be an object, memoize it so that unrelated re-renders don't replace it. A new object during a drag re-notifies `useActiveDrag` subscribers:
 
 ```tsx title="A memoized object payload"
 const payload = React.useMemo(() => ({ id, column }), [id, column]);
@@ -448,7 +448,7 @@ const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
 />;
 ```
 
-To show drag data in a [custom preview](#custom-preview), call [`Draggable.updatePreview()`](#updatepreview) after updating it. To replace the payload itself, call `updatePayload`. Unlike drag data, the new payload stays after the drag ends, until the `payload` prop changes.
+To show drag data in a [custom preview](#custom-preview), call [`Draggable.updatePreview()`](#updatepreview) after updating it. The payload is read-only and always follows the `payload` prop, so store anything decided at pickup, such as the items of a multi-selection drag, as drag data.
 
 ### Activation
 

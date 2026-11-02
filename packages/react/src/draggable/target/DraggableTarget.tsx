@@ -335,8 +335,6 @@ export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unk
    * The target's `payload`, or `undefined` when it has none.
    */
   readonly payload: TTargetPayload;
-  /** Replaces the payload until the `payload` prop changes. */
-  updatePayload(payload: TTargetPayload): void;
   /** Data stored for this target during the current drag. Starts as `undefined`. */
   readonly dragData: TDragData | undefined;
   /** Stores data for this target for the rest of the current drag. */

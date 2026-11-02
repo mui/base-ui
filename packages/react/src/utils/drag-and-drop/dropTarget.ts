@@ -32,7 +32,6 @@ import {
   onceCleanup,
   safeCallConsumer,
 } from './utils';
-import { syncParticipantPayload } from './participantData';
 
 /** Marks every registered drop target for the resolution walk. Internal, not a styling hook. */
 const DROP_TARGET_ATTR = 'data-base-ui-drop-target';
@@ -81,8 +80,8 @@ interface DropTargetState {
   /** Told when a root joins or leaves `shadowRoots` (see {@link trackRegisteredShadowRoots}). */
   shadowRootChangeListeners: Set<ShadowRootChangeListener>;
   /**
-   * The key each registration's payload and `dragData` are stored under, per
-   * element and getter (see {@link getRegistrationKey}).
+   * The key each registration's `dragData` is stored under, per element and getter
+   * (see {@link getRegistrationKey}).
    */
   registrationKeys: WeakMap<Element, WeakMap<DropTargetGetter, object>>;
   recordRegistrations: WeakMap<DraggableTargetRecord, RecordRegistration>;
@@ -218,9 +217,9 @@ export function trackRegisteredShadowRoots(
 }
 
 /**
- * The key a registration's payload and `dragData` are stored under. Not the getter
- * alone: cells sharing `() => cellParameters` each need their own state, and
- * unregistering one must not reset the others.
+ * The key a registration's `dragData` is stored under. Not the getter alone: cells
+ * sharing `() => cellParameters` each need their own data, and unregistering one
+ * must not reset the others.
  */
 function getRegistrationKey(element: Element, getParameters: DropTargetGetter): object {
   const keys = getOrCreate(state.registrationKeys, element, () => new WeakMap());
@@ -229,7 +228,7 @@ function getRegistrationKey(element: Element, getParameters: DropTargetGetter): 
 
 /**
  * Drop the key once `element` no longer holds `getParameters`, so registering the
- * pair again starts from the declared payload.
+ * pair again starts with no `dragData`.
  */
 function releaseRegistrationKey(element: Element, getParameters: DropTargetGetter): void {
   if (!state.registry.get(element)?.includes(getParameters)) {
@@ -368,19 +367,6 @@ function getTargetDragData(
   return data;
 }
 
-/** Apply committed payload props, including changes between drags. */
-export function syncDropTargetPayload(
-  element: Element | null,
-  getParameters: DropTargetGetter,
-  kind: symbol | undefined,
-  payload: unknown,
-): void {
-  if (!element) {
-    return;
-  }
-  syncParticipantPayload(getRegistrationKey(element, getParameters), kind, payload);
-}
-
 /** Internal registration hook that captures geometry before consumers can mutate the layout. */
 export const resolveCollision = Symbol.for('base-ui.resolveCollision');
 
@@ -446,17 +432,19 @@ function resolveDropTargetOutcome(
   }
 
   const kind = registration.kind?.id;
-  const registrationKey = getRegistrationKey(element, getRegistration);
-  const payloadState = syncParticipantPayload(registrationKey, kind, registration.payload);
-  const data = getTargetDragData(dragData, registrationKey, kind);
+  const data = getTargetDragData(dragData, getRegistrationKey(element, getRegistration), kind);
+  let payload = registration.payload;
   const record: DraggableTargetRecord = {
     element,
     kind,
+    // Read through, so a changed `payload` reaches records already handed out. Once
+    // the getter throws or the kind changes, returns the last value this record read.
     get payload() {
-      return payloadState.payload;
-    },
-    updatePayload(nextPayload) {
-      payloadState.update(nextPayload);
+      const latest = safeCall('getParameters', element, getRegistration, null);
+      if (latest != null && latest.kind?.id === kind) {
+        payload = latest.payload;
+      }
+      return payload;
     },
     get dragData() {
       return data.value;

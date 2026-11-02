@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { registerTarget, syncDropTargetPayload } from '../../utils/drag-and-drop/dropTarget';
+import { registerTarget } from '../../utils/drag-and-drop/dropTarget';
 import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 import type { RegisterTargetParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
@@ -56,14 +56,6 @@ export function useDraggableTargetElement(
   const getParameters = useStableCallback(() => registrationParameters);
   const targetStateStore = useRefWithInit(createDragTargetStateStore).current;
   const elementRef = React.useRef<HTMLElement | null>(null);
-  useIsoLayoutEffect(() => {
-    syncDropTargetPayload(
-      elementRef.current,
-      getParameters,
-      parameters.kind?.id,
-      parameters.payload,
-    );
-  });
   const registrationRef = useRegistrationRef<HTMLElement>((element) =>
     registerTarget(element, getParameters),
   );

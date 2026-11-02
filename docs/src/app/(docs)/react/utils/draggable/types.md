@@ -301,8 +301,6 @@ type DraggableRootRecord<TPayload = unknown, TDragData = unknown> = {
   handle: Element | null;
   /** The draggable's `payload`, or `undefined` when it has none. */
   payload: TPayload;
-  /** Replaces the payload. The new value persists after the drag, until the `payload` prop changes. */
-  updatePayload: updatePayload;
   /** Data stored for the current drag. Starts as `undefined` on every drag. */
   dragData: TDragData | undefined;
   /** Stores data for the rest of the current drag. */
@@ -1329,8 +1327,6 @@ type DraggableTargetRecord<TTargetPayload = unknown, TDragData = unknown> = {
   kind: symbol | undefined;
   /** The target's `payload`, or `undefined` when it has none. */
   payload: TTargetPayload;
-  /** Replaces the payload until the `payload` prop changes. */
-  updatePayload: updatePayload;
   /** Data stored for this target during the current drag. Starts as `undefined`. */
   dragData: TDragData | undefined;
   /** Stores data for this target for the rest of the current drag. */
@@ -2679,12 +2675,6 @@ type UseDraggableMonitorParameters<
 
 ## External Types
 
-### updatePayload
-
-```typescript
-type updatePayload = (payload: unknown) => void;
-```
-
 ### updateDragData
 
 ```typescript
@@ -2700,7 +2690,6 @@ type matches =
       kind: symbol;
       handle: Element | null;
       payload: unknown;
-      updatePayload: unknown;
       dragData: unknown;
       updateDragData: unknown;
     }) => boolean)
@@ -2708,7 +2697,6 @@ type matches =
       element: Element;
       kind: symbol | undefined;
       payload: unknown;
-      updatePayload: unknown;
       dragData: unknown;
       updateDragData: unknown;
       getLocalPoint: unknown;

@@ -426,8 +426,6 @@ engine.registerTarget(element, () => ({
     currentTarget.updateDragData(1);
     // @ts-expect-error the data-only target still checks its drag data.
     currentTarget.updateDragData('invalid');
-    // @ts-expect-error a data-only target cannot acquire a different payload type.
-    currentTarget.updatePayload({ slot: 1 });
   },
 }));
 

@@ -414,10 +414,7 @@ const cardWithDragData = Draggable.createKind<CardPayload, { offset: number }>('
     expectType<{ offset: number } | undefined, typeof eventDetails.source.dragData>(
       eventDetails.source.dragData,
     );
-    eventDetails.source.updatePayload({ id: 'b' });
     eventDetails.source.updateDragData({ offset: 1 });
-    // @ts-expect-error payload updates preserve the kind's type.
-    eventDetails.source.updatePayload({ id: 1 });
     // @ts-expect-error drag data is a separate type.
     eventDetails.source.updateDragData({ id: 'b' });
   }}

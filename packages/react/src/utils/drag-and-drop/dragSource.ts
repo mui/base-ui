@@ -1,15 +1,8 @@
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import { getSharedSlot } from './sharedState';
 import { getRegistration, refreshDraggableStaticSetup } from './draggableRegistry';
-import { notifyDragSourceUpdated } from './dragSessionStore';
+import { dragSourceStore, notifyDragSourceUpdated } from './dragSessionStore';
 import { getActiveSession } from './core/dragSession';
-import { syncParticipantPayload } from './participantData';
-import type { ParticipantPayload } from './participantData';
-
-const sourcePayloads = getSharedSlot(
-  'dragSource.payloads',
-  () => new WeakMap<DraggableRootRecord, ParticipantPayload>(),
-);
 
 // Set while a `payload` prop change is being published, until the next microtask.
 const propSync = getSharedSlot('dragSource.propSync', () => ({ notifying: false }));
@@ -24,30 +17,23 @@ export function createDragSource(
   initialPayload: unknown,
   dragHandle: Element | null,
 ): DraggableRootRecord {
-  const registration = getRegistration(element);
-  const data = syncParticipantPayload(registration ?? {}, kind, initialPayload);
+  let payload = initialPayload;
   let dragData: unknown;
 
   const source: DraggableRootRecord = {
     element,
     kind,
     handle: dragHandle,
+    // Once the element unregisters or changes kind, returns the last value this record read.
     get payload() {
-      return readPayload();
+      const parameters = getRegistration(source.element)?.();
+      if (parameters?.kind.id === kind) {
+        payload = parameters.payload;
+      }
+      return payload;
     },
     get dragData() {
       return dragData;
-    },
-    updatePayload(nextPayload) {
-      readPayload();
-      if (data.update(nextPayload)) {
-        // Every record of this registration shares `data`, so notify the active
-        // drag's record even when it isn't this one.
-        const activeSource = getActiveSession()?.source;
-        if (activeSource && sourcePayloads.get(activeSource) === data) {
-          notifyDragSourceUpdated(activeSource);
-        }
-      }
     },
     updateDragData(nextDragData) {
       if (!Object.is(dragData, nextDragData)) {
@@ -56,15 +42,6 @@ export function createDragSource(
       }
     },
   };
-  function readPayload() {
-    const parameters = getRegistration(source.element)?.();
-    if (parameters?.kind.id === kind) {
-      data.sync(parameters.payload);
-    }
-    return data.payload;
-  }
-
-  sourcePayloads.set(source, data);
   return source;
 }
 
@@ -76,41 +53,26 @@ export function createDragSource(
  */
 export function refreshDragSource(element: HTMLElement): void {
   const parameters = refreshDraggableStaticSetup(element);
-  if (parameters !== undefined) {
-    syncActiveDragSourcePayload(element, parameters.kind.id, parameters.payload);
-  }
-}
-
-/**
- * Syncs a committed `payload` prop into the source's payload store. A render that
- * passes the same `payload` keeps a value set through `updatePayload()`.
- */
-export function syncActiveDragSourcePayload(
-  element: HTMLElement | null,
-  kind: symbol,
-  payload: unknown,
-): void {
-  if (element === null) {
+  const source = getActiveSession()?.source;
+  if (
+    parameters === undefined ||
+    source?.element !== element ||
+    source.kind !== parameters.kind.id ||
+    // Already published, for example by a drag data update in the same commit.
+    Object.is(dragSourceStore.state?.payload, parameters.payload)
+  ) {
     return;
   }
-  const source = getActiveSession()?.source;
-  if (source?.element === element && source.kind === kind) {
-    // Publish at most one prop change per synchronous render cascade. Otherwise an
-    // inline `payload={{ ... }}` loops until React throws: publishing re-renders a
-    // `useActiveDrag()` reader that renders this root with a new object. The cascade
-    // flushes before the microtask; later changes in it are stored silently.
-    if (sourcePayloads.get(source)?.sync(payload) && !propSync.notifying) {
-      propSync.notifying = true;
-      queueMicrotask(() => {
-        propSync.notifying = false;
-      });
-      notifyDragSourceUpdated(source);
-    }
-  } else {
-    const registration = getRegistration(element);
-    if (registration) {
-      syncParticipantPayload(registration, kind, payload);
-    }
+  // Publish at most one prop change per synchronous render cascade. Otherwise an
+  // inline `payload={{ ... }}` loops until React throws: publishing re-renders a
+  // `useActiveDrag()` reader that renders this root with a new object. The cascade
+  // flushes before the microtask, and the record reads later changes live.
+  if (!propSync.notifying) {
+    propSync.notifying = true;
+    queueMicrotask(() => {
+      propSync.notifying = false;
+    });
+    notifyDragSourceUpdated(source);
   }
 }
 

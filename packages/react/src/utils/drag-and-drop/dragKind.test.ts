@@ -9,7 +9,6 @@ function sourceOfKind(kind: symbol): DraggableRootRecord<unknown> {
     kind,
     handle: null,
     dragData: undefined,
-    updatePayload() {},
     updateDragData() {},
     payload: undefined,
   };
@@ -21,7 +20,6 @@ function recordOfKind(kind: symbol | undefined): DraggableTargetRecord<unknown> 
     kind,
     payload: undefined,
     dragData: undefined,
-    updatePayload() {},
     updateDragData() {},
     getLocalPoint: () => ({ x: 0, y: 0 }),
     getSnappedLocalPoint: () => ({ x: 0, y: 0 }),

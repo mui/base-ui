@@ -7,7 +7,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
-import { syncParticipantPayload } from '../../utils/drag-and-drop/participantData';
 import { createDragPreviewHandle } from '../preview/dragPreviewDeclaration';
 import type { DragPreviewHandle } from '../preview/dragPreviewDeclaration';
 import type {
@@ -50,7 +49,8 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   },
 ): UseDraggableElementReturnValue<TPayload, TDragData> {
   const registerSource = useRegisterSource();
-  const payloadOwner = useRefWithInit(() => ({})).current;
+  // Identifies this Root to the preview across a node swap (see `retargetPreviewSource`).
+  const owner = useRefWithInit(() => ({})).current;
   const elementRef = React.useRef<HTMLElement | null>(null);
   // Apply the committed parameters after every commit, as `manager.refresh` does
   // (see `refreshDragSource`). It only acts on real changes. Layout effects run after
@@ -84,7 +84,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     const unregisterSource = registerSource<TPayload, TDragData>(
       element,
       () => getOptions().parameters,
-      payloadOwner,
+      owner,
     );
     const collisionConfig = getOptions().collision;
     if (!collisionConfig?.enabled) {
@@ -103,13 +103,9 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
         }
         lastCollisionOptions = currentOptions;
         const collision = currentOptions.collision;
-        const kindId = currentOptions.parameters.kind.id;
         participant = {
           kind: currentOptions.parameters.kind,
-          // The Root's payload store, so a source's `updatePayload()` reaches the group.
-          get payload() {
-            return syncParticipantPayload(payloadOwner, kindId, collision?.payload).payload;
-          },
+          payload: collision?.payload,
           // The cast holds because the provider disables participants of another kind.
           snap: collision?.snap as CollisionParticipant['snap'],
           // A disabled source is still a destination. Only `collision={false}` opts out.

@@ -17,7 +17,6 @@ import {
 } from '../../../test/dnd';
 import { touchDown, touchUp } from '../../../test/syntheticPointer';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
-import type { DraggableTargetRecord } from './DraggableTarget';
 
 setupDragEngineTests();
 
@@ -1089,39 +1088,6 @@ describe('Draggable.Target', () => {
     // Skipping the drag-over subscription must not skip the registration.
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(target).not.toHaveAttribute('data-drag-over');
-  });
-
-  it('keeps its payload out of another registration on the same element', async () => {
-    const otherKind = Draggable.createKind<string>('other');
-    const { engine, rerender } = await renderDnd(
-      <Draggable.Target accept={Draggable.anyKind} data-testid="target" payload="target" />,
-    );
-    const element = screen.getByTestId('target');
-    const source = createElement();
-    engine.registerSource(source, {});
-    let current: DraggableTargetRecord<string> | undefined;
-    // Registered after the Target, so it is the element's active registration.
-    engine.registerTarget(element, {
-      accept: Draggable.anyKind,
-      kind: otherKind,
-      payload: 'other',
-      onDraggableEnter: ({ currentTarget }) => {
-        current = currentTarget;
-      },
-    });
-
-    await lift(source);
-    await dragEnter(element);
-    current!.updatePayload('override');
-    await rerender(
-      <Draggable.Target accept={Draggable.anyKind} data-testid="target" payload="changed" />,
-    );
-    cancel();
-
-    await lift(source);
-    await dragEnter(element);
-    expect(current!.payload).toBe('override');
-    cancel();
   });
 
   describe('composed onto a Draggable.Root', () => {

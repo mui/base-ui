@@ -15,6 +15,8 @@ interface DraggableRegistration {
   getParameters: DraggableGetter;
   /** Re-applies this registration's static setup from the element's active parameters. */
   refreshStaticSetup: (parameters: DraggableConfig<any, any>) => void;
+  /** The `Draggable.Root` instance, which keeps it across a node swap. */
+  owner: object | undefined;
 }
 
 /**
@@ -35,12 +37,18 @@ export function addDraggableRegistration(
   element: HTMLElement,
   getParameters: DraggableGetter,
   refreshStaticSetup: DraggableRegistration['refreshStaticSetup'],
+  owner: object | undefined,
 ): DragCleanupFn {
-  return holds.hold(element, { getParameters, refreshStaticSetup });
+  return holds.hold(element, { getParameters, refreshStaticSetup, owner });
 }
 
 export function getRegistration(element: HTMLElement): DraggableGetter | undefined {
   return holds.getActive(element)?.getParameters;
+}
+
+/** The owner of `element`'s active registration, if it has one. */
+export function getRegistrationOwner(element: HTMLElement): object | undefined {
+  return holds.getActive(element)?.owner;
 }
 
 /**

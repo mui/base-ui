@@ -118,7 +118,7 @@ export function registerDraggableElement(
   owner?: object,
 ): DragCleanupFn {
   const staticSetup = applyDraggableStaticSetup(element, initial);
-  const unregister = addDraggableRegistration(element, getParameters, staticSetup.refresh);
+  const unregister = addDraggableRegistration(element, getParameters, staticSetup.refresh, owner);
   const releaseShadowRoots = holdShadowRoots(element);
   retargetPreviewSource(element, getPreviewSourceIdentity(initial, owner));
   const unbindSensors = bindPointerListeners(element);

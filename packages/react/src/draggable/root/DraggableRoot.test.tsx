@@ -197,26 +197,6 @@ describe('Draggable.Root', () => {
     expect(screen.getByTestId('enabled')).not.toHaveAttribute('data-disabled');
   });
 
-  it('updates the payload from onMoveStart', async () => {
-    const tokenKind = Draggable.createKind<{ token: string }>('token');
-    const onMove = vi.fn();
-    await renderDnd(
-      <TestDraggable<{ token: string }>
-        options={{
-          kind: tokenKind,
-          payload: { token: 'initial' },
-          onMoveStart: ({ source }) => source.updatePayload({ token: 'abc' }),
-          onMove,
-        }}
-      />,
-    );
-    const source = screen.getByTestId('drag');
-    fireDrag.dragStart(source);
-    await flushRaf();
-    await dragOver(source, { clientX: 40, clientY: 40 });
-    expect(onMove.mock.lastCall?.[0].source.payload).toEqual({ token: 'abc' });
-  });
-
   it('forwards a static payload value, keeping it off the DOM element', async () => {
     const tokenKind = Draggable.createKind<{ token: string }>('static-token');
     const onMoveStart = vi.fn();

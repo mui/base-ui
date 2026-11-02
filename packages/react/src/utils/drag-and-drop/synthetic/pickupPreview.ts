@@ -15,8 +15,7 @@ import {
 import type { DragPreview } from './syntheticPreview';
 import { start } from '../core/lifecycleManager';
 import type { DragSessionController, DragSessionSensor } from '../core/lifecycleManager';
-import { getRegistration } from '../draggableRegistry';
-import { getParticipantOwner } from '../participantData';
+import { getRegistration, getRegistrationOwner } from '../draggableRegistry';
 import { getClosedShadowRootsByHost } from '../dropTarget';
 import type { DraggableConfig } from '../draggable';
 import { elementFromPointIgnoring, resolveElementReference } from '../utils';
@@ -182,7 +181,7 @@ export function createPreviewAndStartSession(
     }
     preview = createDragPreview(
       element,
-      getPreviewSourceIdentity(draggableParameters, getParticipantOwner(getRegistration(element)!)),
+      getPreviewSourceIdentity(draggableParameters, getRegistrationOwner(element)),
       previewSettings,
       initialInput,
       pressInput,
