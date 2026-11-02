@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import { NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
@@ -146,12 +145,11 @@ export class PopoverStore<Payload> extends BasePopupStore<
  * helpers that expect `setOpen` without it ever taking effect while detached.
  */
 export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
-  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined)),
-    Object.freeze(createInitialContext()),
+  return new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    createInitialState<Payload>(undefined),
+    createInitialContext(),
     selectors,
   );
-  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialState<Payload>(

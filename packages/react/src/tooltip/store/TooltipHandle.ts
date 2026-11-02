@@ -17,34 +17,6 @@ export class TooltipHandle<Payload> extends BasePopupHandle<
   constructor() {
     super(createNullTooltipStore<Payload>(), 'Tooltip');
   }
-
-  /**
-   * Opens the tooltip and associates it with the trigger with the given id.
-   *
-   * This method should only be called in an event handler or an effect (not during rendering).
-   *
-   * @param triggerId ID of the trigger to associate with the tooltip. The trigger must be a matching
-   * `Tooltip.Trigger` with this handle passed as a prop.
-   */
-  open(triggerId: string) {
-    this.openByTrigger(triggerId);
-  }
-
-  /**
-   * Closes the tooltip.
-   *
-   * This method should only be called in an event handler or an effect (not during rendering).
-   */
-  close() {
-    this.closePopup();
-  }
-
-  /**
-   * Whether the tooltip is currently open. Returns `false` while no root is attached to the handle.
-   */
-  get isOpen() {
-    return this.attachedStore?.select('open') ?? false;
-  }
 }
 
 /**
