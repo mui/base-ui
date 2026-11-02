@@ -1315,8 +1315,8 @@ describe('<Listbox.Root />', () => {
     });
   });
 
-  describe('prop: loopFocus', () => {
-    it('should wrap from last to first item when loopFocus is true (default)', async () => {
+  describe('focus at the ends of the list', () => {
+    it('stays on the last item when pressing ArrowDown', async () => {
       await render(
         <Listbox.Root>
           <Listbox.List>
@@ -1327,26 +1327,22 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
+      await act(async () => list.focus());
 
-      // Move to last item
       fireEvent.keyDown(list, { key: 'End' });
-
       await flushMicrotasks();
 
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
 
-      // ArrowDown from last should wrap to first
       fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'ArrowDown' });
-
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted', '');
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
     });
 
-    it('should not wrap when loopFocus is false', async () => {
+    it('stays on the first item when pressing ArrowUp', async () => {
       await render(
-        <Listbox.Root loopFocus={false}>
+        <Listbox.Root>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -1355,21 +1351,19 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
+      await act(async () => list.focus());
 
-      // Move to last item
       fireEvent.keyDown(list, { key: 'End' });
-
+      await flushMicrotasks();
+      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'Home' });
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted', '');
 
-      // ArrowDown from last should stay on last
-      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'ArrowDown' });
-
+      fireEvent.keyDown(screen.getByRole('option', { name: 'a' }), { key: 'ArrowUp' });
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted', '');
     });
   });
 
