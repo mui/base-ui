@@ -63,6 +63,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const id = store.useState('id');
   const open = store.useState('open');
   const openMethod = store.useState('openMethod');
+  const instantType = store.useState('instantType');
   const mounted = store.useState('mounted');
   const popupProps = store.useState('popupProps');
   const transitionStatus = store.useState('transitionStatus');
@@ -183,6 +184,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     transitionStatus,
     side,
     align,
+    instant: instantType,
   };
 
   useIsoLayoutEffect(() => {
@@ -518,6 +520,10 @@ export interface SelectPopupState {
    * The transition status of the component.
    */
   transitionStatus: TransitionStatus;
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: 'click' | 'dismiss' | undefined;
 }
 
 export namespace SelectPopup {

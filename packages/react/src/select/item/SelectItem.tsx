@@ -20,6 +20,7 @@ import {
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../utils/popups/event';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 
 /**
  * An individual option in the select popup.
@@ -209,7 +210,7 @@ export const SelectItem = React.memo(
         allowMouseSelectionRef.current = true;
         resetDragMovement();
       },
-      onMouseUp() {
+      onMouseUp(event) {
         resetDragMovement();
 
         if (disabled || pointerTypeRef.current === 'touch') {
@@ -234,7 +235,11 @@ export const SelectItem = React.memo(
         // Drag selection has no mousedown on the item. Focus it before the synthetic click so
         // arrow-key navigation continues from the selected item.
         itemRef.current?.focus({ preventScroll: true });
-        itemRef.current?.click();
+        // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click, so the
+        // close isn't treated as a keyboard activation.
+        if (itemRef.current) {
+          dispatchClickWithModifiers(itemRef.current, event, { detail: 1, pointerType: 'mouse' });
+        }
         allowMouseSelectionRef.current = false;
       },
     };

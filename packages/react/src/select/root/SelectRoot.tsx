@@ -173,6 +173,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           items,
           forceMounted: false,
           openMethod: null,
+          instantType: undefined,
           activeIndex: null,
           selectedIndex: null,
           itemRoot: { props: EMPTY_OBJECT, multiple, disabled, readOnly, isItemEqualToValue },
