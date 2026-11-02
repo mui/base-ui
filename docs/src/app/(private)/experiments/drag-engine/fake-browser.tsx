@@ -482,35 +482,35 @@ function DraggableEntry({
   const payload = React.useMemo(() => ({ type: 'existing' as const, id: node.id }), [node.id]);
   const trigger = (
     <Draggable.Trigger
-        ref={handleRef}
-        className={clsx(styles.entry, layout === 'horizontal' ? styles.barItem : styles.menuItem)}
-        data-bookmark-id={node.id}
-        data-layout={layout}
-        data-drop-before={indicatorBefore ? '' : undefined}
-        data-drop-after={indicatorAfter ? '' : undefined}
-        data-drop-inside={indicatorInside ? '' : undefined}
-        data-cut={clipboard?.type === 'cut' && clipboard.id === node.id ? '' : undefined}
-        aria-keyshortcuts={
-          node.type === 'folder' ? 'Control+Enter Meta+Enter Shift+F10' : 'Shift+F10'
-        }
-        title={node.type === 'bookmark' ? `${node.name}\n${node.url}` : node.name}
-        render={<button type="button" aria-label={node.name} />}
-      >
+      ref={handleRef}
+      className={clsx(styles.entry, layout === 'horizontal' ? styles.barItem : styles.menuItem)}
+      data-bookmark-id={node.id}
+      data-layout={layout}
+      data-drop-before={indicatorBefore ? '' : undefined}
+      data-drop-after={indicatorAfter ? '' : undefined}
+      data-drop-inside={indicatorInside ? '' : undefined}
+      data-cut={clipboard?.type === 'cut' && clipboard.id === node.id ? '' : undefined}
+      aria-keyshortcuts={
+        node.type === 'folder' ? 'Control+Enter Meta+Enter Shift+F10' : 'Shift+F10'
+      }
+      title={node.type === 'bookmark' ? `${node.name}\n${node.url}` : node.name}
+      render={<button type="button" aria-label={node.name} />}
+    >
+      <BookmarkIcon node={node} />
+      <span className={styles.entryLabel}>{node.name}</span>
+      {node.type === 'folder' && layout === 'vertical' && <ChevronIcon />}
+      <DropZones
+        node={node}
+        parentId={parentId}
+        index={index}
+        surfaceId={surfaceId}
+        layout={layout}
+      />
+      <Draggable.Preview className={styles.dragPreview} offset="pointer">
         <BookmarkIcon node={node} />
-        <span className={styles.entryLabel}>{node.name}</span>
-        {node.type === 'folder' && layout === 'vertical' && <ChevronIcon />}
-        <DropZones
-          node={node}
-          parentId={parentId}
-          index={index}
-          surfaceId={surfaceId}
-          layout={layout}
-        />
-        <Draggable.Preview className={styles.dragPreview} offset="pointer">
-          <BookmarkIcon node={node} />
-          <span>{node.name}</span>
-        </Draggable.Preview>
-      </Draggable.Trigger>
+        <span>{node.name}</span>
+      </Draggable.Preview>
+    </Draggable.Trigger>
   );
 
   let entry: React.ReactElement;
