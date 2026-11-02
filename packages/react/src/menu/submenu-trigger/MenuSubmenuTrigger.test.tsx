@@ -6,6 +6,8 @@ import { Menu } from '@base-ui/react/menu';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 type TextDirection = 'ltr' | 'rtl';
 const hasCaptureOwnerStack = typeof SafeReact.captureOwnerStack === 'function';
@@ -311,6 +313,75 @@ describe('<Menu.SubmenuTrigger />', () => {
     expect(storeRef.current!.context.triggerElements.getById('first')).toBeUndefined();
     expect(storeRef.current!.context.triggerElements.getById('second')).toBe(submenuTrigger);
     expect(storeRef.current!.context.triggerElements.size).toBe(1);
+  });
+
+  describe('trigger ownership', () => {
+    function App({
+      storeRef,
+      showTrigger,
+    }: {
+      storeRef: { current: MenuStore<unknown> | null };
+      showTrigger: boolean;
+    }) {
+      function StoreProbe() {
+        storeRef.current = useMenuRootContext().store;
+        return null;
+      }
+
+      return (
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot>
+                  <StoreProbe />
+                  {showTrigger && <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>}
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu">
+                        <Menu.Item>Monthly</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('claims a submenu that was opened without a trigger once the trigger mounts', async () => {
+      const storeRef: { current: MenuStore<unknown> | null } = { current: null };
+      const { setProps } = await render(<App storeRef={storeRef} showTrigger={false} />);
+
+      await act(async () => {
+        storeRef.current!.setOpen(true, createChangeEventDetails(REASONS.none));
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('submenu')).toBeVisible();
+      });
+      expect(storeRef.current!.state.openedWithoutTrigger).toBe(true);
+      expect(storeRef.current!.state.activeTriggerId).toBe(null);
+
+      await setProps({ showTrigger: true });
+
+      const trigger = screen.getByText('More');
+      expect(storeRef.current!.state.activeTriggerElement).toBe(trigger);
+      expect(trigger).toHaveAttribute('aria-controls', screen.getByTestId('submenu').id);
+    });
+
+    it('does not claim a closed submenu when the trigger mounts', async () => {
+      const storeRef: { current: MenuStore<unknown> | null } = { current: null };
+      const { setProps } = await render(<App storeRef={storeRef} showTrigger={false} />);
+
+      expect(screen.queryByTestId('submenu')).toBe(null);
+
+      await setProps({ showTrigger: true });
+
+      expect(screen.getByText('More')).not.toHaveAttribute('aria-controls');
+      expect(storeRef.current!.state.activeTriggerId).toBe(null);
+    });
   });
 
   it('throws when rendered outside Menu.SubmenuRoot', async () => {
