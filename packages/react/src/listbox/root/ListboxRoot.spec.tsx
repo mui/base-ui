@@ -58,3 +58,6 @@ function ControlledMultiple() {
 
 // @ts-expect-error -- the old prop name is gone
 <Listbox.Root onHighlightChange={() => {}} />;
+
+// @ts-expect-error -- Listbox has no part that displays the selected value
+<Listbox.Root itemToStringLabel={(item: string) => item} />;

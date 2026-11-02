@@ -48,7 +48,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     loopFocus = true,
     highlightItemOnHover = true,
     isItemEqualToValue = defaultItemEquality,
-    itemToStringLabel,
     itemToStringValue,
     inputRef,
     onItemHighlighted,
@@ -100,7 +99,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
         {
           id: generatedId,
           multiple: multipleProp,
-          itemToStringLabel,
           itemToStringValue,
           isItemEqualToValue,
           value: selectedValues,
@@ -186,7 +184,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
       id: generatedId,
       multiple: multipleProp,
       value: selectedValues,
-      itemToStringLabel,
       itemToStringValue,
       isItemEqualToValue,
       orientation,
@@ -201,7 +198,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     generatedId,
     multipleProp,
     selectedValues,
-    itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
     orientation,
@@ -357,10 +353,6 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
-  /**
-   * Converts an object value to a string label for display.
-   */
-  itemToStringLabel?: ((itemValue: Value) => string) | undefined;
   /**
    * Converts an object value to a string representation for form submission.
    */
