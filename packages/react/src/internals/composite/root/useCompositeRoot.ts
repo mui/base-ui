@@ -22,6 +22,7 @@ import {
   isListIndexDisabled,
   isIndexOutOfListBounds,
   isNativeInput,
+  isTextInputWithoutCaret,
   scrollIntoViewIfNeeded,
 } from '../composite';
 import type { ModifierKey } from '../composite';
@@ -226,6 +227,17 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     const backwardKey = orientation === 'vertical' ? ARROW_UP : horizontalBackwardKey;
 
     const target = getTarget(event.nativeEvent);
+    // Home and End move the caret natively, so keep them in a field that has text when the caret
+    // position can't be read.
+    if (
+      (event.key === HOME || event.key === END) &&
+      target != null &&
+      isTextInputWithoutCaret(target) &&
+      target.value !== '' &&
+      !isElementDisabled(target)
+    ) {
+      return;
+    }
     if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
       const selectionStart = target.selectionStart;
       const selectionEnd = target.selectionEnd;

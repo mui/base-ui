@@ -176,6 +176,49 @@ describe('<Toolbar.Root />', () => {
       expect(input.selectionStart).toBe(0);
     });
 
+    it('keeps Home and End inside a Toolbar.Input type="email" that has text', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button />
+          <Toolbar.Input type="email" defaultValue="hello@example.com" />
+          <Toolbar.Button />
+        </Toolbar.Root>,
+      );
+      const input = screen.getByRole('textbox');
+
+      await user.keyboard('[Tab]');
+      await user.keyboard('[ArrowRight]');
+      expect(input).toHaveFocus();
+
+      await user.keyboard('[Home]');
+      expect(input).toHaveFocus();
+
+      await user.keyboard('[End]');
+      expect(input).toHaveFocus();
+    });
+
+    it('moves focus with Home and End from an empty Toolbar.Input type="email"', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button />
+          <Toolbar.Input type="email" />
+          <Toolbar.Button />
+        </Toolbar.Root>,
+      );
+      const [button1, button2] = screen.getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+      await user.keyboard('[ArrowRight]');
+      expect(screen.getByRole('textbox')).toHaveFocus();
+
+      await user.keyboard('[End]');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[ArrowLeft]');
+      await user.keyboard('[Home]');
+      expect(button1).toHaveFocus();
+    });
+
     it('does not wrap focus when loopFocus is false', async () => {
       const { user } = await render(
         <Toolbar.Root loopFocus={false}>
