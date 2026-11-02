@@ -97,12 +97,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
     stopEvent(event);
 
-    const rect = trigger.getBoundingClientRect();
-    setAnchor({
-      getBoundingClientRect() {
-        return DOMRect.fromRect({ width: 0, height: 0, x: rect.left, y: rect.bottom });
-      },
-    });
+    setAnchor(trigger);
     initialCursorPointRef.current = null;
     store.setActiveIndex(0, REASONS.keyboard, event.nativeEvent);
     actionsRef.current?.setOpen(
