@@ -1,96 +1,25 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { NOOP } from '@base-ui/utils/empty';
 import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
-import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
-import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
-import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useSelectableMenuItem } from '../item/useMenuItem';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
-import { itemMapping } from '../utils/stateAttributesMapping';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
 const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItemPlain(
   componentProps: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const {
-    render,
-    className,
-    id: idProp,
-    label,
-    nativeButton = false,
-    disabled: disabledProp = false,
-    closeOnClick = false,
-    checked = false,
-    onCheckedChange,
-    style,
-    ...elementProps
-  } = componentProps;
+  const { checked = false, onCheckedChange } = componentProps;
 
-  const { store } = useMenuRootContext();
-
-  const listItem = useCompositeListItem({ guess: true, label });
-  const id = useBaseUiId(idProp);
-
-  const rootDisabled = store.useState('disabled');
-  const highlighted = store.useState('isActive', listItem.index);
-  const nodeId = store.useState('floatingNodeId');
-  const itemProps = store.useState('itemProps');
-
-  const disabled = disabledProp || rootDisabled;
-
-  const { getItemProps, itemRef } = useMenuItem({
-    closeOnClick,
-    disabled,
-    highlighted,
-    id,
-    store,
-    nativeButton,
-    nodeId,
-    itemMetadata: REGULAR_ITEM,
-  });
-
-  const state: MenuCheckboxItemState = React.useMemo(
-    () => ({
-      disabled,
-      highlighted,
-      checked,
-    }),
-    [disabled, highlighted, checked],
-  );
-
-  function handleClick(event: React.MouseEvent) {
-    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
-      preventUnmountOnClose: NOOP,
-    });
-
-    onCheckedChange?.(!checked, details);
-  }
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    stateAttributesMapping: itemMapping,
-    props: [
-      itemProps,
-      {
-        role: 'menuitemcheckbox',
-        'aria-checked': checked,
-        onClick: handleClick,
-      },
-      elementProps,
-      getItemProps,
-    ],
-    ref: [itemRef, forwardedRef, listItem.ref],
-  });
-
-  return (
-    <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
+  return useSelectableMenuItem(
+    componentProps,
+    forwardedRef,
+    checked,
+    'menuitemcheckbox',
+    MenuCheckboxItemContext,
+    (details) => onCheckedChange?.(!checked, details),
   );
 });
 
