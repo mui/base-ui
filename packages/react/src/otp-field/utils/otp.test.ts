@@ -80,12 +80,20 @@ describe('otp utils', () => {
     ).toBe('1203');
   });
 
+  it('replaces values by slot when characters are outside the Basic Multilingual Plane', () => {
+    expect(replaceOTPValue('1😀34', 2, '😎', 4, 'none')).toBe('1😀😎4');
+  });
+
   it('removes a character from the first slot', () => {
     expect(removeOTPCharacter('1234', 0)).toBe('234');
   });
 
   it('removes a character from the last slot', () => {
     expect(removeOTPCharacter('1234', 3)).toBe('123');
+  });
+
+  it('removes a whole character outside the Basic Multilingual Plane', () => {
+    expect(removeOTPCharacter('1😀2', 1)).toBe('12');
   });
 
   it('leaves the value unchanged when removing an out-of-bounds index', () => {
