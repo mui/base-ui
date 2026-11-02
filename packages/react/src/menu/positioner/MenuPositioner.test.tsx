@@ -189,7 +189,7 @@ describe('<Menu.Positioner />', () => {
     expect(lastCallFor(screen.getByTestId('positioner'))?.anchor).toBe(trigger);
   });
 
-  it('uses the trigger element as the anchor when opened by keyboard', async () => {
+  it('uses the trigger bottom-left point as the anchor when opened by keyboard', async () => {
     const { user } = await render(
       <ContextMenu.Root>
         <ContextMenu.Trigger data-testid="trigger">Area</ContextMenu.Trigger>
@@ -202,10 +202,20 @@ describe('<Menu.Positioner />', () => {
     );
 
     const trigger = screen.getByTestId('trigger');
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 20, 30, 40));
     await user.tab();
     await user.keyboard('{Shift>}{F10}{/Shift}');
 
-    expect(lastCallFor(screen.getByTestId('positioner'))?.anchor).toBe(trigger);
+    const anchor = lastCallFor(screen.getByTestId('positioner'))?.anchor;
+    expect(anchor).not.toBe(trigger);
+    expect(
+      anchor && 'getBoundingClientRect' in anchor ? anchor.getBoundingClientRect() : null,
+    ).toMatchObject({
+      x: 10,
+      y: 60,
+      width: 0,
+      height: 0,
+    });
   });
 
   it('leaves lazy flipping off for a plain menu', async () => {

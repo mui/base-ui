@@ -10,7 +10,8 @@ import type { BaseUIComponentProps } from '../../internals/types';
 export interface ContextMenuPositionerState extends MenuPositionerState {}
 
 /**
- * Positions the context menu popup against its trigger or a custom anchor.
+ * Positions the context menu popup against its trigger, the keyboard invocation point, or a
+ * custom anchor.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
@@ -35,7 +36,8 @@ export interface ContextMenuPositionerProps
     BaseUIComponentProps<'div', ContextMenuPositionerState> {
   /**
    * An element to position the popup against.
-   * By default, root context menus and submenus are positioned against their trigger.
+   * By default, root context menus are positioned against their trigger or the keyboard invocation
+   * point. Submenus are positioned against their trigger.
    */
   anchor?: MenuPositionerProps['anchor'] | undefined;
   /**
