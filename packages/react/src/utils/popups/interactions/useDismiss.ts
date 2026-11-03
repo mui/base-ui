@@ -162,6 +162,7 @@ export function useDismiss(
   // gesture (e.g. the drag-release that opened it), not a new outside press.
   const sawPressWhileOpenRef = React.useRef(false);
   const compositionEndPendingRef = React.useRef(false);
+  const trailingEscapeRef = React.useRef<'composing' | 'expected' | KeyboardEvent | null>(null);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   const touchStateRef = React.useRef<{
@@ -224,10 +225,22 @@ export function useDismiss(
       // Key code 229 indicates that an IME is processing the key event.
       const isImeKey = native.keyCode === 229;
 
+      if (native.isComposing) {
+        trailingEscapeRef.current = 'composing';
+      } else if (trailingEscapeRef.current === 'expected') {
+        trailingEscapeRef.current = native;
+      }
+
       // Wait until IME is settled. Pressing `Escape` while composing should
-      // close the compose menu, but not the floating element. The ref covers Safari, which fires
-      // `compositionend` before `keydown`; the native event identifies an active composition.
-      if (compositionEndPendingRef.current || native.isComposing || isImeKey) {
+      // close the compose menu, but not the floating element. The refs cover Safari, which fires
+      // `compositionend` before `keydown`, and the non-composing Escape that Chrome and Firefox on
+      // macOS send after `compositionend`; the native event identifies an active composition.
+      if (
+        compositionEndPendingRef.current ||
+        trailingEscapeRef.current === native ||
+        native.isComposing ||
+        isImeKey
+      ) {
         return;
       }
 
@@ -328,6 +341,7 @@ export function useDismiss(
       if (!open) {
         sawPressWhileOpenRef.current = false;
         compositionEndPendingRef.current = false;
+        trailingEscapeRef.current = null;
         currentPointerTypeRef.current = '';
         touchStateRef.current = null;
       }
@@ -341,6 +355,12 @@ export function useDismiss(
     const doc = ownerDocument(positionerElement);
 
     function handleCompositionEnd() {
+      if (!platform.engine.webkit) {
+        if (trailingEscapeRef.current === 'composing') {
+          trailingEscapeRef.current = 'expected';
+        }
+        return;
+      }
       // Safari fires `compositionend` before `keydown`, so we need to wait
       // until the next tick before dismissing. Open this bounded window on compositionend
       // even when the composition began while the popup was closed.
@@ -751,7 +771,12 @@ export function useDismiss(
               closeOnEscapeKeyDown(event);
             }
           }),
-          platform.engine.webkit && addEventListener(doc, 'compositionend', handleCompositionEnd),
+          addEventListener(doc, 'keyup', (event) => {
+            if (event.key === 'Escape') {
+              trailingEscapeRef.current = null;
+            }
+          }),
+          addEventListener(doc, 'compositionend', handleCompositionEnd),
         ),
       outsidePressEnabled &&
         mergeCleanups(

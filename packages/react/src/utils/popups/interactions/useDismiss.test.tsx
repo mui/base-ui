@@ -168,17 +168,33 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.compositionStart(textbox);
       fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true });
       fireEvent.compositionEnd(textbox);
-
-      // Wait for the compositionend timeout tick due to Safari
-      await new Promise((resolve) => {
-        setTimeout(resolve, 0);
-      });
+      fireEvent.keyUp(textbox, { key: 'Escape' });
 
       expect(onClose).toHaveBeenCalledTimes(0);
 
       fireEvent.keyDown(textbox, { key: 'Escape' });
 
       expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not dismiss with the escape key sent after the composing one on macOS', async () => {
+      const onClose = vi.fn();
+
+      render(<App onClose={onClose} escapeKey />);
+
+      const textbox = screen.getByRole('textbox');
+
+      await act(async () => {
+        textbox.focus();
+      });
+
+      fireEvent.compositionStart(textbox);
+      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true });
+      fireEvent.compositionEnd(textbox);
+      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: false });
+
+      expect(onClose).toHaveBeenCalledTimes(0);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
     test('does not dismiss with escape key while a composition spans a reopen', async () => {
