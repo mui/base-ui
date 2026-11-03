@@ -24,7 +24,7 @@ import type { DropTargetParameters } from '../dropTarget';
 import { elementFromPointIgnoring } from '../composedTree';
 import { addMonitor, removeMonitor } from '../monitor';
 
-import { cancelDrag } from '../synthetic/pickupRecognizer';
+import { cancelDrag } from '../synthetic/syntheticSensor';
 import { createDragSource } from '../dragSource';
 import { dragSessionStore } from '../dragSessionStore';
 import { start } from './lifecycleManager';

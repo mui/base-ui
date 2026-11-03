@@ -1,11 +1,10 @@
 /**
- * The pickup: build the drag preview, take the root lock, and start the lifecycle
- * session. The pointer sensor runs it when a gesture activates, and the session
- * releases what it acquires (see `sensor.release`).
+ * The pickup: build the drag preview and start the lifecycle session. The pointer
+ * sensor runs it when a gesture activates, and the session releases what it
+ * acquires (see `sensor.release`).
  */
 
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import * as dragRootLock from './dragRootLock';
 import {
   createDragPreview,
   finishEndingPreview,
@@ -136,8 +135,8 @@ export interface PreviewSessionHandle {
 /**
  * Build the preview for a pickup and start the lifecycle session. When the pickup
  * throws or the lifecycle refuses to start (a drag is already running or the
- * pickup was canceled), the preview and root lock are released here, so the sensor
- * only cleans up its own pre-pickup state. A throw is re-thrown after the undo.
+ * pickup was canceled), the preview is ended here, so the sensor only cleans up
+ * its own state. A throw is re-thrown after the undo.
  */
 export function createPreviewAndStartSession(
   parameters: CreatePreviewSessionParameters,
@@ -157,14 +156,10 @@ export function createPreviewAndStartSession(
   const element = dragSource.element;
 
   let preview: DragPreview | null = null;
-  let locked = false;
 
   const undo = () => {
     if (preview) {
       preview.end(false);
-    }
-    if (locked) {
-      dragRootLock.unlock();
     }
   };
 
@@ -192,8 +187,6 @@ export function createPreviewAndStartSession(
         pressInput,
       },
     );
-    dragRootLock.lock(element);
-    locked = true;
     // Place the preview now so the first frame doesn't leave it off-screen. The
     // pickup's modifier keys go along, for key-gated preview modifiers.
     preview.update(initialInput.clientX, initialInput.clientY, initialInput);

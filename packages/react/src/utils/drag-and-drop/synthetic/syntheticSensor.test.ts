@@ -10,7 +10,7 @@ import {
   setupDragEngineTests,
   splitEnd,
 } from '../../../../test/dnd';
-import { cancelDrag } from './pickupRecognizer';
+import { cancelDrag } from './syntheticSensor';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { dragSessionStore } from '../dragSessionStore';
 import { getActiveSession } from '../core/dragSession';
@@ -3742,6 +3742,266 @@ describe('syntheticDrag sensor', () => {
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
+    });
+  });
+
+  describe('gesture end', () => {
+    /** Stub pointer capture on `element`, which jsdom lacks, and return the captured ids. */
+    function stubPointerCapture(element: Element): Set<number> {
+      const captured = new Set<number>();
+      element.setPointerCapture = (pointerId: number) => {
+        captured.add(pointerId);
+      };
+      element.hasPointerCapture = (pointerId: number) => captured.has(pointerId);
+      element.releasePointerCapture = (pointerId: number) => {
+        captured.delete(pointerId);
+      };
+      registerCleanup(() => {
+        Reflect.deleteProperty(element, 'setPointerCapture');
+        Reflect.deleteProperty(element, 'hasPointerCapture');
+        Reflect.deleteProperty(element, 'releasePointerCapture');
+      });
+      return captured;
+    }
+
+    /** Whether a listener cancels a `type` event dispatched on `target`. */
+    function isPrevented(target: EventTarget, type: string): boolean {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      dispatch(target, event);
+      return event.defaultPrevented;
+    }
+
+    function pressEscape(): void {
+      dispatch(window, new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    }
+
+    function penCancel(): void {
+      dispatch(
+        getTouchDownTarget(),
+        new PointerEvent('pointercancel', { pointerType: 'pen', pointerId: 1, bubbles: true }),
+      );
+    }
+
+    it.each([
+      { name: 'a drop', keepsContextMenuSuppressed: false, end: () => penUp(60, 60) },
+      { name: 'Escape', keepsContextMenuSuppressed: true, end: pressEscape },
+      { name: 'pointercancel', keepsContextMenuSuppressed: true, end: penCancel },
+      {
+        name: 'a window blur',
+        keepsContextMenuSuppressed: true,
+        end: () => dispatch(window, new Event('blur')),
+      },
+      {
+        name: 'cancelDrag()',
+        keepsContextMenuSuppressed: true,
+        end: () => act(() => cancelDrag()),
+      },
+      {
+        name: 'a missed release',
+        keepsContextMenuSuppressed: true,
+        end: async () => {
+          dispatch(
+            getTouchDownTarget(),
+            new PointerEvent('pointermove', {
+              pointerType: 'pen',
+              pointerId: 1,
+              clientX: 60,
+              clientY: 60,
+              buttons: 0,
+              bubbles: true,
+            }),
+          );
+          await flushRaf();
+        },
+      },
+    ])(
+      'an active drag ended by $name releases everything the gesture holds',
+      async ({ end, keepsContextMenuSuppressed }) => {
+        const { engine } = await renderDnd();
+        const el = createElement();
+        engine.registerSource(el, { activation: { pen: { type: 'immediate' } } });
+        const bodyCapture = stubPointerCapture(document.body);
+        const root = document.documentElement;
+
+        penDown(el, 50, 50);
+        // The drag cursor locks on the frame after the lift.
+        await flushRaf(2);
+        expect(getActiveSession()).not.toBeNull();
+        expect(el.getAttribute('draggable')).toBe('false');
+        expect(bodyCapture.has(1)).toBe(true);
+        expect(root.style.touchAction).toBe('none');
+        expect(root.classList.contains('baseui-dragging')).toBe(true);
+        expect(isPrevented(el, 'touchmove')).toBe(true);
+        expect(isPrevented(el, 'dragstart')).toBe(true);
+
+        await end();
+
+        expect(getActiveSession()).toBeNull();
+        expect(el.hasAttribute('draggable')).toBe(false);
+        expect(bodyCapture.size).toBe(0);
+        expect(root.style.touchAction).toBe('');
+        expect(root.classList.contains('baseui-dragging')).toBe(false);
+        expect(isPrevented(el, 'touchmove')).toBe(false);
+        expect(isPrevented(el, 'dragstart')).toBe(false);
+        // The one release that depends on the end: an interruption keeps the
+        // long-press menu suppressed.
+        expect(isPrevented(el, 'contextmenu')).toBe(keepsContextMenuSuppressed);
+
+        // Nothing stays held, so the next press drags.
+        penDown(el, 50, 50, 2);
+        expect(getActiveSession()).not.toBeNull();
+        penUp(50, 50, 2);
+      },
+    );
+
+    it.each([
+      {
+        name: 'a release',
+        failure: null,
+        keepsContextMenuSuppressed: false,
+        end: () => penUp(50, 50),
+      },
+      { name: 'Escape', failure: null, keepsContextMenuSuppressed: true, end: pressEscape },
+      { name: 'pointercancel', failure: null, keepsContextMenuSuppressed: true, end: penCancel },
+      {
+        name: 'a window blur',
+        failure: null,
+        keepsContextMenuSuppressed: true,
+        end: () => dispatch(window, new Event('blur')),
+      },
+      {
+        name: 'cancelDrag()',
+        failure: null,
+        keepsContextMenuSuppressed: true,
+        end: () => act(() => cancelDrag()),
+      },
+      {
+        name: 'an onBeforeMoveStart veto',
+        failure: 'veto',
+        keepsContextMenuSuppressed: false,
+        end: () => penMove(60, 50),
+      },
+      {
+        name: 'a throwing onMoveStart',
+        failure: 'throw',
+        keepsContextMenuSuppressed: false,
+        end: () => {
+          // The throw escapes the `pointermove` listener after the gesture ended.
+          const onError = (event: Event) => event.preventDefault();
+          const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+          window.addEventListener('error', onError);
+          try {
+            penMove(60, 50);
+          } finally {
+            window.removeEventListener('error', onError);
+            consoleErrorSpy.mockRestore();
+          }
+        },
+      },
+    ])(
+      'a press ended by $name before its drag starts releases everything the gesture holds',
+      async ({ end, failure, keepsContextMenuSuppressed }) => {
+        const { engine } = await renderDnd();
+        const el = createElement();
+        let failing = true;
+        // The default 5px pen distance keeps the press pending until it moves.
+        engine.registerSource(el, {
+          onBeforeMoveStart: (eventDetails) => {
+            if (failing && failure === 'veto') {
+              eventDetails.cancel();
+            }
+          },
+          onMoveStart: () => {
+            if (failing && failure === 'throw') {
+              throw new Error('start boom');
+            }
+          },
+        });
+        const pressCapture = stubPointerCapture(el);
+        const root = document.documentElement;
+
+        penDown(el, 50, 50);
+        // Touch and pen implicitly capture the press target.
+        pressCapture.add(1);
+        expect(getActiveSession()).toBeNull();
+        expect(el.getAttribute('draggable')).toBe('false');
+        expect(isPrevented(el, 'dragstart')).toBe(true);
+
+        end();
+
+        expect(getActiveSession()).toBeNull();
+        expect(el.hasAttribute('draggable')).toBe(false);
+        expect(pressCapture.size).toBe(0);
+        // Only taken once a pickup starts, as the throwing `onMoveStart` does.
+        expect(root.style.touchAction).toBe('');
+        expect(isPrevented(el, 'dragstart')).toBe(false);
+        expect(isPrevented(el, 'contextmenu')).toBe(keepsContextMenuSuppressed);
+
+        // Nothing stays held, so the next press drags.
+        failing = false;
+        penDown(el, 50, 50, 2);
+        penMove(60, 50, 2);
+        expect(getActiveSession()).not.toBeNull();
+        penUp(60, 50, 2);
+      },
+    );
+
+    it('ends the drag when a start callback ends its gesture through a detached-document recovery', async () => {
+      const { engine } = await renderDnd();
+      const topEl = createElement();
+      engine.registerSource(topEl, {});
+      const iframe = document.createElement('iframe');
+      document.body.appendChild(iframe);
+      registerCleanup(() => iframe.remove());
+      const iframeDoc = iframe.contentDocument!;
+      iframeDoc.elementFromPoint = () => null;
+      const iframeEl = iframeDoc.createElement('div');
+      iframeEl.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      iframeDoc.body.appendChild(iframeEl);
+      const onMoveEnd = vi.fn();
+      engine.registerSource(iframeEl, {
+        activation: { mouse: { type: 'immediate' } },
+        onMoveStart() {
+          iframe.remove();
+          if (isJSDOM) {
+            Object.defineProperty(iframeDoc, 'defaultView', { value: null, configurable: true });
+          }
+          // A press elsewhere finds the gesture's document detached and ends the
+          // gesture while its drag is still starting.
+          topEl.dispatchEvent(
+            new PointerEvent('pointerdown', {
+              pointerType: 'mouse',
+              pointerId: 2,
+              clientX: 50,
+              clientY: 50,
+              button: 0,
+              buttons: 1,
+              bubbles: true,
+              cancelable: true,
+            }),
+          );
+        },
+        onMoveEnd,
+      });
+
+      dispatch(
+        iframeEl,
+        new PointerEvent('pointerdown', {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: 10,
+          clientY: 10,
+          button: 0,
+          buttons: 1,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+
+      expect(onMoveEnd).toHaveBeenCalledOnce();
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('document-detached');
+      expect(getActiveSession()).toBeNull();
+      expect(document.documentElement.style.touchAction).toBe('');
     });
   });
 });

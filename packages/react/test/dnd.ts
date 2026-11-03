@@ -10,7 +10,6 @@ import {
   resetForTests as resetDragSession,
 } from '../src/utils/drag-and-drop/core/dragSession';
 import { resetForTests as resetSyntheticSensor } from '../src/utils/drag-and-drop/synthetic/syntheticSensor';
-import { resetForTests as resetPickupRecognizer } from '../src/utils/drag-and-drop/synthetic/pickupRecognizer';
 import { resetForTests as resetDropTargets } from '../src/utils/drag-and-drop/dropTarget';
 import { resetForTests as resetComposedTree } from '../src/utils/drag-and-drop/composedTree';
 import { unlock as resetDragRootLock } from '../src/utils/drag-and-drop/synthetic/dragRootLock';
@@ -287,8 +286,7 @@ function resetDrag(): void {
     // These update React state on still-mounted consumers (`dragging` and the
     // preview parts), so run them in `act` to avoid the "not wrapped in act(...)"
     // warning.
-    () =>
-      act(() => runAllCleanups([resetDragSession, resetSyntheticSensor, resetPickupRecognizer])),
+    () => act(() => runAllCleanups([resetDragSession, resetSyntheticSensor])),
     // Global state `resetDragSession` doesn't clear. A test that fails mid-drag would
     // otherwise leave scrolling locked, the drag cursor set, or the next click swallowed.
     resetDragRootLock,

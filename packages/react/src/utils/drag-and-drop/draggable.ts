@@ -17,7 +17,7 @@ import { getSharedSlot } from './sharedState';
 import { getOrCreate, onceCleanup } from './utils';
 import { addDraggableRegistration, resolveDragHandle } from './draggableRegistry';
 import { holdShadowRoots } from './dropTarget';
-import { bindPointerListeners } from './synthetic/pickupRecognizer';
+import { bindPointerListeners } from './synthetic/syntheticSensor';
 import { getPreviewSourceIdentity, retargetPreviewSource } from './synthetic/syntheticPreview';
 import type { RootDragStore } from './synthetic/syntheticPreview';
 

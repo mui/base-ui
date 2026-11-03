@@ -7,7 +7,7 @@ import { registerTarget } from '../../utils/drag-and-drop/dropTarget';
 import { registerViewport, wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
 import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
-import { cancelDrag } from '../../utils/drag-and-drop/synthetic/pickupRecognizer';
+import { cancelDrag } from '../../utils/drag-and-drop/synthetic/syntheticSensor';
 import type {
   DraggableManager,
   InternalDragEngine,

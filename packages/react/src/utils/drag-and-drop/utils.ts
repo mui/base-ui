@@ -1,11 +1,6 @@
 import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { isShadowRoot } from '@floating-ui/utils/dom';
-import type {
-  DraggableInput,
-  DraggablePointerType,
-  DraggablePosition,
-} from '../../draggable/DraggableProvider';
+import { ownerWindow } from '@base-ui/utils/owner';
+import type { DraggableInput, DraggablePosition } from '../../draggable/DraggableProvider';
 import { getComposedParentElement } from './composedTree';
 import {
   getOwnLinearTransform,
@@ -93,23 +88,6 @@ export function resolveElementReference<T extends Element, TArgument = void>(
   return reference;
 }
 
-/** The event root that can observe a node before closed-shadow retargeting. */
-export function getDragEventRoot(node: Element): Document | ShadowRoot {
-  const root = node.getRootNode();
-  return isShadowRoot(root) ? root : ownerDocument(node);
-}
-
-/**
- * Whether a document's browsing context is gone (iframe removed, popout closed). A
- * drag there never gets an ending event, since its listeners lived in the dead
- * realm, so the sensors reset instead of refusing every later pickup. Connection
- * isn't checked: a virtualizer can detach the dragged node while its document lives.
- */
-export function isDetachedDocument(doc: Document): boolean {
-  const win = doc.defaultView;
-  return win === null || win.closed === true;
-}
-
 /**
  * The layout viewport rect in client coordinates. `innerWidth/innerHeight` include
  * the scrollbar gutter, where `elementFromPoint` finds nothing, so they're only the
@@ -128,26 +106,6 @@ export function isPointInRect(
   rect: { left: number; top: number; right: number; bottom: number },
 ): boolean {
   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-}
-
-export function normalizePointerType(raw: string | undefined): DraggablePointerType {
-  if (raw === 'touch' || raw === 'pen') {
-    return raw;
-  }
-  return 'mouse';
-}
-
-export function getInput(event: MouseEvent & { pointerType?: string | undefined }): DraggableInput {
-  return {
-    button: event.button,
-    buttons: event.buttons,
-    clientX: event.clientX,
-    clientY: event.clientY,
-    pageX: event.pageX,
-    pageY: event.pageY,
-    pointerType: normalizePointerType(event.pointerType),
-    ...getModifierKeys(event),
-  };
 }
 
 /**
@@ -175,25 +133,6 @@ export const NO_MODIFIER_KEYS: DragModifierKeys = {
   altKey: false,
   metaKey: false,
 };
-
-export function getModifierKeys(event: KeyboardEvent | MouseEvent): DragModifierKeys {
-  return {
-    ctrlKey: event.ctrlKey,
-    shiftKey: event.shiftKey,
-    altKey: event.altKey,
-    metaKey: event.metaKey,
-  };
-}
-
-/** Lets a key press that changes no modifier be ignored. */
-export function modifierKeysChanged(a: DragModifierKeys, b: DragModifierKeys): boolean {
-  return (
-    a.ctrlKey !== b.ctrlKey ||
-    a.shiftKey !== b.shiftKey ||
-    a.altKey !== b.altKey ||
-    a.metaKey !== b.metaKey
-  );
-}
 
 /**
  * Runs a consumer callback and, if it throws, logs the error with `message` and `element`
@@ -402,50 +341,4 @@ export function unadoptStyleSheet(root: DocumentOrShadowRoot, sheet: CSSStyleShe
   if (root.adoptedStyleSheets.includes(sheet)) {
     root.adoptedStyleSheets = root.adoptedStyleSheets.filter((adopted) => adopted !== sheet);
   }
-}
-
-/** `buttons` is a bitmask, and bit 0 is the primary button. */
-export function isPrimaryHeld(event: PointerEvent): boolean {
-  return event.buttons % 2 !== 0;
-}
-
-/** Installed only while a gesture is alive (see `onPointerDown` and `startDrag`). */
-export function preventContextMenu(event: Event): void {
-  event.preventDefault();
-}
-
-/**
- * Block the native HTML5 drag that a nested `<img>` or `<a href>` starts from the same
- * press. `draggable="false"` on the source doesn't cover its descendants.
- */
-export function preventNativeDragStart(event: Event): void {
-  event.preventDefault();
-}
-
-/**
- * Run a pointer capture operation, swallowing the `DOMException` it throws when the
- * pointer is no longer active or capture was already released. Checked against the
- * element's realm, since an iframe or popout has its own `DOMException`.
- */
-export function swallowPointerCaptureError(element: Element, operation: () => void): void {
-  try {
-    operation();
-  } catch (err) {
-    if (!(err instanceof ownerWindow(element).DOMException)) {
-      throw err;
-    }
-  }
-}
-
-export function releasePointerCaptureSafely(element: Element, pointerId: number): void {
-  swallowPointerCaptureError(element, () => {
-    if (element.hasPointerCapture?.(pointerId)) {
-      element.releasePointerCapture(pointerId);
-    }
-  });
-}
-
-export function setPointerCaptureSafely(element: Element, pointerId: number): void {
-  // Optional-chained so jsdom (no pointer capture) no-ops instead of throwing.
-  swallowPointerCaptureError(element, () => element.setPointerCapture?.(pointerId));
 }
