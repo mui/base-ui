@@ -249,15 +249,13 @@ export function start(parameters: StartParameters): DragSessionController | null
         endListeners.delete(listener);
       };
     },
-    releaseTarget(element, getParameters) {
+    releaseTarget(element) {
       // While starting, any target may be in the not-yet-entered initial stack.
       // Otherwise only a target owed a leave changes the stack. Ask the ledger, not
       // the published snapshot: a target that entered and unregistered in the same
       // round isn't published yet, and the coalesced refresh would run after it's gone.
       if (phase === 'starting' || hover.has(element)) {
-        // Keep the registration readable until the leave goes out. The refresh may
-        // only queue (see `refresh`), and the registry entry is gone when it drains.
-        hover.retain(element, getParameters);
+        hover.release(element);
         // Refresh now so subscribers see the leave without waiting for a pointer
         // event. Walk up instead of hit-testing: only registrations changed, and a
         // React unmount runs this mid-commit, where `elementFromPoint` forces layout.

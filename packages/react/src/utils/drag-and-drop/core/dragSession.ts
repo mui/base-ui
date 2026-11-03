@@ -12,7 +12,6 @@ import type {
 } from '../../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
 import type { DragPreview } from '../synthetic/syntheticPreview';
-import type { DropTargetGetter } from '../dropTarget';
 import type { DragCleanupFn } from '../types';
 import { getSharedSlot } from '../sharedState';
 
@@ -60,12 +59,12 @@ export interface DragSession {
    */
   onEnd(listener: () => void): DragCleanupFn;
   /**
-   * Called while `element` unregisters and `getParameters` is still readable. A
-   * target still owed `onDraggableLeave` gets it, through `getParameters` once the
+   * Called after `element`'s active registration is removed. A target still owed
+   * `onDraggableLeave` gets it, through the registration that got its enter if the
    * registry no longer holds the element. Any other unregister joins the coalesced
    * refresh.
    */
-  releaseTarget(element: Element, getParameters: DropTargetGetter): void;
+  releaseTarget(element: Element): void;
   /**
    * Coalesces a parameter or registration change into one stack resolution in a
    * microtask. With an `element`, it runs only when that element is on the walk

@@ -772,8 +772,8 @@ describe('lifecycle manager', () => {
 
     it('delivers the outer terminal leave when the inner leave unregisters it on drop', async () => {
       // The terminal leaves go out one target at a time. After the inner one,
-      // the outer must still read as hovered, so its unregister takes the
-      // synchronous path that keeps its registration readable for its own leave.
+      // the outer must still read as hovered, so its unregister releases it and
+      // its own leave goes out through the registration that got its enter.
       const { engine } = await renderDnd();
       const source = createElement();
       const outer = createElement();

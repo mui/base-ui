@@ -4,14 +4,14 @@ import type {
   DropTargetChangeEventDetails,
   DropTargetEventReasonMap,
 } from './types';
-import { dispatchToDropTarget } from './dropTarget';
+import { dispatchToDropTarget, getEnterRegistration } from './dropTarget';
 import type { DropTargetEventName, DropTargetGetter } from './dropTarget';
 
 /**
  * The drop targets a drag has entered and still owes a leave. One per session; every target
  * dispatch but the drop goes through it. Each enter gets exactly one leave, even if the
- * target unregisters (its registration is kept until then) or a handler ends the drag
- * mid-dispatch (a target is recorded just before its enter and dropped just before its leave).
+ * target unregisters (see `release`) or a handler ends the drag mid-dispatch (a target is
+ * recorded just before its enter and dropped just before its leave).
  */
 export interface HoverLedger {
   /** Whether `element` has received an enter but not the matching leave. */
@@ -54,16 +54,20 @@ export interface HoverLedger {
     shouldContinue: () => boolean,
   ): void;
   /**
-   * Keep `getParameters` readable after `element` leaves the registry, so the leave
-   * it is owed can still go out. Unused while another hold keeps the element registered.
+   * Mark `element` as unregistered while owed an enter or leave. Its enter then goes
+   * through the registration that resolved its record, and its leave through the one
+   * that got its enter. Unused while another hold keeps the element registered.
    */
-  retain(element: Element, getParameters: DropTargetGetter): void;
+  release(element: Element): void;
 }
 
 export function createHoverLedger(): HoverLedger {
   const hovered: DraggableTargetRecord[] = [];
-  // The registrations of targets that unregistered while owed a leave.
-  const retained = new Map<Element, DropTargetGetter>();
+  // Targets that unregistered while owed an enter or leave. Only these enter through
+  // their record's registration, so one unregistered mid-round before its enter gets neither.
+  const released = new Set<Element>();
+  // The registration each owed target's enter went to. Its leave falls back to it.
+  const enteredWith = new Map<Element, DropTargetGetter>();
 
   function indexOf(element: Element): number {
     return hovered.findIndex((record) => record.element === element);
@@ -74,11 +78,16 @@ export function createHoverLedger(): HoverLedger {
     eventName: K,
     eventDetails: DragEventDetails<DropTargetEventReasonMap[K]>,
   ): void {
-    dispatchToDropTarget(record, eventName, eventDetails, retained.get(record.element));
+    dispatchToDropTarget(record, eventName, eventDetails, enteredWith.get(record.element));
   }
 
   function enter(record: DraggableTargetRecord, eventDetails: DropTargetChangeEventDetails) {
     hovered.push(record);
+    // Set before the handler runs, since it may unregister the target.
+    const getParameters = getEnterRegistration(record, released.has(record.element));
+    if (getParameters) {
+      enteredWith.set(record.element, getParameters);
+    }
     dispatch(record, 'onDraggableEnter', eventDetails);
   }
 
@@ -90,8 +99,9 @@ export function createHoverLedger(): HoverLedger {
     try {
       dispatch(record, 'onDraggableLeave', eventDetails);
     } finally {
-      // The leave its registration was kept for has gone out.
-      retained.delete(record.element);
+      // The leave it was owed has gone out.
+      released.delete(record.element);
+      enteredWith.delete(record.element);
     }
   }
 
@@ -161,8 +171,8 @@ export function createHoverLedger(): HoverLedger {
         dispatch(record, eventName, eventDetails);
       }
     },
-    retain(element, getParameters) {
-      retained.set(element, getParameters);
+    release(element) {
+      released.add(element);
     },
   };
 }

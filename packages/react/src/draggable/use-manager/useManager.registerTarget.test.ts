@@ -988,6 +988,79 @@ describe('engine.registerTarget', () => {
     expect(onDropB).not.toHaveBeenCalled();
   });
 
+  it('sends the leave to the merged-ref hold that got the enter when both holds unregister mid-round', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const outer = createElement();
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+    const enterA = vi.fn();
+    const leaveA = vi.fn();
+    const enterB = vi.fn();
+    const leaveB = vi.fn();
+    engine.registerSource(source, {});
+    const cleanupA = engine.registerTarget(outer, {
+      onDraggableEnter: enterA,
+      onDraggableLeave: leaveA,
+    });
+    const cleanupB = engine.registerTarget(outer, {
+      onDraggableEnter: enterB,
+      onDraggableLeave: leaveB,
+    });
+    // Both release inside the fan-out, so no refresh runs between them.
+    engine.registerTarget(inner, {
+      onDraggableEnter: () => {
+        cleanupB();
+        cleanupA();
+      },
+    });
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    await dragEnter(outer);
+    expect(enterB).toHaveBeenCalledTimes(1);
+    expect(enterA).not.toHaveBeenCalled();
+
+    await dragEnter(inner);
+
+    expect(leaveB).toHaveBeenCalledTimes(1);
+    expect(leaveA).not.toHaveBeenCalled();
+  });
+
+  it('sends the leave to the merged-ref hold promoted before the enter when it unregisters from that enter', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const outer = createElement();
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+    const leaveA = vi.fn();
+    const enterB = vi.fn();
+    const leaveB = vi.fn();
+    engine.registerSource(source, {});
+    let cleanupA = () => {};
+    const enterA = vi.fn(() => cleanupA());
+    cleanupA = engine.registerTarget(outer, {
+      onDraggableEnter: enterA,
+      onDraggableLeave: leaveA,
+    });
+    // B resolves the outer record, then unregisters before the outer enter, promoting A.
+    const cleanupB = engine.registerTarget(outer, {
+      onDraggableEnter: enterB,
+      onDraggableLeave: leaveB,
+    });
+    engine.registerTarget(inner, { onDraggableEnter: () => cleanupB() });
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    await dragEnter(inner);
+    await act(async () => Promise.resolve());
+
+    expect(enterA).toHaveBeenCalledTimes(1);
+    expect(enterB).not.toHaveBeenCalled();
+    expect(leaveA).toHaveBeenCalledTimes(1);
+    expect(leaveB).not.toHaveBeenCalled();
+  });
+
   describe('lifecycle guards', () => {
     it('still delivers onDrop when the source onMoveEnd unregisters the target mid-end', async () => {
       const { engine } = await renderDnd();
@@ -1047,9 +1120,9 @@ describe('engine.registerTarget', () => {
     });
 
     it('keeps a registration a leave handler re-creates on the same element', async () => {
-      // A target remounting from its own `onDraggableLeave` re-registers while the
-      // retiring entry is still in the registry. Deleting the new hold with that
-      // entry would leave a target that never resolves again.
+      // A target remounting from its own `onDraggableLeave` re-registers while its
+      // unregister is still running. Losing the new hold would leave a target that
+      // never resolves again.
       const { engine } = await renderDnd();
       const source = createElement();
       const target = createElement({ top: 200, height: 100 });
@@ -1258,8 +1331,8 @@ describe('engine.registerTarget', () => {
     await Promise.resolve();
     expect(canDrop.mock.calls.length).toBeGreaterThan(callsBefore);
 
-    // A hovered target's unregister still refreshes synchronously, because its
-    // leave must dispatch while the registration is still readable.
+    // A hovered target's unregister still refreshes synchronously, so its leave
+    // goes out without waiting for a pointer event.
     expect(onDraggableLeave).not.toHaveBeenCalled();
     unregisterHovered();
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
@@ -1303,8 +1376,39 @@ describe('engine.registerTarget', () => {
       dragSessionStore.getSnapshot()?.location.current.targets.map((record) => record.element),
     ).toEqual([inner]);
     // The outer's registry entry is gone before the deferred round runs, so its
-    // owed leave depends on the retiring getter being held back.
+    // owed leave goes through the registration that got its enter.
     expect(outerOnDragLeave).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends neither enter nor leave to a target unregistered in the same round before its enter', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const outer = createElement();
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+
+    engine.registerSource(source, {});
+    const outerEnter = vi.fn();
+    const outerLeave = vi.fn();
+    const unregisterOuter = engine.registerTarget(outer, {
+      onDraggableEnter: outerEnter,
+      onDraggableLeave: outerLeave,
+    });
+    const innerEnter = vi.fn(() => unregisterOuter());
+    engine.registerTarget(inner, { onDraggableEnter: innerEnter });
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    // One round enters both, innermost first, so the outer unregisters before its enter.
+    await dragEnter(inner);
+    expect(innerEnter).toHaveBeenCalledTimes(1);
+    await act(async () => Promise.resolve());
+
+    expect(
+      dragSessionStore.getSnapshot()?.location.current.targets.map((record) => record.element),
+    ).toEqual([inner]);
+    expect(outerEnter).not.toHaveBeenCalled();
+    expect(outerLeave).not.toHaveBeenCalled();
   });
 
   it('warns in development when kind is declared without accept', async () => {

@@ -97,8 +97,6 @@ const holds = createGetterStackRegistry<Element, DropTargetGetter>({
     element.setAttribute(DROP_TARGET_ATTR, '');
     state.retainedRoots.set(element, holdShadowRoots(element));
   },
-  // Runs before `beforeDelete`, so the stack the caller refreshes there already
-  // excludes this element.
   onLastRemove: (element) => {
     element.removeAttribute(DROP_TARGET_ATTR);
     state.retainedRoots.get(element)?.();
@@ -261,11 +259,10 @@ export function registerTarget<
 
   return onceCleanup(() => {
     try {
-      // The session can still read the registration of an element that leaves the
-      // registry, to deliver a leave it is owed.
-      holds.remove(element, getParameters, () => {
-        getActiveSession()?.releaseTarget(element, getParameters);
-      });
+      // Removed first, so the refresh the session runs no longer resolves this hold.
+      if (holds.remove(element, getParameters)) {
+        getActiveSession()?.releaseTarget(element);
+      }
     } finally {
       releaseRegistrationKey(element, getParameters);
     }
@@ -524,8 +521,6 @@ export function getDropTargetsOver(
   const result: DraggableTargetRecord[] = [];
 
   for (let node = target; node !== null; node = getComposedParentElement(node)) {
-    // Check the attribute, not the registry. An unregistering target loses the
-    // attribute first, so the refresh that delivers its leave already excludes it.
     if (!node.hasAttribute(DROP_TARGET_ATTR)) {
       continue;
     }
@@ -554,10 +549,25 @@ export function getDropTargetsOver(
 export type DropTargetEventName = keyof DropTargetEventReasonMap & keyof DropTargetParameters;
 
 /**
+ * The registration `record`'s enter goes through: the element's active one, or, once it
+ * is `released` (unregistered while owed its enter or leave), the one that resolved the record.
+ */
+export function getEnterRegistration(
+  record: DraggableTargetRecord,
+  released: boolean,
+): DropTargetGetter | undefined {
+  return (
+    holds.getActive(record.element) ??
+    (released ? state.recordRegistrations.get(record)?.getParameters : undefined)
+  );
+}
+
+/**
  * Delivers `eventName` through the element's active registration, or through `fallback`
- * (the hover ledger's retained one) once it has unregistered. A drop uses the registration
- * that resolved the record, since the source's `onMoveEnd` runs first and may unmount the
- * target. The handler gets its own record as `currentTarget`; `target` stays the innermost.
+ * (the hover ledger's record of the one that got its enter) once it has unregistered. A
+ * drop uses the registration that resolved the record, since the source's `onMoveEnd`
+ * runs first and may unmount the target. The handler gets its own record as
+ * `currentTarget`; `target` stays the innermost.
  */
 export function dispatchToDropTarget<K extends DropTargetEventName>(
   record: DraggableTargetRecord,

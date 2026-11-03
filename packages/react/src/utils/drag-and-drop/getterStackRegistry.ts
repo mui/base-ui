@@ -16,12 +16,10 @@ interface GetterStackEntries<TElement, TGetter> {
 export interface GetterStackRegistry<TElement, TGetter> {
   add(element: TElement, getter: TGetter): void;
   /**
-   * Release one hold. Removing the last hold runs `onLastRemove`, then `beforeDelete`,
-   * then deletes the entry, so the getter stays readable in both callbacks.
-   * `beforeDelete` also runs when removing the active hold promotes another one,
-   * since the element's effective parameters change then too.
+   * Release one hold. Returns whether it was the active one, since the element's
+   * effective getter then changed or, for the last hold, is gone.
    */
-  remove(element: TElement, getter: TGetter, beforeDelete?: () => void): void;
+  remove(element: TElement, getter: TGetter): boolean;
   /** `add`, returning a run-once cleanup that releases the hold. */
   hold(element: TElement, getter: TGetter): () => void;
   /** The last-pushed getter. */
@@ -33,7 +31,7 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
   entries: GetterStackEntries<TElement, TGetter>;
   /** First-registration side effects, such as the drop-target attribute. */
   onFirstAdd?: ((element: TElement) => void) | undefined;
-  /** Last-release side effects, run while the entry is still present. */
+  /** Last-release side effects, run once the entry is gone. */
   onLastRemove?: ((element: TElement) => void) | undefined;
 }): GetterStackRegistry<TElement, TGetter> {
   const { entries, onFirstAdd, onLastRemove } = options;
@@ -48,44 +46,20 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
     onFirstAdd?.(element);
   }
 
-  function remove(element: TElement, getter: TGetter, beforeDelete?: () => void): void {
+  function remove(element: TElement, getter: TGetter): boolean {
     const getters = entries.get(element);
-    if (getters === undefined) {
-      return;
+    // This hold's own getter, not the last-pushed one.
+    const index = getters?.lastIndexOf(getter) ?? -1;
+    if (getters === undefined || index === -1) {
+      return false;
     }
-    // Last hold. Run the side effects while the entry is still readable: the
-    // drop-target lifecycle reads it to dispatch this target's leave events.
-    if (getters.length <= 1 && getters[0] === getter) {
-      try {
-        onLastRemove?.(element);
-        beforeDelete?.();
-      } finally {
-        // Runs even if a consumer callback threw, since the caller's cleanup runs once.
-        // A target remounting from its own leave handler pushes onto this entry, maybe
-        // the same stable getter, so remove only index 0. If anything re-registered, keep
-        // the entry and redo the first-add side effects `onLastRemove` just undid.
-        if (getters[0] === getter) {
-          getters.splice(0, 1);
-        }
-        if (getters.length === 0) {
-          entries.delete(element);
-        } else {
-          onFirstAdd?.(element);
-        }
-      }
-      return;
+    getters.splice(index, 1);
+    if (getters.length === 0) {
+      entries.delete(element);
+      onLastRemove?.(element);
     }
-    // Other holds remain. Remove this hold's own getter, not the last-pushed one.
-    const index = getters.lastIndexOf(getter);
-    if (index !== -1) {
-      const wasActive = index === getters.length - 1;
-      getters.splice(index, 1);
-      // Another getter takes over, so callers refresh the lifecycle from
-      // `beforeDelete` instead of keeping stale values until the next input.
-      if (wasActive) {
-        beforeDelete?.();
-      }
-    }
+    // Whether it was the last-pushed, active one.
+    return index === getters.length;
   }
 
   return {
