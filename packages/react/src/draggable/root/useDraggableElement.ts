@@ -9,15 +9,7 @@ import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
 import { createRootDragStore } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
 import type { RootDrag } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
-import type {
-  RegisterSourceParameters,
-  RegisterTargetParameters,
-} from '../../utils/drag-and-drop/registrationTypes';
-import type {
-  CollisionParticipant,
-  DraggableCollisionContextValue,
-} from '../collision-provider/DraggableCollisionContext';
-import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
+import type { RegisterSourceParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
 // Module-scoped so `useStore` stays on its fast path.
@@ -32,12 +24,6 @@ function selectRootDrag(drag: RootDrag): RootDrag {
  */
 export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   parameters: RegisterSourceParameters<TPayload, TDragData>,
-  collisionOptions?: {
-    context: DraggableCollisionContextValue;
-    snap?: RegisterTargetParameters<TPayload, unknown, TDragData>['snap'] | undefined;
-    enabled: boolean;
-    element?: ((element: HTMLElement) => HTMLElement) | undefined;
-  },
 ): UseDraggableElementReturnValue {
   const registerSource = useRegisterSource();
   // Where this Root's drags publish their phase and preview. Registered with the element,
@@ -66,52 +52,11 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     ...parameters,
     handle: getAttachedHandle,
   };
-  const options = { parameters: internalParameters, collision: collisionOptions };
-  const getOptions = useStableCallback(() => options);
+  const getParameters = useStableCallback(() => internalParameters);
 
-  const registrationRef = useRegistrationRef<HTMLElement>((element) => {
-    const unregisterSource = registerSource<TPayload, TDragData>(
-      element,
-      () => getOptions().parameters,
-      dragStore,
-    );
-    const collisionConfig = getOptions().collision;
-    if (!collisionConfig?.enabled) {
-      return unregisterSource;
-    }
-    // Rebuilt only after a render, so the provider can reuse its registration for this
-    // participant across frames (see `DraggableCollisionProvider`).
-    let lastCollisionOptions: typeof options | null = null;
-    let participant: CollisionParticipant | null = null;
-    const unregisterCollision = collisionConfig.context.register(
-      collisionConfig.element?.(element) ?? element,
-      () => {
-        const currentOptions = getOptions();
-        if (participant !== null && currentOptions === lastCollisionOptions) {
-          return participant;
-        }
-        lastCollisionOptions = currentOptions;
-        const collision = currentOptions.collision;
-        participant = {
-          kind: currentOptions.parameters.kind,
-          payload: currentOptions.parameters.payload,
-          // The cast holds because the provider disables participants of another kind.
-          snap: collision?.snap as CollisionParticipant['snap'],
-          // A disabled source is still a destination. Only `collision={false}` opts out.
-          disabled: !collision?.enabled,
-        };
-        return participant;
-      },
-      element,
-    );
-    return () => {
-      try {
-        unregisterCollision();
-      } finally {
-        unregisterSource();
-      }
-    };
-  });
+  const registrationRef = useRegistrationRef<HTMLElement>((element) =>
+    registerSource<TPayload, TDragData>(element, getParameters, dragStore),
+  );
 
   // Stable merged ref for `elementRef` and the engine registration. A node swapped in
   // mid-drag takes over the drag when it registers (see `retargetPreviewSource`).
@@ -130,21 +75,6 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     }
     elementRef.current = node;
     registrationRef(node);
-  }).current;
-
-  // Set when a re-registration was skipped because this element was the active
-  // source. It runs once `dragging` turns false.
-  const pendingReconcileRef = React.useRef(false);
-
-  // A collision provider change registers the source and its participant again.
-  // Mid-gesture, that would restore `user-select` and `touch-action` and drop the
-  // iOS touchmove guard, so it waits until the drag ends.
-  const reconcile = useRefWithInit(() => () => {
-    if (dragSessionStore.state?.source.element === elementRef.current) {
-      pendingReconcileRef.current = true;
-      return;
-    }
-    registrationRef(elementRef.current);
   }).current;
 
   // Refreshes the gesture setup itself, since a handle can attach or detach without
@@ -171,33 +101,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     };
   }).current;
 
-  const isFirstReconcile = React.useRef(true);
-  useIsoLayoutEffect(() => {
-    if (isFirstReconcile.current) {
-      // The registration ref callback already registered on mount.
-      isFirstReconcile.current = false;
-      return;
-    }
-    reconcile();
-    // `reconcile` is stable. `collision.element` is left out because it's often an
-    // inline arrow, and re-registering on every render would reset the hovered target
-    // mid-drag. It's read once, at registration.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collisionOptions?.context, collisionOptions?.enabled]);
-
   const drag = useStore(dragStore, selectRootDrag);
-  const dragging = drag.phase === 'dragging';
-
-  // Run a reconcile skipped mid-drag. `dragging` turning false re-renders this
-  // hook, so the new collision provider takes over as soon as the drag ends.
-  useIsoLayoutEffect(() => {
-    if (!dragging && pendingReconcileRef.current) {
-      pendingReconcileRef.current = false;
-      registrationRef(elementRef.current);
-    }
-    // `registrationRef` and `elementRef` are stable, so only `dragging` retriggers.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dragging]);
 
   return {
     ref,
@@ -208,7 +112,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
 
 export interface UseDraggableElementReturnValue {
   /** Ref callback to attach to the drag source element. Stable. */
-  ref: React.RefCallback<HTMLElement>;
+  ref: (node: HTMLElement | null) => void;
   /** This Root's drag: its phase and its preview. */
   drag: RootDrag;
   /**

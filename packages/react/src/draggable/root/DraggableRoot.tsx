@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { warn } from '@base-ui/utils/warn';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { DraggableCollisionContext } from '../collision-provider/DraggableCollisionContext';
+import { useCollisionParticipant } from '../collision-provider/useCollisionParticipant';
 import { useDraggableContext } from '../DraggableContext';
 import type {
   DraggablePayload,
@@ -71,38 +70,27 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
     onMoveEnd,
   } as RegisterSourceParameters<TPayload, TDragData>;
 
-  // Join the nearest collision provider of this source's kind. Providers of other
-  // kinds in between are skipped, as on a board whose columns contain cards.
-  const enclosingCollisionContext = React.useContext(DraggableCollisionContext);
-  let collisionContext = enclosingCollisionContext;
-  while (collisionContext && collisionContext.kind.id !== params.kind.id) {
-    collisionContext = collisionContext.parent;
-  }
-  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
-      if (enclosingCollisionContext && kind === undefined && collision !== false) {
-        warn(
-          'A Draggable.Root inside a Draggable.CollisionProvider has no explicit kind, ' +
-            'so it is not a destination for other items. ' +
-            'Pass the same kind as the provider to the root, or set collision={false} to opt out. ' +
-            'See https://base-ui.com/react/utils/draggable#collisionprovider.',
-        );
-      }
-    }, [enclosingCollisionContext, kind, collision]);
-  }
-  const { ref, drag, registerHandle } = useDraggableElement<TPayload, TDragData>(
-    params,
-    collisionContext
-      ? {
-          context: collisionContext,
-          enabled: collision,
-          element: collisionElement,
-          snap,
-        }
-      : undefined,
-  );
+  // Registered apart from the source, so a provider or `collision` change leaves the
+  // source alone. Called first so its pending detach flushes before the source's.
+  const participantRef = useCollisionParticipant<TPayload, TDragData>({
+    kind: params.kind,
+    explicitKind: kind !== undefined,
+    collision,
+    collisionElement,
+    snap,
+  });
+  const { ref: sourceRef, drag, registerHandle } = useDraggableElement<TPayload, TDragData>(params);
+  // The participant registers after the source and unregisters before it, so its
+  // provider can read the payload from the source's registration.
+  const triggerRef = useRefWithInit(() => (node: HTMLElement | null) => {
+    if (node) {
+      sourceRef(node);
+      participantRef(node);
+    } else {
+      participantRef(null);
+      sourceRef(null);
+    }
+  }).current;
 
   const triggerProps = useRefWithInit<DraggableRootContext['triggerProps']>(() => ({
     current: null,
@@ -112,11 +100,11 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
     () => ({
       registerHandle,
       triggerProps,
-      triggerRef: ref,
+      triggerRef,
       drag,
       disabled: disabled ?? false,
     }),
-    [registerHandle, triggerProps, ref, drag, disabled],
+    [registerHandle, triggerProps, triggerRef, drag, disabled],
   );
 
   return (

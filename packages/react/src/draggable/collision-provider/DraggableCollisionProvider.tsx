@@ -29,9 +29,9 @@ import type {
 } from '../../utils/drag-and-drop/dropTarget';
 import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { DraggableCollisionContext } from './DraggableCollisionContext';
-import type { CollisionParticipant } from './DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 import { useMonitor } from '../use-monitor/useMonitor';
 
@@ -63,19 +63,20 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
   // reaches one of its items, so every `onMoveEnd` has a matching start.
   const pendingStart = React.useRef<MoveStartEventDetails<TPayload, TDragData> | null>(null);
 
+  // Only sources of this provider's kind join it (see `useCollisionParticipant`).
   const register = useStableCallback(
     (
       element: HTMLElement,
-      getParticipant: () => CollisionParticipant,
       sourceElement: HTMLElement,
+      getSnap: () => DropTargetParameters['snap'],
     ) => {
       participants.set(sourceElement, (participants.get(sourceElement) ?? 0) + 1);
       participantElements.add(element);
-      // Rebuilt only when the participant, `kind` or `canCollide` change. The engine
-      // reads this getter several times per frame and snapshots registrations by
-      // identity, so a new object per call would be copied every frame. It compares
-      // the two props it reads, not `props`, which is new on every render.
-      let lastParticipant: CollisionParticipant | null = null;
+      // Rebuilt only when one of the values it reads changes. The engine reads this
+      // getter several times per frame and snapshots registrations by identity, so a
+      // new object per call would be copied every frame.
+      let lastPayload: TPayload | undefined;
+      let lastSnap: DropTargetParameters['snap'];
       let lastKind: DraggableKind<TPayload, TDragData> | null = null;
       let lastCanCollide: DraggableCollisionProviderProps<TPayload, TDragData>['canCollide'];
       let registration:
@@ -83,17 +84,25 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
             CollisionResolutionRegistration)
         | null = null;
       const unregister = registerTarget<TPayload, TPayload, TDragData, TDragData>(element, () => {
-        const participant = getParticipant();
+        // The source's registration owns the payload. Once it's gone, a leave still
+        // owed to this participant reads the last one.
+        const sourceParameters = getRegistration(sourceElement)?.();
+        const payload: TPayload | undefined = sourceParameters
+          ? sourceParameters.payload
+          : lastPayload;
+        const snap = getSnap();
         const { kind, canCollide } = getProps();
         if (
           registration !== null &&
-          participant === lastParticipant &&
+          payload === lastPayload &&
+          snap === lastSnap &&
           kind === lastKind &&
           canCollide === lastCanCollide
         ) {
           return registration;
         }
-        lastParticipant = participant;
+        lastPayload = payload;
+        lastSnap = snap;
         lastKind = kind;
         lastCanCollide = canCollide;
         registration = {
@@ -107,13 +116,11 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
             record.getSnappedLocalPoint();
             captured.add(record);
           },
-          snap: participant.snap,
+          snap,
           kind: targetKind,
           accept: kind,
-          payload: participant.payload as TPayload,
-          disabled: participant.disabled || participant.kind.id !== kind.id,
-          canDrop: (context) =>
-            canCollide?.({ ...context, payload: participant.payload as TPayload }) ?? true,
+          payload,
+          canDrop: (context) => canCollide?.({ ...context, payload: payload as TPayload }) ?? true,
         };
         return registration;
       });

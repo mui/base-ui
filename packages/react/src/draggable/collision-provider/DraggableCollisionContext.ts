@@ -4,20 +4,17 @@ import type { DragCleanupFn } from '../../utils/drag-and-drop/types';
 import type { DropTargetParameters } from '../../utils/drag-and-drop/dropTarget';
 import type { DraggableKind } from '../DraggableProvider';
 
-export interface CollisionParticipant {
-  kind: Pick<DraggableKind, 'id'>;
-  payload: unknown;
-  snap?: DropTargetParameters['snap'] | undefined;
-  disabled?: boolean | undefined;
-}
-
 export interface DraggableCollisionContextValue {
   kind: Pick<DraggableKind, 'id'>;
   parent: DraggableCollisionContextValue | null;
+  /**
+   * Registers the participant of the source registered on `sourceElement`, measured
+   * on `element`. Its payload is read from the source's registration.
+   */
   register: (
     element: HTMLElement,
-    getParticipant: () => CollisionParticipant,
     sourceElement: HTMLElement,
+    getSnap: () => DropTargetParameters['snap'],
   ) => DragCleanupFn;
 }
 

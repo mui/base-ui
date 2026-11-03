@@ -38,6 +38,20 @@ function measure() {
   return { items, spies };
 }
 
+/** Counts writes to `element`'s inline style until the returned function is called. */
+function observeStyleWrites(element: HTMLElement) {
+  let count = 0;
+  const observer = new MutationObserver((records) => {
+    count += records.length;
+  });
+  observer.observe(element, { attributeFilter: ['style'] });
+  return () => {
+    count += observer.takeRecords().length;
+    observer.disconnect();
+    return count;
+  };
+}
+
 describe('Draggable.CollisionProvider', () => {
   const { renderDnd } = createDndRenderer();
 
@@ -68,6 +82,115 @@ describe('Draggable.CollisionProvider', () => {
     expect(changed.mock.lastCall?.[0].previousTarget.payload).toBe('b');
     drop(b, { clientY: 120 });
     expect(ended.mock.lastCall?.[0].target).toBeNull();
+  });
+
+  it('keeps the payload of a hovered item after it unmounts', async () => {
+    const changed = vi.fn();
+    function Example({ withB }: { withB: boolean }) {
+      return (
+        <Draggable.CollisionProvider kind={kind} onCollisionChange={changed}>
+          <Draggable.Root kind={kind} payload="a">
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
+          </Draggable.Root>
+          {withB && (
+            <Draggable.Root kind={kind} payload="b">
+              <Draggable.Trigger data-testid="b" />
+            </Draggable.Root>
+          )}
+        </Draggable.CollisionProvider>
+      );
+    }
+    const { rerender } = await renderDnd(<Example withB />);
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+    b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
+    await lift(a);
+    await dragOver(b, { clientY: 120 });
+    expect(changed.mock.lastCall?.[0].target.payload).toBe('b');
+    await rerender(<Example withB={false} />);
+    expect(changed.mock.lastCall?.[0].target).toBeNull();
+    expect(changed.mock.lastCall?.[0].previousTarget.payload).toBe('b');
+  });
+
+  it('keeps the drag when the dragged item opts out mid-drag, then leaves it out', async () => {
+    const changed = vi.fn();
+    const ended = vi.fn();
+    function Example({ collision }: { collision: boolean }) {
+      return (
+        <Draggable.CollisionProvider kind={kind} onCollisionChange={changed} onMoveEnd={ended}>
+          <Draggable.Root kind={kind} payload="a" collision={collision}>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
+          </Draggable.Root>
+          <Draggable.Root kind={kind} payload="b">
+            <Draggable.Trigger data-testid="b"></Draggable.Trigger>
+          </Draggable.Root>
+          <Draggable.Root kind={kind} payload="c">
+            <Draggable.Trigger data-testid="c"></Draggable.Trigger>
+          </Draggable.Root>
+        </Draggable.CollisionProvider>
+      );
+    }
+    const { rerender } = await renderDnd(<Example collision />);
+    const {
+      items: [a, b, c],
+    } = measure();
+    await lift(b);
+    drop(a, { clientY: 20 });
+    expect(ended.mock.lastCall?.[0].target.payload).toBe('a');
+
+    await lift(a);
+    await dragOver(b, { clientY: 120 });
+    expect(changed.mock.lastCall?.[0].target.payload).toBe('b');
+    const styleWrites = observeStyleWrites(a);
+    await rerender(<Example collision={false} />);
+    // Registering the source again would reset its `user-select`.
+    expect(styleWrites()).toBe(0);
+    await dragOver(c, { clientY: 220 });
+    expect(changed.mock.lastCall?.[0].target.payload).toBe('c');
+    drop(c, { clientY: 220 });
+    expect(ended).toHaveBeenCalledTimes(2);
+    expect(ended.mock.lastCall?.[0].target.payload).toBe('c');
+
+    await lift(b);
+    drop(a, { clientY: 20 });
+    expect(ended.mock.lastCall?.[0].target).toBeNull();
+  });
+
+  it('keeps the drag when the dragged item moves to another group mid-drag, then reports to it', async () => {
+    const otherKind = Draggable.createKind<string>('other-collision-kind');
+    const outerChanged = vi.fn();
+    const outerEnded = vi.fn();
+    const innerChanged = vi.fn();
+    function Example({ innerKind }: { innerKind: typeof kind }) {
+      return (
+        <Draggable.CollisionProvider
+          kind={kind}
+          onCollisionChange={outerChanged}
+          onMoveEnd={outerEnded}
+        >
+          <Draggable.CollisionProvider kind={innerKind} onCollisionChange={innerChanged}>
+            <Items />
+          </Draggable.CollisionProvider>
+        </Draggable.CollisionProvider>
+      );
+    }
+    const { rerender } = await renderDnd(<Example innerKind={kind} />);
+    const {
+      items: [a, b],
+    } = measure();
+    await lift(a);
+    await dragOver(b, { clientY: 120 });
+    expect(innerChanged.mock.lastCall?.[0].target.payload).toBe('b');
+    expect(outerChanged).not.toHaveBeenCalled();
+    const styleWrites = observeStyleWrites(a);
+    // The items no longer match the inner group, so they join the outer one.
+    await rerender(<Example innerKind={otherKind} />);
+    expect(styleWrites()).toBe(0);
+    await dragOver(b, { clientY: 130 });
+    expect(outerChanged.mock.lastCall?.[0].target.payload).toBe('b');
+    drop(b, { clientY: 130 });
+    expect(outerEnded).toHaveBeenCalledTimes(1);
+    expect(outerEnded.mock.lastCall?.[0].target.payload).toBe('b');
   });
 
   it('does not report a collision after a replayed start cancels the drag', async () => {
