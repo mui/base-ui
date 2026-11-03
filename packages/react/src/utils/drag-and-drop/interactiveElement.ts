@@ -1,6 +1,5 @@
 import { INTERACTIVE_ELEMENT_SELECTOR } from '../popups/constants';
-import { getComposedParentElement } from './utils';
-import { getClosedShadowRootsByHost } from './dropTarget';
+import { getComposedParentElement } from './composedTree';
 
 // Extends the shared focus selector with native controls that handle their own
 // pointer gestures, and with ARIA widgets that may lack a native focusable element.
@@ -31,11 +30,10 @@ function someNodeBelow(
   pickupNode: Element,
   test: (node: Element) => boolean,
 ): boolean {
-  const closedRoots = getClosedShadowRootsByHost();
   for (
     let node: Element | null = target;
     node !== null && node !== pickupNode;
-    node = getComposedParentElement(node, closedRoots)
+    node = getComposedParentElement(node)
   ) {
     if (test(node)) {
       return true;

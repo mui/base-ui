@@ -1403,6 +1403,28 @@ describe('engine.registerViewport', () => {
         expect(inner.scrollBy).toHaveBeenCalled();
         expect(outer.scrollBy).not.toHaveBeenCalled();
       });
+
+      it('finds a viewport moved into a closed shadow root after it registered', async () => {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        const outer = makeScroller({ top: 0, height: 200, left: 0, width: 200 });
+        const inner = makeScroller({ top: 0, height: 200, left: 0, width: 200 }, outer.element);
+        const row = document.createElement('div');
+        inner.element.appendChild(row);
+        engine.registerSource(source, {});
+        engine.registerViewport(outer.element, {});
+        engine.registerViewport(inner.element, {});
+        const host = document.createElement('div');
+        outer.element.appendChild(host);
+        const root = host.attachShadow({ mode: 'closed' });
+        root.appendChild(inner.element);
+        (root as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => row;
+
+        await dragTo(source, host, 100, 190);
+
+        expect(inner.scrollBy).toHaveBeenCalled();
+        expect(outer.scrollBy).not.toHaveBeenCalled();
+      });
     });
 
     it('depth-sorts inner-first: only the inner scroller scrolls in its own edge zone', async () => {

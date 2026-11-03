@@ -16,14 +16,9 @@ import { start } from '../core/lifecycleManager';
 import type { DragSessionController, DragSessionSensor } from '../core/lifecycleManager';
 import { getRegistrationOwner } from '../draggableRegistry';
 import { readSourceParameters } from '../dragSource';
-import { getClosedShadowRootsByHost } from '../dropTarget';
 import type { DraggableConfig } from '../draggable';
-import {
-  elementFromPointIgnoring,
-  getComposedParentElement,
-  getElementScale,
-  getOwnZoom,
-} from '../utils';
+import { elementFromPointIgnoring, getComposedParentElement } from '../composedTree';
+import { getElementScale, getOwnZoom } from '../utils';
 import { getOwnLinearTransform } from '../linearTransform';
 import type { DragStartReason } from '../types';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
@@ -130,7 +125,6 @@ export function hitTestUnderPreview(
     clientX,
     clientY,
     preview.getPreviewElement(),
-    getClosedShadowRootsByHost(),
   );
 }
 

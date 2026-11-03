@@ -8,12 +8,11 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { clamp } from '@base-ui/utils/clamp';
 import {
   containConsumerError,
-  getComposedParentElement,
   getElementScale,
   getViewportRect,
   resolveElementReference,
 } from './utils';
-import { getClosedShadowRootsByHost } from './dropTarget';
+import { getComposedParentElement } from './composedTree';
 import type { DragModifierKeys } from './utils';
 import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
@@ -85,8 +84,7 @@ export function restrictToElement(element: DraggableRootElementReference): Dragg
 /** Keeps the drag inside the source element's parent. */
 export const restrictToParentElement: DraggableRootModifier = (context) => {
   // The composed parent lets a direct child of a shadow root clamp to the host.
-  const closedRoots = getClosedShadowRootsByHost();
-  let parent = getComposedParentElement(context.sourceElement, closedRoots);
+  let parent = getComposedParentElement(context.sourceElement);
   while (parent) {
     const rect = parent.getBoundingClientRect();
     // A `display: contents` parent, such as the `<slot>` a draggable is assigned
@@ -99,7 +97,7 @@ export const restrictToParentElement: DraggableRootModifier = (context) => {
     ) {
       return clampPointToRect(context, rect);
     }
-    parent = getComposedParentElement(parent, closedRoots);
+    parent = getComposedParentElement(parent);
   }
   return context.point;
 };

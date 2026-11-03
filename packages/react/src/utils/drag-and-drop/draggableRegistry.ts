@@ -6,8 +6,8 @@ import type { DraggableConfig } from './draggable';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { hasInteractiveAncestorWithin } from './interactiveElement';
 import { getSharedSlot } from './sharedState';
-import { getComposedParentElement, resolveElementReference } from './utils';
-import { getClosedShadowRootsByHost } from './dropTarget';
+import { resolveElementReference } from './utils';
+import { getComposedParentElement } from './composedTree';
 
 type DraggableGetter = () => DraggableConfig<any, any>;
 
@@ -99,12 +99,7 @@ function acceptsPress(pickup: Omit<DraggablePickup, 'element'>): boolean {
   if (!pickup.dragHandle) {
     return true;
   }
-  const closedRoots = getClosedShadowRootsByHost();
-  for (
-    let node: Element | null = pickup.target;
-    node;
-    node = getComposedParentElement(node, closedRoots)
-  ) {
+  for (let node: Element | null = pickup.target; node; node = getComposedParentElement(node)) {
     if (node === pickup.dragHandle) {
       return true;
     }
@@ -139,12 +134,7 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
   let pickup: DraggablePickup | null = null;
   // A `disabled` draggable, or one pressed outside its handle, falls through to an
   // outer one, so a nested card still starts its list item's drag.
-  const closedRoots = getClosedShadowRootsByHost();
-  for (
-    let node: Element | null = target;
-    node !== null;
-    node = getComposedParentElement(node, closedRoots)
-  ) {
+  for (let node: Element | null = target; node !== null; node = getComposedParentElement(node)) {
     if (!isHTMLElement(node)) {
       continue;
     }

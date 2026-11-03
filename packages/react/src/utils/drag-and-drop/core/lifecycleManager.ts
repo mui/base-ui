@@ -27,14 +27,14 @@ import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventD
 import {
   captureDropTargetCollision,
   dispatchToDropTarget,
-  getClosedShadowRootsByHost,
   getDropTargetsOver,
 } from '../dropTarget';
 import type { DropTargetDragData } from '../dropTarget';
 import { createHoverLedger } from '../hoverLedger';
 import { createMonitorDispatch } from '../monitor';
 import { cloneLocationHistory, setDragSession } from '../dragSessionStore';
-import { containConsumerError, getComposedParentElement, runAllCleanups } from '../utils';
+import { containConsumerError, runAllCleanups } from '../utils';
+import { getComposedParentElement } from '../composedTree';
 import { clearActiveSession, getActiveSession, setActiveSession } from './dragSession';
 import type { DragSession, DragSessionPhase } from './dragSession';
 
@@ -195,8 +195,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     }
     // Walk every ancestor as resolution does, not just the accepted stack: a change
     // to a disabled, abstaining or rejecting target can matter too.
-    const closedRoots = getClosedShadowRootsByHost();
-    for (let node = lastTarget; node !== null; node = getComposedParentElement(node, closedRoots)) {
+    for (let node = lastTarget; node !== null; node = getComposedParentElement(node)) {
       if (elements.has(node)) {
         return true;
       }

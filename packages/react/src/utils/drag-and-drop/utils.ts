@@ -1,14 +1,12 @@
 import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
-import { contains } from '@base-ui/utils/shadowDom';
 import type {
   DraggableInput,
   DraggablePointerType,
   DraggablePosition,
 } from '../../draggable/DraggableProvider';
-import { getParentElement } from '../getParentElement';
-import { getElementAtPoint } from '../getElementAtPoint';
+import { getComposedParentElement } from './composedTree';
 import {
   getOwnLinearTransform,
   identityLinearTransform,
@@ -95,89 +93,10 @@ export function resolveElementReference<T extends Element, TArgument = void>(
   return reference;
 }
 
-const NO_CLOSED_ROOTS: ReadonlyMap<Element, ShadowRoot> = new Map();
-
-/**
- * The parent of `element` in the composed tree: its assigned slot, then its parent, then
- * its shadow host. `assignedSlot` is `null` for a slot in a closed shadow root, which would
- * skip whatever wraps the `<slot>`, so the slot is looked up in `closedRootsByHost` instead.
- */
-export function getComposedParentElement(
-  element: Element,
-  closedRootsByHost: ReadonlyMap<Element, ShadowRoot> = NO_CLOSED_ROOTS,
-): Element | null {
-  if (closedRootsByHost.size > 0 && element.assignedSlot === null) {
-    const host = element.parentElement;
-    const root = host === null ? undefined : closedRootsByHost.get(host);
-    if (root !== undefined) {
-      for (const slot of root.querySelectorAll('slot')) {
-        if (slot.assignedElements().includes(element)) {
-          return slot;
-        }
-      }
-    }
-  }
-  return getParentElement(element);
-}
-
 /** The event root that can observe a node before closed-shadow retargeting. */
 export function getDragEventRoot(node: Element): Document | ShadowRoot {
   const root = node.getRootNode();
   return isShadowRoot(root) ? root : ownerDocument(node);
-}
-
-/**
- * Hit-tests the point, descending into shadow roots since `elementFromPoint` stops at the
- * host. `rootsByHost` supplies the registered closed roots, which `Element.shadowRoot`
- * hides. Never throws: it runs from the activation commit, outside any containment, where
- * a `TypeError` would leave the sensor refusing every later pickup.
- */
-export function deepElementFromPoint(
-  doc: Document,
-  clientX: number,
-  clientY: number,
-  rootsByHost: ReadonlyMap<Element, ShadowRoot>,
-): Element | null {
-  if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) {
-    return null;
-  }
-  let hit = getElementAtPoint(doc, clientX, clientY);
-  let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost.get(hit)) : undefined;
-  while (innerRoot) {
-    const inner = getElementAtPoint(innerRoot, clientX, clientY);
-    if (!inner || inner === hit) {
-      break;
-    }
-    hit = inner;
-    innerRoot = hit.shadowRoot ?? rootsByHost.get(hit);
-  }
-  return hit;
-}
-
-/**
- * {@link deepElementFromPoint}, skipping the drag preview. Consumer preview content
- * can set `pointer-events: auto` and would then pin drop-target resolution to the
- * preview. On such a hit, hide the preview synchronously and hit-test again. No
- * repaint happens in between, so nothing flickers.
- */
-export function elementFromPointIgnoring(
-  doc: Document,
-  clientX: number,
-  clientY: number,
-  ignore: HTMLElement | null,
-  rootsByHost: ReadonlyMap<Element, ShadowRoot>,
-): Element | null {
-  const found = deepElementFromPoint(doc, clientX, clientY, rootsByHost);
-  if (!found || ignore == null || !contains(ignore, found)) {
-    return found;
-  }
-  // Not `visibility: hidden`: a descendant with `visibility: visible` would stay
-  // hit-testable.
-  const previousDisplay = ignore.style.display;
-  ignore.style.display = 'none';
-  const behind = deepElementFromPoint(doc, clientX, clientY, rootsByHost);
-  ignore.style.display = previousDisplay;
-  return behind;
 }
 
 /**

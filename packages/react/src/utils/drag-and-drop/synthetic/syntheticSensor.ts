@@ -31,13 +31,13 @@ import {
   swallowEvent,
 } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
-import { getClosedShadowRootsByHost, trackRegisteredShadowRoots } from '../dropTarget';
+import { trackRegisteredShadowRoots } from '../dropTarget';
+import { deepElementFromPoint } from '../composedTree';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
 import type { DragCanceledReason, DragCleanupFn, DragMoveReason } from '../types';
 import { modifyDragPoint, createDragModifiersState } from '../dragModifiers';
 import type { DragModifiersState } from '../dragModifiers';
 import {
-  deepElementFromPoint,
   getInput,
   getModifierKeys,
   isDetachedDocument,
@@ -208,12 +208,7 @@ export function startDrag(
   // Hit-test the point. The `pointerdown` target may be a child of the draggable
   // that isn't a drop target.
   const doc = ownerDocument(element);
-  const initialTarget = deepElementFromPoint(
-    doc,
-    startInput.clientX,
-    startInput.clientY,
-    getClosedShadowRootsByHost(),
-  );
+  const initialTarget = deepElementFromPoint(doc, startInput.clientX, startInput.clientY);
 
   // Undoes the preview, lock and lifecycle on a throw or refusal, leaving only the
   // pending press, which the recognizer abandons when this returns `false`.

@@ -12,6 +12,7 @@ import {
 import { resetForTests as resetSyntheticSensor } from '../src/utils/drag-and-drop/synthetic/syntheticSensor';
 import { resetForTests as resetPickupRecognizer } from '../src/utils/drag-and-drop/synthetic/pickupRecognizer';
 import { resetForTests as resetDropTargets } from '../src/utils/drag-and-drop/dropTarget';
+import { resetForTests as resetComposedTree } from '../src/utils/drag-and-drop/composedTree';
 import { unlock as resetDragRootLock } from '../src/utils/drag-and-drop/synthetic/dragRootLock';
 import { unlock as resetDragCursor } from '../src/utils/drag-and-drop/synthetic/dragCursor';
 import { resetForTests as resetPostDragClick } from '../src/utils/drag-and-drop/synthetic/postDragClick';
@@ -300,6 +301,8 @@ function resetDrag(): void {
     resetAutoScroller,
     // Drop targets still registered on detached nodes would leak into the next test.
     resetDropTargets,
+    // So would the closed shadow roots a leaked registration holds.
+    resetComposedTree,
     () => {
       hitTarget = null;
       dragSource = null;

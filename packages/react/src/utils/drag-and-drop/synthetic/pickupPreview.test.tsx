@@ -1,12 +1,21 @@
 import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { describe, it, expect, vi } from 'vitest';
+import { isJSDOM } from '#test-utils';
 import { createDndRenderer } from '../../../../test/dndEngine';
 import { Draggable } from '../../../draggable';
-import { setupDragEngineTests, createElement, lift, flushRaf } from '../../../../test/dnd';
+import {
+  setupDragEngineTests,
+  createElement,
+  lift,
+  flushRaf,
+  registerCleanup,
+} from '../../../../test/dnd';
 import { penDown, penUp } from '../../../../test/syntheticPointer';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
 import { dragSessionStore, dragSourceStore } from '../dragSessionStore';
+import { holdClosedShadowRoots } from '../composedTree';
+import { measureSourceSize } from './pickupPreview';
 
 setupDragEngineTests();
 
@@ -301,4 +310,29 @@ describe('sensor session startup', () => {
     expect(dragSessionStore.state).toBeNull();
     expect(source).not.toHaveAttribute('data-dragging');
   });
+});
+
+// Needs layout: `offsetWidth` is 0 in jsdom.
+describe.skipIf(isJSDOM)('measureSourceSize', () => {
+  // A closed root hides `assignedSlot`, so the parent scale is found only through a held root.
+  it.each(['open', 'closed'] as const)(
+    'scales a transformed source by the wrapper around its slot (%s root)',
+    (mode) => {
+      const host = createElement();
+      const wrapper = document.createElement('div');
+      wrapper.style.transform = 'scale(2)';
+      wrapper.appendChild(document.createElement('slot'));
+      host.attachShadow({ mode }).appendChild(wrapper);
+      registerCleanup(holdClosedShadowRoots(wrapper));
+      const source = document.createElement('div');
+      // Its own transform sends the measure through the parent's scale.
+      source.style.cssText = 'width: 100px; height: 40px; transform: scale(1.5);';
+      host.appendChild(source);
+
+      expect(measureSourceSize(source, source.getBoundingClientRect())).toEqual({
+        width: 200,
+        height: 80,
+      });
+    },
+  );
 });

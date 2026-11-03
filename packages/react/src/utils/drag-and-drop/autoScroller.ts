@@ -30,15 +30,12 @@ import { addMonitor, removeMonitor } from './monitor';
 import type { MonitorParameters } from './monitor';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
+import { PREVIEW_ELEMENT_ATTRIBUTE, onceCleanup, safeCallConsumer, getOrCreate } from './utils';
 import {
-  PREVIEW_ELEMENT_ATTRIBUTE,
-  onceCleanup,
-  safeCallConsumer,
   elementFromPointIgnoring,
   getComposedParentElement,
-  getOrCreate,
-} from './utils';
-import { getClosedShadowRootsByHost } from './dropTarget';
+  holdClosedShadowRoots,
+} from './composedTree';
 import { getActiveSession } from './core/dragSession';
 import type { DragSession } from './core/dragSession';
 import {
@@ -101,7 +98,7 @@ const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   engagementStart: new Map<HTMLElement, number>(),
   overflowEligible: new Set<HTMLElement>(),
   sortedScrollers: null,
-  viewportClosedRoots: new Map<Element, ShadowRoot>(),
+  releaseViewportClosedRoots: null,
   loadListenerRoots: new Set<ShadowRoot>(),
   chainMutationObserver: null,
   observedChainElements: new Set<Element>(),
@@ -305,20 +302,14 @@ const BOTH_AXES: AxisFlags = { x: true, y: true };
 
 /**
  * Orders the registered viewports inner-first and, from the same walk, observes
- * the ancestor chains of those in `doc` (see `observeChainMutations`). Also
- * indexes the closed shadow roots holding a viewport, which the composed walks
- * can't reach through their hosts.
+ * the ancestor chains of those in `doc` (see `observeChainMutations`). Also holds
+ * the closed shadow roots holding a viewport, read again on each rebuild so a moved
+ * viewport stays reachable by the composed walks and the occlusion hit-test.
  */
 function sortAndObserveScrollers(doc: Document): HTMLElement[] {
-  const closedRoots = new Map<Element, ShadowRoot>();
-  for (const el of state.scrollers.keys()) {
-    for (let root = el.getRootNode(); isShadowRoot(root); root = root.host.getRootNode()) {
-      if (root.mode === 'closed') {
-        closedRoots.set(root.host, root);
-      }
-    }
-  }
-  state.viewportClosedRoots = closedRoots;
+  const releases = Array.from(state.scrollers.keys(), (el) => holdClosedShadowRoots(el));
+  state.releaseViewportClosedRoots?.();
+  state.releaseViewportClosedRoots = () => releases.forEach((release) => release());
   const depths = new Map<HTMLElement, number>();
   const chain = new Set<Element>([doc.documentElement]);
   if (doc.body) {
@@ -332,11 +323,7 @@ function sortAndObserveScrollers(doc: Document): HTMLElement[] {
     let depth = 0;
     // The composed walk sorts a scroller inside a shadow tree deeper than its
     // light-DOM ancestors.
-    for (
-      let node: Element | null = el;
-      node !== null;
-      node = getComposedParentElement(node, closedRoots)
-    ) {
+    for (let node: Element | null = el; node !== null; node = getComposedParentElement(node)) {
       depth += 1;
       if (observed) {
         chain.add(node);
@@ -701,7 +688,8 @@ function stopScrollLoop(): void {
   state.loadListenerRoots.clear();
   // Rebuilt, with the chain observation, on the next drag's first frame.
   invalidateScrollerOrder();
-  state.viewportClosedRoots.clear();
+  state.releaseViewportClosedRoots?.();
+  state.releaseViewportClosedRoots = null;
   resetStyleCaches();
   scrollFrame?.cancel();
 }
@@ -731,7 +719,6 @@ function dropOccludedTargets(targets: ScrollTarget[], doc: Document): ReadonlyAr
   if (!targets.some(needsHitTest)) {
     return targets;
   }
-  const closedRoots = getClosedShadowRoots();
   const preview = state.session?.preview?.getPreviewElement() ?? null;
   // The composed ancestors of the element under each probe. There are at most two
   // probes, the raw and the reported input.
@@ -744,8 +731,8 @@ function dropOccludedTargets(targets: ScrollTarget[], doc: Document): ReadonlyAr
     }
     const hitChain = getOrCreate(hitChains, probe, () => {
       const chain = new Set<Element>();
-      let node = elementFromPointIgnoring(doc, probe.clientX, probe.clientY, preview, closedRoots);
-      for (; node !== null; node = getComposedParentElement(node, closedRoots)) {
+      let node = elementFromPointIgnoring(doc, probe.clientX, probe.clientY, preview);
+      for (; node !== null; node = getComposedParentElement(node)) {
         chain.add(node);
       }
       return chain;
@@ -764,22 +751,6 @@ function dropOccludedTargets(targets: ScrollTarget[], doc: Document): ReadonlyAr
 /** The page is always under the pointer, since its probe is clamped into the viewport. */
 function needsHitTest(target: ScrollTarget): boolean {
   return target.adapter !== PAGE_SCROLLER && isProbeInRect(target);
-}
-
-/**
- * The closed shadow roots the hit-test descends into and the composed walks
- * cross: those holding a drop target and those holding a viewport.
- */
-function getClosedShadowRoots(): ReadonlyMap<Element, ShadowRoot> {
-  const targetRoots = getClosedShadowRootsByHost();
-  const viewportRoots = state.viewportClosedRoots;
-  if (viewportRoots.size === 0) {
-    return targetRoots;
-  }
-  if (targetRoots.size === 0) {
-    return viewportRoots;
-  }
-  return new Map([...targetRoots, ...viewportRoots]);
 }
 
 function refreshDragInput(eventDetails: MoveEventDetails | DropTargetChangeEventDetails): void {
@@ -877,8 +848,8 @@ interface AutoScrollerState {
    * Rebuilding it also rebuilds the observed chains (see `sortAndObserveScrollers`).
    */
   sortedScrollers: HTMLElement[] | null;
-  /** Closed shadow roots holding a viewport, by host. Rebuilt with `sortedScrollers`. */
-  viewportClosedRoots: Map<Element, ShadowRoot>;
+  /** Releases the closed shadow roots held for the viewports. Rebuilt with `sortedScrollers`. */
+  releaseViewportClosedRoots: DragCleanupFn | null;
   /** Shadow roots of the chains with a `load` listener this drag (see `observeChainMutations`). */
   loadListenerRoots: Set<ShadowRoot>;
   /** Watches the viewports' subtrees and ancestor chains during a drag. */

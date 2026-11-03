@@ -1,13 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { isJSDOM } from '#test-utils';
-import {
-  deepElementFromPoint,
-  elementFromPointIgnoring,
-  getComposedParentElement,
-  getElementScale,
-} from './utils';
-
-const NO_SHADOW_ROOTS: ReadonlyMap<Element, ShadowRoot> = new Map();
+import { getElementScale, getElementZoom, isRtlElement } from './utils';
+import { holdClosedShadowRoots, resetForTests as resetComposedTree } from './composedTree';
 
 function makeEl(): HTMLElement {
   const el = document.createElement('div');
@@ -15,198 +9,58 @@ function makeEl(): HTMLElement {
   return el;
 }
 
-describe('elementFromPointIgnoring', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-    document.body.replaceChildren();
-  });
+/**
+ * `leaf` in the light DOM of `host`, assigned to a slot inside `wrapper` in its shadow
+ * root. A closed root is held, as a registration inside it would.
+ */
+function makeSlotted(host: HTMLElement, mode: ShadowRootMode) {
+  const wrapper = document.createElement('div');
+  const slot = document.createElement('slot');
+  wrapper.appendChild(slot);
+  host.attachShadow({ mode }).appendChild(wrapper);
+  const leaf = document.createElement('div');
+  host.appendChild(leaf);
+  holdClosedShadowRoots(wrapper);
+  return { wrapper, slot, leaf };
+}
 
-  it('returns the hit element directly when it is not the preview', () => {
-    const underlying = makeEl();
-    const preview = makeEl();
-    const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(underlying);
-
-    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBe(underlying);
-    // The first hit isn't the preview, so there is no second hit-test.
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('re-resolves what is underneath when the preview intercepts the hit', () => {
-    const underlying = makeEl();
-    const preview = makeEl();
-    const inner = document.createElement('span');
-    preview.appendChild(inner);
-
-    // Preview content can set `pointer-events: auto` and catch the hit. The
-    // engine hides the preview synchronously and hit-tests again.
-    const spy = vi.spyOn(document, 'elementFromPoint').mockImplementation(() => {
-      return preview.style.display === 'none' ? underlying : inner;
-    });
-
-    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBe(underlying);
-    expect(spy).toHaveBeenCalledTimes(2);
-    expect(preview.style.display).toBe('');
-  });
-
-  it('passes the hit through when there is no preview to ignore', () => {
-    const underlying = makeEl();
-    vi.spyOn(document, 'elementFromPoint').mockReturnValue(underlying);
-
-    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(underlying);
-  });
-
-  it('returns null when nothing is under the pointer', () => {
-    const preview = makeEl();
-    vi.spyOn(document, 'elementFromPoint').mockReturnValue(null);
-
-    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBeNull();
-  });
-
-  it('descends into an open shadow root instead of stopping at the host', () => {
-    const host = makeEl();
-    const shadow = host.attachShadow({ mode: 'open' });
-    const inner = document.createElement('div');
-    shadow.appendChild(inner);
-    // jsdom's ShadowRoot has no elementFromPoint, so stub the browser behavior.
-    (shadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => inner;
-    vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
-
-    // A document-level hit stops at the shadow host. Without the descent, a drop
-    // target inside the shadow tree would never be entered.
-    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(inner);
-  });
-
-  it('stops descending when the shadow root resolves back to its host', () => {
-    const host = makeEl();
-    const shadow = host.attachShadow({ mode: 'open' });
-    (shadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => host;
-    vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
-
-    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(host);
-  });
+afterEach(() => {
+  resetComposedTree();
 });
 
-describe('deepElementFromPoint', () => {
+// A closed root hides `assignedSlot`, so these walks reach the slot only through a held root.
+describe('isRtlElement', () => {
   afterEach(() => {
-    vi.restoreAllMocks();
     document.body.replaceChildren();
   });
 
-  it('descends through nested open shadow roots to the deepest element', () => {
-    const outerHost = makeEl();
-    const outerShadow = outerHost.attachShadow({ mode: 'open' });
-    const innerHost = document.createElement('div');
-    outerShadow.appendChild(innerHost);
-    const innerShadow = innerHost.attachShadow({ mode: 'open' });
-    const leaf = document.createElement('div');
-    innerShadow.appendChild(leaf);
-    (outerShadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () =>
-      innerHost;
-    (innerShadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => leaf;
-    vi.spyOn(document, 'elementFromPoint').mockReturnValue(outerHost);
+  // A browser resolves the inherited `direction` on the leaf itself, so only a DOM that
+  // doesn't (jsdom) walks up to find it.
+  it.skipIf(!isJSDOM).each(['open', 'closed'] as const)(
+    'reads the direction of a wrapper around the slot (%s root)',
+    (mode) => {
+      const { wrapper, leaf } = makeSlotted(makeEl(), mode);
+      wrapper.style.direction = 'rtl';
 
-    expect(deepElementFromPoint(document, 10, 20, NO_SHADOW_ROOTS)).toBe(leaf);
-  });
-
-  it('descends through closed ancestors of a retained shadow root', () => {
-    const outerHost = makeEl();
-    const outerShadow = outerHost.attachShadow({ mode: 'closed' });
-    const innerHost = document.createElement('div');
-    outerShadow.appendChild(innerHost);
-    const innerShadow = innerHost.attachShadow({ mode: 'closed' });
-    const leaf = document.createElement('div');
-    innerShadow.appendChild(leaf);
-    (outerShadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () =>
-      innerHost;
-    (innerShadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => leaf;
-    vi.spyOn(document, 'elementFromPoint').mockReturnValue(outerHost);
-
-    expect(
-      deepElementFromPoint(
-        document,
-        10,
-        20,
-        new Map([
-          [outerHost, outerShadow],
-          [innerHost, innerShadow],
-        ]),
-      ),
-    ).toBe(leaf);
-  });
-
-  // jsdom's ShadowRoot lacks elementFromPoint. Browsers always have it, so this
-  // case can't be reproduced there.
-  it.skipIf(!isJSDOM)('stops at a host whose shadow root cannot hit-test (jsdom)', () => {
-    const host = makeEl();
-    host.attachShadow({ mode: 'open' });
-    vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
-
-    expect(deepElementFromPoint(document, 10, 20, NO_SHADOW_ROOTS)).toBe(host);
-  });
-
-  it.each([
-    ['NaN', NaN, 20],
-    ['infinite', 10, Infinity],
-  ])('reports nothing for a %s coordinate instead of hit-testing it', (_, x, y) => {
-    // Browsers reject a non-finite coordinate with a `TypeError`. A modifier
-    // producing one would otherwise throw on every frame and strand the drag.
-    const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(makeEl());
-
-    expect(deepElementFromPoint(document, x, y, NO_SHADOW_ROOTS)).toBeNull();
-    expect(elementFromPointIgnoring(document, x, y, null, NO_SHADOW_ROOTS)).toBeNull();
-    expect(spy).not.toHaveBeenCalled();
-  });
-
-  it('returns null in a document that cannot hit-test at all', () => {
-    // This runs from the activation commit, outside every containment boundary and
-    // after the pending listeners are removed. A throw would leave the sensor stuck
-    // and refuse every later pickup.
-    const doc = { elementFromPoint: undefined } as unknown as Document;
-
-    expect(deepElementFromPoint(doc, 10, 20, NO_SHADOW_ROOTS)).toBeNull();
-    expect(elementFromPointIgnoring(doc, 10, 20, null, NO_SHADOW_ROOTS)).toBeNull();
-  });
+      expect(isRtlElement(leaf)).toBe(true);
+    },
+  );
 });
 
-describe('getComposedParentElement', () => {
+describe.skipIf(isJSDOM)('getElementZoom', () => {
   afterEach(() => {
     document.body.replaceChildren();
   });
 
-  function makeSlotted(mode: ShadowRootMode) {
-    const host = makeEl();
-    const root = host.attachShadow({ mode });
-    const wrapper = document.createElement('div');
-    const slot = document.createElement('slot');
-    wrapper.appendChild(slot);
-    root.appendChild(wrapper);
-    const child = document.createElement('span');
-    host.appendChild(child);
-    return { host, root, slot, child };
-  }
+  it.each(['open', 'closed'] as const)(
+    'multiplies the zoom of a wrapper around the slot (%s root)',
+    (mode) => {
+      const { wrapper, leaf } = makeSlotted(makeEl(), mode);
+      wrapper.style.zoom = '2';
 
-  it('enters the assigned slot of an open shadow root', () => {
-    const { slot, child } = makeSlotted('open');
-
-    expect(getComposedParentElement(child)).toBe(slot);
-  });
-
-  it('enters the slot of a known closed shadow root, which assignedSlot hides', () => {
-    const { host, root, slot, child } = makeSlotted('closed');
-
-    expect(child.assignedSlot).toBeNull();
-    expect(getComposedParentElement(child)).toBe(host);
-    expect(getComposedParentElement(child, new Map([[host, root]]))).toBe(slot);
-  });
-
-  it('climbs to the host when no slot in the known closed root takes the element', () => {
-    const { host, root } = makeSlotted('closed');
-    const unslotted = document.createElement('span');
-    unslotted.slot = 'missing';
-    host.appendChild(unslotted);
-
-    expect(getComposedParentElement(unslotted, new Map([[host, root]]))).toBe(host);
-  });
+      expect(getElementZoom(leaf)).toBe(2);
+    },
+  );
 });
 
 describe('getElementScale', () => {
@@ -288,20 +142,17 @@ describe('getElementScale', () => {
     expect(getElementScale(inner)).toEqual({ x: 2, y: 2 });
   });
 
-  it('walks through an assigned slot instead of the light-DOM parent', () => {
-    const host = makeNested('transform: matrix(2, 0, 0, 2, 0, 0)');
-    const shadow = host.attachShadow({ mode: 'open' });
-    const wrapper = document.createElement('div');
-    wrapper.style.transform = 'matrix(3, 0, 0, 3, 0, 0)';
-    const slot = document.createElement('slot');
-    wrapper.appendChild(slot);
-    shadow.appendChild(wrapper);
-    const leaf = document.createElement('div');
-    host.appendChild(leaf);
+  it.each(['open', 'closed'] as const)(
+    'walks through the slot instead of the light-DOM parent (%s root)',
+    (mode) => {
+      const host = makeNested('transform: matrix(2, 0, 0, 2, 0, 0)');
+      const { wrapper, slot, leaf } = makeSlotted(host, mode);
+      wrapper.style.transform = 'matrix(3, 0, 0, 3, 0, 0)';
 
-    expect(leaf.assignedSlot).toBe(slot);
-    expect(getElementScale(leaf)).toEqual({ x: 6, y: 6 });
-  });
+      expect(leaf.assignedSlot).toBe(mode === 'open' ? slot : null);
+      expect(getElementScale(leaf)).toEqual({ x: 6, y: 6 });
+    },
+  );
 
   // jsdom only. It needs `vi.resetModules()` to hand out a fresh module, which
   // browser mode doesn't, and a browser hides a closed popover, whose transform
