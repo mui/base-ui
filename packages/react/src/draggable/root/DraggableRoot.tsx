@@ -45,7 +45,6 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
     activation,
     dragCursor,
     modifiers,
-    // Event handlers
     onBeforeMoveStart,
     onMoveStart,
     onMove,
@@ -55,7 +54,7 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
 
   const draggableContext = useDraggableContext();
 
-  // A new object per render is fine: the engine compares registrations field by field.
+  // A new object per render is fine, since the engine compares parameters field by field.
   const params = {
     kind: kind ?? draggableContext.defaultKind,
     payload,

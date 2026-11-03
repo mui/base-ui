@@ -5,7 +5,7 @@ import { dragSourceStore, notifyDragSourceUpdated } from './dragSessionStore';
 import { getActiveSession } from './core/dragSession';
 import type { DraggableConfig } from './draggable';
 
-// Set while a `payload` prop change is being published, until the next microtask.
+// Set from a `payload` prop publish until the next microtask (see `refreshDragSource`).
 const propSync = getSharedSlot('dragSource.propSync', () => ({ notifying: false }));
 
 /**
@@ -58,10 +58,10 @@ export function readSourceParameters(
 }
 
 /**
- * Apply a registered source's latest parameters: gesture styles follow `disabled` and
+ * Apply a registered source's latest parameters. Gesture styles follow `disabled` and
  * `handle`, and a changed `payload` reaches `useActiveDrag()` during its drag. Moving
- * the styles mid-drag is harmless: `touch-action` no longer applies to the gesture,
- * and the root lock prevents text selection.
+ * the styles mid-drag is safe, since `touch-action` no longer affects a running gesture
+ * and the root lock blocks text selection.
  */
 export function refreshDragSource(element: HTMLElement): void {
   refreshDraggableStaticSetup(element);
@@ -73,10 +73,10 @@ export function refreshDragSource(element: HTMLElement): void {
   ) {
     return;
   }
-  // Publish at most one prop change per synchronous render cascade. Otherwise an
-  // inline `payload={{ ... }}` loops until React throws: publishing re-renders a
-  // `useActiveDrag()` reader that renders this root with a new object. The cascade
-  // flushes before the microtask, and the record reads later changes live.
+  // Publish at most one prop change per synchronous render cascade. Publishing re-renders
+  // `useActiveDrag()` readers, and one that renders this root with an inline
+  // `payload={{ ... }}` would loop until React throws. The cascade ends before the
+  // microtask, and the record reads later changes live.
   if (!propSync.notifying) {
     propSync.notifying = true;
     queueMicrotask(() => {
@@ -100,7 +100,7 @@ export function retargetDragSource(oldElement: Element, newElement: HTMLElement)
   const source = session.source;
   // Mutated in place so it stays `===` to the `source` of every event in the drag.
   source.element = newElement;
-  // Publishes a new copy (see `dragSourceStore`); the mutated object alone would leave
-  // `useActiveDrag()` reading the detached node.
+  // `dragSourceStore` holds a copy, so the mutation alone would leave `useActiveDrag()`
+  // reading the detached node.
   notifyDragSourceUpdated(source);
 }

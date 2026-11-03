@@ -91,7 +91,7 @@ export function resolveElementReference<T extends Element, TArgument = void>(
 /**
  * The layout viewport rect in client coordinates. `innerWidth/innerHeight` include
  * the scrollbar gutter, where `elementFromPoint` finds nothing, so they're only the
- * fallback when layout reports 0 (detached document, jsdom).
+ * fallback when layout reports 0, as in a detached document or jsdom.
  */
 export function getViewportRect(win: Window) {
   const docEl = win.document.documentElement;
@@ -199,8 +199,8 @@ export function safeCallConsumer<T>(
 }
 
 /**
- * Whether `element` resolves to right-to-left. `getComputedStyle` forces style
- * resolution, so the auto-scroller caches the result per element.
+ * Whether `element` resolves to right-to-left. It forces a style resolve, so per-frame
+ * callers cache it.
  */
 export function isRtlElement(element: Element): boolean {
   let current: Element | null = element;
@@ -232,7 +232,7 @@ export interface OverflowFlags {
 const SCROLLABLE_OVERFLOW = new Set(['auto', 'scroll', 'overlay']);
 const BLOCKED_OVERFLOW = new Set(['hidden', 'clip']);
 
-// Check the shorthand alongside each longhand, not as a fallback: jsdom reports
+// Check the shorthand alongside each longhand, not as a fallback, since jsdom reports
 // `visible` for the longhands when only `overflow` is set. In a browser, a two-value
 // shorthand such as `"hidden auto"` matches neither set, so the longhands decide.
 function onAxis(values: Set<string>, longhand: string, shorthand: string): boolean {
@@ -317,6 +317,7 @@ export function getElementScale(element: HTMLElement): DraggablePosition {
     }
     // `zoom` isn't a transform, so it compounds outside the matrix.
     zoom *= getOwnZoom(node, style);
+    // The top layer escapes its ancestors' transforms, but not their `zoom`.
     if (isOpenPopover(node)) {
       escapedTransforms = true;
     }

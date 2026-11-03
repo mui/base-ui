@@ -52,11 +52,9 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    // Rendering props
     className,
     render,
     style,
-    // Drop target props
     kind,
     accept,
     canDrop,
@@ -64,13 +62,11 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
     payload,
     snap,
     trackDragOver,
-    // Event handlers
     onDraggableStart,
     onDraggableMove,
     onDraggableEnter,
     onDraggableLeave,
     onDraggableDrop,
-    // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
 
@@ -91,7 +87,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
       }
     }, [kind, accept]);
   }
-  // A new object per render is fine: it's read through a ref and never compared.
+  // A new object per render is fine, since the engine reads it through a getter.
   const params = {
     kind,
     accept: accept ?? context.defaultKind,

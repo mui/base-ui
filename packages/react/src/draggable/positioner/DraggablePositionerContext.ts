@@ -14,7 +14,7 @@ export const DraggablePositionerContext = React.createContext<
   DraggablePositionerContext | undefined
 >(undefined);
 
-/** Whether this renders inside a drag preview, where drag parts skip registering. */
+/** Whether this renders inside a drag preview. */
 export function useIsInDragPreview(): boolean {
   return React.useContext(DraggablePositionerContext) !== undefined;
 }

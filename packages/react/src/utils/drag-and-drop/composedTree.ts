@@ -17,7 +17,7 @@ interface ClosedRootEntry {
   count: number;
 }
 
-// Shared across bundle copies: the copy that registers and the copy that walks can differ.
+// Shared across bundle copies, since the copy that registers can differ from the one that walks.
 const closedRootsByHost = getSharedSlot<Map<Element, ClosedRootEntry>>(
   'composedTree.closedRootsByHost',
   () => new Map(),
@@ -85,9 +85,9 @@ export function getComposedParentElement(element: Element): Element | null {
 
 /**
  * Hit-tests the point, descending into shadow roots since `elementFromPoint` stops at the
- * host, including the held closed roots `Element.shadowRoot` hides. Never throws: it runs
- * from the activation commit, outside any containment, where a `TypeError` would leave the
- * sensor refusing every later pickup.
+ * host, including the held closed roots `Element.shadowRoot` hides. It must not throw. It
+ * runs from the activation commit, outside any containment, where a `TypeError` would leave
+ * the sensor refusing every later pickup.
  */
 export function deepElementFromPoint(
   doc: Document,
@@ -126,8 +126,7 @@ export function elementFromPointIgnoring(
   if (!found || ignore == null || !contains(ignore, found)) {
     return found;
   }
-  // Not `visibility: hidden`: a descendant with `visibility: visible` would stay
-  // hit-testable.
+  // Not `visibility: hidden`, which a descendant can override with `visibility: visible`.
   const previousDisplay = ignore.style.display;
   ignore.style.display = 'none';
   const behind = deepElementFromPoint(doc, clientX, clientY);

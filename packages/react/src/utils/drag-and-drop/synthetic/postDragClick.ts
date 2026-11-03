@@ -1,9 +1,10 @@
 /**
  * Swallows the compatibility `click` the browser fires after a pointer drag, which carries
- * no sign that a drag produced it. It usually lands on `<body>` (capture is on the body
- * anchor), where an outside-press handler would close an open popover; Safari and Firefox
- * can fire it on the source instead. It disarms on the first click, the next
- * `pointerdown`, or a short timer, since staying armed would eat a genuine click.
+ * no sign that a drag produced it. It usually lands on `<body>`, the drag's capture
+ * anchor, where an outside-press handler would close an open popover. Safari and Firefox
+ * can fire it on the source instead. The suppression disarms on the first click, the next
+ * `pointerdown` or a short timer, since staying armed would eat a genuine click. A
+ * double-click drop also swallows the rest of its double-click.
  */
 
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -54,9 +55,9 @@ const state = getSharedSlot<PostDragClickState>('postDragClick', () => ({
 
 /**
  * Swallow the next `click` in `element`'s window. Call it whenever an activated drag ends.
- * Pass `heldPointerId` when the pointer is still down (an Escape cancel), so the backstop
- * timer starts on release and a hold longer than `CLICK_WINDOW_MS` can't let the click
- * through.
+ * Pass `heldPointerId` when the pointer is still down, as after an Escape cancel, so the
+ * backstop timer starts on release and a hold longer than `CLICK_WINDOW_MS` can't let the
+ * click through.
  */
 export function suppressNextClick(element: Element, heldPointerId?: number): void {
   // Re-arming replaces the previous window rather than stacking listeners.
@@ -95,8 +96,8 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
         return;
       }
       // A held window can stay armed for seconds, so let a click from another
-      // pointer through (a mouse click while the canceled touch rests on the
-      // screen). A legacy `MouseEvent` click has no `pointerId` and is swallowed.
+      // pointer through, such as a mouse click while the canceled touch rests on the
+      // screen. A legacy `MouseEvent` click has no `pointerId` and is swallowed.
       const clickPointerId = (event as PointerEvent).pointerId;
       if (
         heldPointerId !== undefined &&
@@ -111,8 +112,8 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
     CAPTURE,
   );
 
-  // A new press means the drag's click isn't coming (one released away from its
-  // press target produces none), so later clicks belong to the new gesture. Use
+  // A new press means the drag's click isn't coming, since a release away from the
+  // press target produces none. Later clicks belong to the new gesture. Use
   // `pointerdown`, not `mousedown`, which touch fires just before the drag's own
   // `click`. While the armed pointer is held, another pointer's press is a second
   // finger, and the held one can still produce the click.
@@ -167,8 +168,8 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
 
 /**
  * Swallow the rest of a double-click whose first click dropped a double-click
- * pickup: the next `click` with `detail` 2 or more, and the `dblclick`, which
- * would pick up the item under the pointer again, often the one just dropped.
+ * pickup. That is the next `click` with `detail` 2 or more, and the `dblclick`,
+ * which would pick up the item under the pointer again, often the one just dropped.
  * The `dblclick`, a `detail` 1 click or the backstop timer disarms it.
  */
 export function suppressDoubleClickFollowUp(element: Element): void {
@@ -242,7 +243,6 @@ export function swallowEvent(event: Event): void {
   event.stopImmediatePropagation();
 }
 
-/** Disarm without waiting for a click. Used by the engine's test reset. */
 export function resetForTests(): void {
   state.disarm?.();
   state.doubleClickFollowUp?.disarm();

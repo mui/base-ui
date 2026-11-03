@@ -125,9 +125,9 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
         return registration;
       });
       return () => {
-        // A source callback can unmount its row before the start monitor runs. Keep
-        // the session's `source`, which has the identity every event of the drag
-        // reports (`dragSourceStore` publishes copies).
+        // A source callback can unmount its row before the start monitor runs. Keep the
+        // session's `source`, the record every event of the drag reports, since
+        // `dragSourceStore` holds a copy.
         const activeSource = getActiveSession()?.source ?? null;
         if (activeSource?.element === sourceElement) {
           removedSource.current = activeSource;
@@ -167,7 +167,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       props.onMoveStart?.({ ...start, target });
     } else {
       // Mounted after the drag started, so the monitor missed the start. Build one
-      // from this event. How the drag started is unknown here.
+      // from this event, assuming a pointer drag.
       props.onMoveStart?.(
         createDragEventDetails(
           REASONS.pointer,
@@ -235,9 +235,9 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     },
   });
 
-  // Refresh only this group's participants: an inline `canCollide` changes on every
-  // render, and a page-wide refresh would re-resolve every target each time.
-  // Refreshes requested together are coalesced.
+  // Refresh only this group's participants, since an inline `canCollide` changes on every
+  // render and a page-wide refresh would re-resolve every target each time. The session
+  // coalesces refreshes requested together.
   const refreshParticipants = () => {
     if (dragSourceStore.state && props.kind.matches(dragSourceStore.state)) {
       for (const element of participantElements) {

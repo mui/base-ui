@@ -68,7 +68,7 @@ export function setDragSession(state: DragSessionState | null): void {
     slot.sourceVersion += 1;
   }
   slot.store.setState(state);
-  // Read the source back from the store, not from `state`: a session subscriber can
+  // Read the source back from the store, not from `state`. A session subscriber can
   // write again synchronously, and the last call to run must publish the final source.
   const source = slot.store.state?.source ?? null;
   if (source !== slot.mirroredSource) {
@@ -194,9 +194,9 @@ export function createDragTargetStateStore(): DragTargetStateStore {
 }
 
 /**
- * The lifecycle mutates its `location` during the drag, so everything it hands out
- * (session snapshots, event details) is cloned here. A second clone path could miss
- * a shape change and leak live engine references.
+ * The lifecycle mutates its `location` during the drag, so it clones everything it
+ * hands out, such as session snapshots and event details, through here. A second
+ * clone path could miss a shape change and leak live engine references.
  */
 export function cloneLocationHistory(location: DraggableLocationHistory): DraggableLocationHistory {
   return {

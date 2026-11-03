@@ -56,10 +56,11 @@ function makeKind<TPayload, TDragData>(
 ): DraggableKind<TPayload, TDragData> {
   const matches = (value: DraggableRootRecord<unknown> | DraggableTargetRecord<unknown>) =>
     value.kind === id;
+  // The outer cast covers `DraggableKind`'s invariance members, which exist only in types.
   return {
     name,
     id,
-    // A type predicate can't be inferred from an implementation, so it is asserted here.
+    // TypeScript can't infer this type predicate from the implementation.
     matches: matches as DraggableKind<TPayload, TDragData>['matches'],
   } as DraggableKind<TPayload, TDragData>;
 }
@@ -75,11 +76,10 @@ function makeKind<TPayload, TDragData>(
  */
 export const anyDragKind: DraggableAcceptedKind<unknown> = {
   name: 'any',
-  // Matched on the interned `.id`, not object identity: a doubly bundled engine or a
+  // Matched by its interned `id`, not by object identity. A doubly bundled engine or a
   // hot reload has two copies of this module, and a catch-all target would accept nothing.
   id: ANY_KIND_ID,
-  // The engine never calls this (`matchesAccept` short-circuits on the id). It answers
-  // `true` for any record in case a consumer calls it as a predicate.
+  // Only consumer code calls this, since `matchesAccept` checks the id. It accepts any record.
   matches: ((value: unknown) =>
     value != null) as unknown as DraggableAcceptedKind<unknown>['matches'],
 };
@@ -91,7 +91,6 @@ export const anyDragKind: DraggableAcceptedKind<unknown> = {
  */
 export function matchesAccept(
   accept: DraggableAccept<unknown> | undefined,
-  // Only `kind` is read, so this accepts a source carrying any payload.
   source: Pick<DraggableRootRecord<unknown>, 'kind'>,
 ): boolean {
   if (accept == null || (accept as DraggableAcceptedKind<unknown>).id === ANY_KIND_ID) {

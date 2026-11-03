@@ -140,6 +140,7 @@ export function compileDragModifiers(
     return null;
   }
   if (!Array.isArray(modifiers)) {
+    // `Array.isArray` doesn't narrow a `ReadonlyArray` out of the union.
     return [modifiers as DraggableRootModifier];
   }
   const list = modifiers.filter((modifier): modifier is DraggableRootModifier => Boolean(modifier));

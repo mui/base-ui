@@ -51,8 +51,8 @@ export function useCollisionParticipant<TPayload, TDragData>(
       ? provider.register(parameters.collisionElement?.(element) ?? element, element, getSnap)
       : NOOP,
   );
-  // Safe mid-drag: the source registration stays, and the provider skips the
-  // dragged item's own participant.
+  // Re-registering on a provider change is safe mid-drag. The source registration stays,
+  // and the provider skips the dragged item's own participant.
   useValueChanged(provider, () => registrationRef(elementRef.current));
 
   return useRefWithInit(() => (element: HTMLElement | null) => {

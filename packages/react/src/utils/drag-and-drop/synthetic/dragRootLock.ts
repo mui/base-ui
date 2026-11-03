@@ -73,7 +73,7 @@ const state = getSharedSlot<DragRootLockState>('dragRootLock', () => ({
 /**
  * Collect the `<html>` and `<body>` of `doc` and every ancestor document up the
  * iframe chain, since the outer page can still scroll or select text during a touch
- * drag in an iframe. The climb stops at a cross-origin ancestor, which throws.
+ * drag in an iframe.
  */
 function collectLockElements(doc: Document): HTMLElement[] {
   const elements: HTMLElement[] = [];
@@ -87,7 +87,7 @@ function collectLockElements(doc: Document): HTMLElement[] {
     try {
       current = current.defaultView?.frameElement?.ownerDocument ?? null;
     } catch {
-      // Cross-origin ancestor. Stop climbing.
+      // A cross-origin ancestor throws. Stop climbing.
       current = null;
     }
   }

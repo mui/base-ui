@@ -56,9 +56,10 @@ export function hasInteractiveAncestorWithin(target: Element, pickupNode: Elemen
 
 /**
  * Whether an element between the press target and `pickupNode` holds capture for
- * `pointerId`, meaning a nested widget claimed the gesture (such as a scroll-area thumb,
- * which has no interactive role). Pass `includeTarget: false` for touch and pen: they
- * implicitly capture the press target, so its capture can't tell a widget from the browser.
+ * `pointerId`, meaning a nested widget claimed the gesture. This catches widgets without
+ * an interactive role, such as a scroll-area thumb. Pass `includeTarget: false` for touch
+ * and pen, which implicitly capture the press target, so its capture can't tell a widget
+ * from the browser.
  */
 export function hasCapturingAncestorWithin(
   target: Element,

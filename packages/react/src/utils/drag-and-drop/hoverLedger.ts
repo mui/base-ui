@@ -8,10 +8,10 @@ import { dispatchToDropTarget, getEnterRegistration } from './dropTarget';
 import type { DropTargetEventName, DropTargetGetter } from './dropTarget';
 
 /**
- * The drop targets a drag has entered and still owes a leave. One per session; every target
- * dispatch but the drop goes through it. Each enter gets exactly one leave, even if the
- * target unregisters (see `release`) or a handler ends the drag mid-dispatch (a target is
- * recorded just before its enter and dropped just before its leave).
+ * The drop targets a drag has entered and still owes a leave. One per session. Every
+ * target dispatch but the drop goes through it. Each enter gets exactly one leave, even
+ * if the target unregisters (see `release`) or a handler ends the drag mid-dispatch,
+ * since a target is recorded just before its enter and removed just before its leave.
  */
 export interface HoverLedger {
   /** Whether `element` has received an enter but not the matching leave. */
@@ -59,7 +59,7 @@ export interface HoverLedger {
   release(element: Element): void;
 }
 
-/** `isLive` is checked before each delivery of `change` and `dispatchToAll`. */
+/** `change` and `dispatchToAll` check `isLive` before each delivery. */
 export function createHoverLedger(isLive: () => boolean): HoverLedger {
   const hovered: DraggableTargetRecord[] = [];
   // Targets that unregistered while owed an enter or leave. Only these enter through

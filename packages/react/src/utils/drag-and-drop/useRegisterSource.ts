@@ -23,9 +23,9 @@ export function createRegisterSource(getCSPContext: () => CSPContextValue) {
   ): DragCleanupFn => {
     const initial = get();
 
-    // Checked before any side effect: only the returned cleanup releases the setup,
-    // so a later throw would leak a half-registered element. Catches plain JS or a
-    // cast, which would otherwise hit a bare `TypeError` deep in the engine.
+    // Checked before any side effect, since only the returned cleanup releases the setup
+    // and a later throw would leak a half-registered element. Catches plain JS or a cast,
+    // which would otherwise hit a bare `TypeError` deep in the engine.
     if (initial.kind == null) {
       throw new Error(
         'Base UI: registerSource() was called without a `kind`, so the drag source ' +
@@ -37,8 +37,8 @@ export function createRegisterSource(getCSPContext: () => CSPContextValue) {
     }
 
     // The lifecycle reads this getter on every event, so `normalized` is rebuilt only
-    // when its inputs change. Compare against a shallow copy of the last parameters,
-    // not by identity: an imperative getter may mutate and return the same object.
+    // when its inputs change. The check compares a shallow copy of the last parameters,
+    // since an imperative getter may mutate and return the same object.
     let lastParams: RegisterSourceParameters<TPayload, TDragData> | null = null;
     let lastCSPContext: CSPContextValue | null = null;
     let normalized: DraggableConfig<TPayload, TDragData> | null = null;
@@ -67,9 +67,9 @@ export function createRegisterSource(getCSPContext: () => CSPContextValue) {
 }
 
 /**
- * The stable registration function `Draggable.Root` calls, bound to the nearest
- * CSP context. Kept apart from `useManager` so the
- * auto-scroller stays out of every bundle that contains a `Draggable.Root`.
+ * The stable registration function `Draggable.Root` calls, bound to the nearest CSP
+ * context. Kept apart from `useManager` so the auto-scroller stays out of every bundle
+ * that contains a `Draggable.Root`.
  */
 export function useRegisterSource(): ReturnType<typeof createRegisterSource> {
   const cspContext = useCSPContext();

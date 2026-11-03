@@ -30,10 +30,11 @@ interface DragCursorStyleOptions {
 }
 
 /**
- * Insert the scoped cursor rule into `doc` once; `false` when it can't be installed. It
- * stays installed, gated on a class, since adding a sheet per drag would redo selector
- * matching. `*` with `!important` is the only way to override per-element cursors such
- * as an input's `text`. Shadow trees get their own sheet (see `adoptShadowRootCursor`).
+ * Insert the scoped cursor rule into `doc` once. Returns `false` when it can't be
+ * installed. The rule stays installed behind a class, since adding a sheet per drag
+ * would redo selector matching. `*` with `!important` is the only way to override
+ * per-element cursors such as an input's `text`. Shadow trees get their own sheet
+ * (see `adoptShadowRootCursor`).
  */
 function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean {
   const key = nonce ?? '';
@@ -43,8 +44,8 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
   }
 
   const style = doc.createElement('style');
-  // Before insertion: a strict `style-src` policy checks the element when it is
-  // attached, and a nonce added later can't un-reject it.
+  // Set the nonce before insertion. A strict `style-src` policy checks the element
+  // when it is attached, and a nonce added later can't un-reject it.
   if (nonce) {
     style.setAttribute('nonce', nonce);
   }
@@ -69,8 +70,8 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
 }
 
 /**
- * Adopt the cursor rule into a shadow root holding a registered target or draggable
- * while the lock is held; other shadow trees keep their own cursor. Adopted per drag rather than gated on a
+ * Adopt the cursor rule into a shadow root that holds a registered target or draggable.
+ * Other shadow trees keep their own cursor. Adopted per drag rather than gated on a
  * class, since a shadow tree can't portably select the document's `<html>` class.
  * `--drag-cursor` inherits through the boundary.
  */
@@ -125,6 +126,7 @@ export function lock(element: Element, cursor: string, options: DragCursorStyleO
       adoptShadowRootCursor(shadowRoot, doc),
     );
   } else {
+    // The class would enable a sheet an earlier drag installed.
     root.classList.remove(STYLE_CLASS);
   }
   state.restore = () => {

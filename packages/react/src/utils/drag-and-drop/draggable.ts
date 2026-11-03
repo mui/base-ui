@@ -31,7 +31,10 @@ const gestureSetups = getSharedSlot<WeakMap<Element, GestureSetupEntry>>(
   () => new WeakMap<Element, GestureSetupEntry>(),
 );
 
-/** The inline styles that stop the browser from handling pointer gestures on an element. */
+/**
+ * Inline styles on a draggable's press area. `manipulation` still lets a touch press
+ * scroll the page before pickup, and turns off double-tap zoom.
+ */
 const GESTURE_STYLES: readonly InlineStyleOverride[] = [
   { property: 'touchAction', cssName: 'touch-action', value: 'manipulation' },
   ...SELECTION_LOCK_STYLES,
@@ -101,9 +104,9 @@ function applyDraggableStaticSetup(
 }
 
 /**
- * Register `element` as a draggable: gesture styles, registry entry, hand-off of a
- * still-settling preview, and the pointer sensor on its document or shadow root.
- * `getParameters` is read on each press and dispatch.
+ * Register `element` as a draggable, with its gesture styles, registry entry, and the
+ * pointer sensor on its document or shadow root. A remounted source also takes back
+ * its drag or settling preview. `getParameters` is read on each press and dispatch.
  */
 export function registerDraggableElement(
   element: HTMLElement,
@@ -135,8 +138,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * of every drag handler and in a drop target's `canDrop`. Its type
    * comes from `kind`, and it is required when the kind declares one.
    */
-  // Optional here because the public types enforce it. `Draggable.Root.Props`
-  // uses a conditional type, and `registerSource` an overload.
+  // Optional here because `Draggable.Root.Props` and the `registerSource` overloads
+  // require it when the kind declares a payload.
   payload?: DraggablePayload<TPayload> | undefined;
   /**
    * A stable key that lets the drag and its settling preview find this item again after

@@ -19,9 +19,9 @@ import type {
 
 /**
  * Applies the latest options of every registration on `element`, as the parts do when
- * their props change. The target and viewport steps are harmless for other elements:
- * the target refresh only runs when the element is under the pointer, and a woken
- * scroll loop parks again.
+ * their props change. The target and viewport steps are harmless for other elements,
+ * since the target refresh only acts on an element under the pointer and a woken scroll
+ * loop parks again.
  */
 function refresh(element: HTMLElement): void {
   refreshDragSource(element);
@@ -38,7 +38,7 @@ function refresh(element: HTMLElement): void {
  * Documentation: [Base UI useManager](https://base-ui.com/react/utils/draggable#usemanager)
  */
 export function useManager(): UseDraggableManagerReturnValue {
-  // Throws without a provider, which the registrations need for their default kind.
+  // Only enforces the documented provider requirement. The registrations below don't read it.
   useDraggableContext();
   // Registrations and sensors are global, so the stateless registrations are
   // re-exposed as methods (see `dropTarget.ts`, `monitor.ts` and `autoScroller.ts`).

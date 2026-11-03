@@ -8,17 +8,14 @@ export interface DraggableRootContext {
   /** See `UseDraggableElementReturnValue.registerHandle`. Stable. */
   registerHandle: (node: HTMLElement) => () => void;
   /**
-   * The trigger's committed props, which an empty `Draggable.Preview` renders again. Not a
-   * store: the preview reads them once per drag, so a trigger that renders again doesn't
-   * render it again in a second commit. Stable.
+   * The trigger's committed props, which an empty `Draggable.Preview` renders again.
+   * A ref rather than a store, so a trigger re-render doesn't re-render the preview in a
+   * second commit. The preview reads them once per drag. Stable.
    */
   triggerProps: { current: DraggableTriggerProps | null };
   /** Registers the element `Draggable.Trigger` renders as the drag source. Stable. */
   triggerRef: (node: HTMLElement | null) => void;
-  /**
-   * The root's drag: whether it's dragging or settling after the drop, and its preview,
-   * whose identity tells one drag from the next.
-   */
+  /** The root's drag phase and preview. The preview's identity tells one drag from the next. */
   drag: RootDrag;
   /**
    * The root's `disabled`, so the trigger and handle can set `data-disabled` for styling.
@@ -46,8 +43,8 @@ export function useDraggableRootContext(): DraggableRootContext {
 }
 
 /**
- * The preview `Draggable.Portal` and `Draggable.Positioner` render: their root's, while it
- * is dragging or settling. `null` inside a preview, so a copy of the parts doesn't recurse.
+ * The root's preview while it is dragging or settling, which `Draggable.Portal` and
+ * `Draggable.Positioner` render. `null` inside a preview, so a copy of the parts doesn't recurse.
  */
 export function useRootPreview(): DragPreview | null {
   const rootContext = useDraggableRootContext();

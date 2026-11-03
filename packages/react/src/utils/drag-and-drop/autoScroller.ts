@@ -76,8 +76,6 @@ const CHAIN_OBSERVER_OPTIONS: MutationObserverInit = {
   attributes: true,
   childList: true,
 };
-// The element the engine positions, in both preview modes. The public
-// `data-drag-preview` is on the consumer's element inside a custom preview instead.
 const PREVIEW_SELECTOR = `[${PREVIEW_ELEMENT_ATTRIBUTE}]`;
 const ELEMENT_NODE = 1;
 // Speed ramps from 0 to `maxSpeed` over this many milliseconds, so a pointer
@@ -88,6 +86,8 @@ const RAMP_UP_DURATION = 400;
 // Caps the elapsed time a frame scrolls for, so a late frame, such as in a
 // throttled tab, can't produce one oversized `scrollBy`.
 const MAX_FRAME_DELTA_MS = 64;
+// The first frame after a wake has no previous timestamp to measure from.
+const FIRST_FRAME_DELTA_MS = 16;
 
 /** Returns a scroller's parameters. Called every frame, so it sees the latest callbacks. */
 type ScrollerGetter = () => ViewportParameters<any, any>;
@@ -146,8 +146,8 @@ export function registerViewport<
   const release = holds.hold(element, getParameters);
   invalidateScrollerOrder();
   // A container appearing under a stationary pointer sends no input, so a parked
-  // loop would stay parked. The woken frame's input is current: the loop only parks
-  // after reading the latest input, and newer input would have woken it.
+  // loop would stay parked. The woken frame's input is current, since the loop only
+  // parks after reading the latest input and newer input would have woken it.
   wakeScrollLoop();
   if (state.scrollMonitorGetter === null) {
     const getMonitor = () => SCROLL_MONITOR_PARAMS;
@@ -300,9 +300,9 @@ const BOTH_AXES: AxisFlags = { x: true, y: true };
 
 /**
  * Orders the registered viewports inner-first and, from the same walk, observes
- * the ancestor chains of those in `doc` (see `observeChainMutations`). Also holds
- * the closed shadow roots holding a viewport, read again on each rebuild so a moved
- * viewport stays reachable by the composed walks and the occlusion hit-test.
+ * the ancestor chains of those in `doc` (see `observeChainMutations`). Also re-holds
+ * the closed shadow roots around each viewport, so a moved viewport stays reachable
+ * by the composed walks and the occlusion hit-test.
  */
 function sortAndObserveScrollers(doc: Document): HTMLElement[] {
   const releases = Array.from(state.scrollers.keys(), (el) => holdClosedShadowRoots(el));
@@ -337,11 +337,10 @@ function sortAndObserveScrollers(doc: Document): HTMLElement[] {
 }
 
 /**
- * Runs one loop frame. `scrollFrame` stays set while it runs, so a wake from a
- * consumer callback is a no-op instead of scheduling a frame before this one
- * decides whether to park (see the end of `runScrollFrame`). The `catch` clears
- * the slot, because `wakeScrollLoop` returns early while it is set, and a throw
- * would otherwise stop auto-scroll for the rest of the drag.
+ * `scrollFrame` stays set while a frame runs, so a wake from a consumer callback is a
+ * no-op and the frame itself decides whether to park (see the end of `runScrollFrame`).
+ * The `catch` clears it, or `wakeScrollLoop` would keep returning early and auto-scroll
+ * would stop for the rest of the drag.
  */
 function scrollLoop(timestamp: number): void {
   try {
@@ -367,7 +366,8 @@ function runScrollFrame(timestamp: number): void {
   }
   const currentSource = session.source;
 
-  const rawDeltaMs = state.lastTimestamp > 0 ? timestamp - state.lastTimestamp : 16;
+  const rawDeltaMs =
+    state.lastTimestamp > 0 ? timestamp - state.lastTimestamp : FIRST_FRAME_DELTA_MS;
   const deltaMs = Math.min(rawDeltaMs, MAX_FRAME_DELTA_MS);
   state.lastTimestamp = timestamp;
 
@@ -779,8 +779,9 @@ function startScrollSession(session: DragSession, location: DraggableLocationHis
     // Stop with the session, including an end without `onMoveEnd`, such as a test
     // reset or an engine error after the end was latched.
     session.onEnd(stopScrollLoop),
-    // Neither changes the DOM: a resize can restyle a viewport through a media query,
-    // and a loaded image or iframe can grow a scroll extent under a still pointer.
+    // Neither changes the DOM, so the observers miss both. A resize can restyle a
+    // viewport through a media query, and a loaded image or iframe can grow a scroll
+    // extent under a still pointer.
     addEventListener(win, 'resize', refreshAutoScroll),
     addEventListener(win.document, 'load', wakeScrollLoop, { capture: true }),
   );
@@ -817,7 +818,7 @@ function createAutoScrollEventDetails(
 }
 
 interface AutoScrollerState {
-  /** Each scroll container maps to the stack of getters held against it (merged refs). */
+  /** Each scroll container's getter stack (see `createGetterStackRegistry`). */
   scrollers: Map<HTMLElement, ScrollerGetter[]>;
   /**
    * The loop's frame in the source window. Set from a wake until the loop parks
@@ -826,9 +827,9 @@ interface AutoScrollerState {
   scrollFrame: WindowAnimationFrame | null;
   scrollMonitorGetter: (() => MonitorParameters) | null;
   lastTimestamp: number;
-  /** The physical pointer; see `resolveProbes`. */
+  /** The physical pointer (see `resolveProbes`). */
   currentInput: DraggableInput | null;
-  /** The `modifiers`-constrained point the lifecycle reported; see `resolveProbes`. */
+  /** The `modifiers`-constrained point the lifecycle reported (see `resolveProbes`). */
   currentReportedInput: DraggableInput | null;
   /**
    * The drag the loop scrolls for, from the scroll monitor's `onMoveStart` until
@@ -853,8 +854,8 @@ interface AutoScrollerState {
   /** Releases the closed shadow roots held for the viewports. Rebuilt with `sortedScrollers`. */
   releaseViewportClosedRoots: DragCleanupFn | null;
   /**
-   * Shadow roots of the chains with a `load` listener this drag, to the listener's removal
-   * (see `observeChainMutations`).
+   * Removes the `load` listener added to each shadow root on a chain this drag (see
+   * `observeChainMutations`).
    */
   loadListenerRoots: Map<ShadowRoot, DragCleanupFn>;
   /** Watches the viewports' subtrees and ancestor chains during a drag. */

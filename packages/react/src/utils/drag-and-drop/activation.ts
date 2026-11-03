@@ -17,11 +17,11 @@ const DEFAULT_ACTIVATION: Record<DraggablePointerType, DraggableRootActivation> 
 };
 
 /**
- * The press activations for `pointerType`: the entries that address it, minus
- * `double-click`, which the `dblclick` and double-tap paths handle. The default
+ * The press activations for `pointerType`. These are the entries that address it,
+ * minus `double-click`, which the `dblclick` and double-tap paths handle. The default
  * applies only when no entry addresses the pointer type, so
  * `[{ mouse: double-click }, { touch: press-hold }]` leaves mouse with only the
- * double-click. An empty array disables pickup.
+ * double-click. An empty `config` array disables pickup.
  */
 export function resolveActivation(
   config: DraggableRootActivationConfig | readonly DraggableRootActivationConfig[] | undefined,

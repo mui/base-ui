@@ -2,7 +2,7 @@
  * Pointer event helpers for synthetic-drag tests. Later events dispatch on the `pointerdown`
  * target, as in a browser, and bubble to the engine's document and window listeners. Every
  * dispatch runs in `act`, since starting or ending a drag re-renders `Draggable.Provider`.
- * Only pointer events are dispatched; `touchmove` scroll-guard tests dispatch their own.
+ * Only pointer events are dispatched. `touchmove` scroll-guard tests dispatch their own.
  */
 import { act } from '@mui/internal-test-utils';
 import { setEventTimeStamp } from './pointer';

@@ -29,21 +29,18 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    // Rendering props
     className,
     render,
     style,
-    // Auto-scroll props
     accept,
     onDragScroll,
     disabled,
     maxSpeed,
     overflowMargin,
-    // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
 
-  // A new object per render is fine: it's read through a getter and never compared.
+  // A new object per render is fine, since the engine reads it through a getter.
   const params: UseDraggableViewportElementParameters<TSourcePayload, TDragData> = {
     accept,
     onDragScroll,
@@ -61,8 +58,8 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
     ref: [forwardedRef, ref],
     props: elementProps,
   });
-  // `React.forwardRef` erases the payload type argument, so the generic signature
-  // is restored by hand.
+  // `React.forwardRef` erases the payload type argument, so this cast restores the
+  // generic signature.
 }) as {
   <TSourcePayload = unknown, TDragData = unknown>(
     props: DraggableViewportProps<TSourcePayload, TDragData> & React.RefAttributes<HTMLDivElement>,

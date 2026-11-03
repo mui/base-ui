@@ -55,10 +55,9 @@ export function registerCleanup<T extends () => void>(fn: T): T {
 }
 
 /**
- * Install the standard `afterEach` for drag engine tests: drain the cleanup queue (which
- * restores `elementFromPoint` mocks and removes `createElement()` elements), then force-end
- * any in-flight drag. Every step runs even if one throws (see `runAllCleanups`), so a broken
- * cleanup fails its own test instead of leaking engine state into later ones.
+ * Install the `afterEach` that drains the cleanup queue, then force-ends any drag in
+ * flight. Every step runs even if one throws, so a broken cleanup fails its own test
+ * instead of leaking engine state into later ones.
  */
 export function setupDragEngineTests(): void {
   afterEach(() => {
@@ -180,7 +179,7 @@ export const fireDrag = {
       dragSource = null;
     });
   },
-  /** End the drag without a drop by pressing Escape, which cancels an active drag. */
+  /** Cancel the drag by pressing Escape. */
   dragEnd(): void {
     act(() => {
       if (!dragSource) {
@@ -265,7 +264,6 @@ export async function dragOver(element: Element, input?: DragEventInput): Promis
   await flushRaf();
 }
 
-/** Drop on a target. */
 export function drop(element: HTMLElement, input?: DragEventInput): void {
   fireDrag.drop(element, input);
 }
@@ -276,15 +274,11 @@ export function cancel(): void {
   fireDrag.dragEnd();
 }
 
-/**
- * Force-end any pending drag state. Runs in `setupDragEngineTests()`'s `afterEach`.
- * Every step runs even when an earlier one throws (see `setupDragEngineTests`).
- */
+/** Force-end any pending drag state. Every step runs even when an earlier one throws. */
 function resetDrag(): void {
   runAllCleanups([
-    // These update React state on still-mounted consumers (`dragging` and the
-    // preview parts), so run them in `act` to avoid the "not wrapped in act(...)"
-    // warning.
+    // These update React state on still-mounted consumers, such as `dragging` and
+    // the preview parts, so they run in `act`.
     () => act(() => runAllCleanups([resetDragSession, resetSyntheticSensor])),
     // Global state `resetDragSession` doesn't clear. A test that fails mid-drag would
     // otherwise leave scrolling locked, the drag cursor set, or the next click swallowed.

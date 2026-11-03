@@ -1,5 +1,6 @@
 type TimeoutId = number;
 
+// Timer ids are positive, so 0 means none.
 const EMPTY = 0 as TimeoutId;
 
 /**
@@ -11,7 +12,6 @@ export class WindowTimeout {
 
   currentId: TimeoutId = EMPTY;
 
-  /** A method, as on `Timeout`. */
   isStarted(): boolean {
     return this.currentId !== EMPTY;
   }

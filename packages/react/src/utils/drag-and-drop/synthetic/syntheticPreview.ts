@@ -37,6 +37,7 @@ import {
 const DEFAULT_SCALE: DraggablePosition = { x: 1, y: 1 };
 const MIN_SETTLING_WATCHDOG_MS = 1000;
 const MAX_SETTLING_WATCHDOG_MS = 30000;
+const SETTLING_WATCHDOG_GRACE_MS = 100;
 
 /**
  * Where a drag is, as its preview decides it:
@@ -96,6 +97,7 @@ export function getPreviewSourceIdentity(
   };
 }
 
+/** Same kind, and the same root, payload, or `previewKey`. An undefined field never matches. */
 function isSameSource(
   left: SyntheticPreviewSourceIdentity,
   right: SyntheticPreviewSourceIdentity,
@@ -125,6 +127,7 @@ const liveDrags = getSharedSlot('dragPreview.drags', () => new Set<LiveDrag>());
 /** Whether a transition with a duration covers `translate`. */
 function transitionsTranslate(style: CSSStyleDeclaration): boolean {
   const durations = style.transitionDuration.split(',');
+  // CSS repeats the duration list to match the property list.
   return style.transitionProperty
     .split(',')
     .some(
@@ -392,9 +395,9 @@ function createPositionedPreview(
 
 /**
  * Copy the DOM state `cloneNode` leaves out: canvas pixels, select selections and
- * `indeterminate` at once, ungroup `<details>` so they stay open, and scroll offsets, which need layout, through the returned
- * function after each insertion. A node out of the document reads no scroll offsets, so
- * it uses the last ones in `scrollOffsets`.
+ * `indeterminate`. Also ungroup `<details>` so they stay open. Scroll offsets need layout,
+ * so the returned function applies them after each insertion. A node out of the document
+ * reads none, so it uses the last ones in `scrollOffsets`.
  */
 function copyLiveState(
   source: HTMLElement,
@@ -460,7 +463,7 @@ export interface DragPreviewPickup {
   /** The input the drag started with. */
   input: DraggableInput;
   /**
-   * The input at the press. The `'source'` offset uses it rather than `input`: distance
+   * The input at the press. The `'source'` offset uses it rather than `input`. Distance
    * activation commits on a later `pointermove`, so the preview would otherwise shift in
    * the gesture's direction.
    */
@@ -546,6 +549,7 @@ export function createDragPreview(
           getPreviewRect: () => target.content.getBoundingClientRect(),
         },
       );
+      // Consumer modifiers can end the drag or swap the preview.
       if (current !== target) {
         return;
       }
@@ -579,9 +583,9 @@ export function createDragPreview(
   }
 
   /**
-   * Mark the source and publish the phase to the root. Last in every transition: the
-   * root's render can unmount a positioner, whose detach must see the final state, or
-   * it would leave a stray copy (see `attach`).
+   * Mark the source and publish the phase to the root. Call it last in every transition,
+   * since the root's render can unmount a positioner, whose detach must see the final
+   * state or it leaves a stray copy (see `attach`).
    */
   function setPhase(next: DragPhase): void {
     phase = next;
@@ -679,10 +683,10 @@ export function createDragPreview(
       void style.translate;
       setAttributes(target);
       // Move to the source only under a `translate` transition, so an ending fade
-      // without one runs where the preview was released. Also stay put when the
-      // source is gone or renders no box while the preview does (a
-      // `[data-dragging] { display: none }` rule), since it would measure as a zero
-      // rect at the viewport corner.
+      // without one runs where the preview was released. Also stay put when the source
+      // is gone, or renders no box while the preview does, as under a
+      // `[data-dragging] { display: none }` rule. It would measure as a zero rect at the
+      // viewport corner.
       if (
         transitionsTranslate(style) &&
         sourceElement.isConnected &&
@@ -707,8 +711,13 @@ export function createDragPreview(
           ? Math.max(longest, endTime)
           : longest;
       }, 0);
+      // A paused animation's `finished` never settles.
       settlingWatchdog.start(
-        clamp(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS, MAX_SETTLING_WATCHDOG_MS),
+        clamp(
+          longestAnimationMs + SETTLING_WATCHDOG_GRACE_MS,
+          MIN_SETTLING_WATCHDOG_MS,
+          MAX_SETTLING_WATCHDOG_MS,
+        ),
         finish,
       );
       Promise.allSettled(animations.map((animation) => animation.finished)).then(finish);
@@ -743,7 +752,7 @@ export function createDragPreview(
         element.style.setProperty('visibility', 'hidden');
         return () => element.style.removeProperty('visibility');
       }
-      // Measured first: it sets the size variables the offset function may depend on.
+      // Created first, since it sets the size variables an offset function may read.
       const attached = createPositionedPreview(element, content ?? element, pickup.sourceSize);
       if (!offsetResolved) {
         offsetResolved = true;
@@ -830,9 +839,9 @@ export function createDragPreview(
       }
       if (drop) {
         preparedForDrop = true;
-        // A preview without an element (none declared, or not rendered yet) has nothing
-        // to settle. It is destroyed at session end instead, so `[data-dragging]` rules
-        // still apply while drop handlers measure against the layout under the pointer.
+        // A preview without an element, because none is declared or it hasn't rendered,
+        // has nothing to settle. It is destroyed at session end instead, so `[data-dragging]`
+        // rules still apply while drop handlers measure against the layout under the pointer.
         const session = getActiveSession();
         if (current === null && session !== null) {
           void session.onEnd(destroy);
@@ -871,7 +880,6 @@ export interface DragPreview {
    * `Draggable.Preview` renders a new element. Keeps the offset and modifiers.
    */
   setContent(element: HTMLElement, content: HTMLElement | null): void;
-  /** The current source element. */
   getSourceElement(): HTMLElement;
   /** The element the engine moves, which hit-testing skips, or `null` without one. */
   getPreviewElement(): HTMLElement | null;

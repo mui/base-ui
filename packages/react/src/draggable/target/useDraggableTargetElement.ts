@@ -17,16 +17,17 @@ import {
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept, sameAccept } from '../../utils/drag-and-drop/dragKind';
 
-// The selector adds this flag itself, in the bit the engine leaves free above its own.
+// The selector's own flag, in the first bit above the engine's flags.
 const ACCEPTING = dragTargetStateStride;
 
-// Stable scalar selector. The per-target store already resolves the live node
-// and publishes only when this target's rendered state can change.
+// Module-scoped so `useStore` stays on its fast path. The per-target store publishes
+// only when this target's rendered state can change.
 function selectTargetState(
   state: number,
   disabled: boolean | undefined,
   accept: RegisterTargetParameters['accept'],
 ): number {
+  // Drops the source version the snapshot carries above the engine's flags.
   const targetState = state % dragTargetStateStride;
   const source = dragSourceStore.state;
   if (source !== null && !disabled && matchesAccept(accept, source)) {
@@ -63,11 +64,11 @@ export function useDraggableTargetElement(
   // All three are stable, so the merged callback keeps its identity.
   const ref = useMergedRefs(elementRef, targetStateStore.setElement, registrationRef);
 
-  // Re-resolve for a stationary pointer when `disabled`, `accept`, or `canDrop`
-  // changes. Changes hidden behind a stable callback show up on the next input.
-  // `accept` is compared by content, so an inline array doesn't refresh every render.
-  // Skipped on mount: a refresh then would resolve a same-commit remount halfway
-  // through registering and fire a spurious leave/enter pair.
+  // Re-resolve for a stationary pointer when `disabled`, `accept`, or `canDrop` changes.
+  // A change hidden behind a stable callback shows up on the next input. `accept` is
+  // compared by content, since it's often an inline array. Skipped on mount, where a
+  // refresh could catch a same-commit remount halfway through registering and fire a
+  // spurious leave and enter.
   const { disabled, accept, canDrop } = parameters;
   const previousRef = React.useRef({ disabled, accept, canDrop });
   useIsoLayoutEffect(() => {
@@ -89,6 +90,7 @@ export function useDraggableTargetElement(
   const targetState = useStore(
     trackDragOver ? targetStateStore : untrackedTargetStateStore,
     selectTargetState,
+    // `true` keeps `accepting` off for an untracked target.
     trackDragOver ? parameters.disabled : true,
     parameters.accept,
   );

@@ -35,7 +35,7 @@ export interface ScrollTarget {
   getParameters: () => ViewportParameters<any, any>;
   registration: ViewportParameters;
   adapter: ScrollAdapter;
-  /** The element `scrollBy` moves: `element`, or the page's scrolling element. */
+  /** The element `scrollBy` moves, either `element` or the page's scrolling element. */
   scroller: HTMLElement;
   /** The rect the edge zones are measured in. */
   rect: ScrollRect;
@@ -47,7 +47,7 @@ export interface ScrollTarget {
   input: DraggableInput | null;
 }
 
-/** How one kind of target scrolls natively: a regular element, or the page. */
+/** How a regular element or the page scrolls natively. */
 interface ScrollAdapter {
   /** Which axes scroll natively. */
   getOverflow(element: HTMLElement): AxisFlags;
@@ -68,7 +68,6 @@ const styles = getSharedSlot('autoScrollStyles', () => ({
   flow: new WeakMap<HTMLElement, ScrollFlow>(),
 }));
 
-/** The caches are `WeakMap`s, which have no `clear()`, so they are replaced. */
 export function resetStyleCaches(): void {
   styles.overflow = new WeakMap();
   styles.flow = new WeakMap();
@@ -89,6 +88,7 @@ function readScrollFlow(element: HTMLElement): ScrollFlow {
 
 function getScrollFlow(element: HTMLElement): ScrollFlow {
   const style = ownerWindow(element).getComputedStyle(element);
+  // `direction` is empty where the DOM doesn't resolve it (see `isRtlElement`).
   const rtl = style.direction ? style.direction === 'rtl' : isRtlElement(element);
   const vertical = /^(vertical|sideways)-/.test(style.writingMode);
   const flex = style.display === 'flex' || style.display === 'inline-flex';
@@ -100,6 +100,8 @@ function getScrollFlow(element: HTMLElement): ScrollFlow {
       reversedAxis = vertical ? 'x' : 'y';
     }
   }
+  // In a vertical writing mode, `-rl` reverses the block axis (x) and RTL the inline
+  // axis (y). `sideways-lr` already runs its inline axis bottom to top, so LTR reverses it.
   return {
     negativeOrigin: {
       x: vertical ? style.writingMode.endsWith('-rl') : rtl,
@@ -123,6 +125,7 @@ const ELEMENT_SCROLLER: ScrollAdapter = {
   getOverflow: readOverflowFlags,
   hasNegativeOrigin(scroller, axis) {
     const flow = readScrollFlow(scroller);
+    // A reversed flex axis flips the origin, which can flip a negative one back.
     return flow.negativeOrigin[axis] !== (flow.reversedAxis === axis);
   },
 };
@@ -147,10 +150,10 @@ export const PAGE_SCROLLER: ScrollAdapter = {
 };
 
 /**
- * Returns the element that scrolls the viewport (`scrollingElement`, or `documentElement`
- * in jsdom) when `element` is the page root, or `null` for a regular container. `body`
- * maps to it too while its overflow propagates to the viewport, because `body.scrollBy`
- * then moves nothing.
+ * Returns the element that scrolls the viewport when `element` is the page root, or
+ * `null` for a regular container. jsdom has no `scrollingElement`, so it falls back to
+ * `documentElement`. `body` maps to it too while its overflow propagates to the
+ * viewport, because `body.scrollBy` then moves nothing.
  */
 function resolvePageScroller(element: HTMLElement): HTMLElement | null {
   const doc = ownerDocument(element);
@@ -188,7 +191,7 @@ export function resolveScrollTarget(
     ? getViewportRect(ownerWindow(element))
     : element.getBoundingClientRect();
   let overflowRect: EdgeRect = rect;
-  // The page ignores `overflowMargin`: its probe is the pointer clamped into the viewport.
+  // The page ignores `overflowMargin`, since its probe is the pointer clamped into the viewport.
   if (pageScroller === null) {
     const marginRect = expandScrollRect(rect, registration.overflowMargin);
     if (resolveProbePoint(raw, reported, rect, false) !== null) {
@@ -262,9 +265,9 @@ export function resolveProbes(
  * Returns the point to test `rect`'s edge zones against, or `null` when neither is inside.
  * The physical pointer wins, since an axis lock pins the reported point away from the edge
  * being pushed. The reported point is the fallback for clamps like `restrictToElement`,
- * which the pointer escapes. `preferReported` (some container holds the reported point)
- * rejects raw-only candidates, so a pointer pushing out of clamped list A into list B can't
- * take the axis from A.
+ * which the pointer escapes. `preferReported`, set when some container holds the reported
+ * point, rejects raw-only candidates, so a pointer pushing out of clamped list A into
+ * list B can't take the axis from A.
  */
 function resolveProbePoint(
   raw: DraggableInput,

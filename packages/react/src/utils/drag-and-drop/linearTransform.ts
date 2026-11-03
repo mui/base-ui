@@ -31,6 +31,7 @@ export function parseComputedLinearTransform(transform: string): LinearTransform
     return null;
   }
   const values = match[2].split(',').map(Number);
+  // `matrix3d()` lists its 4×4 matrix column by column, so the 2×2 part is at 0, 1, 4 and 5.
   const [a, b, c, d] = match[1] ? [values[0], values[1], values[4], values[5]] : values;
   return [a, b, c, d].every(Number.isFinite) ? { a, b, c, d } : null;
 }
@@ -68,6 +69,7 @@ export function parseRotateLinearTransform(rotate: string): LinearTransform | nu
   if (degrees === null) {
     return null;
   }
+  // `<angle>`, `<axis> <angle>`, or `<x> <y> <z> <angle>`.
   let [x, y, z] = [0, 0, 1];
   if (parts.length === 2) {
     [x, y, z] = [Number(parts[0] === 'x'), Number(parts[0] === 'y'), Number(parts[0] === 'z')];
@@ -80,6 +82,7 @@ export function parseRotateLinearTransform(rotate: string): LinearTransform | nu
   if (!Number.isFinite(length) || length === 0) {
     return null;
   }
+  // The 2×2 part of the rotation about the unit axis (Rodrigues' formula).
   const angle = (degrees * Math.PI) / 180;
   const [ux, uy] = [x / length, y / length];
   const cos = Math.cos(angle);

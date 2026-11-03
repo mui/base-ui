@@ -50,8 +50,8 @@ type TestTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTarg
 type MaybeGetter<T> = T | (() => T);
 
 /**
- * {@link DraggableManager} as exposed to tests: each `register*` also accepts a plain
- * parameters object instead of a getter.
+ * {@link DraggableManager} for tests. Each `register*` also accepts a plain parameters
+ * object instead of a getter.
  */
 export interface DndTestEngine {
   registerSource: <TPayload = undefined, TDragData = unknown>(
@@ -139,7 +139,7 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
           () => {
             const declared = getParameters();
             // Default `accept` so fixtures don't trip the missing-`accept` warning. Not
-            // when `kind` is declared: the kind-without-accept warning has its own test.
+            // when `kind` is declared, since the kind-without-accept warning has its own test.
             return declared.accept === undefined && declared.kind === undefined
               ? {
                   ...declared,

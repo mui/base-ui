@@ -43,7 +43,10 @@ interface TargetDragData {
   value: unknown;
 }
 
-/** One drag's `dragData` per registration. The lifecycle creates one per drag. */
+/**
+ * Each registration's `dragData`, keyed by {@link getRegistrationKey}. The lifecycle
+ * creates one per drag.
+ */
 export type DropTargetDragData = WeakMap<object, TargetDragData>;
 
 /** The registration a record was resolved from. */
@@ -178,9 +181,9 @@ export function trackRegisteredShadowRoots(
 }
 
 /**
- * The key a registration's `dragData` is stored under. Not the getter alone: cells
- * sharing `() => cellParameters` each need their own data, and unregistering one
- * must not reset the others.
+ * The key a registration's `dragData` is stored under. Not the getter alone, since
+ * cells sharing `() => cellParameters` each need their own data, and unregistering
+ * one must not reset the others.
  */
 function getRegistrationKey(element: Element, getParameters: DropTargetGetter): object {
   const keys = getOrCreate(state.registrationKeys, element, () => new WeakMap());
@@ -213,9 +216,9 @@ export function registerTarget<
 ): DragCleanupFn {
   if (process.env.NODE_ENV !== 'production') {
     // An omitted `accept` silently takes every drag and hands foreign payloads to
-    // handlers typed for its own. A throw, from the getter or a plain-JS `accept`
-    // getter, is swallowed: this dev-only check must not break registration, and the
-    // dispatch path already reports it.
+    // handlers typed for its own. A throw from the getter, or from a plain-JS `accept`
+    // getter, is swallowed. This dev-only check must not break registration, and
+    // dispatch already reports it.
     let missingAccept = false;
     let hasKind = false;
     try {
@@ -228,7 +231,7 @@ export function registerTarget<
       // Reported on dispatch.
     }
     if (missingAccept) {
-      // Only reachable from plain JS or a cast: the types require `accept`, and
+      // Only reachable from plain JS or a cast, since the types require `accept` and
       // `Draggable.Target` always passes one.
       if (hasKind) {
         warn(
@@ -252,8 +255,8 @@ export function registerTarget<
   holds.add(element, getParameters);
 
   // A virtualizer can replace the hovered target's node mid-drag, so re-resolve the
-  // stack to let the new node enter it. Runs on every registration: an element that
-  // re-registers from its own `onDraggableLeave` keeps its entry but must still
+  // stack to let the new node enter it. Runs on every registration, since an element
+  // that re-registers from its own `onDraggableLeave` keeps its entry but must still
   // rejoin the stack before the next pointer update.
   getActiveSession()?.scheduleTargetRefresh(null, true);
 
@@ -277,7 +280,7 @@ export function resetForTests(): void {
   for (const element of state.registry.keys()) {
     element.removeAttribute(DROP_TARGET_ATTR);
   }
-  // Cleared in place: `holds` keeps a reference to this map.
+  // Cleared in place, since `holds` keeps a reference to this map.
   state.registry.clear();
   state.shadowRoots.clear();
   state.retainedRoots = new WeakMap<Element, DragCleanupFn>();
@@ -353,13 +356,13 @@ function resolveDropTargetOutcome(
   if (registration == null || registration.disabled) {
     return null;
   }
-  // Cheap kind filter first: this runs per walked target per frame, and most fail here.
+  // Cheap kind filter first, since this runs per walked target per frame and most fail here.
   const source = feedback.source;
   if (!matchesAccept(registration.accept, source)) {
     return null;
   }
-  // The point readers measure lazily, and the record reuses them, so a point
-  // `canDrop` reads isn't measured again.
+  // The readers pass this context to `snap`, so it gets them after they're built. The
+  // record reuses them, so a point `canDrop` reads isn't measured again.
   const fullFeedback = { ...feedback, element } as DraggableTargetResolutionContext;
   const pointReaders = createLocalPointReaders(element, fullFeedback, registration.snap);
   Object.assign(fullFeedback, pointReaders);
@@ -434,11 +437,11 @@ function snapAxis(value: number, steps: number | undefined): number {
 type DropTargetFeedback = Pick<DraggableTargetResolutionContext, 'input' | 'source'>;
 
 /**
- * Builds the record's local-point readers. They share one `getBoundingClientRect()`, taken
- * on the first read rather than per resolved target per frame, and `snap` runs at most once.
- * The pointer is fixed at resolution but the rect isn't, so a record read after its frame
- * pairs the old pointer with the current rect. The grab offset is captured now because a
- * record can outlive its drag.
+ * The readers share one `getBoundingClientRect()`, taken on the first read rather than
+ * per resolved target per frame, and `snap` runs at most once. The pointer is fixed at
+ * resolution but the rect isn't, so a record read after its frame pairs the old pointer
+ * with the current rect. The grab offset is captured now because a record can outlive
+ * its drag.
  */
 function createLocalPointReaders(
   element: Element,
@@ -451,8 +454,8 @@ function createLocalPointReaders(
   let rect: DOMRect | null = null;
   function localPoint(offsetX: number, offsetY: number): DraggableTargetLocalPoint {
     rect ??= element.getBoundingClientRect();
-    // Zero on an axis with no extent (an empty or detached element) instead of
-    // dividing by zero.
+    // Zero on an axis with no extent, such as an empty or detached element, instead
+    // of dividing by zero.
     return {
       x: rect.width === 0 ? 0 : (clientX - offsetX - rect.left) / rect.width,
       y: rect.height === 0 ? 0 : (clientY - offsetY - rect.top) / rect.height,
@@ -482,8 +485,8 @@ function createLocalPointReaders(
   const getSnappedLocalPoint = (
     options?: DraggableTargetSnappedLocalPointOptions,
   ): DraggableTargetLocalPoint => {
-    // Documented fallback: with no session at resolution there is no grab offset,
-    // so `'source'` anchors on the pointer.
+    // With no session at resolution there is no grab offset, so `'source'` falls
+    // back to the pointer, as documented.
     const anchor = options?.anchor === 'source' && grabOffset !== null ? 'source' : 'pointer';
     let memo = snappedMemos[anchor];
     if (memo === undefined) {
@@ -547,8 +550,8 @@ export function getDropTargetsOver(
 export type DropTargetEventName = keyof DropTargetEventReasonMap & keyof DropTargetParameters;
 
 /**
- * The registration `record`'s enter goes through: the element's active one, or, once it
- * is `released` (unregistered while owed its enter or leave), the one that resolved the record.
+ * The registration `record`'s enter goes through. That's the element's active one or,
+ * when it has none and `released` is set, the one that resolved the record.
  */
 export function getEnterRegistration(
   record: DraggableTargetRecord,
@@ -561,11 +564,11 @@ export function getEnterRegistration(
 }
 
 /**
- * Delivers `eventName` through the element's active registration, or through `fallback`
- * (the hover ledger's record of the one that got its enter) once it has unregistered. A
- * drop uses the registration that resolved the record, since the source's `onMoveEnd`
- * runs first and may unmount the target. The handler gets its own record as
- * `currentTarget`; `target` stays the innermost.
+ * Delivers `eventName` through the element's active registration. Once the element has
+ * unregistered, `fallback` is the one that got its enter. A drop uses the registration
+ * that resolved the record, since the source's `onMoveEnd` runs first and may unmount
+ * the target. The handler gets its own record as `currentTarget`, and `target` stays
+ * the innermost.
  */
 export function dispatchToDropTarget<K extends DropTargetEventName>(
   record: DraggableTargetRecord,

@@ -8,12 +8,12 @@ import { getOrCreate, onceCleanup } from './utils';
 
 export type DragEventRoot = Document | ShadowRoot;
 
-interface DocumentBindingEntry {
+interface EventRootBindingEntry {
   count: number;
   cleanup: DragCleanupFn;
 }
 
-interface DocumentBinding {
+interface EventRootBinding {
   bind(root: DragEventRoot): DragCleanupFn;
 }
 
@@ -22,11 +22,17 @@ interface CreateEventRootBindingOptions {
   listeners: Record<string, (event: Event) => void>;
 }
 
-export function createEventRootBinding(options: CreateEventRootBindingOptions): DocumentBinding {
+/**
+ * Binds `listeners` per document or shadow root, ref-counted across callers. A document
+ * binds on its window, the earliest point any listener sees an event. Roots above a
+ * bound shadow root leave its events to that root's capture listener, which sees the
+ * real target, and deliver them on bubble only if it didn't, as for a press on the host.
+ */
+export function createEventRootBinding(options: CreateEventRootBindingOptions): EventRootBinding {
   const { slot, listeners } = options;
-  const bindings = getSharedSlot<WeakMap<DragEventRoot, DocumentBindingEntry>>(
+  const bindings = getSharedSlot<WeakMap<DragEventRoot, EventRootBindingEntry>>(
     slot,
-    () => new WeakMap<DragEventRoot, DocumentBindingEntry>(),
+    () => new WeakMap<DragEventRoot, EventRootBindingEntry>(),
   );
   const boundShadowRoots = getSharedSlot<Map<EventTarget, ShadowRoot>>(
     `${slot}.shadowRootsByHost`,
@@ -52,6 +58,7 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
       return false;
     }
     const path = event.composedPath();
+    // Only the nodes inside `currentRoot` count.
     const end = isShadowRoot(currentRoot) ? path.indexOf(currentRoot) : path.length;
     for (let i = 0; i < end; i += 1) {
       const root = boundShadowRoots.get(path[i]);

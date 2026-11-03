@@ -225,7 +225,7 @@ export type DragDropEventDetails<
   TTargetDragData
 >;
 
-/** The `canceled` flag the details of a drag's end add to the drag event details. */
+/** Adds `canceled` to the details of a drag's end. */
 export interface DragEndEventDetailsProperties extends DragEventDetailsProperties {
   /**
    * Whether the drag was canceled, for example with Escape or `cancelDrag()`. A release

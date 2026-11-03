@@ -17,7 +17,7 @@ import * as DraggablePreviewDataAttributes from './DraggablePreviewDataAttribute
 
 const PREVIEW_PROPS = { [DraggablePreviewDataAttributes.dragPreview as string]: '' };
 
-// The trigger's size at pickup, so a copy of it keeps that size away from its layout.
+// The trigger's size at pickup, which a copy rendered outside its layout would lose.
 const CLONE_SIZE_STYLE = {
   boxSizing: 'border-box',
   width: `var(${DraggablePositionerCssVars.dragSourceWidth})`,
@@ -44,13 +44,13 @@ export const DraggablePreview = React.forwardRef(function DraggablePreview(
   const isClone = children === undefined;
   // The trigger's props when its drag started, read once per drag. Subscribing to them
   // would render the preview again in a second commit each time the trigger renders.
-  const drag = rootContext.drag.preview;
+  const preview = rootContext.drag.preview;
   const [snapshot, setSnapshot] = React.useState(() => ({
-    drag,
+    preview,
     props: rootContext.triggerProps.current,
   }));
-  if (isClone && drag !== null && snapshot.drag !== drag) {
-    setSnapshot({ drag, props: rootContext.triggerProps.current });
+  if (isClone && preview !== null && snapshot.preview !== preview) {
+    setSnapshot({ preview, props: rootContext.triggerProps.current });
   }
   const triggerProps = isClone ? snapshot.props : null;
   let props = componentProps;
@@ -90,9 +90,9 @@ export const DraggablePreview = React.forwardRef(function DraggablePreview(
 });
 
 /**
- * The trigger's props for its copy: function props resolved with the trigger's state,
- * and without what must stay unique to the trigger: its `id`, event handlers, and the
- * refs of its `render` element and children.
+ * The trigger's props for its copy, with function props resolved against `state`. Drops
+ * what must stay unique to the trigger: its `id`, event handlers, and the refs of its
+ * `render` element and children.
  */
 function getCloneProps(props: DraggableTriggerProps, state: DraggableTriggerState) {
   const { className, render: renderProp, style, children, id, ...rest } = props;
@@ -125,9 +125,9 @@ function isEventHandler(name: string) {
 }
 
 /**
- * Replaces what the trigger's `render` element holds for the trigger alone with the
- * preview's own `previewProps`: its ref, which stays on the trigger while the preview
- * mounts, its `id`, and its event handlers.
+ * Overrides for the props of the trigger's `render` element that belong to the trigger
+ * alone: its ref, its `id`, and its event handlers. Each takes the preview's own value
+ * from `previewProps`.
  */
 function getUniqueRenderProps(render: React.ReactElement, previewProps: object = {}) {
   const props = render.props as Record<string, unknown>;
@@ -142,8 +142,8 @@ function getUniqueRenderProps(render: React.ReactElement, previewProps: object =
 }
 
 /**
- * `node` with the refs of its elements cleared: they stay on the trigger's children, which
- * remain mounted after the preview unmounts.
+ * `node` with the refs of its elements cleared, so they keep pointing at the trigger's
+ * children, which outlive the preview.
  */
 function withoutRefs(node: React.ReactNode): React.ReactNode {
   if (Array.isArray(node)) {

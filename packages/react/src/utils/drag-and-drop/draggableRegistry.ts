@@ -16,7 +16,7 @@ interface DraggableRegistration {
   getParameters: DraggableGetter;
   /** Re-applies this registration's static setup from the element's active parameters. */
   refreshStaticSetup: (parameters: DraggableConfig<any, any>) => void;
-  /** The `Draggable.Root`'s drag store, which keeps it across a node swap. */
+  /** The registering `Draggable.Root`'s drag store, which identifies it across a node swap. */
   owner: RootDragStore | undefined;
 }
 
@@ -47,7 +47,6 @@ export function getRegistration(element: HTMLElement): DraggableGetter | undefin
   return holds.getActive(element)?.getParameters;
 }
 
-/** The owner of `element`'s active registration, if it has one. */
 export function getRegistrationOwner(element: HTMLElement): RootDragStore | undefined {
   return holds.getActive(element)?.owner;
 }
@@ -72,7 +71,7 @@ export function refreshDraggableStaticSetup(
 }
 
 export interface DraggablePickup {
-  /** The nearest registered draggable ancestor of the event target. */
+  /** The registered draggable that takes the press. */
   element: HTMLElement;
   /** The event target as an element. It is `element` or one of its descendants. */
   target: Element;
@@ -89,8 +88,8 @@ export function resolveDragHandle(
 }
 
 /**
- * Whether the draggable accepts a press on `target`: it isn't `disabled`, and the
- * press began inside its handle, if any. The check walks the composed tree, so
+ * Whether the draggable accepts a press on `target`. It must not be `disabled`, and the
+ * press must start inside its handle, if any. The walk follows the composed tree, so
  * content slotted into a handle counts as inside it.
  */
 function acceptsPress(pickup: Omit<DraggablePickup, 'element'>): boolean {
@@ -111,8 +110,8 @@ function acceptsPress(pickup: Omit<DraggablePickup, 'element'>): boolean {
 /**
  * {@link acceptsPress}, and the press isn't on a control nested in the draggable.
  * Otherwise dragging to select text in an inline rename input would start a drag.
- * The sensor checks this at the press and again when activation commits, since
- * either can change in between.
+ * The sensor checks this at the press and again at activation, since both can change
+ * in between.
  */
 export function canPickUp(pickup: DraggablePickup): boolean {
   return (
@@ -123,8 +122,8 @@ export function canPickUp(pickup: DraggablePickup): boolean {
 
 /**
  * The nearest registered ancestor of the press target that {@link acceptsPress}, or `null`.
- * Callers still check {@link canPickUp}, dispatch `onBeforeMoveStart`, and check the
- * lifecycle's `isActive`. The walk refreshes every registered ancestor's static setup, so
+ * Callers still check {@link canPickUp} and that no drag is active, and dispatch
+ * `onBeforeMoveStart`. The walk refreshes every registered ancestor's static setup, so
  * one whose `disabled` or `handle` changed without re-registering doesn't keep stale styles.
  */
 export function resolveDraggablePickup(rawTarget: EventTarget | null): DraggablePickup | null {
@@ -143,6 +142,7 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
     if (parameters === undefined) {
       continue;
     }
+    // Already found. The walk goes on only to refresh the outer draggables.
     if (pickup !== null) {
       continue;
     }

@@ -9,11 +9,11 @@ import { useIsInDragPreview } from '../../draggable/positioner/DraggablePosition
 const NOOP_REGISTRATION = () => NOOP;
 
 /**
- * A stable ref callback that registers the attached element with the latest `register`
- * and unregisters it on detach or replacement. It keeps its own cleanup, so a direct call
- * to re-register loses nothing. A same-node detach and re-attach within one commit, as when
- * a merged ref changes identity, keeps the registration: re-registering mid-drag would make
- * a hovered target leave and re-enter, looping forever if a handler sets state.
+ * A stable ref callback that registers the attached element with the latest `register`,
+ * and unregisters it on detach or replacement. A direct call with the attached node
+ * re-registers it. A detach and re-attach of the same node within one commit, as when a
+ * merged ref changes identity, keeps the registration. Re-registering mid-drag would make
+ * a hovered target leave and re-enter, which loops if a handler sets state.
  * Inside a drag preview, which only pictures the dragged item, nothing registers.
  */
 export function useRegistrationRef<TElement extends Element>(
@@ -25,8 +25,8 @@ export function useRegistrationRef<TElement extends Element>(
     let current: { node: TElement; cleanup: DragCleanupFn } | null = null;
     // Set by a detach until the end of its commit, while React may re-attach the node.
     let pendingDetach = false;
-    // Cleared when a second detach arrives first, for example from a direct call
-    // made while the node is detached. The node then re-registers when it returns.
+    // Cleared by a second detach before the re-attach, such as a direct `ref(null)`.
+    // The returning node then registers again.
     let reattachable = false;
     let mounted = false;
 
