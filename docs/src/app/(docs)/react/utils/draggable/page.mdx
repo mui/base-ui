@@ -1055,17 +1055,7 @@ Both demos let the keyboard reorder the focused item with <kbd>Alt</kbd>+<kbd>�
 
 ### Auto-scroll direction
 
-CSS decides which axes can scroll. With `overflow-x: auto` and `overflow-y: hidden`, only horizontal scrolling is possible. To restrict it further, cancel a direction in `onDragScroll`. Base UI calls the handler once per direction on every scrolling frame:
-
-```tsx title="Horizontal only"
-<Draggable.Viewport
-  onDragScroll={(eventDetails) => {
-    if (eventDetails.direction === 'vertical') {
-      eventDetails.cancel();
-    }
-  }}
-/>
-```
+CSS decides which axes can scroll. With `overflow-x: auto` and `overflow-y: hidden`, only horizontal scrolling is possible. To restrict it further, cancel a direction in `onDragScroll`. Base UI calls the handler once per direction on every scrolling frame.
 
 import { DemoDragAutoScrollAxis } from './demos/scrolling-axis';
 
