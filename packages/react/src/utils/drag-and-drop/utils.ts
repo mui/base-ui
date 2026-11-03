@@ -16,10 +16,9 @@ import {
 } from './linearTransform';
 
 /**
- * Marks the element the engine positions: `"clone"` for the source's clone, `"content"`
- * for the copy of a custom preview's content. The engine finds the preview through it,
- * even while it settles after the drag. Internal; the public styling hook on the same
- * element is `data-drag-preview`.
+ * Marks the element the engine positions: a `Draggable.Positioner`, or the copy it leaves
+ * when its root unmounts mid-drag. Internal; the public styling hook is
+ * `data-drag-preview`, on the `Draggable.Preview` inside it.
  */
 export const PREVIEW_ELEMENT_ATTRIBUTE = 'data-base-ui-drag-preview';
 
@@ -173,8 +172,7 @@ export function elementFromPointIgnoring(
     return found;
   }
   // Not `visibility: hidden`: a descendant with `visibility: visible` would stay
-  // hit-testable. `ignore` is the preview, never the engine's `[popover]` wrapper,
-  // so this doesn't close the popover that keeps it in the top layer.
+  // hit-testable.
   const previousDisplay = ignore.style.display;
   ignore.style.display = 'none';
   const behind = deepElementFromPoint(doc, clientX, clientY, rootsByHost);
@@ -411,10 +409,7 @@ export function getOwnZoom(node: Element, style: CSSStyleDeclaration): number {
   return usableScale(Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || ''));
 }
 
-/**
- * The product of `zoom` on the element and its ancestors. Unlike transforms, zoom
- * still compounds when a preview enters the top layer.
- */
+/** The product of `zoom` on the element and its ancestors. */
 export function getElementZoom(element: HTMLElement): number {
   const win = ownerWindow(element);
   let zoom = 1;

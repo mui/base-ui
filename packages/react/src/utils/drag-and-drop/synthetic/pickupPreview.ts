@@ -25,8 +25,8 @@ import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot'
 
 /**
  * Measure a source at pickup, once, for the grab offset and the modifiers. A source
- * whose previous clone is still settling carries `data-dragging` and `data-settling`,
- * so that clone is finished first.
+ * whose previous preview is still settling carries `data-dragging` and `data-settling`,
+ * so that preview is finished first.
  */
 export function measurePickupSource(element: HTMLElement): DOMRect {
   finishEndingPreview(element);
