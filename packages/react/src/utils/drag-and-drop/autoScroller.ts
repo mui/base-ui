@@ -30,7 +30,13 @@ import { addMonitor, removeMonitor } from './monitor';
 import type { MonitorParameters } from './monitor';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
-import { PREVIEW_ELEMENT_ATTRIBUTE, onceCleanup, safeCallConsumer, getOrCreate } from './utils';
+import {
+  PREVIEW_ELEMENT_ATTRIBUTE,
+  onceCleanup,
+  safeCallConsumer,
+  getOrCreate,
+  runAllCleanups,
+} from './utils';
 import {
   elementFromPointIgnoring,
   getComposedParentElement,
@@ -99,7 +105,7 @@ const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   overflowEligible: new Set<HTMLElement>(),
   sortedScrollers: null,
   releaseViewportClosedRoots: null,
-  loadListenerRoots: new Set<ShadowRoot>(),
+  loadListenerRoots: new Map<ShadowRoot, DragCleanupFn>(),
   chainMutationObserver: null,
   observedChainElements: new Set<Element>(),
   idleMutationObserver: null,
@@ -263,20 +269,6 @@ function invalidateScrollerOrder(): void {
 }
 
 /**
- * Calls a consumer callback and returns `fallback` if it throws. A throwing
- * scroller loses this frame instead of aborting the shared loop for every other
- * scroller.
- */
-function safeCall<T>(
-  callbackName: 'maxSpeed' | 'getParameters' | 'onDragScroll',
-  element: Element,
-  call: () => T,
-  fallback: T,
-): T {
-  return safeCallConsumer('viewport', callbackName, element, call, fallback);
-}
-
-/**
  * Falls back to the default unless the speed is finite and non-negative. A
  * negative speed would scroll backwards and `NaN` would freeze the container,
  * both silently.
@@ -293,7 +285,13 @@ function resolveMaxSpeed(
   }
   const resolved =
     typeof maxSpeed === 'function'
-      ? safeCall('maxSpeed', element, () => maxSpeed({ input, source, element }), DEFAULT_MAX_SPEED)
+      ? safeCallConsumer(
+          'viewport',
+          'maxSpeed',
+          element,
+          () => maxSpeed({ input, source, element }),
+          DEFAULT_MAX_SPEED,
+        )
       : maxSpeed;
   return Number.isFinite(resolved) && resolved >= 0 ? resolved : DEFAULT_MAX_SPEED;
 }
@@ -309,7 +307,7 @@ const BOTH_AXES: AxisFlags = { x: true, y: true };
 function sortAndObserveScrollers(doc: Document): HTMLElement[] {
   const releases = Array.from(state.scrollers.keys(), (el) => holdClosedShadowRoots(el));
   state.releaseViewportClosedRoots?.();
-  state.releaseViewportClosedRoots = () => releases.forEach((release) => release());
+  state.releaseViewportClosedRoots = () => runAllCleanups(releases);
   const depths = new Map<HTMLElement, number>();
   const chain = new Set<Element>([doc.documentElement]);
   if (doc.body) {
@@ -395,7 +393,8 @@ function runScrollFrame(timestamp: number): void {
     if (ownerDocument(element) !== sourceDocument || getParameters === undefined) {
       continue;
     }
-    const registration = safeCall<ViewportParameters | null>(
+    const registration = safeCallConsumer<ViewportParameters | null>(
+      'viewport',
       'getParameters',
       element,
       getParameters,
@@ -527,7 +526,8 @@ function runScrollFrame(timestamp: number): void {
           input,
           element,
         );
-        const succeeded = safeCall(
+        const succeeded = safeCallConsumer(
+          'viewport',
           'onDragScroll',
           element,
           () => {
@@ -637,8 +637,10 @@ function observeChainMutations(
     observer.observe(shadowRoot, { childList: true });
     // `load` isn't composed, so the document's listener misses resources in here.
     if (!state.loadListenerRoots.has(shadowRoot)) {
-      state.loadListenerRoots.add(shadowRoot);
-      shadowRoot.addEventListener('load', wakeScrollLoop, true);
+      state.loadListenerRoots.set(
+        shadowRoot,
+        addEventListener(shadowRoot, 'load', wakeScrollLoop, true),
+      );
     }
   }
   state.observedChainElements = elements;
@@ -682,8 +684,8 @@ function stopScrollLoop(): void {
   state.observedChainElements.clear();
   state.idleMutationObserver?.disconnect();
   state.idleMutationObserver = null;
-  for (const shadowRoot of state.loadListenerRoots) {
-    shadowRoot.removeEventListener('load', wakeScrollLoop, true);
+  for (const removeLoadListener of state.loadListenerRoots.values()) {
+    removeLoadListener();
   }
   state.loadListenerRoots.clear();
   // Rebuilt, with the chain observation, on the next drag's first frame.
@@ -850,8 +852,11 @@ interface AutoScrollerState {
   sortedScrollers: HTMLElement[] | null;
   /** Releases the closed shadow roots held for the viewports. Rebuilt with `sortedScrollers`. */
   releaseViewportClosedRoots: DragCleanupFn | null;
-  /** Shadow roots of the chains with a `load` listener this drag (see `observeChainMutations`). */
-  loadListenerRoots: Set<ShadowRoot>;
+  /**
+   * Shadow roots of the chains with a `load` listener this drag, to the listener's removal
+   * (see `observeChainMutations`).
+   */
+  loadListenerRoots: Map<ShadowRoot, DragCleanupFn>;
   /** Watches the viewports' subtrees and ancestor chains during a drag. */
   chainMutationObserver: MutationObserver | null;
   /** The elements `chainMutationObserver` watches (see `observeChainMutations`). */

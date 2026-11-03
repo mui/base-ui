@@ -15,12 +15,16 @@ export interface CompositeListContextValue<Metadata> {
   nextIndexRef: React.RefObject<number>;
 }
 
-export const CompositeListContext = React.createContext<CompositeListContextValue<any>>({
+/** The value outside a `CompositeList`: items register with nothing. */
+export const NO_COMPOSITE_LIST: CompositeListContextValue<any> = {
   register: () => {},
   unregister: () => {},
   subscribeMapChange: () => () => {},
   nextIndexRef: { current: 0 },
-});
+};
+
+export const CompositeListContext =
+  React.createContext<CompositeListContextValue<any>>(NO_COMPOSITE_LIST);
 
 export function useCompositeListContext() {
   return React.useContext(CompositeListContext);

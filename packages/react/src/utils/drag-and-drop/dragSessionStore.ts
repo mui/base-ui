@@ -6,6 +6,7 @@ import type {
 } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import { getSharedSlot } from './sharedState';
+import { getOrCreate } from './utils';
 
 /**
  * Snapshot of the active drag, mirrored from the lifecycle for reactive
@@ -146,12 +147,7 @@ export function createDragTargetStateStore(): DragTargetStateStore {
     if (current === null) {
       return;
     }
-    let set = slot.targetListeners.get(current);
-    if (!set) {
-      set = new Set();
-      slot.targetListeners.set(current, set);
-    }
-    set.add(listener);
+    getOrCreate(slot.targetListeners, current, () => new Set()).add(listener);
   }
 
   function removeFromElement(current: Element | null, listener: () => void): void {

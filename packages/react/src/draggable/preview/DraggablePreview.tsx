@@ -3,8 +3,12 @@ import * as React from 'react';
 import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { unwrapLazyRenderProp, useRenderElement } from '../../internals/useRenderElement';
-import { CompositeListContext } from '../../internals/composite/list/CompositeListContext';
-import type { CompositeListContextValue } from '../../internals/composite/list/CompositeListContext';
+import {
+  CompositeListContext,
+  NO_COMPOSITE_LIST,
+} from '../../internals/composite/list/CompositeListContext';
+import { resolveClassName } from '../../utils/resolveClassName';
+import { resolveStyle } from '../../utils/resolveStyle';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
 import { useDraggablePositionerContext } from '../positioner/DraggablePositionerContext';
 import * as DraggablePositionerCssVars from '../positioner/DraggablePositionerCssVars';
@@ -19,15 +23,6 @@ const CLONE_SIZE_STYLE = {
   width: `var(${DraggablePositionerCssVars.dragSourceWidth})`,
   height: `var(${DraggablePositionerCssVars.dragSourceHeight})`,
 } as React.CSSProperties;
-
-// List items inside the preview, such as a copied `Tabs.Tab`, skip registering with the
-// trigger's list: the copy would claim the item's index and fight it for the highlight.
-const NO_LIST: CompositeListContextValue<unknown> = {
-  register: () => {},
-  unregister: () => {},
-  subscribeMapChange: () => () => {},
-  nextIndexRef: { current: 0 },
-};
 
 /**
  * The content that follows the pointer during a drag. Without children, it renders the
@@ -74,7 +69,7 @@ export const DraggablePreview = React.forwardRef(function DraggablePreview(
       style: {
         ...clone.style,
         ...CLONE_SIZE_STYLE,
-        ...(typeof style === 'function' ? style({}) : style),
+        ...resolveStyle(style, {}),
       },
     };
     ownProps = { ...clone.elementProps, ...elementProps, children: clone.children };
@@ -85,7 +80,13 @@ export const DraggablePreview = React.forwardRef(function DraggablePreview(
     props: [PREVIEW_PROPS, ownProps],
   });
 
-  return <CompositeListContext.Provider value={NO_LIST}>{element}</CompositeListContext.Provider>;
+  // List items inside the preview, such as a copied `Tabs.Tab`, skip registering with the
+  // trigger's list: the copy would claim the item's index and fight it for the highlight.
+  return (
+    <CompositeListContext.Provider value={NO_COMPOSITE_LIST}>
+      {element}
+    </CompositeListContext.Provider>
+  );
 });
 
 /**
@@ -103,8 +104,8 @@ function getCloneProps(props: DraggableTriggerProps, state: DraggableTriggerStat
     }
   }
   return {
-    className: typeof className === 'function' ? className(state) : className,
-    style: typeof style === 'function' ? style(state) : style,
+    className: resolveClassName(className, state),
+    style: resolveStyle(style, state),
     render:
       typeof render === 'function'
         ? (renderProps: React.HTMLAttributes<any>) => {

@@ -47,7 +47,6 @@ describe('linear transforms', () => {
     });
     const matrix3d = 'matrix3d(2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 60, 70, 0, 1)';
     expect(parseComputedLinearTransform(matrix3d)).toEqual({ a: 2, b: 3, c: 4, d: 5 });
-    expect(parseComputedLinearTransform(matrix3d, false)).toBeNull();
   });
 
   it.each(['none', 'matrix(NaN, 0, 0, 1, 0, 0)', 'matrix(1, 2)'])(

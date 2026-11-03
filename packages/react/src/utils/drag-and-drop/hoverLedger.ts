@@ -30,15 +30,14 @@ export interface HoverLedger {
   leave(record: DraggableTargetRecord, eventDetails: DropTargetChangeEventDetails): void;
   /**
    * Leave the targets of `previous` that `current` doesn't hold, then enter the new
-   * ones. `shouldContinue` is checked before each delivery, since a handler can end
-   * the drag and the end sequence delivers the rest. A completed round leaves the
-   * ledger listing `current`, in bubbling order.
+   * ones. Stops once the session isn't live, since a handler can end the drag and the
+   * end sequence delivers the rest. A completed round leaves the ledger listing
+   * `current`, in bubbling order.
    */
   change(
     previous: readonly DraggableTargetRecord[],
     current: readonly DraggableTargetRecord[],
     eventDetails: DropTargetChangeEventDetails,
-    shouldContinue: () => boolean,
   ): void;
   /**
    * Swap each owed record for its freshly resolved one, matched by element, without
@@ -46,12 +45,11 @@ export interface HoverLedger {
    * the terminal leave reports the latest `currentTarget.payload`.
    */
   refresh(fresh: readonly DraggableTargetRecord[]): void;
-  /** Deliver `eventName` to each of `targets`, checking `shouldContinue` before each. */
+  /** Deliver `eventName` to each of `targets`, while the session is live. */
   dispatchToAll<K extends DropTargetEventName>(
     targets: readonly DraggableTargetRecord[],
     eventName: K,
     eventDetails: DragEventDetails<DropTargetEventReasonMap[K]>,
-    shouldContinue: () => boolean,
   ): void;
   /**
    * Mark `element` as unregistered while owed an enter or leave. Its enter then goes
@@ -61,7 +59,8 @@ export interface HoverLedger {
   release(element: Element): void;
 }
 
-export function createHoverLedger(): HoverLedger {
+/** `isLive` is checked before each delivery of `change` and `dispatchToAll`. */
+export function createHoverLedger(isLive: () => boolean): HoverLedger {
   const hovered: DraggableTargetRecord[] = [];
   // Targets that unregistered while owed an enter or leave. Only these enter through
   // their record's registration, so one unregistered mid-round before its enter gets neither.
@@ -110,12 +109,12 @@ export function createHoverLedger(): HoverLedger {
     owed: () => hovered.slice(),
     enter,
     leave,
-    change(previous, current, eventDetails, shouldContinue) {
+    change(previous, current, eventDetails) {
       const currentByElement = new Map(current.map((record) => [record.element, record] as const));
       const visited = new Set<Element>();
 
       for (const record of previous) {
-        if (!shouldContinue()) {
+        if (!isLive()) {
           return;
         }
         visited.add(record.element);
@@ -134,7 +133,7 @@ export function createHoverLedger(): HoverLedger {
       }
 
       for (const record of current) {
-        if (!shouldContinue()) {
+        if (!isLive()) {
           return;
         }
         if (!visited.has(record.element)) {
@@ -163,9 +162,9 @@ export function createHoverLedger(): HoverLedger {
         }
       }
     },
-    dispatchToAll(targets, eventName, eventDetails, shouldContinue) {
+    dispatchToAll(targets, eventName, eventDetails) {
       for (const record of targets) {
-        if (!shouldContinue()) {
+        if (!isLive()) {
           return;
         }
         dispatch(record, eventName, eventDetails);

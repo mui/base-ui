@@ -16,8 +16,8 @@ import type { DragCleanupFn } from '../types';
 import { getSharedSlot } from '../sharedState';
 
 /**
- * - `starting`: from pickup until the first publish. Monitors engage, the initial
- *   stack resolves and `onGenerateDragPreview` runs. No target has an event yet.
+ * - `starting`: from pickup until the first publish. Monitors engage and the initial
+ *   stack resolves. No target has an event yet.
  * - `live`: from the first publish until the end sequence begins.
  * - `ending`: a drop, a cancel or error recovery is delivering the terminal events.
  */

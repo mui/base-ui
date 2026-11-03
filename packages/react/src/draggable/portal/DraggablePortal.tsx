@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import type { DragPreview } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -29,7 +30,7 @@ export const DraggablePortal = React.forwardRef(function DraggablePortal(
   const waitingForRef = preview !== null && containerElement === null && container != null;
   // A ref that isn't set yet gets one more render. A later sibling's ref attaches after
   // this effect, so the retry runs whether or not the ref is set here.
-  const [, retry] = React.useReducer((count: number) => count + 1, 0);
+  const retry = useForcedRerendering();
   const retriedRef = React.useRef(false);
   useIsoLayoutEffect(() => {
     if (!waitingForRef) {

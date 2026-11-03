@@ -557,7 +557,7 @@ function onPointerDown(event: Event): void {
     addEventListener(win, 'pointercancel', onPendingPointerCancel, CAPTURE),
     // Suppress the native HTML5 drag that a natively draggable descendant
     // (`<img>`, `<a href>`) would otherwise start from the same press.
-    addEventListener(win, 'dragstart', preventNativeDragStart, CAPTURE),
+    addEventListener(win, 'dragstart', preventDefault, CAPTURE),
     addEventListener(win, 'keydown', onPendingKeyDown, CAPTURE),
     // A blurred window or hidden page abandons the press, so a drag never commits
     // in the background.
@@ -570,9 +570,7 @@ function onPointerDown(event: Event): void {
   if (pointerType !== 'mouse') {
     // Unlike `startContextMenuSuppression`, which removes itself after one menu,
     // this guards the whole pending phase.
-    gesture.pendingListeners.push(
-      addEventListener(win, 'contextmenu', preventContextMenu, CAPTURE),
-    );
+    gesture.pendingListeners.push(addEventListener(win, 'contextmenu', preventDefault, CAPTURE));
   }
 
   evaluatePendingActivation(gesture, gesture.startedAt);
@@ -1114,7 +1112,7 @@ function startDrag(
       }),
       // A detached press target still gets the touch `contextmenu` (see
       // `startContextMenuSuppression`). A mouse menu reaches the window listener.
-      addEventListener(target, 'contextmenu', preventContextMenu, CAPTURE),
+      addEventListener(target, 'contextmenu', preventDefault, CAPTURE),
     );
   }
   resources.push(
@@ -1123,7 +1121,7 @@ function startDrag(
     addEventListener(win, 'keyup', syncActiveModifierKeys, CAPTURE),
     addEventListener(win, 'blur', onActiveBlur),
     addEventListener(doc, 'visibilitychange', onActiveVisibilityChange),
-    addEventListener(win, 'contextmenu', preventContextMenu, CAPTURE),
+    addEventListener(win, 'contextmenu', preventDefault, CAPTURE),
     // `scroll` doesn't bubble, but document capture sees any descendant container
     // scroll, including auto-scroll's.
     addEventListener(doc, 'scroll', notifyExternalScroll, { capture: true, passive: true }),
@@ -1148,7 +1146,7 @@ function startDrag(
     addEventListener(win, 'pointercancel', onActivePointerCancel, CAPTURE),
     addEventListener(win, 'lostpointercapture', onActiveLostPointerCapture, CAPTURE),
     // Keep blocking native drags, as in the pending phase.
-    addEventListener(win, 'dragstart', preventNativeDragStart, CAPTURE),
+    addEventListener(win, 'dragstart', preventDefault, CAPTURE),
   );
 
   if (!gesture.heldPointer) {
@@ -1565,16 +1563,12 @@ function isPrimaryHeld(event: PointerEvent): boolean {
   return event.buttons % 2 !== 0;
 }
 
-/** Installed only while a gesture is alive (see `onPointerDown` and `startDrag`). */
-function preventContextMenu(event: Event): void {
-  event.preventDefault();
-}
-
 /**
- * Block the native HTML5 drag that a nested `<img>` or `<a href>` starts from the same
- * press. `draggable="false"` on the source doesn't cover its descendants.
+ * Blocks the context menu, and the native HTML5 drag that a nested `<img>` or `<a href>`
+ * starts from the same press (`draggable="false"` on the source doesn't cover its
+ * descendants). Installed only while a gesture is alive (see `onPointerDown` and `startDrag`).
  */
-function preventNativeDragStart(event: Event): void {
+function preventDefault(event: Event): void {
   event.preventDefault();
 }
 

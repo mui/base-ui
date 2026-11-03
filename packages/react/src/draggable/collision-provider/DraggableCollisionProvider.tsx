@@ -227,6 +227,8 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       involvedRef.current = false;
       pendingStart.current = null;
       previous.current = null;
+      // Don't keep the last source and its payload alive between drags.
+      removedSource.current = null;
       if (involved) {
         props.onMoveEnd?.({ ...eventDetails, target, previousTarget });
       }

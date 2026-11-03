@@ -6,6 +6,7 @@
  */
 
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+import { NOOP } from '@base-ui/utils/empty';
 import { REASONS } from '../../../internals/reasons';
 import type {
   DraggableLocation,
@@ -141,16 +142,6 @@ export function start(parameters: StartParameters): DragSessionController | null
     );
   }
 
-  /**
-   * The location for the terminal `onDraggableLeave`, with `current.targets` empty.
-   * A fresh copy, so the location end handlers received with the drop stack doesn't
-   * change under them.
-   */
-  function createTerminalLeaveLocation(input: DraggableInput): DraggableLocationHistory {
-    const leaveLocation = snapshotLocation();
-    return { ...leaveLocation, previous: leaveLocation.current, current: { input, targets: [] } };
-  }
-
   // The location at the last delivered event. `previous` advances per dispatch,
   // not per raw sample.
   let lastDispatched: DraggableLocation = location.previous;
@@ -167,8 +158,8 @@ export function start(parameters: StartParameters): DragSessionController | null
   // until the round ends: re-entering `updateDropTargets` would let the outer round's
   // stale stack overwrite the ledger and bring an unregistered target back.
   let dispatching = false;
-  let refreshPending = false;
-  let pendingRefreshNeedsHitTest = false;
+  // The queued refresh, if any. A hit-test one also covers a walk.
+  let pendingRefresh: 'walk' | 'hit-test' | null = null;
 
   // Latched before the terminal `onMoveEnd`, so recovering from a throw in it
   // doesn't send a second one.
@@ -181,7 +172,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   // Terminal leaves go to the ledger, not `location.current`, which a re-entrant
   // cancel can leave reassigned mid-round. `dispatchDragStart` fills it for the
   // initial stack.
-  const hover = createHoverLedger();
+  const hover = createHoverLedger(isLive);
 
   // The parameter refresh queued in a microtask. With `targets: null` it always
   // runs. Otherwise it runs only when one of these elements is on the walk.
@@ -210,8 +201,7 @@ export function start(parameters: StartParameters): DragSessionController | null
    */
   function refresh(rehitTest: boolean): void {
     if (dispatching || !startDispatched) {
-      refreshPending = true;
-      pendingRefreshNeedsHitTest ||= rehitTest;
+      pendingRefresh = rehitTest || pendingRefresh === 'hit-test' ? 'hit-test' : 'walk';
       return;
     }
     resolveDropTargetsFromLastTarget(rehitTest, false);
@@ -242,7 +232,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     onEnd(listener) {
       if (tornDown) {
         listener();
-        return () => {};
+        return NOOP;
       }
       endListeners.add(listener);
       return () => {
@@ -302,6 +292,38 @@ export function start(parameters: StartParameters): DragSessionController | null
   }
 
   /**
+   * A final `onDraggableLeave` to every target still owed one, one at a time (see
+   * `HoverLedger.leave`), each through `run` so a throwing target doesn't cost the
+   * others theirs. The location has `current.targets` empty and is a fresh copy, so
+   * the one end handlers received with the drop stack doesn't change under them.
+   */
+  function dispatchTerminalLeaves(
+    reason: DragEndReason,
+    event: Event | undefined,
+    input: DraggableInput,
+    run: (leave: () => void) => void,
+  ): void {
+    const departedDropTargets = hover.owed();
+    if (departedDropTargets.length === 0) {
+      return;
+    }
+    const leaveLocation = snapshotLocation();
+    const leaveDetails = createDragEventDetails(
+      reason,
+      event,
+      { ...leaveLocation, previous: leaveLocation.current, current: { input, targets: [] } },
+      source,
+      null,
+    );
+    for (const target of departedDropTargets) {
+      if (!isLive()) {
+        break;
+      }
+      run(() => hover.leave(target, leaveDetails));
+    }
+  }
+
+  /**
    * Delivers contained terminal leaves and `onMoveEnd` before an error tears the
    * session down. `tearDown()` notifies no consumer, so an app pairing `onMoveStart`
    * with `onMoveEnd` would otherwise stay in its dragging state. Contained so a
@@ -316,30 +338,16 @@ export function start(parameters: StartParameters): DragSessionController | null
     endDispatched = true;
     disarmSessionHooks();
     // Through the ledger, not `dispatchChangeRound`: the source handler may be the one
-    // that threw, and must not block the leaves. Each leave is contained, so a
-    // throwing target doesn't cost the others theirs.
-    const departedDropTargets = hover.owed();
-    if (departedDropTargets.length > 0) {
-      const leaveDetails = createDragEventDetails<DragEndReason>(
-        REASONS.handlerError,
-        undefined,
-        createTerminalLeaveLocation(location.current.input),
-        source,
+    // that threw, and must not block the leaves.
+    dispatchTerminalLeaves(REASONS.handlerError, undefined, location.current.input, (leave) =>
+      containConsumerError(
+        'Base UI: a drag handler threw while another handler error was being recovered. ' +
+          'The remaining target cleanup is best-effort.',
         null,
-      );
-      for (const target of departedDropTargets) {
-        if (!isLive()) {
-          break;
-        }
-        containConsumerError(
-          'Base UI: a drag handler threw while another handler error was being recovered. ' +
-            'The remaining target cleanup is best-effort.',
-          null,
-          () => hover.leave(target, leaveDetails),
-          undefined,
-        );
-      }
-    }
+        leave,
+        undefined,
+      ),
+    );
     location.previous = lastDispatched;
     location.current = { input: location.current.input, targets: [] };
     const endDetails = createMoveEndEventDetails(
@@ -436,7 +444,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       if (tornDown) {
         return;
       }
-      hover.dispatchToAll(location.current.targets, 'onDraggableStart', startDetails, isLive);
+      hover.dispatchToAll(location.current.targets, 'onDraggableStart', startDetails);
       dispatchToMonitors('onMoveStart', startDetails);
       // No change round runs for the initial stack, so enter it here. One at a
       // time: if an enter cancels, the targets not yet entered must not get a leave.
@@ -466,7 +474,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       if (tornDown) {
         return;
       }
-      hover.dispatchToAll(targets, 'onDraggableMove', dragDetails, isLive);
+      hover.dispatchToAll(targets, 'onDraggableMove', dragDetails);
       dispatchToMonitors('onMove', dragDetails);
     });
     if (tornDown) {
@@ -503,10 +511,9 @@ export function start(parameters: StartParameters): DragSessionController | null
    * `update` frame.
    */
   function drainPendingRefresh(dragDispatchFollows = false): void {
-    while (refreshPending && !tornDown) {
-      refreshPending = false;
-      const rehitTest = pendingRefreshNeedsHitTest;
-      pendingRefreshNeedsHitTest = false;
+    while (pendingRefresh !== null && !tornDown) {
+      const rehitTest = pendingRefresh === 'hit-test';
+      pendingRefresh = null;
       resolveDropTargetsFromLastTarget(rehitTest, dragDispatchFollows);
     }
   }
@@ -527,7 +534,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     if (tornDown) {
       return false;
     }
-    hover.change(previousTargets, currentTargets, changeDetails, isLive);
+    hover.change(previousTargets, currentTargets, changeDetails);
     if (tornDown) {
       return false;
     }
@@ -575,7 +582,7 @@ export function start(parameters: StartParameters): DragSessionController | null
         // Skipped when `dispatchDrag()` follows (see `dragDispatchFollows`).
         if (!dragDispatchFollows && newDropTargets.length > 0) {
           const entryDetails = createMoveDetails(newDropTargets[0]);
-          hover.dispatchToAll(newDropTargets, 'onDraggableMove', entryDetails, isLive);
+          hover.dispatchToAll(newDropTargets, 'onDraggableMove', entryDetails);
         }
       });
 
@@ -710,24 +717,7 @@ export function start(parameters: StartParameters): DragSessionController | null
         }
         dispatchToMonitors('onMoveEnd', endDetails);
 
-        // A final `onDraggableLeave` to every target still hovered, one at a time
-        // (see `HoverLedger.leave`).
-        const departedDropTargets = hover.owed();
-        if (departedDropTargets.length > 0) {
-          const leaveDetails = createDragEventDetails(
-            endReason,
-            event,
-            createTerminalLeaveLocation(input),
-            source,
-            null,
-          );
-          for (const target of departedDropTargets) {
-            if (!isLive()) {
-              break;
-            }
-            captureTerminalError(() => hover.leave(target, leaveDetails));
-          }
-        }
+        dispatchTerminalLeaves(endReason, event, input, captureTerminalError);
       }
     } catch (error) {
       recover(error);

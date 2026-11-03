@@ -287,21 +287,6 @@ export function resetForTests(): void {
   state.registrationKeys = new WeakMap<Element, WeakMap<DropTargetGetter, object>>();
 }
 
-type ConsumerCallbackName = 'canDrop' | 'snap' | 'getParameters';
-
-/**
- * A throwing callback costs only its own target, for this dispatch, so one buggy
- * target can't break resolution for the rest.
- */
-function safeCall<T>(
-  callbackName: ConsumerCallbackName,
-  element: Element,
-  call: () => T,
-  fallback: T,
-): T {
-  return safeCallConsumer('drop target', callbackName, element, call, fallback);
-}
-
 /**
  * `resolveDropTargetOutcome`'s result when `canDrop` returns `'reject'`, refusing
  * the drop instead of abstaining. The walk turns it into an empty stack.
@@ -380,7 +365,13 @@ function resolveDropTargetOutcome(
   Object.assign(fullFeedback, pointReaders);
 
   const canDropVerdict = registration.canDrop
-    ? safeCall('canDrop', element, () => registration.canDrop!(fullFeedback), false)
+    ? safeCallConsumer(
+        'drop target',
+        'canDrop',
+        element,
+        () => registration.canDrop!(fullFeedback),
+        false,
+      )
     : true;
 
   if (canDropVerdict === 'reject') {
@@ -399,7 +390,13 @@ function resolveDropTargetOutcome(
     // Read through, so a changed `payload` reaches records already handed out. Once
     // the getter throws or the kind changes, returns the last value this record read.
     get payload() {
-      const latest = safeCall('getParameters', element, getRegistration, null);
+      const latest = safeCallConsumer(
+        'drop target',
+        'getParameters',
+        element,
+        getRegistration,
+        null,
+      );
       if (latest != null && latest.kind?.id === kind) {
         payload = latest.payload;
       }
@@ -475,7 +472,7 @@ function createLocalPointReaders(
       stepsResolved = true;
       steps =
         typeof snap === 'function'
-          ? safeCall('snap', element, () => snap(context), undefined)
+          ? safeCallConsumer('drop target', 'snap', element, () => snap(context), undefined)
           : snap;
     }
     return steps;
@@ -527,7 +524,8 @@ export function getDropTargetsOver(
     // Malformed parameters, such as a non-kind `accept` from plain JS, can throw
     // too. Uncontained, that would repeat every frame and leave the drag stuck.
     const element = node;
-    const outcome = safeCall(
+    const outcome = safeCallConsumer(
+      'drop target',
       'getParameters',
       element,
       () => resolveDropTargetOutcome(element, feedback, dragData),
@@ -585,7 +583,13 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
     return;
   }
   // A throwing getter costs this target its event without unwinding the dispatch.
-  const registration = safeCall('getParameters', record.element, getRegistration, null);
+  const registration = safeCallConsumer(
+    'drop target',
+    'getParameters',
+    record.element,
+    getRegistration,
+    null,
+  );
   if (registration == null) {
     return;
   }

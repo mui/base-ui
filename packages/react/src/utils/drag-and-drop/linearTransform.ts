@@ -1,5 +1,5 @@
 /** The linear part of a CSS transform, without the translation. */
-export interface LinearTransform {
+interface LinearTransform {
   a: number;
   b: number;
   c: number;
@@ -9,7 +9,7 @@ export interface LinearTransform {
 export const identityLinearTransform: LinearTransform = { a: 1, b: 0, c: 0, d: 1 };
 
 /** A computed `transform` in its resolved `matrix()` / `matrix3d()` form. */
-export const COMPUTED_MATRIX = /^matrix(3d)?\(([^)]*)\)$/;
+const COMPUTED_MATRIX = /^matrix(3d)?\(([^)]*)\)$/;
 
 /** `left · right`, using CSS's column-vector convention. */
 export function multiplyLinearTransforms(
@@ -24,13 +24,10 @@ export function multiplyLinearTransforms(
   };
 }
 
-/** The 2×2 part of a computed matrix, optionally rejecting 3D transforms. */
-export function parseComputedLinearTransform(
-  transform: string,
-  allow3d = true,
-): LinearTransform | null {
+/** The 2×2 part of a computed matrix. */
+export function parseComputedLinearTransform(transform: string): LinearTransform | null {
   const match = COMPUTED_MATRIX.exec(transform);
-  if (!match || (match[1] && !allow3d)) {
+  if (!match) {
     return null;
   }
   const values = match[2].split(',').map(Number);
@@ -61,11 +58,8 @@ export function parseScaleLinearTransform(scale: string): LinearTransform | null
   return { a: x, b: 0, c: 0, d: y };
 }
 
-/** Parse the `rotate` longhand, optionally requiring an in-plane rotation. */
-export function parseRotateLinearTransform(
-  rotate: string,
-  requirePlane = false,
-): LinearTransform | null {
+/** Parse the `rotate` longhand, projecting an out-of-plane rotation onto the screen. */
+export function parseRotateLinearTransform(rotate: string): LinearTransform | null {
   if (!rotate || rotate === 'none') {
     return null;
   }
@@ -83,7 +77,7 @@ export function parseRotateLinearTransform(
     return null;
   }
   const length = Math.hypot(x, y, z);
-  if (!Number.isFinite(length) || length === 0 || (requirePlane && (x !== 0 || y !== 0))) {
+  if (!Number.isFinite(length) || length === 0) {
     return null;
   }
   const angle = (degrees * Math.PI) / 180;
@@ -101,31 +95,19 @@ export function parseRotateLinearTransform(
 
 /**
  * An element's own `rotate`, `scale`, and `transform`, composed in the order CSS
- * applies them. `translate` and `transform-origin` are left out. In strict mode, a
- * part that can't be read, a 3D `transform`, or an out-of-plane `rotate` returns
- * `null`. Otherwise those parts are skipped.
+ * applies them. `translate` and `transform-origin` are left out, and a part that
+ * can't be read is skipped.
  */
-export function getOwnLinearTransform(
-  style: CSSStyleDeclaration,
-  strict: true,
-): LinearTransform | null;
-export function getOwnLinearTransform(style: CSSStyleDeclaration): LinearTransform;
-export function getOwnLinearTransform(
-  style: CSSStyleDeclaration,
-  strict = false,
-): LinearTransform | null {
-  const { rotate, scale, transform } = style;
-  const parts: Array<[value: string, parsed: LinearTransform | null]> = [
-    [rotate, parseRotateLinearTransform(rotate, strict)],
-    [scale, parseScaleLinearTransform(scale)],
-    [transform, parseComputedLinearTransform(transform, !strict)],
+export function getOwnLinearTransform(style: CSSStyleDeclaration): LinearTransform {
+  const parts = [
+    parseRotateLinearTransform(style.rotate),
+    parseScaleLinearTransform(style.scale),
+    parseComputedLinearTransform(style.transform),
   ];
   let matrix = identityLinearTransform;
-  for (const [value, parsed] of parts) {
-    if (parsed) {
-      matrix = multiplyLinearTransforms(matrix, parsed);
-    } else if (strict && value !== 'none') {
-      return null;
+  for (const part of parts) {
+    if (part) {
+      matrix = multiplyLinearTransforms(matrix, part);
     }
   }
   return matrix;

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { DragPreview, RootDrag } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
 import type { DraggableTriggerProps } from '../trigger/DraggableTrigger';
-import { DraggablePositionerContext } from '../positioner/DraggablePositionerContext';
+import { useIsInDragPreview } from '../positioner/DraggablePositionerContext';
 
 export interface DraggableRootContext {
   /** See `UseDraggableElementReturnValue.registerHandle`. Stable. */
@@ -51,6 +51,6 @@ export function useDraggableRootContext(): DraggableRootContext {
  */
 export function useRootPreview(): DragPreview | null {
   const rootContext = useDraggableRootContext();
-  const inPreview = React.useContext(DraggablePositionerContext) !== undefined;
+  const inPreview = useIsInDragPreview();
   return inPreview ? null : rootContext.drag.preview;
 }

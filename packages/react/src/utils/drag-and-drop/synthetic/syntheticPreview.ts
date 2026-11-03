@@ -1,4 +1,5 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { clamp } from '@base-ui/utils/clamp';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
@@ -24,7 +25,13 @@ import * as DraggablePositionerCssVars from '../../../draggable/positioner/Dragg
 import * as DraggablePositionerDataAttributes from '../../../draggable/positioner/DraggablePositionerDataAttributes';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableTriggerDataAttributes from '../../../draggable/trigger/DraggableTriggerDataAttributes';
-import { containConsumerError, getElementScale, getElementZoom, NO_MODIFIER_KEYS } from '../utils';
+import {
+  containConsumerError,
+  getElementScale,
+  getElementZoom,
+  getSubtreeElements,
+  NO_MODIFIER_KEYS,
+} from '../utils';
 
 /** What `getElementScale` reports for an element with no ancestor transform. */
 const DEFAULT_SCALE: DraggablePosition = { x: 1, y: 1 };
@@ -175,6 +182,10 @@ export function retargetPreviewSource(
   element: HTMLElement,
   identity: SyntheticPreviewSourceIdentity,
 ): void {
+  // Runs on every registration, which almost never has a drag to hand over.
+  if (liveDrags.size === 0) {
+    return;
+  }
   const matches = Array.from(liveDrags).filter(
     (drag) => !drag.source.isConnected && isSameSource(drag.identity, identity),
   );
@@ -244,10 +255,11 @@ function createPositionedPreview(
   element: HTMLElement,
   initialContent: HTMLElement,
   sourceSize: DragPreviewSize,
-  owned: boolean,
-  // Restores the DOM state of an owned copy, which inserting it resets.
+  // Restores the DOM state of a copy, which inserting it resets. Only a copy the
+  // preview owns has one.
   restoreState?: () => void,
 ): PositionedPreview {
+  const owned = restoreState !== undefined;
   let content = initialContent;
   // Where an owned copy goes when its parent is removed, nearest first. Shadow roots are
   // kept, since a copy moved to their host's light DOM isn't rendered without a `<slot>`.
@@ -286,8 +298,9 @@ function createPositionedPreview(
   for (const node of hosts) {
     mutationObserver?.observe(node, { childList: true });
   }
+  let removeScrollListener: (() => void) | null = null;
   if (!owned) {
-    element.addEventListener('scroll', onScroll, true);
+    removeScrollListener = addEventListener(element, 'scroll', onScroll, true);
     resizeObserver?.observe(element);
     if (content !== element) {
       resizeObserver?.observe(content);
@@ -364,7 +377,7 @@ function createPositionedPreview(
       return { copy, restoreState: copyLiveState(element, copy, scrollOffsets) };
     },
     destroy() {
-      element.removeEventListener('scroll', onScroll, true);
+      removeScrollListener?.();
       resizeObserver?.disconnect();
       // Before the removal below, which it would undo.
       mutationObserver?.disconnect();
@@ -389,9 +402,9 @@ function copyLiveState(
   scrollOffsets: ReadonlyMap<Element, DraggablePosition>,
 ): () => void {
   const win = ownerWindow(source);
-  const copies = [copy, ...Array.from(copy.querySelectorAll('*'))];
+  const copies = getSubtreeElements(copy);
   const scrolls: Array<[node: HTMLElement, offset: DraggablePosition]> = [];
-  [source, ...Array.from(source.querySelectorAll('*'))].forEach((node, index) => {
+  getSubtreeElements(source).forEach((node, index) => {
     const target = copies[index];
     if (node instanceof win.HTMLCanvasElement && target instanceof win.HTMLCanvasElement) {
       try {
@@ -489,9 +502,8 @@ export function createDragPreview(
   let modifiers: ReadonlyArray<DraggableRootModifier> | null = null;
   let offsetResolved = false;
   let previewOffset = ZERO_OFFSET;
-  let lastX = 0;
-  let lastY = 0;
-  let hasPosition = false;
+  // The cursor from the latest `update`, or `null` before the first.
+  let lastPoint: DraggablePosition | null = null;
   // The proposed top-left on the first frame, which preview axis locks and grids snap
   // against.
   let initialProposed: DraggablePosition | null = null;
@@ -502,13 +514,14 @@ export function createDragPreview(
   let lastKeys: DragModifierKeys = NO_MODIFIER_KEYS;
 
   function positionPreviewElement(): void {
-    if (!current || !hasPosition) {
+    const cursor = lastPoint;
+    if (!current || cursor === null) {
       return;
     }
     const target = current;
     target.ensureConnected();
-    let proposedX = lastX - previewOffset.x;
-    let proposedY = lastY - previewOffset.y;
+    let proposedX = cursor.x - previewOffset.x;
+    let proposedY = cursor.y - previewOffset.y;
     initialProposed ??= { x: proposedX, y: proposedY };
     if (modifiers) {
       if (previewScale === null && target.content.getClientRects().length > 0) {
@@ -519,7 +532,8 @@ export function createDragPreview(
         { x: proposedX, y: proposedY },
         {
           initialPoint: initialProposed,
-          input: { x: lastX, y: lastY },
+          // A copy, so a modifier can't move the stored cursor.
+          input: { ...cursor },
           sourceElement,
           sourceRect: pickup.sourceRect,
           // These modifiers move the preview, so a step in its own units uses the
@@ -714,15 +728,12 @@ export function createDragPreview(
   }
 
   preview = {
-    sourceRect: pickup.sourceRect,
     update(clientX: number, clientY: number, keys: DragModifierKeys = NO_MODIFIER_KEYS): void {
       if (destroyed) {
         return;
       }
-      lastX = clientX;
-      lastY = clientY;
+      lastPoint = { x: clientX, y: clientY };
       lastKeys = keys;
-      hasPosition = true;
       positionPreviewElement();
     },
     attach(element, content, settings) {
@@ -733,12 +744,7 @@ export function createDragPreview(
         return () => element.style.removeProperty('visibility');
       }
       // Measured first: it sets the size variables the offset function may depend on.
-      const attached = createPositionedPreview(
-        element,
-        content ?? element,
-        pickup.sourceSize,
-        false,
-      );
+      const attached = createPositionedPreview(element, content ?? element, pickup.sourceSize);
       if (!offsetResolved) {
         offsetResolved = true;
         modifiers = compileDragModifiers(settings.modifiers);
@@ -780,13 +786,7 @@ export function createDragPreview(
             ? copy
             : (copy.querySelector<HTMLElement>(`[${DraggablePreviewDataAttributes.dragPreview}]`) ??
               copy);
-        const frozen = createPositionedPreview(
-          copy,
-          copyContent,
-          pickup.sourceSize,
-          true,
-          restoreState,
-        );
+        const frozen = createPositionedPreview(copy, copyContent, pickup.sourceSize, restoreState);
         if (attached.position) {
           // Rehoming repositions it from there, before the pointer moves again.
           frozen.setPosition(attached.position.x, attached.position.y);
@@ -852,8 +852,6 @@ export function createDragPreview(
 
 /** The drag preview, as the sensor, session and React layer use it. */
 export interface DragPreview {
-  /** The source's bounding rect at pickup. */
-  readonly sourceRect: DOMRect;
   /** `keys` are the modifier keys of the event behind this position, for preview modifiers. */
   update(clientX: number, clientY: number, keys?: DragModifierKeys): void;
   /**

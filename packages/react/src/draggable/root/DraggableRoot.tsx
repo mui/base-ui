@@ -20,6 +20,7 @@ import type {
 import type { RegisterSourceParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
+import type { DraggableTriggerProps } from '../trigger/DraggableTrigger';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 /**
@@ -92,9 +93,7 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
     }
   }).current;
 
-  const triggerProps = useRefWithInit<DraggableRootContext['triggerProps']>(() => ({
-    current: null,
-  })).current;
+  const triggerProps = React.useRef<DraggableTriggerProps | null>(null);
 
   const contextValue: DraggableRootContext = React.useMemo(
     () => ({

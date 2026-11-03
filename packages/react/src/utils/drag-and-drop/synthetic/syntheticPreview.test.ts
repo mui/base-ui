@@ -673,7 +673,8 @@ describe('preview modifiers', () => {
   });
 
   it('passes the preview-level context: point is the proposed top-left, input the cursor', () => {
-    const source = createElement(new DOMRect(0, 0, 50, 30));
+    const sourceRect = new DOMRect(0, 0, 50, 30);
+    const source = createElement(sourceRect);
     const contexts: Array<{
       point: DraggablePosition;
       initialPoint: DraggablePosition;
@@ -709,7 +710,7 @@ describe('preview modifiers', () => {
     expect(context.previewOffset).toEqual({ x: 0, y: 0 });
     expect(context.initialPoint).toEqual({ x: 90, y: 180 });
     expect(context.sourceElement).toBe(source);
-    expect(context.sourceRect).toBe(handle.sourceRect);
+    expect(context.sourceRect).toBe(sourceRect);
     // The rect of the `Draggable.Preview`, the box the user sees.
     expect(context.previewRect?.width).toBe(50);
     expect(context.previewRect?.height).toBe(30);

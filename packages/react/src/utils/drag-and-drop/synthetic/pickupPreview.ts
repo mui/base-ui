@@ -85,7 +85,7 @@ function getUntransformedBorderBox(element: HTMLElement, style: CSSStyleDeclarat
   };
 }
 
-export interface CreatePreviewSessionParameters {
+interface CreatePreviewSessionParameters {
   /** The draggable's latest parameters (kind/payload/event handlers). */
   draggableParameters: DraggableConfig<any, any>;
   /** The source prepared for `onBeforeMoveStart`, carried unchanged into the session. */
@@ -96,7 +96,7 @@ export interface CreatePreviewSessionParameters {
    * The native event the pickup committed on (see `StartParameters.initialEvent`),
    * so `onMoveStart` reports a real event rather than a placeholder.
    */
-  initialEvent?: Event | undefined;
+  initialEvent: Event;
   /** Why the pickup started (see `StartParameters.startReason`). */
   startReason: DragStartReason;
   /**
@@ -107,7 +107,7 @@ export interface CreatePreviewSessionParameters {
   /** The source's rect from `measurePickupSource`. */
   sourceRect: DOMRect;
   /** What the sensor lends the session (see `StartParameters.sensor`). */
-  sensor?: DragSessionSensor | undefined;
+  sensor: DragSessionSensor;
   /** Whether the sensor still owns the pickup after consumer callbacks. */
   isPickupCurrent: () => boolean;
 }
@@ -127,7 +127,7 @@ export function hitTestUnderPreview(
   );
 }
 
-export interface PreviewSessionHandle {
+interface PreviewSessionHandle {
   session: DragSessionController;
   preview: DragPreview;
 }

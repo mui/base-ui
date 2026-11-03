@@ -14,7 +14,7 @@ import type { DragCleanupFn, DraggablePayload } from './types';
 import { overrideInlineStyles, SELECTION_LOCK_STYLES } from './synthetic/dragRootLock';
 import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
-import { getOrCreate, onceCleanup } from './utils';
+import { getOrCreate, onceCleanup, runAllCleanups } from './utils';
 import { addDraggableRegistration, resolveDragHandle } from './draggableRegistry';
 import { holdShadowRoots } from './dropTarget';
 import { bindPointerListeners } from './synthetic/syntheticSensor';
@@ -120,12 +120,9 @@ export function registerDraggableElement(
   retargetPreviewSource(element, getPreviewSourceIdentity(initial, owner));
   const unbindSensors = bindPointerListeners(element);
 
-  return onceCleanup(() => {
-    staticSetup.release();
-    unregister();
-    releaseShadowRoots();
-    unbindSensors();
-  });
+  return onceCleanup(() =>
+    runAllCleanups([staticSetup.release, unregister, releaseShadowRoots, unbindSensors]),
+  );
 }
 
 export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
