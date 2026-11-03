@@ -1057,6 +1057,40 @@ describe('lifecycle manager', () => {
         expect(getActiveSession()).toBe(null);
       },
     );
+
+    it('releases the sensor before the recovery onMoveEnd when a handler throws', () => {
+      const element = createElement();
+      const order: string[] = [];
+      const handle = start({
+        source: createDragSource(element, TEST_KIND.id, {}, null),
+        getSourceHandlers: () => ({
+          onMove: () => {
+            order.push('move');
+            throw new Error('move failed');
+          },
+          onMoveEnd: () => order.push('end'),
+        }),
+        initialInput: makeInput(),
+        initialTarget: null,
+        startReason: 'pointer',
+        grabOffset: { x: 0, y: 0 },
+        hitTest,
+        sensor: {
+          getRawInput: () => null,
+          notifyScroll() {},
+          release: (cancelReason) => order.push(`release:${cancelReason ?? ''}`),
+        },
+      });
+
+      expect(() =>
+        act(() => {
+          handle!.update(makeInput(), null, undefined, 'pointer');
+        }),
+      ).toThrow('move failed');
+
+      // As on a cancel or a drop, the recovery's `onMoveEnd` sees a released sensor.
+      expect(order).toEqual(['move', 'release:handler-error', 'end']);
+    });
   });
 
   describe('consumer-throw recovery', () => {

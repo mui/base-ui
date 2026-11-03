@@ -337,6 +337,13 @@ export function start(parameters: StartParameters): DragSessionController | null
     // unregister a target mid-leave.
     endDispatched = true;
     disarmSessionHooks();
+    // As in `doDrop` and `doCancel`, the sensor goes before any terminal event.
+    containConsumerError(
+      'Base UI: the sensor cleanup threw during teardown.',
+      null,
+      () => releaseSensor(REASONS.handlerError),
+      undefined,
+    );
     // Through the ledger, not `dispatchChangeRound`: the source handler may be the one
     // that threw, and must not block the leaves.
     dispatchTerminalLeaves(REASONS.handlerError, undefined, location.current.input, (leave) =>
@@ -614,8 +621,8 @@ export function start(parameters: StartParameters): DragSessionController | null
     clearActiveSession(session);
 
     try {
-      // Releases the sensor only after a handler error or a test reset. The end
-      // sequences already did otherwise.
+      // Releases the sensor only after a test reset. The end sequences and error
+      // recovery already did otherwise.
       containConsumerError(
         'Base UI: the sensor cleanup threw during teardown.',
         null,
@@ -631,8 +638,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   }
 
   function doDrop(input: DraggableInput, rawTarget: Element | null, event?: Event): void {
-    // A stale sensor call can arrive after re-entrant consumer code ended the drag,
-    // or during error recovery, which ends the drag before releasing the sensor.
+    // A stale sensor call can arrive after re-entrant consumer code ended the drag.
     if (tornDown || endDispatched) {
       return;
     }
@@ -698,27 +704,23 @@ export function start(parameters: StartParameters): DragSessionController | null
       );
       endDispatched = true;
       captureTerminalError(() => getSourceHandlers().onMoveEnd?.(endDetails));
-      // A test reset inside `onMoveEnd` tears the session down without notifying
-      // anyone. Skip the remaining dispatches then.
-      if (!tornDown) {
-        // Only the innermost target gets `onDraggableDrop`, so ancestors don't
-        // handle the same drop again.
-        if (innermostDropTarget) {
-          const dropDetails = createDragEventDetails(
-            REASONS.drop,
-            event,
-            snapshotLocation(),
-            source,
-            innermostDropTarget,
-          );
-          captureTerminalError(() =>
-            dispatchToDropTarget(innermostDropTarget, 'onDraggableDrop', dropDetails),
-          );
-        }
-        dispatchToMonitors('onMoveEnd', endDetails);
-
-        dispatchTerminalLeaves(endReason, event, input, captureTerminalError);
+      // Only the innermost target gets `onDraggableDrop`, so ancestors don't
+      // handle the same drop again.
+      if (innermostDropTarget) {
+        const dropDetails = createDragEventDetails(
+          REASONS.drop,
+          event,
+          snapshotLocation(),
+          source,
+          innermostDropTarget,
+        );
+        captureTerminalError(() =>
+          dispatchToDropTarget(innermostDropTarget, 'onDraggableDrop', dropDetails),
+        );
       }
+      dispatchToMonitors('onMoveEnd', endDetails);
+
+      dispatchTerminalLeaves(endReason, event, input, captureTerminalError);
     } catch (error) {
       recover(error);
     }
@@ -766,9 +768,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       const endDetails = createMoveEndEventDetails(reason, event, snapshotLocation(), source, null);
       endDispatched = true;
       captureTerminalError(() => getSourceHandlers().onMoveEnd?.(endDetails));
-      if (!tornDown) {
-        dispatchToMonitors('onMoveEnd', endDetails);
-      }
+      dispatchToMonitors('onMoveEnd', endDetails);
     } catch (error) {
       recover(error);
     }
@@ -893,8 +893,8 @@ export interface DragSessionSensor {
   /**
    * Releases the sensor's listeners, pointer capture, locks and preview. Called once,
    * before any terminal event: with no reason on a release, the cancel reason on a
-   * cancel, and `'handler-error'` at teardown when no end sequence ran, or every later
-   * `pointerdown` would be rejected.
+   * cancel, and `'handler-error'` when a handler throws. A test reset also releases
+   * it, or every later `pointerdown` would be rejected.
    */
   release(cancelReason?: DragCanceledReason): void;
 }
