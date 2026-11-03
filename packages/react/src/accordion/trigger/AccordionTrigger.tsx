@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
-import { useButton } from '../../internals/use-button';
-import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
+import {
+  useCollapsibleTrigger,
+  useRegisterFallbackId,
+} from '../../collapsible/root/useCollapsibleRoot';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
-import { useRenderElement } from '../../internals/useRenderElement';
 
 const stateAttributesMapping: StateAttributesMapping<AccordionItemState> = {
   ...accordionStateAttributesMapping,
@@ -27,51 +27,10 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   componentProps: AccordionTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const {
-    disabled: disabledProp,
-    className,
-    id: idProp,
-    render,
-    nativeButton = true,
-    style,
-    ...elementProps
-  } = componentProps;
-
-  const { panelId, open, handleTrigger, disabled: contextDisabled } = useCollapsibleRootContext();
-
-  const disabled = disabledProp || contextDisabled;
-
-  const { getButtonProps, buttonRef } = useButton({
-    disabled,
-    native: nativeButton,
-  });
-
   const { defaultTriggerId, state, setTriggerId } = useAccordionItemContext();
-  const registeredId = idProp || undefined;
-  const id = registeredId ?? defaultTriggerId;
+  const id = useRegisterFallbackId(componentProps.id, defaultTriggerId, setTriggerId);
 
-  useIsoLayoutEffect(() => {
-    setTriggerId((currentId) => registeredId ?? (currentId === null ? undefined : currentId));
-    return () => {
-      setTriggerId((currentId) => (currentId === registeredId ? null : currentId));
-    };
-  }, [registeredId, setTriggerId]);
-
-  const props = {
-    'aria-controls': open ? panelId : undefined,
-    'aria-expanded': open,
-    id,
-    onClick: handleTrigger,
-  };
-
-  const element = useRenderElement('button', componentProps, {
-    state: { ...state, disabled },
-    ref: [forwardedRef, buttonRef],
-    props: [props, elementProps, getButtonProps],
-    stateAttributesMapping,
-  });
-
-  return element;
+  return useCollapsibleTrigger(componentProps, forwardedRef, stateAttributesMapping, state, id);
 });
 
 export interface AccordionTriggerState extends AccordionItemState {}

@@ -1,13 +1,91 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useButton } from '../../internals/use-button';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import type { CollapsibleRoot } from './CollapsibleRoot';
+import type { CollapsibleRoot, CollapsibleRootState } from './CollapsibleRoot';
+import { useCollapsibleRootContext } from './CollapsibleRootContext';
+
+export function useFallbackId() {
+  const defaultId = useBaseUiId();
+  // `undefined` uses the initial generated fallback; `null` means the element unmounted.
+  const [registeredId, setRegisteredId] = React.useState<string | null | undefined>();
+  const id = registeredId === null ? undefined : (registeredId ?? defaultId);
+  return [defaultId, id, setRegisteredId] as const;
+}
+
+export function useRegisterFallbackId(
+  idProp: string | undefined,
+  defaultId: string | undefined,
+  setRegisteredId: React.Dispatch<React.SetStateAction<string | null | undefined>>,
+) {
+  const registeredId = idProp || undefined;
+  useIsoLayoutEffect(() => {
+    setRegisteredId((currentId) => registeredId ?? (currentId === null ? undefined : currentId));
+    return () => {
+      setRegisteredId((currentId) => (currentId === registeredId ? null : currentId));
+    };
+  }, [registeredId, setRegisteredId]);
+  return idProp ?? defaultId;
+}
+
+export function useCollapsibleTrigger<State extends Record<string, any>>(
+  componentProps: BaseUIComponentProps<'button', State> & NativeButtonProps,
+  forwardedRef: React.ForwardedRef<any>,
+  stateAttributesMapping: StateAttributesMapping<State>,
+  itemState?: State,
+  id?: string,
+) {
+  const {
+    className,
+    disabled: disabledProp,
+    id: idProp,
+    render,
+    nativeButton = true,
+    style,
+    ...elementProps
+  } = componentProps;
+
+  const {
+    panelId,
+    open,
+    handleTrigger,
+    state: collapsibleState,
+    disabled: contextDisabled,
+  } = useCollapsibleRootContext();
+
+  const disabled = disabledProp || contextDisabled;
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    native: nativeButton,
+  });
+
+  return useRenderElement('button', componentProps, {
+    state: { ...(itemState ?? (collapsibleState as unknown as State)), disabled },
+    ref: [forwardedRef, buttonRef],
+    props: [
+      {
+        'aria-controls': open ? panelId : undefined,
+        'aria-expanded': open,
+        id: id ?? idProp,
+        onClick: handleTrigger,
+      },
+      elementProps,
+      getButtonProps,
+    ],
+    stateAttributesMapping,
+  });
+}
 
 export function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
@@ -23,10 +101,7 @@ export function useCollapsibleRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true, true);
 
-  const defaultPanelId = useBaseUiId();
-  // `undefined` uses the initial generated fallback; `null` means the panel unmounted.
-  const [registeredPanelId, setPanelIdState] = React.useState<string | null | undefined>();
-  const panelId = registeredPanelId === null ? undefined : (registeredPanelId ?? defaultPanelId);
+  const [defaultPanelId, panelId, setPanelIdState] = useFallbackId();
 
   const handleTrigger = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     const nextOpen = !open;
@@ -41,17 +116,28 @@ export function useCollapsibleRoot(
     setOpen(nextOpen);
   });
 
+  const state: CollapsibleRootState = React.useMemo(
+    () => ({
+      open,
+      disabled,
+      transitionStatus,
+    }),
+    [open, disabled, transitionStatus],
+  );
+
   return React.useMemo(
     () => ({
       defaultPanelId,
       disabled,
       handleTrigger,
       mounted,
+      onOpenChange,
       open,
       panelId,
       setMounted,
       setOpen,
       setPanelIdState,
+      state,
       transitionStatus,
     }),
     [
@@ -59,11 +145,13 @@ export function useCollapsibleRoot(
       disabled,
       handleTrigger,
       mounted,
+      onOpenChange,
       open,
       panelId,
       setMounted,
       setOpen,
       setPanelIdState,
+      state,
       transitionStatus,
     ],
   );
@@ -107,6 +195,7 @@ export interface UseCollapsibleRootReturnValue {
    * `keepMounted` or `hiddenUntilFound` is enabled.
    */
   mounted: boolean;
+  onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
   /**
    * Whether the collapsible panel is currently open.
    */
@@ -115,6 +204,7 @@ export interface UseCollapsibleRootReturnValue {
   setMounted: (nextMounted: boolean) => void;
   setOpen: (open: boolean) => void;
   setPanelIdState: React.Dispatch<React.SetStateAction<string | null | undefined>>;
+  state: CollapsibleRootState;
   transitionStatus: TransitionStatus;
 }
 
