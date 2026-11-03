@@ -61,10 +61,7 @@ const UPCOMING = ['Renew passport', 'Cancel the trial', 'Refill the coffee', 'La
 
 // Find the insertion slot closest to the pointer, including slots scrolled out of view.
 function resolveDrop(container: HTMLElement, clientY: number): { index: number; slotY: number } {
-  // Skip the drag preview: it's a clone of a card, so it has `data-card` too.
-  const cards = Array.from(
-    container.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
-  );
+  const cards = Array.from(container.querySelectorAll<HTMLElement>('[data-card]'));
   if (cards.length === 0) {
     return { index: 0, slotY: container.getBoundingClientRect().top };
   }
@@ -88,10 +85,14 @@ function resolveDrop(container: HTMLElement, clientY: number): { index: number; 
   return { index, slotY: slotYs[index] };
 }
 
-// The preview is a clone of the card, so it keeps these classes: `data-dragging`
-// dims the source, `data-drag-preview` lifts the clone above the board.
+// The positioner moves the preview, so it runs the drop transition.
+const POSITIONER_CLASS =
+  'motion-safe:data-ending-style:transition-[translate] motion-safe:data-ending-style:duration-200 motion-safe:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)]';
+
+// The preview renders the card again, so it keeps these classes: `data-dragging`
+// dims the source, `data-drag-preview` styles the preview.
 const CARD_CLASS =
-  'inline-flex items-center gap-2 box-border border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-[background-color,opacity] data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
+  'inline-flex items-center gap-2 box-border border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-[background-color,opacity] data-[dragging]:opacity-40 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
 const LIST_CLASS = 'relative flex min-h-0 flex-1 flex-col items-start gap-1.5 overflow-y-auto';
 
@@ -118,6 +119,11 @@ const Card = React.memo(function Card({
         <GripIcon className="shrink-0 text-neutral-400 dark:text-neutral-500" />
         {task.label}
       </Draggable.Trigger>
+      <Draggable.Portal>
+        <Draggable.Positioner className={POSITIONER_CLASS}>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 });
@@ -261,9 +267,7 @@ export default function AutoScrollBoard() {
       return;
     }
     droppedIdRef.current = null;
-    const card = rootRef.current?.querySelector<HTMLElement>(
-      `[data-id="${id}"]:not([data-drag-preview])`,
-    );
+    const card = rootRef.current?.querySelector<HTMLElement>(`[data-id="${id}"]`);
     card?.scrollIntoView({ block: 'nearest' });
     if (focusMovedCardRef.current) {
       focusMovedCardRef.current = false;

@@ -1,21 +1,14 @@
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
 /**
- * Present on the drag preview, whether it's a clone of the source or custom content.
- * A clone keeps the source's classes, so use this attribute in CSS to tell them apart,
- * and to exclude the preview from queries over the source's siblings, such as
- * `:scope > :not([data-drag-preview])`.
+ * Always present. An empty preview keeps the trigger's classes, so use it in CSS to
+ * style the preview apart from the trigger.
  */
 export const dragPreview = 'data-drag-preview';
-/**
- * Present on the preview while it ends after a deliberate release. A `translate`
- * transition then moves it to the source's final position, or back to the source
- * after a release outside every target. Without one, it ends where it was released.
- * The preview stays mounted until animations started by this state finish.
- */
+/** Present while the preview ends after a deliberate release. */
 export const endingStyle = TransitionStatusDataAttributes.endingStyle;
 /**
- * Present on the preview while it ends after a drop on a target. Absent when it ends
- * after a release outside every target.
+ * Present while the preview ends after a drop on a target. Absent when it ends after a
+ * release outside every target.
  */
 export const dropped = 'data-dropped';

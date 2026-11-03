@@ -61,17 +61,21 @@ function FileIcon({ className }: { className: string }) {
   );
 }
 
-// A compact card follows the pointer instead of a clone of the whole tile.
+// A compact card follows the pointer instead of a copy of the whole tile.
 function NodePreview({ node }: { node: FileNode }) {
   return (
-    <Draggable.Preview className={styles.Preview} offset="pointer">
-      {node.type === 'folder' ? (
-        <FolderIcon className={styles.PreviewIcon} />
-      ) : (
-        <FileIcon className={styles.PreviewIcon} />
-      )}
-      {node.name}
-    </Draggable.Preview>
+    <Draggable.Portal>
+      <Draggable.Positioner offset="pointer">
+        <Draggable.Preview className={styles.Preview}>
+          {node.type === 'folder' ? (
+            <FolderIcon className={styles.PreviewIcon} />
+          ) : (
+            <FileIcon className={styles.PreviewIcon} />
+          )}
+          {node.name}
+        </Draggable.Preview>
+      </Draggable.Positioner>
+    </Draggable.Portal>
   );
 }
 
@@ -108,8 +112,8 @@ function FolderTile({
       >
         <FolderIcon className={styles.Icon} />
         <span className={styles.Label}>{node.name}</span>
-        <NodePreview node={node} />
       </Draggable.Trigger>
+      <NodePreview node={node} />
     </Draggable.Root>
   );
 }
@@ -120,8 +124,8 @@ function FileTile({ node }: { node: FileNode }) {
       <Draggable.Trigger tabIndex={0} className={styles.Item}>
         <FileIcon className={styles.Icon} />
         <span className={styles.Label}>{node.name}</span>
-        <NodePreview node={node} />
       </Draggable.Trigger>
+      <NodePreview node={node} />
     </Draggable.Root>
   );
 }

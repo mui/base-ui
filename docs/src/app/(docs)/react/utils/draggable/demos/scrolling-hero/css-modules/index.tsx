@@ -63,10 +63,7 @@ const UPCOMING = ['Renew passport', 'Cancel the trial', 'Refill the coffee', 'La
 
 // Find the insertion slot closest to the pointer, including slots scrolled out of view.
 function resolveDrop(container: HTMLElement, clientY: number): { index: number; slotY: number } {
-  // Skip the drag preview: it's a clone of a card, so it has `data-card` too.
-  const cards = Array.from(
-    container.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
-  );
+  const cards = Array.from(container.querySelectorAll<HTMLElement>('[data-card]'));
   if (cards.length === 0) {
     return { index: 0, slotY: container.getBoundingClientRect().top };
   }
@@ -113,6 +110,11 @@ const Card = React.memo(function Card({
         <GripIcon className={styles.Grip} />
         {task.label}
       </Draggable.Trigger>
+      <Draggable.Portal>
+        <Draggable.Positioner className={styles.Positioner}>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 });
@@ -250,9 +252,7 @@ export default function AutoScrollBoard() {
       return;
     }
     droppedIdRef.current = null;
-    const card = rootRef.current?.querySelector<HTMLElement>(
-      `[data-id="${id}"]:not([data-drag-preview])`,
-    );
+    const card = rootRef.current?.querySelector<HTMLElement>(`[data-id="${id}"]`);
     card?.scrollIntoView({ block: 'nearest' });
     if (focusMovedCardRef.current) {
       focusMovedCardRef.current = false;

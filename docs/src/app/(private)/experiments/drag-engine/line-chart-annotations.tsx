@@ -593,7 +593,6 @@ function AnnotationDraggable(props: {
       >
         {children}
         {/* No preview: the annotation itself moves, so a line redraws with its endpoint. */}
-        <Draggable.Preview disabled />
       </Draggable.Trigger>
     </Draggable.Root>
   );

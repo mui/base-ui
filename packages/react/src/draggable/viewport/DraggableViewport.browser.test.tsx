@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 import { describe, it, expect, vi } from 'vitest';
-import { act, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { firePointer, isJSDOM } from '#test-utils';
 import { createDndRenderer } from '../../../test/dndEngine';
-import { restrictToElement } from '../../utils/drag-and-drop/dragModifiers';
 import { registerCleanup, setupDragEngineTests, flushRaf } from '../../../test/dnd';
 
 setupDragEngineTests();
@@ -377,19 +376,33 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
   });
 
   it('keeps scrolling past the edge when restrictToElement holds a tall preview inside', async () => {
-    const { engine } = await renderDnd();
-    const viewport = element('position:fixed;left:0;top:0;width:200px;height:200px;overflow:auto');
-    // 120px tall and grabbed 10px from its top, so the clamped drag point stays
-    // 110px above the bottom, well outside the 50px edge zone.
-    const source = element('width:100px;height:120px', viewport);
-    element('height:1000px', viewport);
-    engine.registerSource(source, {
-      activation: { type: 'immediate' },
-      modifiers: restrictToElement(viewport),
-    });
-    engine.registerViewport(viewport, {});
+    function Fixture() {
+      const viewportRef = React.useRef<HTMLDivElement>(null);
+      return (
+        <Draggable.Viewport
+          ref={viewportRef}
+          data-testid="viewport"
+          style={{ position: 'fixed', left: 0, top: 0, width: 200, height: 200, overflow: 'auto' }}
+        >
+          <Draggable.Root
+            activation={{ type: 'immediate' }}
+            modifiers={Draggable.restrictToElement(viewportRef)}
+          >
+            {/* 120px tall and grabbed 10px from its top, so the clamped drag point stays
+              110px above the bottom, well outside the 50px edge zone. */}
+            <Draggable.Trigger data-testid="source" style={{ width: 100, height: 120 }} />
+            <Draggable.Positioner>
+              <Draggable.Preview />
+            </Draggable.Positioner>
+          </Draggable.Root>
+          <div style={{ height: 1000 }} />
+        </Draggable.Viewport>
+      );
+    }
+    const { engine } = await renderDnd(<Fixture />);
+    const viewport = screen.getByTestId('viewport');
 
-    pointer('down', source, 50, 10);
+    pointer('down', screen.getByTestId('source'), 50, 10);
     pointer('move', document.body, 50, 300);
     await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0), { interval: 16 });
     act(() => engine.cancelDrag());

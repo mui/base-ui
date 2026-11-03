@@ -506,10 +506,6 @@ function DraggableEntry({
         surfaceId={surfaceId}
         layout={layout}
       />
-      <Draggable.Preview className={styles.dragPreview} offset="pointer">
-        <BookmarkIcon node={node} />
-        <span>{node.name}</span>
-      </Draggable.Preview>
     </Draggable.Trigger>
   );
 
@@ -532,6 +528,14 @@ function DraggableEntry({
       onBeforeMoveStart={handleBeforeDragStart}
     >
       {entry}
+      <Draggable.Portal>
+        <Draggable.Positioner offset="pointer">
+          <Draggable.Preview className={styles.dragPreview}>
+            <BookmarkIcon node={node} />
+            <span>{node.name}</span>
+          </Draggable.Preview>
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }
@@ -988,6 +992,11 @@ function BrowserTabs({
                   ×
                 </span>
               </Tabs.Tab>
+              <Draggable.Portal className={styles.dragPreviewPortal}>
+                <Draggable.Positioner>
+                  <Draggable.Preview />
+                </Draggable.Positioner>
+              </Draggable.Portal>
             </Draggable.Root>
           );
         })}

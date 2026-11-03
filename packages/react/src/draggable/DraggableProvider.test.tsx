@@ -49,9 +49,7 @@ describe('Draggable.Provider', () => {
         <ShellMonitor />
         <Draggable.Provider>
           <Draggable.Root>
-            <Draggable.Trigger data-testid="source">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="source"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.Provider>
       </React.Fragment>,
@@ -68,9 +66,7 @@ describe('Draggable.Provider', () => {
     await renderDnd(
       <React.Fragment>
         <Draggable.Root>
-          <Draggable.Trigger data-testid="source">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="source"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Target data-testid="target" onDraggableDrop={onDrop} />
       </React.Fragment>,
@@ -88,9 +84,7 @@ describe('Draggable.Provider', () => {
     await renderDnd(
       <React.Fragment>
         <Draggable.Root kind={card}>
-          <Draggable.Trigger data-testid="source">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="source"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Target data-testid="target" onDraggableDrop={onDrop} />
       </React.Fragment>,
@@ -107,9 +101,7 @@ describe('Draggable.Provider', () => {
     await renderDnd(
       <React.Fragment>
         <Draggable.Root>
-          <Draggable.Trigger data-testid="source">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="source"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Target data-testid="target" accept={card} onDraggableDrop={onDrop} />
       </React.Fragment>,
@@ -125,9 +117,7 @@ describe('Draggable.Provider', () => {
     await renderDnd(
       <React.Fragment>
         <Draggable.Root>
-          <Draggable.Trigger data-testid="source">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="source"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Provider>
           <Draggable.Target data-testid="target" onDraggableDrop={onDrop} />
@@ -146,9 +136,7 @@ describe('Draggable.Provider', () => {
     await renderDnd(
       <React.Fragment>
         <Draggable.Root kind={kind}>
-          <Draggable.Trigger data-testid="source">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="source"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Provider>
           <Draggable.Target accept={kind} data-testid="target" onDraggableDrop={onDrop} />
@@ -160,18 +148,21 @@ describe('Draggable.Provider', () => {
     await drop(screen.getByTestId('target'));
     expect(onDrop).toHaveBeenCalledTimes(1);
   });
-  it('provides drag context to custom preview content', async () => {
+  it('provides drag context to preview content', async () => {
     function PreviewContent() {
       Draggable.useManager();
       return <span data-testid="custom-preview">Preview</span>;
     }
     await renderDnd(
       <Draggable.Root>
-        <Draggable.Trigger data-testid="source">
-          <Draggable.Preview>
-            <PreviewContent />
-          </Draggable.Preview>
-        </Draggable.Trigger>
+        <Draggable.Trigger data-testid="source" />
+        <Draggable.Portal>
+          <Draggable.Positioner>
+            <Draggable.Preview>
+              <PreviewContent />
+            </Draggable.Preview>
+          </Draggable.Positioner>
+        </Draggable.Portal>
       </Draggable.Root>,
     );
     await lift(screen.getByTestId('source'));

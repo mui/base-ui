@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { warn } from '@base-ui/utils/warn';
+import { Store } from '@base-ui/utils/store';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { DraggableCollisionContext } from '../collision-provider/DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
 import type {
@@ -20,6 +22,7 @@ import type {
 import type { RegisterSourceParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
+import type { DraggableTriggerProps } from '../trigger/DraggableTrigger';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 /**
@@ -91,7 +94,7 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
       }
     }, [enclosingCollisionContext, kind, collision]);
   }
-  const { ref, dragging, settling, registerHandle, previewHandle } = useDraggableElement<
+  const { ref, dragging, settling, registerHandle, getPreview } = useDraggableElement<
     TPayload,
     TDragData
   >(
@@ -106,17 +109,19 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
       : undefined,
   );
 
-  const contextValue = React.useMemo(
+  const triggerProps = useRefWithInit(() => new Store<DraggableTriggerProps | null>(null)).current;
+
+  const contextValue: DraggableRootContext = React.useMemo(
     () => ({
       registerHandle,
-      previewHandle,
-      previewContext: draggableContext,
+      getPreview,
+      triggerProps,
       triggerRef: ref,
       dragging,
       settling,
       disabled: disabled ?? false,
     }),
-    [registerHandle, previewHandle, draggableContext, ref, dragging, settling, disabled],
+    [registerHandle, getPreview, triggerProps, ref, dragging, settling, disabled],
   );
 
   return (
@@ -134,8 +139,8 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
 // `React.Attributes` adds `key`, which a generic wrapper's spread of an open `Props`
 // needs in common with JSX's `IntrinsicAttributes`.
 type DraggableRootPropsBase<TPayload, TDragData = unknown> = React.Attributes &
-  // `Draggable.Preview` and `Draggable.Handle` children declare the preview and handle.
-  Omit<RegisterSourceParameters<TPayload, TDragData>, 'preview' | 'handle' | 'kind'> & {
+  // A `Draggable.Handle` child declares the handle.
+  Omit<RegisterSourceParameters<TPayload, TDragData>, 'handle' | 'kind'> & {
     children?: React.ReactNode | undefined;
     /**
      * Whether this item belongs to the nearest matching collision provider.
@@ -211,15 +216,15 @@ export type DraggableRootElementReference =
 export interface DraggableRootModifierContext {
   /**
    * The point to constrain, in client pixels. On `Draggable.Root`, it's the pointer
-   * position. On `Draggable.Preview`, it's the preview's proposed top-left corner.
+   * position. On `Draggable.Positioner`, it's the preview's proposed top-left corner.
    */
   point: DraggablePosition;
   /** The same point when the drag started. Axis locks and grid snaps anchor to it. */
   initialPoint: DraggablePosition;
   /**
    * The pointer position in client pixels. On `Draggable.Root`, it's `point` before any
-   * modifier ran. On `Draggable.Preview`, it already includes the root's modifiers, and
-   * it's the pointer, not the preview's top-left corner.
+   * modifier ran. On `Draggable.Positioner`, it already includes the root's modifiers,
+   * and it's the pointer, not the preview's top-left corner.
    */
   input: DraggablePosition;
   /** The drag source element. */
@@ -236,7 +241,7 @@ export interface DraggableRootModifierContext {
   previewRect: DOMRect | null;
   /**
    * The offset from the preview's top-left corner to `point`. `{ x: 0, y: 0 }` on
-   * `Draggable.Preview` and when there is no preview.
+   * `Draggable.Positioner` and when there is no preview.
    */
   previewOffset: DraggablePosition;
   /**

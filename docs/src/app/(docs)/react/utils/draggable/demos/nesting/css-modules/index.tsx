@@ -50,6 +50,11 @@ function Layer({
         {id === 'chart' ? <ChartIcon /> : <NoteIcon />}
         {id === 'chart' ? 'Chart' : 'Note'}
       </Draggable.Trigger>
+      <Draggable.Portal>
+        <Draggable.Positioner>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }
@@ -88,9 +93,7 @@ export default function NestedDropTargets() {
     const id = focusLayerRef.current;
     if (id) {
       focusLayerRef.current = null;
-      rootRef.current
-        ?.querySelector<HTMLElement>(`[data-layer-id="${id}"]:not([data-drag-preview])`)
-        ?.focus();
+      rootRef.current?.querySelector<HTMLElement>(`[data-layer-id="${id}"]`)?.focus();
     }
   }, [locations]);
 

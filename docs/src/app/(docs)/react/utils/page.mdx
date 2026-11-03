@@ -96,7 +96,7 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
     - Drag preview
     - Custom preview
     - Preview position
-    - Preview container
+    - Preview placement
     - Drag cursor
     - Styling the source and preview
       - Animating a drop
@@ -117,6 +117,8 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
     - Root
     - Trigger
     - Handle
+    - Portal
+    - Positioner
     - Preview
     - Target
     - Viewport
@@ -124,7 +126,6 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
   - createKind
   - createGlobalKind
   - anyKind constant
-  - updatePreview
   - Modifiers
     - restrictToVerticalAxis
     - restrictToHorizontalAxis
@@ -149,6 +150,12 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
   - Draggable - Trigger
     - Props: className, render, style
     - Data Attributes: data-disabled, data-dragging, data-settling
+  - Draggable - Portal
+    - Props: className, container, render, style
+  - Draggable - Positioner
+    - Props: className, modifiers, offset, render, style
+    - Data Attributes: data-dropped, data-ending-style
+    - CSS Variables: --drag-source-height, --drag-source-width
   - Draggable - Viewport
     - Props: accept, className, disabled, maxSpeed, onDragScroll, overflowMargin, render, style
     - Data Attributes: data-disabled
@@ -164,9 +171,8 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
   - Draggable - Modifier
     - Parameters: context
   - Draggable - Preview
-    - Props: children, className, container, disabled, kind, modifiers, offset, render, style
+    - Props: className, render, style
     - Data Attributes: data-drag-preview, data-dropped, data-ending-style
-    - CSS Variables: --drag-source-height, --drag-source-width
   - Draggable - restrictToElement
     - Parameters: element
   - Draggable - restrictToHorizontalAxis
@@ -182,7 +188,6 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
   - Draggable - Target
     - Props: accept, canDrop, className, disabled, kind, onDraggableDrop, onDraggableEnter, onDraggableLeave, onDraggableMove, onDraggableStart, payload, render, snap, style, trackDragOver
     - Data Attributes: data-accepting, data-disabled, data-drag-over, data-drag-over-innermost, data-rejected
-  - Draggable - updatePreview
   - Draggable - useActiveDrag
     - Parameters: accept
   - Draggable - useManager
@@ -190,7 +195,7 @@ Drag and drop for pointer input, with drop targets, previews, sorting, and auto-
     - Parameters: parameters
   - DraggableRootModifier
     - Parameters: context
-- Types: Draggable.CollisionProvider.CollisionChangeEventDetails, Draggable.CollisionProvider.CollisionChangeEventReason, Draggable.CollisionProvider.MoveEndEventDetails, Draggable.CollisionProvider.MoveEndEventReason, Draggable.CollisionProvider.MoveStartEventDetails, Draggable.CollisionProvider.MoveStartEventReason, Draggable.CollisionProvider.Props, Draggable.Handle.Props, Draggable.Handle.Reference, Draggable.Handle.State, Draggable.Preview.Container, Draggable.Preview.Offset, Draggable.Preview.OffsetParameters, Draggable.Preview.Parameters, Draggable.Preview.Props, Draggable.Preview.RenderParameters, Draggable.Preview.Settings, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Activation, Draggable.Root.ActivationConfig, Draggable.Root.BeforeMoveStartEventDetails, Draggable.Root.BeforeMoveStartEventReason, Draggable.Root.ElementReference, Draggable.Root.ModifierContext, Draggable.Root.Modifiers, Draggable.Root.MoveEndEventDetails, Draggable.Root.MoveEndEventReason, Draggable.Root.MoveEventDetails, Draggable.Root.MoveEventReason, Draggable.Root.MoveStartEventDetails, Draggable.Root.MoveStartEventReason, Draggable.Root.Props, Draggable.Root.Record, Draggable.Root.TargetChangeEventDetails, Draggable.Root.TargetChangeEventReason, Draggable.Target.DropEventDetails, Draggable.Target.DropEventReason, Draggable.Target.EnterEventDetails, Draggable.Target.EnterEventReason, Draggable.Target.LeaveEventDetails, Draggable.Target.LeaveEventReason, Draggable.Target.LocalPoint, Draggable.Target.MoveEventDetails, Draggable.Target.MoveEventReason, Draggable.Target.Props, Draggable.Target.Record, Draggable.Target.ResolutionContext, Draggable.Target.SnapSteps, Draggable.Target.SnappedLocalPointOptions, Draggable.Target.StartEventDetails, Draggable.Target.StartEventReason, Draggable.Target.State, Draggable.Trigger.Props, Draggable.Trigger.State, Draggable.Viewport.DragScrollDirection, Draggable.Viewport.DragScrollEventDetails, Draggable.Viewport.DragScrollEventReason, Draggable.Viewport.MaxSpeedContext, Draggable.Viewport.OverflowMargin, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useManager.RegisterMonitorParameters, Draggable.useManager.RegisterSourceParameters, Draggable.useManager.RegisterTargetParameters, Draggable.useManager.RegisterViewportParameters, Draggable.useManager.ReturnValue, Draggable.useMonitor.Parameters, Draggable.useMonitor.ReturnValue
+- Types: Draggable.CollisionProvider.CollisionChangeEventDetails, Draggable.CollisionProvider.CollisionChangeEventReason, Draggable.CollisionProvider.MoveEndEventDetails, Draggable.CollisionProvider.MoveEndEventReason, Draggable.CollisionProvider.MoveStartEventDetails, Draggable.CollisionProvider.MoveStartEventReason, Draggable.CollisionProvider.Props, Draggable.Handle.Props, Draggable.Handle.Reference, Draggable.Handle.State, Draggable.Portal.Props, Draggable.Portal.State, Draggable.Positioner.Offset, Draggable.Positioner.OffsetParameters, Draggable.Positioner.Props, Draggable.Positioner.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Activation, Draggable.Root.ActivationConfig, Draggable.Root.BeforeMoveStartEventDetails, Draggable.Root.BeforeMoveStartEventReason, Draggable.Root.ElementReference, Draggable.Root.ModifierContext, Draggable.Root.Modifiers, Draggable.Root.MoveEndEventDetails, Draggable.Root.MoveEndEventReason, Draggable.Root.MoveEventDetails, Draggable.Root.MoveEventReason, Draggable.Root.MoveStartEventDetails, Draggable.Root.MoveStartEventReason, Draggable.Root.Props, Draggable.Root.Record, Draggable.Root.TargetChangeEventDetails, Draggable.Root.TargetChangeEventReason, Draggable.Target.DropEventDetails, Draggable.Target.DropEventReason, Draggable.Target.EnterEventDetails, Draggable.Target.EnterEventReason, Draggable.Target.LeaveEventDetails, Draggable.Target.LeaveEventReason, Draggable.Target.LocalPoint, Draggable.Target.MoveEventDetails, Draggable.Target.MoveEventReason, Draggable.Target.Props, Draggable.Target.Record, Draggable.Target.ResolutionContext, Draggable.Target.SnapSteps, Draggable.Target.SnappedLocalPointOptions, Draggable.Target.StartEventDetails, Draggable.Target.StartEventReason, Draggable.Target.State, Draggable.Trigger.Props, Draggable.Trigger.State, Draggable.Viewport.DragScrollDirection, Draggable.Viewport.DragScrollEventDetails, Draggable.Viewport.DragScrollEventReason, Draggable.Viewport.MaxSpeedContext, Draggable.Viewport.OverflowMargin, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useManager.RegisterMonitorParameters, Draggable.useManager.RegisterSourceParameters, Draggable.useManager.RegisterTargetParameters, Draggable.useManager.RegisterViewportParameters, Draggable.useManager.ReturnValue, Draggable.useMonitor.Parameters, Draggable.useMonitor.ReturnValue
 
 </details>
 

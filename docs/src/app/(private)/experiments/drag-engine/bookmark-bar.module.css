@@ -1,7 +1,9 @@
+/* The drag preview portal sits outside `.root`, so it declares the tokens too. */
 .root,
 .menuPopup,
 .dialogPopup,
-.dragPreview {
+.dragPreview,
+.dragPreviewPortal {
   --bookmark-surface: light-dark(oklch(100% 0 0deg), oklch(17.8% 0 0deg));
   --bookmark-raised: light-dark(oklch(98.5% 0 0deg), oklch(20.5% 0 0deg));
   --bookmark-hover: light-dark(oklch(95.5% 0 0deg), oklch(26.9% 0 0deg));

@@ -544,7 +544,7 @@ describe('modifyDragPoint', () => {
     const previewElement = document.createElement('div');
     previewElement.getBoundingClientRect = () => makeRect(0, 0, 50, 30);
     const previewLike = {
-      getPreviewElement: () => ({ element: previewElement }),
+      getPreviewRect: () => previewElement.getBoundingClientRect(),
       getPreviewOffset: () => ({ x: 5, y: 7 }),
     };
     const result = modifyDragPoint(state, { x: 500, y: 500 }, previewLike, NO_MODIFIER_KEYS);
@@ -568,7 +568,7 @@ describe('modifyDragPoint', () => {
     const getRect = vi.fn(() => makeRect(0, 0, 50, 30));
     previewElement.getBoundingClientRect = getRect;
     const previewLike = {
-      getPreviewElement: () => ({ element: previewElement }),
+      getPreviewRect: () => previewElement.getBoundingClientRect(),
       getPreviewOffset: () => ({ x: 0, y: 0 }),
     };
     const result = modifyDragPoint(state, { x: 40, y: 60 }, previewLike, NO_MODIFIER_KEYS);

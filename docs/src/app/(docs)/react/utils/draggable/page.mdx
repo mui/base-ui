@@ -35,8 +35,12 @@ const item = Draggable.createKind('item');
       <Draggable.Root kind={item}>
         <Draggable.Trigger>
           <Draggable.Handle />
-          <Draggable.Preview />
         </Draggable.Trigger>
+        <Draggable.Portal>
+          <Draggable.Positioner>
+            <Draggable.Preview />
+          </Draggable.Positioner>
+        </Draggable.Portal>
       </Draggable.Root>
     </Draggable.CollisionProvider>
 
@@ -50,11 +54,11 @@ const item = Draggable.createKind('item');
 The remaining parts are optional:
 
 - `<Draggable.Handle>` restricts where a drag can start. See [Drag handle](#drag-handle).
-- `<Draggable.Preview>` customizes what follows the pointer. See [Drag preview](#drag-preview).
+- `<Draggable.Positioner>` and `<Draggable.Preview>` show what follows the pointer, and `<Draggable.Portal>` moves them out of the page layout. Without them, nothing does. See [Drag preview](#drag-preview).
 - `<Draggable.CollisionProvider>` groups items that can be reordered. See [Sorting a list](#sorting-a-list).
 - `<Draggable.Viewport>` marks a scroll container that should auto-scroll during a drag. See [Auto-scrolling](#auto-scrolling).
 
-One manager handles every drag on the page, so a `<Draggable.Provider>` doesn't isolate its contents from other providers. The provider does two things. It supplies the default [kind](#kinds-and-payloads) for the parts inside it. It also passes React context to custom previews, so place it inside any context providers a custom preview reads.
+One manager handles every drag on the page, so a `<Draggable.Provider>` doesn't isolate its contents from other providers. The provider supplies the default [kind](#kinds-and-payloads) for the parts inside it.
 
 ## Kinds and payloads
 
@@ -140,8 +144,8 @@ To type a handler you define separately, use the types on its component's namesp
       eventDetails.cancel();
     }
   }}
-  // Fires once when the drag starts. The preview exists by then, so you
-  // can measure or restyle the source.
+  // Fires once when the drag starts. The source is measured by then, so you
+  // can restyle it.
   onMoveStart={(eventDetails) => console.log('lifted', eventDetails.source.payload)}
   // Fires when the drop targets under the pointer change.
   onTargetChange={(eventDetails) => console.log('over', eventDetails.target?.payload ?? 'nothing')}
@@ -448,7 +452,7 @@ When the decision depends on the gesture itself, for example on which handle the
 
 ### Storing data during a drag
 
-The `source` and `target` records can hold drag data that one handler writes and later handlers read. Declare its type as the second type argument of `createKind`. Write it with `updateDragData` and read it as `dragData`. It starts as `undefined` on each pickup. Set source data in `onBeforeMoveStart` so it's ready when Base UI looks for targets and renders a custom preview. The data carries over into the drag that follows. A canceled pickup discards it, so the next attempt starts from `undefined`:
+The `source` and `target` records can hold drag data that one handler writes and later handlers read. Declare its type as the second type argument of `createKind`. Write it with `updateDragData` and read it as `dragData`. It starts as `undefined` on each pickup. Set source data in `onBeforeMoveStart` so it's ready when Base UI looks for targets and renders the preview. The data carries over into the drag that follows. A canceled pickup discards it, so the next attempt starts from `undefined`:
 
 ```tsx title="Recording the grab position"
 const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
@@ -468,7 +472,7 @@ const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
 </Draggable.Root>;
 ```
 
-To show drag data in a [custom preview](#custom-preview), call [`Draggable.updatePreview()`](#updatepreview) after updating it. The payload is read-only and always follows the `payload` prop, so store anything decided at pickup, such as the items of a multi-selection drag, as drag data.
+To show drag data in the preview, read it with [`useActiveDrag`](#useactivedrag), as in [Custom preview](#custom-preview). The payload is read-only and always follows the `payload` prop, so store anything decided at pickup, such as the items of a multi-selection drag, as drag data.
 
 ### Activation
 
@@ -586,7 +590,7 @@ import { DemoContainedDrag } from './demos/containment';
 
 <DemoContainedDrag />
 
-`<Draggable.Preview>` also accepts `modifiers`. These constrain only the preview and run after the root's modifiers. The drop position still follows the pointer. Use them when leaving an area should cancel the drag instead of dropping on the nearest target. For example, a data grid can keep the preview inside the grid, while a release outside the grid cancels the drag.
+`<Draggable.Positioner>` also accepts `modifiers`. These constrain only the preview and run after the root's modifiers. The drop position still follows the pointer. Use them when leaving an area should cancel the drag instead of dropping on the nearest target. For example, a data grid can keep the preview inside the grid, while a release outside the grid cancels the drag.
 
 #### Custom modifiers
 
@@ -630,47 +634,38 @@ const snapToAngle: Draggable.Root.Modifier = ({ point, shiftKey, initialPoint })
 
 ### Drag preview
 
-During a drag, a copy of the source element follows the pointer. This clone keeps the element's classes, form values, canvas drawings, and scroll positions. Base UI renders it in the browser's top layer, so no scroll container clips it and nothing on the page paints over it.
+Nothing follows the pointer by default. The trigger stays in place with `[data-dragging]`, which suits a canvas that draws its own feedback. To show a preview, render `<Draggable.Positioner>` with a `<Draggable.Preview>` inside, next to the trigger:
 
-The clone has the source's tag and goes at the end of the source's parent, with no wrapper. A dragged `<tr>` is previewed by a `<tr>` in the same `<tbody>`, and an `<li>` by an `<li>` in the same list, so the page stays valid HTML during the drag.
-
-Base UI rewrites the clone's IDs to avoid duplicates in the document. Style it with classes or `[data-drag-preview]` instead of ID selectors. Styles that depend on `:hover` or `:focus` don't apply to it. The clone also leaves out content that lives outside the DOM, such as a WebGL canvas, a playing video, or a shadow DOM. A [custom preview](#custom-preview) is copied the same way, except that it redraws a 2D canvas on every frame, so show a still image of other such content there instead. A custom preview also helps when the source is large enough that cloning it causes a visible delay.
-
-Render `<Draggable.Preview>` without children to configure where the clone appears. In that case it renders no element of its own:
-
-```tsx title="Placing the clone under the pointer"
+```tsx title="Showing the trigger under the pointer"
 <Draggable.Root kind={card} payload={id}>
-  <Draggable.Trigger>
-    {label}
-    <Draggable.Preview offset="pointer" />
-  </Draggable.Trigger>
+  <Draggable.Trigger className="Card">{title}</Draggable.Trigger>
+  <Draggable.Portal>
+    <Draggable.Positioner>
+      <Draggable.Preview />
+    </Draggable.Positioner>
+  </Draggable.Portal>
 </Draggable.Root>
 ```
 
-Pass `disabled` to drag without any preview. The drag still runs and targets still respond, which suits a canvas that draws its own feedback:
+The positioner moves with the pointer, and the preview is what it shows. Both render only while their item is dragged, and until the preview settles after the drop. They are inert and hidden from assistive technology, and the positioner has `pointer-events: none`, so the drop targets under the preview still respond.
 
-```tsx title="Dragging without a preview"
-<Draggable.Root kind={shape} payload={id}>
-  <Draggable.Trigger>
-    {label}
-    <Draggable.Preview disabled />
-  </Draggable.Trigger>
-</Draggable.Root>
-```
+Without children, `<Draggable.Preview>` renders the trigger again: the same element, props, and children. It leaves out the trigger's `id`, `ref`, and event handlers, takes the trigger's size through the `--drag-source-width` and `--drag-source-height` CSS variables, and its own props replace the trigger's. Because it renders the children a second time, component state inside them starts fresh, DOM state such as input values or scroll positions isn't copied, and a ref on an element inside them points at the copy while the preview is mounted. Draggable parts rendered again inside the preview, such as a handle or a drop target, don't register.
 
 ### Custom preview
 
-Pass children to `<Draggable.Preview>` to show something other than a clone. Keep `pointer-events: none` on the preview so it doesn't block the drop targets under it. The dashboard below drags each widget as a compact badge:
+Pass children to `<Draggable.Preview>` to show something else. They render in a `<div>`. The dashboard below drags each widget as a compact badge:
 
-```tsx title="A badge instead of a clone"
+```tsx title="A badge instead of the widget"
 <Draggable.Root kind={widget} payload={id}>
-  <Draggable.Trigger>
-    {title}
-    <Draggable.Preview className="Badge" offset="pointer">
-      <span>{value}</span>
-      {title}
-    </Draggable.Preview>
-  </Draggable.Trigger>
+  <Draggable.Trigger className="Widget">{title}</Draggable.Trigger>
+  <Draggable.Portal>
+    <Draggable.Positioner offset="pointer">
+      <Draggable.Preview className="Badge">
+        <span>{value}</span>
+        {title}
+      </Draggable.Preview>
+    </Draggable.Positioner>
+  </Draggable.Portal>
 </Draggable.Root>
 ```
 
@@ -678,35 +673,15 @@ import { DemoBadgePreview } from './demos/badge';
 
 <DemoBadgePreview />
 
-Base UI renders the children off-screen, then copies them once into an element at the end of the source's parent, the same way it clones a source. The copy keeps the children's IDs, unless the page already uses one, in which case it gets a suffix.
-
-Refs inside the preview point at the off-screen elements, which have no layout to measure. The copy has no event handlers, and custom elements in the preview are constructed again for it.
-
-The preview renders a `<div>` by default. Next to a table row or a list item, pass `render` so the preview is valid there. React warns about an invalid preview element in a table or a `<select>`, and Base UI warns in a list:
-
-```tsx title="Previewing a table row"
-<Draggable.Root kind={row} payload={id}>
-  <Draggable.Trigger render={<tr />}>
-    <td>{name}</td>
-    <Draggable.Preview render={<tr />} className="RowPreview">
-      <td>{name}</td>
-    </Draggable.Preview>
-  </Draggable.Trigger>
-</Draggable.Root>
-```
-
-Pass a function as children to build the preview from the dragged item. It receives the drag `source` and `location` when the drag starts. Return `null` to show no preview.
-
-```tsx title="Building the preview from the payload"
-<Draggable.Preview kind={card}>
-  {({ source }) => <span className="Chip">{source.payload}</span>}
-</Draggable.Preview>
-```
-
-The preview shows what the children rendered when the drag started. To show something that changes during the drag, call [`Draggable.updatePreview()`](#updatepreview). It runs the function again with the current `source` and `location`, and the copy takes what changed. Store what the preview shows with [`updateDragData`](#storing-data-during-a-drag) first:
+The preview is part of the root's React tree, so it reads the context around the root, and state and prop changes show during the drag. To show [drag data](#storing-data-during-a-drag), read the drag with [`useActiveDrag`](#useactivedrag), which renders again when the data changes:
 
 ```tsx title="Showing the drop time in the preview"
 const event = Draggable.createKind<string, { time: string }>('event');
+
+function DropTime() {
+  const source = Draggable.useActiveDrag(event);
+  return <span className="Chip">{source?.dragData?.time}</span>;
+}
 
 <Draggable.Root
   kind={event}
@@ -715,44 +690,23 @@ const event = Draggable.createKind<string, { time: string }>('event');
     const time = getTimeAt(eventDetails.location.current.input);
     if (time !== eventDetails.source.dragData?.time) {
       eventDetails.source.updateDragData({ time });
-      Draggable.updatePreview();
     }
   }}
 >
-  <Draggable.Trigger>
-    {title}
-    <Draggable.Preview kind={event}>
-      {({ source }) => <span className="Chip">{source.dragData?.time}</span>}
-    </Draggable.Preview>
-  </Draggable.Trigger>
+  <Draggable.Trigger>{title}</Draggable.Trigger>
+  <Draggable.Portal>
+    <Draggable.Positioner offset="pointer">
+      <Draggable.Preview>
+        <DropTime />
+      </Draggable.Preview>
+    </Draggable.Positioner>
+  </Draggable.Portal>
 </Draggable.Root>;
 ```
 
-A component inside the preview, such as one that holds state or subscribes to the drag with [`useMonitor`](#usemonitor), still re-renders off-screen. Call `Draggable.updatePreview()` when what it shows changes, from an effect for example:
+The preview takes the size of its content. To match the trigger instead, use the `--drag-source-width` and `--drag-source-height` CSS variables:
 
-```tsx title="A preview component that keeps its copy up to date"
-function TargetName() {
-  const [name, setName] = React.useState<string | null>(null);
-  Draggable.useMonitor({
-    onTargetChange: (eventDetails) =>
-      setName(eventDetails.target?.element.getAttribute('aria-label') ?? null),
-  });
-  React.useEffect(() => {
-    Draggable.updatePreview();
-  }, [name]);
-  return <span className="Chip">{name ? `Move to ${name}` : 'Moving'}</span>;
-}
-```
-
-Without custom children, `Draggable.updatePreview()` clones the source again, which picks up content the source changed during the drag.
-
-The engine positions the preview through its `margin` and `translate`, so the preview's own `margin` and `translate` shift it from its [offset](#preview-position), the way they would shift it in place. Percentages in `translate` refer to the preview's own size.
-
-A custom preview stays mounted even if the source unmounts during the drag. If its `<Draggable.Provider>` unmounts, it keeps its last content until the drag ends. It reads React context from above the nearest `<Draggable.Provider>`, so place that provider inside any contexts the preview needs.
-
-The preview takes the size of its content. To match the source instead, use the `--drag-source-width` and `--drag-source-height` CSS variables:
-
-```css title="Matching the source size"
+```css title="Matching the trigger size"
 .RowPreview {
   width: var(--drag-source-width);
   min-height: var(--drag-source-height);
@@ -761,43 +715,59 @@ The preview takes the size of its content. To match the source instead, use the 
 
 ### Preview position
 
-Use the `offset` prop to position the preview relative to the pointer. It works the same for the clone and for custom content.
+Use the positioner's `offset` prop to position the preview relative to the pointer. Positions refer to the `<Draggable.Preview>` element, so content the positioner renders around it doesn't shift it:
 
 ```tsx title="Positioning the preview"
-// The default. The preview starts over the source and keeps the grab offset.
-<Draggable.Preview offset="source" />
+// The default. The preview starts over the trigger and keeps the grab offset.
+<Draggable.Positioner offset="source" />
 
 // The preview's top-left corner sits under the pointer.
-<Draggable.Preview offset="pointer" />
+<Draggable.Positioner offset="pointer" />
 
 // A fixed distance from the pointer.
-<Draggable.Preview offset={{ x: 12, y: 12 }}>{label}</Draggable.Preview>
+<Draggable.Positioner offset={{ x: 12, y: 12 }} />
 
-// Computed at drag start. This centers the preview under the pointer.
-<Draggable.Preview
-  offset={({ container }) => ({
-    x: container.offsetWidth / 2,
-    y: container.offsetHeight / 2,
+// Computed when the preview first renders. This centers the preview under the pointer.
+<Draggable.Positioner
+  offset={({ element }) => ({
+    x: element.offsetWidth / 2,
+    y: element.offsetHeight / 2,
   })}
->
-  {label}
-</Draggable.Preview>
+/>
 ```
 
-### Preview container
+The positioner also accepts `modifiers`, which constrain only the preview. See [Constraining movement](#constraining-movement).
 
-Base UI inserts the preview at the end of the source's parent, so the selectors that match the source, including child combinators such as `.List > .Card`, also match the preview. The source's siblings keep their `:nth-child` positions, unless a live reorder moves one of them after the preview. This extra sibling has two side effects during the drag:
+### Preview placement
 
-- Selectors that count from the end, such as `:last-child` and `:nth-last-child`, shift by one.
-- DOM queries over the source's parent include it, such as `list.children`, `tbody.rows`, or `list.querySelectorAll('.Card')`. Exclude the preview with `:not([data-drag-preview])` when measuring.
+`<Draggable.Portal>` renders the preview at the end of `<body>`, or in the element passed as `container`. That keeps it out of ancestors that clip it or transform it, but also out of the styles they provide: inherited fonts and CSS variables, and descendant selectors such as `.Column .Card`. Pass the classes the preview needs to the portal, which renders a `<div>`:
 
-Pass `container` to insert the preview somewhere else. It accepts an element, a ref, or a function that receives the source element:
-
-```tsx title="Rendering the preview outside the list"
-<Draggable.Preview container={(source) => source.closest('.Board')}>{label}</Draggable.Preview>
+```tsx title="Passing theme variables to the preview"
+<Draggable.Portal className="Theme">
 ```
 
-Pick the closest container that works. Outside the source's ancestors, descendant selectors such as `.Column .Card` stop matching the preview. Rules based on its own classes still apply.
+Without a portal, the positioner renders in place, next to the trigger, where those styles still apply. It has `position: fixed`, so keep it out of ancestors with a `transform`, `filter`, or `contain` property, which would position it instead of the viewport.
+
+To preview a table row, render the positioner as a table. A separate table lays out its own columns, so give both tables the same column widths, for example with `table-layout: fixed` and a shared `<colgroup>`:
+
+```tsx title="Previewing a table row"
+<Draggable.Root kind={row} payload={id}>
+  <Draggable.Trigger render={<tr />}>
+    <td>{name}</td>
+    <td>{size}</td>
+  </Draggable.Trigger>
+  <Draggable.Portal>
+    <Draggable.Positioner render={<table className="Table" />}>
+      <Columns />
+      <tbody>
+        <Draggable.Preview />
+      </tbody>
+    </Draggable.Positioner>
+  </Draggable.Portal>
+</Draggable.Root>
+```
+
+A drag continues when the root unmounts, as when a virtualized list scrolls the item away or a live reorder moves it to another list. Base UI then keeps a still copy of the preview until a root with the same `payload` or `previewKey` mounts and renders the preview again, or the drag ends.
 
 ### Drag cursor
 
@@ -819,7 +789,7 @@ Base UI injects the cursor rule as a `<style>` element. See the [CSP guide](/re
 
 ### Styling the source and preview
 
-`[data-dragging]` is present on the source element during the drag. The clone never gets it, so a rule that dims the source leaves the preview intact. `[data-drag-preview]` is present on the preview only. That's the clone, or the element `<Draggable.Preview>` renders around custom children:
+`[data-dragging]` is present on the trigger during the drag. `[data-drag-preview]` is present on the preview. An empty preview keeps the trigger's classes, so use it to style the preview apart:
 
 ```css title="Dimming the source"
 .Card[data-dragging] {
@@ -831,31 +801,31 @@ Base UI injects the cursor rule as a `<style>` element. See the [CSP guide](/re
 }
 ```
 
-With Tailwind CSS, use the `data-[drag-preview]:` variant, such as `data-[drag-preview]:shadow-md`. Content returned by a [`registerSource`](#registersource) `render` function gets the attribute on its root element, or on a `<div>` around it when it has several.
+With Tailwind CSS, use the `data-[drag-preview]:` variant, such as `data-[drag-preview]:shadow-md`.
 
 Base UI prevents text selection on draggables and disables page scrolling during a drag. Avoid setting `touch-action` on the draggable or its handle, since it interferes with touch dragging. Set it on a wrapper instead.
 
 #### Animating a drop
 
-After a release, the preview receives `[data-ending-style]`, and Base UI keeps it mounted until the animations that state starts have finished. Add a `translate` transition that applies once `[data-ending-style]` is set to move the preview to the source's final position, or back to the source after a release outside every target. Without one, the preview ends where it was released, so an ending fade runs there. Before the release, Base UI holds off transitions on the preview's `translate`, so it never trails the pointer. A custom preview's own transition, such as a `transition: all` meant for hover effects, stays off for `translate` at the release too:
+After a release, the positioner and the preview receive `[data-ending-style]`, and Base UI keeps them mounted until the animations that state starts have finished. Add a `translate` transition to the positioner under `[data-ending-style]` to move the preview to the trigger's final position, or back to the trigger after a release outside every target. Without one, the preview ends where it was released, so an ending fade runs there. Keep the transition under `[data-ending-style]`: during the drag, Base UI moves the positioner on every frame, and a transition would make it trail the pointer.
 
 ```css title="Settling into place"
 @media (prefers-reduced-motion: no-preference) {
-  .Card[data-drag-preview][data-ending-style] {
+  .Positioner[data-ending-style] {
     transition: translate 200ms ease;
   }
 }
 ```
 
-The ending preview also has `[data-dropped]` after a drop on a target. Use it when a drop creates something rather than moving the source, such as an item dragged from a palette. The source stays where it was, so the preview should fade where it was dropped instead of flying back:
+Both parts also have `[data-dropped]` after a drop on a target. Use it when a drop creates something rather than moving the source, such as an item dragged from a palette. The source stays where it was, so the preview should fade where it was dropped instead of flying back:
 
 ```css title="Fading out on a drop, sliding back otherwise"
 @media (prefers-reduced-motion: no-preference) {
-  .PaletteItem[data-drag-preview][data-ending-style] {
+  .PalettePositioner[data-ending-style]:not([data-dropped]) {
     transition: translate 200ms ease;
   }
 
-  .PaletteItem[data-drag-preview][data-ending-style][data-dropped] {
+  .PalettePreview[data-ending-style][data-dropped] {
     opacity: 0;
     transition: opacity 150ms;
   }
@@ -1268,6 +1238,14 @@ import { TypesDraggable, TypesDraggableAdditional } from './types';
 
 <TypesDraggable.Handle />
 
+### Portal
+
+<TypesDraggable.Portal />
+
+### Positioner
+
+<TypesDraggable.Positioner />
+
 ### Preview
 
 <TypesDraggable.Preview />
@@ -1312,7 +1290,7 @@ Prefer `createKind` whenever the source and the target can import the same const
 
 A kind that matches every drag. Pass it to a target's `accept` prop to accept everything. The resulting `source.payload` is `unknown` until you narrow it with a specific kind's `matches` method.
 
-`anyKind` only works in `accept`. `<Draggable.Root>`, `<Draggable.Preview>`, and `<Draggable.CollisionProvider>` can't take it as their `kind`, because each of them declares one specific kind.
+`anyKind` only works in `accept`. `<Draggable.Root>` and `<Draggable.CollisionProvider>` can't take it as their `kind`, because each of them declares one specific kind.
 
 ```tsx title="Accepting every drag"
 <Draggable.Target
@@ -1325,17 +1303,9 @@ A kind that matches every drag. Pass it to a target's `accept` prop to accept ev
 />
 ```
 
-## updatePreview
-
-Updates the preview of the drag in progress. A [custom preview](#custom-preview) renders its children again with the current `source` and `location`, and the copy on screen takes what changed. The default preview clones the source again. It does nothing when no drag is in progress.
-
-The update runs before the next paint, after React has rendered the updates already scheduled, so state set right before the call shows. Calls in the same frame share one update.
-
-<TypesDraggable.updatePreview hideDescription />
-
 ## Modifiers
 
-These are the built-in [movement modifiers](#constraining-movement). Pass them to the `modifiers` prop of `<Draggable.Root>` or `<Draggable.Preview>`. To write your own, type it as `Draggable.Root.Modifier`, as shown in [Custom modifiers](#custom-modifiers).
+These are the built-in [movement modifiers](#constraining-movement). Pass them to the `modifiers` prop of `<Draggable.Root>` or `<Draggable.Positioner>`. To write your own, type it as `Draggable.Root.Modifier`, as shown in [Custom modifiers](#custom-modifiers).
 
 ### restrictToVerticalAxis
 
@@ -1427,34 +1397,20 @@ The manager and its methods are stable, so you can list them as effect dependenc
 | Option                                                  | When it's read                                                                                       |
 | :------------------------------------------------------ | :--------------------------------------------------------------------------------------------------- |
 | Event handlers and predicates, such as `canDrop`        | Every time they're needed, so they see the latest closure.                                           |
-| A source's `kind` and preview settings                  | Once when a drag starts. `preview.render` runs again on each `Draggable.updatePreview()`.            |
+| A source's `kind`                                       | Once when a drag starts.                                                                             |
 | A source's `payload`                                    | At pickup, and whenever it changes during the drag.                                                  |
 | A target's `kind` and `payload`                         | Each time the target is evaluated, including on drop.                                                |
 | `disabled`, `handle`, and the styles applied while idle | At registration and on the next `pointerdown`. Call [`refresh`](#refresh) to apply a change at once. |
 
 ### registerSource
 
-Registers a drag source. `kind` is required here. It accepts the options of [`<Draggable.Root>`](#root) except `collision`, `collisionElement`, and `snap`. It also takes `handle` to restrict pickup to an element, and `preview` to configure the preview:
+Registers a drag source. `kind` is required here. It accepts the options of [`<Draggable.Root>`](#root) except `collision`, `collisionElement`, and `snap`. It also takes `handle` to restrict pickup to an element. A registered source shows no preview: render the Draggable parts to show one.
 
 ```tsx title="Registering a source"
 manager.registerSource(element, () => ({
   kind: card,
   payload: id,
   handle: handleRef,
-  preview: { offset: 'pointer' },
-}));
-```
-
-`preview` takes the options of [`<Draggable.Preview>`](#preview). Pass a `render` function instead of children to show custom content:
-
-```tsx title="A custom preview for a registered source"
-manager.registerSource(element, () => ({
-  kind: card,
-  payload: id,
-  preview: {
-    render: ({ source }) => <span className="Chip">{source.payload}</span>,
-    offset: 'pointer',
-  },
 }));
 ```
 

@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
-import type { DragPreviewHandle } from '../preview/dragPreviewDeclaration';
-import type { DraggableContextValue } from '../DraggableContext';
+import type { Store } from '@base-ui/utils/store';
+import type { DragPreview } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
+import type { DraggableTriggerProps } from '../trigger/DraggableTrigger';
 
-export interface DraggableRootContext<TPayload = unknown, TDragData = unknown> {
+export interface DraggableRootContext {
   /** See `UseDraggableElementReturnValue.registerHandle`. Stable. */
   registerHandle: (node: HTMLElement) => () => void;
-  /** The link a `Draggable.Preview` declares into. Stable. */
-  previewHandle: DragPreviewHandle<TPayload, TDragData>;
-  /** The `Draggable.Provider` seen from the root, whose overlay renders custom preview content. */
-  previewContext: DraggableContextValue;
+  /** The preview of the trigger's drag, active or settling, or `null`. Stable. */
+  getPreview: () => DragPreview | null;
+  /** The trigger's latest props, which an empty `Draggable.Preview` renders again. Stable. */
+  triggerProps: Store<DraggableTriggerProps | null>;
   /** Registers the element `Draggable.Trigger` renders as the drag source. Stable. */
   triggerRef: (node: HTMLElement | null) => void;
   /** Whether the source is being dragged. */
@@ -23,21 +24,17 @@ export interface DraggableRootContext<TPayload = unknown, TDragData = unknown> {
   disabled: boolean;
 }
 
-// Shared by every root, so the payload type is erased here and restored by
-// `useDraggableRootContext<TPayload, TDragData>()`.
-export const DraggableRootContext = React.createContext<DraggableRootContext<any, any> | undefined>(
+export const DraggableRootContext = React.createContext<DraggableRootContext | undefined>(
   undefined,
 );
 
-export function useDraggableRootContext<
-  TPayload = unknown,
-  TDragData = unknown,
->(): DraggableRootContext<TPayload, TDragData> {
+export function useDraggableRootContext(): DraggableRootContext {
   const context = React.useContext(DraggableRootContext);
   if (context === undefined) {
     throw new Error(
-      'Base UI: DraggableRootContext is missing. A <Draggable.Trigger>, <Draggable.Handle> or ' +
-        '<Draggable.Preview> is rendered outside of <Draggable.Root>, so it has no draggable to configure. ' +
+      'Base UI: DraggableRootContext is missing. A <Draggable.Trigger>, <Draggable.Handle>, ' +
+        '<Draggable.Portal>, <Draggable.Positioner> or <Draggable.Preview> is rendered outside of ' +
+        '<Draggable.Root>, so it has no draggable to configure. ' +
         'Place it within the <Draggable.Root> it belongs to. ' +
         'See https://base-ui.com/react/utils/draggable.',
     );

@@ -9,6 +9,8 @@ describe('Draggable namespace', () => {
       [
         'CollisionProvider',
         'Handle',
+        'Portal',
+        'Positioner',
         'Preview',
         'Provider',
         'Root',
@@ -24,7 +26,6 @@ describe('Draggable namespace', () => {
         'restrictToVerticalAxis',
         'restrictToWindowEdges',
         'snapToGrid',
-        'updatePreview',
         'useActiveDrag',
         'useManager',
         'useMonitor',

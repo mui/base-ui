@@ -41,13 +41,17 @@ function Widget({
             {widget.detail}
           </span>
         </div>
-        {/* @highlight-start @focus @padding 1 */}
-        <Draggable.Preview className={BADGE_CLASS} offset="pointer">
-          <span className={BADGE_VALUE_CLASS}>{widget.value}</span>
-          {widget.title}
-        </Draggable.Preview>
-        {/* @highlight-end */}
       </Draggable.Trigger>
+      {/* @highlight-start @focus @padding 1 */}
+      <Draggable.Portal>
+        <Draggable.Positioner offset="pointer">
+          <Draggable.Preview className={BADGE_CLASS}>
+            <span className={BADGE_VALUE_CLASS}>{widget.value}</span>
+            {widget.title}
+          </Draggable.Preview>
+        </Draggable.Positioner>
+      </Draggable.Portal>
+      {/* @highlight-end */}
     </Draggable.Root>
   );
 }

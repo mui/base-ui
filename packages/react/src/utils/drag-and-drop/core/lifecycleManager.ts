@@ -12,7 +12,6 @@ import type {
   DraggableLocationHistory,
   DraggableInput,
 } from '../../../draggable/DraggableProvider';
-import type { DraggablePreviewRenderParameters } from '../../../draggable/preview/DraggablePreview';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
 import type {
@@ -175,8 +174,8 @@ export function start(parameters: StartParameters): DragSessionController | null
   // doesn't send a second one.
   let endDispatched = false;
 
-  // A refresh before `onMoveStart`, such as an unregister in `onGenerateDragPreview`,
-  // queues like a mid-round one. Otherwise targets would get enters before their start.
+  // A refresh before `onMoveStart`, such as an unregister in a resolver, queues like a
+  // mid-round one. Otherwise targets would get enters before their start.
   let startDispatched = false;
 
   // Terminal leaves go to the ledger, not `location.current`, which a re-entrant
@@ -809,16 +808,16 @@ export function start(parameters: StartParameters): DragSessionController | null
     cancel: doCancel,
   };
 
-  // Armed before any start-time callback, so a `cancelDrag()` from a resolver,
-  // `onGenerateDragPreview` or `onMoveStart` ends the drag. The sensor's release
+  // Armed before any start-time callback, so a `cancelDrag()` from a resolver or
+  // `onMoveStart` ends the drag. The sensor's release
   // does nothing until `start()` returns, so the sensor undoes the pickup itself
   // when it gets `null`. An unregister meanwhile waits for `onMoveStart` (see
   // `startDispatched`).
   armed = true;
   setActiveSession(session, tearDown);
 
-  // Consumer code here, such as `onGenerateDragPreview`, may throw. Tear down
-  // before rethrowing, or the half-built session would block every later drag.
+  // Consumer code here, such as a resolver, may throw. Tear down before rethrowing,
+  // or the half-built session would block every later drag.
   try {
     // Now that cancel is armed, a `cancelDrag()` from a resolver ends the drag as it
     // would mid-drag.
@@ -828,25 +827,17 @@ export function start(parameters: StartParameters): DragSessionController | null
     }
     location.initial = { input: initialInput, targets: initialDropTargets };
     location.current = location.initial;
-
-    const previewPayload: DraggablePreviewRenderParameters = {
-      location: snapshotLocation(),
-      source,
-    };
-
-    getSourceHandlers().onGenerateDragPreview?.(previewPayload);
   } catch (error) {
     tearDown();
     throw error;
   }
 
-  // Canceled from `onGenerateDragPreview`. `null` sends the sensor down its
-  // refused-session path.
+  // Canceled from a resolver. `null` sends the sensor down its refused-session path.
   if (tornDown) {
     return null;
   }
 
-  // After `onGenerateDragPreview`, so a throw there never publishes a session.
+  // After the resolvers, so a throw there never publishes a session.
   phase = 'live';
   publishSession();
 
@@ -860,7 +851,7 @@ export function start(parameters: StartParameters): DragSessionController | null
 
 export type SourceHandlers = Pick<
   DraggableConfig<any, any>,
-  'onGenerateDragPreview' | 'onMoveStart' | 'onMove' | 'onTargetChange' | 'onMoveEnd'
+  'onMoveStart' | 'onMove' | 'onTargetChange' | 'onMoveEnd'
 >;
 
 export interface DragSessionController {

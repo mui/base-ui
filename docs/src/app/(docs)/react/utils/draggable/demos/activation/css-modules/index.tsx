@@ -120,6 +120,11 @@ function Puck({
         onPointerUp={() => onPhaseChange('ready')}
         onPointerCancel={() => onPhaseChange('ready')}
       />
+      <Draggable.Portal>
+        <Draggable.Positioner className={styles.Positioner}>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }

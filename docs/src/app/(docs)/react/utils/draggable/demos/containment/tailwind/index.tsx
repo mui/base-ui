@@ -47,6 +47,11 @@ function Widget({
           </span>
         </div>
       </Draggable.Trigger>
+      <Draggable.Portal>
+        <Draggable.Positioner>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }

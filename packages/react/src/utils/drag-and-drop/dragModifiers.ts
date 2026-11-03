@@ -224,7 +224,7 @@ export function applyDragModifiers(
 
 /** The slice of the synthetic preview handle `modifyDragPoint` reads. */
 interface ModifierPreviewLike {
-  getPreviewElement(): { element: HTMLElement } | null;
+  getPreviewRect(): DOMRect | null;
   getPreviewOffset(): DraggablePosition;
 }
 
@@ -309,6 +309,6 @@ export function modifyDragPoint(
     previewOffset: preview?.getPreviewOffset() ?? ZERO_OFFSET,
     keys,
     ownerWindow: ownerWindow(state.source.element),
-    getPreviewRect: () => preview?.getPreviewElement()?.element.getBoundingClientRect() ?? null,
+    getPreviewRect: () => preview?.getPreviewRect() ?? null,
   });
 }

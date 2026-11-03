@@ -28,6 +28,7 @@ import {
   useCalendarView,
   makeEventId,
 } from '../calendarLogic';
+import theme from '../theme.module.css';
 import styles from '../calendar.module.css';
 
 const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -236,7 +237,6 @@ function WeekAllDayCell(props: { dayMs: number }) {
         className={styles.weekAllDayCell}
       >
         {/* No clone of the cell: the drop preview in the grid shows the range being created. */}
-        <Draggable.Preview disabled />
       </Draggable.Trigger>
     </Draggable.Root>
   );
@@ -290,16 +290,20 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
         data-continues-after={segment.continuesAfter ? 'true' : undefined}
         title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
       >
-        <Draggable.Preview offset="pointer">
-          <div className={styles.dragPreview}>
-            <div className={styles.dragPreviewTitle}>{event.title}</div>
-            <div className={styles.dragPreviewMeta}>
-              {formatRange(event.start, event.end, event.allDay)}
-            </div>
-          </div>
-        </Draggable.Preview>
         {event.title}
       </Draggable.Trigger>
+      <Draggable.Portal className={theme.tokens}>
+        <Draggable.Positioner offset="pointer">
+          <Draggable.Preview>
+            <div className={styles.dragPreview}>
+              <div className={styles.dragPreviewTitle}>{event.title}</div>
+              <div className={styles.dragPreviewMeta}>
+                {formatRange(event.start, event.end, event.allDay)}
+              </div>
+            </div>
+          </Draggable.Preview>
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }
@@ -449,11 +453,6 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         }
         className={styles.weekColumn}
       >
-        <Draggable.Preview offset="pointer">
-          <div className={styles.dragPreview}>
-            <div className={styles.dragPreviewTitle}>New event</div>
-          </div>
-        </Draggable.Preview>
         {segments.map((seg) => (
           <WeekTimedEvent key={`${seg.event.id}-${seg.visibleStart}`} dayMs={dayMs} segment={seg} />
         ))}
@@ -470,6 +469,15 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           </div>
         )}
       </Draggable.Trigger>
+      <Draggable.Portal className={theme.tokens}>
+        <Draggable.Positioner offset="pointer">
+          <Draggable.Preview>
+            <div className={styles.dragPreview}>
+              <div className={styles.dragPreviewTitle}>New event</div>
+            </div>
+          </Draggable.Preview>
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }
@@ -521,14 +529,6 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
         tabIndex={0}
         title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
       >
-        <Draggable.Preview offset="pointer">
-          <div className={styles.dragPreview}>
-            <div className={styles.dragPreviewTitle}>{event.title}</div>
-            <div className={styles.dragPreviewMeta}>
-              {formatRange(event.start, event.end, event.allDay)}
-            </div>
-          </div>
-        </Draggable.Preview>
         {segment.isStartSegment && <WeekResizeHandle event={event} edge="start" />}
         <div className={styles.weekEventTitle}>{event.title}</div>
         <div className={styles.weekEventTime}>
@@ -536,6 +536,18 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
         </div>
         {segment.isEndSegment && <WeekResizeHandle event={event} edge="end" />}
       </Draggable.Trigger>
+      <Draggable.Portal className={theme.tokens}>
+        <Draggable.Positioner offset="pointer">
+          <Draggable.Preview>
+            <div className={styles.dragPreview}>
+              <div className={styles.dragPreviewTitle}>{event.title}</div>
+              <div className={styles.dragPreviewMeta}>
+                {formatRange(event.start, event.end, event.allDay)}
+              </div>
+            </div>
+          </Draggable.Preview>
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }
@@ -579,16 +591,19 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
         render={<span />}
         className={edge === 'start' ? styles.weekResizeTop : styles.weekResizeBottom}
         aria-hidden="true"
-      >
-        <Draggable.Preview offset="pointer">
-          <div className={styles.dragPreview}>
-            <div className={styles.dragPreviewTitle}>{event.title}</div>
-            <div className={styles.dragPreviewMeta}>
-              {edge === 'start' ? 'Resize start' : 'Resize end'}
+      ></Draggable.Trigger>
+      <Draggable.Portal className={theme.tokens}>
+        <Draggable.Positioner offset="pointer">
+          <Draggable.Preview>
+            <div className={styles.dragPreview}>
+              <div className={styles.dragPreviewTitle}>{event.title}</div>
+              <div className={styles.dragPreviewMeta}>
+                {edge === 'start' ? 'Resize start' : 'Resize end'}
+              </div>
             </div>
-          </div>
-        </Draggable.Preview>
-      </Draggable.Trigger>
+          </Draggable.Preview>
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }

@@ -65,6 +65,11 @@ export default function DraggableHero() {
             >
               Drag me
             </Draggable.Trigger>
+            <Draggable.Portal>
+              <Draggable.Positioner>
+                <Draggable.Preview />
+              </Draggable.Positioner>
+            </Draggable.Portal>
           </Draggable.Root>
           {/* @focus-end */}
         </Draggable.Target>

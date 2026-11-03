@@ -1,8 +1,12 @@
 'use client';
+import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { DragCleanupFn } from './types';
+import { DraggablePositionerContext } from '../../draggable/positioner/DraggablePositionerContext';
+
+const NOOP_REGISTRATION = () => () => {};
 
 /**
  * A stable ref callback that registers the attached element with the latest `register`
@@ -10,11 +14,13 @@ import type { DragCleanupFn } from './types';
  * to re-register loses nothing. A same-node detach and re-attach within one commit, as when
  * a merged ref changes identity, keeps the registration: re-registering mid-drag would make
  * a hovered target leave and re-enter, looping forever if a handler sets state.
+ * Inside a drag preview, which only pictures the dragged item, nothing registers.
  */
 export function useRegistrationRef<TElement extends Element>(
   register: (element: TElement) => DragCleanupFn,
 ): (element: TElement | null) => void {
-  const registerStable = useStableCallback(register);
+  const inPreview = React.useContext(DraggablePositionerContext) !== undefined;
+  const registerStable = useStableCallback(inPreview ? NOOP_REGISTRATION : register);
   const registration = useRefWithInit(() => {
     let current: { node: TElement; cleanup: DragCleanupFn } | null = null;
     // Set by a detach until the end of its commit, while React may re-attach the node.

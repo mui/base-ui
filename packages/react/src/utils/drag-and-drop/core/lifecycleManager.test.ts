@@ -353,24 +353,6 @@ describe('lifecycle manager', () => {
   });
 
   describe('event ordering', () => {
-    it('fires the internal onGenerateDragPreview then onMoveStart synchronously at drag start', () => {
-      // The preview hook is internal to the engine (the sensors' preview
-      // publisher, see `SourceHandlers`), so only a test driving the lifecycle
-      // directly can observe the ordering.
-      const order: string[] = [];
-
-      const handle = startDragWithHandlers({
-        onGenerateDragPreview: () => order.push('preview'),
-        onMoveStart: () => order.push('start'),
-      });
-
-      expect(order).toEqual(['preview', 'start']);
-      expect(handle).not.toBeNull();
-      act(() => {
-        resetForTests();
-      });
-    });
-
     it('dispatches onMoveStart before onMoveEnd on a same-tick cancel', async () => {
       const { engine } = await renderDnd();
       const el = createElement();
@@ -527,14 +509,22 @@ describe('lifecycle manager', () => {
     });
 
     it('enters and then leaves an initial target that unregisters while the drag starts', async () => {
-      // The target unregisters from `onGenerateDragPreview`, before the initial
-      // stack is published. It is still entered with that stack, and the leave it
-      // is then owed goes out right after `onMoveStart`.
+      // The target unregisters from its own `canDrop`, before the initial stack is
+      // published. It is still entered with that stack, and the leave it is then
+      // owed goes out right after `onMoveStart`.
       await renderDnd();
       const under = createElement();
       const order: string[] = [];
+      let unregistered = false;
       const unregister = registerTarget(under, () => ({
         accept: TEST_KIND,
+        canDrop: () => {
+          if (!unregistered) {
+            unregistered = true;
+            unregister();
+          }
+          return true;
+        },
         onDraggableEnter: () => order.push('enter'),
         onDraggableLeave: () => order.push('leave'),
       }));
@@ -542,10 +532,7 @@ describe('lifecycle manager', () => {
       under.appendChild(pickupTarget);
 
       act(() => {
-        startDragWithHandlers(
-          { onGenerateDragPreview: unregister, onMoveStart: () => order.push('start') },
-          pickupTarget,
-        );
+        startDragWithHandlers({ onMoveStart: () => order.push('start') }, pickupTarget);
       });
 
       expect(order).toEqual(['start', 'enter', 'leave']);
@@ -1375,20 +1362,6 @@ describe('lifecycle manager', () => {
       });
     });
 
-    it('a throwing onGenerateDragPreview (synchronous in start) tears the session down', () => {
-      // `start()` dispatches `onGenerateDragPreview` before it returns a handle. A
-      // throw there would leave the engine half-built, still active with live
-      // monitors, unless `start()` tears everything down before rethrowing.
-      expect(() =>
-        startDragWithHandlers({
-          onGenerateDragPreview: () => {
-            throw new Error('boom from onGenerateDragPreview');
-          },
-        }),
-      ).toThrow('boom from onGenerateDragPreview');
-      expectEngineRecovered();
-    });
-
     it('a throwing onMoveStart (synchronous in start) tears the session down', () => {
       expect(() =>
         startDragWithHandlers({
@@ -1485,31 +1458,6 @@ describe('lifecycle manager', () => {
       fireDrag.dragStart(el2);
       await flushRaf();
       expect(onDragStart2).toHaveBeenCalledTimes(1);
-    });
-
-    it('cancelDrag() from the internal onGenerateDragPreview cancels before onMoveStart', async () => {
-      // `start()` runs the engine's preview hook, and with it the consumer's
-      // preview `render`, before the sensor records its session. A cancel from it
-      // reaches the session only through the lifecycle-level fallback.
-      const { engine } = await renderDnd();
-      const onMoveStart = vi.fn();
-      const onMoveEnd = vi.fn();
-      const monitorOnDragStart = vi.fn();
-      engine.registerMonitor({ onMoveStart: monitorOnDragStart });
-
-      const handle = startDragWithHandlers({
-        onGenerateDragPreview: () => cancelDrag(),
-        onMoveStart,
-        onMoveEnd,
-      });
-
-      expect(handle).toBeNull();
-      expect(onMoveStart).not.toHaveBeenCalled();
-      expect(monitorOnDragStart).not.toHaveBeenCalled();
-      expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-      expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
-      expect(getActiveSession()).toBe(null);
     });
 
     it('cancelDrag() from an initial-stack canDrop ends the drag before it starts', async () => {

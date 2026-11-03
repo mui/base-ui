@@ -32,10 +32,7 @@ const INITIAL_STOPS: Stop[] = [
 // Find the insertion slot closest to the pointer along the lane. Slots sit
 // before the first stop, in the middle of each gap, and after the last stop.
 function resolveDropIndex(track: Element, clientX: number): number {
-  // Skip the drag preview: it's a clone of a stop, so it has `data-stop` too.
-  const stops = Array.from(
-    track.querySelectorAll<HTMLElement>('[data-stop]:not([data-drag-preview])'),
-  );
+  const stops = Array.from(track.querySelectorAll<HTMLElement>('[data-stop]'));
   if (stops.length === 0) {
     return 0;
   }
@@ -59,8 +56,8 @@ function resolveDropIndex(track: Element, clientX: number): number {
   return index;
 }
 
-// The preview is a clone of the stop, so it keeps these classes: `data-dragging`
-// dims the source, `data-drag-preview` lifts the clone above the lane.
+// The preview renders the stop again, so it keeps these classes: `data-dragging`
+// dims the source, `data-drag-preview` styles the preview.
 const STOP_CLASS =
   'inline-flex items-center gap-2 box-border border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 whitespace-nowrap text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-[background-color,opacity] data-[dragging]:opacity-40 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 dark:hover:bg-neutral-800';
 
@@ -132,6 +129,11 @@ export default function AxisLane() {
                   <GripIcon className="flex-none text-neutral-400 dark:text-neutral-500" />
                   {stop.label}
                 </Draggable.Trigger>
+                <Draggable.Portal>
+                  <Draggable.Positioner>
+                    <Draggable.Preview />
+                  </Draggable.Positioner>
+                </Draggable.Portal>
               </Draggable.Root>
             ))}
           </Draggable.Target>

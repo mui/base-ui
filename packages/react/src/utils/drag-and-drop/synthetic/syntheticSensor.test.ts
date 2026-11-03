@@ -13,6 +13,7 @@ import {
 import { cancelDrag } from './pickupRecognizer';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { dragSessionStore } from '../dragSessionStore';
+import { getActiveSession } from '../core/dragSession';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
 import { restrictToVerticalAxis } from '../dragModifiers';
@@ -1044,21 +1045,17 @@ describe('syntheticDrag sensor', () => {
     penUp(60, 50);
   });
 
-  it('a throwing preview build tears the whole pickup down and frees the engine', async () => {
+  it('a throwing pickup callback tears the whole pickup down and frees the engine', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const onMoveStart = vi.fn();
     let shouldThrow = true;
+    const onMoveStart = vi.fn(() => {
+      if (shouldThrow) {
+        throw new Error('start boom');
+      }
+    });
     engine.registerSource(el, () => ({
       activation: { touch: { type: 'immediate' } },
-      preview: {
-        render: () => {
-          if (shouldThrow) {
-            throw new Error('preview boom');
-          }
-          return null;
-        },
-      },
       onMoveStart,
     }));
 
@@ -1075,7 +1072,8 @@ describe('syntheticDrag sensor', () => {
     }
     await flushRaf();
 
-    expect(onMoveStart).not.toHaveBeenCalled();
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(getActiveSession()).toBeNull();
     // The aborted commit undid everything the pickup had acquired: the source's
     // reservation and the root scroll lock.
     expect(el.hasAttribute('draggable')).toBe(false);
@@ -1086,7 +1084,8 @@ describe('syntheticDrag sensor', () => {
     shouldThrow = false;
     touchDown(el, 50, 50);
     await flushRaf();
-    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart).toHaveBeenCalledTimes(2);
+    expect(getActiveSession()).not.toBeNull();
 
     touchUp(50, 50);
   });
@@ -2233,8 +2232,6 @@ describe('syntheticDrag sensor', () => {
       const localPoints: Array<{ x: number; y: number }> = [];
       engine.registerSource(source, {
         activation: { touch: { type: 'immediate' } },
-        // Custom content, whose host the engine removes as the drag ends.
-        preview: { render: () => 'Preview' },
       });
       engine.registerTarget(target, {
         onDraggableDrop: (eventDetails) => {

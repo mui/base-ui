@@ -66,9 +66,7 @@ export default function CanvasPan() {
     const pin = pins[0];
     if (pin) {
       moveCamera(pin.x - 40, pin.y - 40);
-      contentRef.current
-        ?.querySelector<HTMLElement>(`[data-pin-id="${pin.id}"]:not([data-drag-preview])`)
-        ?.focus();
+      contentRef.current?.querySelector<HTMLElement>(`[data-pin-id="${pin.id}"]`)?.focus();
     } else {
       moveCamera(ARCHIVE.x - 40, ARCHIVE.y - 40);
       viewportRef.current?.focus();
@@ -182,9 +180,13 @@ export default function CanvasPan() {
                   style={{ left: pin.x, top: pin.y }}
                 >
                   {pin.label}
-                  {/* Keep the preview inside the board so it doesn't trail over the page. */}
-                  <Draggable.Preview modifiers={Draggable.restrictToElement(viewportRef)} />
                 </Draggable.Trigger>
+                <Draggable.Portal>
+                  {/* Keep the preview inside the board so it doesn't trail over the page. */}
+                  <Draggable.Positioner modifiers={Draggable.restrictToElement(viewportRef)}>
+                    <Draggable.Preview />
+                  </Draggable.Positioner>
+                </Draggable.Portal>
               </Draggable.Root>
             ))}
           </div>

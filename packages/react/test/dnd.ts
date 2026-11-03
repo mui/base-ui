@@ -17,7 +17,6 @@ import { unlock as resetDragCursor } from '../src/utils/drag-and-drop/synthetic/
 import { resetForTests as resetPostDragClick } from '../src/utils/drag-and-drop/synthetic/postDragClick';
 import { finishAllEndingPreviewsForTests } from '../src/utils/drag-and-drop/synthetic/syntheticPreview';
 import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/autoScroller';
-import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dragPreviewStore';
 import { runAllCleanups } from '../src/utils/drag-and-drop/utils';
 import { resetTouchTarget } from './syntheticPointer';
 import type { DragDropEventDetails, MoveEndEventDetails } from '../src/utils/drag-and-drop/types';
@@ -284,28 +283,19 @@ export function cancel(): void {
  */
 function resetDrag(): void {
   runAllCleanups([
-    // These update React state on still-mounted consumers (`dragging`, preview
-    // portals, the published preview), so run them in `act` to avoid the "not
-    // wrapped in act(...)" warning. A test that aborts mid-drag would otherwise
-    // leave the overlay rendering its preview.
+    // These update React state on still-mounted consumers (`dragging` and the
+    // preview parts), so run them in `act` to avoid the "not wrapped in act(...)"
+    // warning.
     () =>
-      act(() =>
-        runAllCleanups([
-          resetDragSession,
-          resetSyntheticSensor,
-          resetPickupRecognizer,
-          clearPublishedDragPreview,
-        ]),
-      ),
+      act(() => runAllCleanups([resetDragSession, resetSyntheticSensor, resetPickupRecognizer])),
     // Global state `resetDragSession` doesn't clear. A test that fails mid-drag would
     // otherwise leave scrolling locked, the drag cursor set, or the next click swallowed.
     resetDragRootLock,
     resetDragCursor,
     resetPostDragClick,
-    // A dropped clone stays mounted until the next frame or its ending transition. A
-    // test that ends right after `drop()` would leave it behind, and its ancestor
-    // observer would re-home it to the body when the container is removed.
-    finishAllEndingPreviewsForTests,
+    // A dropped preview stays mounted until the next frame or its ending transition.
+    // A test that ends right after `drop()` would leave it behind.
+    () => act(finishAllEndingPreviewsForTests),
     // A test that fails mid-drag can leave the scroll monitor installed.
     resetAutoScroller,
     // Drop targets still registered on detached nodes would leak into the next test.

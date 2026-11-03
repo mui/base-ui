@@ -14,9 +14,10 @@ import theme from './theme.module.css';
 import styles from './figma-board.module.css';
 
 // Tests drag coordinates and preview sizing under a scaled ancestor. Pointer coordinates
-// are client pixels, so commits divide by the scale. A top-layer preview escapes
-// `transform: scale()` but still picks up `zoom`. The toolbar shows live source and
-// preview sizes to expose either mismatch.
+// are client pixels, so commits divide by the scale. The preview is portaled out of the
+// board, so it escapes both its `transform: scale()` and its `zoom`. The "scaled"
+// preview reapplies the board scale, passed to the portal as `--z`. The toolbar shows
+// live source and preview sizes to expose the mismatch.
 
 interface FigmaBoardSettings {
   zoomMode: 'transform' | 'zoom';
@@ -391,7 +392,7 @@ function FigmaBoardInner() {
                 card={card}
                 selected={selectedId === card.id}
                 editing={editingId === card.id}
-                compensatePreview={previewMode === 'scaled' && zoomMode === 'transform'}
+                compensatePreview={previewMode === 'scaled'}
                 zoomRef={zoomRef}
                 onSelect={selectCard}
                 onEdit={setEditingId}
@@ -571,10 +572,17 @@ function BoardCard({
         ) : (
           <CardText text={card.text} />
         )}
-        {/* In transform mode, `data-compensate-preview` lets CSS scale the clone back to
-          the source's painted size. CSS `zoom` already applies to the clone. */}
-        <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
       </Draggable.Trigger>
+      {/* The preview copies `data-compensate-preview` from the trigger, which lets CSS
+        scale it back to the source's painted size with `--z`. */}
+      <Draggable.Portal
+        className={theme.tokens}
+        style={{ '--z': zoomRef.current } as React.CSSProperties}
+      >
+        <Draggable.Positioner modifiers={Draggable.restrictToElement(boundaryRef)}>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }

@@ -34,9 +34,7 @@ describe.skipIf(isJSDOM)('Draggable.CollisionProvider (real hit testing)', () =>
           <Draggable.Trigger
             data-testid="source"
             style={{ position: 'fixed', top: 0, left: 0, width: 100, height: 100 }}
-          >
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          ></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Root kind={kind} payload="b" snap={{ y: 4 }}>
           <Draggable.Trigger

@@ -171,17 +171,20 @@ const ColumnHeader = React.memo(function ColumnHeader({
         <Draggable.Trigger className={styles.headerCellInner}>
           <Grip className={styles.headerGrip} />
           {column.label}
-          {/* Replaces the default clone of the header cell. Renders at the `Draggable.Provider`. */}
-          <Draggable.Preview
-            className={clsx(theme.tokens, styles.preview)}
+        </Draggable.Trigger>
+        {/* A chip instead of a copy of the header cell. */}
+        <Draggable.Portal>
+          <Draggable.Positioner
             // A small chip just off the pointer.
             offset={{ x: 12, y: 8 }}
             // Keep the preview inside the grid, like AG Grid.
             modifiers={Draggable.restrictToElement(boundaryRef)}
           >
-            {column.label}
-          </Draggable.Preview>
-        </Draggable.Trigger>
+            <Draggable.Preview className={clsx(theme.tokens, styles.preview)}>
+              {column.label}
+            </Draggable.Preview>
+          </Draggable.Positioner>
+        </Draggable.Portal>
       </Draggable.Root>
       <Menu.Root>
         <Menu.Trigger
@@ -233,15 +236,6 @@ const GridRow = React.memo(function GridRow({
         modifiers={Draggable.restrictToVerticalAxis}
       >
         <Draggable.Trigger className={styles.rowInner}>
-          <Draggable.Preview
-            className={clsx(theme.tokens, styles.preview)}
-            // A small chip just off the pointer.
-            offset={{ x: 12, y: 8 }}
-            // Keep the preview inside the grid, like AG Grid.
-            modifiers={Draggable.restrictToElement(boundaryRef)}
-          >
-            {row.cells.name}
-          </Draggable.Preview>
           {/* Rows drag from the grip only. */}
           <Draggable.Handle className={styles.rowGrip} aria-hidden>
             <Grip />
@@ -255,6 +249,18 @@ const GridRow = React.memo(function GridRow({
           ))}
           <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
         </Draggable.Trigger>
+        <Draggable.Portal>
+          <Draggable.Positioner
+            // A small chip just off the pointer.
+            offset={{ x: 12, y: 8 }}
+            // Keep the preview inside the grid, like AG Grid.
+            modifiers={Draggable.restrictToElement(boundaryRef)}
+          >
+            <Draggable.Preview className={clsx(theme.tokens, styles.preview)}>
+              {row.cells.name}
+            </Draggable.Preview>
+          </Draggable.Positioner>
+        </Draggable.Portal>
       </Draggable.Root>
     </div>
   );

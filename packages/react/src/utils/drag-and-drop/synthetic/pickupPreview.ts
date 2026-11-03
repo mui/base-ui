@@ -4,7 +4,6 @@
  * releases what it acquires (see `sensor.release`).
  */
 
-import type * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import * as dragRootLock from './dragRootLock';
 import {
@@ -19,53 +18,10 @@ import { getRegistrationOwner } from '../draggableRegistry';
 import { readSourceParameters } from '../dragSource';
 import { getClosedShadowRootsByHost } from '../dropTarget';
 import type { DraggableConfig } from '../draggable';
-import { elementFromPointIgnoring, resolveElementReference } from '../utils';
+import { elementFromPointIgnoring } from '../utils';
 import type { DragStartReason } from '../types';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
-import type {
-  DraggablePreviewOffset,
-  DraggablePreviewRenderParameters,
-} from '../../../draggable/preview/DraggablePreview';
-import type {
-  DraggableRootModifiers,
-  DraggableRootRecord,
-} from '../../../draggable/root/DraggableRoot';
-
-/**
- * The preview settings for one drag, resolved from the registration's `preview`,
- * which a `Draggable.Preview` part feeds too.
- * @internal
- */
-export interface ResolvedDragPreview {
-  offset: DraggablePreviewOffset | undefined;
-  modifiers: DraggableRootModifiers | undefined;
-  /** Already resolved to an element. `null` inserts the preview beside the source. */
-  container: HTMLElement | null;
-  disabled: boolean;
-  /** React content for a custom preview; `null` for a clone of the source. */
-  render: ((parameters: DraggablePreviewRenderParameters<any>) => React.ReactNode) | null;
-}
-
-/**
- * Read once at drag start. The engine builds the preview synchronously from these,
- * before React can run.
- */
-function resolveDragPreview(
-  parameters: DraggableConfig<any, any>,
-  source: HTMLElement,
-): ResolvedDragPreview {
-  const settings = parameters.preview;
-  const disabled = settings?.disabled ?? false;
-
-  return {
-    offset: settings?.offset,
-    modifiers: settings?.modifiers,
-    // Can be a callback, so leave it uninvoked when the preview is disabled.
-    container: disabled ? null : resolveElementReference(settings?.container, source),
-    disabled,
-    render: settings?.render ?? null,
-  };
-}
+import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
 
 /**
  * Measure a source at pickup, once, for the grab offset and the modifiers. A source
@@ -115,7 +71,7 @@ export function hitTestUnderPreview(
     ownerDocument(element),
     clientX,
     clientY,
-    preview.getPreviewElement()?.element ?? null,
+    preview.getPreviewElement(),
     getClosedShadowRootsByHost(),
   );
 }
@@ -167,25 +123,17 @@ export function createPreviewAndStartSession(
       x: pressPoint.x - sourceRect.left,
       y: pressPoint.y - sourceRect.top,
     };
-    // For the preview's default `'source'` offset. The preview anchors on its
-    // untransformed box, so it can't reuse `grabOffset`, which is relative to the
-    // transformed rect.
+    // For the preview's default `'source'` offset.
     const pressInput: DraggableInput = {
       ...initialInput,
       clientX: pressPoint.x,
       clientY: pressPoint.y,
     };
 
-    const previewSettings = resolveDragPreview(draggableParameters, element);
-    if (!isPickupCurrent()) {
-      return null;
-    }
     preview = createDragPreview(
       element,
       getPreviewSourceIdentity(draggableParameters, getRegistrationOwner(element)),
-      previewSettings,
-      initialInput,
-      pressInput,
+      { sourceRect, input: initialInput, pressInput },
     );
     dragRootLock.lock(element);
     locked = true;
@@ -224,8 +172,6 @@ export function createPreviewAndStartSession(
           sessionPreview.markDropped();
         }
       },
-      // The session publishes it before `start()` dispatches `onGenerateDragPreview`,
-      // where the React layer reads the custom preview content from it.
       preview: sessionPreview,
       sensor,
     });

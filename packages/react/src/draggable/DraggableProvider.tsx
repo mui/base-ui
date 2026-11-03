@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { createKind } from '../utils/drag-and-drop/dragKind';
-import { PreviewOverlayRenderer } from '../utils/drag-and-drop/overlay/PreviewOverlayRenderer';
 import { DraggableContext } from './DraggableContext';
 import type { DraggableContextValue } from './DraggableContext';
 import type { DraggableRootRecord } from './root/DraggableRoot';
@@ -11,7 +10,7 @@ import type { DraggableTargetRecord } from './target/DraggableTarget';
 
 /**
  * Groups the drag sources, drop targets, and viewports of an interaction.
- * Required above the Draggable parts and `useManager`. Custom previews render inside it.
+ * Required above the Draggable parts and `useManager`.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#provider)
@@ -22,12 +21,7 @@ export function DraggableProvider(props: DraggableProviderProps): React.ReactNod
     defaultKind: createKind<undefined>('default'),
   })).current;
 
-  return (
-    <DraggableContext.Provider value={contextValue}>
-      {children}
-      <PreviewOverlayRenderer />
-    </DraggableContext.Provider>
-  );
+  return <DraggableContext.Provider value={contextValue}>{children}</DraggableContext.Provider>;
 }
 
 export interface DraggableProviderProps {

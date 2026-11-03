@@ -8,7 +8,7 @@ import type { AcceptedDragPayload, AcceptedDragData, DraggablePayload } from './
 /** Parameters accepted by `Draggable.Root` and `registerSource`. */
 export type RegisterSourceParameters<TPayload = undefined, TDragData = unknown> = Omit<
   DraggableConfig<TPayload, TDragData>,
-  'onGenerateDragPreview' | 'styleNonce' | 'disableStyleElements'
+  'styleNonce' | 'disableStyleElements'
 >;
 
 /** Public drop-target parameters, whose `accept` declaration is required. */

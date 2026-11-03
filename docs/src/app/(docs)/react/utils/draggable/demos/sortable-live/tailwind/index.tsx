@@ -46,6 +46,11 @@ const Task = React.memo(function Task({
         >
           {task}
         </Draggable.Trigger>
+        <Draggable.Portal>
+          <Draggable.Positioner>
+            <Draggable.Preview />
+          </Draggable.Positioner>
+        </Draggable.Portal>
       </Draggable.Root>
     </div>
   );

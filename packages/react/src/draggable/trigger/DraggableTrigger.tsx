@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
 
 const stateAttributesMapping: StateAttributesMapping<DraggableTriggerState> = {
-  // The engine sets `data-dragging` after it builds and measures the preview, so the
-  // clone never inherits it. Rendering it from React could land it before the clone.
+  // The engine sets `data-dragging` at pickup, once it has measured the element, so
+  // `[data-dragging]` rules apply before React renders.
   dragging: () => null,
   // The engine sets `data-settling` too, in step with the preview it settles.
   settling: () => null,
@@ -15,7 +16,7 @@ const stateAttributesMapping: StateAttributesMapping<DraggableTriggerState> = {
 
 /**
  * The element the user picks up and drops on a matching drop target.
- * While dragging, a clone of the element follows the pointer by default.
+ * An empty `<Draggable.Preview>` renders it again to show it under the pointer.
  * Render one per `<Draggable.Root>`.
  * Renders a `<div>` element.
  *
@@ -27,6 +28,11 @@ export const DraggableTrigger = React.forwardRef(function DraggableTrigger(
 ) {
   const { className, render, style, ...elementProps } = componentProps;
   const context = useDraggableRootContext();
+
+  // For an empty `Draggable.Preview`, which renders these props again.
+  useIsoLayoutEffect(() => {
+    context.triggerProps.setState(componentProps);
+  });
 
   const state: DraggableTrigger.State = {
     dragging: context.dragging,

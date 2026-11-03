@@ -4,12 +4,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { createDndRenderer } from '../../../../test/dndEngine';
 import { Draggable } from '../../../draggable';
 import { setupDragEngineTests, createElement, lift, flushRaf } from '../../../../test/dnd';
-import { createPreviewAndStartSession } from './pickupPreview';
-import { createDragSource } from '../dragSource';
 import { penDown, penUp } from '../../../../test/syntheticPointer';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
-import { getInput } from '../utils';
-import { dragPreviewStore } from '../overlay/dragPreviewStore';
 import { dragSessionStore, dragSourceStore } from '../dragSessionStore';
 
 setupDragEngineTests();
@@ -18,34 +14,43 @@ describe('sensor session startup', () => {
   const { renderDnd } = createDndRenderer();
 
   it('finishes a child preview before picking up its parent', async () => {
-    const { engine } = await renderDnd();
-    const parent = createElement();
-    const child = createElement();
-    child.id = 'settling-child';
-    parent.appendChild(child);
-    engine.registerSource(parent, { activation: { type: 'immediate' } });
-    engine.registerSource(child, { activation: { type: 'immediate' } });
+    const { engine } = await renderDnd(
+      <Draggable.Root activation={{ type: 'immediate' }}>
+        <Draggable.Trigger data-testid="parent">
+          <Draggable.Root activation={{ type: 'immediate' }}>
+            <Draggable.Trigger data-testid="child" />
+            <Draggable.Positioner />
+          </Draggable.Root>
+        </Draggable.Trigger>
+      </Draggable.Root>,
+    );
+    const parent = screen.getByTestId('parent');
+    const child = screen.getByTestId('child');
 
     penDown(child, 10, 10);
     penUp(10, 10);
+    // The child's preview settles on the next frame.
     expect(child).toHaveAttribute('data-settling');
 
     penDown(parent, 150, 80);
 
-    const ids = Array.from(document.querySelectorAll('[id]'), (node) => node.id);
-    expect(ids.length).toBe(new Set(ids).size);
+    // Its `data-settling` and `data-dragging` would otherwise skew the parent's measure.
     expect(child).not.toHaveAttribute('data-settling');
-    expect(parent.querySelector('[data-drag-preview]')).toBeNull();
+    expect(child).not.toHaveAttribute('data-dragging');
+    expect(parent).toHaveAttribute('data-dragging');
     act(() => engine.cancelDrag());
     penUp(150, 80);
   });
 
   it('carries the typed pre-start source and data into target resolution, preview and start', async () => {
     const kind = Draggable.createKind<string, { offset: number }>('prepared-source');
+    function DragDataLabel() {
+      const source = Draggable.useActiveDrag(kind);
+      return <span data-testid="preview-offset">{source?.dragData?.offset}</span>;
+    }
     let candidate: DraggableRootRecord<string, { offset: number }> | undefined;
     const snapshots: unknown[] = [];
     const canDrop = vi.fn(({ source }) => source.dragData?.offset === 12);
-    const preview = vi.fn(({ source }) => <span>{source.dragData?.offset}</span>);
     const onMoveStart = vi.fn();
     function Fixture({ offset = 12 }) {
       return (
@@ -64,9 +69,12 @@ describe('sensor session startup', () => {
             }}
             onMoveStart={onMoveStart}
           >
-            <Draggable.Trigger data-testid="source">
-              <Draggable.Preview kind={kind}>{preview}</Draggable.Preview>
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="source" />
+            <Draggable.Positioner>
+              <Draggable.Preview>
+                <DragDataLabel />
+              </Draggable.Preview>
+            </Draggable.Positioner>
           </Draggable.Root>
         </React.Fragment>
       );
@@ -78,8 +86,7 @@ describe('sensor session startup', () => {
     expect(canDrop).toHaveBeenCalled();
     expect(canDrop.mock.results[0].value).toBe(true);
     expect(canDrop.mock.calls[0][0].source).toBe(candidate);
-    expect(preview.mock.results[0].value.props.children).toBe(12);
-    expect(preview.mock.calls[0][0].source).toBe(candidate);
+    expect(screen.getByTestId('preview-offset')).toHaveTextContent('12');
     expect(onMoveStart.mock.calls[0][0].source).toBe(candidate);
     expect(candidate?.payload).toBe('event');
     expect(candidate?.dragData).toEqual({ offset: 12 });
@@ -94,33 +101,6 @@ describe('sensor session startup', () => {
     expect(candidate?.dragData).toEqual({ offset: 24 });
     expect(snapshots).toEqual([undefined, undefined]);
     penUp(10, 10);
-  });
-
-  it('removes a cloned preview when its offset callback throws', () => {
-    const element = createElement();
-    const kind = Draggable.createKind('offset-error');
-    expect(() =>
-      createPreviewAndStartSession({
-        dragSource: createDragSource(element, kind.id, undefined, null),
-        initialInput: getInput(new MouseEvent('pointerdown', { clientX: 10, clientY: 10 })),
-        initialTarget: element,
-        startReason: 'pointer',
-        pressPoint: { x: 10, y: 10 },
-        sourceRect: element.getBoundingClientRect(),
-        isPickupCurrent: () => true,
-        draggableParameters: {
-          kind,
-          preview: {
-            offset() {
-              throw new Error('offset failed');
-            },
-          },
-        },
-      }),
-    ).toThrow('offset failed');
-    expect(document.querySelector('[data-drag-preview]')).toBeNull();
-    expect(element.parentElement?.querySelector('[popover]')).toBeNull();
-    expect(dragSessionStore.state).toBeNull();
   });
 
   it('keeps source callbacks compatible when its kind changes mid-drag', async () => {
@@ -304,33 +284,21 @@ describe('sensor session startup', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  it.each(['modifier', 'preview'])('honors cancellation in the %s callback', async (callback) => {
+  it('honors cancellation in a modifier', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const onMoveStart = vi.fn();
     engine.registerSource(source, {
       payload: 'item',
       modifiers: ({ point }) => {
-        if (callback === 'modifier') {
-          engine.cancelDrag();
-        }
+        engine.cancelDrag();
         return point;
-      },
-      preview: {
-        render: () => {
-          if (callback === 'preview') {
-            engine.cancelDrag();
-          }
-          return 'Preview';
-        },
       },
       onMoveStart,
     });
     await lift(source, { expectNoDrag: true });
     expect(onMoveStart).not.toHaveBeenCalled();
     expect(dragSessionStore.state).toBeNull();
-    expect(dragPreviewStore.state).toBeNull();
-    expect(document.querySelector('[data-drag-preview]')).toBeNull();
     expect(source).not.toHaveAttribute('data-dragging');
   });
 });

@@ -146,9 +146,7 @@ describe('<Draggable.Handle />', () => {
           }}
         >
           <Draggable.Root kind={kind} payload="a">
-            <Draggable.Trigger data-testid="a">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
           </Draggable.Root>
           <Draggable.Root kind={kind} payload="b">
             <Draggable.Trigger data-testid="b" data-over={over === 'b'}>

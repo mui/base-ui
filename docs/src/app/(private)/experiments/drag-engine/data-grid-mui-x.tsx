@@ -180,8 +180,12 @@ const ColumnHeader = React.memo(function ColumnHeader({
         <Draggable.Trigger className={styles.headerCellInner}>
           {column.label}
           {/* Keep the default clone inside the grid. */}
-          <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
         </Draggable.Trigger>
+        <Draggable.Portal className={theme.tokens}>
+          <Draggable.Positioner modifiers={Draggable.restrictToElement(boundaryRef)}>
+            <Draggable.Preview />
+          </Draggable.Positioner>
+        </Draggable.Portal>
       </Draggable.Root>
       <Menu.Root>
         <Menu.Trigger
@@ -233,15 +237,6 @@ const GridRow = React.memo(function GridRow({
         modifiers={Draggable.restrictToVerticalAxis}
       >
         <Draggable.Trigger className={styles.rowInner}>
-          <Draggable.Preview
-            className={clsx(theme.tokens, styles.rowGhost)}
-            // A small chip just off the pointer.
-            offset={{ x: 14, y: 10 }}
-            // Keep the preview inside the grid.
-            modifiers={Draggable.restrictToElement(boundaryRef)}
-          >
-            {row.cells.name}
-          </Draggable.Preview>
           {/* Rows drag from the handle only. */}
           <Draggable.Handle className={styles.rowHandle} aria-label="Reorder row">
             <DragHandleIcon />
@@ -255,6 +250,18 @@ const GridRow = React.memo(function GridRow({
           ))}
           <div className={styles.columnSpacer} style={{ width: trailingWidth }} />
         </Draggable.Trigger>
+        <Draggable.Portal>
+          <Draggable.Positioner
+            // A small chip just off the pointer.
+            offset={{ x: 14, y: 10 }}
+            // Keep the preview inside the grid.
+            modifiers={Draggable.restrictToElement(boundaryRef)}
+          >
+            <Draggable.Preview className={clsx(theme.tokens, styles.rowGhost)}>
+              {row.cells.name}
+            </Draggable.Preview>
+          </Draggable.Positioner>
+        </Draggable.Portal>
       </Draggable.Root>
     </div>
   );

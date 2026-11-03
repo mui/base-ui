@@ -7,8 +7,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
-import { createDragPreviewHandle } from '../preview/dragPreviewDeclaration';
-import type { DragPreviewHandle } from '../preview/dragPreviewDeclaration';
+import { findDragPreview } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
+import type { DragPreview } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
 import type {
   RegisterSourceParameters,
   RegisterTargetParameters,
@@ -46,7 +46,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     enabled: boolean;
     element?: ((element: HTMLElement) => HTMLElement) | undefined;
   },
-): UseDraggableElementReturnValue<TPayload, TDragData> {
+): UseDraggableElementReturnValue {
   const registerSource = useRegisterSource();
   // Identifies this Root to the preview across a node swap (see `retargetPreviewSource`).
   const owner = useRefWithInit(() => ({})).current;
@@ -68,13 +68,15 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     () => () => attachedHandlesRef.current[0] ?? null,
   ).current;
 
-  const previewHandle = useRefWithInit(createDragPreviewHandle<TPayload, TDragData>).current;
+  // The preview of this element's drag, active or settling.
+  const getPreview = useRefWithInit(
+    () => () => (elementRef.current ? findDragPreview(elementRef.current) : null),
+  ).current;
 
-  // Both accessors keep one identity, since the engine compares parameters field by field.
+  // The accessor keeps one identity, since the engine compares parameters field by field.
   const internalParameters: RegisterSourceParameters<TPayload, TDragData> = {
     ...parameters,
     handle: getAttachedHandle,
-    preview: previewHandle.preview,
   };
   const options = { parameters: internalParameters, collision: collisionOptions };
   const getOptions = useStableCallback(() => options);
@@ -214,11 +216,11 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     dragging,
     settling,
     registerHandle,
-    previewHandle,
+    getPreview,
   };
 }
 
-export interface UseDraggableElementReturnValue<TPayload = undefined, TDragData = unknown> {
+export interface UseDraggableElementReturnValue {
   /** Ref callback to attach to the drag source element. Stable. */
   ref: React.RefCallback<HTMLElement>;
   /** Whether this element is the one currently being dragged. */
@@ -231,6 +233,6 @@ export interface UseDraggableElementReturnValue<TPayload = undefined, TDragData 
    * draggable. Stable.
    */
   registerHandle: (node: HTMLElement) => () => void;
-  /** The link a `Draggable.Preview` declares into. Stable. */
-  previewHandle: DragPreviewHandle<TPayload, TDragData>;
+  /** The preview of this element's drag, active or settling, or `null`. Stable. */
+  getPreview: () => DragPreview | null;
 }

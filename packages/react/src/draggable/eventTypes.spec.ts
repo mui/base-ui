@@ -1,5 +1,5 @@
 import { expectType } from '#test-utils';
-import { Draggable } from '@base-ui/react/draggable';
+import type { Draggable } from '@base-ui/react/draggable';
 
 type Payload = { id: string };
 type TargetPayload = { index: number };
@@ -260,28 +260,6 @@ expectType<Draggable.Viewport.DragScrollDirection, (typeof ViewportDragScroll)['
 );
 expectType<Draggable.Input, (typeof ViewportDragScroll)['input']>(ViewportDragScroll.input);
 expectType<HTMLElement, (typeof ViewportDragScroll)['element']>(ViewportDragScroll.element);
-
-const preview = (parameters: Draggable.Preview.RenderParameters<Payload, DragData>) => {
-  expectType<Payload, typeof parameters.source.payload>(parameters.source.payload);
-  expectType<DragData | undefined, typeof parameters.source.dragData>(parameters.source.dragData);
-  expectType<Draggable.LocationHistory, typeof parameters.location>(parameters.location);
-  return null;
-};
-const previewProps: Draggable.Preview.Props<Payload, DragData> = {
-  kind: Draggable.createKind<Payload, DragData>('preview'),
-  children: preview,
-};
-void previewProps;
-
-// Typed drag data alone selects the typed props, like the component's own overload.
-const dataOnlyPreviewProps: Draggable.Preview.Props<unknown, DragData> = {
-  kind: Draggable.createKind<unknown, DragData>('data-only-preview'),
-  children: (parameters) => {
-    expectType<DragData | undefined, typeof parameters.source.dragData>(parameters.source.dragData);
-    return null;
-  },
-};
-void dataOnlyPreviewProps;
 
 declare const source: Draggable.Root.Record<Payload, DragData>;
 declare const target: Draggable.Target.Record<TargetPayload, TargetDragData>;

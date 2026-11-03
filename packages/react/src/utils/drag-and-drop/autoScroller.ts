@@ -732,7 +732,7 @@ function dropOccludedTargets(targets: ScrollTarget[], doc: Document): ReadonlyAr
     return targets;
   }
   const closedRoots = getClosedShadowRoots();
-  const preview = state.session?.preview?.getPreviewElement()?.element ?? null;
+  const preview = state.session?.preview?.getPreviewElement() ?? null;
   // The composed ancestors of the element under each probe. There are at most two
   // probes, the raw and the reported input.
   const hitChains = new Map<DraggableInput, Set<Element>>();

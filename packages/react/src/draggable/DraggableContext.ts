@@ -3,10 +3,7 @@
 import * as React from 'react';
 import type { DraggableKind } from './DraggableProvider';
 
-/**
- * One per `Draggable.Provider`. Custom preview content is published under the value
- * seen from the source, and only that provider's overlay renders it.
- */
+/** One per `Draggable.Provider`. */
 export interface DraggableContextValue {
   defaultKind: DraggableKind<undefined, unknown>;
 }
@@ -17,7 +14,7 @@ export function useDraggableContext(): DraggableContextValue {
   const context = React.useContext(DraggableContext);
   if (context === null) {
     throw new Error(
-      'Base UI: Draggable.Provider is missing, so the drag kind and preview boundary cannot be resolved. ' +
+      'Base UI: Draggable.Provider is missing, so the drag kind cannot be resolved. ' +
         'Place <Draggable.Provider> above every <Draggable.Root>, <Draggable.Target>, <Draggable.Viewport>, ' +
         'and <Draggable.CollisionProvider>, and above any component calling useManager. ' +
         'See https://base-ui.com/react/utils/draggable.',

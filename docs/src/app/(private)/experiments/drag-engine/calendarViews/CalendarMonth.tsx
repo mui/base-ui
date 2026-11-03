@@ -24,6 +24,7 @@ import {
   useCalendarView,
   makeEventId,
 } from '../calendarLogic';
+import theme from '../theme.module.css';
 import styles from '../calendar.module.css';
 
 const WEEKDAY_NAMES_MON = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -215,7 +216,6 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
       >
         <span className={styles.monthDayHeader}>{dayNum}</span>
         {/* No clone of the cell: the drop preview in the grid shows the range being created. */}
-        <Draggable.Preview disabled />
       </Draggable.Trigger>
     </Draggable.Root>
   );
@@ -279,15 +279,6 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
         data-continues-after={segment.continuesAfter ? 'true' : undefined}
         title={`${event.title} · ${formatRange(event.start, event.end, event.allDay)}`}
       >
-        {/* Replaces the default clone of the bar. Renders at the `Draggable.Provider`, not here. */}
-        <Draggable.Preview offset="pointer">
-          <div className={styles.dragPreview}>
-            <div className={styles.dragPreviewTitle}>{event.title}</div>
-            <div className={styles.dragPreviewMeta}>
-              {formatRange(event.start, event.end, event.allDay)}
-            </div>
-          </div>
-        </Draggable.Preview>
         {showLeftResize && <MonthResizeHandle event={event} edge="start" />}
         <span style={{ flex: '1 1 auto', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {showTime && (
@@ -300,6 +291,19 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
         </span>
         {showRightResize && <MonthResizeHandle event={event} edge="end" />}
       </Draggable.Trigger>
+      {/* A card with the event's details instead of a copy of the bar. */}
+      <Draggable.Portal className={theme.tokens}>
+        <Draggable.Positioner offset="pointer">
+          <Draggable.Preview>
+            <div className={styles.dragPreview}>
+              <div className={styles.dragPreviewTitle}>{event.title}</div>
+              <div className={styles.dragPreviewMeta}>
+                {formatRange(event.start, event.end, event.allDay)}
+              </div>
+            </div>
+          </Draggable.Preview>
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }
@@ -344,17 +348,20 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
         className={styles.monthResizeHandle}
         style={edge === 'start' ? { left: 0, right: 'auto' } : undefined}
         aria-hidden="true"
-      >
-        {/* The handle is only a few pixels wide, so attach the card to the pointer. */}
-        <Draggable.Preview offset="pointer">
-          <div className={styles.dragPreview}>
-            <div className={styles.dragPreviewTitle}>{event.title}</div>
-            <div className={styles.dragPreviewMeta}>
-              {edge === 'start' ? 'Resize start' : 'Resize end'}
+      ></Draggable.Trigger>
+      {/* The handle is only a few pixels wide, so attach the card to the pointer. */}
+      <Draggable.Portal className={theme.tokens}>
+        <Draggable.Positioner offset="pointer">
+          <Draggable.Preview>
+            <div className={styles.dragPreview}>
+              <div className={styles.dragPreviewTitle}>{event.title}</div>
+              <div className={styles.dragPreviewMeta}>
+                {edge === 'start' ? 'Resize start' : 'Resize end'}
+              </div>
             </div>
-          </div>
-        </Draggable.Preview>
-      </Draggable.Trigger>
+          </Draggable.Preview>
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }

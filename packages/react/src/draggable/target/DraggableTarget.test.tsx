@@ -1135,6 +1135,8 @@ describe('Draggable.Target', () => {
         <React.Fragment>
           <Draggable.Root kind={itemKind}>
             <Draggable.Trigger render={<Draggable.Target data-testid="a" accept={itemKind} />} />
+            {/* A preview, so the source settles after the drop. */}
+            <Draggable.Positioner />
           </Draggable.Root>
           <Draggable.Root kind={itemKind}>
             <Draggable.Trigger render={<Draggable.Target data-testid="b" accept={itemKind} />} />

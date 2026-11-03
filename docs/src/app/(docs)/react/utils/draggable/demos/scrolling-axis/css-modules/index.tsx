@@ -34,10 +34,7 @@ const INITIAL_STOPS: Stop[] = [
 // Find the insertion slot closest to the pointer along the lane. Slots sit
 // before the first stop, in the middle of each gap, and after the last stop.
 function resolveDropIndex(track: Element, clientX: number): number {
-  // Skip the drag preview: it's a clone of a stop, so it has `data-stop` too.
-  const stops = Array.from(
-    track.querySelectorAll<HTMLElement>('[data-stop]:not([data-drag-preview])'),
-  );
+  const stops = Array.from(track.querySelectorAll<HTMLElement>('[data-stop]'));
   if (stops.length === 0) {
     return 0;
   }
@@ -129,6 +126,11 @@ export default function AxisLane() {
                   <GripIcon className={styles.Grip} />
                   {stop.label}
                 </Draggable.Trigger>
+                <Draggable.Portal>
+                  <Draggable.Positioner>
+                    <Draggable.Preview />
+                  </Draggable.Positioner>
+                </Draggable.Portal>
               </Draggable.Root>
             ))}
           </Draggable.Target>

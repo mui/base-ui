@@ -2,10 +2,6 @@ import { NOOP } from '@base-ui/utils/empty';
 import type { DraggableKind } from '../../draggable/DraggableProvider';
 import type { DraggableHandleReference } from '../../draggable/handle/DraggableHandle';
 import type {
-  DraggablePreviewRenderParameters,
-  DraggablePreviewParameters,
-} from '../../draggable/preview/DraggablePreview';
-import type {
   DraggableRootBeforeMoveStartEventDetails,
   DraggableRootMoveEndEventDetails,
   DraggableRootMoveEventDetails,
@@ -138,7 +134,7 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   disableStyleElements?: boolean | undefined;
   /**
    * The data attached to this item, available as `source.payload` in the event details
-   * of every drag handler, in a drop target's `canDrop`, and in the preview. Its type
+   * of every drag handler and in a drop target's `canDrop`. Its type
    * comes from `kind`, and it is required when the kind declares one.
    */
   // Optional here because the public types enforce it. `Draggable.Root.Props`
@@ -201,24 +197,8 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    */
   dragCursor?: string | false | undefined;
   /**
-   * The drag preview of this item. Omit it to use a clone of the source.
-   *
-   * For `registerSource`. `<Draggable.Root>` uses `<Draggable.Preview>` instead.
-   */
-  preview?: DraggablePreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
-  /**
-   * Called once while the preview is built, before `onMoveStart`. The React layer
-   * installs its preview publisher here, so the public types omit it.
-   * @internal
-   */
-  onGenerateDragPreview?:
-    | ((
-        parameters: DraggablePreviewRenderParameters<NoInfer<TPayload>, NoInfer<TDragData>>,
-      ) => void)
-    | undefined;
-  /**
-   * Event handler called once when the drag starts. The preview exists by then,
-   * so the source can be measured or restyled safely.
+   * Event handler called once when the drag starts. The source is measured by then,
+   * so it can be restyled safely.
    */
   onMoveStart?:
     | ((

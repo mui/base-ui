@@ -224,6 +224,11 @@ function InfiniteCanvasContent() {
               >
                 {note.label}
               </Draggable.Trigger>
+              <Draggable.Portal className={theme.tokens}>
+                <Draggable.Positioner>
+                  <Draggable.Preview />
+                </Draggable.Positioner>
+              </Draggable.Portal>
             </Draggable.Root>
           ))}
         </div>

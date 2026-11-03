@@ -16,19 +16,13 @@ function Items({ snap }: { snap?: Draggable.Root.Props<string>['snap'] }) {
   return (
     <React.Fragment>
       <Draggable.Root kind={kind} payload="a">
-        <Draggable.Trigger data-testid="a">
-          <Draggable.Preview disabled />
-        </Draggable.Trigger>
+        <Draggable.Trigger data-testid="a"></Draggable.Trigger>
       </Draggable.Root>
       <Draggable.Root kind={kind} payload="b" snap={snap}>
-        <Draggable.Trigger data-testid="b">
-          <Draggable.Preview disabled />
-        </Draggable.Trigger>
+        <Draggable.Trigger data-testid="b"></Draggable.Trigger>
       </Draggable.Root>
       <Draggable.Root kind={kind} payload="c">
-        <Draggable.Trigger data-testid="c">
-          <Draggable.Preview disabled />
-        </Draggable.Trigger>
+        <Draggable.Trigger data-testid="c"></Draggable.Trigger>
       </Draggable.Root>
     </React.Fragment>
   );
@@ -54,9 +48,7 @@ describe('Draggable.CollisionProvider', () => {
       return (
         <Draggable.CollisionProvider kind={kind} onCollisionChange={changed} onMoveEnd={ended}>
           <Draggable.Root kind={kind} payload="a">
-            <Draggable.Trigger data-testid="a">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
           </Draggable.Root>
           <Draggable.Root kind={kind} payload="b" collision={collision}>
             <Draggable.Trigger data-testid="b" />
@@ -84,9 +76,7 @@ describe('Draggable.CollisionProvider', () => {
     await renderDnd(
       <React.Fragment>
         <Draggable.Root kind={kind} payload="a">
-          <Draggable.Trigger data-testid="a">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="a"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.CollisionProvider
           kind={kind}
@@ -117,9 +107,7 @@ describe('Draggable.CollisionProvider', () => {
       return (
         <React.Fragment>
           <Draggable.Root kind={kind} payload="a">
-            <Draggable.Trigger data-testid="a">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
           </Draggable.Root>
           {withList && (
             <Draggable.CollisionProvider
@@ -172,9 +160,7 @@ describe('Draggable.CollisionProvider', () => {
           }}
         >
           <Draggable.Root kind={kind} payload="a">
-            <Draggable.Trigger data-testid="a">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
           </Draggable.Root>
           <Draggable.Root kind={kind} payload="b">
             <Draggable.Trigger data-testid="b" data-over={over === 'b'} ref={() => {}} />
@@ -293,9 +279,7 @@ describe('Draggable.CollisionProvider', () => {
             target.getBoundingClientRect = () => new DOMRect(0, 1000, 100, 100);
           }}
         >
-          <Draggable.Trigger data-testid="a">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="a"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Root kind={kind} payload="b" snap={snap}>
           <Draggable.Trigger data-testid="b" />
@@ -371,15 +355,11 @@ describe('Draggable.CollisionProvider', () => {
               payload="a"
               onMoveStart={() => ReactDOM.flushSync(() => setVisible(false))}
             >
-              <Draggable.Trigger data-testid="a">
-                <Draggable.Preview disabled />
-              </Draggable.Trigger>
+              <Draggable.Trigger data-testid="a"></Draggable.Trigger>
             </Draggable.Root>
           )}
           <Draggable.Root kind={kind} payload="b">
-            <Draggable.Trigger data-testid="b">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="b"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.CollisionProvider>
       );
@@ -449,15 +429,11 @@ describe('Draggable.CollisionProvider', () => {
     await renderDnd(
       <Draggable.CollisionProvider kind={kind} onMoveEnd={ended}>
         <Draggable.Root kind={kind} payload="a">
-          <Draggable.Trigger data-testid="a">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="a"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Target accept={kind} canDrop={() => 'reject'}>
           <Draggable.Root kind={kind} payload="b">
-            <Draggable.Trigger data-testid="b">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="b"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.Target>
       </Draggable.CollisionProvider>,
@@ -479,16 +455,12 @@ describe('Draggable.CollisionProvider', () => {
       <React.Fragment>
         <Draggable.CollisionProvider kind={kind} onMoveEnd={sourceEnd}>
           <Draggable.Root kind={kind} payload="a">
-            <Draggable.Trigger data-testid="a">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.CollisionProvider>
         <Draggable.CollisionProvider kind={kind} onMoveEnd={targetEnd}>
           <Draggable.Root kind={kind} payload="b">
-            <Draggable.Trigger data-testid="b">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="b"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.CollisionProvider>
       </React.Fragment>,
@@ -511,9 +483,7 @@ describe('Draggable.CollisionProvider', () => {
       <React.Fragment>
         <Draggable.CollisionProvider kind={kind}>
           <Draggable.Root kind={kind} payload="a">
-            <Draggable.Trigger data-testid="a">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.CollisionProvider>
         <Draggable.CollisionProvider
@@ -531,9 +501,7 @@ describe('Draggable.CollisionProvider', () => {
           }}
         >
           <Draggable.Root kind={kind} payload="b">
-            <Draggable.Trigger data-testid="b">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="b"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.CollisionProvider>
       </React.Fragment>,
@@ -579,16 +547,12 @@ describe('Draggable.CollisionProvider', () => {
       <React.Fragment>
         <Draggable.CollisionProvider kind={kind}>
           <Draggable.Root kind={kind} payload="a">
-            <Draggable.Trigger data-testid="a">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.CollisionProvider>
         <Draggable.CollisionProvider kind={kind} onMoveStart={otherStart} onMoveEnd={otherEnd}>
           <Draggable.Root kind={kind} payload="b">
-            <Draggable.Trigger data-testid="b">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="b"></Draggable.Trigger>
           </Draggable.Root>
         </Draggable.CollisionProvider>
       </React.Fragment>,
@@ -605,19 +569,13 @@ describe('Draggable.CollisionProvider', () => {
     await renderDnd(
       <Draggable.CollisionProvider kind={kind} onCollisionChange={changed}>
         <Draggable.Root kind={kind} payload="a">
-          <Draggable.Trigger data-testid="a">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="a"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Root kind={kind} payload="b" disabled>
-          <Draggable.Trigger data-testid="b">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="b"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Root kind={kind} payload="c">
-          <Draggable.Trigger data-testid="c">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="c"></Draggable.Trigger>
         </Draggable.Root>
       </Draggable.CollisionProvider>,
     );
@@ -666,9 +624,7 @@ describe('Draggable.CollisionProvider', () => {
               payload="a"
               collisionElement={(element) => element.parentElement!}
             >
-              <Draggable.Trigger data-testid="a">
-                <Draggable.Preview disabled />
-              </Draggable.Trigger>
+              <Draggable.Trigger data-testid="a"></Draggable.Trigger>
             </Draggable.Root>
           </div>
           <div data-testid="row-b">
@@ -677,9 +633,7 @@ describe('Draggable.CollisionProvider', () => {
               payload="b"
               collisionElement={(element) => element.parentElement!}
             >
-              <Draggable.Trigger data-testid="b">
-                <Draggable.Preview disabled />
-              </Draggable.Trigger>
+              <Draggable.Trigger data-testid="b"></Draggable.Trigger>
             </Draggable.Root>
           </div>
         </Draggable.CollisionProvider>
@@ -730,9 +684,7 @@ describe('Draggable.CollisionProvider', () => {
           <div data-testid="list">
             {items.map((item) => (
               <Draggable.Root key={item} kind={kind} payload={item}>
-                <Draggable.Trigger data-testid={item}>
-                  <Draggable.Preview disabled />
-                </Draggable.Trigger>
+                <Draggable.Trigger data-testid={item}></Draggable.Trigger>
               </Draggable.Root>
             ))}
           </div>
@@ -772,9 +724,7 @@ describe('Draggable.CollisionProvider', () => {
           {['a', 'b'].map((id) => (
             // Inline payload objects get a new identity on every render.
             <Draggable.Root key={id} kind={objectKind} payload={{ id }}>
-              <Draggable.Trigger data-testid={id}>
-                <Draggable.Preview disabled />
-              </Draggable.Trigger>
+              <Draggable.Trigger data-testid={id}></Draggable.Trigger>
             </Draggable.Root>
           ))}
         </Draggable.CollisionProvider>
@@ -903,14 +853,10 @@ describe('Draggable.CollisionProvider', () => {
     await renderDnd(
       <Draggable.CollisionProvider kind={kind} onMoveEnd={ended}>
         <Draggable.Root kind={kind} payload="a">
-          <Draggable.Trigger data-testid="a">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="a"></Draggable.Trigger>
         </Draggable.Root>
         <Draggable.Root kind={kind} payload="b" collision={false}>
-          <Draggable.Trigger data-testid="b">
-            <Draggable.Preview disabled />
-          </Draggable.Trigger>
+          <Draggable.Trigger data-testid="b"></Draggable.Trigger>
         </Draggable.Root>
       </Draggable.CollisionProvider>,
     );
@@ -927,16 +873,12 @@ describe('Draggable.CollisionProvider', () => {
       <Draggable.CollisionProvider kind={kind} onCollisionChange={changed}>
         <div data-testid="row-a">
           <Draggable.Root kind={kind} payload="a" collisionElement={rowElement}>
-            <Draggable.Trigger data-testid="a">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="a"></Draggable.Trigger>
           </Draggable.Root>
         </div>
         <div data-testid="row-b">
           <Draggable.Root kind={kind} payload="b" collisionElement={rowElement}>
-            <Draggable.Trigger data-testid="b">
-              <Draggable.Preview disabled />
-            </Draggable.Trigger>
+            <Draggable.Trigger data-testid="b"></Draggable.Trigger>
           </Draggable.Root>
         </div>
       </Draggable.CollisionProvider>,

@@ -320,8 +320,12 @@ function DraggableCard({
       >
         {card.title}
         {/* Keep the preview inside the board. */}
-        <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
       </Draggable.Trigger>
+      <Draggable.Portal className={theme.tokens}>
+        <Draggable.Positioner modifiers={Draggable.restrictToElement(boundaryRef)}>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }

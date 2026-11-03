@@ -338,6 +338,11 @@ function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
       <Draggable.Trigger data-card className={styles.Card}>
         {card.title}
       </Draggable.Trigger>
+      <Draggable.Portal>
+        <Draggable.Positioner>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }

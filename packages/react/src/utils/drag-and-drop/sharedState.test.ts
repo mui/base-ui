@@ -59,10 +59,7 @@ describe('separate copies of the engine', () => {
       const source = createElement();
       const target = createElement();
       const onDraggableDrop = vi.fn();
-      const registerSource = copyA.createRegisterSource(
-        () => ({}) as never,
-        () => ({}) as never,
-      );
+      const registerSource = copyA.createRegisterSource(() => ({}) as never);
       registerCleanup(registerSource(source, () => ({ kind })));
       registerCleanup(copyB.registerTarget(target, () => ({ accept: kind, onDraggableDrop })));
 

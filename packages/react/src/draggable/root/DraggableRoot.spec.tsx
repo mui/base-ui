@@ -206,7 +206,7 @@ if (card.matches(untypedSource)) {
   />
 </Draggable.Root>;
 
-// @ts-expect-error `preview` is only a `registerSource()` option. Use `Draggable.Preview`.
+// @ts-expect-error The preview is rendered with `Draggable.Positioner` and `Draggable.Preview`.
 <Draggable.Root kind={marker} preview={{ offset: 'pointer' }} />;
 // @ts-expect-error `handle` is only a `registerSource()` option. Use `Draggable.Handle`.
 <Draggable.Root kind={marker} handle={document.body} />;
@@ -216,85 +216,40 @@ if (card.matches(untypedSource)) {
   <Draggable.Trigger kind={marker} />
 </Draggable.Root>;
 
-// Without a kind, the preview stays payload-agnostic and narrows at the use site.
-<Draggable.Root kind={card} payload={{ id: 'a' }}>
-  <Draggable.Trigger>
-    <Draggable.Preview>
-      {({ source }) => {
-        expectType<unknown, typeof source.payload>(source.payload);
-        return (source.payload as CardPayload).id;
-      }}
-    </Draggable.Preview>
-  </Draggable.Trigger>
-</Draggable.Root>;
-
-// Passing a kind types the callback. The kind is also checked against the active
-// source before the callback runs.
-<Draggable.Root kind={card} payload={{ id: 'a' }}>
-  <Draggable.Trigger>
-    <Draggable.Preview kind={card}>
-      {({ source }) => {
-        expectType<CardPayload, typeof source.payload>(source.payload);
-        return source.payload.id;
-      }}
-    </Draggable.Preview>
-  </Draggable.Trigger>
-</Draggable.Root>;
-
-<Draggable.Root kind={card} payload={{ id: 'a' }}>
-  <Draggable.Trigger>
-    {/* @ts-expect-error the explicit payload type must agree with the preview kind. */}
-    <Draggable.Preview<CardPayload> kind={text}>Preview</Draggable.Preview>
-  </Draggable.Trigger>
-</Draggable.Root>;
-
 const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
 
+// The preview parts sit beside the trigger. Settings that place the preview go on the
+// positioner, and the portal's container on the portal.
 <Draggable.Root kind={marker}>
-  <Draggable.Trigger>
-    <Draggable.Preview
-      offset="pointer"
-      modifiers={Draggable.restrictToElement(boundaryRef)}
-      disabled
-    />
-  </Draggable.Trigger>
+  <Draggable.Trigger />
+  <Draggable.Portal container={boundaryRef}>
+    <Draggable.Positioner offset="pointer" modifiers={Draggable.restrictToElement(boundaryRef)}>
+      <Draggable.Preview />
+    </Draggable.Positioner>
+  </Draggable.Portal>
 </Draggable.Root>;
 
 <Draggable.Root kind={marker}>
-  <Draggable.Trigger>
-    <Draggable.Preview
-      offset={{ x: 1, y: 2 }}
-      modifiers={Draggable.restrictToElement(boundaryRef)}
-      disabled
-    >
-      <span />
+  <Draggable.Trigger />
+  <Draggable.Positioner
+    offset={(parameters) => {
+      expectType<HTMLElement, typeof parameters.element>(parameters.element);
+      expectType<DOMRect, typeof parameters.sourceRect>(parameters.sourceRect);
+      return { x: 1, y: 2 };
+    }}
+  >
+    <Draggable.Preview className="Ghost" render={<span />}>
+      x
     </Draggable.Preview>
-  </Draggable.Trigger>
-</Draggable.Root>;
-
-// `container` moves only the preview's element. The provider's React tree renders
-// the content, so a part keeps its context wherever it is placed.
-<Draggable.Root kind={marker}>
-  <Draggable.Trigger>
-    <Draggable.Preview container={boundaryRef} />
-  </Draggable.Trigger>
+  </Draggable.Positioner>
 </Draggable.Root>;
 
 <Draggable.Root kind={marker}>
-  <Draggable.Trigger>
-    <Draggable.Preview container={boundaryRef}>
-      <span />
-    </Draggable.Preview>
-  </Draggable.Trigger>
-</Draggable.Root>;
-
-// Every `container` form, including the callback that resolves it from the source.
-<Draggable.Root kind={marker}>
-  <Draggable.Trigger>
-    <Draggable.Preview container={(source) => source.closest('div')}>
-      <span />
-    </Draggable.Preview>
-  </Draggable.Trigger>
+  <Draggable.Trigger />
+  <Draggable.Positioner>
+    {/* @ts-expect-error The preview doesn't place itself. Pass `offset` to the positioner. */}
+    <Draggable.Preview offset="pointer" />
+  </Draggable.Positioner>
 </Draggable.Root>;
 
 // @ts-expect-error configure the container on each preview, not the provider.
@@ -303,20 +258,6 @@ const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
     <Draggable.Trigger />
   </Draggable.Root>
 </Draggable.Provider>;
-
-// Without children, the part configures the clone. With children, it renders a custom preview.
-<Draggable.Root kind={marker}>
-  <Draggable.Trigger>
-    <Draggable.Preview offset={{ x: 0, y: 0 }} />
-  </Draggable.Trigger>
-</Draggable.Root>;
-<Draggable.Root kind={marker}>
-  <Draggable.Trigger>
-    <Draggable.Preview className="Ghost" render={<span />}>
-      x
-    </Draggable.Preview>
-  </Draggable.Trigger>
-</Draggable.Root>;
 
 const ref: React.Ref<HTMLDivElement> = null;
 <Draggable.Root kind={marker}>
@@ -553,12 +494,3 @@ const cardWithDragData = Draggable.createKind<CardPayload, { offset: number }>('
 if (cardWithDragData.matches(untypedSource)) {
   expectType<{ offset: number } | undefined, typeof untypedSource.dragData>(untypedSource.dragData);
 }
-<Draggable.Preview kind={cardWithDragData}>
-  {({ source }) => {
-    expectType<{ offset: number } | undefined, typeof source.dragData>(source.dragData);
-    return null;
-  }}
-</Draggable.Preview>;
-
-// @ts-expect-error `anyKind` can't be a preview's `kind`, which types the source it renders.
-<Draggable.Preview kind={Draggable.anyKind}>{() => null}</Draggable.Preview>;

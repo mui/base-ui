@@ -78,8 +78,12 @@ const ACTIVATION_GROUPS = [
   },
 ];
 
+// The positioner moves the preview, so it runs the drop transition.
+const POSITIONER_CLASS =
+  'motion-safe:data-ending-style:transition-[translate] motion-safe:data-ending-style:duration-200 motion-safe:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)]';
+
 const PUCK_CLASS =
-  'size-14 rounded-full bg-neutral-950 transition-opacity data-[dragging]:opacity-0 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] dark:bg-white';
+  'size-14 rounded-full bg-neutral-950 transition-opacity data-[dragging]:opacity-0 dark:bg-white';
 
 function hasDoubleClickActivation(activation: ActivationMode['activation']) {
   const criteria = Array.isArray(activation) ? activation : [activation];
@@ -121,6 +125,11 @@ function Puck({
         onPointerUp={() => onPhaseChange('ready')}
         onPointerCancel={() => onPhaseChange('ready')}
       />
+      <Draggable.Portal>
+        <Draggable.Positioner className={POSITIONER_CLASS}>
+          <Draggable.Preview />
+        </Draggable.Positioner>
+      </Draggable.Portal>
     </Draggable.Root>
   );
 }

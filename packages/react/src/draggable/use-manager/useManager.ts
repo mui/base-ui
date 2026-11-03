@@ -1,5 +1,6 @@
 'use client';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useDraggableContext } from '../DraggableContext';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
 import { registerMonitor } from '../../utils/drag-and-drop/monitor';
 import { registerTarget } from '../../utils/drag-and-drop/dropTarget';
@@ -37,7 +38,8 @@ function refresh(element: HTMLElement): void {
  * Documentation: [Base UI useManager](https://base-ui.com/react/utils/draggable#usemanager)
  */
 export function useManager(): UseDraggableManagerReturnValue {
-  // Preview content renders through the `Draggable.Provider` nearest this hook call.
+  // Throws without a provider, which the registrations need for their default kind.
+  useDraggableContext();
   // Registrations and sensors are global, so the stateless registrations are
   // re-exposed as methods (see `dropTarget.ts`, `monitor.ts` and `autoScroller.ts`).
   const registerSource = useRegisterSource();
@@ -87,7 +89,8 @@ export namespace useManager {
 export interface UseDraggableManagerReturnValue extends DraggableManager {}
 
 /**
- * The options of `registerSource`, which are those of `Draggable.Root` plus `handle` and `preview`.
+ * The options of `registerSource`, which are those of `Draggable.Root` plus `handle`.
+ * A source registered this way shows no preview: render the Draggable parts for one.
  * `payload` is required when `TPayload` is declared.
  */
 export type DraggableManagerRegisterSourceParameters<
