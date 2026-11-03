@@ -1084,7 +1084,7 @@ describe('lifecycle manager', () => {
 
       expect(() =>
         act(() => {
-          handle!.update(makeInput(), null, undefined, 'pointer');
+          handle!.update(makeInput(), null, new Event('pointermove'), 'pointer');
         }),
       ).toThrow('move failed');
 
