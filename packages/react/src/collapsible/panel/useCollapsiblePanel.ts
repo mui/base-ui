@@ -9,14 +9,17 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
 import { ownerWindow } from '@base-ui/utils/owner';
-import type { HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { resolveStyle } from '../../utils/resolveStyle';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import * as CollapsiblePanelDataAttributes from './CollapsiblePanelDataAttributes';
-import type { CollapsibleRoot } from '../root/CollapsibleRoot';
-import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
+import { useRegisterFallbackId } from '../root/useCollapsibleRoot';
 
 type AnimationType = 'css-transition' | 'css-animation' | 'none';
 
@@ -30,21 +33,46 @@ const EMPTY_DIMENSIONS: Dimensions = {
   width: undefined,
 };
 
-export function useCollapsiblePanel(
-  parameters: UseCollapsiblePanelParameters,
-): UseCollapsiblePanelReturnValue {
+export function useCollapsiblePanel<State extends Record<string, any>>(
+  componentProps: BaseUIComponentProps<'div', State> & {
+    hiddenUntilFound?: boolean | undefined;
+    keepMounted?: boolean | undefined;
+  },
+  externalRef: React.ForwardedRef<HTMLDivElement>,
+  stateAttributesMapping: StateAttributesMapping<State>,
+  heightCssVar: string,
+  widthCssVar: string,
+  hiddenUntilFoundParam?: boolean,
+  keepMountedParam?: boolean,
+  itemState?: Record<string, any>,
+  extraProps?: HTMLProps,
+) {
   const {
-    externalRef,
-    hiddenUntilFound,
-    id: idParam,
-    keepMounted,
+    className,
+    hiddenUntilFound: hiddenUntilFoundProp,
+    keepMounted: keepMountedProp,
+    id: idProp,
+    render,
+    style,
+    ...elementProps
+  } = componentProps;
+
+  const hiddenUntilFound = hiddenUntilFoundParam ?? hiddenUntilFoundProp ?? false;
+  const keepMounted = keepMountedParam ?? keepMountedProp ?? false;
+
+  const {
+    defaultPanelId,
     mounted,
     onOpenChange,
     open,
     setMounted,
     setOpen,
+    setPanelIdState,
+    state: collapsibleState,
     transitionStatus,
-  } = parameters;
+  } = useCollapsibleRootContext();
+
+  const idParam = useRegisterFallbackId(idProp, defaultPanelId, setPanelIdState);
 
   const panelRef = React.useRef<HTMLDivElement | null>(null);
   const animationTypeRef = React.useRef<AnimationType | null>(null);
@@ -460,21 +488,52 @@ export function useCollapsiblePanel(
 
   const shouldRender = keepMounted || hiddenUntilFound || mounted || open;
 
-  return {
-    height: renderedDimensions.height,
-    props: {
-      ...(shouldPersistHiddenTransitionStyles
-        ? { [CollapsiblePanelDataAttributes.startingStyle]: '' }
-        : undefined),
-      hidden,
-      id: idParam,
-    },
-    ref: mergedPanelRef,
-    shouldPreventOpenAnimation,
-    shouldRender,
+  const panelState = {
+    ...(itemState ?? collapsibleState),
     transitionStatus: panelTransitionStatus,
-    width: renderedDimensions.width,
-  };
+  } as unknown as State;
+
+  const resolvedStyle = resolveStyle(style, panelState);
+
+  const element = useRenderElement(
+    'div',
+    {
+      ...componentProps,
+      style: undefined,
+    },
+    {
+      state: panelState,
+      ref: mergedPanelRef,
+      props: [
+        {
+          ...(shouldPersistHiddenTransitionStyles
+            ? { [CollapsiblePanelDataAttributes.startingStyle]: '' }
+            : undefined),
+          hidden,
+          id: idParam,
+          style: {
+            [heightCssVar]:
+              renderedDimensions.height === undefined ? 'auto' : `${renderedDimensions.height}px`,
+            [widthCssVar]:
+              renderedDimensions.width === undefined ? 'auto' : `${renderedDimensions.width}px`,
+          },
+        },
+        extraProps,
+        elementProps,
+        resolvedStyle ? { style: resolvedStyle } : undefined,
+        // Resolve the public `style` prop so temporary `animationName: 'none'`
+        // can still win after user's inline styles have been merged.
+        shouldPreventOpenAnimation ? { style: { animationName: 'none' } } : undefined,
+      ],
+      stateAttributesMapping,
+    },
+  );
+
+  if (!shouldRender) {
+    return null;
+  }
+
+  return element;
 }
 
 function getDimensions(element: HTMLElement) {
@@ -490,10 +549,10 @@ function getAnimationType(
 ): AnimationType {
   const panelStyles = ownerWindow(element).getComputedStyle(element);
   const hasAnimation =
-    (panelStyles.animationName
-      .split(',')
-      .map((name) => name.trim())
-      .some((name) => name !== '' && name !== 'none') ||
+    (panelStyles.animationName.split(',').some((name) => {
+      const trimmed = name.trim();
+      return trimmed !== '' && trimmed !== 'none';
+    }) ||
       hasSuppressedMountAnimation) &&
     hasNonZeroDuration(panelStyles.animationDuration);
   const hasTransition = hasNonZeroDuration(panelStyles.transitionDuration);
@@ -522,10 +581,7 @@ function getAnimationType(
 }
 
 function hasNonZeroDuration(value: string) {
-  return value
-    .split(',')
-    .map((part) => part.trim())
-    .some((part) => part !== '' && Number.parseFloat(part) > 0);
+  return value.split(',').some((part) => Number.parseFloat(part) > 0);
 }
 
 /**
@@ -534,13 +590,19 @@ function hasNonZeroDuration(value: string) {
  * @param element - The element whose inline style should be updated.
  * @param property - The CSS property name to override.
  * @param value - The temporary value to assign.
+ * @param priority - Optional CSS priority (e.g. `'important'`).
  * @returns A cleanup function that restores the original inline style state.
  */
-function setTemporaryStyle(element: HTMLElement, property: string, value: string): () => void {
+function setTemporaryStyle(
+  element: HTMLElement,
+  property: string,
+  value: string,
+  priority?: string,
+): () => void {
   const previousValue = element.style.getPropertyValue(property);
   const previousPriority = element.style.getPropertyPriority(property);
 
-  element.style.setProperty(property, value);
+  element.style.setProperty(property, value, priority);
 
   return () => {
     if (previousValue === '') {
@@ -552,6 +614,13 @@ function setTemporaryStyle(element: HTMLElement, property: string, value: string
   };
 }
 
+const LAYOUT_STYLE_PROPERTIES = [
+  'justify-content',
+  'align-items',
+  'align-content',
+  'justify-items',
+];
+
 /**
  * Temporarily resets inline alignment styles that can distort scroll-based
  * size measurements, then restores them on the next animation frame.
@@ -560,26 +629,12 @@ function setTemporaryStyle(element: HTMLElement, property: string, value: string
  * the original inline layout styles immediately.
  */
 function resetLayoutStyles(element: HTMLElement): () => void {
-  const originalLayoutStyles = {
-    'justify-content': element.style.justifyContent,
-    'align-items': element.style.alignItems,
-    'align-content': element.style.alignContent,
-    'justify-items': element.style.justifyItems,
-  };
-
-  Object.keys(originalLayoutStyles).forEach((key) => {
-    element.style.setProperty(key, 'initial', 'important');
-  });
+  const restores = LAYOUT_STYLE_PROPERTIES.map((property) =>
+    setTemporaryStyle(element, property, 'initial', 'important'),
+  );
 
   function restoreLayoutStyles() {
-    Object.entries(originalLayoutStyles).forEach(([key, value]) => {
-      if (value === '') {
-        element.style.removeProperty(key);
-        return;
-      }
-
-      element.style.setProperty(key, value);
-    });
+    restores.forEach((restore) => restore());
   }
 
   const frame = AnimationFrame.request(restoreLayoutStyles);
@@ -588,48 +643,4 @@ function resetLayoutStyles(element: HTMLElement): () => void {
     AnimationFrame.cancel(frame);
     restoreLayoutStyles();
   };
-}
-
-export interface UseCollapsiblePanelParameters {
-  externalRef: React.ForwardedRef<HTMLDivElement>;
-  /**
-   * Allows the browser's built-in page search to find and expand the panel contents.
-   *
-   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-   * to hide the element without removing it from the DOM.
-   */
-  hiddenUntilFound: boolean;
-  /**
-   * The `id` attribute of the panel.
-   */
-  id: React.HTMLAttributes<Element>['id'];
-  /**
-   * Whether to keep the element in the DOM while the panel is closed.
-   * This prop is ignored when `hiddenUntilFound` is used.
-   */
-  keepMounted: boolean;
-  /**
-   * Whether the collapsible panel is mounted for transition and hidden-state
-   * purposes. This can be `false` while the element remains in the DOM when
-   * `keepMounted` or `hiddenUntilFound` is enabled.
-   */
-  mounted: boolean;
-  onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
-  /**
-   * Whether the collapsible panel is currently open.
-   */
-  open: boolean;
-  setMounted: (nextMounted: boolean) => void;
-  setOpen: (nextOpen: boolean) => void;
-  transitionStatus: TransitionStatus;
-}
-
-export interface UseCollapsiblePanelReturnValue {
-  height: number | undefined;
-  props: HTMLProps;
-  ref: React.Ref<HTMLDivElement>;
-  shouldPreventOpenAnimation: boolean;
-  shouldRender: boolean;
-  transitionStatus: TransitionStatus;
-  width: number | undefined;
 }

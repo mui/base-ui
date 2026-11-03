@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
+import { useCollapsibleRoot, useFallbackId } from '../../collapsible/root/useCollapsibleRoot';
 import type { UseCollapsibleRootParameters } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
@@ -71,19 +71,6 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     disabled,
   });
 
-  const collapsibleContext: CollapsibleRootContext = React.useMemo(
-    () => ({
-      ...collapsible,
-      onOpenChange,
-      state: {
-        open: collapsible.open,
-        disabled: collapsible.disabled,
-        transitionStatus: collapsible.transitionStatus,
-      },
-    }),
-    [collapsible, onOpenChange],
-  );
-
   const state: AccordionItemState = React.useMemo(
     () => ({
       ...rootState,
@@ -95,11 +82,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible.mounted, disabled, index, isOpen, rootState],
   );
 
-  const defaultTriggerId = useBaseUiId();
-  // `undefined` uses the initial generated fallback; `null` means the trigger unmounted.
-  const [registeredTriggerId, setTriggerId] = React.useState<string | null | undefined>();
-  const triggerId =
-    registeredTriggerId === null ? undefined : (registeredTriggerId ?? defaultTriggerId);
+  const [defaultTriggerId, triggerId, setTriggerId] = useFallbackId();
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
@@ -120,7 +103,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   });
 
   return (
-    <CollapsibleRootContext.Provider value={collapsibleContext}>
+    <CollapsibleRootContext.Provider value={collapsible}>
       <AccordionItemContext.Provider value={accordionItemContext}>
         {element}
       </AccordionItemContext.Provider>

@@ -40,35 +40,15 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     disabled,
   });
 
-  const state: CollapsibleRootState = React.useMemo(
-    () => ({
-      open: collapsible.open,
-      disabled: collapsible.disabled,
-      transitionStatus: collapsible.transitionStatus,
-    }),
-    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
-  );
-
-  const contextValue: CollapsibleRootContext = React.useMemo(
-    () => ({
-      ...collapsible,
-      onOpenChange,
-      state,
-    }),
-    [collapsible, onOpenChange, state],
-  );
-
   const element = useRenderElement('div', componentProps, {
-    state,
+    state: collapsible.state,
     ref: forwardedRef,
     props: elementProps,
     stateAttributesMapping: collapsibleStateAttributesMapping,
   });
 
   return (
-    <CollapsibleRootContext.Provider value={contextValue}>
-      {element}
-    </CollapsibleRootContext.Provider>
+    <CollapsibleRootContext.Provider value={collapsible}>{element}</CollapsibleRootContext.Provider>
   );
 });
 
