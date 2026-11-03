@@ -23,7 +23,7 @@ describe.skipIf(isJSDOM)('<Draggable.Preview /> in a browser', () => {
       <Draggable.Root kind={testDragKind}>
         <Draggable.Trigger
           data-trigger=""
-          style={{ position: 'fixed', left: 100, top: 100, width: 120, height: 30, scale: 2 }}
+          style={{ position: 'fixed', left: 100, top: 100, width: 120, height: 30, scale: '2' }}
         />
         <Draggable.Portal>
           <Draggable.Positioner>
