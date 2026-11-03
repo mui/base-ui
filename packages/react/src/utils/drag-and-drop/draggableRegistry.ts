@@ -8,6 +8,7 @@ import { hasInteractiveAncestorWithin } from './interactiveElement';
 import { getSharedSlot } from './sharedState';
 import { resolveElementReference } from './utils';
 import { getComposedParentElement } from './composedTree';
+import type { RootDragStore } from './synthetic/syntheticPreview';
 
 type DraggableGetter = () => DraggableConfig<any, any>;
 
@@ -15,8 +16,8 @@ interface DraggableRegistration {
   getParameters: DraggableGetter;
   /** Re-applies this registration's static setup from the element's active parameters. */
   refreshStaticSetup: (parameters: DraggableConfig<any, any>) => void;
-  /** The `Draggable.Root` instance, which keeps it across a node swap. */
-  owner: object | undefined;
+  /** The `Draggable.Root`'s drag store, which keeps it across a node swap. */
+  owner: RootDragStore | undefined;
 }
 
 /**
@@ -37,7 +38,7 @@ export function addDraggableRegistration(
   element: HTMLElement,
   getParameters: DraggableGetter,
   refreshStaticSetup: DraggableRegistration['refreshStaticSetup'],
-  owner: object | undefined,
+  owner: RootDragStore | undefined,
 ): DragCleanupFn {
   return holds.hold(element, { getParameters, refreshStaticSetup, owner });
 }
@@ -47,7 +48,7 @@ export function getRegistration(element: HTMLElement): DraggableGetter | undefin
 }
 
 /** The owner of `element`'s active registration, if it has one. */
-export function getRegistrationOwner(element: HTMLElement): object | undefined {
+export function getRegistrationOwner(element: HTMLElement): RootDragStore | undefined {
   return holds.getActive(element)?.owner;
 }
 

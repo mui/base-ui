@@ -19,6 +19,7 @@ import { addDraggableRegistration, resolveDragHandle } from './draggableRegistry
 import { holdShadowRoots } from './dropTarget';
 import { bindPointerListeners } from './synthetic/pickupRecognizer';
 import { getPreviewSourceIdentity, retargetPreviewSource } from './synthetic/syntheticPreview';
+import type { RootDragStore } from './synthetic/syntheticPreview';
 
 interface GestureSetupEntry {
   count: number;
@@ -111,7 +112,7 @@ export function registerDraggableElement(
     'handle' | 'disabled' | 'kind' | 'previewKey' | 'payload'
   >,
   getParameters: () => DraggableConfig<any, any>,
-  owner?: object,
+  owner?: RootDragStore,
 ): DragCleanupFn {
   const staticSetup = applyDraggableStaticSetup(element, initial);
   const unregister = addDraggableRegistration(element, getParameters, staticSetup.refresh, owner);

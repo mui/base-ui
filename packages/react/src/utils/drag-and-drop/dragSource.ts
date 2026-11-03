@@ -87,9 +87,10 @@ export function refreshDragSource(element: HTMLElement): void {
 }
 
 /**
- * Moves the active drag source to a new node, such as a row a virtualizer remounted,
- * along with the preview's `data-dragging` marking. Does nothing unless `oldElement`
- * is the active source, so an unrelated draggable can't take over the session.
+ * Moves the active drag source to a new node, such as a row a virtualizer remounted.
+ * The preview calls it when it hands the drag over (see `retargetPreviewSource`).
+ * Does nothing unless `oldElement` is the active source, so an unrelated draggable
+ * can't take over the session.
  */
 export function retargetDragSource(oldElement: Element, newElement: HTMLElement): void {
   const session = getActiveSession();
@@ -100,7 +101,6 @@ export function retargetDragSource(oldElement: Element, newElement: HTMLElement)
   // Mutated in place so it stays `===` to the `source` of every event in the drag.
   source.element = newElement;
   // Publishes a new copy (see `dragSourceStore`); the mutated object alone would leave
-  // `useActiveDrag()` and `Draggable.Root`'s `dragging` reading the detached node.
+  // `useActiveDrag()` reading the detached node.
   notifyDragSourceUpdated(source);
-  session.preview?.retargetSource(newElement);
 }

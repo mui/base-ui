@@ -7,8 +7,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
-import { findDragPreview } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
-import type { DragPreview } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
+import { createRootDragStore } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
+import type { RootDrag } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
 import type {
   RegisterSourceParameters,
   RegisterTargetParameters,
@@ -17,20 +17,12 @@ import type {
   CollisionParticipant,
   DraggableCollisionContextValue,
 } from '../collision-provider/DraggableCollisionContext';
-import type { DraggableRootRecord } from './DraggableRoot';
-import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
-import { settlingSourcesStore } from '../../utils/drag-and-drop/settlingSources';
 
-// Reads the element from the ref at selection time, so `dragging` follows a node a
-// virtualizer swaps. Module-scoped so `useStore` stays on its fast path.
-type ElementRef = { readonly current: Element | null };
-function selectIsDragging(source: DraggableRootRecord | null, r: ElementRef): boolean {
-  return source?.element === r.current;
-}
-
-function selectIsSettling(sources: ReadonlySet<Element>, r: ElementRef): boolean {
-  return r.current !== null && sources.has(r.current);
+// Module-scoped so `useStore` stays on its fast path.
+function selectRootDrag(drag: RootDrag): RootDrag {
+  return drag;
 }
 
 /**
@@ -48,8 +40,9 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   },
 ): UseDraggableElementReturnValue {
   const registerSource = useRegisterSource();
-  // Identifies this Root to the preview across a node swap (see `retargetPreviewSource`).
-  const owner = useRefWithInit(() => ({})).current;
+  // Where this Root's drags publish their phase and preview. Registered with the element,
+  // it also identifies this Root to its drag across a node swap.
+  const dragStore = useRefWithInit(createRootDragStore).current;
   const elementRef = React.useRef<HTMLElement | null>(null);
   // Apply the committed parameters after every commit, as `manager.refresh` does
   // (see `refreshDragSource`). It only acts on real changes. Layout effects run after
@@ -68,11 +61,6 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     () => () => attachedHandlesRef.current[0] ?? null,
   ).current;
 
-  // The preview of this element's drag, active or settling.
-  const getPreview = useRefWithInit(
-    () => () => (elementRef.current ? findDragPreview(elementRef.current) : null),
-  ).current;
-
   // The accessor keeps one identity, since the engine compares parameters field by field.
   const internalParameters: RegisterSourceParameters<TPayload, TDragData> = {
     ...parameters,
@@ -85,7 +73,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     const unregisterSource = registerSource<TPayload, TDragData>(
       element,
       () => getOptions().parameters,
-      owner,
+      dragStore,
     );
     const collisionConfig = getOptions().collision;
     if (!collisionConfig?.enabled) {
@@ -197,8 +185,8 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collisionOptions?.context, collisionOptions?.enabled]);
 
-  const dragging = useStore(dragSourceStore, selectIsDragging, elementRef);
-  const settling = useStore(settlingSourcesStore, selectIsSettling, elementRef);
+  const drag = useStore(dragStore, selectRootDrag);
+  const dragging = drag.phase === 'dragging';
 
   // Run a reconcile skipped mid-drag. `dragging` turning false re-renders this
   // hook, so the new collision provider takes over as soon as the drag ends.
@@ -213,26 +201,20 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
 
   return {
     ref,
-    dragging,
-    settling,
+    drag,
     registerHandle,
-    getPreview,
   };
 }
 
 export interface UseDraggableElementReturnValue {
   /** Ref callback to attach to the drag source element. Stable. */
   ref: React.RefCallback<HTMLElement>;
-  /** Whether this element is the one currently being dragged. */
-  dragging: boolean;
-  /** Whether this element's preview is settling into place after a drop. */
-  settling: boolean;
+  /** This Root's drag: its phase and its preview. */
+  drag: RootDrag;
   /**
    * Attaches a drag handle and returns the function that detaches it. Pickup is
    * restricted to the first attached handle. Without one, the whole source is
    * draggable. Stable.
    */
   registerHandle: (node: HTMLElement) => () => void;
-  /** The preview of this element's drag, active or settling, or `null`. Stable. */
-  getPreview: () => DragPreview | null;
 }

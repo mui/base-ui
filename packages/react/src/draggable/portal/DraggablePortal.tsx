@@ -3,10 +3,10 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import type { DragPreview } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useDraggableRootContext } from '../root/DraggableRootContext';
-import { DraggablePositionerContext } from '../positioner/DraggablePositionerContext';
+import { useRootPreview } from '../root/DraggableRootContext';
 
 /**
  * A portal element that moves the drag preview to a different part of the DOM, out of
@@ -21,15 +21,12 @@ export const DraggablePortal = React.forwardRef(function DraggablePortal(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { container, className, render, style, ...elementProps } = componentProps;
-  const rootContext = useDraggableRootContext();
-  // Inside a preview, the parts render nothing, so a copy of them doesn't recurse.
-  const inPreview = React.useContext(DraggablePositionerContext) !== undefined;
-  const active = (rootContext.dragging || rootContext.settling) && !inPreview;
+  const preview = useRootPreview();
 
   // Resolved while rendering, so the preview mounts in the commit that starts the drag.
   // A container that mounted before the drag has its ref set by then.
-  const containerElement = active ? resolveContainer(container, rootContext) : null;
-  const waitingForRef = active && containerElement === null && container != null;
+  const containerElement = preview ? resolveContainer(container, preview) : null;
+  const waitingForRef = preview !== null && containerElement === null && container != null;
   // A ref that isn't set yet gets one more render. A later sibling's ref attaches after
   // this effect, so the retry runs whether or not the ref is set here.
   const [, retry] = React.useReducer((count: number) => count + 1, 0);
@@ -57,11 +54,10 @@ export const DraggablePortal = React.forwardRef(function DraggablePortal(
 
 function resolveContainer(
   container: DraggablePortalProps['container'],
-  rootContext: ReturnType<typeof useDraggableRootContext>,
+  preview: DragPreview,
 ): HTMLElement | ShadowRoot | null {
   if (container === undefined) {
-    const source = rootContext.getPreview()?.getSourceElement();
-    return (source ? ownerDocument(source) : document).body;
+    return ownerDocument(preview.getSourceElement()).body;
   }
   if (container === null) {
     return null;

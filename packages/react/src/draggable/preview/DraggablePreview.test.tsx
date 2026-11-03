@@ -312,6 +312,22 @@ describe('<Draggable.Preview />', () => {
       expect(getPreview()).toHaveClass('idle');
     });
 
+    it("does not copy the trigger's data-dragging", async () => {
+      await renderDnd(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" />
+          <Draggable.Positioner>
+            <Draggable.Preview />
+          </Draggable.Positioner>
+        </Draggable.Root>,
+      );
+      await lift(getTrigger());
+
+      // `[data-dragging] { opacity: .4 }` must dim only the trigger, not its copy.
+      expect(getTrigger()).toHaveAttribute('data-dragging');
+      expect(getPreview()).not.toHaveAttribute('data-dragging');
+    });
+
     it("lets its own props override the trigger's", async () => {
       await renderDnd(
         <Draggable.Root kind={testDragKind}>

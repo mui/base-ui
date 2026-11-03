@@ -92,10 +92,7 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
       }
     }, [enclosingCollisionContext, kind, collision]);
   }
-  const { ref, dragging, settling, registerHandle, getPreview } = useDraggableElement<
-    TPayload,
-    TDragData
-  >(
+  const { ref, drag, registerHandle } = useDraggableElement<TPayload, TDragData>(
     params,
     collisionContext
       ? {
@@ -114,14 +111,12 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
   const contextValue: DraggableRootContext = React.useMemo(
     () => ({
       registerHandle,
-      getPreview,
       triggerProps,
       triggerRef: ref,
-      dragging,
-      settling,
+      drag,
       disabled: disabled ?? false,
     }),
-    [registerHandle, getPreview, triggerProps, ref, dragging, settling, disabled],
+    [registerHandle, triggerProps, ref, drag, disabled],
   );
 
   return (

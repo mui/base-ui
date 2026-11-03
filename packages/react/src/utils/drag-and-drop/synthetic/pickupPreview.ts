@@ -169,7 +169,7 @@ export function createPreviewAndStartSession(
   };
 
   try {
-    // From the rect measured before `markSourceDragging()`, whose `[data-dragging]`
+    // From the rect measured before the preview marks the source, whose `[data-dragging]`
     // rules could corrupt the offset behind `getSnappedLocalPoint({ anchor: 'source' })`.
     const grabOffset = {
       x: pressPoint.x - sourceRect.left,

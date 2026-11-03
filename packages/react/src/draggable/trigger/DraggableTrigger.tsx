@@ -36,8 +36,8 @@ export const DraggableTrigger = React.forwardRef(function DraggableTrigger(
   });
 
   const state: DraggableTrigger.State = {
-    dragging: context.dragging,
-    settling: context.settling,
+    dragging: context.drag.phase === 'dragging',
+    settling: context.drag.phase === 'settling',
     disabled: context.disabled,
   };
 

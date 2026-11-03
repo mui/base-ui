@@ -9,6 +9,7 @@ import { registerDraggableElement } from './draggable';
 import type { DraggableConfig } from './draggable';
 import type { RegisterSourceParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
+import type { RootDragStore } from './synthetic/syntheticPreview';
 
 /**
  * Creates the draggable registration shared by `Draggable.Root` and the imperative
@@ -18,7 +19,7 @@ export function createRegisterSource(getCSPContext: () => CSPContextValue) {
   return <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
     get: () => RegisterSourceParameters<TPayload, TDragData>,
-    owner?: object,
+    owner?: RootDragStore,
   ): DragCleanupFn => {
     const initial = get();
 

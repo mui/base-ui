@@ -49,7 +49,7 @@ export const DraggablePreview = React.forwardRef(function DraggablePreview(
   const isClone = children === undefined;
   // The trigger's props when its drag started, read once per drag. Subscribing to them
   // would render the preview again in a second commit each time the trigger renders.
-  const drag = rootContext.getPreview();
+  const drag = rootContext.drag.preview;
   const [snapshot, setSnapshot] = React.useState(() => ({
     drag,
     props: rootContext.triggerProps.current,

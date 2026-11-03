@@ -2,6 +2,7 @@ import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { Store } from '@base-ui/utils/store';
 import { getFiniteAnimations } from '../../getFiniteAnimations';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
@@ -17,7 +18,6 @@ import type {
 import type { DragModifierKeys } from '../utils';
 import { applyDragModifiers, compileDragModifiers, ZERO_OFFSET } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
-import { setSourceSettling } from '../settlingSources';
 import { getActiveSession } from '../core/dragSession';
 import { retargetDragSource } from '../dragSource';
 import * as DraggablePositionerCssVars from '../../../draggable/positioner/DraggablePositionerCssVars';
@@ -31,13 +31,42 @@ const DEFAULT_SCALE: DraggablePosition = { x: 1, y: 1 };
 const MIN_SETTLING_WATCHDOG_MS = 1000;
 const MAX_SETTLING_WATCHDOG_MS = 30000;
 
+/**
+ * Where a drag is, as its preview decides it:
+ * - `dragging`: from pickup until the release, or until the drag ends without one.
+ * - `settling`: after a release, while the preview runs its ending onto the source.
+ */
+export type DragPhase = 'idle' | 'dragging' | 'settling';
+
+/** A `Draggable.Root`'s drag, as its parts render it. */
+export interface RootDrag {
+  readonly phase: DragPhase;
+  /**
+   * The preview of the root's drag, or `null` when idle. Each drag has its own, so its
+   * identity tells one drag from the next.
+   */
+  readonly preview: DragPreview | null;
+}
+
+const IDLE_ROOT_DRAG: RootDrag = { phase: 'idle', preview: null };
+
+/**
+ * Where the preview publishes its `Draggable.Root`'s drag. It is also the root's identity
+ * (see `SyntheticPreviewSourceIdentity.owner`), so a drag finds its root across a node swap.
+ */
+export type RootDragStore = Store<RootDrag>;
+
+export function createRootDragStore(): RootDragStore {
+  return new Store(IDLE_ROOT_DRAG);
+}
+
 export interface SyntheticPreviewSourceIdentity {
   kind: symbol;
   previewKey: string | number | undefined;
   /** The declared payload, used to reconnect the preview after a source remounts. */
   payload: unknown;
-  /** The `Draggable.Root` instance, which keeps it across a node swap. */
-  owner?: object | undefined;
+  /** The `Draggable.Root`'s drag store. `undefined` for a source without a root. */
+  owner?: RootDragStore | undefined;
 }
 
 /**
@@ -50,7 +79,7 @@ export function getPreviewSourceIdentity(
     previewKey?: string | number | undefined;
     payload?: unknown;
   },
-  owner: object | undefined,
+  owner: RootDragStore | undefined,
 ): SyntheticPreviewSourceIdentity {
   return {
     kind: parameters.kind.id,
@@ -72,21 +101,19 @@ function isSameSource(
   );
 }
 
-/** A released preview still running its drop transition onto `source`. */
-interface EndingPreview {
-  identity: SyntheticPreviewSourceIdentity;
+/** A preview's drag, from pickup until it finishes. */
+interface LiveDrag {
+  readonly phase: DragPhase;
   readonly source: Element;
-  retarget(element: HTMLElement): void;
+  readonly identity: SyntheticPreviewSourceIdentity;
+  /** Hand the drag over to `element`, a node registered as the same source. */
+  retarget(element: HTMLElement, identity: SyntheticPreviewSourceIdentity): void;
   finish(): void;
 }
 
-// Previews still running their drop transition. A new pickup from the same source
-// interrupts the previous one. Shared across bundles, like the active drag state.
-const endingPreviews = getSharedSlot('dragPreview.ending', () => new Set<EndingPreview>());
-
-// The previews a `Draggable.Positioner` can attach to: the active drag's, and those
-// still settling after a drop.
-const livePreviews = getSharedSlot('dragPreview.live', () => new Set<DragPreview>());
+// The active drag's preview, and those still settling after a drop. Shared across
+// bundles, like the active drag state.
+const liveDrags = getSharedSlot('dragPreview.drags', () => new Set<LiveDrag>());
 
 /** Whether a transition with a duration covers `translate`. */
 function transitionsTranslate(style: CSSStyleDeclaration): boolean {
@@ -100,10 +127,16 @@ function transitionsTranslate(style: CSSStyleDeclaration): boolean {
     );
 }
 
-function findEndingPreview(source: Element): EndingPreview | undefined {
-  for (const entry of endingPreviews) {
-    if (entry.source === source) {
-      return entry;
+/** The engine writes these, so `[data-dragging]` rules apply before React renders. */
+function markSource(element: Element, phase: DragPhase): void {
+  element.toggleAttribute(DraggableTriggerDataAttributes.dragging, phase !== 'idle');
+  element.toggleAttribute(DraggableTriggerDataAttributes.settling, phase === 'settling');
+}
+
+function findSettlingDrag(source: Element): LiveDrag | undefined {
+  for (const drag of liveDrags) {
+    if (drag.phase === 'settling' && drag.source === source) {
+      return drag;
     }
   }
   return undefined;
@@ -114,9 +147,9 @@ function findEndingPreview(source: Element): EndingPreview | undefined {
  * Their state attributes affect measurement.
  */
 export function finishEndingPreview(source: Element): void {
-  for (const entry of endingPreviews) {
-    if (contains(source, entry.source)) {
-      entry.finish();
+  for (const drag of liveDrags) {
+    if (drag.phase === 'settling' && contains(source, drag.source)) {
+      drag.finish();
     }
   }
 }
@@ -126,47 +159,27 @@ export function finishEndingPreview(source: Element): void {
  * does not leave its preview in the document for the next one.
  */
 export function finishAllEndingPreviewsForTests(): void {
-  for (const entry of Array.from(endingPreviews)) {
-    entry.finish();
-  }
-}
-
-/** The preview of the drag from `source`, active or settling, or `null`. */
-export function findDragPreview(source: Element): DragPreview | null {
-  let found: DragPreview | null = null;
-  for (const preview of livePreviews) {
-    if (preview.getSourceElement() === source) {
-      // The latest one, since a new pickup finishes the previous preview first.
-      found = preview;
+  for (const drag of Array.from(liveDrags)) {
+    if (drag.phase === 'settling') {
+      drag.finish();
     }
   }
-  return found;
 }
 
 /**
- * Point the drag in progress, or a settling preview, at a draggable that just registered
- * as the same source, such as a row a virtualizer or a cross-list move remounted.
- * Only a source whose node left the document is moved.
+ * Hand the drag in progress, or a settling preview, over to a draggable that just
+ * registered as the same source, such as a row a virtualizer or a cross-list move
+ * remounted. Only a source whose node left the document is moved.
  */
 export function retargetPreviewSource(
   element: HTMLElement,
   identity: SyntheticPreviewSourceIdentity,
 ): void {
-  const session = getActiveSession();
-  if (
-    session?.preview &&
-    !session.source.element.isConnected &&
-    isSameSource(session.preview.identity, identity)
-  ) {
-    retargetDragSource(session.source.element, element);
-    return;
-  }
-  for (const entry of endingPreviews) {
-    if (!entry.source.isConnected && isSameSource(entry.identity, identity)) {
-      entry.retarget(element);
-      return;
-    }
-  }
+  const matches = Array.from(liveDrags).filter(
+    (drag) => !drag.source.isConnected && isSameSource(drag.identity, identity),
+  );
+  // The drag in progress first, then the oldest settling preview.
+  (matches.find((drag) => drag.phase === 'dragging') ?? matches[0])?.retarget(element, identity);
 }
 
 /** The settings a `Draggable.Positioner` attaches with. */
@@ -441,39 +454,33 @@ export interface DragPreviewPickup {
   pressInput: DraggableInput;
 }
 
-/** Build a pickup's preview and mark the source as dragged. */
-export function createDragPreview(
-  source: HTMLElement,
-  identity: SyntheticPreviewSourceIdentity,
-  pickup: DragPreviewPickup,
-): DragPreview {
-  const preview = createSyntheticPreview(source, identity, pickup);
-  preview.markSourceDragging();
-  return preview;
-}
-
 /**
- * The preview of one drag. It has no element until a `Draggable.Positioner` attaches,
- * and a drag without one shows no preview.
+ * Start a pickup's drag: build its preview, mark the source as dragged and publish the
+ * `dragging` phase to its root. Call it once the source is measured, since
+ * `[data-dragging]` rules can resize or hide it. The preview has no element until a
+ * `Draggable.Positioner` attaches, and a drag without one shows no preview.
  */
-export function createSyntheticPreview(
+export function createDragPreview(
   initialSourceElement: HTMLElement,
-  sourceIdentity: SyntheticPreviewSourceIdentity,
+  initialIdentity: SyntheticPreviewSourceIdentity,
   pickup: DragPreviewPickup,
 ): DragPreview {
+  // A preview still settling onto the source would clear its marks after this one sets them.
+  finishEndingPreview(initialSourceElement);
+
   // Re-pointed when a virtualizer remounts the dragged item to a new node, so the
-  // drag-state attribute follows the live element, as `Draggable.Root`'s `dragging` does.
+  // marks and the root's phase follow the live element.
   let sourceElement = initialSourceElement;
+  let identity = initialIdentity;
+  let phase: DragPhase = 'idle';
   let destroyed = false;
   let preparedForDrop = false;
   // Whether the release dropped on a target.
   let dropped = false;
-  // Whether the released preview is still running its drop transition.
-  let settling = false;
   // Whether the drop transition started, after which the element can't be swapped.
   let endingStarted = false;
-  // Whether the preview is gone for good.
-  let finished = false;
+  // Stops the ending's frame and watchdog once settling started.
+  let stopEnding: (() => void) | null = null;
 
   let current: PositionedPreview | null = null;
   // Assigned below, and read by the functions that end it.
@@ -541,37 +548,79 @@ export function createSyntheticPreview(
     }
   }
 
-  function retargetSource(element: HTMLElement): void {
-    if (finished || element === sourceElement) {
-      return;
-    }
-
-    sourceElement.removeAttribute(DraggableTriggerDataAttributes.dragging);
-    setSourceSettling(sourceElement, false);
-    if (settling) {
-      // A fresh drag from the destination can begin before this one settles.
-      // It owns that source now, so finish the older preview first.
-      findEndingPreview(element)?.finish();
-    }
-
-    sourceElement = element;
-    sourceElement.setAttribute(DraggableTriggerDataAttributes.dragging, '');
-    if (settling) {
-      setSourceSettling(sourceElement, true);
+  /** Clear the root's phase, unless a newer drag of the root replaced this one. */
+  function release(owner: RootDragStore | undefined): void {
+    if (owner?.state.preview === preview) {
+      owner.setState(IDLE_ROOT_DRAG);
     }
   }
 
+  function publish(): void {
+    const owner = identity.owner;
+    if (phase === 'idle') {
+      release(owner);
+    } else if (owner && (owner.state.phase !== phase || owner.state.preview !== preview)) {
+      owner.setState({ phase, preview });
+    }
+  }
+
+  /**
+   * Mark the source and publish the phase to the root. Last in every transition: the
+   * root's render can unmount a positioner, whose detach must see the final state, or
+   * it would leave a stray copy (see `attach`).
+   */
+  function setPhase(next: DragPhase): void {
+    phase = next;
+    markSource(sourceElement, phase);
+    publish();
+  }
+
+  const drag: LiveDrag = {
+    get phase() {
+      return phase;
+    },
+    get source() {
+      return sourceElement;
+    },
+    get identity() {
+      return identity;
+    },
+    retarget(element, nextIdentity) {
+      if (phase === 'idle' || element === sourceElement) {
+        return;
+      }
+      const previousElement = sourceElement;
+      const previousOwner = identity.owner;
+      markSource(previousElement, 'idle');
+      if (phase === 'settling') {
+        // A fresh drag from the destination can begin before this one settles.
+        // It owns that source now, so finish the older preview first.
+        findSettlingDrag(element)?.finish();
+      }
+      sourceElement = element;
+      identity = nextIdentity;
+      // Until the end sequence begins, the session's events follow the new node too.
+      if (getActiveSession()?.preview === preview) {
+        retargetDragSource(previousElement, element);
+      }
+      if (previousOwner !== identity.owner) {
+        release(previousOwner);
+      }
+      // Marks the new node, and tells the root that renders it if the drag changed roots.
+      setPhase(phase);
+    },
+    finish,
+  };
+
   function finish(): void {
-    if (finished) {
+    if (phase === 'idle') {
       return;
     }
-    finished = true;
-    livePreviews.delete(preview);
+    stopEnding?.();
+    liveDrags.delete(drag);
     current?.destroy();
     current = null;
-    sourceElement.removeAttribute(DraggableTriggerDataAttributes.dragging);
-    setSourceSettling(sourceElement, false);
-    settling = false;
+    setPhase('idle');
   }
 
   function destroy(): void {
@@ -589,27 +638,14 @@ export function createSyntheticPreview(
     const win = ownerWindow(current.element);
     const frame = new WindowAnimationFrame(win);
     const settlingWatchdog = new WindowTimeout(win);
-    const entry: EndingPreview = {
-      identity: sourceIdentity,
-      get source() {
-        return sourceElement;
-      },
-      retarget: retargetSource,
-      finish() {
-        if (!endingPreviews.delete(entry)) {
-          return;
-        }
-        frame.cancel();
-        settlingWatchdog.clear();
-        finish();
-      },
+    stopEnding = () => {
+      frame.cancel();
+      settlingWatchdog.clear();
     };
-    const cleanup = () => entry.finish();
 
-    findEndingPreview(sourceElement)?.finish();
-    settling = true;
-    endingPreviews.add(entry);
-    setSourceSettling(sourceElement, true);
+    // One preview settles onto a source at a time.
+    findSettlingDrag(sourceElement)?.finish();
+    setPhase('settling');
 
     // Start the ending in the next frame, before paint. The release is resolved by
     // then, so `[data-dropped]` lands with `[data-ending-style]`, and drop
@@ -617,7 +653,7 @@ export function createSyntheticPreview(
     frame.request(() => {
       const target = current;
       if (!target) {
-        cleanup();
+        finish();
         return;
       }
       endingStarted = true;
@@ -648,7 +684,7 @@ export function createSyntheticPreview(
           ? []
           : getFiniteAnimations(element, { subtree: true });
       if (animations.length === 0) {
-        cleanup();
+        finish();
         return;
       }
       const longestAnimationMs = animations.reduce((longest, animation) => {
@@ -659,9 +695,9 @@ export function createSyntheticPreview(
       }, 0);
       settlingWatchdog.start(
         clamp(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS, MAX_SETTLING_WATCHDOG_MS),
-        cleanup,
+        finish,
       );
-      Promise.allSettled(animations.map((animation) => animation.finished)).then(cleanup);
+      Promise.allSettled(animations.map((animation) => animation.finished)).then(finish);
     });
   }
 
@@ -678,7 +714,6 @@ export function createSyntheticPreview(
   }
 
   preview = {
-    identity: sourceIdentity,
     sourceRect: pickup.sourceRect,
     update(clientX: number, clientY: number, keys: DragModifierKeys = NO_MODIFIER_KEYS): void {
       if (destroyed) {
@@ -691,10 +726,11 @@ export function createSyntheticPreview(
       positionPreviewElement();
     },
     attach(element, content, settings) {
-      if (finished || endingStarted) {
-        // Too late to show it. Hidden until React unmounts it with the settled source.
+      if (phase === 'idle' || endingStarted) {
+        // Too late to show it. Hidden until it detaches, so it doesn't show at the
+        // viewport's corner.
         element.style.setProperty('visibility', 'hidden');
-        return () => {};
+        return () => element.style.removeProperty('visibility');
       }
       // Measured first: it sets the size variables the offset function may depend on.
       const attached = createPositionedPreview(
@@ -724,7 +760,7 @@ export function createSyntheticPreview(
       }
       adopt(attached);
       return () => {
-        if (current !== attached || finished) {
+        if (current !== attached || phase === 'idle') {
           return;
         }
         // The root unmounted mid-drag, as when a virtualizer scrolls the source away or a
@@ -776,7 +812,6 @@ export function createSyntheticPreview(
         positionPreviewElement();
       }
     },
-    retargetSource,
     getSourceElement() {
       return sourceElement;
     },
@@ -788,10 +823,6 @@ export function createSyntheticPreview(
     },
     getPreviewOffset(): DraggablePosition {
       return previewOffset;
-    },
-    markSourceDragging(): void {
-      finishEndingPreview(sourceElement);
-      sourceElement.setAttribute(DraggableTriggerDataAttributes.dragging, '');
     },
     end(drop: boolean): void {
       if (destroyed) {
@@ -814,14 +845,13 @@ export function createSyntheticPreview(
       dropped = true;
     },
   };
-  livePreviews.add(preview);
+  liveDrags.add(drag);
+  setPhase('dragging');
   return preview;
 }
 
 /** The drag preview, as the sensor, session and React layer use it. */
 export interface DragPreview {
-  /** The source it was picked up from (see `retargetPreviewSource`). */
-  readonly identity: SyntheticPreviewSourceIdentity;
   /** The source's bounding rect at pickup. */
   readonly sourceRect: DOMRect;
   /** `keys` are the modifier keys of the event behind this position, for preview modifiers. */
@@ -831,6 +861,7 @@ export interface DragPreview {
    * pointer. `content` is the `Draggable.Preview` inside it, or `null` to position the
    * element itself. The first attach resolves the offset and modifiers from `settings`.
    * Returns the detach, which leaves a copy in place while the drag still needs one.
+   * Once the ending started, `element` is hidden instead, until it detaches.
    */
   attach(
     element: HTMLElement,
@@ -842,8 +873,6 @@ export interface DragPreview {
    * `Draggable.Preview` renders a new element. Keeps the offset and modifiers.
    */
   setContent(element: HTMLElement, content: HTMLElement | null): void;
-  /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
-  retargetSource(element: HTMLElement): void;
   /** The current source element. */
   getSourceElement(): HTMLElement;
   /** The element the engine moves, which hit-testing skips, or `null` without one. */
@@ -852,11 +881,6 @@ export interface DragPreview {
   getPreviewRect(): DOMRect | null;
   /** The offset from the visible preview's top-left corner to the cursor. */
   getPreviewOffset(): DraggablePosition;
-  /**
-   * Mark the source as being dragged. Called at pickup, once the source is measured,
-   * so a `[data-dragging]` rule that resizes or hides it can't corrupt the measurement.
-   */
-  markSourceDragging(): void;
   /**
    * End the preview. On a drop it stays mounted while its ending transition settles
    * onto the source. Otherwise, such as on a cancel, it is removed at once.

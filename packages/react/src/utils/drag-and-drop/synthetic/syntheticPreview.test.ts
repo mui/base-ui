@@ -1,6 +1,6 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { isJSDOM } from '#test-utils';
-import { createSyntheticPreview, findDragPreview, retargetPreviewSource } from './syntheticPreview';
+import { createDragPreview, createRootDragStore, retargetPreviewSource } from './syntheticPreview';
 import type {
   DragPreview,
   PreviewAttachSettings,
@@ -52,7 +52,7 @@ function createHandle(
   const press = options.press ?? { x: 0, y: 0 };
   const input = { ...INPUT, clientX: press.x, clientY: press.y };
   const sourceRect = source.getBoundingClientRect();
-  const handle = createSyntheticPreview(source, options.identity ?? UNMATCHED_IDENTITY, {
+  const handle = createDragPreview(source, options.identity ?? UNMATCHED_IDENTITY, {
     sourceRect,
     sourceSize: { width: sourceRect.width, height: sourceRect.height },
     input,
@@ -107,38 +107,88 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+/** The identity of a root's source, for the tests of its drag. */
+function rootIdentity(owner = createRootDragStore()) {
+  return { kind: Symbol.for('root-test'), previewKey: undefined, payload: { id: 'a' }, owner };
+}
+
 describe('syntheticPreview', () => {
-  it('marks the source as dragging, and clears it on destroy', () => {
-    const source = createElement();
-    const handle = createHandle(source);
+  describe('root drag', () => {
+    it('marks the source and publishes the dragging phase to its root until the drag ends', () => {
+      const identity = rootIdentity();
+      const source = createElement();
+      const handle = createHandle(source, { identity });
 
-    // Not on creation. The source is measured first, so a `[data-dragging]` rule
-    // that resizes or hides it cannot corrupt the geometry.
-    expect(source).not.toHaveAttribute('data-dragging');
-    handle.markSourceDragging();
-    expect(source).toHaveAttribute('data-dragging');
+      expect(source).toHaveAttribute('data-dragging');
+      expect(identity.owner.state).toEqual({ phase: 'dragging', preview: handle });
 
-    handle.end(false);
-    expect(source).not.toHaveAttribute('data-dragging');
-  });
+      handle.end(false);
+      expect(source).not.toHaveAttribute('data-dragging');
+      expect(identity.owner.state).toEqual({ phase: 'idle', preview: null });
+    });
 
-  it('moves data-dragging to the new node when a virtualizer remounts the source', () => {
-    const oldNode = createElement();
-    const newNode = createElement();
-    const handle = createHandle(oldNode);
-    handle.markSourceDragging();
+    it('publishes the idle phase once the preview is torn down, so a positioner unmounting on it leaves no copy', () => {
+      const identity = rootIdentity();
+      const handle = createHandle(createElement(), { identity });
+      const positioner = createElement();
+      const detach = handle.attach(positioner, null, POINTER);
+      handle.update(100, 200);
+      // As `Draggable.Root` does when it renders the idle phase: its positioner unmounts.
+      const onIdle = vi.fn(() => {
+        detach();
+        positioner.remove();
+      });
+      identity.owner.subscribe((drag) => {
+        if (drag.phase === 'idle') {
+          onIdle();
+        }
+      });
 
-    handle.retargetSource(newNode);
+      handle.end(false);
 
-    // A CSS-only `[data-dragging]` dim would otherwise stop applying the moment the
-    // row was recycled, while `Draggable.Root`'s `dragging` kept tracking it.
-    expect(oldNode).not.toHaveAttribute('data-dragging');
-    expect(newNode).toHaveAttribute('data-dragging');
-    expect(findDragPreview(newNode)).toBe(handle);
-    expect(findDragPreview(oldNode)).toBeNull();
+      expect(onIdle).toHaveBeenCalledTimes(1);
+      expect(handle.getPreviewElement()).toBeNull();
+      expect(document.body.children).toHaveLength(attachedElements.length - 1);
+    });
 
-    handle.end(false);
-    expect(newNode).not.toHaveAttribute('data-dragging');
+    it('moves the drag to a node its root swaps in mid-drag, keeping the root drag', () => {
+      const identity = rootIdentity();
+      const oldNode = createElement();
+      const handle = createHandle(oldNode, { identity });
+      const drag = identity.owner.state;
+      const newNode = createElement();
+      oldNode.remove();
+
+      retargetPreviewSource(newNode, { ...identity, payload: undefined });
+
+      // A CSS-only `[data-dragging]` dim would otherwise stop applying the moment the
+      // row was recycled.
+      expect(oldNode).not.toHaveAttribute('data-dragging');
+      expect(newNode).toHaveAttribute('data-dragging');
+      // The root renders nothing new for its own node swap.
+      expect(identity.owner.state).toBe(drag);
+
+      handle.end(false);
+      expect(newNode).not.toHaveAttribute('data-dragging');
+    });
+
+    it('hands the drag over to a root that remounts mid-drag with the same payload', () => {
+      const first = rootIdentity();
+      const oldNode = createElement();
+      const handle = createHandle(oldNode, { identity: first });
+      oldNode.remove();
+
+      const second = { ...first, owner: createRootDragStore() };
+      const newNode = createElement();
+      retargetPreviewSource(newNode, second);
+
+      expect(first.owner.state).toEqual({ phase: 'idle', preview: null });
+      expect(second.owner.state).toEqual({ phase: 'dragging', preview: handle });
+      expect(newNode).toHaveAttribute('data-dragging');
+
+      handle.end(false);
+      expect(second.owner.state).toEqual({ phase: 'idle', preview: null });
+    });
   });
 
   it('has no element until a positioner attaches', () => {
@@ -311,29 +361,30 @@ describe('syntheticPreview', () => {
   });
 
   describe('drop', () => {
-    it('keeps the preview mounted through its authored drop transition', async () => {
+    it('keeps the preview mounted and its root settling through its authored drop transition', async () => {
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
       const frames = queueAnimationFrames();
+      const identity = rootIdentity();
       const source = createElement(new DOMRect(40, 50, 120, 30));
-      const handle = createHandle(source);
+      const handle = createHandle(source, { identity });
       const positioner = createElement();
       const transition = mockDropTransition(positioner);
 
       handle.attach(positioner, null, POINTER);
-      handle.markSourceDragging();
       handle.end(true);
 
       expect(source).toHaveAttribute('data-dragging');
       expect(source).toHaveAttribute('data-settling');
+      expect(identity.owner.state).toEqual({ phase: 'settling', preview: handle });
 
       frames.shift()!(0);
       expect(positioner).toHaveAttribute('data-ending-style');
       expect(positioner.style.translate).toBe('40px 50px');
-      expect(findDragPreview(source)).toBe(handle);
+      expect(identity.owner.state.phase).toBe('settling');
 
       await transition.finish();
       expect(handle.getPreviewElement()).toBeNull();
-      expect(findDragPreview(source)).toBeNull();
+      expect(identity.owner.state).toEqual({ phase: 'idle', preview: null });
       expect(source).not.toHaveAttribute('data-dragging');
       expect(source).not.toHaveAttribute('data-settling');
     });
@@ -402,7 +453,7 @@ describe('syntheticPreview', () => {
       }
     });
 
-    it('hides a positioner that attaches once the ending started', () => {
+    it('hides a positioner that attaches once the ending started, until it detaches', () => {
       const frames = queueAnimationFrames();
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
       const handle = createHandle(createElement());
@@ -413,9 +464,13 @@ describe('syntheticPreview', () => {
       frames.shift()!(0);
 
       const late = createElement();
-      handle.attach(late, null, POINTER);
+      const detach = handle.attach(late, null, POINTER);
       expect(late.style.visibility).toBe('hidden');
       expect(handle.getPreviewElement()).toBe(positioner);
+
+      // Shown again if a new drag of the same item attaches it.
+      detach();
+      expect(late.style.visibility).toBe('');
     });
 
     it.each(['duration', 'iterations'])('ignores animations with infinite %s', (property) => {
@@ -432,7 +487,6 @@ describe('syntheticPreview', () => {
           },
         ] as unknown as Animation[];
       handle.attach(positioner, null, POINTER);
-      handle.markSourceDragging();
       handle.end(true);
       frames.shift()!(0);
       expect(handle.getPreviewElement()).toBeNull();
@@ -459,7 +513,6 @@ describe('syntheticPreview', () => {
         ] as unknown as Animation[];
 
       handle.attach(positioner, null, POINTER);
-      handle.markSourceDragging();
       handle.end(true);
       frames.shift()!(0);
 
@@ -472,13 +525,14 @@ describe('syntheticPreview', () => {
       expect(source).not.toHaveAttribute('data-settling');
     });
 
-    it('settles on a matching source that remounts in another container', async () => {
+    it('settles on a matching root that remounts in another container', async () => {
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
       const frames = queueAnimationFrames();
       const identity = {
         kind: Symbol.for('card'),
         previewKey: 'card-a',
         payload: { id: 'a' },
+        owner: createRootDragStore(),
       };
       const source = createElement();
       const handle = createHandle(source, { identity });
@@ -486,23 +540,25 @@ describe('syntheticPreview', () => {
       const transition = mockDropTransition(positioner);
 
       handle.attach(positioner, null, POINTER);
-      handle.markSourceDragging();
       handle.end(true);
       source.remove();
 
       const destination = createElement(new DOMRect(240, 160, 120, 30));
+      const owner = createRootDragStore();
       // Kanban payload objects are recreated as the card mounts in its new column,
       // so the explicit preview key supplies the stable identity in that case.
       retargetPreviewSource(destination, {
         kind: identity.kind,
         previewKey: identity.previewKey,
         payload: { id: 'a' },
+        owner,
       });
 
       expect(destination).toHaveAttribute('data-dragging');
       expect(destination).toHaveAttribute('data-settling');
       expect(source).not.toHaveAttribute('data-settling');
-      expect(findDragPreview(destination)).toBe(handle);
+      expect(identity.owner.state).toEqual({ phase: 'idle', preview: null });
+      expect(owner.state).toEqual({ phase: 'settling', preview: handle });
       frames.shift()!(0);
       expect(positioner.style.translate).toBe('240px 160px');
 
@@ -520,7 +576,6 @@ describe('syntheticPreview', () => {
         identity: { kind, previewKey: undefined, payload: undefined },
       });
       handle.attach(createElement(), null, POINTER);
-      handle.markSourceDragging();
       handle.end(true);
       source.remove();
 

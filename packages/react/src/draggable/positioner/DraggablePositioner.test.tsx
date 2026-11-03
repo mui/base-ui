@@ -1,16 +1,18 @@
 import * as React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { describeConformance } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import {
   cancel,
+  createElement,
   drop,
   dragOver,
   fireDrag,
   flushRaf,
   lift,
+  registerCleanup,
   setupDragEngineTests,
 } from '../../../test/dnd';
 import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
@@ -27,6 +29,17 @@ function getTrigger() {
 
 function getPositioner() {
   return document.querySelector<HTMLElement>('[data-base-ui-drag-preview]');
+}
+
+/** Gives `element` an ending animation that runs until the test ends, so it stays mounted. */
+function mockEndingAnimation(element: HTMLElement) {
+  let finish!: () => void;
+  const finished = new Promise<void>((resolve) => {
+    finish = resolve;
+  });
+  registerCleanup(() => finish());
+  element.getAnimations = () =>
+    [{ effect: { getTiming: () => ({ iterations: 1 }) }, finished }] as unknown as Animation[];
 }
 
 /** Moves the active drag with raw events, which still reach the engine once the trigger is gone. */
@@ -81,6 +94,79 @@ describe('<Draggable.Positioner />', () => {
 
     cancel();
     expect(getPositioner()).toBeNull();
+  });
+
+  it('unmounts once its preview settles after a drop', async () => {
+    await renderDnd(
+      <Draggable.Root kind={testDragKind}>
+        <Draggable.Trigger data-trigger="" />
+        <Draggable.Positioner />
+      </Draggable.Root>,
+    );
+    await lift(getTrigger());
+    drop(document.body);
+    // Without an ending animation, the preview settles on the next frame.
+    expect(getPositioner()).not.toBeNull();
+
+    await flushRaf();
+    expect(getPositioner()).toBeNull();
+  });
+
+  it.each([
+    { name: 'a drop on a target', onTarget: true },
+    { name: 'a release outside every target', onTarget: false },
+  ])(
+    'sets data-ending-style after $name, and data-dropped only for a drop on a target',
+    async ({ onTarget }) => {
+      vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+      registerCleanup(() => vi.unstubAllGlobals());
+      const { engine } = await renderDnd(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" />
+          <Draggable.Positioner />
+        </Draggable.Root>,
+      );
+      const target = createElement();
+      if (onTarget) {
+        engine.registerTarget(target, {});
+      }
+      await lift(getTrigger());
+      await dragOver(target);
+      // An ending animation keeps the positioner mounted to inspect it.
+      const positioner = getPositioner()!;
+      mockEndingAnimation(positioner);
+      fireDrag.drop(target);
+      await flushRaf();
+
+      expect(positioner).toHaveAttribute('data-ending-style');
+      expect(positioner.hasAttribute('data-dropped')).toBe(onTarget);
+    },
+  );
+
+  it('does not set data-dropped when the release enters a target that cancels the drag', async () => {
+    vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+    registerCleanup(() => vi.unstubAllGlobals());
+    const onMoveEnd = vi.fn();
+    const { engine } = await renderDnd(
+      <Draggable.Root kind={testDragKind} onMoveEnd={onMoveEnd}>
+        <Draggable.Trigger data-trigger="" />
+        <Draggable.Positioner />
+      </Draggable.Root>,
+    );
+    const target = createElement();
+    engine.registerTarget(target, { onDraggableEnter: () => engine.cancelDrag() });
+    await lift(getTrigger());
+    const positioner = getPositioner()!;
+    mockEndingAnimation(positioner);
+    // No frame runs between the move and the release, so the target is first
+    // entered by the release itself.
+    fireDrag.dragEnter(target);
+    fireDrag.drop(target);
+    await flushRaf();
+
+    expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
+    expect(positioner).toHaveAttribute('data-ending-style');
+    expect(positioner).not.toHaveAttribute('data-dropped');
   });
 
   it('hides the preview from assistive technology and the pointer', async () => {
