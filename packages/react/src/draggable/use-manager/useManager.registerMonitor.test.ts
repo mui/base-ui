@@ -5,7 +5,6 @@ import {
   createElement,
   flushRaf,
   setupDragEngineTests,
-  splitEnd,
   fireDrag,
   dragEnter,
   dragOver,
@@ -161,7 +160,7 @@ describe('engine.registerMonitor', () => {
     expect(onDragStart2).toHaveBeenCalledTimes(1);
   });
 
-  it('monitors iterated via snapshot (removal during event is safe)', async () => {
+  it('skips a monitor that an earlier monitor removes during the same event', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onDragStart2 = vi.fn();
@@ -189,7 +188,6 @@ describe('engine.registerMonitor', () => {
     const onMove = vi.fn();
     const onTargetChange = vi.fn();
     const onMoveEnd = vi.fn();
-    const onDrop = vi.fn();
 
     engine.registerSource(el, {});
     engine.registerTarget(target, {});
@@ -202,7 +200,7 @@ describe('engine.registerMonitor', () => {
       onMoveStart,
       onMove,
       onTargetChange,
-      onMoveEnd: splitEnd(onDrop, onMoveEnd),
+      onMoveEnd,
     });
 
     await dragEnter(target);
@@ -213,8 +211,8 @@ describe('engine.registerMonitor', () => {
     expect(onTargetChange).toHaveBeenCalled();
     expect(onMove).toHaveBeenCalled();
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    // `onDrop` firing already implies a committed drop.
-    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('drop');
+    expect(onMoveEnd.mock.calls[0][0].target?.element).toBe(target);
   });
 
   it('a mid-drag monitor is filtered by accept against the live active drag', async () => {

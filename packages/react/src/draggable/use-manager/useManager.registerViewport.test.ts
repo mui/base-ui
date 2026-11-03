@@ -375,6 +375,46 @@ describe('engine.registerViewport', () => {
     },
   );
 
+  it('shares an observer across nested scrollers and keeps observing after removal', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    engine.registerSource(source, {});
+    const outer = makeEngageableScroller();
+    const inner = makeEngageableScroller();
+    outer.appendChild(inner);
+    const releaseOuter = engine.registerViewport(outer, {});
+    engine.registerViewport(inner, {});
+    const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+    registerCleanup(() => observe.mockRestore());
+
+    await lift(source, { clientX: 100, clientY: 100 });
+    const outerIndex = observe.mock.calls.findIndex(([node]) => node === outer);
+    const innerIndex = observe.mock.calls.findIndex(([node]) => node === inner);
+    expect(outerIndex).toBeGreaterThanOrEqual(0);
+    expect(innerIndex).toBeGreaterThanOrEqual(0);
+    const observer = observe.mock.contexts[outerIndex] as MutationObserver;
+    expect(observe.mock.contexts[innerIndex]).toBe(observer);
+
+    // A restyle queued alongside a removal still reaches the survivor.
+    fireDrag.dragOver(inner, { clientX: 100, clientY: 100 });
+    await flushRaf(2);
+    const computedStyle = vi.spyOn(window, 'getComputedStyle');
+    registerCleanup(() => computedStyle.mockRestore());
+    act(() => {
+      inner.style.direction = 'rtl';
+      releaseOuter();
+    });
+    await flushRaf(2);
+    expect(computedStyle).toHaveBeenCalledWith(inner);
+
+    // A later mutation still invalidates the survivor's cached styles.
+    computedStyle.mockClear();
+    inner.style.direction = 'ltr';
+    await flushRaf(2);
+    expect(computedStyle).toHaveBeenCalledWith(inner);
+    fireDrag.drop(source);
+  });
+
   it('re-observes the survivor once when a batch of viewports unmounts', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -2135,27 +2175,6 @@ describe('engine.registerViewport', () => {
       expect(page.scrollBy).not.toHaveBeenCalled();
     });
 
-    it('does not scroll the page when only an inner viewport is registered', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const page = mockPageScroller();
-      const inner = createElement({ top: 400, height: 200, left: 300, width: 200 });
-      inner.style.overflow = 'auto';
-      inner.scrollBy = vi.fn();
-      Object.defineProperty(inner, 'scrollTop', { value: 400, writable: true });
-      Object.defineProperty(inner, 'scrollHeight', { value: 1000 });
-      Object.defineProperty(inner, 'clientHeight', { value: 200 });
-      inner.appendChild(source);
-
-      engine.registerSource(source, {});
-      engine.registerViewport(inner, {});
-
-      await drive(source, 400, 590, inner);
-
-      expect(inner.scrollBy).toHaveBeenCalled();
-      expect(page.scrollBy).not.toHaveBeenCalled();
-    });
-
     it('an inner overflow container consumes the axis; the page is the outermost fallback', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
@@ -2670,13 +2689,16 @@ describe('engine.registerViewport', () => {
     const DEPTH = 0.8;
     const perFrame = (speed: number) => (DEPTH * speed * FRAME_MS) / 1000;
 
-    it('scales the frame delta by a static value', async () => {
-      expect(await measureFrameDelta({ maxSpeed: 300 })).toBeCloseTo(perFrame(300), 5);
-    });
-
-    it('defaults to 900 px/s when unset', async () => {
-      // Positive control: the override, not the fixture, changes the speed.
-      expect(await measureFrameDelta({})).toBeCloseTo(perFrame(900), 5);
+    // A negative speed would scroll the container backwards and `NaN` would freeze
+    // it, both without any error. `0` is valid and must not be replaced.
+    it.each([
+      { name: 'a static value', maxSpeed: 300, speed: 300 },
+      { name: 'the 900 px/s default when unset', maxSpeed: undefined, speed: 900 },
+      { name: 'the default for a negative speed', maxSpeed: -400, speed: 900 },
+      { name: 'the default for a speed that is not a number', maxSpeed: Number.NaN, speed: 900 },
+      { name: 'a speed of 0, which does not scroll', maxSpeed: 0, speed: 0 },
+    ])('scales the frame delta by $name', async ({ maxSpeed, speed }) => {
+      expect(await measureFrameDelta({ maxSpeed })).toBeCloseTo(perFrame(speed), 5);
     });
 
     it('accepts a callback, evaluated with the frame context', async () => {
@@ -2694,17 +2716,6 @@ describe('engine.registerViewport', () => {
       const last = seen[seen.length - 1];
       expect(last.element.style.overflow).toBe('auto');
       expect(last.input.clientY).toBe(190);
-    });
-
-    // A negative speed would scroll the container backwards and `NaN` would
-    // freeze it, both without any error.
-    it('falls back to the default for a negative speed', async () => {
-      expect(await measureFrameDelta({ maxSpeed: -400 })).toBeCloseTo(perFrame(900), 5);
-    });
-
-    it('does not scroll at a speed of 0', async () => {
-      // Unlike the fallbacks above, `0` is valid and must not be replaced.
-      expect(await measureFrameDelta({ maxSpeed: 0 })).toBe(0);
     });
 
     it('lets the outer container take over when the inner one is pinned at 0', async () => {
@@ -2730,10 +2741,6 @@ describe('engine.registerViewport', () => {
       expect(outer.scrollBy).toHaveBeenCalled();
     });
 
-    it('falls back to the default for a speed that is not a number', async () => {
-      expect(await measureFrameDelta({ maxSpeed: Number.NaN })).toBeCloseTo(perFrame(900), 5);
-    });
-
     it('falls back to the default when the callback throws', async () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
       try {
@@ -2752,7 +2759,11 @@ describe('engine.registerViewport', () => {
       }
     });
 
-    it('scales a pan delta the same way', async () => {
+    // A handler gets the delta the element would have been scrolled by.
+    it.each([
+      { name: 'a static value', maxSpeed: 300, speed: 300 },
+      { name: 'the default when unset', maxSpeed: undefined, speed: 900 },
+    ])('scales a pan delta by $name, like a scroll delta', async ({ maxSpeed, speed }) => {
       const { engine } = await renderDnd();
       const clock = installFrameClock();
       const source = createElement();
@@ -2762,7 +2773,7 @@ describe('engine.registerViewport', () => {
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
-        maxSpeed: 300,
+        maxSpeed,
         onDragScroll: (eventDetails) => {
           eventDetails.cancel();
           pan(eventDetails);
@@ -2779,7 +2790,7 @@ describe('engine.registerViewport', () => {
       await flushRaf(2);
 
       const delegated = Math.max(0, ...pan.mock.calls.map(([context]) => context.y));
-      expect(delegated).toBeCloseTo(perFrame(300), 5);
+      expect(delegated).toBeCloseTo(perFrame(speed), 5);
     });
   });
 
@@ -2795,27 +2806,6 @@ describe('engine.registerViewport', () => {
       return viewport;
     }
 
-    it('calls pan instead of scrolling the element', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const viewport = makeViewport();
-      const pan = vi.fn();
-
-      engine.registerSource(source, {});
-      engine.registerViewport(viewport, {
-        onDragScroll: (eventDetails) => {
-          eventDetails.cancel();
-          pan(eventDetails);
-          eventDetails.consume();
-        },
-      });
-
-      await driveTo(source, viewport, 100, 190);
-
-      expect(pan).toHaveBeenCalled();
-      expect(viewport.scrollBy).not.toHaveBeenCalled();
-    });
-
     it('does not engage the same element without pan', async () => {
       // A registration on a non-scrolling element triggers the dev-only warning.
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -2829,7 +2819,7 @@ describe('engine.registerViewport', () => {
 
         await driveTo(source, viewport, 100, 190);
 
-        // Negative control: the element above engages only because it has a handler.
+        // Negative control: the edge cases below engage only because they have a handler.
         expect(viewport.scrollBy).not.toHaveBeenCalled();
         expect(warnSpy).toHaveBeenCalledWith(
           expect.stringContaining('registered on an element that does not scroll'),
@@ -3111,37 +3101,6 @@ describe('engine.registerViewport', () => {
 
         touchUp(200, 380);
       });
-    });
-
-    it('reports the delta the element would have been scrolled by', async () => {
-      const { engine } = await renderDnd();
-      const clock = installFrameClock();
-      const source = createElement();
-      const viewport = makeViewport();
-      const pan = vi.fn();
-
-      engine.registerSource(source, {});
-      engine.registerViewport(viewport, {
-        onDragScroll: (eventDetails) => {
-          eventDetails.cancel();
-          pan(eventDetails);
-          eventDetails.consume();
-        },
-      });
-
-      await driveTo(source, viewport, 100, 190);
-      // Past the 400ms ramp, so `rampFactor` is 1.
-      clock.advance(1000);
-      await flushRaf(2);
-
-      pan.mockClear();
-      clock.advance(FRAME_MS);
-      await flushRaf(2);
-
-      // 0.8 deep into the 50px bottom edge zone. The scrolling path uses the same formula.
-      const depth = 0.8;
-      const delegated = Math.max(0, ...pan.mock.calls.map(([context]) => context.y));
-      expect(delegated).toBeCloseTo((depth * MAX_SCROLL_SPEED * FRAME_MS) / 1000, 5);
     });
   });
 });

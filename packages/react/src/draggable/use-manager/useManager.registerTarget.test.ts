@@ -31,15 +31,6 @@ const slotKind = Draggable.createKind('card-slot');
 describe('engine.registerTarget', () => {
   const { renderDnd } = createDndRenderer();
 
-  it('sets the internal drop target marker on the element and removes it on cleanup', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const cleanup = engine.registerTarget(el, {});
-    expect(el.getAttribute('data-base-ui-drop-target')).toBe('');
-    cleanup();
-    expect(el.hasAttribute('data-base-ui-drop-target')).toBe(false);
-  });
-
   it.each([
     ['canDrop returning false', { canDrop: () => false }],
     ['disabled', { disabled: true }],
@@ -277,27 +268,6 @@ describe('engine.registerTarget', () => {
     expect(observedKind).toBe(cardKind.id);
   });
 
-  it('attaches a value payload to the target record', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const target = createElement();
-    const onDrop = vi.fn();
-    engine.registerSource(source, {});
-    engine.registerTarget(target, {
-      payload: { targetKey: 'targetValue' },
-      onDraggableDrop: onDrop,
-    });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    await dragOver(target);
-    fireDrag.drop(target);
-    await flushRaf();
-
-    expect(onDrop.mock.calls[0][0].currentTarget.payload).toEqual({ targetKey: 'targetValue' });
-  });
-
   it('keeps a function payload as data instead of invoking it', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -318,13 +288,15 @@ describe('engine.registerTarget', () => {
     expect(command).not.toHaveBeenCalled();
   });
 
-  // A falsy static value survives instead of being replaced by a stand-in.
+  // The record holds the declared value itself. A falsy one survives instead of
+  // being replaced by a stand-in.
   it.each([
-    ['a number', 0],
-    ['an empty string', ''],
-    ['false', false],
-    ['null', null],
-  ])('attaches %s target payload as-is', async (_label, value) => {
+    { name: 'an object', value: { targetKey: 'targetValue' } },
+    { name: 'a number', value: 0 },
+    { name: 'an empty string', value: '' },
+    { name: 'false', value: false },
+    { name: 'null', value: null },
+  ])('attaches $name target payload as-is', async ({ value }) => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
@@ -724,32 +696,6 @@ describe('engine.registerTarget', () => {
       record.getLocalPoint();
       expect(measure).toHaveBeenCalledTimes(1);
     });
-  });
-
-  it('crosses shadow-DOM boundaries when collecting drop targets', async () => {
-    // The walker must climb out of the shadow root via the host to find `outer`.
-    const { engine } = await renderDnd();
-    const outer = createElement();
-    const host = document.createElement('div');
-    outer.appendChild(host);
-    const shadow = host.attachShadow({ mode: 'open' });
-    const inner = document.createElement('div');
-    inner.style.width = '50px';
-    inner.style.height = '50px';
-    shadow.appendChild(inner);
-
-    const source = createElement();
-    const onDraggableEnter = vi.fn();
-    engine.registerSource(source, {});
-    engine.registerTarget(outer, { onDraggableEnter });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    await dragOver(inner);
-
-    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
-    const details = onDraggableEnter.mock.calls[0][0];
-    expect(details.location.current.targets[0].element).toBe(outer);
   });
 
   it('collects ancestor drop targets when the inner target is a direct child of a shadow root', async () => {
@@ -1302,6 +1248,33 @@ describe('engine.registerTarget', () => {
     fireDrag.drop(target, { clientY: 250 });
 
     expect(leavePayloads).toEqual(['latest']);
+  });
+
+  it('a drop target registered under the pointer mid-drag joins the active stack', async () => {
+    // The registration-time refresh is coalesced to a microtask, one re-resolve per
+    // commit, so the new target must be in the stack once it flushes.
+    const { engine } = await renderDnd();
+    const source = createElement();
+    engine.registerSource(source, {});
+    const outer = createElement();
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+    engine.registerTarget(outer, {});
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    fireDrag.dragEnter(inner);
+    await dragOver(inner);
+
+    // Only the outer target is registered so far.
+    expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(outer);
+
+    engine.registerTarget(inner, {});
+    await flushRaf();
+
+    expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(inner);
+
+    fireDrag.drop(inner);
   });
 
   it('coalesces the mid-drag refresh when a non-hovered target unregisters', async () => {

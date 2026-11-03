@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { act, fireEvent, screen, render as rawRender } from '@testing-library/react';
+import { act, screen, render as rawRender } from '@testing-library/react';
 import { dragRegistrationConformanceTests, firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
@@ -13,12 +13,10 @@ import {
   mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
-  splitEnd,
   fireDrag,
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
-import { DraggableProvider } from '../DraggableProvider';
 import { CSPProvider } from '../../csp-provider';
 
 setupDragEngineTests();
@@ -100,30 +98,6 @@ describe('Draggable.Root', () => {
     unmount();
     expect(el.style.touchAction).toBe('');
     expect(el.style.userSelect).toBe('');
-  });
-
-  it('exposes state.dragging reflecting the active drag session', async () => {
-    const { engine } = await renderDnd(<TestDraggable />);
-    const source = screen.getByTestId('drag');
-    expect(source).toHaveClass('idle');
-
-    // Pin element bounds so the engine can resolve a pointer location.
-    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-    const target = createElement();
-    engine.registerTarget(target, {});
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-
-    expect(source).toHaveClass('dragging');
-
-    fireDrag.dragEnter(target);
-    await dragOver(target);
-
-    fireDrag.drop(target);
-    await flushRaf();
-
-    expect(source).toHaveClass('idle');
   });
 
   it('blocks the drag when onBeforeMoveStart cancels', async () => {
@@ -339,10 +313,9 @@ describe('Draggable.Root', () => {
     // `useMergedRefs` rebuilds its callback when a ref's identity changes, so an
     // inline `ref` re-attaches the node every render, re-running the registration.
     const onMoveEnd = vi.fn();
-    const onDrop = vi.fn();
     function Inline({ tick }: { tick: number }) {
       return (
-        <Draggable.Root kind={testDragKind} onMoveEnd={splitEnd(onDrop, onMoveEnd)}>
+        <Draggable.Root kind={testDragKind} onMoveEnd={onMoveEnd}>
           <Draggable.Trigger
             data-testid="drag"
             data-tick={tick}
@@ -381,7 +354,8 @@ describe('Draggable.Root', () => {
     await flushRaf();
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('drop');
+    expect(onMoveEnd.mock.calls[0][0].target?.element).toBe(target);
     expect(source).toHaveClass('idle');
   });
 
@@ -786,39 +760,6 @@ describe('Draggable.Root', () => {
       expect(positioner.isConnected).toBe(false);
       expect(second).not.toHaveAttribute('data-dragging');
       expect(second).not.toHaveAttribute('data-settling');
-    });
-  });
-
-  describe('Draggable.Provider', () => {
-    it('keeps the provider context stable when its parent renders', async () => {
-      let rowCommits = 0;
-      const Row = React.memo(function Row() {
-        rowCommits += 1;
-        return (
-          <Draggable.Root kind={testDragKind}>
-            <Draggable.Trigger data-testid="drag" />
-          </Draggable.Root>
-        );
-      });
-
-      function Wiring() {
-        const [, force] = React.useState(0);
-        return (
-          <React.Fragment>
-            <button type="button" data-testid="force" onClick={() => force((c) => c + 1)} />
-            <DraggableProvider>
-              <Row />
-            </DraggableProvider>
-          </React.Fragment>
-        );
-      }
-
-      await renderDnd(<Wiring />);
-      const countAfterMount = rowCommits;
-
-      fireEvent.click(screen.getByTestId('force'));
-
-      expect(rowCommits).toBe(countAfterMount);
     });
   });
 

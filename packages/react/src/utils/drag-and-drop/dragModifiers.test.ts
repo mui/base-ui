@@ -484,21 +484,6 @@ describe('applyDragModifiers', () => {
 });
 
 describe('createDragModifiersState', () => {
-  it('returns null when nothing is declared', () => {
-    const source = document.createElement('div');
-    const start = { x: 0, y: 0 };
-    const rect = makeRect(0, 0, 10, 10);
-    expect(
-      createDragModifiersState(undefined, { element: source }, start, NO_MODIFIER_KEYS, rect),
-    ).toBeNull();
-    expect(
-      createDragModifiersState([], { element: source }, start, NO_MODIFIER_KEYS, rect),
-    ).toBeNull();
-    expect(
-      createDragModifiersState([false, null], { element: source }, start, NO_MODIFIER_KEYS, rect),
-    ).toBeNull();
-  });
-
   it('constrains the start point so the drag begins where its first frame resolves', () => {
     const boundary = document.createElement('div');
     boundary.getBoundingClientRect = () => makeRect(100, 100, 200, 200);

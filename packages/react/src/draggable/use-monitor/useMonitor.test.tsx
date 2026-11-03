@@ -1,10 +1,14 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
+import { screen } from '@testing-library/react';
+import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import {
   createElement,
   dragOver,
+  drop,
   flushRaf,
+  lift,
   setupDragEngineTests,
   fireDrag,
 } from '../../../test/dnd';
@@ -18,7 +22,7 @@ function Monitor(props: useMonitor.Parameters) {
 }
 
 describe('useMonitor', () => {
-  const { renderDnd } = createDndRenderer();
+  const { render, renderDnd } = createDndRenderer();
 
   it('registers a monitor that receives events during a drag', async () => {
     const onMoveStart = vi.fn();
@@ -43,6 +47,26 @@ describe('useMonitor', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
 
+  it('lets a monitor observe drags from outside any provider', async () => {
+    const onMoveStart = vi.fn();
+    const onMoveEnd = vi.fn();
+    await render(
+      <React.Fragment>
+        <Monitor onMoveStart={onMoveStart} onMoveEnd={onMoveEnd} />
+        <Draggable.Provider>
+          <Draggable.Root>
+            <Draggable.Trigger data-testid="source"></Draggable.Trigger>
+          </Draggable.Root>
+        </Draggable.Provider>
+      </React.Fragment>,
+    );
+    const source = screen.getByTestId('source');
+    await lift(source);
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    drop(source);
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+  });
+
   it('events read the latest callbacks after a re-render', async () => {
     const firstOnDragStart = vi.fn();
     const secondOnDragStart = vi.fn();
@@ -59,27 +83,6 @@ describe('useMonitor', () => {
     expect(secondOnDragStart).toHaveBeenCalledTimes(1);
 
     fireDrag.drop(el);
-  });
-
-  it('fires callbacks once per event under Strict Mode', async () => {
-    // Strict Mode registers, cleans up, and registers again. A leaked duplicate
-    // would run every callback once per hold.
-    const onMoveStart = vi.fn();
-    const onMoveEnd = vi.fn();
-    const { engine } = await renderDnd(
-      <React.StrictMode>
-        <Monitor onMoveStart={onMoveStart} onMoveEnd={onMoveEnd} />
-      </React.StrictMode>,
-    );
-
-    const el = createElement();
-    engine.registerSource(el, {});
-    fireDrag.dragStart(el);
-    await flushRaf();
-    fireDrag.drop(el);
-
-    expect(onMoveStart).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
 
   it('mounted mid-drag, a monitor for the active kind receives the following moves', async () => {

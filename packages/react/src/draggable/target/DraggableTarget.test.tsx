@@ -16,7 +16,6 @@ import {
   dragOver,
 } from '../../../test/dnd';
 import { touchDown, touchUp } from '../../../test/syntheticPointer';
-import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 
 setupDragEngineTests();
 
@@ -458,33 +457,6 @@ describe('Draggable.Target', () => {
     expect(target).toHaveAttribute('data-over', 'false');
     expect(target).not.toHaveAttribute('data-drag-over');
     cancel();
-  });
-
-  it('a drop target registered under the pointer mid-drag joins the active stack', async () => {
-    // The registration-time refresh is coalesced to a microtask, one re-resolve per
-    // commit, so the new target must be in the stack once it flushes.
-    const { engine } = await renderDnd();
-    const source = createElement();
-    engine.registerSource(source, {});
-    const outer = createElement();
-    const inner = document.createElement('div');
-    outer.appendChild(inner);
-    engine.registerTarget(outer, {});
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(inner);
-    await dragOver(inner);
-
-    // Only the outer target is registered so far.
-    expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(outer);
-
-    engine.registerTarget(inner, {});
-    await flushRaf();
-
-    expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(inner);
-
-    fireDrag.drop(inner);
   });
 
   it('a hovered target disabled mid-drag leaves the stack without pointer movement, and re-enters on re-enable', async () => {

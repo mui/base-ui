@@ -82,7 +82,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   function releaseSensor(cancelReason?: DragCanceledReason): void {
     if (!sensorReleased) {
       sensorReleased = true;
-      sensor?.release(cancelReason);
+      sensor.release(cancelReason);
     }
   }
 
@@ -220,9 +220,9 @@ export function start(parameters: StartParameters): DragSessionController | null
       return phase === 'ending' ? null : preview;
     },
     getLocation: snapshotLocation,
-    getRawInput: () => sensor?.getRawInput() ?? null,
+    getRawInput: () => sensor.getRawInput(),
     notifyScroll() {
-      sensor?.notifyScroll();
+      sensor.notifyScroll();
     },
     cancel() {
       if (armed) {
@@ -881,8 +881,8 @@ export interface StartParameters {
   onRelease?: ((dropped: boolean) => void) | undefined;
   /** See {@link DragSession.preview}. */
   preview?: DragPreview | null | undefined;
-  /** The sensor driving the drag. A drag driven without one, such as a test harness, omits it. */
-  sensor?: DragSessionSensor | undefined;
+  /** The sensor driving the drag. */
+  sensor: DragSessionSensor;
 }
 
 export interface DragSessionSensor {

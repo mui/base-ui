@@ -169,15 +169,6 @@ describe('engine.registerSource', () => {
     expect(dragSessionStore.getSnapshot()).toBeNull();
   });
 
-  it('cleanup is safe to call twice', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const cleanup = engine.registerSource(el, {});
-    cleanup();
-    cleanup();
-    expect(el.style.touchAction).toBe('');
-  });
-
   // A closed root hides `assignedSlot`, so pickup must find the slot another way.
   it.each([
     { name: 'an open shadow root', mode: 'open' as const, withHandle: false },

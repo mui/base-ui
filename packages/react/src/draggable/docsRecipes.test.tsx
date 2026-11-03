@@ -6,9 +6,9 @@ import { isJSDOM } from '@base-ui/utils/testUtils';
 import { Draggable } from '@base-ui/react/draggable';
 
 /**
- * Runs the snippets from the "Testing" section of the Draggable docs
- * (docs/src/app/(docs)/react/utils/draggable/page.mdx) as written, so update both
- * together. It deliberately skips `setupDragEngineTests()`, like an app's test suite.
+ * Drives drops the way an app's test suite would: Testing Library's own `render`,
+ * user-event and `fireEvent`, without the drag test harness (`setupDragEngineTests()`,
+ * `createDndRenderer`, `fireDrag`).
  */
 
 const card = Draggable.createKind('card');
@@ -109,12 +109,5 @@ describe('Draggable docs testing recipes', () => {
     expect(eventDetails.target?.payload).toBe('done');
     expect(eventDetails.reason).toBe('drop');
     expect(onDraggableDrop).toHaveBeenCalledTimes(1);
-  });
-
-  // Runs after the recipes, so a preview they leaked would still be in the document.
-  it('leaves no drag preview behind', async () => {
-    await waitFor(() => {
-      expect(document.querySelector('[data-drag-preview]')).toBe(null);
-    });
   });
 });

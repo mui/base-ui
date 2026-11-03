@@ -163,47 +163,6 @@ describe('Draggable.Viewport', () => {
     observe.mockRestore();
   });
 
-  it('shares an observer across nested scrollers and keeps observing after removal', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    engine.registerSource(source, {});
-    const outer = createElement();
-    const inner = createElement();
-    outer.appendChild(inner);
-    stubScrollMetrics(outer);
-    stubScrollMetrics(inner);
-    const releaseOuter = engine.registerViewport(outer, {});
-    engine.registerViewport(inner, {});
-    const observe = vi.spyOn(MutationObserver.prototype, 'observe');
-    registerCleanup(() => observe.mockRestore());
-
-    await liftOutside(source);
-    const outerIndex = observe.mock.calls.findIndex(([node]) => node === outer);
-    const innerIndex = observe.mock.calls.findIndex(([node]) => node === inner);
-    expect(outerIndex).toBeGreaterThanOrEqual(0);
-    expect(innerIndex).toBeGreaterThanOrEqual(0);
-    const observer = observe.mock.contexts[outerIndex] as MutationObserver;
-    expect(observe.mock.contexts[innerIndex]).toBe(observer);
-
-    // A restyle queued alongside a removal still reaches the survivor.
-    await dragTo(inner, 100, 50);
-    const computedStyle = vi.spyOn(window, 'getComputedStyle');
-    registerCleanup(() => computedStyle.mockRestore());
-    act(() => {
-      inner.style.direction = 'rtl';
-      releaseOuter();
-    });
-    await flushRaf(2);
-    expect(computedStyle).toHaveBeenCalledWith(inner);
-
-    // A later mutation still invalidates the survivor's cached styles.
-    computedStyle.mockClear();
-    inner.style.direction = 'ltr';
-    await flushRaf(2);
-    expect(computedStyle).toHaveBeenCalledWith(inner);
-    fireDrag.drop(source);
-  });
-
   it('does not wake a parked loop after an unchanged re-render', async () => {
     const scrollBy = vi.fn();
     const { engine, rerender } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
@@ -682,7 +641,7 @@ describe('Draggable.Viewport', () => {
     warnSpy.mockRestore();
   });
 
-  describe('accept', () => {
+  describe('prop: accept', () => {
     const otherKind = createKind<unknown>('base-ui-test/other');
 
     it('never engages for a drag of a kind the scroller does not accept', async () => {
@@ -726,20 +685,12 @@ describe('Draggable.Viewport', () => {
       expect(shouldScroll).toHaveBeenCalled();
       expect(scrollBy).toHaveBeenCalled();
     });
+  });
 
-    it('does not render accept as a DOM attribute', async () => {
-      await renderDnd(<Draggable.Viewport accept={testDragKind} data-testid="scroller" />);
-      expect(screen.getByTestId('scroller')).not.toHaveAttribute('accept');
-    });
-
-    it('does not render maxSpeed as a DOM attribute', async () => {
-      await renderDnd(<Draggable.Viewport maxSpeed={300} data-testid="scroller" />);
-      expect(screen.getByTestId('scroller')).not.toHaveAttribute('maxspeed');
-    });
-
+  describe('prop: maxSpeed', () => {
     it('forwards maxSpeed to the engine', async () => {
-      // The viewport builds the engine parameters by hand, so a dropped prop
-      // would still pass the test above. The callback form proves it arrived.
+      // The viewport builds the engine parameters by hand, so a prop kept off the
+      // DOM can still be dropped on the way. The callback form proves it arrived.
       const maxSpeed = vi.fn<MaxSpeedFn>(() => 300);
       const scrollBy = vi.fn();
       const { engine } = await renderDnd(<Scroller maxSpeed={maxSpeed} scrollByMock={scrollBy} />);
@@ -755,25 +706,26 @@ describe('Draggable.Viewport', () => {
     });
   });
 
-  describe('pan', () => {
-    it('does not render onDragScroll as a DOM attribute', async () => {
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-      try {
-        await renderDnd(
-          <Draggable.Viewport
-            onDragScroll={(eventDetails) => {
-              eventDetails.cancel();
-              eventDetails.consume();
-            }}
-            data-testid="viewport"
-          />,
-        );
-        expect(screen.getByTestId('viewport')).not.toHaveAttribute('ondragscroll');
-        // React logs an unknown-prop warning for anything that reaches the DOM.
-        expect(consoleError).not.toHaveBeenCalled();
-      } finally {
-        consoleError.mockRestore();
-      }
-    });
+  it('does not forward engine parameters to the DOM element', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      await renderDnd(
+        <Draggable.Viewport
+          data-testid="viewport"
+          accept={testDragKind}
+          maxSpeed={300}
+          disabled
+          onDragScroll={() => {}}
+        />,
+      );
+      const el = screen.getByTestId('viewport');
+      expect(el).not.toHaveAttribute('accept');
+      expect(el).not.toHaveAttribute('maxSpeed');
+      expect(el).not.toHaveAttribute('disabled');
+      // React keeps an unknown `on*` prop off the DOM, but logs a warning for it.
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });

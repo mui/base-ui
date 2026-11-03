@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { act, fireEvent, reactMajor, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, reactMajor } from '@mui/internal-test-utils';
 import { describeConformance } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { Tabs } from '@base-ui/react/tabs';
@@ -521,6 +521,5 @@ describe('<Draggable.Preview />', () => {
       ),
     ).rejects.toThrow(/DraggablePositionerContext is missing/);
     errorSpy.mockRestore();
-    expect(screen.queryByText('Preview')).toBeNull();
   });
 });

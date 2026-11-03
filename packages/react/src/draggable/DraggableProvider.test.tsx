@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createDndRenderer } from '../../test/dndEngine';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { createDndRenderer, testDragKind } from '../../test/dndEngine';
 import { Draggable } from './index';
 import { lift, dragEnter, drop, setupDragEngineTests } from '../../test/dnd';
 
@@ -35,30 +35,6 @@ describe('Draggable.Provider', () => {
     } finally {
       spy.mockRestore();
     }
-  });
-
-  it('lets a monitor observe drags from outside any provider', async () => {
-    const onMoveStart = vi.fn();
-    const onMoveEnd = vi.fn();
-    function ShellMonitor() {
-      Draggable.useMonitor({ onMoveStart, onMoveEnd });
-      return null;
-    }
-    render(
-      <React.Fragment>
-        <ShellMonitor />
-        <Draggable.Provider>
-          <Draggable.Root>
-            <Draggable.Trigger data-testid="source"></Draggable.Trigger>
-          </Draggable.Root>
-        </Draggable.Provider>
-      </React.Fragment>,
-    );
-    const source = screen.getByTestId('source');
-    await lift(source);
-    expect(onMoveStart).toHaveBeenCalledTimes(1);
-    drop(source);
-    expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
 
   it('matches an untyped source and target without declaring a kind', async () => {
@@ -148,24 +124,37 @@ describe('Draggable.Provider', () => {
     await drop(screen.getByTestId('target'));
     expect(onDrop).toHaveBeenCalledTimes(1);
   });
-  it('provides drag context to preview content', async () => {
-    function PreviewContent() {
+
+  it('keeps the provider context stable when its parent renders', async () => {
+    let rowCommits = 0;
+    const Row = React.memo(function Row() {
+      // Reads the provider context, so a new context value would render it again.
       Draggable.useManager();
-      return <span data-testid="custom-preview">Preview</span>;
+      rowCommits += 1;
+      return (
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-testid="drag" />
+        </Draggable.Root>
+      );
+    });
+
+    function Wiring() {
+      const [, force] = React.useState(0);
+      return (
+        <React.Fragment>
+          <button type="button" data-testid="force" onClick={() => force((c) => c + 1)} />
+          <Draggable.Provider>
+            <Row />
+          </Draggable.Provider>
+        </React.Fragment>
+      );
     }
-    await renderDnd(
-      <Draggable.Root>
-        <Draggable.Trigger data-testid="source" />
-        <Draggable.Portal>
-          <Draggable.Positioner>
-            <Draggable.Preview>
-              <PreviewContent />
-            </Draggable.Preview>
-          </Draggable.Positioner>
-        </Draggable.Portal>
-      </Draggable.Root>,
-    );
-    await lift(screen.getByTestId('source'));
-    expect(screen.getByTestId('custom-preview')).toBeInTheDocument();
+
+    await renderDnd(<Wiring />);
+    const countAfterMount = rowCommits;
+
+    fireEvent.click(screen.getByTestId('force'));
+
+    expect(rowCommits).toBe(countAfterMount);
   });
 });

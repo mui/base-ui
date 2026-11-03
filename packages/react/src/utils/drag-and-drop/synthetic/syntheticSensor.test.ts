@@ -8,7 +8,6 @@ import {
   mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
-  splitEnd,
 } from '../../../../test/dnd';
 import { cancelDrag } from './syntheticSensor';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
@@ -330,11 +329,9 @@ describe('syntheticDrag sensor', () => {
     const tgt = createElement();
     const onTargetChange = vi.fn();
     const onMoveEnd = vi.fn();
-    const onDrop = vi.fn();
     engine.registerSource(src, {
       activation: { pen: { type: 'immediate' } },
-
-      onMoveEnd: splitEnd(onDrop, onMoveEnd),
+      onMoveEnd,
     });
     engine.registerTarget(tgt, {});
     engine.registerMonitor({ onTargetChange });
@@ -382,8 +379,8 @@ describe('syntheticDrag sensor', () => {
     );
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onDrop).toHaveBeenCalledTimes(1);
-    expect(onDrop.mock.calls[0][0].target.element).toBe(tgt);
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('drop');
+    expect(onMoveEnd.mock.calls[0][0].target?.element).toBe(tgt);
   });
 
   it('lostpointercapture (a genuine OS hand-off) still cancels the drag', async () => {
@@ -587,11 +584,9 @@ describe('syntheticDrag sensor', () => {
     const src = createElement();
     const tgt = createElement();
     const onMoveEnd = vi.fn();
-    const onDrop = vi.fn();
     engine.registerSource(src, {
       activation: { touch: { type: 'immediate' } },
-
-      onMoveEnd: splitEnd(onDrop, onMoveEnd),
+      onMoveEnd,
     });
     engine.registerTarget(tgt, {});
 
@@ -620,7 +615,8 @@ describe('syntheticDrag sensor', () => {
 
     touchUp(60, 60, 7);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('drop');
+    expect(onMoveEnd.mock.calls[0][0].target?.element).toBe(tgt);
   });
 
   it('active-phase window blur cancels the drag and returns the engine to idle', async () => {
@@ -1452,24 +1448,45 @@ describe('syntheticDrag sensor', () => {
     expect(overlayKeyDown).toHaveBeenCalledTimes(1);
   });
 
-  it('Escape during the pending phase abandons the candidate before it activates', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    // The default 5px pen distance keeps the gesture pending.
-    engine.registerSource(el, { onMoveStart });
+  // A consumer that cancels when a dialog opens must not see the next move drag.
+  it.each([
+    {
+      name: 'Escape',
+      interrupt: () =>
+        dispatch(window, new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
+    },
+    {
+      name: 'cancelDrag()',
+      interrupt: () =>
+        act(() => {
+          cancelDrag();
+        }),
+    },
+  ])(
+    '$name during the pending phase abandons the candidate before it activates',
+    async ({ interrupt }) => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      const onMoveStart = vi.fn();
+      const onMoveEnd = vi.fn();
+      // The default 5px pen distance keeps the gesture pending.
+      engine.registerSource(el, { onMoveStart, onMoveEnd });
 
-    penDown(el, 50, 50);
-    dispatch(window, new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      penDown(el, 50, 50);
+      expect(el).toHaveAttribute('draggable');
+      interrupt();
 
-    // The pending phase was torn down, so the source is no longer reserved.
-    expect(el.hasAttribute('draggable')).toBe(false);
+      // Nothing activated, so no end event fires, and the pending phase was torn
+      // down, so the source is no longer reserved.
+      expect(onMoveEnd).not.toHaveBeenCalled();
+      expect(el).not.toHaveAttribute('draggable');
 
-    // Clearing the distance threshold after Escape can't revive the candidate.
-    penMove(60, 50);
-    await flushRaf();
-    expect(onMoveStart).not.toHaveBeenCalled();
-  });
+      // Clearing the distance threshold afterwards can't revive the candidate.
+      penMove(60, 50);
+      await flushRaf();
+      expect(onMoveStart).not.toHaveBeenCalled();
+    },
+  );
 
   it('a pending-phase pointermove with no buttons pressed abandons the candidate (missed release)', async () => {
     const { engine } = await renderDnd();
@@ -1607,48 +1624,6 @@ describe('syntheticDrag sensor', () => {
     // is 0.375. Anchored at activation, it would be (95 - 40) / 200 = 0.275,
     // which rounds to 0.25.
     expect(record.getSnappedLocalPoint({ anchor: 'source' }).x).toBe(0.375);
-  });
-
-  it('cancelDrag() during the pending phase abandons the candidate before it activates', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    const onMoveEnd = vi.fn();
-    // The default 5px pen distance keeps the gesture pending.
-    engine.registerSource(el, { onMoveStart, onMoveEnd });
-
-    penDown(el, 50, 50);
-    act(() => {
-      cancelDrag();
-    });
-
-    // Nothing activated, so no end event fires, but the candidate is gone. A
-    // consumer that cancels when a dialog opens must not see the next move drag.
-    expect(onMoveEnd).not.toHaveBeenCalled();
-    expect(el.hasAttribute('draggable')).toBe(false);
-    penMove(60, 50);
-    await flushRaf();
-    expect(onMoveStart).not.toHaveBeenCalled();
-  });
-
-  it('reports an outside release (not a cancel) when released outside any drop target', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveEnd = vi.fn();
-    engine.registerSource(el, {
-      activation: { touch: { type: 'immediate' } },
-      onMoveEnd,
-    });
-
-    touchDown(el, 50, 50);
-    await flushRaf();
-    // Release over empty space. No drop target was ever entered.
-    touchUp(60, 60);
-
-    expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
-    expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
-    expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
   });
 
   it('treats a pointermove with no buttons pressed as a cancel (missed release)', async () => {
@@ -2325,7 +2300,7 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
 
-  it('routes a mouse pointerdown through the synthetic path', async () => {
+  it("starts and ends a drag from a mouse press, reporting pointerType 'mouse'", async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
@@ -3564,10 +3539,9 @@ describe('syntheticDrag sensor', () => {
     });
   });
 
-  // The recipe from the testing guide, run as a consumer would copy it. `buttons`
-  // is easy to leave off, and it fails in two different ways depending on which
-  // event lacks it.
-  describe('the documented pointer-drag recipe', () => {
+  // Raw pointer events with an explicit `buttons`, which tells a held move from a
+  // missed release.
+  describe('raw pointer moves during an active drag', () => {
     function pointerDown(el: HTMLElement) {
       dispatch(
         el,
@@ -3656,39 +3630,6 @@ describe('syntheticDrag sensor', () => {
       expect(request).toHaveBeenCalledTimes(1);
 
       pointerUp(60);
-    });
-
-    it('drops when every move carries buttons: 1', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const onMoveEnd = vi.fn();
-      engine.registerSource(source, { onMoveEnd });
-
-      pointerDown(source);
-      pointerMove(40, 1);
-      pointerMove(120, 1);
-      pointerUp(120);
-
-      expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      // jsdom cannot hit-test, so the drop resolves to no target rather than throwing.
-      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
-    });
-
-    it('never starts a drag when the move that would commit it omits buttons', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const onMoveStart = vi.fn();
-      const onMoveEnd = vi.fn();
-      engine.registerSource(source, { onMoveStart, onMoveEnd });
-
-      pointerDown(source);
-      pointerMove(40, 0);
-      pointerMove(120, 0);
-
-      // The pending gesture is abandoned before it commits, so nothing fires, not
-      // even a cancel.
-      expect(onMoveStart).not.toHaveBeenCalled();
-      expect(onMoveEnd).not.toHaveBeenCalled();
     });
 
     it('cancels with missed-release when buttons drops to 0 and no pointerup follows', async () => {

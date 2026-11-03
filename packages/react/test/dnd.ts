@@ -19,7 +19,6 @@ import { finishAllEndingPreviewsForTests } from '../src/utils/drag-and-drop/synt
 import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/autoScroller';
 import { runAllCleanups } from '../src/utils/drag-and-drop/utils';
 import { resetTouchTarget } from './syntheticPointer';
-import type { DragDropEventDetails, MoveEndEventDetails } from '../src/utils/drag-and-drop/types';
 
 // ---------------------------------------------------------------------------
 // Fake elements
@@ -73,8 +72,8 @@ export function setupDragEngineTests(): void {
 //
 // `fireDrag` replays HTML5-style drag steps as mouse pointer gestures and points
 // `document.elementFromPoint` at the element each step names, so it can't catch hit-testing
-// bugs. Layout-dependent behavior needs a browser test (`describe.skipIf(isJSDOM)`) with raw
-// pointer events, like the synthetic sensor's "documented pointer-drag recipe" tests.
+// bugs. Layout-dependent behavior needs a browser test (`describe.skipIf(isJSDOM)`) that
+// dispatches raw pointer events.
 
 type DragEventInput = Pick<PointerEventInit, 'clientX' | 'clientY' | 'shiftKey'>;
 
@@ -308,27 +307,4 @@ function resetDrag(): void {
     // Otherwise one test's touch target redirects the next test's touch and pen events.
     resetTouchTarget,
   ]);
-}
-
-/**
- * Split `onMoveEnd` into a drop-only handler and the end handler, like the
- * engine's own drop dispatch. `onDrop` runs first, only for a committed drop,
- * with the target that received it. `onMoveEnd` always runs next, even when
- * `onDrop` throws.
- */
-export function splitEnd<TPayload = unknown>(
-  onDrop: (eventDetails: DragDropEventDetails<TPayload>) => void,
-  onMoveEnd?: (eventDetails: MoveEndEventDetails<TPayload>) => void,
-): (eventDetails: MoveEndEventDetails<TPayload>) => void {
-  return (eventDetails) => {
-    try {
-      const target = eventDetails.target;
-      if (eventDetails.reason === 'drop' && target !== null) {
-        // A drop goes to the innermost target, so it is both `target` and `currentTarget`.
-        onDrop({ ...eventDetails, target, currentTarget: target });
-      }
-    } finally {
-      onMoveEnd?.(eventDetails);
-    }
-  };
 }

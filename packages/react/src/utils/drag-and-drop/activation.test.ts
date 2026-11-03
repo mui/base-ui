@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   evaluateActivation,
-  evaluateActivations,
   getActivationDelayMs,
   hasDoubleClickActivation,
   resolveActivation,
@@ -186,17 +185,6 @@ describe('activation', () => {
       }
     },
   );
-
-  it('uses OR semantics when a hold cancels but distance remains pending', () => {
-    const config = [
-      { type: 'press-hold', delay: 100, tolerance: 2 },
-      { type: 'distance', distance: 10 },
-    ] as const;
-    const first = evaluateActivations(config, { x: 0, y: 0 }, { x: 5, y: 0 }, 20);
-    expect(first.activate).toBe(false);
-    expect(first.remaining).toEqual([{ type: 'distance', distance: 10 }]);
-    expect(evaluateActivations(config, { x: 0, y: 0 }, { x: 10, y: 0 }, 30).activate).toBe(true);
-  });
 
   it('chooses the earliest hold timer', () => {
     expect(

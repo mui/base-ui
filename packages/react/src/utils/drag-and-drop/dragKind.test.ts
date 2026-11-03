@@ -114,8 +114,10 @@ describe('matchesAccept', () => {
   });
 
   it('gives the catch-all an identity no consumer kind can collide with', () => {
-    // `createKind('any')` is a normal kind and must stay distinct from the sentinel.
-    expect(anyDragKind.id).not.toBe(createKind('any').id);
-    expect(matchesAccept(createKind('any'), sourceOfKind(card.id))).toBe(false);
+    // Global kinds share the `Symbol.for` registry, so the sentinel's key must stay
+    // outside the keys they derive.
+    const globalAny = createGlobalKind('any');
+    expect(anyDragKind.id).not.toBe(globalAny.id);
+    expect(matchesAccept(globalAny, sourceOfKind(card.id))).toBe(false);
   });
 });

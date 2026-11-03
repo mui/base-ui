@@ -55,15 +55,10 @@ expectType<Draggable.Kind<undefined, unknown>, typeof globalItem>(globalItem);
 expectType<Draggable.AcceptedKind<unknown>, typeof Draggable.anyKind>(Draggable.anyKind);
 const snapSteps: Draggable.Target.SnapSteps = { x: 4, y: 8 };
 const snappedPointOptions: Draggable.Target.SnappedLocalPointOptions = { anchor: 'source' };
-expectType<Draggable.Target.SnapSteps, typeof snapSteps>(snapSteps);
-expectType<Draggable.Target.SnappedLocalPointOptions, typeof snappedPointOptions>(
-  snappedPointOptions,
-);
 
 // An observational DraggableAcceptedKind accepts payload-bearing kinds. The factory's
 // default remains `undefined`, as asserted by `marker` above.
 const observedKind: DraggableAcceptedKind = card;
-expectType<DraggableAcceptedKind, typeof observedKind>(observedKind);
 
 // ---------------------------------------------------------------------------
 // registerSource

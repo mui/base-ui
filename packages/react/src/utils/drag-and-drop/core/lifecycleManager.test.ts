@@ -8,17 +8,12 @@ import {
   mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
-  splitEnd,
   fireDrag,
   dragEnter,
   dragOver,
 } from '../../../../test/dnd';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
-import type {
-  DragDropEventDetails,
-  DropTargetChangeEventDetails,
-  MoveEndEventDetails,
-} from '../types';
+import type { DropTargetChangeEventDetails, MoveEndEventDetails } from '../types';
 import { registerTarget } from '../dropTarget';
 import type { DropTargetParameters } from '../dropTarget';
 import { elementFromPointIgnoring } from '../composedTree';
@@ -29,7 +24,7 @@ import { createDragSource } from '../dragSource';
 import { dragSessionStore } from '../dragSessionStore';
 import { start } from './lifecycleManager';
 import { getActiveSession, resetForTests } from './dragSession';
-import type { DragSessionController, SourceHandlers } from './lifecycleManager';
+import type { DragSessionController, DragSessionSensor, SourceHandlers } from './lifecycleManager';
 import { anyDragKind as anyKind, createKind } from '../dragKind';
 
 setupDragEngineTests();
@@ -40,6 +35,13 @@ function hitTest(clientX: number, clientY: number): Element | null {
 }
 
 const TEST_KIND = createKind('lifecycle-test');
+
+// For the tests that drive `start()` directly, with no sensor behind the session.
+const NO_SENSOR: DragSessionSensor = {
+  getRawInput: () => null,
+  notifyScroll() {},
+  release() {},
+};
 
 /**
  * Registers a target through the engine's real seam, so an unregister runs the
@@ -74,6 +76,7 @@ describe('lifecycle manager', () => {
       startReason: 'pointer',
       grabOffset,
       hitTest,
+      sensor: NO_SENSOR,
     });
 
     expect(onMoveStart.mock.calls[0][0].location.grabOffset).toEqual({ x: 12, y: 8 });
@@ -123,6 +126,7 @@ describe('lifecycle manager', () => {
       startReason: 'pointer',
       grabOffset: { x: 0, y: 0 },
       hitTest,
+      sensor: NO_SENSOR,
     });
   }
 
@@ -444,6 +448,7 @@ describe('lifecycle manager', () => {
           startReason: 'pointer',
           grabOffset: { x: 0, y: 0 },
           hitTest,
+          sensor: NO_SENSOR,
         });
       });
 
@@ -499,6 +504,7 @@ describe('lifecycle manager', () => {
           startReason: 'pointer',
           grabOffset: { x: 0, y: 0 },
           hitTest,
+          sensor: NO_SENSOR,
         });
       });
 
@@ -806,12 +812,9 @@ describe('lifecycle manager', () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const onMoveEnd = vi.fn();
-      const onDrop = vi.fn();
 
       engine.registerSource(el, {});
-      engine.registerMonitor({
-        onMoveEnd: splitEnd(onDrop, onMoveEnd),
-      });
+      engine.registerMonitor({ onMoveEnd });
 
       fireDrag.dragStart(el);
       await flushRaf();
@@ -820,29 +823,27 @@ describe('lifecycle manager', () => {
       // the reason alone would be wrong. Only a non-null `target` marks a drop.
       fireDrag.drop(el);
 
-      expect(onDrop).not.toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd).toHaveBeenCalledWith(
         expect.objectContaining({ target: null, reason: 'outside-release', canceled: false }),
       );
     });
 
-    it('does not fire target onDrop when drag is cancelled', async () => {
+    it('fires no target onDraggableDrop and ends with an empty stack when the drag is canceled over a target', async () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const target = createElement();
       const targetOnDrop = vi.fn();
       const targetOnDropTargetChange = vi.fn();
       const targetOnDragLeave = vi.fn();
-      const monitorOnDrop = vi.fn();
+      const onMoveEnd = vi.fn();
 
-      engine.registerSource(el, {});
+      engine.registerSource(el, { onMoveEnd });
       engine.registerTarget(target, {
         onDraggableDrop: targetOnDrop,
         onDraggableEnter: targetOnDropTargetChange,
         onDraggableLeave: targetOnDragLeave,
       });
-      engine.registerMonitor({ onMoveEnd: monitorOnDrop });
 
       fireDrag.dragStart(el);
       await flushRaf();
@@ -854,13 +855,9 @@ describe('lifecycle manager', () => {
 
       expect(targetOnDrop).not.toHaveBeenCalled();
       expect(targetOnDropTargetChange).toHaveBeenCalledTimes(1);
-      // On the cancel path the terminal leave runs before the source's
-      // `onMoveEnd`, so this assertion passes either way. The monitor assertions
-      // below are the ones that matter.
       expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
-      expect(monitorOnDrop).toHaveBeenCalledTimes(1);
-      expect(monitorOnDrop.mock.calls[0][0].target).toBeNull();
-      expect(monitorOnDrop.mock.calls[0][0].location.current.targets).toEqual([]);
+      // The target was hovered, so only the cancel path clears the stack.
+      expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
     });
   });
 
@@ -889,33 +886,25 @@ describe('lifecycle manager', () => {
       expect(events).toContain('end');
     });
 
-    it("delivers the source's end before the target's drop, with a committed drop only, with a non-null target", async () => {
+    it("delivers the source's onMoveEnd, with the drop target, before the target's onDraggableDrop", async () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const target = createElement();
       const events: string[] = [];
       // Typed through the parameter list so `mock.calls[0]` keeps its argument.
-      const onDrop = vi.fn((_: DragDropEventDetails) => {
-        events.push('source-drop');
-      });
       const onMoveEnd = vi.fn((_: MoveEndEventDetails) => {
         events.push('source-end');
       });
 
-      engine.registerSource(el, {
-        onMoveEnd: splitEnd(onDrop, onMoveEnd),
-      });
+      engine.registerSource(el, { onMoveEnd });
       engine.registerTarget(target, { onDraggableDrop: () => events.push('target-drop') });
 
       fireDrag.dragStart(el);
       await flushRaf();
       fireDrag.drop(target);
 
-      // The commit runs before the cleanup, and the source end still runs before
-      // the target drop.
-      expect(events).toEqual(['source-drop', 'source-end', 'target-drop']);
-      expect(onDrop.mock.calls[0][0].target.element).toBe(target);
-      expect(onDrop.mock.calls[0][0].reason).toBe('drop');
+      expect(events).toEqual(['source-end', 'target-drop']);
+      expect(onMoveEnd.mock.calls[0][0].target?.element).toBe(target);
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('drop');
       expect(onMoveEnd.mock.calls[0][0].canceled).toBe(false);
     });
@@ -1258,37 +1247,24 @@ describe('lifecycle manager', () => {
       expect(getActiveSession()).toBe(null);
     });
 
-    it("a throwing source onDrop still lets the target's onDrop and the terminal leave run", () => {
+    it("a source onMoveEnd that throws on a drop still lets the target's onDraggableDrop, the monitors and the terminal leave run", () => {
       const target = createElement();
       const targetOnDrop = vi.fn();
       const targetOnDragLeave = vi.fn();
-      const monitorDrop = vi.fn();
       const monitorEnd = vi.fn();
       const getTargetParams = () => ({
         onDraggableDrop: targetOnDrop,
         onDraggableLeave: targetOnDragLeave,
       });
       addTarget(target, getTargetParams);
-      const getMonitor = () => ({
-        onMoveEnd: splitEnd(monitorDrop, monitorEnd),
-      });
+      const getMonitor = () => ({ onMoveEnd: monitorEnd });
       addMonitor(getMonitor);
       registerCleanup(() => removeMonitor(getMonitor));
 
-      const sourceOnDragEnd = vi.fn();
-      const handle = startDragWithHandlers({
-        onMoveEnd: (moveDetails) => {
-          try {
-            if (moveDetails.reason === 'drop' && moveDetails.target !== null) {
-              (() => {
-                throw new Error('boom from source onDrop');
-              })();
-            }
-          } finally {
-            sourceOnDragEnd(moveDetails);
-          }
-        },
+      const sourceOnMoveEnd = vi.fn(() => {
+        throw new Error('boom from source onMoveEnd');
       });
+      const handle = startDragWithHandlers({ onMoveEnd: sourceOnMoveEnd });
       expect(handle).not.toBeNull();
 
       // As elsewhere in the engine, a throwing source terminal handler loses only
@@ -1296,13 +1272,14 @@ describe('lifecycle manager', () => {
       // which `dispatchRecoveryEnd` can't replay once `endDispatched` is set. The
       // error still surfaces, but last.
       act(() => {
-        expect(() => handle!.drop(makeInput(), target)).toThrow('boom from source onDrop');
+        expect(() => handle!.drop(makeInput(), target)).toThrow('boom from source onMoveEnd');
       });
 
-      expect(sourceOnDragEnd).toHaveBeenCalledTimes(1);
+      expect(sourceOnMoveEnd).toHaveBeenCalledTimes(1);
       expect(targetOnDrop).toHaveBeenCalledTimes(1);
-      expect(monitorDrop).toHaveBeenCalledTimes(1);
       expect(monitorEnd).toHaveBeenCalledTimes(1);
+      expect(monitorEnd.mock.calls[0][0].reason).toBe('drop');
+      expect(monitorEnd.mock.calls[0][0].target?.element).toBe(target);
       expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
       expectEngineRecovered();
     });
@@ -1310,7 +1287,6 @@ describe('lifecycle manager', () => {
     it('a throwing target onDrop still lets monitors and terminal leaves run', () => {
       const target = createElement();
       const targetOnDragLeave = vi.fn();
-      const monitorDrop = vi.fn();
       const monitorEnd = vi.fn();
       const getTargetParams = () => ({
         onDraggableDrop: () => {
@@ -1319,9 +1295,7 @@ describe('lifecycle manager', () => {
         onDraggableLeave: targetOnDragLeave,
       });
       addTarget(target, getTargetParams);
-      const getMonitor = () => ({
-        onMoveEnd: splitEnd(monitorDrop, monitorEnd),
-      });
+      const getMonitor = () => ({ onMoveEnd: monitorEnd });
       addMonitor(getMonitor);
       registerCleanup(() => removeMonitor(getMonitor));
 
@@ -1333,8 +1307,9 @@ describe('lifecycle manager', () => {
       });
 
       expect(sourceOnDragEnd).toHaveBeenCalledTimes(1);
-      expect(monitorDrop).toHaveBeenCalledTimes(1);
       expect(monitorEnd).toHaveBeenCalledTimes(1);
+      expect(monitorEnd.mock.calls[0][0].reason).toBe('drop');
+      expect(monitorEnd.mock.calls[0][0].target?.element).toBe(target);
       expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
       expectEngineRecovered();
     });
