@@ -12,7 +12,6 @@ import type { DraggableInput, DraggablePosition } from '../DraggableProvider';
 import type { DraggableRootModifiers } from '../root/DraggableRoot';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
 import { DraggablePositionerContext } from './DraggablePositionerContext';
-import * as DraggablePositionerCssVars from './DraggablePositionerCssVars';
 
 /**
  * Moves the drag preview with the pointer. Renders only while its item is dragged,
@@ -32,23 +31,28 @@ export const DraggablePositioner = React.forwardRef(function DraggablePositioner
   const inPreview = React.useContext(DraggablePositionerContext) !== undefined;
   const active = (rootContext.dragging || rootContext.settling) && !inPreview;
 
-  const previewRef = React.useRef<HTMLElement | null>(null);
-  const contextValue: DraggablePositionerContext = useRefWithInit(() => ({ previewRef })).current;
-
   const elementRef = React.useRef<HTMLElement | null>(null);
+  const contentRef = React.useRef<HTMLElement | null>(null);
   const attachedRef = React.useRef<{
     preview: DragPreview | null;
     element: HTMLElement;
+    content: HTMLElement | null;
     detach: () => void;
   } | null>(null);
 
   // Attach the element to the current drag's preview, which the engine then moves. Runs
-  // from the ref and after every commit, since a new drag from the same item can start
+  // from the refs and after every commit, since a new drag from the same item can start
   // before the element unmounts. The `Draggable.Preview` inside attaches its ref first.
   const sync = useStableCallback((element: HTMLElement | null) => {
     const preview = element ? rootContext.getPreview() : null;
+    const content = contentRef.current;
     const attached = attachedRef.current;
     if (attached?.element === element && attached.preview === preview) {
+      // The `Draggable.Preview` mounted, unmounted, or rendered a new element.
+      if (element && preview && attached.content !== content) {
+        attached.content = content;
+        preview.setContent(element, content);
+      }
       return;
     }
     attached?.detach();
@@ -62,6 +66,7 @@ export const DraggablePositioner = React.forwardRef(function DraggablePositioner
       attachedRef.current = {
         preview,
         element,
+        content,
         detach: () => element.style.removeProperty('visibility'),
       };
       return;
@@ -69,18 +74,23 @@ export const DraggablePositioner = React.forwardRef(function DraggablePositioner
     attachedRef.current = {
       preview,
       element,
-      detach: preview.attach(element, previewRef.current, { offset, modifiers }),
+      content,
+      detach: preview.attach(element, content, { offset, modifiers }),
     };
   });
   const ref = useRefWithInit(() => (element: HTMLElement | null) => {
     elementRef.current = element;
     sync(element);
   }).current;
+  const contextValue: DraggablePositionerContext = useRefWithInit(() => ({
+    previewRef(content: HTMLElement | null) {
+      contentRef.current = content;
+      sync(elementRef.current);
+    },
+  })).current;
   useIsoLayoutEffect(() => {
     sync(elementRef.current);
   });
-
-  const sourceRect = active ? rootContext.getPreview()?.sourceRect : undefined;
 
   const element = useRenderElement('div', componentProps, {
     enabled: active,
@@ -97,11 +107,7 @@ export const DraggablePositioner = React.forwardRef(function DraggablePositioner
           margin: 0,
           // Hit-testing must see through the preview to the drop targets below.
           pointerEvents: 'none',
-          ...(sourceRect && {
-            [DraggablePositionerCssVars.dragSourceWidth]: `${sourceRect.width}px`,
-            [DraggablePositionerCssVars.dragSourceHeight]: `${sourceRect.height}px`,
-          }),
-        } as React.CSSProperties,
+        },
       },
       elementProps,
     ],

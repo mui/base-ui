@@ -51,8 +51,10 @@ function createHandle(
 ): DragPreview {
   const press = options.press ?? { x: 0, y: 0 };
   const input = { ...INPUT, clientX: press.x, clientY: press.y };
+  const sourceRect = source.getBoundingClientRect();
   const handle = createSyntheticPreview(source, options.identity ?? UNMATCHED_IDENTITY, {
-    sourceRect: source.getBoundingClientRect(),
+    sourceRect,
+    sourceSize: { width: sourceRect.width, height: sourceRect.height },
     input,
     pressInput: input,
   });
@@ -241,6 +243,43 @@ describe('syntheticPreview', () => {
     await Promise.resolve();
 
     expect(handle.getPreviewElement()?.parentElement).toBe(document.body);
+  });
+
+  it('re-homes the copy in the shadow root its removed portal was in', async () => {
+    const handle = createHandle(createElement());
+    const shadowRoot = createElement().attachShadow({ mode: 'open' });
+    const portal = document.createElement('div');
+    shadowRoot.appendChild(portal);
+    const positioner = document.createElement('div');
+    portal.appendChild(positioner);
+    const detach = handle.attach(positioner, null, POINTER);
+
+    detach();
+    portal.remove();
+    await Promise.resolve();
+
+    expect(handle.getPreviewElement()?.parentNode).toBe(shadowRoot);
+  });
+
+  it('re-homes the copy when an ancestor is removed after it was left in place', async () => {
+    const handle = createHandle(createElement());
+    const panel = createElement();
+    const parent = document.createElement('div');
+    panel.appendChild(parent);
+    const positioner = document.createElement('div');
+    parent.appendChild(positioner);
+    const detach = handle.attach(positioner, null, POINTER);
+    detach();
+    positioner.remove();
+    await Promise.resolve();
+    const copy = handle.getPreviewElement()!;
+    expect(copy.parentElement).toBe(parent);
+
+    // As when a later commit replaces the panel, with the pointer still.
+    panel.remove();
+    await Promise.resolve();
+
+    expect(copy.parentElement).toBe(document.body);
   });
 
   it('swaps the copy for a positioner that attaches again', () => {

@@ -794,7 +794,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .browserTab[data-drag-preview][data-ending-style] {
+  .browserTabPositioner[data-ending-style] {
     transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
   }
 }

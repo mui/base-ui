@@ -913,7 +913,8 @@ type ReturnValue = Draggable.Position;
 ### Preview
 
 The content that follows the pointer during a drag. Without children, it renders the
-trigger again: its element, props and children, without its `id`, `ref` and event handlers.
+trigger again: its element, props and children, without its `id`, event handlers, and
+the refs of its element and children.
 Render it inside `<Draggable.Positioner>`.
 Renders a `<div>` element, or the trigger's element when empty.
 
@@ -2144,7 +2145,8 @@ type DraggableManagerRegisterMonitorParameters<
 ### DraggableManagerRegisterSourceParameters
 
 The options of `registerSource`, which are those of `Draggable.Root` plus `handle`.
-A source registered this way shows no preview: render the Draggable parts for one.
+A source registered this way shows no preview. For one, use `Draggable.Root` and
+`Draggable.Trigger` instead, with the preview parts inside the root.
 `payload` is required when `TPayload` is declared.
 
 ```typescript

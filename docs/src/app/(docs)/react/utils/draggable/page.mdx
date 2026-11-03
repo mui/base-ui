@@ -649,7 +649,7 @@ Nothing follows the pointer by default. The trigger stays in place with `[data-d
 
 The positioner moves with the pointer, and the preview is what it shows. Both render only while their item is dragged, and until the preview settles after the drop. They are inert and hidden from assistive technology, and the positioner has `pointer-events: none`, so the drop targets under the preview still respond.
 
-Without children, `<Draggable.Preview>` renders the trigger again: the same element, props, and children. It leaves out the trigger's `id`, `ref`, and event handlers, takes the trigger's size through the `--drag-source-width` and `--drag-source-height` CSS variables, and its own props replace the trigger's. Because it renders the children a second time, component state inside them starts fresh, DOM state such as input values or scroll positions isn't copied, and a ref on an element inside them points at the copy while the preview is mounted. Draggable parts rendered again inside the preview, such as a handle or a drop target, don't register.
+Without children, `<Draggable.Preview>` renders the trigger again: the same element, props, and children. It leaves out the trigger's `id` and event handlers, and the refs of the trigger and of the elements inside it. It takes the trigger's size through the `--drag-source-width` and `--drag-source-height` CSS variables, and its own props replace the trigger's. Because it renders the children a second time, component state inside them starts fresh, and DOM state such as input values or scroll positions isn't copied. A ref passed through another prop, such as `inputRef`, still points at the copy while the preview is mounted. Draggable parts and Base UI list items rendered again inside the preview, such as a handle, a drop target or a tab, don't register.
 
 ### Custom preview
 
@@ -673,14 +673,18 @@ import { DemoBadgePreview } from './demos/badge';
 
 <DemoBadgePreview />
 
-The preview is part of the root's React tree, so it reads the context around the root, and state and prop changes show during the drag. To show [drag data](#storing-data-during-a-drag), read the drag with [`useActiveDrag`](#useactivedrag), which renders again when the data changes:
+The preview is part of the root's React tree, so it reads the context around the root, and state and prop changes show during the drag. To show [drag data](#storing-data-during-a-drag), read the drag with [`useActiveDrag`](#useactivedrag), which renders again when the data changes. It returns `null` once the drag ends, while the preview may still settle, so keep the last value:
 
 ```tsx title="Showing the drop time in the preview"
 const event = Draggable.createKind<string, { time: string }>('event');
 
 function DropTime() {
-  const source = Draggable.useActiveDrag(event);
-  return <span className="Chip">{source?.dragData?.time}</span>;
+  const latest = Draggable.useActiveDrag(event)?.dragData?.time;
+  const [time, setTime] = React.useState(latest);
+  if (latest !== undefined && latest !== time) {
+    setTime(latest);
+  }
+  return <span className="Chip">{time}</span>;
 }
 
 <Draggable.Root
@@ -1404,7 +1408,7 @@ The manager and its methods are stable, so you can list them as effect dependenc
 
 ### registerSource
 
-Registers a drag source. `kind` is required here. It accepts the options of [`<Draggable.Root>`](#root) except `collision`, `collisionElement`, and `snap`. It also takes `handle` to restrict pickup to an element. A registered source shows no preview: render the Draggable parts to show one.
+Registers a drag source. `kind` is required here. It accepts the options of [`<Draggable.Root>`](#root) except `collision`, `collisionElement`, and `snap`. It also takes `handle` to restrict pickup to an element. A registered source shows no preview. To show one, use `<Draggable.Root>` and `<Draggable.Trigger>` instead of `registerSource`, and render the preview parts inside the root.
 
 ```tsx title="Registering a source"
 manager.registerSource(element, () => ({

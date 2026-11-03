@@ -262,7 +262,10 @@ function DraggableTab(props: DraggableTabProps) {
         {/* Keep the clone in the list without clamping the pointer used to resolve insertion slots. */}
       </Tabs.Tab>
       <Draggable.Portal className={theme.tokens}>
-        <Draggable.Positioner modifiers={Draggable.restrictToElement(listRef)}>
+        <Draggable.Positioner
+          className={styles.TabPositioner}
+          modifiers={Draggable.restrictToElement(listRef)}
+        >
           <Draggable.Preview />
         </Draggable.Positioner>
       </Draggable.Portal>

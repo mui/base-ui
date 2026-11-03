@@ -3,7 +3,7 @@ import * as React from 'react';
 
 export interface DraggablePositionerContext {
   /** Registers the `Draggable.Preview` element, whose box the positioner places. Stable. */
-  previewRef: React.RefObject<HTMLElement | null>;
+  previewRef: React.RefCallback<HTMLElement>;
 }
 
 /**

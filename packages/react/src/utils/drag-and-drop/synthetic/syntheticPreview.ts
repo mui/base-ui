@@ -1,6 +1,7 @@
+import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { contains } from '@base-ui/utils/shadowDom';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { getFiniteAnimations } from '../../getFiniteAnimations';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
@@ -19,16 +20,11 @@ import { getSharedSlot } from '../sharedState';
 import { setSourceSettling } from '../settlingSources';
 import { getActiveSession } from '../core/dragSession';
 import { retargetDragSource } from '../dragSource';
+import * as DraggablePositionerCssVars from '../../../draggable/positioner/DraggablePositionerCssVars';
 import * as DraggablePositionerDataAttributes from '../../../draggable/positioner/DraggablePositionerDataAttributes';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableTriggerDataAttributes from '../../../draggable/trigger/DraggableTriggerDataAttributes';
-import {
-  containConsumerError,
-  getComposedParentElement,
-  getElementScale,
-  getElementZoom,
-  NO_MODIFIER_KEYS,
-} from '../utils';
+import { containConsumerError, getElementScale, getElementZoom, NO_MODIFIER_KEYS } from '../utils';
 
 /** What `getElementScale` reports for an element with no ancestor transform. */
 const DEFAULT_SCALE: DraggablePosition = { x: 1, y: 1 };
@@ -213,26 +209,41 @@ interface PositionedPreview {
   readonly content: HTMLElement;
   /** Whether the engine created the element and removes it. React owns the rest. */
   readonly owned: boolean;
+  /** Where the content's top-left corner was last moved to, in viewport coordinates. */
+  readonly position: DraggablePosition | null;
   /** Move the content's top-left corner to these viewport coordinates. */
   setPosition(x: number, y: number): void;
-  /** Re-measure the content's offset inside the element, which may have changed. */
+  /** Position `next` instead, keeping its top-left corner where the content's was. */
+  setContent(next: HTMLElement): void;
+  /** Re-measure the content's offset and the element's zoom, which may have changed. */
   measure(): void;
   /** Re-home an engine-owned copy whose parent was removed. */
   ensureConnected(): void;
+  /**
+   * Copy the element, which leaves the document right after, with its DOM state.
+   * `restoreState` applies the scroll offsets after each insertion of `copy`.
+   */
+  freeze(): { copy: HTMLElement; restoreState: () => void };
   destroy(): void;
 }
 
 function createPositionedPreview(
   element: HTMLElement,
-  content: HTMLElement,
+  initialContent: HTMLElement,
+  sourceSize: DragPreviewSize,
   owned: boolean,
+  // Restores the DOM state of an owned copy, which inserting it resets.
+  restoreState?: () => void,
 ): PositionedPreview {
-  // Where an owned copy goes when its parent is removed, nearest first.
-  const hosts: Element[] = [];
+  let content = initialContent;
+  // Where an owned copy goes when its parent is removed, nearest first. Shadow roots are
+  // kept, since a copy moved to their host's light DOM isn't rendered without a `<slot>`.
+  const hosts: ParentNode[] = [];
+  const doc = ownerDocument(element);
   for (
-    let node: Element | null = element.parentElement;
-    node;
-    node = getComposedParentElement(node)
+    let node = element.parentNode;
+    node && node !== doc;
+    node = isShadowRoot(node) ? node.host : node.parentNode
   ) {
     hosts.push(node);
   }
@@ -241,6 +252,66 @@ function createPositionedPreview(
   // The content's top-left corner relative to the element's, in viewport pixels.
   let contentOffset = ZERO_OFFSET;
   let position: DraggablePosition | null = null;
+  // The last scroll offsets inside the element, for `freeze`. A portal's node leaves the
+  // document before React detaches the element, which resets them.
+  const scrollOffsets = new Map<Element, DraggablePosition>();
+  function onScroll(event: Event) {
+    const target = getTarget(event) as HTMLElement;
+    scrollOffsets.set(target, { x: target.scrollLeft, y: target.scrollTop });
+  }
+  // Content around the preview, such as a header above it growing, moves it inside the
+  // element, which then resizes. A copy doesn't change.
+  const win = ownerWindow(element);
+  const resizeObserver =
+    !owned && typeof win.ResizeObserver === 'function' ? new win.ResizeObserver(measure) : null;
+  // A later commit can remove an ancestor of an owned copy while the pointer is still,
+  // which mutates no node the copy's own parent sees, so the whole chain is watched.
+  const mutationObserver =
+    owned && typeof win.MutationObserver === 'function'
+      ? new win.MutationObserver(ensureConnected)
+      : null;
+  for (const node of hosts) {
+    mutationObserver?.observe(node, { childList: true });
+  }
+  if (!owned) {
+    element.addEventListener('scroll', onScroll, true);
+    resizeObserver?.observe(element);
+    if (content !== element) {
+      resizeObserver?.observe(content);
+    }
+  }
+
+  function measure() {
+    zoom = getElementZoom(element);
+    // In the element's CSS pixels, so a preview sized with them matches the source.
+    element.style.setProperty(
+      DraggablePositionerCssVars.dragSourceWidth,
+      `${sourceSize.width / zoom}px`,
+    );
+    element.style.setProperty(
+      DraggablePositionerCssVars.dragSourceHeight,
+      `${sourceSize.height / zoom}px`,
+    );
+    if (content === element) {
+      contentOffset = ZERO_OFFSET;
+    } else {
+      const outer = element.getBoundingClientRect();
+      const inner = content.getBoundingClientRect();
+      contentOffset = { x: inner.left - outer.left, y: inner.top - outer.top };
+    }
+    writePosition();
+  }
+
+  function ensureConnected() {
+    if (owned && !element.isConnected) {
+      (hosts.find((node) => node.isConnected) ?? doc.body ?? doc.documentElement).appendChild(
+        element,
+      );
+      restoreState?.();
+      // The new parent may differ in `zoom` and in the styles the content inherits.
+      measure();
+    }
+  }
 
   function writePosition() {
     if (position) {
@@ -252,45 +323,114 @@ function createPositionedPreview(
 
   const handle: PositionedPreview = {
     element,
-    content,
+    get content() {
+      return content;
+    },
     owned,
+    get position() {
+      return position;
+    },
     setPosition(x, y) {
       position = { x, y };
       writePosition();
     },
-    measure() {
-      zoom = getElementZoom(element);
-      if (content === element) {
-        contentOffset = ZERO_OFFSET;
-      } else {
-        const outer = element.getBoundingClientRect();
-        const inner = content.getBoundingClientRect();
-        contentOffset = { x: inner.left - outer.left, y: inner.top - outer.top };
+    setContent(next) {
+      if (content !== element) {
+        resizeObserver?.unobserve(content);
       }
-      writePosition();
+      content = next;
+      if (content !== element) {
+        resizeObserver?.observe(content);
+      }
+      measure();
     },
-    ensureConnected() {
-      if (owned && !element.isConnected) {
-        const doc = ownerDocument(element);
-        (hosts.find((node) => node.isConnected) ?? doc.body ?? doc.documentElement).appendChild(
-          element,
-        );
-      }
+    measure,
+    ensureConnected,
+    freeze() {
+      const copy = element.cloneNode(true) as HTMLElement;
+      return { copy, restoreState: copyLiveState(element, copy, scrollOffsets) };
     },
     destroy() {
+      element.removeEventListener('scroll', onScroll, true);
+      resizeObserver?.disconnect();
+      // Before the removal below, which it would undo.
+      mutationObserver?.disconnect();
       if (owned) {
         element.remove();
       }
     },
   };
-  handle.measure();
+  measure();
   return handle;
+}
+
+/**
+ * Copy the DOM state `cloneNode` leaves out: canvas pixels, select selections and
+ * `indeterminate` at once, ungroup `<details>` so they stay open, and scroll offsets, which need layout, through the returned
+ * function after each insertion. A node out of the document reads no scroll offsets, so
+ * it uses the last ones in `scrollOffsets`.
+ */
+function copyLiveState(
+  source: HTMLElement,
+  copy: HTMLElement,
+  scrollOffsets: ReadonlyMap<Element, DraggablePosition>,
+): () => void {
+  const win = ownerWindow(source);
+  const copies = [copy, ...Array.from(copy.querySelectorAll('*'))];
+  const scrolls: Array<[node: HTMLElement, offset: DraggablePosition]> = [];
+  [source, ...Array.from(source.querySelectorAll('*'))].forEach((node, index) => {
+    const target = copies[index];
+    if (node instanceof win.HTMLCanvasElement && target instanceof win.HTMLCanvasElement) {
+      try {
+        target.getContext('2d')?.drawImage(node, 0, 0);
+      } catch {
+        // A tainted or transferred canvas can't be read. The copy stays blank.
+      }
+    } else if (node instanceof win.HTMLSelectElement && target instanceof win.HTMLSelectElement) {
+      // A controlled `value` sets the options' selectedness, not their `selected` attribute.
+      Array.from(node.options).forEach((option, optionIndex) => {
+        const copyOption = target.options[optionIndex];
+        if (copyOption) {
+          copyOption.selected = option.selected;
+        }
+      });
+    } else if (node instanceof win.HTMLInputElement && target instanceof win.HTMLInputElement) {
+      target.indeterminate = node.indeterminate;
+    } else if (target instanceof win.HTMLDetailsElement) {
+      // The copy goes in while the original is still in the page, and an open `<details>`
+      // that joins a group with another open one closes.
+      target.removeAttribute('name');
+    }
+    const offset = (!node.isConnected && scrollOffsets.get(node)) || {
+      x: node.scrollLeft,
+      y: node.scrollTop,
+    };
+    if (target instanceof win.HTMLElement && (offset.x !== 0 || offset.y !== 0)) {
+      scrolls.push([target, offset]);
+    }
+  });
+  return () => {
+    for (const [node, offset] of scrolls) {
+      // `scroll-behavior: smooth` would animate a `scrollTop` write.
+      node.style.setProperty('scroll-behavior', 'auto');
+      node.scrollLeft = offset.x;
+      node.scrollTop = offset.y;
+      node.style.removeProperty('scroll-behavior');
+    }
+  };
+}
+
+export interface DragPreviewSize {
+  width: number;
+  height: number;
 }
 
 /** The pickup state a preview resolves its offset from. */
 export interface DragPreviewPickup {
   /** The source's bounding rect at pickup. */
   sourceRect: DOMRect;
+  /** The source's size at pickup, without its own transform (see `measureSourceSize`). */
+  sourceSize: DragPreviewSize;
   /** The input the drag started with. */
   input: DraggableInput;
   /**
@@ -556,6 +696,13 @@ export function createSyntheticPreview(
         element.style.setProperty('visibility', 'hidden');
         return () => {};
       }
+      // Measured first: it sets the size variables the offset function may depend on.
+      const attached = createPositionedPreview(
+        element,
+        content ?? element,
+        pickup.sourceSize,
+        false,
+      );
       if (!offsetResolved) {
         offsetResolved = true;
         modifiers = compileDragModifiers(settings.modifiers);
@@ -575,7 +722,6 @@ export function createSyntheticPreview(
             null,
           ) ?? resolveOffset('source', { ...parameters, input: pickup.pressInput });
       }
-      const attached = createPositionedPreview(element, content ?? element, false);
       adopt(attached);
       return () => {
         if (current !== attached || finished) {
@@ -584,19 +730,31 @@ export function createSyntheticPreview(
         // The root unmounted mid-drag, as when a virtualizer scrolls the source away or a
         // drop moves it to another list. Keep a copy in place until a remounted root
         // attaches again or the preview settles. React removes the original right after.
+        attached.destroy();
         const parent = element.parentNode;
         if (!parent) {
           current = null;
           return;
         }
-        const copy = element.cloneNode(true) as HTMLElement;
+        const { copy, restoreState } = attached.freeze();
         parent.insertBefore(copy, element.nextSibling);
+        restoreState();
         const copyContent =
           attached.content === element
             ? copy
             : (copy.querySelector<HTMLElement>(`[${DraggablePreviewDataAttributes.dragPreview}]`) ??
               copy);
-        const frozen = createPositionedPreview(copy, copyContent, true);
+        const frozen = createPositionedPreview(
+          copy,
+          copyContent,
+          pickup.sourceSize,
+          true,
+          restoreState,
+        );
+        if (attached.position) {
+          // Rehoming repositions it from there, before the pointer moves again.
+          frozen.setPosition(attached.position.x, attached.position.y);
+        }
         current = frozen;
         // The copy's parent may be removed with the original, such as a portal's node.
         queueMicrotask(() => {
@@ -605,6 +763,18 @@ export function createSyntheticPreview(
           }
         });
       };
+    },
+    setContent(element, content) {
+      if (current?.element !== element || current.owned) {
+        return;
+      }
+      current.setContent(content ?? element);
+      previewScale = null;
+      setAttributes(current);
+      if (!endingStarted) {
+        // Preview modifiers contain the new content's box.
+        positionPreviewElement();
+      }
     },
     retargetSource,
     getSourceElement() {
@@ -667,6 +837,11 @@ export interface DragPreview {
     content: HTMLElement | null,
     settings: PreviewAttachSettings,
   ): () => void;
+  /**
+   * Position `content` inside an attached `element` from now on, as when the
+   * `Draggable.Preview` renders a new element. Keeps the offset and modifiers.
+   */
+  setContent(element: HTMLElement, content: HTMLElement | null): void;
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
   retargetSource(element: HTMLElement): void;
   /** The current source element. */

@@ -4,21 +4,27 @@
  * releases what it acquires (see `sensor.release`).
  */
 
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import * as dragRootLock from './dragRootLock';
 import {
   createDragPreview,
   finishEndingPreview,
   getPreviewSourceIdentity,
 } from './syntheticPreview';
-import type { DragPreview } from './syntheticPreview';
+import type { DragPreview, DragPreviewSize } from './syntheticPreview';
 import { start } from '../core/lifecycleManager';
 import type { DragSessionController, DragSessionSensor } from '../core/lifecycleManager';
 import { getRegistrationOwner } from '../draggableRegistry';
 import { readSourceParameters } from '../dragSource';
 import { getClosedShadowRootsByHost } from '../dropTarget';
 import type { DraggableConfig } from '../draggable';
-import { elementFromPointIgnoring } from '../utils';
+import {
+  elementFromPointIgnoring,
+  getComposedParentElement,
+  getElementScale,
+  getOwnZoom,
+} from '../utils';
+import { getOwnLinearTransform } from '../linearTransform';
 import type { DragStartReason } from '../types';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
@@ -31,6 +37,58 @@ import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot'
 export function measurePickupSource(element: HTMLElement): DOMRect {
   finishEndingPreview(element);
   return element.getBoundingClientRect();
+}
+
+/**
+ * The source's border-box size in viewport pixels, without its own transform and `zoom`.
+ * A preview that renders the trigger again keeps its `scale`, `rotate`, `transform` and
+ * `zoom`, which `rect` already includes, so sizing it from `rect` would apply them twice.
+ */
+export function measureSourceSize(element: HTMLElement, rect: DOMRect): DragPreviewSize {
+  const style = ownerWindow(element).getComputedStyle(element);
+  const { a, b, c, d } = getOwnLinearTransform(style);
+  if (a === 1 && b === 0 && c === 0 && d === 1) {
+    // Only translated, if at all. The rect keeps the subpixels `offsetWidth` rounds off.
+    const zoom = getOwnZoom(element, style);
+    return { width: rect.width / zoom, height: rect.height / zoom };
+  }
+  const parent = getComposedParentElement(element) as HTMLElement | null;
+  const parentScale = parent ? getElementScale(parent) : { x: 1, y: 1 };
+  const box = getUntransformedBorderBox(element, style);
+  return { width: box.width * parentScale.x, height: box.height * parentScale.y };
+}
+
+/**
+ * The untransformed border-box size in the element's own CSS pixels. The computed size
+ * keeps the subpixels `offsetWidth`/`offsetHeight` round off, but is trusted only within
+ * 1px of them: it is `auto` on an inline box, and Chromium leaves a classic scrollbar
+ * out of the computed content width.
+ */
+function getUntransformedBorderBox(element: HTMLElement, style: CSSStyleDeclaration) {
+  const px = (value: string) => Number.parseFloat(value) || 0;
+  const isBorderBox = style.boxSizing === 'border-box';
+  const measure = (size: string, rounded: number, edges: string[]) => {
+    const value = Number.parseFloat(size);
+    if (!Number.isFinite(value)) {
+      return rounded;
+    }
+    const exact = isBorderBox ? value : edges.reduce((sum, edge) => sum + px(edge), value);
+    return Math.abs(exact - rounded) < 1 ? exact : rounded;
+  };
+  return {
+    width: measure(style.width, element.offsetWidth, [
+      style.paddingLeft,
+      style.paddingRight,
+      style.borderLeftWidth,
+      style.borderRightWidth,
+    ]),
+    height: measure(style.height, element.offsetHeight, [
+      style.paddingTop,
+      style.paddingBottom,
+      style.borderTopWidth,
+      style.borderBottomWidth,
+    ]),
+  };
 }
 
 export interface CreatePreviewSessionParameters {
@@ -133,7 +191,12 @@ export function createPreviewAndStartSession(
     preview = createDragPreview(
       element,
       getPreviewSourceIdentity(draggableParameters, getRegistrationOwner(element)),
-      { sourceRect, input: initialInput, pressInput },
+      {
+        sourceRect,
+        sourceSize: measureSourceSize(element, sourceRect),
+        input: initialInput,
+        pressInput,
+      },
     );
     dragRootLock.lock(element);
     locked = true;

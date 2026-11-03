@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, reactMajor, screen } from '@mui/internal-test-utils';
 import { describeConformance } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { Tabs } from '@base-ui/react/tabs';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
-import { fireDrag, lift, setupDragEngineTests } from '../../../test/dnd';
+import { cancel, fireDrag, flushRaf, lift, setupDragEngineTests } from '../../../test/dnd';
 
 setupDragEngineTests();
 
@@ -80,6 +81,55 @@ describe('<Draggable.Preview />', () => {
       expect(onClick).not.toHaveBeenCalled();
     });
 
+    it("leaves out the id and event handlers of the trigger's render element", async () => {
+      const onAnimationEnd = vi.fn();
+      await renderDnd(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger
+            data-trigger=""
+            render={<li id="report" title="Report" onAnimationEnd={onAnimationEnd} />}
+          />
+          <Draggable.Positioner render={<ul />}>
+            <Draggable.Preview />
+          </Draggable.Positioner>
+        </Draggable.Root>,
+      );
+      await lift(getTrigger());
+
+      const preview = getPreview()!;
+      expect(preview).toHaveAttribute('title', 'Report');
+      expect(preview).not.toHaveAttribute('id');
+      fireEvent.animationEnd(preview);
+      expect(onAnimationEnd).not.toHaveBeenCalled();
+    });
+
+    it("leaves out the id and event handlers the trigger's render function adds", async () => {
+      const onAnimationEnd = vi.fn();
+      const onPreviewTransitionEnd = vi.fn();
+      await renderDnd(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger
+            data-trigger=""
+            render={(props) => (
+              <li {...props} id="report" title="Report" onAnimationEnd={onAnimationEnd} />
+            )}
+          />
+          <Draggable.Positioner render={<ul />}>
+            <Draggable.Preview onTransitionEnd={onPreviewTransitionEnd} />
+          </Draggable.Positioner>
+        </Draggable.Root>,
+      );
+      await lift(getTrigger());
+
+      const preview = getPreview()!;
+      expect(preview).toHaveAttribute('title', 'Report');
+      expect(preview).not.toHaveAttribute('id');
+      fireEvent.animationEnd(preview);
+      expect(onAnimationEnd).not.toHaveBeenCalled();
+      fireEvent.transitionEnd(preview);
+      expect(onPreviewTransitionEnd).toHaveBeenCalledTimes(1);
+    });
+
     it("leaves the ref of the trigger's render element on the trigger", async () => {
       const ref = React.createRef<HTMLLIElement>();
       await renderDnd(
@@ -97,6 +147,100 @@ describe('<Draggable.Preview />', () => {
       expect(getPreview()!.tagName).toBe('LI');
       expect(ref.current).toBe(trigger);
     });
+
+    it("leaves the refs of the trigger's children on the trigger", async () => {
+      const ref = React.createRef<HTMLInputElement>();
+      await renderDnd(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="">
+            <label>
+              Name <input ref={ref} />
+            </label>
+          </Draggable.Trigger>
+          <Draggable.Positioner>
+            <Draggable.Preview />
+          </Draggable.Positioner>
+        </Draggable.Root>,
+      );
+      const input = getTrigger().querySelector('input');
+      expect(ref.current).toBe(input);
+      await lift(getTrigger());
+      expect(getPreview()!.querySelector('input')).not.toBe(null);
+      expect(ref.current).toBe(input);
+
+      cancel();
+      await flushRaf();
+      expect(getPreview()).toBe(null);
+      expect(ref.current).toBe(input);
+    });
+
+    it.each([
+      {
+        name: 'element',
+        getRender: (ref: React.Ref<HTMLInputElement>): Draggable.Trigger.Props['render'] => (
+          <div>
+            <input ref={ref} />
+          </div>
+        ),
+      },
+      {
+        name: 'function',
+        getRender:
+          (ref: React.Ref<HTMLInputElement>): Draggable.Trigger.Props['render'] =>
+          (props) => (
+            <div {...props}>
+              <input ref={ref} />
+            </div>
+          ),
+      },
+    ])(
+      "leaves the refs inside the trigger's render $name on the trigger",
+      async ({ getRender }) => {
+        const ref = React.createRef<HTMLInputElement>();
+        await renderDnd(
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-trigger="" render={getRender(ref)} />
+            <Draggable.Positioner>
+              <Draggable.Preview />
+            </Draggable.Positioner>
+          </Draggable.Root>,
+        );
+        const input = getTrigger().querySelector('input');
+        expect(ref.current).toBe(input);
+        await lift(getTrigger());
+        expect(getPreview()!.querySelector('input')).not.toBe(null);
+        expect(ref.current).toBe(input);
+
+        cancel();
+        await flushRaf();
+        expect(getPreview()).toBe(null);
+        expect(ref.current).toBe(input);
+      },
+    );
+
+    it.skipIf(reactMajor < 19)(
+      'renders a trigger render element the server sends as a lazy wrapper',
+      async () => {
+        // The shape the Flight client hands a Client Component for a server-created element.
+        const render = {
+          $$typeof: Symbol.for('react.lazy'),
+          _payload: <li title="Report" />,
+          _init: (payload: unknown) => payload,
+        } as unknown as React.ReactElement;
+        await renderDnd(
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-trigger="" render={render} />
+            <Draggable.Positioner render={<ul />}>
+              <Draggable.Preview />
+            </Draggable.Positioner>
+          </Draggable.Root>,
+        );
+        await lift(getTrigger());
+
+        expect(getPreview()!.tagName).toBe('LI');
+        expect(getPreview()).toHaveAttribute('title', 'Report');
+      },
+    );
 
     it('resolves function props with the state the trigger had before the pickup', async () => {
       await renderDnd(
@@ -185,6 +329,31 @@ describe('<Draggable.Preview />', () => {
       // A second registered handle would warn.
       expect(getPreview()!.querySelector('[data-handle]')).not.toBeNull();
       expect(warn).not.toHaveBeenCalled();
+    });
+
+    it("does not register a copied list item with the trigger's list", async () => {
+      await renderDnd(
+        <Tabs.Root defaultValue="a">
+          <Tabs.List>
+            <Draggable.Root kind={testDragKind}>
+              <Draggable.Trigger data-trigger="" render={<Tabs.Tab value="a" />}>
+                A
+              </Draggable.Trigger>
+              <Draggable.Portal>
+                <Draggable.Positioner>
+                  <Draggable.Preview />
+                </Draggable.Positioner>
+              </Draggable.Portal>
+            </Draggable.Root>
+            <Tabs.Tab value="b">B</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+      // A selected copy in the same list fights the trigger for the highlight.
+      await lift(getTrigger());
+
+      expect(getPreview()).toHaveAttribute('role', 'tab');
+      expect(getTrigger()).toHaveAttribute('tabindex', '0');
     });
   });
 

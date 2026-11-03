@@ -210,7 +210,10 @@ function ReorderableItem(props: ReorderableItemProps) {
       {/* Constrain only the preview. The pointer must remain free so a release
         outside the popup lands on no target and restores the order. */}
       <Draggable.Portal className={theme.tokens}>
-        <Draggable.Positioner modifiers={Draggable.restrictToElement(popupRef)}>
+        <Draggable.Positioner
+          className={styles.itemPositioner}
+          modifiers={Draggable.restrictToElement(popupRef)}
+        >
           <Draggable.Preview />
         </Draggable.Positioner>
       </Draggable.Portal>

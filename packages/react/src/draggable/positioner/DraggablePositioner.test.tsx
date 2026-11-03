@@ -175,6 +175,133 @@ describe('<Draggable.Positioner />', () => {
     expect(getPositioner()).toBeNull();
   });
 
+  it('positions the copy for the zoom of the parent it moves to', async () => {
+    function Fixture(props: { mounted: boolean }) {
+      return props.mounted ? (
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" />
+          <Draggable.Portal style={{ zoom: 2 }}>
+            <Draggable.Positioner>
+              <Draggable.Preview>Preview</Draggable.Preview>
+            </Draggable.Positioner>
+          </Draggable.Portal>
+        </Draggable.Root>
+      ) : null;
+    }
+    const { setProps } = await renderDnd(<Fixture mounted />);
+    await lift(getTrigger(), { clientX: 30, clientY: 35 });
+    await dragOver(document.body, { clientX: 130, clientY: 85 });
+    // `translate` and the size variables are in the zoomed portal's pixels.
+    expect(getPositioner()!.style.translate).toBe('60px 40px');
+    expect(getPositioner()!.style.getPropertyValue('--drag-source-width')).toBe('100px');
+
+    // The portal leaves with the root, so the copy moves to `<body>`, which has no zoom.
+    // The pointer doesn't move.
+    await setProps({ mounted: false });
+    await flushRaf();
+    const copy = getPositioner()!;
+    expect(copy.parentElement).toBe(document.body);
+    expect(copy.style.translate).toBe('120px 80px');
+    expect(copy.style.getPropertyValue('--drag-source-width')).toBe('200px');
+  });
+
+  it('keeps the scroll offsets of the preview in its copy', async () => {
+    function Fixture(props: { mounted: boolean }) {
+      return props.mounted ? (
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" />
+          <Draggable.Portal>
+            <Draggable.Positioner>
+              <Draggable.Preview>
+                <div data-scroller="" style={{ width: 50, height: 20, overflow: 'auto' }}>
+                  <div style={{ width: 200, height: 200 }} />
+                </div>
+              </Draggable.Preview>
+            </Draggable.Positioner>
+          </Draggable.Portal>
+        </Draggable.Root>
+      ) : null;
+    }
+    const { setProps } = await renderDnd(<Fixture mounted />);
+    await lift(getTrigger());
+    const scroller = document.querySelector<HTMLElement>('[data-scroller]')!;
+    scroller.scrollTop = 80;
+    scroller.scrollLeft = 25;
+    expect([scroller.scrollTop, scroller.scrollLeft]).toEqual([80, 25]);
+    // The scroll event fires on the next frame.
+    await flushRaf();
+
+    // The portal leaves with the root, so the copy is inserted twice.
+    await setProps({ mounted: false });
+    await flushRaf();
+    const copy = getPositioner()!.querySelector<HTMLElement>('[data-scroller]')!;
+    expect(copy).not.toBe(scroller);
+    expect([copy.scrollTop, copy.scrollLeft]).toEqual([80, 25]);
+  });
+
+  it('keeps the select selection and indeterminate checkboxes of the preview in its copy', async () => {
+    function Fixture(props: { mounted: boolean }) {
+      return props.mounted ? (
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" />
+          <Draggable.Positioner>
+            <Draggable.Preview>
+              <select value="b" onChange={() => {}}>
+                <option value="a">A</option>
+                <option value="b">B</option>
+              </select>
+              <input
+                type="checkbox"
+                ref={(input) => {
+                  if (input) {
+                    input.indeterminate = true;
+                  }
+                }}
+              />
+            </Draggable.Preview>
+          </Draggable.Positioner>
+        </Draggable.Root>
+      ) : null;
+    }
+    const { setProps } = await renderDnd(<Fixture mounted />);
+    await lift(getTrigger());
+    expect(getPositioner()!.querySelector('select')!.value).toBe('b');
+
+    await setProps({ mounted: false });
+    await flushRaf();
+    const copy = getPositioner()!;
+    expect(copy.querySelector('select')!.value).toBe('b');
+    expect(copy.querySelector('input')!.indeterminate).toBe(true);
+  });
+
+  it('positions a new element the preview renders mid-drag', async () => {
+    const PREVIEW_RECT = new DOMRect(0, 0, 120, 30);
+    function mockRect(element: HTMLElement | null) {
+      if (element) {
+        element.getBoundingClientRect = () => PREVIEW_RECT;
+      }
+    }
+    function Fixture(props: { swapped: boolean }) {
+      return (
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" />
+          <Draggable.Positioner>
+            <Draggable.Preview render={props.swapped ? <div ref={mockRect} /> : <span />}>
+              Preview
+            </Draggable.Preview>
+          </Draggable.Positioner>
+        </Draggable.Root>
+      );
+    }
+    const { setProps } = await renderDnd(<Fixture swapped={false} />);
+    await lift(getTrigger());
+    const preview = getActiveSession()!.preview!;
+    expect(preview.getPreviewRect()).not.toBe(PREVIEW_RECT);
+
+    await setProps({ swapped: true });
+    expect(preview.getPreviewRect()).toBe(PREVIEW_RECT);
+  });
+
   it('takes over from the copy when the root remounts mid-drag', async () => {
     function Fixture(props: { mounted: boolean }) {
       return props.mounted ? (

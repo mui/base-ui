@@ -69,6 +69,35 @@ describe.skipIf(isJSDOM)('<Draggable.Positioner /> in a browser', () => {
     expect(moved.top).toBeCloseTo(200, 0);
   });
 
+  it('keeps the preview under the pointer when content above it grows', async () => {
+    await renderDnd(
+      <Draggable.Root kind={testDragKind}>
+        <Draggable.Trigger data-trigger="" style={triggerStyle} />
+        <Draggable.Portal>
+          <Draggable.Positioner render={<table />}>
+            <thead>
+              <tr data-header="" style={{ height: 40 }}>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              <Draggable.Preview render={<tr />}>
+                <td>Report</td>
+              </Draggable.Preview>
+            </tbody>
+          </Draggable.Positioner>
+        </Draggable.Portal>
+      </Draggable.Root>,
+    );
+    await lift(getTrigger(), { clientX: 110, clientY: 110 });
+    expect(getPreview()!.getBoundingClientRect().top).toBeCloseTo(100, 0);
+
+    document.querySelector<HTMLElement>('[data-header]')!.style.height = '80px';
+    // The resize is observed on the next frame.
+    await flushRaf(2);
+    expect(getPreview()!.getBoundingClientRect().top).toBeCloseTo(100, 0);
+  });
+
   it('keeps the preview mounted until its drop transition onto the trigger ends', async () => {
     const style = document.createElement('style');
     style.textContent = '.positioner[data-ending-style] { transition: translate 100s linear; }';
@@ -116,5 +145,109 @@ describe.skipIf(isJSDOM)('<Draggable.Positioner /> in a browser', () => {
     } finally {
       style.remove();
     }
+  });
+
+  it('keeps the preview mounted until an ending animation on the preview alone ends', async () => {
+    const style = document.createElement('style');
+    style.textContent =
+      '.preview[data-ending-style] { opacity: 0; transition: opacity 100s linear; }';
+    document.head.appendChild(style);
+    try {
+      await renderDnd(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" style={triggerStyle} />
+          <Draggable.Portal>
+            <Draggable.Positioner className="positioner">
+              <Draggable.Preview className="preview">Report</Draggable.Preview>
+            </Draggable.Positioner>
+          </Draggable.Portal>
+        </Draggable.Root>,
+      );
+      await lift(getTrigger(), { clientX: 110, clientY: 110 });
+      await dragOver(document.body, { clientX: 400, clientY: 400 });
+      drop(document.body, { clientX: 400, clientY: 400 });
+      await flushRaf();
+
+      const preview = getPreview()!;
+      expect(preview).toHaveAttribute('data-ending-style');
+      expect(document.querySelector<HTMLElement>('.positioner')!.getAnimations()).toHaveLength(0);
+      const animations = preview.getAnimations();
+      expect(animations.length).toBeGreaterThan(0);
+
+      await act(async () => {
+        for (const animation of animations) {
+          animation.finish();
+        }
+        await Promise.allSettled(animations.map((animation) => animation.finished));
+      });
+      expect(getPreview()).toBeNull();
+    } finally {
+      style.remove();
+    }
+  });
+
+  it('keeps the canvas pixels of the preview in its copy', async () => {
+    function draw(canvas: HTMLCanvasElement | null) {
+      const context = canvas?.getContext('2d');
+      if (context) {
+        context.fillStyle = 'rgb(255, 0, 0)';
+        context.fillRect(0, 0, 10, 10);
+      }
+    }
+    function Fixture(props: { mounted: boolean }) {
+      return props.mounted ? (
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" style={triggerStyle} />
+          <Draggable.Portal>
+            <Draggable.Positioner>
+              <Draggable.Preview>
+                <canvas width={10} height={10} ref={draw} />
+              </Draggable.Preview>
+            </Draggable.Positioner>
+          </Draggable.Portal>
+        </Draggable.Root>
+      ) : null;
+    }
+    const { setProps } = await renderDnd(<Fixture mounted />);
+    await lift(getTrigger(), { clientX: 110, clientY: 110 });
+    const canvas = getPreview()!.querySelector('canvas')!;
+
+    await setProps({ mounted: false });
+    await flushRaf();
+    const copy = getPreview()!.querySelector('canvas')!;
+    expect(copy).not.toBe(canvas);
+    expect(Array.from(copy.getContext('2d')!.getImageData(5, 5, 1, 1).data)).toEqual([
+      255, 0, 0, 255,
+    ]);
+  });
+
+  it('keeps a grouped disclosure of the preview open in its copy', async () => {
+    function Fixture(props: { mounted: boolean }) {
+      return props.mounted ? (
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" style={triggerStyle} />
+          <Draggable.Portal>
+            <Draggable.Positioner>
+              <Draggable.Preview>
+                <details name="faq" open>
+                  <summary>Question</summary>
+                  Answer
+                </details>
+              </Draggable.Preview>
+            </Draggable.Positioner>
+          </Draggable.Portal>
+        </Draggable.Root>
+      ) : null;
+    }
+    const { setProps } = await renderDnd(<Fixture mounted />);
+    await lift(getTrigger(), { clientX: 110, clientY: 110 });
+    const details = getPreview()!.querySelector('details')!;
+    expect(details.open).toBe(true);
+
+    await setProps({ mounted: false });
+    await flushRaf();
+    const copy = getPreview()!.querySelector('details')!;
+    expect(copy).not.toBe(details);
+    expect(copy.open).toBe(true);
   });
 });

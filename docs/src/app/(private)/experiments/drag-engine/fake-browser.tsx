@@ -993,7 +993,7 @@ function BrowserTabs({
                 </span>
               </Tabs.Tab>
               <Draggable.Portal className={styles.dragPreviewPortal}>
-                <Draggable.Positioner>
+                <Draggable.Positioner className={styles.browserTabPositioner}>
                   <Draggable.Preview />
                 </Draggable.Positioner>
               </Draggable.Portal>

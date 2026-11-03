@@ -339,7 +339,7 @@ function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
         {card.title}
       </Draggable.Trigger>
       <Draggable.Portal>
-        <Draggable.Positioner>
+        <Draggable.Positioner className={styles.CardPositioner}>
           <Draggable.Preview />
         </Draggable.Positioner>
       </Draggable.Portal>

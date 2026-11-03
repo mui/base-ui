@@ -90,7 +90,8 @@ export interface UseDraggableManagerReturnValue extends DraggableManager {}
 
 /**
  * The options of `registerSource`, which are those of `Draggable.Root` plus `handle`.
- * A source registered this way shows no preview: render the Draggable parts for one.
+ * A source registered this way shows no preview. For one, use `Draggable.Root` and
+ * `Draggable.Trigger` instead, with the preview parts inside the root.
  * `payload` is required when `TPayload` is declared.
  */
 export type DraggableManagerRegisterSourceParameters<

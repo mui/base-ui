@@ -425,7 +425,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .Tab[data-drag-preview][data-ending-style] {
+  .TabPositioner[data-ending-style] {
     transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
   }
 }
