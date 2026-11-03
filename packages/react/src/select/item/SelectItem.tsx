@@ -190,9 +190,13 @@ export const SelectItemPlain = React.forwardRef(function SelectItem(
         (clickPointerType !== undefined || highlighted);
       // With alignItemWithTrigger, opening can place an item under the cursor. Real mouse
       // clicks must start on the item, while virtual clicks represent explicit keyboard or
-      // assistive technology activation.
+      // assistive technology activation. A filterable popup never covers the trigger, and a
+      // screen reader cursor (Safari VoiceOver) presses options without highlighting them.
       const isInvalidMouseClick =
-        isMouseClick && !isVirtualMouseClick && !allowMouseSelectionRef.current;
+        !store.context.filterable &&
+        isMouseClick &&
+        !isVirtualMouseClick &&
+        !allowMouseSelectionRef.current;
 
       allowMouseSelectionRef.current = false;
 

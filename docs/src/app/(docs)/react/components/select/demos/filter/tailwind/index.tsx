@@ -51,7 +51,7 @@ export default function ExampleSelectFilter() {
               </Select.Icon>
             </Select.Trigger>
             <Select.Portal>
-              <Select.Positioner className="z-10 outline-hidden select-none" sideOffset={4}>
+              <Select.Positioner className="z-10 outline-hidden" sideOffset={4}>
                 <FilterablePopup
                   items={countries}
                   inputLabel="Filter countries"
@@ -75,7 +75,7 @@ export default function ExampleSelectFilter() {
               </Select.Icon>
             </Select.Trigger>
             <Select.Portal>
-              <Select.Positioner className="z-10 outline-hidden select-none" sideOffset={4}>
+              <Select.Positioner className="z-10 outline-hidden" sideOffset={4}>
                 <FilterablePopup
                   items={languages}
                   inputLabel="Filter languages"

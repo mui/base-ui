@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { Select } from '@base-ui/react/select';
 
-function Test() {
+function Test(props: { onValueChange?: Select.Root.Props<string>['onValueChange'] }) {
   return (
     <Select.FilterProvider>
-      <Select.Root>
+      <Select.Root onValueChange={props.onValueChange}>
         <Select.Trigger data-testid="trigger">
           <Select.Value placeholder="Country" />
         </Select.Trigger>
@@ -60,7 +60,7 @@ describe.skipIf(isJSDOM)('<Select.FilterProvider /> with a screen reader press',
 
     fireScreenReaderPress(screen.getByTestId('trigger'));
 
-    const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+    const input = await screen.findByRole('combobox', { name: 'Filter countries' });
     await waitFor(() => {
       expect(input).toHaveFocus();
     });
@@ -90,10 +90,31 @@ describe.skipIf(isJSDOM)('<Select.FilterProvider /> with a screen reader press',
     fireEvent.mouseUp(trigger, { detail: 1 });
     fireEvent.click(trigger, { detail: 1 });
 
-    const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+    const input = await screen.findByRole('combobox', { name: 'Filter countries' });
     await waitFor(() => {
       expect(input).toHaveFocus();
     });
     expect(input).not.toHaveAttribute('aria-activedescendant');
+  });
+
+  it('selects an unhighlighted option pressed from the screen reader cursor', async () => {
+    const onValueChange = vi.fn();
+    const { user } = await render(<Test onValueChange={onValueChange} />);
+    await user.click(screen.getByTestId('trigger'));
+    const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+    const option = screen.getByRole('option', { name: 'France' });
+    expect(option).not.toHaveAttribute('data-highlighted');
+
+    // Safari VoiceOver presses the option under its cursor with a bare click, without moving
+    // the highlight or sending pointer events first.
+    fireEvent.click(option, { detail: 0 });
+
+    expect(onValueChange).toHaveBeenCalledExactlyOnceWith('fr', expect.anything());
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
   });
 });

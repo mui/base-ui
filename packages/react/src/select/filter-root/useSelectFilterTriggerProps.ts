@@ -14,10 +14,11 @@ import { useSelectFilterKeyDown } from './useSelectFilterKeyDown';
 /**
  * The props a filterable select adds to its trigger: screen reader press tracking, and a relay of
  * list navigation and typing on the trigger to the input, which holds real focus while the popup
- * is open. Typing on the closed trigger opens the popup with the typed character as the query. The popup is a dialog holding the input and the list, so the trigger stays a plain
- * button: no element carries the combobox role, and the listbox carries `aria-readonly` and
- * `aria-required`. A button exposes no value apart from its name, so the name joins the label and
- * the trigger's own text, which shows the selected value.
+ * is open. Typing on the closed trigger opens the popup with the typed character as the query.
+ * The popup is a dialog holding the input and the list, so the trigger stays a plain button and
+ * the listbox carries `aria-readonly` and `aria-required`. A button exposes no value apart from
+ * its name, so the name joins the label and the trigger's own text, which shows the selected
+ * value.
  */
 export function useSelectFilterTriggerProps(
   id: string | undefined,
