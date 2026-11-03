@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { warn } from '@base-ui/utils/warn';
-import { Store } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { DraggableCollisionContext } from '../collision-provider/DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
@@ -22,7 +21,6 @@ import type {
 import type { RegisterSourceParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useDraggableElement } from './useDraggableElement';
 import { DraggableRootContext } from './DraggableRootContext';
-import type { DraggableTriggerProps } from '../trigger/DraggableTrigger';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 /**
@@ -109,7 +107,9 @@ export const DraggableRoot = function DraggableRoot<TPayload = undefined, TDragD
       : undefined,
   );
 
-  const triggerProps = useRefWithInit(() => new Store<DraggableTriggerProps | null>(null)).current;
+  const triggerProps = useRefWithInit<DraggableRootContext['triggerProps']>(() => ({
+    current: null,
+  })).current;
 
   const contextValue: DraggableRootContext = React.useMemo(
     () => ({

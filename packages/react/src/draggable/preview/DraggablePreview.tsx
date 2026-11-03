@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { unwrapLazyRenderProp, useRenderElement } from '../../internals/useRenderElement';
@@ -30,14 +29,10 @@ const NO_LIST: CompositeListContextValue<unknown> = {
   nextIndexRef: { current: 0 },
 };
 
-function selectTriggerProps(props: DraggableTriggerProps | null) {
-  return props;
-}
-
 /**
  * The content that follows the pointer during a drag. Without children, it renders the
- * trigger again: its element, props and children, without its `id`, event handlers, and
- * the refs of its element and children.
+ * trigger again: its element, props and children as they were when the drag started,
+ * without its `id`, event handlers, and the refs of its element and children.
  * Render it inside `<Draggable.Positioner>`.
  * Renders a `<div>` element, or the trigger's element when empty.
  *
@@ -50,10 +45,19 @@ export const DraggablePreview = React.forwardRef(function DraggablePreview(
   const { className, render, style, children, ...elementProps } = componentProps;
   const rootContext = useDraggableRootContext();
   const positionerContext = useDraggablePositionerContext();
-  const triggerProps = useStore(rootContext.triggerProps, selectTriggerProps);
-
   // An explicit `null` is custom content that renders nothing.
   const isClone = children === undefined;
+  // The trigger's props when its drag started, read once per drag. Subscribing to them
+  // would render the preview again in a second commit each time the trigger renders.
+  const drag = rootContext.getPreview();
+  const [snapshot, setSnapshot] = React.useState(() => ({
+    drag,
+    props: rootContext.triggerProps.current,
+  }));
+  if (isClone && drag !== null && snapshot.drag !== drag) {
+    setSnapshot({ drag, props: rootContext.triggerProps.current });
+  }
+  const triggerProps = isClone ? snapshot.props : null;
   let props = componentProps;
   let ownProps: React.HTMLAttributes<HTMLElement> = { ...elementProps, children };
   if (isClone && triggerProps) {

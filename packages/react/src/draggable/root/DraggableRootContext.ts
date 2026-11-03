@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import type { Store } from '@base-ui/utils/store';
 import type { DragPreview } from '../../utils/drag-and-drop/synthetic/syntheticPreview';
 import type { DraggableTriggerProps } from '../trigger/DraggableTrigger';
 
@@ -9,8 +8,12 @@ export interface DraggableRootContext {
   registerHandle: (node: HTMLElement) => () => void;
   /** The preview of the trigger's drag, active or settling, or `null`. Stable. */
   getPreview: () => DragPreview | null;
-  /** The trigger's latest props, which an empty `Draggable.Preview` renders again. Stable. */
-  triggerProps: Store<DraggableTriggerProps | null>;
+  /**
+   * The trigger's committed props, which an empty `Draggable.Preview` renders again. Not a
+   * store: the preview reads them once per drag, so a trigger that renders again doesn't
+   * render it again in a second commit. Stable.
+   */
+  triggerProps: { current: DraggableTriggerProps | null };
   /** Registers the element `Draggable.Trigger` renders as the drag source. Stable. */
   triggerRef: (node: HTMLElement | null) => void;
   /** Whether the source is being dragged. */

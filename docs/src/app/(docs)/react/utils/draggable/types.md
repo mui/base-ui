@@ -913,8 +913,8 @@ type ReturnValue = Draggable.Position;
 ### Preview
 
 The content that follows the pointer during a drag. Without children, it renders the
-trigger again: its element, props and children, without its `id`, event handlers, and
-the refs of its element and children.
+trigger again: its element, props and children as they were when the drag started,
+without its `id`, event handlers, and the refs of its element and children.
 Render it inside `<Draggable.Positioner>`.
 Renders a `<div>` element, or the trigger's element when empty.
 

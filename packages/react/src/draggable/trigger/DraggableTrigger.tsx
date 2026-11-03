@@ -29,9 +29,10 @@ export const DraggableTrigger = React.forwardRef(function DraggableTrigger(
   const { className, render, style, ...elementProps } = componentProps;
   const context = useDraggableRootContext();
 
-  // For an empty `Draggable.Preview`, which renders these props again.
+  // For an empty `Draggable.Preview`, which renders these props again. Written without
+  // notifying anyone: the preview reads them when a drag starts.
   useIsoLayoutEffect(() => {
-    context.triggerProps.setState(componentProps);
+    context.triggerProps.current = componentProps;
   });
 
   const state: DraggableTrigger.State = {

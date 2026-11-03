@@ -5,6 +5,7 @@ import { describeConformance } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import { cancel, fireDrag, lift, setupDragEngineTests } from '../../../test/dnd';
+import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 
 setupDragEngineTests();
 
@@ -72,6 +73,58 @@ describe('<Draggable.Portal />', () => {
     }
     await renderDnd(<Fixture />);
     await lift(getTrigger());
+    expect(screen.getByTestId('container')).toContainElement(screen.getByText('Preview'));
+  });
+
+  it('renders the preview in the commit that starts the drag', async () => {
+    let commits = 0;
+    await renderDnd(
+      <React.Profiler
+        id="drag"
+        onRender={() => {
+          commits += 1;
+        }}
+      >
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" />
+          <Draggable.Portal>
+            <Draggable.Positioner>
+              <Draggable.Preview>Preview</Draggable.Preview>
+            </Draggable.Positioner>
+          </Draggable.Portal>
+        </Draggable.Root>
+      </React.Profiler>,
+    );
+    commits = 0;
+    await lift(getTrigger());
+
+    expect(screen.getByText('Preview')).toBeInTheDocument();
+    expect(commits).toBe(1);
+  });
+
+  it('renders into a container ref that is set in the commit that starts the drag', async () => {
+    const containerRef = React.createRef<HTMLDivElement>();
+    function Container() {
+      const source = Draggable.useActiveDrag();
+      return source ? <div data-testid="container" ref={containerRef} /> : null;
+    }
+    await renderDnd(
+      <React.Fragment>
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Trigger data-trigger="" />
+          <Draggable.Portal container={containerRef}>
+            <Draggable.Positioner>
+              <Draggable.Preview>Preview</Draggable.Preview>
+            </Draggable.Positioner>
+          </Draggable.Portal>
+        </Draggable.Root>
+        {/* Rendered after the portal, so its ref is set after the portal renders. */}
+        <Container />
+      </React.Fragment>,
+    );
+    await lift(getTrigger());
+
+    expect(getActiveSession()).not.toBeNull();
     expect(screen.getByTestId('container')).toContainElement(screen.getByText('Preview'));
   });
 });

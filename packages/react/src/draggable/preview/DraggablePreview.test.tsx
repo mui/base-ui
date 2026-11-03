@@ -35,6 +35,58 @@ describe('<Draggable.Preview />', () => {
   }));
 
   describe('without children', () => {
+    it('renders the trigger as it was when the drag started', async () => {
+      function Fixture(props: { label: string }) {
+        return (
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Trigger data-trigger="" title={props.label}>
+              {props.label}
+            </Draggable.Trigger>
+            <Draggable.Positioner>
+              <Draggable.Preview />
+            </Draggable.Positioner>
+          </Draggable.Root>
+        );
+      }
+      const { setProps } = await renderDnd(<Fixture label="Report" />);
+      await lift(getTrigger());
+      expect(getPreview()).toHaveTextContent('Report');
+
+      await setProps({ label: 'Renamed' });
+      expect(getTrigger()).toHaveTextContent('Renamed');
+      expect(getPreview()).toHaveTextContent('Report');
+      expect(getPreview()).toHaveAttribute('title', 'Report');
+    });
+
+    it('renders in the same commit as the trigger when its root renders again', async () => {
+      let commits = 0;
+      function Fixture(props: { over: boolean }) {
+        return (
+          <React.Profiler
+            id="drag"
+            onRender={() => {
+              commits += 1;
+            }}
+          >
+            <Draggable.Root kind={testDragKind}>
+              <Draggable.Trigger data-trigger="" data-over={props.over ? '' : undefined} />
+              <Draggable.Positioner>
+                <Draggable.Preview />
+              </Draggable.Positioner>
+            </Draggable.Root>
+          </React.Profiler>
+        );
+      }
+      const { setProps } = await renderDnd(<Fixture over={false} />);
+      await lift(getTrigger());
+      expect(getPreview()).not.toBeNull();
+
+      commits = 0;
+      await setProps({ over: true });
+      expect(getTrigger()).toHaveAttribute('data-over');
+      expect(commits).toBe(1);
+    });
+
     it("renders the trigger's element, props and children again", async () => {
       await renderDnd(
         <Draggable.Root kind={testDragKind}>
