@@ -882,7 +882,7 @@ describe('<PreviewCard.Root />', () => {
   });
 
   describe('close requests', () => {
-    it('does not report a trigger for an Escape close', async () => {
+    it('reports the active trigger for an Escape close', async () => {
       const onOpenChange = vi.fn();
       const { user } = await render(
         <PreviewCard.Root defaultOpen onOpenChange={onOpenChange}>
@@ -900,7 +900,7 @@ describe('<PreviewCard.Root />', () => {
 
       expect(onOpenChange).toHaveBeenCalledTimes(1);
       expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
-      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(screen.getByText('Trigger'));
     });
   });
 });

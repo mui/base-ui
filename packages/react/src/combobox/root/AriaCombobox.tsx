@@ -6,7 +6,7 @@ import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
@@ -70,6 +70,7 @@ import {
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { findCollectionItem } from '../items/itemCollection';
 import type { ComboboxItemCollection, ItemCollection } from '../items/itemCollection';
 
@@ -1670,7 +1671,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         readOnly={readOnly}
         value={serializedValue}
         ref={hiddenInputRef}
-        style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
+        style={hiddenInputName ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         tabIndex={-1}
         aria-hidden
         suppressHydrationWarning

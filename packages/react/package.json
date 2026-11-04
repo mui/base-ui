@@ -87,6 +87,7 @@
     "./internals/labelable-provider": "./src/internals/labelable-provider/index.ts",
     "./internals/noop": "./src/internals/noop.ts",
     "./internals/reasons": "./src/internals/reasons.ts",
+    "./internals/resolveRenderedId": "./src/internals/resolveRenderedId.ts",
     "./internals/resolveValueLabel": "./src/internals/resolveValueLabel.tsx",
     "./internals/RequestQueue": "./src/internals/RequestQueue.ts",
     "./internals/serializeValue": "./src/internals/serializeValue.ts",

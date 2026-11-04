@@ -4,7 +4,7 @@ import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { Field } from '@base-ui/react/field';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, hiddenInputSizeTests } from '#test-utils';
 
 describe('<Radio.Root />', () => {
   const { render } = createRenderer();
@@ -15,6 +15,15 @@ describe('<Radio.Root />', () => {
     button: true,
     render,
   }));
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <RadioGroup {...props}>
+        <Radio.Root value="a" />
+      </RadioGroup>
+    ),
+  });
 
   it('sets checked and unchecked data attributes', async () => {
     await render(

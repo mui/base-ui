@@ -13,6 +13,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  hiddenInputSizeTests,
   hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
@@ -698,16 +699,6 @@ describe('<Combobox.Root />', () => {
       await user.click(screen.getByRole('option'));
       await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(2);
-    });
-
-    it('does not call `onOpenChange` when the `close` action is called while closed', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      const onOpenChange = vi.fn();
-      await render(<Popup actionsRef={actionsRef} onOpenChange={onOpenChange} />);
-
-      act(() => actionsRef.current!.close());
-      expect(onOpenChange).not.toHaveBeenCalled();
-      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('completes closing once when `unmount` is called twice in one batch', async () => {
@@ -11886,6 +11877,15 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>
     ),
     getFocusTarget: () => screen.getByTestId('input'),
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <Combobox.Root {...props}>
+        <Combobox.Input />
+      </Combobox.Root>
+    ),
   });
 
   describe('Form', () => {

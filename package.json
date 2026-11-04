@@ -73,11 +73,11 @@
     "@guidepup/playwright": "0.19.1",
     "@guidepup/setup": "0.29.2",
     "@microsoft/api-extractor": "7.59.4",
-    "@mui/internal-code-infra": "0.1.1-canary.16",
+    "@mui/internal-code-infra": "0.1.1-canary.23",
     "@mui/internal-netlify-cache": "0.1.1-canary.2",
-    "@mui/internal-test-utils": "2.1.1-canary.3",
+    "@mui/internal-test-utils": "2.1.1-canary.5",
     "@netlify/types": "3.2.0",
-    "@next/eslint-plugin-next": "16.4.2",
+    "@next/eslint-plugin-next": "16.4.3",
     "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "7.0.1",
@@ -117,9 +117,9 @@
   "config": {
     "valeVersion": "3.25.1"
   },
-  "packageManager": "pnpm@12.15.0",
+  "packageManager": "pnpm@12.16.0",
   "engines": {
-    "pnpm": "12.15.0",
+    "pnpm": "12.16.0",
     "node": ">=22.23.4"
   }
 }

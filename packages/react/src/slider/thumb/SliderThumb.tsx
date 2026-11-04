@@ -502,7 +502,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);
 
   const element = useRenderElement('div', componentProps, {
-    state,
+    state: { ...state, disabled },
     ref: [forwardedRef, listItemRef, thumbRef],
     props: [
       {
