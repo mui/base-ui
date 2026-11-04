@@ -51,14 +51,6 @@ export function useUnfilteredTriggerProps(): HTMLProps {
 export interface SelectFilterNavigationContext {
   /** Re-reads the highlighted option once the list's items settle. */
   syncActiveItem: () => void;
-  /** The number of filtered items when the list is virtualized, otherwise `null`. */
-  virtualizedCount: number | null;
-  /** The position of a value among the filtered items of a virtualized list, or `-1`. */
-  getVirtualIndex: (value: unknown) => number;
-  /** Registers a mounted option of a virtualized list at its index among the filtered items. */
-  registerVirtualItem: (index: number, element: HTMLElement | null) => () => void;
-  /** Rewrites the navigable list of a virtualized list from its mounted options. */
-  syncVirtualList: () => void;
   /** Whether the trigger was last pressed by a screen reader. */
   virtualPressRef: React.RefObject<boolean>;
 }
@@ -66,10 +58,6 @@ export interface SelectFilterNavigationContext {
 // The engine's own context check fires first when a part renders outside the provider.
 export const SelectFilterNavigationContext = React.createContext<SelectFilterNavigationContext>({
   syncActiveItem: NOOP,
-  virtualizedCount: null,
-  getVirtualIndex: () => -1,
-  registerVirtualItem: () => NOOP,
-  syncVirtualList: NOOP,
   virtualPressRef: { current: false },
 });
 

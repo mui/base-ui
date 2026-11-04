@@ -977,7 +977,6 @@ Doesn't render its own HTML element.
 | autoHighlight | `boolean \| 'always'`                                                               | `false` | Whether filtering highlights the first matching item automatically. `true`: highlight it while the query is not empty.`'always'`: highlight it even when the query is empty. Opening the select from the keyboard highlights the selected item either way, or, when none&#xA;is selected, the first item (the last with ArrowUp). With either value, the arrow keys wrap&#xA;within the list rather than returning to the input, and with `'always'` a pointer highlight&#xA;stays when the pointer leaves. |
 | filter        | `((text: string, query: string) => boolean) \| null`                                | -       | Function used to match items against the query. Receives each item's `label` (or its&#xA;rendered text) and the trimmed query, and keeps the item when it returns `true`.&#xA;By default, items match when they contain the query, ignoring case, accents, and punctuation.&#xA;Pass `null` when rendering filtered items yourself.                                                                                                                                                                         |
 | locale        | `Intl.LocalesArgument`                                                              | -       | The locale the default `filter` uses for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                      |
-| virtualized   | `boolean`                                                                           | `false` | Whether the items are being externally virtualized.&#xA;Requires `items` on `<Select.Root>`. Render the matching items from `Select.useFilteredItems()`.                                                                                                                                                                                                                                                                                                                                                    |
 | children      | `React.ReactNode`                                                                   | -       | The `<Select.Root>` to make filterable.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 ### FilterProvider.Props
@@ -1041,17 +1040,6 @@ type SelectFilterProviderChangeEventDetails = (
 
 ```tsx
 type ReturnValue = SelectFilter;
-```
-
-### useFilteredItems
-
-Returns the `items` of a select wrapped in `Select.FilterProvider` that match the query.
-Call it in a component rendered inside `Select.Root`, and treat the result as read-only.
-
-**Return Value:**
-
-```tsx
-type ReturnValue = Item[];
 ```
 
 ## Additional Types
@@ -1449,7 +1437,6 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Clear`: `Select.Clear`, `Select.Clear.State`, `Select.Clear.Props`
 - `Select.Empty`: `Select.Empty`, `Select.Empty.State`, `Select.Empty.Props`
 - `Select.useFilter`
-- `Select.useFilteredItems`
 - `Default`: `SelectFilter`, `SelectFilterOptions`, `SelectTriggerDataAttributes`, `SelectValueDataAttributes`, `SelectIconDataAttributes`, `SelectBackdropDataAttributes`, `SelectPositionerCssVariables`, `SelectPositionerDataAttributes`, `SelectPopupDataAttributes`, `SelectItemDataAttributes`, `SelectItemIndicatorDataAttributes`, `SelectArrowDataAttributes`, `SelectScrollDownArrowDataAttributes`, `SelectScrollUpArrowDataAttributes`, `SelectInputDataAttributes`, `SelectClearDataAttributes`, `SelectSeparatorDataAttributes`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectRootHighlightEventReason`, `SelectRootHighlightEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`, `SelectFilterProviderState`, `SelectFilterProviderProps`, `SelectFilterProviderChangeEventReason`, `SelectFilterProviderChangeEventDetails`, `SelectInputState`, `SelectInputProps`, `SelectClearState`, `SelectClearProps`, `SelectEmptyState`, `SelectEmptyProps`
 
 ## Canonical Types

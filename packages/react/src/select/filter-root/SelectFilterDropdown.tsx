@@ -3,27 +3,18 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui/utils/warn';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { isKeyboardOpen } from '../../utils/isKeyboardOpen';
-import { getFilter } from '../../internals/filter';
 import { findItemIndex } from '../../internals/itemEquality';
-import {
-  flattenLeafItems,
-  isGroupedItems,
-  stringifyAsLabel,
-} from '../../internals/resolveValueLabel';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { SelectRoot } from '../root/SelectRoot';
 import type { SelectFilterProvider } from '../filter-provider/SelectFilterProvider';
 import type { SelectFilterProviderOptions } from '../filter-provider/SelectFilterProviderOptions';
 import { SelectFilterImplContext, SelectFilterNavigationContext } from './SelectFilterContext';
 import { SELECT_FILTER_IMPL } from './SelectFilterImpl';
-import { SelectFilteredItemsContext } from './SelectFilteredItemsContext';
-import { useSelectFilterVirtualList } from './useSelectFilterVirtualList';
 
 /** Handlers for the changes the select root commits, which the filter root forwards. */
 export interface SelectFilterRootHandlers {
@@ -34,43 +25,6 @@ export interface SelectFilterRootHandlers {
 export interface SelectFilterDropdownProps extends SelectFilterProviderOptions {
   handlersRef: React.RefObject<SelectFilterRootHandlers | null>;
   children?: React.ReactNode;
-}
-
-interface FilteredItems {
-  filteredItems: readonly any[];
-  filteredValues: any[];
-}
-
-// A list that isn't virtualized never reads the filtered values.
-const NO_VALUES: any[] = [];
-
-function filterItems(
-  items: Record<string, React.ReactNode> | readonly any[] | undefined,
-  query: string,
-  matchItem: ((text: string, query: string) => boolean) | null,
-  itemToStringLabel: ((value: any) => string) | undefined,
-): FilteredItems {
-  const entries: readonly any[] = Array.isArray(items)
-    ? items
-    : Object.entries(items ?? {}).map(([value, label]) => ({ value, label }));
-  const matches = (item: any) =>
-    matchItem!(
-      typeof item.label === 'string' ? item.label : stringifyAsLabel(item.value, itemToStringLabel),
-      query,
-    );
-
-  let filteredItems = entries;
-  if (matchItem !== null) {
-    filteredItems = isGroupedItems(entries)
-      ? entries
-          .map((group) => ({ ...group, items: group.items.filter(matches) }))
-          .filter((group) => group.items.length > 0)
-      : entries.filter(matches);
-  }
-  return {
-    filteredItems,
-    filteredValues: flattenLeafItems(filteredItems).map((item: any) => item.value),
-  };
 }
 
 // An item press appends the pressed value or filters it out, keeping the others in order, so the
@@ -99,7 +53,6 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
     filter,
     autoHighlight = false,
     locale,
-    virtualized = false,
     handlersRef,
     children,
   } = props;
@@ -113,8 +66,6 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
   const id = store.useState('id');
   const triggerElement = store.useState('triggerElement');
   const activeIndex = store.useState('activeIndex');
-  const items = store.useState('items');
-  const itemToStringLabel = store.useState('itemToStringLabel');
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
@@ -223,30 +174,6 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
     }
   }, [open, store]);
 
-  const defaultMatchItem = React.useMemo(() => getFilter({ locale }).contains, [locale]);
-
-  // Only a virtualized list and `Select.useFilteredItems()` read the filtered `items`, so they are
-  // filtered on demand.
-  const getFilteredItems = React.useMemo(() => {
-    const filterQuery = query.trim();
-    const matchItem = filterQuery === '' || filter === null ? null : (filter ?? defaultMatchItem);
-    let result: FilteredItems | undefined;
-    return () => {
-      if (result === undefined) {
-        result = filterItems(items, filterQuery, matchItem, itemToStringLabel);
-      }
-      return result;
-    };
-  }, [items, query, filter, defaultMatchItem, itemToStringLabel]);
-
-  if (process.env.NODE_ENV !== 'production' && virtualized && items === undefined) {
-    warn(
-      'A virtualized <Select.FilterProvider> found no `items` on <Select.Root>, so it has nothing ' +
-        'to filter or navigate. Pass the full list as `items` and render the matches from ' +
-        'Select.useFilteredItems().',
-    );
-  }
-
   const getActiveIndex = useStableCallback(() => store.state.activeIndex);
   const setActiveIndex = useStableCallback((index: number | null) => {
     store.set('activeIndex', index);
@@ -291,27 +218,10 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
     });
   }, [query, store]);
 
-  const highlightMatches = autoHighlight || typedOpen;
-
-  const { virtualizedCount, getVirtualIndex, registerVirtualItem, syncVirtualList } =
-    useSelectFilterVirtualList(
-      virtualized,
-      virtualized ? getFilteredItems().filteredValues : NO_VALUES,
-      open && (highlightMatches === 'always' || (highlightMatches && query.trim() !== '')),
-      syncActiveItem,
-    );
-
   // Read by every option, so it holds nothing that changes with the highlight.
   const navigationContext: SelectFilterNavigationContext = React.useMemo(
-    () => ({
-      syncActiveItem,
-      virtualizedCount,
-      getVirtualIndex,
-      registerVirtualItem,
-      syncVirtualList,
-      virtualPressRef,
-    }),
-    [syncActiveItem, virtualizedCount, getVirtualIndex, registerVirtualItem, syncVirtualList],
+    () => ({ syncActiveItem, virtualPressRef }),
+    [syncActiveItem],
   );
 
   // Trust the rendered element's id once it exists: an explicitly empty id must not fall back to a
@@ -321,27 +231,23 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
   return (
     <SelectFilterImplContext.Provider value={SELECT_FILTER_IMPL}>
       <SelectFilterNavigationContext.Provider value={navigationContext}>
-        <SelectFilteredItemsContext.Provider value={getFilteredItems}>
-          <FilterDropdownRoot
-            open={open}
-            openedByKeyboard={keyboardOpen}
-            disabled={disabled}
-            value={value}
-            query={query}
-            onValueChange={handleValueChange}
-            // The rendered options of a virtualized list are already filtered.
-            filter={virtualized ? null : filter}
-            autoHighlight={highlightMatches}
-            locale={locale}
-            triggerId={triggerId}
-            listRef={store.context.listRef}
-            getActiveIndex={getActiveIndex}
-            setActiveIndex={setActiveIndex}
-            itemCount={virtualizedCount}
-          >
-            {children}
-          </FilterDropdownRoot>
-        </SelectFilteredItemsContext.Provider>
+        <FilterDropdownRoot
+          open={open}
+          openedByKeyboard={keyboardOpen}
+          disabled={disabled}
+          value={value}
+          query={query}
+          onValueChange={handleValueChange}
+          filter={filter}
+          autoHighlight={autoHighlight || typedOpen}
+          locale={locale}
+          triggerId={triggerId}
+          listRef={store.context.listRef}
+          getActiveIndex={getActiveIndex}
+          setActiveIndex={setActiveIndex}
+        >
+          {children}
+        </FilterDropdownRoot>
       </SelectFilterNavigationContext.Provider>
     </SelectFilterImplContext.Provider>
   );

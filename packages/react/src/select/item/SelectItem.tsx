@@ -25,8 +25,6 @@ import { useSelectFilterImpl } from '../filter-root/SelectFilterContext';
 interface SelectItemPlainProps extends SelectItemProps {
   /** Set by the filter, which points the input's `aria-activedescendant` at the option. */
   id?: string | undefined;
-  /** Set by a virtualized filter: the option's position among the filtered items. */
-  index?: number | undefined;
 }
 
 export const SelectItemPlain = React.forwardRef(function SelectItem(
@@ -39,7 +37,6 @@ export const SelectItemPlain = React.forwardRef(function SelectItem(
     style,
     value: itemValue = null,
     label,
-    index: indexProp,
     disabled: disabledProp = false,
     nativeButton = false,
     ...elementProps
@@ -50,7 +47,6 @@ export const SelectItemPlain = React.forwardRef(function SelectItem(
     guess: true,
     label,
     textRef,
-    index: indexProp,
   });
 
   const store = useSelectRootContext();
@@ -72,10 +68,6 @@ export const SelectItemPlain = React.forwardRef(function SelectItem(
   const itemRef = React.useRef<HTMLDivElement | null>(null);
 
   useIsoLayoutEffect(() => {
-    // A virtualized list's values come from the filtered `items`, not the mounted items.
-    if (indexProp != null) {
-      return undefined;
-    }
     const values = store.context.valuesRef.current;
     values[index] = itemValue;
     // Filtering can move this item into the highlighted index.
@@ -86,7 +78,7 @@ export const SelectItemPlain = React.forwardRef(function SelectItem(
     return () => {
       delete values[index];
     };
-  }, [index, indexProp, itemValue, store]);
+  }, [index, itemValue, store]);
 
   useIsoLayoutEffect(() => {
     const selectedValue = store.state.selectedValue;

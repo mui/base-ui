@@ -12,7 +12,7 @@ import { DemoSelectHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Add a search field for long lists**: A plain Select finds items by keyboard typeahead only. Wrap it in `<Select.FilterProvider>` to add a search field (see [Filtering](#filtering)), and virtualize very large lists (see [Virtualization](#virtualization)). Prefer [Combobox](/react/components/combobox) when the items come from a server or the input belongs outside the popup.
+- **Add a search field for long lists**: A plain Select finds items by keyboard typeahead only. Wrap it in `<Select.FilterProvider>` to add a search field (see [Filtering](#filtering)). Prefer [Combobox](/react/components/combobox) when the items come from a server or the input belongs outside the popup.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 - **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
@@ -316,16 +316,6 @@ const results = countries.filter((country) => contains(country.label, query));
 </Select.FilterProvider>;
 ```
 
-#### Virtualization
-
-Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
-Pass `virtualized` to `<Select.FilterProvider>` and `items` to `<Select.Root>`, then render the matching items from `Select.useFilteredItems()`.
-Since most items aren't rendered, a virtualized list matches the string `label` of each entry in `items`, or the text from `itemToStringLabel`.
-
-import { DemoSelectVirtualized } from './demos/virtualized';
-
-<DemoSelectVirtualized />
-
 #### Selected values
 
 Filtering an item out does not clear its selection, and the form still submits it.
@@ -466,12 +456,6 @@ import { TypesSelect } from './types';
 When filtering items yourself, `Select.useFilter` matches text according to the user's locale.
 
 <TypesSelect.useFilter hideDescription />
-
-## useFilteredItems
-
-Returns the filtered items when called inside `<Select.FilterProvider>`.
-
-<TypesSelect.useFilteredItems hideDescription />
 
 export const metadata = {
   keywords: [
