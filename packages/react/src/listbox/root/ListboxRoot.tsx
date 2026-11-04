@@ -168,8 +168,9 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    */
   orientation?: 'vertical' | 'horizontal' | undefined;
   /**
-   * Whether moving the pointer over an item focuses and highlights it while focus is in the listbox.
-   * The pointer never takes focus from outside the listbox.
+   * Whether moving the pointer over an item highlights it.
+   * While focus is in the listbox, the item also receives focus. The pointer never takes focus
+   * from outside the listbox.
    * @default true
    */
   highlightItemOnHover?: boolean | undefined;
