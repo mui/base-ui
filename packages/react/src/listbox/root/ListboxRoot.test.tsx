@@ -256,7 +256,7 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'b']);
     });
 
-    it('should replace the selection on touch tap', async () => {
+    it('toggles items on touch tap, like multiple', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -273,8 +273,13 @@ describe('<Listbox.Root />', () => {
       fireEvent.pointerDown(itemC, { pointerType: 'touch' });
       fireEvent.click(itemC);
 
-      expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
+      const itemA = screen.getByRole('option', { name: 'a' });
+      fireEvent.pointerDown(itemA, { pointerType: 'touch' });
+      fireEvent.click(itemA);
+
+      expect(handleValueChange).toHaveBeenCalledTimes(2);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['b', 'c']);
     });
 
     it('should preserve existing selections outside the range on Ctrl+Shift+Click', async () => {
