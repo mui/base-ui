@@ -17,6 +17,7 @@ import { useLabelableContext } from '../../internals/labelable-provider/Labelabl
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { styleDisableScrollbar } from '../../utils/styles';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { SelectListProps } from '../list/SelectList';
@@ -25,7 +26,8 @@ import { useSelectFilterKeyDown } from './useSelectFilterKeyDown';
 
 /**
  * The option list of a filterable select: a listbox inside the popup dialog that holds the
- * input. Keys that land on it are handed back to the input.
+ * input. Keys that land on an option are handed back to the input. A screen reader can focus the
+ * list itself, which then navigates in place.
  */
 export const SelectFilterList = React.forwardRef(function SelectFilterList(
   componentProps: SelectListProps,
@@ -46,6 +48,9 @@ export const SelectFilterList = React.forwardRef(function SelectFilterList(
   const hasScrollArrows = store.useState('hasScrollArrows');
   const openMethod = store.useState('openMethod');
   const setListElement = store.useStateSetter('listElement');
+  const highlightedItemId = store.useState('highlightedItemId');
+
+  const [listFocused, setListFocused] = React.useState(false);
 
   const value = useFilterDropdownValueContext();
   const handleInputKeyDown = useSelectFilterKeyDown(value !== '');
@@ -60,6 +65,27 @@ export const SelectFilterList = React.forwardRef(function SelectFilterList(
       event.defaultPrevented
     ) {
       return;
+    }
+
+    // Safari VoiceOver focuses the list as its cursor moves onto it, and only reads the options
+    // through the focused list's `aria-activedescendant`. Navigate in place there, like a
+    // standalone listbox, until the highlight steps back out to the input.
+    if (getTarget(event.nativeEvent) === event.currentTarget) {
+      const { key } = event;
+      if (key === 'ArrowDown' || key === 'ArrowUp' || key === 'Home' || key === 'End') {
+        event.stopPropagation();
+        store.state.inputProps.onKeyDown?.(event as React.KeyboardEvent<any>);
+        if (store.state.activeIndex === null) {
+          refocusOwner(owner);
+        }
+        return;
+      }
+      const activeItem = store.state.highlightedItem;
+      if ((key === 'Enter' || key === ' ') && activeItem) {
+        event.preventDefault();
+        dispatchClickWithModifiers(activeItem, event);
+        return;
+      }
     }
 
     // Real focus can land inside the list while the input still owns the keyboard: a scrollbar
@@ -117,7 +143,18 @@ export const SelectFilterList = React.forwardRef(function SelectFilterList(
       // The trigger is a plain button here, which can't carry these; the listbox can.
       'aria-required': required || undefined,
       'aria-labelledby': ariaLabelledBy,
+      'aria-activedescendant': listFocused ? highlightedItemId : undefined,
       onKeyDown: handleKeyDown,
+      onFocus(event: React.FocusEvent<HTMLDivElement>) {
+        if (getTarget(event.nativeEvent) === event.currentTarget) {
+          setListFocused(true);
+        }
+      },
+      onBlur(event: React.FocusEvent<HTMLDivElement>) {
+        if (getTarget(event.nativeEvent) === event.currentTarget) {
+          setListFocused(false);
+        }
+      },
       onScroll(event: React.UIEvent<HTMLDivElement>) {
         store.context.scrollHandlerRef.current?.(event.currentTarget);
       },

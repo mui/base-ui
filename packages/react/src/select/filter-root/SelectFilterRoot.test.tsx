@@ -1157,6 +1157,59 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     );
   });
 
+  describe('screen reader focus on the list', () => {
+    // Safari VoiceOver focuses the list as its cursor moves onto it, without pointer events.
+    async function focusList(root?: Partial<Select.Root.Props<string, boolean>>) {
+      const view = await render(<Test root={{ defaultOpen: true, ...root }} />);
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      const list = screen.getByRole('listbox');
+      await act(async () => list.focus());
+      expect(list).toHaveFocus();
+      return { ...view, input, list };
+    }
+
+    it('moves the highlight in place and points the list at it', async () => {
+      const { user, list } = await focusList();
+      expect(list).not.toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('[ArrowDown]');
+      expect(list).toHaveFocus();
+      expect(list).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Australia' }).id,
+      );
+
+      await user.keyboard('[ArrowDown]');
+      expect(list).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'France' }).id,
+      );
+    });
+
+    it('selects the highlighted option with Enter', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await focusList({ onValueChange });
+
+      await user.keyboard('[ArrowDown][ArrowDown][Enter]');
+
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('fr', expect.anything());
+    });
+
+    it('returns focus to the input when the highlight steps out past the first option', async () => {
+      const { user, input, list } = await focusList();
+      await user.keyboard('[ArrowDown]');
+      expect(list).toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('[ArrowUp]');
+
+      expect(input).toHaveFocus();
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+  });
+
   describe('query lifecycle', () => {
     it.skipIf(isJSDOM)(
       'keeps externally filtered options while the popup animates out',
