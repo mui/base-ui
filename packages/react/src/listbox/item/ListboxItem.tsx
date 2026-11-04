@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
@@ -186,6 +187,23 @@ export const ListboxItem = React.memo(
       const resolvedIndex = currentIndex === -1 ? index : currentIndex;
 
       store.setActiveIndex(resolvedIndex, event.nativeEvent);
+
+      // macOS reserves Ctrl+Space and Cmd+Space, so Option+Space toggles the focused item there.
+      // Option+Space types a non-breaking space on macOS, so match the physical key.
+      if (
+        platform.os.mac &&
+        multiple &&
+        event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        event.code === 'Space'
+      ) {
+        event.preventDefault();
+        event.preventBaseUIHandler();
+        if (!disabled && !rootDisabled) {
+          commitSelection(event.nativeEvent, { shiftKey: event.shiftKey, ctrlKey: true });
+        }
+      }
     }
 
     const defaultProps: HTMLProps = {

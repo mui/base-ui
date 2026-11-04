@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
@@ -174,8 +175,12 @@ export const ListboxList = React.forwardRef(function ListboxList(
       elements[targetIndex]?.focus();
     }
 
-    // Opt-in mode: Ctrl/Cmd+Arrow moves focus without changing the selection
-    if (optInMode && (event.ctrlKey || event.metaKey) && !event.shiftKey) {
+    // Opt-in mode: Ctrl+Arrow moves focus without changing the selection. macOS reserves
+    // Ctrl+Arrow and uses Cmd+Arrow to jump to the ends, so Option+Arrow does it there.
+    const isMoveWithoutSelecting = platform.os.mac
+      ? event.altKey && !event.ctrlKey && !event.metaKey
+      : event.ctrlKey || event.metaKey;
+    if (optInMode && isMoveWithoutSelecting && !event.shiftKey) {
       const isRtl = direction === 'rtl';
       const isPrev =
         (isVertical && event.key === 'ArrowUp') ||
