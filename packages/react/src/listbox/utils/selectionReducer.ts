@@ -8,6 +8,7 @@ import { compareItemEquality, removeItem } from '../../internals/itemEquality';
  */
 export type SelectionAction =
   | { type: 'select'; index: number }
+  | { type: 'moveSelection'; index: number }
   | { type: 'toggle'; index: number }
   | { type: 'extendTo'; index: number; anchorIndex: number | null }
   | { type: 'selectRange'; from: number; to: number }
@@ -37,6 +38,16 @@ export function selectionReducer(
       const itemValue = valuesRef[action.index];
       if (itemValue === undefined || disabledItemsRef[action.index]) {
         return currentValue;
+      }
+      return [itemValue];
+    }
+
+    // Moving focus in opt-in mode: the focused item becomes the selection, and a disabled one
+    // can't be selected, so nothing is.
+    case 'moveSelection': {
+      const itemValue = valuesRef[action.index];
+      if (itemValue === undefined || disabledItemsRef[action.index]) {
+        return EMPTY_ARRAY as any[];
       }
       return [itemValue];
     }
