@@ -84,7 +84,7 @@ describe('<Listbox.Root />', () => {
       await act(async () => list.focus());
       handleItemHighlighted.mockClear();
 
-      fireEvent.keyDown(list, { key: 'End' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'End' });
       await flushMicrotasks();
 
       expect(screen.getByRole('option', { name: 'Cherry' })).toHaveAttribute('data-highlighted');
@@ -104,7 +104,7 @@ describe('<Listbox.Root />', () => {
       await act(async () => list.focus());
       handleItemHighlighted.mockClear();
 
-      fireEvent.keyDown(list, { key: 'b' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'b' });
       await flushMicrotasks();
 
       expect(handleItemHighlighted).toHaveBeenCalledTimes(1);
@@ -199,17 +199,6 @@ describe('<Listbox.Root />', () => {
       expect(itemB).toHaveAttribute('data-highlighted');
     });
 
-    it('removes the highlight when focus moves from an item to the list', async () => {
-      await renderListWithOutsideButton();
-      const itemB = screen.getByRole('option', { name: 'b' });
-
-      await act(async () => itemB.focus());
-      expect(itemB).toHaveAttribute('data-highlighted');
-
-      await act(async () => screen.getByRole('listbox').focus());
-      expect(itemB).not.toHaveAttribute('data-highlighted');
-    });
-
     it('keeps the highlight on the focused item when the pointer leaves it', async () => {
       const { user } = await renderListWithOutsideButton();
       const itemB = screen.getByRole('option', { name: 'b' });
@@ -226,6 +215,106 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('tab stop', () => {
+    function renderList(rootProps: Listbox.Root.Props<string> = {}) {
+      return render(
+        <div>
+          <button>Before</button>
+          <Listbox.Root {...rootProps}>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b">b</Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>
+        </div>,
+      );
+    }
+
+    it.each([
+      { name: 'the selected item', rootProps: { defaultValue: 'c' }, expected: 'c' },
+      { name: 'the first item when nothing is selected', rootProps: {}, expected: 'a' },
+    ])('focuses $name when tabbing into the list', async ({ rootProps, expected }) => {
+      const { user } = await renderList(rootProps);
+      await act(async () => screen.getByRole('button', { name: 'Before' }).focus());
+
+      await user.keyboard('{Tab}');
+
+      expect(screen.getByRole('option', { name: expected })).toHaveFocus();
+    });
+
+    it.each([
+      { name: 'the selected item', rootProps: { defaultValue: 'c' }, expected: 'c' },
+      { name: 'the first item when nothing is selected', rootProps: {}, expected: 'a' },
+    ])('moves focus from the list to $name', async ({ rootProps, expected }) => {
+      await renderList(rootProps);
+      const list = screen.getByRole('listbox');
+
+      await act(async () => list.focus());
+
+      expect(screen.getByRole('option', { name: expected })).toHaveFocus();
+    });
+
+    it('leaves the list with Shift+Tab from an item', async () => {
+      const { user } = await renderList();
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemB.focus());
+
+      await user.keyboard('{Shift>}{Tab}{/Shift}');
+
+      expect(screen.getByRole('button', { name: 'Before' })).toHaveFocus();
+    });
+
+    it('moves the tab stop to the selected item when the items load', async () => {
+      function App({ items }: { items: string[] }) {
+        return (
+          <Listbox.Root defaultValue="c">
+            <Listbox.List>
+              {items.map((item) => (
+                <Listbox.Item key={item} value={item}>
+                  {item}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+      const { setProps } = await render(<App items={[]} />);
+
+      await setProps({ items: ['a', 'b', 'c'] });
+
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('tabindex', '0');
+    });
+
+    it('moves the tab stop to a newly selected item while the list does not have focus', async () => {
+      const { setProps } = await render(
+        <Listbox.Root value="a">
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('tabindex', '0');
+
+      await setProps({ value: 'b' });
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('tabindex', '0');
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('keeps focus on an empty list', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.List />
+        </Listbox.Root>,
+      );
+      const list = screen.getByRole('listbox');
+
+      await act(async () => list.focus());
+
+      expect(list).toHaveFocus();
+    });
+
     it.each([
       { name: 'the selected item', rootProps: { defaultValue: 'a' }, expected: 'a' },
       { name: 'the first item when nothing is selected', rootProps: {}, expected: 'a' },
@@ -808,9 +897,9 @@ describe('<Listbox.Root />', () => {
 
       const list = screen.getByRole('listbox');
 
-      list.focus();
+      await act(async () => list.focus());
 
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -831,10 +920,10 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
+      await act(async () => list.focus());
 
       // Navigate to item b
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -859,10 +948,10 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
+      await act(async () => list.focus());
 
       // Navigate to item b
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -916,8 +1005,8 @@ describe('<Listbox.Root />', () => {
 
       // Navigate to item a
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -955,8 +1044,8 @@ describe('<Listbox.Root />', () => {
 
       // ArrowDown from list moves to index 1 (item b)
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -986,8 +1075,8 @@ describe('<Listbox.Root />', () => {
 
       // Focus list then navigate to last item
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'End' });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'End' });
 
       await flushMicrotasks();
 
@@ -1078,8 +1167,8 @@ describe('<Listbox.Root />', () => {
 
       // ArrowDown from list goes to index 1, then ArrowDown to index 2 (item c)
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -1115,8 +1204,8 @@ describe('<Listbox.Root />', () => {
 
       // ArrowDown from list goes to index 1 (item b)
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -1145,8 +1234,8 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'a', ctrlKey: true });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
 
       await flushMicrotasks();
 
@@ -1168,8 +1257,8 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'a', ctrlKey: true });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
 
       await flushMicrotasks();
 
@@ -1193,8 +1282,8 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'a', ctrlKey: true });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
 
       await flushMicrotasks();
 
@@ -1218,8 +1307,8 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -1250,8 +1339,8 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
 
       await flushMicrotasks();
 
@@ -1401,8 +1490,8 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'a', metaKey: true });
+      await act(async () => list.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', metaKey: true });
 
       await flushMicrotasks();
 
@@ -1424,16 +1513,7 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      // Navigate to item c: ArrowDown from list → b (index 1), ArrowDown → c (index 2)
-      const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
-
-      await flushMicrotasks();
-
-      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'ArrowDown' });
-
-      await flushMicrotasks();
+      await act(async () => screen.getByRole('option', { name: 'c' }).focus());
 
       // Ctrl+Shift+Home: select a, b, c; d should remain selected
       fireEvent.keyDown(screen.getByRole('option', { name: 'c' }), {
@@ -1468,8 +1548,8 @@ describe('<Listbox.Root />', () => {
         );
 
         const list = screen.getByRole('listbox');
-        list.focus();
-        fireEvent.keyDown(list, { key: 'ArrowRight' });
+        await act(async () => list.focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowRight' });
 
         await flushMicrotasks();
 
@@ -1504,8 +1584,8 @@ describe('<Listbox.Root />', () => {
         );
 
         const list = screen.getByRole('listbox');
-        list.focus();
-        fireEvent.keyDown(list, { key: 'ArrowRight' });
+        await act(async () => list.focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowRight' });
 
         await flushMicrotasks();
 
@@ -1540,8 +1620,8 @@ describe('<Listbox.Root />', () => {
         );
 
         const list = screen.getByRole('listbox');
-        list.focus();
-        fireEvent.keyDown(list, { key: 'ArrowRight' });
+        await act(async () => list.focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowRight' });
 
         await flushMicrotasks();
 
@@ -1579,9 +1659,9 @@ describe('<Listbox.Root />', () => {
         );
 
         const list = screen.getByRole('listbox');
-        list.focus();
+        await act(async () => list.focus());
         // In RTL, ArrowLeft moves forward (next)
-        fireEvent.keyDown(list, { key: 'ArrowLeft' });
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowLeft' });
 
         await flushMicrotasks();
 
@@ -1618,9 +1698,9 @@ describe('<Listbox.Root />', () => {
         );
 
         const list = screen.getByRole('listbox');
-        list.focus();
+        await act(async () => list.focus());
         // In RTL, ArrowLeft moves forward (next)
-        fireEvent.keyDown(list, { key: 'ArrowLeft' });
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowLeft' });
 
         await flushMicrotasks();
 
@@ -1657,8 +1737,8 @@ describe('<Listbox.Root />', () => {
         );
 
         const list = screen.getByRole('listbox');
-        list.focus();
-        fireEvent.keyDown(list, { key: 'a', ctrlKey: true });
+        await act(async () => list.focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
 
         await flushMicrotasks();
 
@@ -1766,7 +1846,7 @@ describe('<Listbox.Root />', () => {
       const list = screen.getByRole('listbox');
       await act(async () => list.focus());
 
-      fireEvent.keyDown(list, { key: 'k' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'k' });
       await flushMicrotasks();
 
       expect(screen.getByRole('option', { name: 'Green Kiwi' })).toHaveAttribute(
@@ -1787,9 +1867,9 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
+      await act(async () => list.focus());
 
-      fireEvent.keyDown(list, { key: 'b' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'b' });
 
       await flushMicrotasks();
 
@@ -1810,26 +1890,19 @@ describe('<Listbox.Root />', () => {
       );
 
       const list = screen.getByRole('listbox');
-      list.focus();
+      await act(async () => list.focus());
 
-      // Each typed character may move focus to a new item. After 'c' matches
-      // Cherry, focus moves there; 'ch' then 'cho' refine to Chocolate.
-      fireEvent.keyDown(list, { key: 'c' });
+      // Each typed character may move focus to a new item, so type into whichever item has focus.
+      for (const key of ['c', 'h', 'o']) {
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key });
+        // eslint-disable-next-line no-await-in-loop
+        await flushMicrotasks();
+      }
 
-      await flushMicrotasks();
-
-      const cherry = screen.getByRole('option', { name: 'Cherry' });
-      fireEvent.keyDown(cherry, { key: 'h' });
-
-      await flushMicrotasks();
-
-      // After 'ch', Chocolate is the first match — focus moves there
-      const chocolate = screen.getByRole('option', { name: 'Chocolate' });
-      fireEvent.keyDown(chocolate, { key: 'o' });
-
-      await flushMicrotasks();
-
-      expect(chocolate).toHaveAttribute('data-highlighted', '');
+      expect(screen.getByRole('option', { name: 'Chocolate' })).toHaveAttribute(
+        'data-highlighted',
+        '',
+      );
     });
   });
 
@@ -1847,7 +1920,7 @@ describe('<Listbox.Root />', () => {
       const list = screen.getByRole('listbox');
       await act(async () => list.focus());
 
-      fireEvent.keyDown(list, { key: 'End' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'End' });
       await flushMicrotasks();
 
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
@@ -1871,7 +1944,7 @@ describe('<Listbox.Root />', () => {
       const list = screen.getByRole('listbox');
       await act(async () => list.focus());
 
-      fireEvent.keyDown(list, { key: 'End' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'End' });
       await flushMicrotasks();
       fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'Home' });
       await flushMicrotasks();
@@ -1916,11 +1989,12 @@ describe('<Listbox.Root />', () => {
 
       const list = screen.getByRole('listbox', { name: 'Artists' });
       expect(list).toHaveAttribute('id', 'artists');
-      expect(list).not.toHaveFocus();
+      const item = screen.getByRole('option', { name: 'a' });
+      expect(item).not.toHaveFocus();
 
       fireEvent.click(screen.getByText('Artists'));
 
-      expect(list).toHaveFocus();
+      expect(item).toHaveFocus();
     });
 
     it('focuses the list from the label after the list id changes', async () => {
@@ -1940,11 +2014,12 @@ describe('<Listbox.Root />', () => {
 
       const list = screen.getByRole('listbox', { name: 'Artists' });
       expect(list).toHaveAttribute('id', 'second');
-      expect(list).not.toHaveFocus();
+      const item = screen.getByRole('option', { name: 'a' });
+      expect(item).not.toHaveFocus();
 
       fireEvent.click(screen.getByText('Artists'));
 
-      expect(list).toHaveFocus();
+      expect(item).toHaveFocus();
     });
   });
 

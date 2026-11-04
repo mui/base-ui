@@ -16,7 +16,7 @@ export default function ExampleListboxOptInSelection() {
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-neutral-900 dark:text-neutral-100">
           Playlist
         </Listbox.Label>
-        <Listbox.List className="box-border flex flex-col gap-0.5 w-64 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+        <Listbox.List className="box-border flex flex-col gap-0.5 w-64 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-1 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white">
           {songs.map(({ title, artist, value }) => (
             <Listbox.Item
               key={value}
