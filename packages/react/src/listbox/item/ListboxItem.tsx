@@ -115,6 +115,8 @@ export const ListboxItem = React.memo(
     };
 
     const lastKeyRef = React.useRef<string | null>(null);
+    // The pointer type of the last press, so a touch tap can be told apart from a click.
+    const lastPointerTypeRef = React.useRef<string | null>(null);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -132,12 +134,19 @@ export const ListboxItem = React.memo(
       {
         shiftKey = false,
         ctrlKey = false,
-      }: { shiftKey?: boolean | undefined; ctrlKey?: boolean | undefined } = {},
+        touch = false,
+      }: {
+        shiftKey?: boolean | undefined;
+        ctrlKey?: boolean | undefined;
+        touch?: boolean | undefined;
+      } = {},
     ) {
       let action: SelectionAction;
+      // Touch has no modifier keys, so `multiple="opt-in"` toggles on tap like `multiple`.
+      const replaceOnPress = optInMode && !touch;
 
       if (shiftKey && multiple) {
-        if (optInMode && ctrlKey) {
+        if (replaceOnPress && ctrlKey) {
           // Ctrl/Cmd+Shift adds the range to the existing selection.
           const anchorIndex = lastSelectedIndexRef.current;
           action =
@@ -147,7 +156,7 @@ export const ListboxItem = React.memo(
         } else {
           action = { type: 'extendTo', index, anchorIndex: lastSelectedIndexRef.current };
         }
-      } else if (multiple && (!optInMode || ctrlKey)) {
+      } else if (multiple && (!replaceOnPress || ctrlKey)) {
         // `multiple` toggles on every press; `multiple="opt-in"` toggles with Ctrl/Cmd.
         action = { type: 'toggle', index };
       } else {
@@ -212,6 +221,9 @@ export const ListboxItem = React.memo(
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         handleItemKeyDown(event);
       },
+      onPointerDown(event) {
+        lastPointerTypeRef.current = event.pointerType;
+      },
       onClick(event) {
         // useButton in composite mode synthesizes a click from keydown (Space/Enter).
         // lastKeyRef is set in our onKeyDown and cleared below. If lastKeyRef is
@@ -229,6 +241,7 @@ export const ListboxItem = React.memo(
         commitSelection(event.nativeEvent, {
           shiftKey: event.shiftKey,
           ctrlKey: event.ctrlKey || event.metaKey,
+          touch: event.type !== 'keydown' && lastPointerTypeRef.current === 'touch',
         });
       },
     };
