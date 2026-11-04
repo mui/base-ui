@@ -2,29 +2,30 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
-const songs = [
-  { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
-  { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
-  { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
-  { title: 'Superstition', artist: 'Stevie Wonder', value: 'superstition' },
-  { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
+const animals = [
+  { label: 'Cat', value: 'cat' },
+  { label: 'Dog', value: 'dog' },
+  { label: 'Elephant', value: 'elephant' },
+  { label: 'Giraffe', value: 'giraffe' },
+  { label: 'Koala', value: 'koala' },
+  { label: 'Lion', value: 'lion' },
+  { label: 'Otter', value: 'otter' },
+  { label: 'Penguin', value: 'penguin' },
+  { label: 'Zebra', value: 'zebra' },
 ];
 
 export default function ExampleListboxMultiSelection() {
   return (
     <div className={styles.Field}>
-      <Listbox.Root multiple defaultValue={['bohemian-rhapsody']}>
-        <Listbox.Label className={styles.Label}>Playlist</Listbox.Label>
+      <Listbox.Root multiple defaultValue={['otter', 'penguin']}>
+        <Listbox.Label className={styles.Label}>Choose your favorite animals</Listbox.Label>
         <Listbox.List className={styles.List}>
-          {songs.map(({ title, artist, value }) => (
+          {animals.map(({ label, value }) => (
             <Listbox.Item key={value} value={value} className={styles.Item}>
               <Listbox.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Listbox.ItemIndicator>
-              <div className={styles.ItemText}>
-                <span className={styles.ItemTitle}>{title}</span>
-                <span className={styles.ItemArtist}>{artist}</span>
-              </div>
+              <span className={styles.ItemText}>{label}</span>
             </Listbox.Item>
           ))}
         </Listbox.List>
