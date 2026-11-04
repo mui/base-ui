@@ -164,7 +164,8 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    */
   orientation?: 'vertical' | 'horizontal' | undefined;
   /**
-   * Whether moving the pointer over items should highlight them.
+   * Whether moving the pointer over an item focuses and highlights it while focus is in the listbox.
+   * The pointer never takes focus from outside the listbox.
    * @default true
    */
   highlightItemOnHover?: boolean | undefined;
@@ -200,7 +201,7 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * - `'keyboard'`: the highlight changed due to keyboard navigation or typeahead.
    * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
    *   rather than a `PointerEvent`.
-   * - `'none'`: the highlight changed for another reason, such as an item receiving focus.
+   * - `'none'`: the highlight changed for another reason, such as an item receiving or losing focus.
    */
   onItemHighlighted?:
     | ((itemValue: Value | undefined, eventDetails: ListboxRootHighlightEventDetails) => void)

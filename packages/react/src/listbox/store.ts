@@ -14,7 +14,10 @@ export type State = {
   /** The selected values. An array even when `multiple` is `false`. */
   value: any[];
 
+  /** The item that holds the tab stop. It stays set when focus leaves the list. */
   activeIndex: number | null;
+  /** Whether an item has focus. Only then is the active item highlighted. */
+  itemFocused: boolean;
 
   listElement: HTMLElement | null;
 
@@ -46,6 +49,9 @@ export const selectors = {
 
   activeIndex: createSelector((state: State) => state.activeIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
+  isHighlighted: createSelector(
+    (state: State, index: number) => state.itemFocused && state.activeIndex === index,
+  ),
 
   // Value is always an array now, so isSelected always does array membership check.
   isSelected: createSelector((state: State, index: number, itemValue: any) => {
@@ -76,12 +82,30 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
   }
 
   /**
-   * Sets the highlighted index and records the event that caused it,
-   * so `onItemHighlighted` can report the reason.
+   * Moves the tab stop without changing whether an item has focus, and records the event that
+   * caused it, so `onItemHighlighted` can report the reason.
    */
   setActiveIndex(index: number | null, event?: Event) {
     this.context.highlightEvent = event;
     this.set('activeIndex', index);
+    this.context.highlightEvent = undefined;
+  }
+
+  /**
+   * Highlights the item that has focus, or is about to receive it.
+   */
+  highlightItem(index: number, event?: Event) {
+    this.context.highlightEvent = event;
+    this.update({ activeIndex: index, itemFocused: true });
+    this.context.highlightEvent = undefined;
+  }
+
+  /**
+   * Removes the highlight when focus leaves the items. The tab stop stays on the active item.
+   */
+  unhighlightItem(event?: Event) {
+    this.context.highlightEvent = event;
+    this.set('itemFocused', false);
     this.context.highlightEvent = undefined;
   }
 }
@@ -94,6 +118,7 @@ function createInitialState(): State {
     isItemEqualToValue: Object.is,
     value: [],
     activeIndex: null,
+    itemFocused: false,
     listElement: null,
     orientation: 'vertical',
     disabled: false,
