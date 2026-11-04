@@ -49,7 +49,13 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
   const onHighlightedIndexChange = useStableCallback((index: number) => {
     const event = keyDownEventRef.current;
-    store.setActiveIndex(index, event);
+    if (event) {
+      // Keyboard navigation focuses the item next.
+      store.highlightItem(index, event);
+    } else {
+      // Items were added or removed, so the tab stop moves without focus moving.
+      store.setActiveIndex(index);
+    }
 
     // In opt-in mode, moving focus with an arrow key and no modifier moves the selection to
     // the focused item (the APG alternative multiple selection model). Moving to a disabled item
@@ -124,7 +130,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       const index = (startIndex + i) % length;
       const label = labels[index];
       if (label && label.toLowerCase().startsWith(searchString)) {
-        store.setActiveIndex(index, event.nativeEvent);
+        store.highlightItem(index, event.nativeEvent);
         const element = composite.elementsRef.current[index];
         element?.focus();
         break;
@@ -171,7 +177,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     const isItemEqualToValue = store.state.isItemEqualToValue;
 
     function focusItem(targetIndex: number) {
-      store.setActiveIndex(targetIndex, event.nativeEvent);
+      store.highlightItem(targetIndex, event.nativeEvent);
       elements[targetIndex]?.focus();
     }
 

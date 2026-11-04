@@ -3,8 +3,7 @@ import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
-import { useTimeout } from '@base-ui/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
 import type {
   BaseUIComponentProps,
   BaseUIEvent,
@@ -13,6 +12,7 @@ import type {
 } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useCompositeListItem } from '../../internals/composite';
@@ -73,13 +73,12 @@ export const ListboxItem = React.memo(
 
     const store = useListboxRootContext();
 
-    const highlightTimeout = useTimeout();
-
     const multiple = store.useState('multiple');
     const optInMode = multiple === 'opt-in';
     const highlightItemOnHover = store.useState('highlightItemOnHover');
     const rootDisabled = store.useState('disabled');
-    const highlighted = store.useState('isActive', listItem.index);
+    const active = store.useState('isActive', listItem.index);
+    const highlighted = store.useState('isHighlighted', listItem.index);
     const selected = store.useState('isSelected', listItem.index, itemValue);
     const isItemEqualToValue = store.useState('isItemEqualToValue');
     const { disabledItemsRef, lastSelectedIndexRef, setValue, valuesRef } = store.context;
@@ -186,7 +185,7 @@ export const ListboxItem = React.memo(
       const currentIndex = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
       const resolvedIndex = currentIndex === -1 ? index : currentIndex;
 
-      store.setActiveIndex(resolvedIndex, event.nativeEvent);
+      store.highlightItem(resolvedIndex, event.nativeEvent);
 
       // macOS reserves Ctrl+Space and Cmd+Space, so Option+Space toggles the focused item there.
       // Option+Space types a non-breaking space on macOS, so match the physical key.
@@ -209,27 +208,33 @@ export const ListboxItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      tabIndex: highlighted ? 0 : -1,
+      tabIndex: active ? 0 : -1,
       onFocus(event) {
-        store.setActiveIndex(index, event.nativeEvent);
+        store.highlightItem(index, event.nativeEvent);
       },
-      onMouseMove(event) {
-        if (highlightItemOnHover) {
-          store.setActiveIndex(index, event.nativeEvent);
-          itemRef.current?.focus();
-        }
-      },
-      onMouseLeave(event) {
-        if (!highlightItemOnHover || isMouseWithinBounds(event)) {
+      onBlur(event) {
+        // Moving focus to another item keeps the highlight; it moves with focus instead.
+        const listElement = store.state.listElement;
+        const nextTarget = event.relatedTarget;
+        if (nextTarget !== listElement && contains(listElement, nextTarget)) {
           return;
         }
-
-        const nativeEvent = event.nativeEvent;
-        highlightTimeout.start(0, () => {
-          if (store.state.activeIndex === index) {
-            store.setActiveIndex(null, nativeEvent);
-          }
-        });
+        store.unhighlightItem(event.nativeEvent);
+      },
+      onMouseMove(event) {
+        // Hovering only moves focus once focus is in the list, so it never takes focus from
+        // another control.
+        const listElement = store.state.listElement;
+        const element = itemRef.current;
+        if (
+          !highlightItemOnHover ||
+          !element ||
+          !contains(listElement, activeElement(ownerDocument(element)))
+        ) {
+          return;
+        }
+        store.highlightItem(index, event.nativeEvent);
+        element.focus();
       },
       onKeyDownCapture(event: BaseUIEvent<React.KeyboardEvent>) {
         if (disabled && !rootDisabled) {
