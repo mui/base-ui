@@ -35,28 +35,12 @@
   }
 
   &:focus-visible {
-    outline: 2px solid oklch(62.3% 0.214 259.815deg);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
-  }
-}
 
-.Group {
-  display: block;
-  padding-bottom: 0.125rem;
-}
-
-.GroupLabel {
-  box-sizing: border-box;
-  padding: 0.5rem 1rem 0.25rem calc(0.625rem + 0.75rem + 0.5rem);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: oklch(43.9% 0 0deg);
-  cursor: default;
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -134,20 +118,4 @@
 
 .ItemText {
   grid-column-start: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.ItemTitle {
-  font-weight: 600;
-}
-
-.ItemArtist {
-  font-size: 0.75rem;
-  color: oklch(55.6% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
 }

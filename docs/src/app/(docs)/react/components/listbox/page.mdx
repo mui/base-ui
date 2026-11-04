@@ -42,13 +42,17 @@ import { Listbox } from '@base-ui/react/listbox';
 
 Add the `multiple` prop to let users select more than one item. The value is an array of the selected items.
 
-Clicking an item, or pressing <kbd>Space</kbd>, adds or removes it. Hold <kbd>Shift</kbd> and click to select a range.
-
-Set `multiple="opt-in"` to make a press replace the selection instead, like a file manager. Clicking an item or pressing <kbd>Space</kbd> selects only that item. Hold <kbd>Ctrl</kbd>/<kbd>⌘</kbd> and click, or press <kbd>Ctrl</kbd>+<kbd>Space</kbd>, to add or remove an item, and hold <kbd>Shift</kbd> and click to select a range.
-
 import { DemoListboxMultiSelection } from './demos/multi-selection';
 
 <DemoListboxMultiSelection />
+
+### Opt-in multiple selection
+
+Use `multiple="opt-in"` when users opt in to selecting more than one item by holding a modifier key. On touch devices, which have no modifier keys, a tap adds or removes an item, the same as `multiple`.
+
+import { DemoListboxOptInSelection } from './demos/opt-in-selection';
+
+<DemoListboxOptInSelection />
 
 ## API reference
 
