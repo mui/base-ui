@@ -14,8 +14,8 @@ interface ResolvedHighlight<Value> {
 /**
  * Calls `onItemHighlighted` when the highlighted item changes.
  *
- * Subscribes to the store's `activeIndex`, resolves the highlighted item's value,
- * and derives the reason from the event recorded by `store.setActiveIndex()`.
+ * Subscribes to the store's highlighted item (the active item while an item has focus), resolves
+ * its value, and derives the reason from the event recorded by the store.
  */
 export function useHighlightChangeNotifier<Value>(params: {
   store: ListboxStore;
@@ -34,9 +34,9 @@ export function useHighlightChangeNotifier<Value>(params: {
   const lastReportedHighlightRef = React.useRef<ResolvedHighlight<Value> | null>(null);
 
   const resolveHighlightedItem = useStableCallback((): ResolvedHighlight<Value> => {
-    const activeIndex = store.state.activeIndex;
+    const { activeIndex, itemFocused } = store.state;
 
-    if (activeIndex == null) {
+    if (activeIndex == null || !itemFocused) {
       return { index: -1, value: undefined };
     }
 
