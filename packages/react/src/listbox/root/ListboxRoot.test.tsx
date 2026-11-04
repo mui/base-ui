@@ -378,6 +378,21 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange).not.toHaveBeenCalled();
     });
 
+    it('does not treat Alt+Space as a toggle outside macOS', async () => {
+      const handleValueChange = vi.fn();
+      await renderOptIn({ defaultValue: ['a'] }, handleValueChange);
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemB.focus());
+
+      fireEvent.keyDown(itemB, { key: ' ', code: 'Space', altKey: true });
+      fireEvent.keyUp(itemB, { key: ' ', code: 'Space', altKey: true });
+      await flushMicrotasks();
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['b']);
+    });
+
     it('toggles items on touch tap, like multiple', async () => {
       const handleValueChange = vi.fn();
 
