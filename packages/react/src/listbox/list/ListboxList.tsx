@@ -13,6 +13,7 @@ import { REASONS } from '../../internals/reasons';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { compareItemEquality } from '../../internals/itemEquality';
 import { useCompositeRoot, CompositeList } from '../../internals/composite';
+import { contains } from '../../floating-ui-react/utils';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { selectionReducer } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
@@ -297,6 +298,29 @@ export const ListboxList = React.forwardRef(function ListboxList(
     'aria-multiselectable': multiple ? true : undefined,
     'aria-orientation': orientation,
     tabIndex: disabled ? undefined : 0,
+    onBlur(event) {
+      if (contains(event.currentTarget, event.relatedTarget)) {
+        return;
+      }
+
+      // Tabbing back in returns to the first selected item, or the first item when nothing is
+      // selected, as the APG listbox pattern describes.
+      const values = valuesRef.current;
+      const { value, isItemEqualToValue } = store.state;
+      let tabStopIndex = 0;
+      for (let index = 0; index < values.length; index += 1) {
+        if (
+          index in values &&
+          value.some((selectedValue) =>
+            compareItemEquality(values[index], selectedValue, isItemEqualToValue),
+          )
+        ) {
+          tabStopIndex = index;
+          break;
+        }
+      }
+      store.setActiveIndex(tabStopIndex, event.nativeEvent);
+    },
     onPointerDown() {
       // A new pointer press starts a new Shift+Arrow range from wherever focus lands.
       shiftAnchorRef.current = null;
