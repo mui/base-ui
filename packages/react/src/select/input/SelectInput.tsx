@@ -28,19 +28,11 @@ export const SelectInput = React.forwardRef(function SelectInput(
 
   const { onKeyDown, ...navigationProps } = store.useState('inputProps');
   const activeItemId = store.useState('highlightedItemId');
-  const open = store.useState('open');
 
   const handleKeyDown = useSelectFilterKeyDown(value !== '');
 
-  // Safari VoiceOver only follows `aria-activedescendant` from a few roles such as combobox, not
-  // from a searchbox, so the input is a combobox that controls the always-expanded listbox.
   const inputProps = mergeProps<typeof FilterDropdownInput>(
-    {
-      role: 'combobox',
-      'aria-expanded': open,
-      'aria-autocomplete': 'list',
-      onKeyDown: handleKeyDown,
-    },
+    { onKeyDown: handleKeyDown },
     componentProps,
   );
 

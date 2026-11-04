@@ -66,13 +66,13 @@ describe('FilterDropdownInput (WebKit)', () => {
   const { render } = createRenderer();
 
   it.each([
-    { name: 'Select', Component: SelectTest, inputRole: 'combobox' },
-    { name: 'Menu', Component: MenuTest, inputRole: 'searchbox' },
+    { name: 'Select', Component: SelectTest },
+    { name: 'Menu', Component: MenuTest },
   ])(
     '$name: passes focus through the popup when an arrow key returns to the input',
-    async ({ Component, inputRole }) => {
+    async ({ Component }) => {
       const { user } = await render(<Component />);
-      const input = screen.getByRole(inputRole, { name: 'Filter' });
+      const input = screen.getByRole('searchbox', { name: 'Filter' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
