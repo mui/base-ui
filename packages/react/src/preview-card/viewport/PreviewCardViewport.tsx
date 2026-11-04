@@ -3,11 +3,7 @@ import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useRenderElement } from '../../internals/useRenderElement';
-import {
-  popupViewportStateMapping,
-  usePopupViewport,
-} from '../../utils/popups/viewport/usePopupViewport';
+import { usePopupViewport } from '../../utils/popups/viewport/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -21,30 +17,14 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   componentProps: PreviewCardViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, ...elementProps } = componentProps;
-
   const store = usePreviewCardRootContext();
-  const positioner = usePreviewCardPositionerContext();
+  const { side } = usePreviewCardPositionerContext();
 
-  const instantType = store.useState('instantType');
-
-  const { children: childrenToRender, state: viewportState } = usePopupViewport({
+  return usePopupViewport({
+    componentProps,
+    forwardedRef,
     store,
-    side: positioner.side,
-    children,
-  });
-
-  const state: PreviewCardViewportState = {
-    activationDirection: viewportState.activationDirection,
-    transitioning: viewportState.transitioning,
-    instant: instantType,
-  };
-
-  return useRenderElement('div', componentProps, {
-    state,
-    ref: forwardedRef,
-    props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping: popupViewportStateMapping,
+    side,
   });
 });
 
