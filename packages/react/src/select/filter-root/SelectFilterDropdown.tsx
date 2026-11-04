@@ -77,15 +77,11 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
   // Navigation starts from the selected option until the query changes during this open. It
   // stays off through the exit, so closing doesn't highlight the selected option.
   const [queryChanged, setQueryChanged] = React.useState(false);
-  // Like a select-only combobox, typing on the closed trigger highlights the first match.
-  const [typedOpen, setTypedOpen] = React.useState(false);
   const [previousOpen, setPreviousOpen] = React.useState(open);
   if (open !== previousOpen) {
     setPreviousOpen(open);
     if (open) {
       setQueryChanged(false);
-    } else {
-      setTypedOpen(false);
     }
   }
 
@@ -100,10 +96,6 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
         return;
       }
       setValue(nextValue);
-      // Only the closed trigger changes the query from a keydown; the input reports input events.
-      if (!store.state.open && eventDetails.event.type === 'keydown') {
-        setTypedOpen(true);
-      }
       // A reopen during the exit settles the pending close reset, which is no query change.
       if (eventDetails.reason !== REASONS.popupClose) {
         setQueryChanged(true);
@@ -239,7 +231,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
           query={query}
           onValueChange={handleValueChange}
           filter={filter}
-          autoHighlight={autoHighlight || typedOpen}
+          autoHighlight={autoHighlight}
           locale={locale}
           triggerId={triggerId}
           listRef={store.context.listRef}

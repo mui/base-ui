@@ -404,9 +404,9 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
 
   const typeahead = useTypeahead(store, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
-    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't. In a
+    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't. In an open
     // filterable select the input owns typing, so typeahead would race the filter query.
-    enabled: !disabled && !filterable && (open || (!readOnly && !multiple)),
+    enabled: !disabled && (open ? !filterable : !readOnly && !multiple),
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -474,11 +474,13 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     () =>
       mergeProps(
         FOCUSABLE_POPUP_PROPS,
-        typeahead.floating,
+        // Keys typed in a filterable select's input bubble to the popup, including while it
+        // animates out, when typeahead is enabled for the closed trigger.
+        filterable ? EMPTY_OBJECT : typeahead.floating,
         listNavigation.floating,
         dismiss.floating,
       ),
-    [typeahead.floating, listNavigation.floating, dismiss.floating],
+    [filterable, typeahead.floating, listNavigation.floating, dismiss.floating],
   );
 
   const itemProps =

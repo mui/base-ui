@@ -41,14 +41,9 @@ export function useFilterDropdownCloseQuery(parameters: UseFilterDropdownCloseQu
       pendingResetRef.current = true;
       setCloseQuery(value);
     } else if ((open || !mounted) && closeQuery !== null) {
-      // A reopen that interrupts the exit never unmounts, so it settles the pending reset too,
-      // unless a new query replaced the one the reset would clear.
+      // A reopen that interrupts the exit never unmounts, so it settles the pending reset too.
       setCloseQuery(null);
-      if (value === closeQuery) {
-        settlePendingReset();
-      } else {
-        pendingResetRef.current = false;
-      }
+      settlePendingReset();
     }
   }, [open, mounted, value, closeQuery, settlePendingReset]);
 

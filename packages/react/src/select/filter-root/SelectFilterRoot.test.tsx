@@ -166,23 +166,6 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       });
     });
 
-    it('does not mount the popup when the trigger is focused', async () => {
-      const { user } = await render(<Test />);
-      const trigger = screen.getByTestId('trigger');
-      await act(async () => trigger.focus());
-      // The plain select force-mounts its portal after a focus tick for closed-trigger typeahead.
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 10);
-        });
-      });
-      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
-      expect(screen.queryByTestId('popup')).toBe(null);
-
-      await user.keyboard('[ArrowDown]');
-      expect(await screen.findByRole('combobox', { name: 'Filter countries' })).not.toBe(null);
-    });
-
     it('leaves a plain select untouched', async () => {
       await render(
         <Select.Root defaultOpen>
@@ -784,8 +767,8 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       );
       await user.click(screen.getByTestId('trigger'));
 
-      const list = await screen.findByTestId('list');
-      const selected = screen.getByRole('option', { name: 'Country 50' });
+      const selected = await screen.findByRole('option', { name: 'Country 50' });
+      const list = screen.getByTestId('list');
       await waitFor(() => {
         expect(list.scrollTop).toBeGreaterThan(0);
       });
@@ -1121,97 +1104,59 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
   });
 
   describe('typing on the closed trigger', () => {
-    it('opens the select with the typed character as the query', async () => {
-      const { user } = await render(<Test />);
-      const trigger = screen.getByTestId('trigger');
-      await act(() => trigger.focus());
-      expect(screen.queryByRole('dialog')).toBe(null);
-
-      await user.keyboard('j');
-
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-      expect(input).toHaveValue('j');
-      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Japan']);
-    });
-
-    it('highlights the first match', async () => {
-      const { user } = await render(<Test />);
+    it('selects the matching item without opening, like a plain select', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<Test root={{ onValueChange }} />);
       await act(() => screen.getByTestId('trigger').focus());
 
-      await user.keyboard('n');
+      await user.keyboard('j');
 
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
-      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
-        'France',
-        'Germany',
-        'Japan',
-      ]);
-      await waitFor(() => {
-        expect(input).toHaveAttribute(
-          'aria-activedescendant',
-          screen.getByRole('option', { name: 'France' }).id,
-        );
-      });
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('jp', expect.anything());
+      expect(screen.getByTestId('value')).toHaveTextContent('Japan');
+      expect(screen.queryByRole('dialog')).toBe(null);
     });
 
-    it('does not highlight matches once reopened by a press', async () => {
+    it('opens with an empty query afterwards', async () => {
       const { user } = await render(<Test />);
       const trigger = screen.getByTestId('trigger');
       await act(() => trigger.focus());
-      await user.keyboard('n');
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
-      await waitFor(() => {
-        expect(input).toHaveAttribute('aria-activedescendant');
-      });
-
-      await user.keyboard('[Escape]');
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).toBe(null);
-      });
-      await user.click(trigger);
-      const reopenedInput = await screen.findByRole('combobox', { name: 'Filter countries' });
-      await waitFor(() => {
-        expect(reopenedInput).toHaveFocus();
-      });
-      await user.keyboard('n');
-
-      expect(screen.getAllByRole('option')).toHaveLength(3);
-      expect(reopenedInput).not.toHaveAttribute('aria-activedescendant');
-    });
-
-    it.skipIf(isJSDOM)('replaces the previous query when typed during the exit', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-      const style = document.createElement('style');
-      style.textContent =
-        '@keyframes select-filter-exit{to{opacity:0}}[role="dialog"][data-ending-style]{animation:select-filter-exit 10s linear}';
-      document.head.appendChild(style);
-      onTestFinished(() => style.remove());
-
-      const { user } = await render(<Test />);
-      await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-      await user.keyboard('fr');
-
-      // Shift+Tab closes the select and focuses the trigger while the popup animates out.
-      await user.keyboard('{Shift>}{Tab}{/Shift}');
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
-      });
-      expect(screen.getByTestId('trigger')).toHaveFocus();
       await user.keyboard('j');
 
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toHaveAttribute('data-open');
-      });
-      expect(input).toHaveValue('j');
-      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Japan']);
+      await user.click(trigger);
+
+      const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+      expect(input).toHaveValue('');
+      expect(screen.getAllByRole('option')).toHaveLength(4);
     });
+
+    it.skipIf(isJSDOM)(
+      'does not select a matching item when typing in the input while it animates out',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const style = document.createElement('style');
+        style.textContent =
+          '@keyframes select-filter-exit{to{opacity:0}}[role="dialog"][data-ending-style]{animation:select-filter-exit 10s linear}';
+        document.head.appendChild(style);
+        onTestFinished(() => style.remove());
+
+        const onValueChange = vi.fn();
+        const { user } = await render(<Test root={{ onValueChange }} />);
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByRole('combobox', { name: 'Filter countries' });
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        await user.keyboard('[Escape]');
+        await waitFor(() => {
+          expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        });
+        expect(input).toHaveFocus();
+
+        await user.keyboard('j');
+
+        expect(onValueChange).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe('query lifecycle', () => {
