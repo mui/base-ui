@@ -143,6 +143,48 @@ describe('<CompositeList />', () => {
       ]);
     });
 
+    it.each([
+      { name: 'an automatic owner', ownerIndex: undefined, expected: '1' },
+      { name: 'an explicitly indexed owner', ownerIndex: 3, expected: '3' },
+    ])('gives every item sharing a node its index with $name', async ({ ownerIndex, expected }) => {
+      const InnerItem = React.forwardRef(function InnerItem(
+        props: { outerIndex: number },
+        forwardedRef: React.ForwardedRef<HTMLDivElement>,
+      ) {
+        const { ref, index } = useCompositeListItem();
+        // The outer ref attaches last, so the outer item owns the node's registration.
+        return (
+          <div
+            ref={mergeRefs(ref, forwardedRef)}
+            data-testid="shared"
+            data-inner-index={index}
+            data-outer-index={props.outerIndex}
+          />
+        );
+      });
+
+      function OuterItem(props: { index?: number }) {
+        const { ref, index } = useCompositeListItem({ index: props.index });
+        return <InnerItem ref={ref} outerIndex={index} />;
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef}>
+          <Item label="first" />
+          <OuterItem index={ownerIndex} />
+        </CompositeList>,
+      );
+
+      const shared = screen.getByTestId('shared');
+      expect(elementsRef.current[Number(expected)]).toBe(shared);
+      expect(shared).toHaveAttribute('data-outer-index', expected);
+      expect(shared).toHaveAttribute('data-inner-index', expected);
+    });
+
     it('reserves explicit slots when assigning automatic indexes', async () => {
       const elementsRef = {
         current: [] as Array<HTMLElement | null>,
@@ -813,9 +855,8 @@ describe('<CompositeList />', () => {
             <button
               type="button"
               onClick={() => {
-                // Batched with the mount below, so the existing item renders in the same commit
-                // and its fiber still carries the update's lane when the list flushes. React
-                // cannot bail out of a same-value `setState` eagerly in that state.
+                // Batched with the mount below, so the item still has pending work when the list
+                // flushes.
                 rerenderItem.a();
                 setItems(['a', 'b']);
               }}
@@ -1323,7 +1364,7 @@ describe('<CompositeList />', () => {
 
       function Subscriber() {
         const { subscribeMapChange } = useCompositeListContext();
-        React.useLayoutEffect(
+        useIsoLayoutEffect(
           () =>
             subscribeMapChange((map) => {
               calls.push(`subscriber:${map.size}`);
@@ -1408,9 +1449,6 @@ describe('<CompositeList />', () => {
     });
 
     it('publishes an empty list once and settles it on later flushes', async () => {
-      const elementsRef = {
-        current: [] as Array<HTMLElement | null>,
-      };
       const onMapChange = vi.fn();
 
       function Item() {
@@ -1418,29 +1456,49 @@ describe('<CompositeList />', () => {
         return <div ref={ref} data-testid="item" />;
       }
 
-      function App(props: { revision: number; withItem: boolean }) {
+      function App(props: {
+        elementsRef: React.RefObject<Array<HTMLElement | null>>;
+        withItem: boolean;
+      }) {
         return (
-          <CompositeList elementsRef={elementsRef} onMapChange={onMapChange}>
-            <span data-revision={props.revision} />
+          <CompositeList elementsRef={props.elementsRef} onMapChange={onMapChange}>
             {props.withItem && <Item />}
           </CompositeList>
         );
       }
 
-      const { setProps } = await render(<App revision={0} withItem={false} />, { strict: false });
+      const { setProps } = await render(<App elementsRef={{ current: [] }} withItem={false} />, {
+        strict: false,
+      });
       expect(onMapChange).toHaveBeenCalledTimes(1);
       expect(onMapChange.mock.lastCall?.[0].size).toBe(0);
 
-      await setProps({ revision: 1, withItem: false });
+      // A replaced ref flushes the list again while it is still empty.
+      const elementsRef = { current: [] as Array<HTMLElement | null> };
+      await setProps({ elementsRef, withItem: false });
       expect(onMapChange).toHaveBeenCalledTimes(1);
 
-      await setProps({ revision: 2, withItem: true });
+      await setProps({ elementsRef, withItem: true });
       expect(elementsRef.current).toEqual([screen.getByTestId('item')]);
 
-      await setProps({ revision: 3, withItem: false });
+      await setProps({ elementsRef, withItem: false });
       expect(elementsRef.current).toEqual([]);
       expect(onMapChange.mock.lastCall?.[0].size).toBe(0);
       expect(onMapChange).toHaveBeenCalledTimes(3);
+    });
+
+    it('empties a replacement ref that arrives with content while the list is empty', async () => {
+      function App(props: { elementsRef: React.RefObject<Array<HTMLElement | null>> }) {
+        return <CompositeList elementsRef={props.elementsRef}>{null}</CompositeList>;
+      }
+
+      const { setProps } = await render(<App elementsRef={{ current: [] }} />);
+
+      const stale = document.createElement('div');
+      const elementsRef = { current: [stale] as Array<HTMLElement | null> };
+      await setProps({ elementsRef });
+
+      expect(elementsRef.current).toEqual([]);
     });
   });
 

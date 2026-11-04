@@ -33,13 +33,7 @@ export interface CompositeListModelParameters<Metadata> {
   requestFlush: () => void;
 }
 
-/**
- * The items of one composite list, kept ordered by index in `elementsRef` and `labelsRef`.
- *
- * Items register through `context`, which marks the list dirty. Its owner calls `flush` from a
- * layout effect, and `dispose` when it unmounts. `useCompositeList` is the owner for React
- * components that have none of their own.
- */
+/** The items of one composite list, kept ordered by index in `elementsRef` and `labelsRef`. */
 export class CompositeListModel<Metadata> {
   // Fields assigned in the constructor are declared rather than initialized, so they are not
   // defined twice: data grids construct one model per cell while rendering.
@@ -127,9 +121,15 @@ export class CompositeListModel<Metadata> {
     this.clearRefs();
     this.elementsRef = elementsRef;
     this.labelsRef = labelsRef;
+    // The next flush skips an empty list, so it would not empty refs that arrive with content.
+    elementsRef.current.length = 0;
+    if (labelsRef) {
+      labelsRef.current.length = 0;
+    }
     this.dirty = true;
   }
 
+  /** Resolves pending registrations. Call it from the owner's layout effect. */
   flush() {
     this.dirty = false;
 
@@ -155,7 +155,7 @@ export class CompositeListModel<Metadata> {
     }
 
     items.forEach((item) => {
-      if (item.registration.index === null) {
+      if (receivesIndex(item.registration)) {
         item.registration.setIndex(item.index);
       }
     });
@@ -282,19 +282,34 @@ export class CompositeListModel<Metadata> {
   }
 }
 
+const sharedRegistrations = new WeakSet<CompositeListRegistration<any>>();
+
 // Nested items can attach to one DOM node. The last attached registration owns the entry,
-// but every item attached to the node still renders with the node's index.
+// but every item attached to the node still renders with the node's index, including when the
+// owner has an explicit index.
 function shareIndex<Metadata>(
   shadowed: CompositeListRegistration<Metadata>,
   registration: CompositeListRegistration<Metadata>,
 ): CompositeListRegistration<Metadata> {
-  return {
+  const shared: CompositeListRegistration<Metadata> = {
     ...registration,
     setIndex(index) {
-      shadowed.setIndex(index);
-      registration.setIndex(index);
+      if (receivesIndex(shadowed)) {
+        shadowed.setIndex(index);
+      }
+      if (registration.index === null) {
+        registration.setIndex(index);
+      }
     },
   };
+  sharedRegistrations.add(shared);
+  return shared;
+}
+
+// An item with an explicit index renders it as is; only automatic items and the items that a
+// shared registration shadows need the resolved index.
+function receivesIndex<Metadata>(registration: CompositeListRegistration<Metadata>) {
+  return registration.index === null || sharedRegistrations.has(registration);
 }
 
 function getLabel<Metadata>(item: CompositeListItem<Metadata>) {
