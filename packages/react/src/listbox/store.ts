@@ -19,6 +19,8 @@ export type State = {
   activeIndex: number | null;
   /** Whether an item has focus. Only then is the active item highlighted. */
   itemFocused: boolean;
+  /** The item under the pointer. It's highlighted until a key press or focus leaving clears it. */
+  hoveredIndex: number | null;
 
   listElement: HTMLElement | null;
 
@@ -39,6 +41,14 @@ export type Context = {
   highlightEvent: Event | undefined;
 };
 
+/**
+ * The highlighted item: the item under the pointer, or the focused item when the pointer isn't
+ * over an item.
+ */
+export function getHighlightedIndex(state: State) {
+  return state.hoveredIndex ?? (state.itemFocused ? state.activeIndex : null);
+}
+
 export const selectors = {
   id: createSelector((state: State) => state.id),
   labelId: createSelector((state: State) => state.labelId),
@@ -52,7 +62,7 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
   isHighlighted: createSelector(
-    (state: State, index: number) => state.itemFocused && state.activeIndex === index,
+    (state: State, index: number) => getHighlightedIndex(state) === index,
   ),
 
   // Value is always an array now, so isSelected always does array membership check.
@@ -94,20 +104,31 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
   }
 
   /**
-   * Highlights the item that has focus, or is about to receive it.
+   * Highlights the item that has focus, or is about to receive it. The highlight moves with focus,
+   * so the hovered item is forgotten until the pointer moves again.
    */
   highlightItem(index: number, event?: Event) {
     this.context.highlightEvent = event;
-    this.update({ activeIndex: index, itemFocused: true });
+    this.update({ activeIndex: index, itemFocused: true, hoveredIndex: null });
     this.context.highlightEvent = undefined;
   }
 
   /**
-   * Removes the highlight when focus leaves the items. The tab stop stays on the active item.
+   * Records the item under the pointer, or `null` when the pointer leaves the list.
+   */
+  hoverItem(index: number | null, event?: Event) {
+    this.context.highlightEvent = event;
+    this.set('hoveredIndex', index);
+    this.context.highlightEvent = undefined;
+  }
+
+  /**
+   * Removes the highlight when focus leaves the items. The hovered item is forgotten too, so
+   * nothing is highlighted until the pointer moves again.
    */
   unhighlightItem(event?: Event) {
     this.context.highlightEvent = event;
-    this.set('itemFocused', false);
+    this.update({ itemFocused: false, hoveredIndex: null });
     this.context.highlightEvent = undefined;
   }
 }
@@ -122,6 +143,7 @@ function createInitialState(): State {
     value: [],
     activeIndex: null,
     itemFocused: false,
+    hoveredIndex: null,
     listElement: null,
     orientation: 'vertical',
     disabled: false,

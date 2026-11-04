@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import { getHighlightReason } from '../../utils/getHighlightReason';
+import { getHighlightedIndex } from '../store';
 import type { ListboxStore } from '../store';
 import type { ListboxRoot } from '../root/ListboxRoot';
 
@@ -14,8 +15,9 @@ interface ResolvedHighlight<Value> {
 /**
  * Calls `onItemHighlighted` when the highlighted item changes.
  *
- * Subscribes to the store's highlighted item (the active item while an item has focus), resolves
- * its value, and derives the reason from the event recorded by the store.
+ * Subscribes to the store's highlighted item (the hovered item, or the focused item when the pointer
+ * isn't over an item), resolves its value, and derives the reason from the event recorded by the
+ * store.
  */
 export function useHighlightChangeNotifier<Value>(params: {
   store: ListboxStore;
@@ -34,15 +36,15 @@ export function useHighlightChangeNotifier<Value>(params: {
   const lastReportedHighlightRef = React.useRef<ResolvedHighlight<Value> | null>(null);
 
   const resolveHighlightedItem = useStableCallback((): ResolvedHighlight<Value> => {
-    const { activeIndex, itemFocused } = store.state;
+    const highlightedIndex = getHighlightedIndex(store.state);
 
-    if (activeIndex == null || !itemFocused) {
+    if (highlightedIndex == null) {
       return { index: -1, value: undefined };
     }
 
     return {
-      index: activeIndex,
-      value: store.context.valuesRef.current[activeIndex] as Value | undefined,
+      index: highlightedIndex,
+      value: store.context.valuesRef.current[highlightedIndex] as Value | undefined,
     };
   });
 

@@ -291,7 +291,7 @@ describe('<Listbox.Root />', () => {
       expect(itemA).not.toHaveAttribute('data-highlighted');
     });
 
-    it('does not take focus from a control outside the list', async () => {
+    it('highlights a hovered item without taking focus when focus is outside the list', async () => {
       await renderListWithOutsideButton();
       const outside = screen.getByRole('button', { name: 'Outside' });
       const itemB = screen.getByRole('option', { name: 'b' });
@@ -301,6 +301,58 @@ describe('<Listbox.Root />', () => {
       fireEvent.mouseMove(itemB);
 
       expect(outside).toHaveFocus();
+      expect(itemB).toHaveAttribute('data-highlighted');
+    });
+
+    it.each([
+      { name: 'single selection', rootProps: { defaultValue: 'c' } },
+      { name: 'opt-in mode', rootProps: { multiple: 'opt-in', defaultValue: ['c'] } },
+    ])(
+      'moves the highlight from a hovered item to an item that receives focus with $name',
+      async ({ rootProps }) => {
+        await render(
+          <div>
+            <button>Before</button>
+            <Listbox.Root {...(rootProps as Listbox.Root.Props<string, boolean | 'opt-in'>)}>
+              <Listbox.List>
+                <Listbox.Item value="a">a</Listbox.Item>
+                <Listbox.Item value="b">b</Listbox.Item>
+                <Listbox.Item value="c">c</Listbox.Item>
+              </Listbox.List>
+            </Listbox.Root>
+          </div>,
+        );
+        await act(async () => screen.getByRole('button', { name: 'Before' }).focus());
+        const itemB = screen.getByRole('option', { name: 'b' });
+        const itemC = screen.getByRole('option', { name: 'c' });
+        fireEvent.mouseMove(itemB);
+        expect(itemB).toHaveAttribute('data-highlighted');
+
+        await act(async () => itemC.focus());
+
+        expect(itemC).toHaveAttribute('data-highlighted');
+        expect(itemB).not.toHaveAttribute('data-highlighted');
+      },
+    );
+
+    it('removes the hover highlight when the pointer leaves the list', async () => {
+      await renderListWithOutsideButton();
+      const itemB = screen.getByRole('option', { name: 'b' });
+
+      fireEvent.mouseMove(itemB);
+      expect(itemB).toHaveAttribute('data-highlighted');
+
+      fireEvent.mouseLeave(screen.getByRole('listbox'));
+
+      expect(itemB).not.toHaveAttribute('data-highlighted');
+    });
+
+    it('does not highlight a hovered item when false and focus is outside the list', async () => {
+      await renderListWithOutsideButton(false);
+      const itemB = screen.getByRole('option', { name: 'b' });
+
+      fireEvent.mouseMove(itemB);
+
       expect(itemB).not.toHaveAttribute('data-highlighted');
     });
   });
