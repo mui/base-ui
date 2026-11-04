@@ -647,7 +647,7 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[1][0]).toEqual([]);
     });
 
-    it('Shift+ArrowDown moves focus and toggles selection of the next option', async () => {
+    it('Shift+ArrowDown selects from the focused option to the next one, replacing the rest of the selection', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -669,16 +669,16 @@ describe('<Listbox.Root />', () => {
 
       const itemB = screen.getByRole('option', { name: 'b' });
 
-      // Item b is focused; Shift+ArrowDown should toggle c
+      // Item b is focused and becomes the anchor; Shift+ArrowDown selects b–c
       fireEvent.keyDown(itemB, { key: 'ArrowDown', shiftKey: true });
 
       await flushMicrotasks();
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
     });
 
-    it('Shift+ArrowUp moves focus and toggles selection of the previous option', async () => {
+    it('Shift+ArrowUp selects from the focused option to the previous one', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -700,13 +700,13 @@ describe('<Listbox.Root />', () => {
 
       const itemC = screen.getByRole('option', { name: 'c' });
 
-      // Now item c is focused; Shift+ArrowUp should toggle b
+      // Item c is focused and becomes the anchor; Shift+ArrowUp selects b–c
       fireEvent.keyDown(itemC, { key: 'ArrowUp', shiftKey: true });
 
       await flushMicrotasks();
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['c', 'b']);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
     });
 
     it('Shift+Space selects contiguous items from most recently selected to focused', async () => {
@@ -965,37 +965,108 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
     });
 
-    it('Shift+ArrowDown adds already selected item without duplicating', async () => {
+    it('Shift+Arrow grows and shrinks the range from where Shift was pressed', async () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={['a']} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
             <Listbox.Item value="c">c</Listbox.Item>
+            <Listbox.Item value="d">d</Listbox.Item>
           </Listbox.List>
         </Listbox.Root>,
       );
 
-      // ArrowDown from list goes to index 1 (item b)
-      const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'ArrowDown' });
+      const option = (name: string) => screen.getByRole('option', { name });
+      await act(async () => option('a').focus());
 
+      fireEvent.keyDown(option('a'), { key: 'Shift', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('a'), { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('b'), { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('c'), { key: 'ArrowUp', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('b'), { key: 'ArrowUp', shiftKey: true });
       await flushMicrotasks();
 
-      // Item b is focused; Shift+ArrowDown adds c to selection
-      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), {
-        key: 'ArrowDown',
-        shiftKey: true,
-      });
+      expect(option('a')).toHaveAttribute('data-highlighted');
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([
+        ['a', 'b'],
+        ['a', 'b', 'c'],
+        ['a', 'b'],
+        ['a'],
+      ]);
+    });
 
+    it('Shift+Arrow starts a new range from the focused option after moving without Shift', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple defaultValue={['a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+            <Listbox.Item value="d">d</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const option = (name: string) => screen.getByRole('option', { name });
+      await act(async () => option('a').focus());
+
+      fireEvent.keyDown(option('a'), { key: 'Shift', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('a'), { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('b'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+      // No new Shift keydown reaches the list, as when Shift is already held.
+      fireEvent.keyDown(option('c'), { key: 'ArrowDown', shiftKey: true });
       await flushMicrotasks();
 
-      // c was added, existing selections preserved
-      expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([
+        ['a', 'b'],
+        ['c', 'd'],
+      ]);
+    });
+
+    it('Shift+Arrow starts a new range from where Shift is pressed again', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple defaultValue={['a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+            <Listbox.Item value="d">d</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const option = (name: string) => screen.getByRole('option', { name });
+      await act(async () => option('a').focus());
+
+      fireEvent.keyDown(option('a'), { key: 'Shift', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('a'), { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('b'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('c'), { key: 'Shift', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('c'), { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([
+        ['a', 'b'],
+        ['c', 'd'],
+      ]);
     });
 
     it('Shift+ArrowDown focuses disabled options without selecting them', async () => {
@@ -1085,7 +1156,7 @@ describe('<Listbox.Root />', () => {
     });
 
     describe('horizontal orientation', () => {
-      it('Shift+ArrowRight selects the next option', async () => {
+      it('Shift+ArrowRight extends the selection to the next option', async () => {
         const handleValueChange = vi.fn();
 
         await render(
@@ -1118,10 +1189,10 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
       });
 
-      it('Shift+ArrowLeft selects the previous option', async () => {
+      it('Shift+ArrowLeft extends the selection to the previous option', async () => {
         const handleValueChange = vi.fn();
 
         await render(
@@ -1154,7 +1225,7 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['a']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
       });
 
       it('Shift+ArrowDown does not select in horizontal orientation', async () => {
@@ -1194,7 +1265,7 @@ describe('<Listbox.Root />', () => {
     });
 
     describe('horizontal RTL orientation', () => {
-      it('Shift+ArrowLeft selects the next option in RTL', async () => {
+      it('Shift+ArrowLeft extends the selection to the next option in RTL', async () => {
         const handleValueChange = vi.fn();
 
         await render(
@@ -1230,10 +1301,10 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
       });
 
-      it('Shift+ArrowRight selects the previous option in RTL', async () => {
+      it('Shift+ArrowRight extends the selection to the previous option in RTL', async () => {
         const handleValueChange = vi.fn();
 
         await render(
@@ -1269,7 +1340,7 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['a']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
       });
 
       it('Ctrl+A selects all in RTL', async () => {

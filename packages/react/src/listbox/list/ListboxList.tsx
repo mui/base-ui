@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context';
@@ -42,6 +43,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
   // The keydown being handled by the list, so composite navigation can report it.
   const keyDownEventRef = React.useRef<KeyboardEvent | undefined>(undefined);
+  // Where a Shift+Arrow range starts: the item focused when Shift was pressed.
+  const shiftAnchorRef = React.useRef<number | null>(null);
 
   const onHighlightedIndexChange = useStableCallback((index: number) => {
     const event = keyDownEventRef.current;
@@ -189,7 +192,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
       }
     }
 
-    // Shift+Arrow: Move focus and toggle selection of the adjacent item
+    // Shift+Arrow: Move focus and select the range from the anchor to the focused item,
+    // replacing the rest of the selection, so the range grows and shrinks as focus moves.
     if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
       const isRtl = direction === 'rtl';
       const isPrev =
@@ -204,12 +208,24 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
         if (targetIndex >= 0 && targetIndex < elements.length && elements[targetIndex]) {
           event.preventDefault();
+          if (shiftAnchorRef.current === null) {
+            shiftAnchorRef.current = currentIndex;
+          }
+          const anchorIndex = shiftAnchorRef.current;
           focusItem(targetIndex);
-          if (values[targetIndex] !== undefined && !disabledItemsRef.current[targetIndex]) {
-            dispatchSelection(
-              { type: 'toggle', index: targetIndex },
-              event.nativeEvent,
-              targetIndex,
+
+          const currentValue = store.state.value;
+          const nextValue = selectionReducer(
+            { type: 'extendTo', index: targetIndex, anchorIndex },
+            currentValue,
+            values,
+            disabledItemsRef.current,
+            isItemEqualToValue,
+          );
+          if (!areArraysEqual(currentValue, nextValue, isItemEqualToValue)) {
+            setValue(
+              nextValue,
+              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
           }
         }
@@ -270,9 +286,19 @@ export const ListboxList = React.forwardRef(function ListboxList(
     'aria-multiselectable': multiple ? true : undefined,
     'aria-orientation': orientation,
     tabIndex: disabled ? undefined : 0,
+    onPointerDown() {
+      // A new pointer press starts a new Shift+Arrow range from wherever focus lands.
+      shiftAnchorRef.current = null;
+    },
     onKeyDown(event: React.KeyboardEvent) {
       if (disabled) {
         return;
+      }
+
+      if (event.key === 'Shift') {
+        shiftAnchorRef.current = store.state.activeIndex;
+      } else if (!event.shiftKey) {
+        shiftAnchorRef.current = null;
       }
 
       // Let composite handle unmodified arrow keys, Home, End
