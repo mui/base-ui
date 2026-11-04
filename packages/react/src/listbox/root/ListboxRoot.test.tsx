@@ -183,7 +183,7 @@ describe('<Listbox.Root />', () => {
     }
 
     it('removes the highlight when focus leaves the list and restores it when focus returns', async () => {
-      const { user } = await renderListWithOutsideButton();
+      const { user } = await renderListWithOutsideButton({ defaultValue: 'b' });
       const itemB = screen.getByRole('option', { name: 'b' });
 
       await act(async () => itemB.focus());
@@ -222,6 +222,42 @@ describe('<Listbox.Root />', () => {
       await flushMicrotasks();
 
       expect(itemB).toHaveAttribute('data-highlighted');
+    });
+  });
+
+  describe('tab stop', () => {
+    it.each([
+      { name: 'the selected item', rootProps: { defaultValue: 'a' }, expected: 'a' },
+      { name: 'the first item when nothing is selected', rootProps: {}, expected: 'a' },
+      {
+        name: 'the first selected item with multiple selection',
+        rootProps: { multiple: true, defaultValue: ['d', 'b'] },
+        expected: 'b',
+      },
+    ])('returns focus to $name when tabbing back in', async ({ rootProps, expected }) => {
+      const { user } = await render(
+        <div>
+          <Listbox.Root {...(rootProps as Listbox.Root.Props<string, boolean>)}>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b">b</Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
+              <Listbox.Item value="d">d</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>
+          <button>Outside</button>
+        </div>,
+      );
+      const itemC = screen.getByRole('option', { name: 'c' });
+
+      await act(async () => itemC.focus());
+      expect(itemC).toHaveAttribute('tabindex', '0');
+
+      await user.keyboard('{Tab}');
+      expect(screen.getByRole('button', { name: 'Outside' })).toHaveFocus();
+
+      await user.keyboard('{Shift>}{Tab}{/Shift}');
+      expect(screen.getByRole('option', { name: expected })).toHaveFocus();
     });
   });
 
