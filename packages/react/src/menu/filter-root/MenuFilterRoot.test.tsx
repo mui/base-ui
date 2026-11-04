@@ -99,7 +99,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <Menu.Popup {...props.popupProps}>
                 <Menu.Input aria-label="Filter" onFocus={props.onInputFocus} />
                 <Menu.List {...props.listProps}>
-                  <Menu.Item>Alpha</Menu.Item>
+                  <Menu.Item onClick={props.onAlphaClick}>Alpha</Menu.Item>
                   <Menu.Item>Beta</Menu.Item>
                   <Menu.Item>Gamma</Menu.Item>
                 </Menu.List>
@@ -1163,82 +1163,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await user.keyboard('[End]');
       expect(input.selectionStart).toBe(2);
       expect(input).toHaveAttribute('aria-activedescendant', rename.id);
-    });
-
-    describe('Space', () => {
-      function SpaceTest(props: { onRenameClick: () => void }) {
-        return (
-          <Menu.FilterProvider>
-            <Menu.Root defaultOpen>
-              <Menu.Trigger>Actions</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.Input aria-label="Filter actions" />
-                    <Menu.List>
-                      <Menu.Item onClick={props.onRenameClick}>Rename</Menu.Item>
-                      <Menu.Item>Remove</Menu.Item>
-                    </Menu.List>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </Menu.FilterProvider>
-        );
-      }
-
-      it('activates the highlighted item while the input is empty', async () => {
-        const onRenameClick = vi.fn();
-        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
-
-        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
-        await user.click(input);
-        await user.keyboard('[ArrowDown]');
-        expect(input).toHaveAttribute(
-          'aria-activedescendant',
-          screen.getByRole('menuitem', { name: 'Rename' }).id,
-        );
-
-        await user.keyboard(' ');
-
-        expect(onRenameClick).toHaveBeenCalledTimes(1);
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).toBe(null);
-        });
-      });
-
-      it('does nothing while the input is empty and no item is highlighted', async () => {
-        const onRenameClick = vi.fn();
-        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
-
-        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
-        await user.click(input);
-        expect(input).not.toHaveAttribute('aria-activedescendant');
-
-        await user.keyboard(' ');
-
-        expect(input.value).toBe('');
-        expect(onRenameClick).not.toHaveBeenCalled();
-        expect(screen.getByRole('menu')).not.toBe(null);
-      });
-
-      it('types into a non-empty input with a highlighted item', async () => {
-        const onRenameClick = vi.fn();
-        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
-
-        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
-        await user.click(input);
-        await user.keyboard('re[ArrowDown]');
-        expect(input).toHaveAttribute(
-          'aria-activedescendant',
-          screen.getByRole('menuitem', { name: 'Rename' }).id,
-        );
-
-        await user.keyboard(' ');
-
-        expect(input.value).toBe('re ');
-        expect(onRenameClick).not.toHaveBeenCalled();
-      });
     });
 
     describe('cross-axis arrow keys with a query', () => {

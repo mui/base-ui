@@ -48,6 +48,9 @@ export function useSelectFilterKeyDown(hasValue: boolean) {
         event.preventDefault();
         dispatchClickWithModifiers(activeItem!, event);
         break;
+      case 'block':
+        stopEvent(event);
+        break;
       case 'close': {
         // Mirror the plain select: Shift+Tab closes the popup and returns focus to the trigger.
         stopEvent(event);

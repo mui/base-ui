@@ -7,8 +7,8 @@ import { firePointer, isJSDOM, waitSingleFrame } from '#test-utils';
 /**
  * Contracts that `Menu.FilterProvider` and `Select.FilterProvider` share: input focus by opening
  * modality, label resolution, the keyboard-opening state across controlled closes, the trigger's
- * relay of navigation and typing to the input, focus kept on the input when the list takes it,
- * and an input that ignores keys and edits while the popup animates out.
+ * relay of navigation and typing to the input, Space in the input, focus kept on the input when
+ * the list takes it, and an input that ignores keys and edits while the popup animates out.
  *
  * `createComponent` renders a filterable popup with a trigger (`data-testid="trigger"`), an
  * input labelled "Filter", and the items "Alpha", "Beta", and "Gamma".
@@ -147,6 +147,61 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
       const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter' });
       await act(() => waitSingleFrame());
       expect(reopenedInput).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    describe('Space in the input', () => {
+      async function openAndHighlightAlpha(
+        user: Awaited<ReturnType<typeof render>>['user'],
+        query = '',
+      ) {
+        await user.click(screen.getByTestId('trigger'));
+        const input = await findFocusedInput();
+        await user.keyboard(`${query}[ArrowDown]`);
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole(itemRole, { name: 'Alpha' }).id,
+        );
+        return input;
+      }
+
+      it('activates the highlighted item while the input is empty', async () => {
+        const onAlphaClick = vi.fn();
+        const { user } = await render(createComponent({ onAlphaClick }));
+        const input = await openAndHighlightAlpha(user);
+
+        await user.keyboard(' ');
+
+        expect(onAlphaClick).toHaveBeenCalledTimes(1);
+        expect(input).toHaveValue('');
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+      });
+
+      it('does nothing while the input is empty and no item is highlighted', async () => {
+        const onAlphaClick = vi.fn();
+        const { user } = await render(createComponent({ onAlphaClick }));
+        await user.click(screen.getByTestId('trigger'));
+        const input = await findFocusedInput();
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+
+        await user.keyboard(' ');
+
+        expect(input).toHaveValue('');
+        expect(onAlphaClick).not.toHaveBeenCalled();
+        expect(screen.getByRole('dialog')).toBeVisible();
+      });
+
+      it('types into a non-empty input with a highlighted item', async () => {
+        const onAlphaClick = vi.fn();
+        const { user } = await render(createComponent({ onAlphaClick }));
+        const input = await openAndHighlightAlpha(user, 'al');
+
+        await user.keyboard(' ');
+
+        expect(input).toHaveValue('al ');
+        expect(onAlphaClick).not.toHaveBeenCalled();
+      });
     });
 
     describe('list focus', () => {
@@ -301,6 +356,7 @@ export interface FilterablePopupTestProps {
     onValueChange?: ((value: string, eventDetails: { reason: string }) => void) | undefined;
   };
   onInputFocus?: () => void;
+  onAlphaClick?: () => void;
 }
 
 export interface FilterablePopupConformanceTestsConfig {

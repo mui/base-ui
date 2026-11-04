@@ -41,7 +41,6 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
       hasActiveItem: activeItem != null,
       activeItemOpensSubmenu: activeItem?.hasAttribute('aria-haspopup') ?? false,
       hasValue,
-      activateOnSpace: true,
       caretAtStart: caretCollapsed && input.selectionStart === 0,
       caretAtEnd: caretCollapsed && input.selectionEnd === input.value.length,
     });

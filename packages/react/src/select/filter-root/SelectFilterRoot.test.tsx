@@ -78,7 +78,9 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
               <Select.Popup {...props.popupProps}>
                 <Select.Input aria-label="Filter" onFocus={props.onInputFocus} />
                 <Select.List {...props.listProps}>
-                  <Select.Item value="alpha">Alpha</Select.Item>
+                  <Select.Item value="alpha" onClick={props.onAlphaClick}>
+                    Alpha
+                  </Select.Item>
                   <Select.Item value="beta">Beta</Select.Item>
                   <Select.Item value="gamma">Gamma</Select.Item>
                 </Select.List>

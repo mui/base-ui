@@ -36,8 +36,6 @@ export interface FilterKeyContext {
   /** Set by menus so cross-axis keys can navigate past the text boundary. */
   caretAtStart?: boolean | undefined;
   caretAtEnd?: boolean | undefined;
-  /** Menus activate with Space in an empty input; selects allow typing a space. */
-  activateOnSpace?: boolean | undefined;
 }
 
 /**
@@ -68,7 +66,8 @@ export function getFilterKeyAction(
   if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
     return isArrow || isBoundary || key.length === 1 ? 'edit' : 'navigate';
   }
-  if (key === ' ' && !hasValue && context.activateOnSpace) {
+  // Space types into a non-empty input, and otherwise acts on the highlighted item.
+  if (key === ' ' && !hasValue) {
     return hasActiveItem ? 'activate' : 'block';
   }
   // Characters stay out of parent handlers such as typeahead.
