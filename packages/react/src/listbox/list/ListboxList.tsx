@@ -35,6 +35,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const orientation = store.useState('orientation');
   const disabled = store.useState('disabled');
   const multiple = store.useState('multiple');
+  const optInMode = multiple === 'opt-in';
   const direction = useDirection();
   const { disabledItemsRef, labelsRef, lastSelectedIndexRef, setValue, typingRef, valuesRef } =
     store.context;
@@ -43,7 +44,23 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const keyDownEventRef = React.useRef<KeyboardEvent | undefined>(undefined);
 
   const onHighlightedIndexChange = useStableCallback((index: number) => {
-    store.setActiveIndex(index, keyDownEventRef.current);
+    const event = keyDownEventRef.current;
+    store.setActiveIndex(index, event);
+
+    // In opt-in mode, moving focus with an arrow key and no modifier moves the selection to
+    // the focused item (the APG alternative multiple selection model).
+    if (
+      optInMode &&
+      event &&
+      event.key.startsWith('Arrow') &&
+      !event.shiftKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      dispatchSelection({ type: 'select', index }, event, index);
+    }
   });
 
   const composite = useCompositeRoot({
@@ -151,6 +168,25 @@ export const ListboxList = React.forwardRef(function ListboxList(
     function focusItem(targetIndex: number) {
       store.setActiveIndex(targetIndex, event.nativeEvent);
       elements[targetIndex]?.focus();
+    }
+
+    // Opt-in mode: Ctrl/Cmd+Arrow moves focus without changing the selection
+    if (optInMode && (event.ctrlKey || event.metaKey) && !event.shiftKey) {
+      const isRtl = direction === 'rtl';
+      const isPrev =
+        (isVertical && event.key === 'ArrowUp') ||
+        (!isVertical && (isRtl ? event.key === 'ArrowRight' : event.key === 'ArrowLeft'));
+      const isNext =
+        (isVertical && event.key === 'ArrowDown') ||
+        (!isVertical && (isRtl ? event.key === 'ArrowLeft' : event.key === 'ArrowRight'));
+
+      if ((isPrev || isNext) && currentIndex != null) {
+        event.preventDefault();
+        const targetIndex = isPrev ? currentIndex - 1 : currentIndex + 1;
+        if (targetIndex >= 0 && targetIndex < elements.length && elements[targetIndex]) {
+          focusItem(targetIndex);
+        }
+      }
     }
 
     // Shift+Arrow: Move focus and toggle selection of the adjacent item
