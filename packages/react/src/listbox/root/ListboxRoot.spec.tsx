@@ -59,7 +59,6 @@ function ControlledMultiple() {
 // @ts-expect-error -- the old prop name is gone
 <Listbox.Root onHighlightChange={() => {}} />;
 
-
 // @ts-expect-error -- Listbox doesn't take part in form submission
 <Listbox.Root name="fruit" />;
 

@@ -213,6 +213,30 @@ describe('<Listbox.Root />', () => {
     });
   });
 
+  describe('prop: multiple', () => {
+    it('keeps the selection when plain arrow keys move focus', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemB.focus());
+
+      fireEvent.keyDown(itemB, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-highlighted');
+      expect(handleValueChange).not.toHaveBeenCalled();
+    });
+  });
+
   describe('prop: multiple="opt-in"', () => {
     it('should replace the selection on plain click', async () => {
       const handleValueChange = vi.fn();
@@ -254,6 +278,104 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange).toHaveBeenCalledTimes(2);
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
       expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'b']);
+    });
+
+    function renderOptIn(
+      props: Partial<Listbox.Root.Props<string, 'opt-in'>> = {},
+      onValueChange = vi.fn(),
+    ) {
+      return render(
+        <Listbox.Root multiple="opt-in" onValueChange={onValueChange} {...props}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+    }
+
+    it('moves the selection with focus on plain arrow keys', async () => {
+      const handleValueChange = vi.fn();
+      await renderOptIn({ defaultValue: ['a', 'b'] }, handleValueChange);
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemB.focus());
+      expect(itemB).toHaveAttribute('data-highlighted');
+
+      fireEvent.keyDown(itemB, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-highlighted');
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
+    });
+
+    it('clears the selection when a plain arrow key moves focus to a disabled item', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const itemA = screen.getByRole('option', { name: 'a' });
+      await act(async () => itemA.focus());
+      fireEvent.keyDown(itemA, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+      expect(handleValueChange.mock.calls[0][0]).toEqual([]);
+      expect(itemA).not.toHaveAttribute('data-selected');
+    });
+
+    it.each([
+      { name: 'Ctrl', modifier: { ctrlKey: true } },
+      { name: 'Cmd', modifier: { metaKey: true } },
+    ])('moves focus without changing the selection on $name+arrow keys', async ({ modifier }) => {
+      const handleValueChange = vi.fn();
+      await renderOptIn({ defaultValue: ['a'] }, handleValueChange);
+
+      const itemA = screen.getByRole('option', { name: 'a' });
+      await act(async () => itemA.focus());
+      expect(itemA).toHaveAttribute('data-highlighted');
+
+      fireEvent.keyDown(itemA, { key: 'ArrowDown', ...modifier });
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      expect(itemB).toHaveAttribute('data-highlighted');
+      expect(handleValueChange).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(itemB, { key: ' ', ctrlKey: true });
+      fireEvent.keyUp(itemB, { key: ' ', ctrlKey: true });
+      await flushMicrotasks();
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
+    });
+
+    it('keeps the selection when Home and End move focus', async () => {
+      const handleValueChange = vi.fn();
+      await renderOptIn({ defaultValue: ['b'] }, handleValueChange);
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemB.focus());
+
+      fireEvent.keyDown(itemB, { key: 'End' });
+      await flushMicrotasks();
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-highlighted');
+
+      fireEvent.keyDown(screen.getByRole('option', { name: 'c' }), { key: 'Home' });
+      await flushMicrotasks();
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted');
+
+      expect(handleValueChange).not.toHaveBeenCalled();
     });
 
     it('toggles items on touch tap, like multiple', async () => {
