@@ -3,6 +3,7 @@ import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -73,6 +74,26 @@ export const ListboxList = React.forwardRef(function ListboxList(
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       dispatchSelection({ type: 'moveSelection', index }, event, index);
     }
+  });
+
+  /**
+   * The item that should receive focus when the list receives focus: the first selected item,
+   * or the first item when nothing is selected, as the APG listbox pattern describes.
+   */
+  const getTabStopIndex = useStableCallback(() => {
+    const values = valuesRef.current;
+    const { value: selectedValues, isItemEqualToValue } = store.state;
+    for (let index = 0; index < values.length; index += 1) {
+      if (
+        index in values &&
+        selectedValues.some((selectedValue) =>
+          compareItemEquality(values[index], selectedValue, isItemEqualToValue),
+        )
+      ) {
+        return index;
+      }
+    }
+    return 0;
   });
 
   const composite = useCompositeRoot({
@@ -298,29 +319,21 @@ export const ListboxList = React.forwardRef(function ListboxList(
     'aria-labelledby': labelId,
     'aria-multiselectable': multiple ? true : undefined,
     'aria-orientation': orientation,
-    tabIndex: disabled ? undefined : 0,
+    tabIndex: disabled ? undefined : -1,
+    onFocus(event) {
+      // The list isn't a tab stop, but it can receive focus programmatically, such as from a
+      // `Listbox.Label` click. Pass focus on to the item that holds the tab stop.
+      if (event.target !== event.currentTarget) {
+        return;
+      }
+      const index = store.state.activeIndex ?? getTabStopIndex();
+      composite.elementsRef.current[index]?.focus();
+    },
     onBlur(event) {
       if (contains(event.currentTarget, event.relatedTarget)) {
         return;
       }
-
-      // Tabbing back in returns to the first selected item, or the first item when nothing is
-      // selected, as the APG listbox pattern describes.
-      const values = valuesRef.current;
-      const { value, isItemEqualToValue } = store.state;
-      let tabStopIndex = 0;
-      for (let index = 0; index < values.length; index += 1) {
-        if (
-          index in values &&
-          value.some((selectedValue) =>
-            compareItemEquality(values[index], selectedValue, isItemEqualToValue),
-          )
-        ) {
-          tabStopIndex = index;
-          break;
-        }
-      }
-      store.setActiveIndex(tabStopIndex, event.nativeEvent);
+      store.setActiveIndex(getTabStopIndex(), event.nativeEvent);
     },
     onMouseLeave(event) {
       store.hoverItem(null, event.nativeEvent);
@@ -367,6 +380,21 @@ export const ListboxList = React.forwardRef(function ListboxList(
     },
   };
 
+  // While no item has focus, keep the tab stop on the first selected item, including when the
+  // selection or the items change.
+  const value = store.useState('value');
+  const onMapChange = useStableCallback((map: Parameters<typeof composite.onMapChange>[0]) => {
+    composite.onMapChange(map);
+    if (!store.state.itemFocused) {
+      store.setActiveIndex(getTabStopIndex());
+    }
+  });
+  useIsoLayoutEffect(() => {
+    if (!store.state.itemFocused) {
+      store.setActiveIndex(getTabStopIndex());
+    }
+  }, [value, store, getTabStopIndex]);
+
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement, composite.props.ref],
     state,
@@ -379,7 +407,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     <CompositeList
       elementsRef={composite.elementsRef}
       labelsRef={labelsRef}
-      onMapChange={composite.onMapChange}
+      onMapChange={onMapChange}
     >
       {element}
     </CompositeList>

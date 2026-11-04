@@ -34,7 +34,7 @@
     outline: 1px solid oklch(37.1% 0 0deg);
   }
 
-  &:focus-visible {
+  &:has(:focus-visible) {
     outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
