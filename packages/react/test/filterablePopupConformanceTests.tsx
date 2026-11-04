@@ -150,7 +150,7 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
     });
 
     describe('list focus', () => {
-      it('returns focus to the input when the list takes it from the input', async () => {
+      it('returns focus to the input when a press focuses the list', async () => {
         const { user } = await render(createComponent({}));
         await user.click(screen.getByTestId('trigger'));
         const input = await findFocusedInput();
@@ -158,9 +158,22 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
         // A press on non-item content, such as a group label, focuses the list.
         expect(list).toHaveAttribute('tabindex');
 
+        fireEvent.pointerDown(list);
         await act(async () => list.focus());
 
         expect(input).toHaveFocus();
+      });
+
+      it('keeps focus on the list when a screen reader moves it there from the input', async () => {
+        const { user } = await render(createComponent({}));
+        await user.click(screen.getByTestId('trigger'));
+        await findFocusedInput();
+        const list = screen.getByRole(listRole);
+
+        // Safari VoiceOver focuses the list as its cursor moves onto it, without pointer events.
+        await act(async () => list.focus());
+
+        expect(list).toHaveFocus();
       });
 
       it('leaves focus on the list when the input did not have it', async () => {

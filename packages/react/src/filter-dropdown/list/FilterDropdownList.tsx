@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { getTarget } from '@base-ui/utils/shadowDom';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
@@ -20,6 +21,9 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
 
   const context = useFilterDropdownRootContext();
 
+  const pointerPressRef = React.useRef(false);
+  const pointerPressTimeout = useTimeout();
+
   const [id, registerIdRef] = useRenderedId(
     componentProps,
     context.defaultListId,
@@ -32,9 +36,11 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     id,
     onFocus(event) {
       // A press on the list's own content, such as its background, a group, or a group label,
-      // focuses the list.
+      // focuses the list. A screen reader moving its cursor onto the list focuses it too, and
+      // keeps it so its options stay reachable.
       const owner = context.focusOwnerRef.current;
       if (
+        pointerPressRef.current &&
         owner &&
         event.relatedTarget === owner &&
         getTarget(event.nativeEvent) === event.currentTarget
@@ -47,6 +53,11 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     },
     onPointerDown() {
       context.setKeyboardModality(false);
+      // The press focuses the list in the same task.
+      pointerPressRef.current = true;
+      pointerPressTimeout.start(0, () => {
+        pointerPressRef.current = false;
+      });
     },
   };
 
