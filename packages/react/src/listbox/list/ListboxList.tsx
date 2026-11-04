@@ -321,6 +321,9 @@ export const ListboxList = React.forwardRef(function ListboxList(
       }
       store.setActiveIndex(tabStopIndex, event.nativeEvent);
     },
+    onMouseLeave(event) {
+      store.hoverItem(null, event.nativeEvent);
+    },
     onPointerDown() {
       // A new pointer press starts a new Shift+Arrow range from wherever focus lands.
       shiftAnchorRef.current = null;
@@ -354,6 +357,12 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
       // Handle typeahead
       handleTypeahead(event);
+
+      // The keyboard takes over from the pointer, so the highlight returns to the focused item
+      // until the pointer moves again.
+      if (store.state.hoveredIndex !== null) {
+        store.hoverItem(null, event.nativeEvent);
+      }
     },
   };
 
