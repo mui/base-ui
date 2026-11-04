@@ -256,7 +256,7 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'b']);
     });
 
-    it('should replace the selection on touch tap', async () => {
+    it('toggles items on touch tap, like multiple', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -273,8 +273,39 @@ describe('<Listbox.Root />', () => {
       fireEvent.pointerDown(itemC, { pointerType: 'touch' });
       fireEvent.click(itemC);
 
-      expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
+      const itemA = screen.getByRole('option', { name: 'a' });
+      fireEvent.pointerDown(itemA, { pointerType: 'touch' });
+      fireEvent.click(itemA);
+
+      expect(handleValueChange).toHaveBeenCalledTimes(2);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['b', 'c']);
+    });
+
+    it('still replaces the selection on a mouse click after a touch tap', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      fireEvent.pointerDown(itemB, { pointerType: 'touch' });
+      fireEvent.click(itemB);
+
+      const itemC = screen.getByRole('option', { name: 'c' });
+      fireEvent.pointerDown(itemC, { pointerType: 'mouse' });
+      fireEvent.click(itemC);
+
+      expect(handleValueChange).toHaveBeenCalledTimes(2);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['c']);
     });
 
     it('should preserve existing selections outside the range on Ctrl+Shift+Click', async () => {
