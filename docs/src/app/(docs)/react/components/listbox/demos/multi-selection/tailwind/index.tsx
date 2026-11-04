@@ -20,7 +20,7 @@ export default function ExampleListboxMultiSelection() {
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-neutral-900 dark:text-neutral-100">
           Filter by label
         </Listbox.Label>
-        <Listbox.List className="box-border w-64 max-h-96 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+        <Listbox.List className="box-border w-64 max-h-96 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-1 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white">
           {labels.map(({ label, value }) => (
             <Listbox.Item
               key={value}
