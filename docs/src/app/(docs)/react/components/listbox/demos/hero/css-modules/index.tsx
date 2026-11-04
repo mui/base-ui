@@ -2,48 +2,30 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
-const songGroups = [
-  {
-    label: 'Pop',
-    songs: [
-      { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
-      { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
-      { title: 'Like a Prayer', artist: 'Madonna', value: 'like-a-prayer' },
-      { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
-    ],
-  },
-  {
-    label: 'Rock',
-    songs: [
-      { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
-      { title: 'Stairway to Heaven', artist: 'Led Zeppelin', value: 'stairway-to-heaven' },
-      { title: 'Smells Like Teen Spirit', artist: 'Nirvana', value: 'smells-like-teen-spirit' },
-      { title: 'Back in Black', artist: 'AC/DC', value: 'back-in-black' },
-    ],
-  },
+const folders = [
+  { label: 'Inbox', value: 'inbox' },
+  { label: 'Archive', value: 'archive' },
+  { label: 'Drafts', value: 'drafts' },
+  { label: 'Projects', value: 'projects' },
+  { label: 'Receipts', value: 'receipts' },
+  { label: 'Travel', value: 'travel' },
+  { label: 'Work', value: 'work' },
+  { label: 'Personal', value: 'personal' },
 ];
 
 export default function ExampleListbox() {
   return (
     <div className={styles.Field}>
-      <Listbox.Root defaultValue="billie-jean">
-        <Listbox.Label className={styles.Label}>Playlist</Listbox.Label>
+      <Listbox.Root defaultValue="archive">
+        <Listbox.Label className={styles.Label}>Move to</Listbox.Label>
         <Listbox.List className={styles.List}>
-          {songGroups.map((group) => (
-            <Listbox.Group key={group.label} className={styles.Group}>
-              <Listbox.GroupLabel className={styles.GroupLabel}>{group.label}</Listbox.GroupLabel>
-              {group.songs.map(({ title, artist, value }) => (
-                <Listbox.Item key={value} value={value} className={styles.Item}>
-                  <Listbox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Listbox.ItemIndicator>
-                  <div className={styles.ItemText}>
-                    <span className={styles.ItemTitle}>{title}</span>
-                    <span className={styles.ItemArtist}>{artist}</span>
-                  </div>
-                </Listbox.Item>
-              ))}
-            </Listbox.Group>
+          {folders.map(({ label, value }) => (
+            <Listbox.Item key={value} value={value} className={styles.Item}>
+              <Listbox.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Listbox.ItemIndicator>
+              <span className={styles.ItemText}>{label}</span>
+            </Listbox.Item>
           ))}
         </Listbox.List>
       </Listbox.Root>

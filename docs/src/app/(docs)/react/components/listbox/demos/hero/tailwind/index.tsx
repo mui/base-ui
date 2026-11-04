@@ -1,56 +1,36 @@
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 
-const songGroups = [
-  {
-    label: 'Pop',
-    songs: [
-      { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
-      { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
-      { title: 'Like a Prayer', artist: 'Madonna', value: 'like-a-prayer' },
-      { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
-    ],
-  },
-  {
-    label: 'Rock',
-    songs: [
-      { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
-      { title: 'Stairway to Heaven', artist: 'Led Zeppelin', value: 'stairway-to-heaven' },
-      { title: 'Smells Like Teen Spirit', artist: 'Nirvana', value: 'smells-like-teen-spirit' },
-      { title: 'Back in Black', artist: 'AC/DC', value: 'back-in-black' },
-    ],
-  },
+const folders = [
+  { label: 'Inbox', value: 'inbox' },
+  { label: 'Archive', value: 'archive' },
+  { label: 'Drafts', value: 'drafts' },
+  { label: 'Projects', value: 'projects' },
+  { label: 'Receipts', value: 'receipts' },
+  { label: 'Travel', value: 'travel' },
+  { label: 'Work', value: 'work' },
+  { label: 'Personal', value: 'personal' },
 ];
 
 export default function ExampleListbox() {
   return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root defaultValue="billie-jean">
+      <Listbox.Root defaultValue="archive">
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-neutral-900 dark:text-neutral-100">
-          Playlist
+          Move to
         </Listbox.Label>
-        <Listbox.List className="box-border w-64 max-h-96 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-500">
-          {songGroups.map((group) => (
-            <Listbox.Group key={group.label} className="block pb-0.5">
-              <Listbox.GroupLabel className="cursor-default pr-4 pb-1 pl-[1.875rem] pt-2 text-[0.6875rem] font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
-                {group.label}
-              </Listbox.GroupLabel>
-              {group.songs.map(({ title, artist, value }) => (
-                <Listbox.Item
-                  key={value}
-                  value={value}
-                  className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 text-neutral-900 dark:text-neutral-100 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-neutral-100 dark:data-[highlighted]:before:bg-neutral-800 data-[disabled]:text-neutral-400 dark:data-[disabled]:text-neutral-500 data-[disabled]:data-[highlighted]:before:bg-neutral-200 dark:data-[disabled]:data-[highlighted]:before:bg-neutral-900 pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
-                >
-                  <Listbox.ItemIndicator className="col-start-1">
-                    <CheckIcon className="size-3" />
-                  </Listbox.ItemIndicator>
-                  <div className="col-start-2 flex flex-col gap-0.5">
-                    <span className="font-semibold">{title}</span>
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400">{artist}</span>
-                  </div>
-                </Listbox.Item>
-              ))}
-            </Listbox.Group>
+        <Listbox.List className="box-border w-64 max-h-96 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+          {folders.map(({ label, value }) => (
+            <Listbox.Item
+              key={value}
+              value={value}
+              className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 text-neutral-900 dark:text-neutral-100 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-neutral-100 dark:data-[highlighted]:before:bg-neutral-800 data-[disabled]:text-neutral-400 dark:data-[disabled]:text-neutral-500 data-[disabled]:data-[highlighted]:before:bg-neutral-200 dark:data-[disabled]:data-[highlighted]:before:bg-neutral-900 pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
+            >
+              <Listbox.ItemIndicator className="col-start-1">
+                <CheckIcon className="size-3" />
+              </Listbox.ItemIndicator>
+              <span className="col-start-2">{label}</span>
+            </Listbox.Item>
           ))}
         </Listbox.List>
       </Listbox.Root>
