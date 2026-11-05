@@ -140,7 +140,7 @@ const clearClass =
   'flex size-8 items-center justify-center bg-transparent outline-hidden focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 const emptyClass = 'p-3 text-sm text-neutral-500 dark:text-neutral-400';
 const listClass =
-  'relative max-h-[min(16rem,calc(var(--available-height)-2.0625rem))] overflow-y-auto py-1 scroll-py-1 empty:py-0';
+  'relative max-h-[min(16rem,calc(var(--available-height)-2.0625rem))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0';
 const itemClass =
   'grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-hidden select-none data-highlighted:bg-neutral-950 data-highlighted:text-white dark:data-highlighted:bg-white dark:data-highlighted:text-neutral-950';
 
