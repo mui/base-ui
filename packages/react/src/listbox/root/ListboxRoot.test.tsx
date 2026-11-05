@@ -1320,6 +1320,26 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual([]);
     });
 
+    it('Escape clears the selection with the escape-key reason', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'Escape' });
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual([]);
+      expect(handleValueChange.mock.calls[0][1].reason).toBe('escape-key');
+    });
+
     it('Ctrl+A ignores disabled options', async () => {
       const handleValueChange = vi.fn();
 

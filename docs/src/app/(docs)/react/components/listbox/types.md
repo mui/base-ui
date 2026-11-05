@@ -38,7 +38,7 @@ type ListboxRootState = {};
 ### Root.ChangeEventReason
 
 ```typescript
-type ListboxRootChangeEventReason = 'item-press' | 'list-navigation';
+type ListboxRootChangeEventReason = 'item-press' | 'list-navigation' | 'escape-key';
 ```
 
 ### Root.ChangeEventDetails
@@ -47,6 +47,7 @@ type ListboxRootChangeEventReason = 'item-press' | 'list-navigation';
 type ListboxRootChangeEventDetails = (
   | { reason: 'item-press'; event: MouseEvent | KeyboardEvent | PointerEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
