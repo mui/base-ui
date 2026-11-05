@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { useListNavigation, useTypeahead } from '../../src/floating-ui-react';
+import { useListNavigation, usePopupTypeahead } from '../../src/floating-ui-react';
 import { useFloating } from './useFloating';
 
 interface SelectContextValue {
@@ -42,7 +42,7 @@ function Listbox({ children }: { children: React.ReactNode }) {
     onNavigate: setActiveIndex,
     focusItemOnHover: false,
   });
-  const typeahead = useTypeahead(context.rootStore, {
+  const typeahead = usePopupTypeahead(context.rootStore, {
     listRef: labelsRef,
     activeIndex,
     selectedIndex,

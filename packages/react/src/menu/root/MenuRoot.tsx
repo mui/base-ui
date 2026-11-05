@@ -12,7 +12,7 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useListNavigation,
-  useTypeahead,
+  usePopupTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
@@ -552,7 +552,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     [store],
   );
 
-  const typeahead = useTypeahead(floatingRootContext, {
+  const typeahead = usePopupTypeahead(floatingRootContext, {
     // Under virtual focus the input owns typing, so typeahead would race the filter query.
     enabled: !disabled && !virtualFocus,
     listRef: store.context.itemLabels,
