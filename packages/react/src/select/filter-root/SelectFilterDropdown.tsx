@@ -228,7 +228,9 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
           openedByKeyboard={keyboardOpen}
           disabled={disabled}
           value={value}
-          query={query}
+          // A query kept while fully closed would leave only its matches registered for the
+          // trigger's typeahead.
+          query={mounted ? query : ''}
           onValueChange={handleValueChange}
           filter={filter}
           autoHighlight={autoHighlight}

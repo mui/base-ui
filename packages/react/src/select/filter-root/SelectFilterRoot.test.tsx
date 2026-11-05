@@ -1125,6 +1125,15 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(screen.queryByRole('dialog')).toBe(null);
     });
 
+    it('selects an item the query kept after closing does not match', async () => {
+      const { user } = await render(<Test provider={{ value: 'jap' }} />);
+      await act(() => screen.getByTestId('trigger').focus());
+
+      await user.keyboard('f');
+
+      expect(screen.getByTestId('value')).toHaveTextContent('France');
+    });
+
     it('opens with an empty query afterwards', async () => {
       const { user } = await render(<Test />);
       const trigger = screen.getByTestId('trigger');
