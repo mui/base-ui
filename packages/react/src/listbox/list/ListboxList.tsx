@@ -295,18 +295,11 @@ export const ListboxList = React.forwardRef(function ListboxList(
       }
     }
 
-    // Ctrl+A / Cmd+A: Toggle select all
+    // Ctrl+A / Cmd+A: Select all. The APG makes deselecting a fully selected list optional, and
+    // Escape already clears the selection.
     if ((event.ctrlKey || event.metaKey) && (event.key === 'a' || event.key === 'A')) {
       event.preventDefault();
-      const allValues = values.filter((v, i) => v !== undefined && !disabledItemsRef.current[i]);
-      const currentValue = store.state.value;
-      const allSelected =
-        Array.isArray(currentValue) &&
-        allValues.length > 0 &&
-        allValues.every((v) =>
-          currentValue.some((cv) => compareItemEquality(cv, v, isItemEqualToValue)),
-        );
-      dispatchSelection(allSelected ? { type: 'clear' } : { type: 'selectAll' }, event.nativeEvent);
+      dispatchSelection({ type: 'selectAll' }, event.nativeEvent);
     }
   });
 
