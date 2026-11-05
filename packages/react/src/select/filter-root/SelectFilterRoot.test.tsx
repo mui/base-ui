@@ -159,10 +159,29 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(screen.getByTestId('popup')).not.toHaveAttribute('aria-multiselectable');
     });
 
-    it('turns off alignItemWithTrigger', async () => {
-      await render(<Test root={{ defaultOpen: true, defaultValue: 'fr' }} />);
+    // Alignment needs layout, and room around the trigger.
+    it.skipIf(isJSDOM).each([
+      {
+        name: 'does not align the selected item with the trigger by default',
+        align: undefined,
+        side: 'bottom',
+      },
+      {
+        name: 'aligns the selected item with the trigger when alignItemWithTrigger is set',
+        align: true,
+        side: 'none',
+      },
+    ])('$name', async ({ align, side }) => {
+      await render(
+        <div style={{ paddingTop: 100 }}>
+          <Test
+            root={{ defaultOpen: true, defaultValue: 'fr' }}
+            positioner={{ alignItemWithTrigger: align }}
+          />
+        </div>,
+      );
       await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-side', 'bottom');
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-side', side);
       });
     });
 
