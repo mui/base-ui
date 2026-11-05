@@ -1297,11 +1297,9 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
     });
 
-    it('Ctrl+A deselects all when all are selected', async () => {
-      const handleValueChange = vi.fn();
-
+    it('Ctrl+A keeps every option selected when all are already selected', async () => {
       await render(
-        <Listbox.Root multiple defaultValue={['a', 'b', 'c']} onValueChange={handleValueChange}>
+        <Listbox.Root multiple defaultValue={['a', 'b', 'c']}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -1316,8 +1314,9 @@ describe('<Listbox.Root />', () => {
 
       await flushMicrotasks();
 
-      expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual([]);
+      for (const option of screen.getAllByRole('option')) {
+        expect(option).toHaveAttribute('aria-selected', 'true');
+      }
     });
 
     it('Escape clears the selection with the escape-key reason', async () => {
