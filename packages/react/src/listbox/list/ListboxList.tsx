@@ -166,7 +166,12 @@ export const ListboxList = React.forwardRef(function ListboxList(
    * Centralizes the pattern of: compute next value → setValue → update anchor.
    */
   const dispatchSelection = useStableCallback(
-    (action: SelectionAction, event: KeyboardEvent, anchorIndex?: number) => {
+    (
+      action: SelectionAction,
+      event: KeyboardEvent,
+      anchorIndex?: number,
+      reason: typeof REASONS.listNavigation | typeof REASONS.escapeKey = REASONS.listNavigation,
+    ) => {
       const currentValue = store.state.value;
       const isItemEqualToValue = store.state.isItemEqualToValue;
       const nextValue = selectionReducer(
@@ -176,7 +181,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         disabledItemsRef.current,
         isItemEqualToValue,
       );
-      setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event));
+      setValue(nextValue, createChangeEventDetails(reason, event));
       if (anchorIndex !== undefined) {
         lastSelectedIndexRef.current = anchorIndex;
       }
@@ -363,7 +368,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       if (event.key === 'Escape' && multiple) {
         const currentValue = store.state.value;
         if (Array.isArray(currentValue) && currentValue.length > 0) {
-          dispatchSelection({ type: 'clear' }, event.nativeEvent);
+          dispatchSelection({ type: 'clear' }, event.nativeEvent, undefined, REASONS.escapeKey);
         }
       }
 

@@ -219,7 +219,8 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
 
 export interface ListboxRootState {}
 
-export type ListboxRootChangeEventReason = typeof REASONS.itemPress | typeof REASONS.listNavigation;
+export type ListboxRootChangeEventReason =
+  typeof REASONS.itemPress | typeof REASONS.listNavigation | typeof REASONS.escapeKey;
 
 export type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
 
