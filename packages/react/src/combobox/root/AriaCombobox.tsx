@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -256,6 +257,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
+  const resetInputCompositionRef = React.useRef<(() => void) | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | {
     hasQuery: boolean;
@@ -423,6 +425,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           valuesRef,
           pointerDownItemRef,
           selectionEventRef,
+          resetInputCompositionRef,
         },
         selectors,
       ),
@@ -668,6 +671,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
       if (eventDetails.isCanceled) {
         return;
+      }
+
+      // The accepted fill or clear replaces the IME preview, even if the stored value is unchanged.
+      // On iOS, changing the value during composition can leave the native IME unable to accept
+      // further input until blur/refocus: https://bugs.webkit.org/show_bug.cgi?id=255857
+      if (
+        !platform.os.ios &&
+        (eventDetails.reason === REASONS.itemPress || eventDetails.isItemPress)
+      ) {
+        resetInputCompositionRef.current?.();
       }
 
       // A canceled selection clear must not suppress close-completion cleanup.

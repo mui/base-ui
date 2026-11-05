@@ -16,6 +16,191 @@ describe('<Combobox.Input />', () => {
     },
   }));
 
+  describe('IME composition', () => {
+    function TestCombobox(props: Combobox.Root.Props<string>) {
+      return (
+        <Combobox.Root items={['Apple', 'Banana']} defaultOpen filter={null} {...props}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    it.each([
+      {
+        name: 'fills the selected label after a pointer selection',
+        defaultValue: null,
+        cancelSelection: false,
+        cancelInput: false,
+        expectedInput: 'Apple',
+      },
+      {
+        name: 'restores the label when reselecting the current value',
+        defaultValue: 'Apple',
+        cancelSelection: false,
+        cancelInput: false,
+        expectedInput: 'Apple',
+      },
+      {
+        name: 'preserves the composition when the selection is canceled',
+        defaultValue: null,
+        cancelSelection: true,
+        cancelInput: false,
+        expectedInput: 'App',
+      },
+      {
+        name: 'preserves the composition when filling the input is canceled',
+        defaultValue: null,
+        cancelSelection: false,
+        cancelInput: true,
+        expectedInput: 'App',
+      },
+    ])('$name', async ({ defaultValue, cancelSelection, cancelInput, expectedInput }) => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <TestCombobox
+          defaultValue={defaultValue}
+          onValueChange={(value, details) => {
+            onValueChange(value, details);
+            if (cancelSelection) {
+              details.cancel();
+            }
+          }}
+          onInputValueChange={(_value, details) => {
+            if (cancelInput && details.reason === REASONS.itemPress) {
+              details.cancel();
+            }
+          }}
+        />,
+      );
+
+      const input = screen.getByRole('combobox');
+      expect(input).toHaveValue(defaultValue ?? '');
+      await act(async () => input.focus());
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'App' } });
+      expect(input).toHaveValue('App');
+
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      expect(onValueChange).toHaveBeenCalledWith(
+        'Apple',
+        expect.objectContaining({ reason: REASONS.itemPress }),
+      );
+      expect(input).toHaveValue(expectedInput);
+      expect(input).toHaveFocus();
+    });
+
+    it('ignores a composition end after an accepted item press has replaced the preview', async () => {
+      const onInputValueChange = vi.fn();
+      const { user } = await render(<TestCombobox onInputValueChange={onInputValueChange} />);
+
+      const input = screen.getByRole('combobox');
+      await act(async () => input.focus());
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'App' } });
+      expect(input).toHaveValue('App');
+      expect(onInputValueChange).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+      expect(input).toHaveValue('Apple');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange).toHaveBeenLastCalledWith(
+        'Apple',
+        expect.objectContaining({ reason: REASONS.itemPress }),
+      );
+
+      fireEvent.compositionEnd(input, { data: 'App' });
+
+      expect(input).toHaveValue('Apple');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+
+      fireEvent.change(input, { target: { value: 'Ba' } });
+      expect(input).toHaveValue('Ba');
+      expect(onInputValueChange).toHaveBeenLastCalledWith(
+        'Ba',
+        expect.objectContaining({ reason: REASONS.inputChange }),
+      );
+    });
+
+    it('keeps the preview local until a normal composition ends', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<TestCombobox onInputValueChange={onInputValueChange} />);
+
+      const input = screen.getByRole('combobox');
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'App' } });
+      expect(input).toHaveValue('App');
+      expect(onInputValueChange).not.toHaveBeenCalled();
+
+      fireEvent.compositionEnd(input, { data: 'App' });
+
+      expect(input).toHaveValue('App');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange).toHaveBeenLastCalledWith(
+        'App',
+        expect.objectContaining({ reason: REASONS.inputChange }),
+      );
+    });
+
+    it.each([
+      { name: 'clears', cancelClear: false, expectedInput: '' },
+      { name: 'preserves a canceled clear of', cancelClear: true, expectedInput: 'App' },
+    ])(
+      '$name the composition for a multiple selection inside the popup',
+      async ({ cancelClear, expectedInput }) => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Combobox.Root
+            multiple
+            defaultOpen
+            onValueChange={onValueChange}
+            onInputValueChange={(_value, details) => {
+              if (cancelClear && details.isItemPress) {
+                details.cancel();
+              }
+            }}
+          >
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.List>
+                    <Combobox.Item value="Apple">Apple</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).toHaveValue('');
+        await act(async () => input.focus());
+        fireEvent.compositionStart(input);
+        fireEvent.change(input, { target: { value: 'App' } });
+        expect(input).toHaveValue('App');
+
+        await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+        expect(onValueChange).toHaveBeenCalledWith(['Apple'], expect.anything());
+        expect(input).toHaveValue(expectedInput);
+      },
+    );
+  });
+
   describe('prop: disabled', () => {
     it('should render aria-disabled attribute when disabled', async () => {
       await render(
