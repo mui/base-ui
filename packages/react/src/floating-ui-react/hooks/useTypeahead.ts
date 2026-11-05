@@ -10,10 +10,18 @@ import { stopEvent } from '../utils/event';
 export interface UseTypeaheadProps {
   /**
    * A ref which contains an array of strings whose indices match the HTML
-   * elements of the list.
-   * @default empty list
+   * elements of the list. Use `getLabel` and `getCount` instead when the labels are read one at a
+   * time, such as from items that aren't rendered.
    */
-  listRef: React.RefObject<Array<string | null>>;
+  listRef?: React.RefObject<Array<string | null>> | undefined;
+  /**
+   * Returns the label of the item at an index. Used with `getCount` instead of `listRef`.
+   */
+  getLabel?: ((index: number) => string | null) | undefined;
+  /**
+   * Returns how many items there are. Used with `getLabel` instead of `listRef`.
+   */
+  getCount?: (() => number) | undefined;
   /**
    * The index of the active (focused or highlighted) item in the list.
    * @default null
@@ -84,6 +92,8 @@ export interface UseTypeaheadReturnValue {
 export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue {
   const {
     listRef,
+    getLabel: getLabelProp,
+    getCount: getCountProp,
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
@@ -123,17 +133,23 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
       return disabledIndices == null || !isListIndexDisabled(EMPTY_ARRAY, index, disabledIndices);
     }
 
-    function getMatchingIndex(list: Array<string | null>, string: string, startIndex = 0) {
-      if (list.length === 0) {
+    // Labels are read one at a time, so a match near the active item doesn't read the rest.
+    const getCount = () => getCountProp?.() ?? listRef?.current?.length ?? 0;
+    const getLabel = (index: number) =>
+      getLabelProp ? getLabelProp(index) : (listRef?.current?.[index] ?? null);
+
+    function getMatchingIndex(string: string, startIndex = 0) {
+      const count = getCount();
+      if (count === 0) {
         return -1;
       }
 
-      const normalizedStartIndex = ((startIndex % list.length) + list.length) % list.length;
+      const normalizedStartIndex = ((startIndex % count) + count) % count;
       const lowerString = string.toLowerCase();
 
-      for (let offset = 0; offset < list.length; offset += 1) {
-        const index = (normalizedStartIndex + offset) % list.length;
-        const text = list[index];
+      for (let offset = 0; offset < count; offset += 1) {
+        const index = (normalizedStartIndex + offset) % count;
+        const text = getLabel(index);
         if (!text?.toLowerCase().startsWith(lowerString) || !isItemAvailable(index)) {
           continue;
         }
@@ -142,8 +158,6 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
       return -1;
     }
 
-    const listContent = listRef.current;
-
     if (stringRef.current.length > 0 && event.key === ' ') {
       // Space should continue the in-progress typeahead session.
       stopEvent(event);
@@ -151,13 +165,13 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     }
 
     if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
-      if (getMatchingIndex(listContent, stringRef.current) === -1 && event.key !== ' ') {
+      if (getMatchingIndex(stringRef.current) === -1 && event.key !== ' ') {
         onTyping?.(false);
       }
     }
 
     if (
-      listContent == null ||
+      (!getLabelProp && listRef?.current == null) ||
       // Character key.
       event.key.length !== 1 ||
       // Modifier key.
@@ -178,13 +192,21 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     // allow it in this case, too. Unavailable items are skipped while matching, so
     // they must be ignored here as well — otherwise a hidden or disabled double-letter
     // label would block rapid cycling through the available items.
-    const allowRapidSuccessionOfFirstLetter = listContent.every((text, index) =>
-      text && isItemAvailable(index) ? text[0]?.toLowerCase() !== text[1]?.toLowerCase() : true,
-    );
+    // Only checked when the same letter is typed again, so the other keys don't read every label.
+    const allowRapidSuccessionOfFirstLetter = () => {
+      const count = getCount();
+      for (let index = 0; index < count; index += 1) {
+        const text = getLabel(index);
+        if (text && isItemAvailable(index) && text[0]?.toLowerCase() === text[1]?.toLowerCase()) {
+          return false;
+        }
+      }
+      return true;
+    };
 
     // Allows the user to cycle through items that start with the same letter
     // in rapid succession.
-    if (allowRapidSuccessionOfFirstLetter && stringRef.current === event.key) {
+    if (stringRef.current === event.key && allowRapidSuccessionOfFirstLetter()) {
       stringRef.current = '';
       prevIndexRef.current = matchIndexRef.current;
     }
@@ -202,7 +224,7 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     const prevIndex = isNewSession ? (selectedIndex ?? activeIndex ?? -1) : prevIndexRef.current;
     const startIndex = (prevIndex ?? 0) + 1;
 
-    const index = getMatchingIndex(listContent, stringRef.current, startIndex);
+    const index = getMatchingIndex(stringRef.current, startIndex);
 
     if (index !== -1) {
       onMatchProp?.(index, event);

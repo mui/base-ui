@@ -44,21 +44,9 @@ export function useHighlightChangeNotifier<Value>(params: {
 
     return {
       index: highlightedIndex,
-      value: store.context.valuesRef.current[highlightedIndex] as Value | undefined,
+      value: store.getValueAt(highlightedIndex) as Value | undefined,
     };
   });
-
-  const areHighlightsEqual = useStableCallback(
-    (prev: ResolvedHighlight<Value> | null, next: ResolvedHighlight<Value>) => {
-      if (prev == null || prev.index !== next.index) {
-        return false;
-      }
-      if (prev.value == null || next.value == null) {
-        return prev.value === next.value;
-      }
-      return store.state.isItemEqualToValue(prev.value, next.value);
-    },
-  );
 
   React.useEffect(() => {
     if (!onItemHighlighted) {
@@ -82,14 +70,15 @@ export function useHighlightChangeNotifier<Value>(params: {
         nextHighlight.value,
         createGenericEventDetails(getHighlightReason(event), event, {
           index: nextHighlight.index,
-        }),
+        }) as ListboxRoot.HighlightEventDetails,
       );
     });
-  }, [
-    store,
-    onItemHighlighted,
-    stableOnItemHighlighted,
-    resolveHighlightedItem,
-    areHighlightsEqual,
-  ]);
+  }, [store, onItemHighlighted, stableOnItemHighlighted, resolveHighlightedItem]);
+}
+
+function areHighlightsEqual<Value>(
+  prev: ResolvedHighlight<Value> | null,
+  next: ResolvedHighlight<Value>,
+) {
+  return prev != null && prev.index === next.index && Object.is(prev.value, next.value);
 }

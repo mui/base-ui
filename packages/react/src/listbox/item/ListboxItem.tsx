@@ -16,7 +16,6 @@ import { activeElement, contains } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useCompositeListItem } from '../../internals/composite';
-import { findItemIndex } from '../../internals/itemEquality';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { ListboxItemContext } from './ListboxItemContext';
 import { selectionReducer } from '../utils/selectionReducer';
@@ -61,17 +60,23 @@ export const ListboxItem = React.memo(
       style,
       value: itemValue = null,
       label,
-      disabled = false,
+      disabled: disabledProp,
       nativeButton = false,
       ...elementProps
     } = componentProps;
 
+    const store = useListboxRootContext();
+    const items = store.useState('items');
+
+    // With `items`, the item's position comes from its value, since a virtualized list renders
+    // only some of the items and their order in the DOM doesn't match their position.
+    const indexFromItems = items ? items.indexOf(itemValue) : undefined;
+
     const listItem = useCompositeListItem({
       guess: true,
       label,
+      index: indexFromItems,
     });
-
-    const store = useListboxRootContext();
 
     const multiple = store.useState('multiple');
     const optInMode = multiple === 'opt-in';
@@ -79,21 +84,29 @@ export const ListboxItem = React.memo(
     const rootDisabled = store.useState('disabled');
     const active = store.useState('isActive', listItem.index);
     const highlighted = store.useState('isHighlighted', listItem.index);
-    const selected = store.useState('isSelected', listItem.index, itemValue);
-    const isItemEqualToValue = store.useState('isItemEqualToValue');
+    const selected = store.useState('isSelected', itemValue);
     const { disabledItemsRef, lastSelectedIndexRef, setValue, valuesRef } = store.context;
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
+    // The `disabled` prop controls it when it's set. Otherwise, with `items`, `getDisabled` does.
+    const disabled = disabledProp ?? (items != null && hasRegistered && items.getDisabled(index));
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useValueAsRef(index);
+    // With `items`, the root already knows every value.
     useListItemValueRegistration({
       index,
       itemValue,
-      hasRegistered,
+      hasRegistered: hasRegistered && !items,
       valuesRef,
     });
+
+    useIsoLayoutEffect(() => {
+      if (hasRegistered) {
+        store.registerItemValue(itemValue);
+      }
+    }, [hasRegistered, itemValue, store]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -107,6 +120,33 @@ export const ListboxItem = React.memo(
         delete disabledItems[index];
       };
     }, [disabled, disabledItemsRef, hasRegistered, index, rootDisabled]);
+
+    // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
+    // and takes its place in the tab order while it isn't.
+    useIsoLayoutEffect(() => {
+      if (!active || !hasRegistered) {
+        return undefined;
+      }
+      store.set('activeItemRendered', true);
+      return () => {
+        store.set('activeItemRendered', false);
+      };
+    }, [active, hasRegistered, store]);
+
+    // The list holds focus while it waits for this item to render, such as after an arrow key
+    // moved past the rendered items of a virtualized list. Take focus from it.
+    useIsoLayoutEffect(() => {
+      const { pendingFocusIndexRef } = store.context;
+      if (!hasRegistered || pendingFocusIndexRef.current !== index) {
+        return;
+      }
+      const listElement = store.state.listElement;
+      if (activeElement(ownerDocument(listElement)) !== listElement) {
+        return;
+      }
+      pendingFocusIndexRef.current = null;
+      itemRef.current?.focus();
+    }, [hasRegistered, index, store]);
 
     const state: ListboxItemState = {
       disabled,
@@ -144,17 +184,18 @@ export const ListboxItem = React.memo(
       let action: SelectionAction;
       // Touch has no modifier keys, so `multiple="opt-in"` toggles on tap like `multiple`.
       const replaceOnPress = optInMode && !touch;
+      const anchorIndex = lastSelectedIndexRef.current;
 
       if (shiftKey && multiple) {
         if (replaceOnPress && ctrlKey) {
           // Ctrl/Cmd+Shift adds the range to the existing selection.
-          const anchorIndex = lastSelectedIndexRef.current;
-          action =
-            anchorIndex === null
-              ? { type: 'toggle', index }
-              : { type: 'selectRange', from: anchorIndex, to: index };
+          if (anchorIndex === null) {
+            action = { type: 'toggle', index };
+          } else {
+            action = { type: 'selectRange', from: anchorIndex, to: index };
+          }
         } else {
-          action = { type: 'extendTo', index, anchorIndex: lastSelectedIndexRef.current };
+          action = { type: 'extendTo', index, anchorIndex };
         }
       } else if (multiple && (!replaceOnPress || ctrlKey)) {
         // `multiple` toggles on every press; `multiple="opt-in"` toggles with Ctrl/Cmd.
@@ -164,14 +205,7 @@ export const ListboxItem = React.memo(
         action = { type: 'select', index };
       }
 
-      const currentValue = store.state.value;
-      const nextValue = selectionReducer(
-        action,
-        currentValue,
-        valuesRef.current,
-        disabledItemsRef.current,
-        isItemEqualToValue,
-      );
+      const nextValue = selectionReducer(action, store.state.value, store.getSelectionItems());
       setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
 
       // Update selection anchor (used by Shift+Click range selection)
@@ -182,7 +216,7 @@ export const ListboxItem = React.memo(
 
     function handleItemKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
       lastKeyRef.current = event.key;
-      const currentIndex = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+      const currentIndex = store.indexOfValue(itemValue);
       const resolvedIndex = currentIndex === -1 ? index : currentIndex;
 
       store.highlightItem(resolvedIndex, event.nativeEvent);
@@ -210,13 +244,19 @@ export const ListboxItem = React.memo(
       'aria-selected': selected,
       tabIndex: active ? 0 : -1,
       onFocus(event) {
+        store.context.pendingFocusIndexRef.current = null;
         store.highlightItem(index, event.nativeEvent);
+        store.context.onItemFocus(index);
       },
       onBlur(event) {
-        // Moving focus to another item keeps the highlight; it moves with focus instead.
+        // Moving focus to another item keeps the highlight; it moves with focus instead. So does
+        // the list holding focus for an item that isn't rendered yet.
         const listElement = store.state.listElement;
         const nextTarget = event.relatedTarget;
-        if (nextTarget !== listElement && contains(listElement, nextTarget)) {
+        if (
+          contains(listElement, nextTarget) &&
+          (nextTarget !== listElement || store.context.pendingFocusIndexRef.current !== null)
+        ) {
           return;
         }
         store.unhighlightItem(event.nativeEvent);
@@ -316,6 +356,7 @@ export interface ListboxItemProps
   value?: any;
   /**
    * Whether the component should ignore user interaction.
+   * When it's not set and the root has `items`, `getDisabled` decides.
    * @default false
    */
   disabled?: boolean | undefined;
