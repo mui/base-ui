@@ -18,7 +18,7 @@ export interface SelectFilterImpl {
   Group: typeof SelectFilterGroup;
   Item: typeof SelectFilterItem;
   /** The props the filter adds to the trigger. */
-  useTriggerProps: (id: string | undefined, ariaLabelledBy: string | undefined) => HTMLProps;
+  useTriggerProps: () => HTMLProps;
 }
 
 /** Static below a filter root: the implementation never changes, so subscribers never re-render. */

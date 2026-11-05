@@ -130,10 +130,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
 
-  const { filterable } = store.context;
-
   const useFilterTriggerProps = useSelectFilterImpl()?.useTriggerProps ?? useUnfilteredTriggerProps;
-  const filterTriggerProps = useFilterTriggerProps(id, ariaLabelledBy);
+  const filterTriggerProps = useFilterTriggerProps();
 
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
@@ -221,9 +219,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />
-  if (!filterable) {
-    props.role = 'combobox';
-  }
+  props.role = 'combobox';
 
   const state: SelectTriggerState = {
     ...fieldState,

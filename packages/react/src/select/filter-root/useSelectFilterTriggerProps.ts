@@ -13,15 +13,9 @@ import { useSelectFilterKeyDown } from './useSelectFilterKeyDown';
  * The props a filterable select adds to its trigger: screen reader press tracking, and a relay of
  * list navigation and typing on the trigger to the input, which holds real focus while the popup
  * is open. Typing on the closed trigger selects a matching item, as in a plain select.
- * The popup is a dialog holding the input and the list, so the trigger stays a plain button and
- * the listbox carries `aria-readonly` and `aria-required`. A button exposes no value apart from
- * its name, so the name joins the label and the trigger's own text, which shows the selected
- * value.
+ * The trigger stays a combobox, but its popup is a dialog holding the input and the list.
  */
-export function useSelectFilterTriggerProps(
-  id: string | undefined,
-  ariaLabelledBy: string | undefined,
-): HTMLProps {
+export function useSelectFilterTriggerProps(): HTMLProps {
   const store = useSelectRootContext();
   const open = store.useState('open');
   const positionerElement = store.useState('positionerElement');
@@ -32,12 +26,8 @@ export function useSelectFilterTriggerProps(
 
   return React.useMemo<HTMLProps>(
     () => ({
-      role: undefined,
-      'aria-labelledby': ariaLabelledBy && id ? `${ariaLabelledBy} ${id}` : ariaLabelledBy,
       'aria-haspopup': 'dialog',
       'aria-controls': open ? getFloatingFocusElement(positionerElement)?.id : undefined,
-      'aria-readonly': undefined,
-      'aria-required': undefined,
       onPointerDown(event: React.PointerEvent<HTMLElement>) {
         virtualPressRef.current = isVirtualPointerEvent(event.nativeEvent);
       },
@@ -57,15 +47,6 @@ export function useSelectFilterTriggerProps(
         }
       },
     }),
-    [
-      id,
-      ariaLabelledBy,
-      open,
-      positionerElement,
-      store,
-      focusOwnerRef,
-      virtualPressRef,
-      handleInputKeyDown,
-    ],
+    [open, positionerElement, store, focusOwnerRef, virtualPressRef, handleInputKeyDown],
   );
 }

@@ -93,7 +93,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
   });
 
   describe('semantics', () => {
-    it('renders a dialog with a searchbox and a listbox, and no combobox', async () => {
+    it('renders a combobox trigger that opens a dialog with a searchbox and a listbox', async () => {
       await render(<Test root={{ defaultOpen: true }} />);
 
       const trigger = screen.getByTestId('trigger');
@@ -102,7 +102,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       const list = screen.getByRole('listbox', { name: 'Country' });
 
       expect(trigger.tagName).toBe('BUTTON');
-      expect(trigger).not.toHaveAttribute('role');
+      expect(trigger).toHaveAttribute('role', 'combobox');
       expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
       expect(trigger).toHaveAttribute('aria-controls', popup.id);
@@ -110,7 +110,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(popup).toHaveAttribute('aria-labelledby', screen.getByText('Country').id);
       expect(popup).not.toHaveAttribute('aria-activedescendant');
       expect(input).toHaveAttribute('aria-controls', list.id);
-      expect(screen.queryByRole('combobox')).toBe(null);
+      expect(screen.getAllByRole('combobox')).toEqual([trigger]);
       expect(screen.getAllByRole('option')).toHaveLength(4);
       screen.getAllByRole('option').forEach((option) => {
         expect(option).toHaveAttribute('tabindex', '-1');
@@ -118,19 +118,9 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       });
     });
 
-    // A plain button's value isn't exposed apart from its name, unlike the combobox role.
-    it('names the trigger with its label and the selected value', async () => {
-      const { user } = await render(<Test />);
-      expect(screen.getByRole('button', { name: 'Country' })).toBe(screen.getByTestId('trigger'));
-
-      await user.click(screen.getByTestId('trigger'));
-      await user.click(await screen.findByRole('option', { name: 'Japan' }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Country Japan' })).toBe(
-          screen.getByTestId('trigger'),
-        );
-      });
+    it('names the trigger with its label only', async () => {
+      await render(<Test root={{ defaultValue: 'jp' }} />);
+      expect(screen.getByRole('combobox', { name: 'Country' })).toBe(screen.getByTestId('trigger'));
     });
 
     it('keeps an explicit trigger label', async () => {
@@ -147,10 +137,10 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(screen.getByTestId('trigger')).toHaveAccessibleName('Destination');
     });
 
-    it('moves required to the listbox, which can carry it', async () => {
+    it('marks the trigger, not the listbox, as required', async () => {
       await render(<Test root={{ defaultOpen: true, required: true }} />);
-      expect(screen.getByTestId('trigger')).not.toHaveAttribute('aria-required');
-      expect(screen.getByRole('listbox')).toHaveAttribute('aria-required', 'true');
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-required', 'true');
+      expect(screen.getByRole('listbox')).not.toHaveAttribute('aria-required');
     });
 
     it('marks the list multiselectable in multiple mode', async () => {
