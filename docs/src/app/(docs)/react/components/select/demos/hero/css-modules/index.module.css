@@ -103,8 +103,6 @@
 .Positioner {
   outline: none;
   z-index: 10;
-  -webkit-user-select: none;
-  user-select: none;
 }
 
 .Popup {

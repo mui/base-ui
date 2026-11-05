@@ -160,8 +160,6 @@
 
 .Positioner {
   outline: none;
-  -webkit-user-select: none;
-  user-select: none;
   z-index: 10;
 }
 

@@ -50,7 +50,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding,
     sticky,
     disableAnchorTracking,
-    alignItemWithTrigger = true,
+    alignItemWithTrigger: alignItemWithTriggerProp,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style,
     ...elementProps
@@ -58,6 +58,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const store = useSelectRootContext();
   const selection = useSelectSelectionContext();
+
+  // A filterable popup holds an input above the list, so by default it doesn't overlap the trigger.
+  const { filterable } = store.context;
+  const alignItemWithTrigger = alignItemWithTriggerProp ?? !filterable;
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -144,6 +148,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
       const prevSize = prevMapSizeRef.current;
       prevMapSizeRef.current = map.size;
+
+      // Filtering unmounts options without removing them from the select: the value stays, and
+      // `Select.Value` resolves its label from `items` rather than from a mounted option.
+      if (filterable) {
+        return;
+      }
 
       const { value, multiple } = selection;
       const { isItemEqualToValue } = store.context;
@@ -255,6 +265,7 @@ export interface SelectPositionerProps
   extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', SelectPositionerState> {
   /**
    * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+   * Defaults to `false` in a filterable select.
    * @default true
    */
   alignItemWithTrigger?: boolean | undefined;

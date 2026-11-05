@@ -16,6 +16,7 @@ import type { MenuFilterProvider } from '../filter-provider/MenuFilterProvider';
 import { MenuFilterImplContext } from './MenuFilterContext';
 import { MENU_FILTER_IMPL } from './MenuFilterImpl';
 import { useMenuFilterKeyDown } from './useMenuFilterKeyDown';
+import { isTypingKey } from '../../filter-dropdown/utils/isTypingKey';
 
 export interface MenuFilterDropdownProps {
   value: string | undefined;
@@ -144,17 +145,11 @@ function useFilterTriggerProps(hasValue: boolean) {
         } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
           // Cross-axis keys drive submenu open/close, which the trigger must not relay.
           event.preventBaseUIHandler();
-        } else if (isTypeaheadKey(event)) {
+        } else if (isTypingKey(event)) {
           focusOwner.focus({ preventScroll: true });
         }
       },
     }),
     [store, isInMenubar, handleInputKeyDown],
-  );
-}
-
-function isTypeaheadKey(event: React.KeyboardEvent) {
-  return (
-    event.key.length === 1 && event.key !== ' ' && !event.ctrlKey && !event.metaKey && !event.altKey
   );
 }
