@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
@@ -16,6 +15,8 @@ import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { compareItemEquality } from '../../internals/itemEquality';
 import { useCompositeRoot, CompositeList } from '../../internals/composite';
 import { activeElement, contains } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../floating-ui-react/utils/event';
+import { useTypeahead } from '../../floating-ui-react';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { selectionReducer } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
@@ -111,54 +112,21 @@ export const ListboxList = React.forwardRef(function ListboxList(
     disabledIndices: EMPTY_ARRAY as number[],
   });
 
-  // Typeahead: accumulates characters into a search string, then matches against
-  // item labels. The search wraps around starting from activeIndex + 1 so typing
-  // the same character repeatedly cycles through matches. The buffer resets after
-  // TYPEAHEAD_RESET_MS of inactivity.
-  const typeaheadStringRef = React.useRef('');
-  const typeaheadTimeout = useTimeout();
-
-  const handleTypeahead = useStableCallback((event: React.KeyboardEvent) => {
-    if (disabled) {
-      return;
-    }
-
-    // Ignore modifier keys, control keys, special keys, and Space (which is a selection key)
-    if (
-      event.key === ' ' ||
-      event.key.length !== 1 ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.altKey
-    ) {
-      return;
-    }
-
-    typingRef.current = true;
-
-    typeaheadStringRef.current += event.key.toLowerCase();
-
-    typeaheadTimeout.start(TYPEAHEAD_RESET_MS, () => {
-      typeaheadStringRef.current = '';
-      typingRef.current = false;
-    });
-
-    const labels = labelsRef.current;
-    const searchString = typeaheadStringRef.current;
-
-    const startIndex = activeIndex != null ? activeIndex + 1 : 0;
-    const length = labels.length;
-
-    for (let i = 0; i < length; i += 1) {
-      const index = (startIndex + i) % length;
-      const label = labels[index];
-      if (label && label.toLowerCase().startsWith(searchString)) {
-        store.highlightItem(index, event.nativeEvent);
-        const element = composite.elementsRef.current[index];
-        element?.focus();
-        break;
-      }
-    }
+  // Typeahead, like Select and Menu: keys typed in quick succession build one search, which resets
+  // after a pause, and typing the same letter again cycles through the items that start with it.
+  const typeahead = useTypeahead({
+    listRef: labelsRef,
+    elementsRef: composite.elementsRef,
+    activeIndex,
+    enabled: !disabled,
+    resetMs: TYPEAHEAD_RESET_MS,
+    onTyping(isTyping) {
+      typingRef.current = isTyping;
+    },
+    onMatch(index, event) {
+      store.highlightItem(index, event.nativeEvent);
+      composite.elementsRef.current[index]?.focus();
+    },
   });
 
   /**
@@ -332,6 +300,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       if (contains(event.currentTarget, event.relatedTarget)) {
         return;
       }
+      typeahead.endSession();
       store.setActiveIndex(getTabStopIndex(), event.nativeEvent);
     },
     onMouseLeave(event) {
@@ -340,6 +309,31 @@ export const ListboxList = React.forwardRef(function ListboxList(
     onPointerDown() {
       // A new pointer press starts a new Shift+Arrow range from wherever focus lands.
       shiftAnchorRef.current = null;
+    },
+    onKeyDownCapture(event: React.KeyboardEvent) {
+      // Typeahead runs before the items' handlers, so a typed key doesn't reach the item it moved
+      // focus away from, and Space continues a search in progress instead of selecting.
+      if (event.key === ' ') {
+        if (typingRef.current) {
+          typeahead.onKeyDown(event);
+        }
+        return;
+      }
+      if (
+        !disabled &&
+        event.key.length === 1 &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey
+      ) {
+        stopEvent(event);
+        typingRef.current = true;
+        // The keyboard takes over from the pointer.
+        if (store.state.hoveredIndex !== null) {
+          store.hoverItem(null, event.nativeEvent);
+        }
+      }
+      typeahead.onKeyDown(event);
     },
     onKeyDown(event: React.KeyboardEvent) {
       if (disabled) {
@@ -367,9 +361,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
       // Selection keyboard shortcuts (multiple selection only)
       handleSelectionKeyDown(event);
-
-      // Handle typeahead
-      handleTypeahead(event);
 
       // The keyboard takes over from the pointer, so the highlight returns to the focused item
       // until the pointer moves again.
