@@ -178,6 +178,27 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
       expect(onSubmit).not.toHaveBeenCalled();
     });
 
+    it('keeps the automatic highlight when typing moves it out from under the pointer', async () => {
+      const { user } = await render(createComponent({ providerProps: { autoHighlight: true } }));
+      await user.click(screen.getByTestId('trigger'));
+      const input = await findFocusedInput();
+      await user.keyboard('a');
+      const gamma = screen.getByRole(itemRole, { name: 'Gamma' });
+      await user.hover(gamma);
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', gamma.id);
+      });
+
+      // Only Gamma matches, so it moves to the top of the list, away from the resting pointer.
+      await user.keyboard('m');
+      await waitFor(() => {
+        expect(screen.queryByRole(itemRole, { name: 'Alpha' })).toBe(null);
+      });
+      fireEvent.pointerLeave(gamma, { pointerType: 'mouse' });
+
+      expect(input).toHaveAttribute('aria-activedescendant', gamma.id);
+    });
+
     describe('Space in the input', () => {
       async function openAndHighlightAlpha(
         user: Awaited<ReturnType<typeof render>>['user'],
@@ -381,6 +402,7 @@ export interface FilterablePopupTestProps {
   popupProps?: { 'aria-label'?: string; render?: React.ReactElement };
   listProps?: { 'aria-label'?: string; render?: React.ReactElement };
   providerProps?: {
+    autoHighlight?: boolean | undefined;
     defaultValue?: string | undefined;
     onValueChange?: ((value: string, eventDetails: { reason: string }) => void) | undefined;
   };

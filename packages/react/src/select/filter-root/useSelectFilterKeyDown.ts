@@ -35,6 +35,11 @@ export function useSelectFilterKeyDown(hasValue: boolean) {
     switch (action) {
       case 'edit':
         event.stopPropagation();
+        // Typing ends pointer modality, so a result change that moves the highlighted option out
+        // from under a resting pointer doesn't clear the highlight.
+        if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+          store.state.inputProps.onKeyDown?.(event as React.KeyboardEvent<any>);
+        }
         break;
       case 'navigate':
         if (isMainOrientationKey(event.key, 'vertical')) {
