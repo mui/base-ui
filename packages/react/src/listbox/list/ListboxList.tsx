@@ -6,6 +6,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+import { ownerDocument } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context';
@@ -14,7 +15,7 @@ import { REASONS } from '../../internals/reasons';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { compareItemEquality } from '../../internals/itemEquality';
 import { useCompositeRoot, CompositeList } from '../../internals/composite';
-import { contains } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { selectionReducer } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
@@ -387,6 +388,16 @@ export const ListboxList = React.forwardRef(function ListboxList(
     composite.onMapChange(map);
     if (!store.state.itemFocused) {
       store.setActiveIndex(getTabStopIndex());
+      return;
+    }
+    // Items can move around the focused item, such as when reordering them, so the tab stop
+    // follows the focused item to its new index.
+    const focusedElement = activeElement(ownerDocument(store.state.listElement));
+    const focusedIndex = composite.elementsRef.current.findIndex(
+      (element) => element != null && element === focusedElement,
+    );
+    if (focusedIndex !== -1) {
+      store.setActiveIndex(focusedIndex);
     }
   });
   useIsoLayoutEffect(() => {
