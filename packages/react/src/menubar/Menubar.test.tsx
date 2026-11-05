@@ -898,6 +898,50 @@ describe('<Menubar />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('backdrop', () => {
+      it('cuts the whole menubar out of the backdrop of an open menu', async () => {
+        const { user } = await render(
+          <Menubar modal style={{ display: 'flex', margin: 40 }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu">
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root>
+              <Menu.Trigger>Edit</Menu.Trigger>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        await user.click(screen.getByTestId('file-trigger'));
+        const backdrop = (await screen.findByTestId('file-menu'))
+          .previousElementSibling as HTMLElement;
+        await waitFor(() => {
+          expect(backdrop.style.clipPath).not.toBe('');
+        });
+
+        // The hole is the last rectangle of the `clip-path` polygon.
+        const [left, top, , bottom, right] = Array.from(
+          backdrop.style.clipPath.matchAll(/(-?[\d.]+)px/g),
+          (match) => Number(match[1]),
+        );
+        const menubarRect = screen.getByRole('menubar').getBoundingClientRect();
+        const triggerRect = screen.getByTestId('file-trigger').getBoundingClientRect();
+        expect(menubarRect.width).toBeGreaterThan(triggerRect.width);
+        expect({ left, top, right, bottom }).toEqual({
+          left: menubarRect.left,
+          top: menubarRect.top,
+          right: menubarRect.right,
+          bottom: menubarRect.bottom,
+        });
+      });
+    });
+
     describe.skipIf(isJSDOM)('scroll locking', () => {
       it.each([
         { name: 'unmounted while closed', keepMounted: false },

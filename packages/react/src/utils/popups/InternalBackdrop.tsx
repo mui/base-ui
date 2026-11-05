@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { CutoutRect } from '../../internals/useAnchorPositioning';
 
 /**
  * @internal
@@ -11,8 +12,7 @@ export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
 
   let clipPath: string | undefined;
   if (cutout) {
-    const rect = cutout.getBoundingClientRect();
-    clipPath = `polygon(0% 0%,100% 0%,100% 100%,0% 100%,0% 0%,${rect.left}px ${rect.top}px,${rect.left}px ${rect.bottom}px,${rect.right}px ${rect.bottom}px,${rect.right}px ${rect.top}px,${rect.left}px ${rect.top}px)`;
+    clipPath = `polygon(0% 0%,100% 0%,100% 100%,0% 100%,0% 0%,${cutout.left}px ${cutout.top}px,${cutout.left}px ${cutout.bottom}px,${cutout.right}px ${cutout.bottom}px,${cutout.right}px ${cutout.top}px,${cutout.left}px ${cutout.top}px)`;
   }
 
   return (
@@ -29,6 +29,9 @@ export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
         userSelect: 'none',
         WebkitUserSelect: 'none',
         clipPath,
+        // Until the cutout is measured, let pointer events through rather than block the element
+        // that should stay interactive.
+        pointerEvents: cutout === null ? 'none' : undefined,
       }}
     />
   );
@@ -38,10 +41,10 @@ export interface InternalBackdropState {}
 
 export interface InternalBackdropProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
-   * The element to cut out of the backdrop.
-   * This is useful for allowing certain elements to be interactive while the backdrop is present.
+   * The viewport rect of the element to keep interactive, which is cut out of the backdrop.
+   * `null` while it hasn't been measured yet. Omit it when nothing should be cut out.
    */
-  cutout?: Element | null | undefined;
+  cutout?: CutoutRect | null | undefined;
 }
 
 export namespace InternalBackdrop {
