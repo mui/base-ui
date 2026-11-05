@@ -2103,6 +2103,78 @@ describe('<Listbox.Root />', () => {
         '',
       );
     });
+
+    describe('typing session', () => {
+      const { render: renderFakeTimers, clock } = createRenderer();
+
+      clock.withFakeTimers();
+
+      function renderFruits(rootProps: Listbox.Root.Props<string> = {}) {
+        return renderFakeTimers(
+          <Listbox.Root {...rootProps}>
+            <Listbox.List>
+              <Listbox.Item value="apple">Apple</Listbox.Item>
+              <Listbox.Item value="banana">Banana</Listbox.Item>
+              <Listbox.Item value="cherry">Cherry</Listbox.Item>
+              <Listbox.Item value="bacon">Bacon</Listbox.Item>
+              <Listbox.Item value="banana split">Banana split</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>,
+        );
+      }
+
+      async function type(key: string) {
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key });
+        await flushMicrotasks();
+      }
+
+      it('keeps the first match while it matches the whole search', async () => {
+        await renderFruits();
+        await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+
+        await type('b');
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveFocus();
+
+        await type('a');
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveFocus();
+      });
+
+      it('starts a new search from the focused item after a pause', async () => {
+        await renderFruits();
+        await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+
+        await type('b');
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveFocus();
+
+        // Without the pause, "ba" would keep Banana.
+        clock.tick(500);
+        await type('a');
+        expect(screen.getByRole('option', { name: 'Apple' })).toHaveFocus();
+      });
+
+      it('cycles through matches when the same letter is typed again', async () => {
+        await renderFruits();
+        await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+
+        await type('b');
+        await type('b');
+        expect(screen.getByRole('option', { name: 'Bacon' })).toHaveFocus();
+      });
+
+      it('continues the search with Space instead of selecting', async () => {
+        const handleValueChange = vi.fn();
+        await renderFruits({ onValueChange: handleValueChange });
+        await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+
+        for (const key of ['b', 'a', 'n', 'a', 'n', 'a', ' ', 's']) {
+          // eslint-disable-next-line no-await-in-loop
+          await type(key);
+        }
+
+        expect(screen.getByRole('option', { name: 'Banana split' })).toHaveFocus();
+        expect(handleValueChange).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe('focus at the ends of the list', () => {
