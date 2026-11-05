@@ -63,6 +63,44 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toBe('b');
     });
 
+    it('is not called when arrowing onto a disabled item with nothing selected in opt-in mode', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple="opt-in" onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+      expect(handleValueChange).not.toHaveBeenCalled();
+    });
+
+    it('is not called when Ctrl+A selects a list that is already fully selected', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+    });
+
     describe('range selections', () => {
       function renderList(rootProps: Listbox.Root.Props<string, true | 'opt-in'>) {
         return render(

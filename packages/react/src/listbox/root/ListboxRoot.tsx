@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type {
   BaseUIChangeEventDetails,
   BaseUIHighlightEventDetails,
@@ -93,6 +94,12 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   // Parts report the next selection as an array; convert it to the public shape.
   const setValue = useStableCallback(
     (nextSelectedValues: any[], eventDetails: ListboxRoot.ChangeEventDetails) => {
+      // Nothing changes when the selection is the same, such as when the focused item is
+      // disabled or every item is already selected.
+      if (areArraysEqual(nextSelectedValues, store.state.value, store.state.isItemEqualToValue)) {
+        return;
+      }
+
       const nextValue = multiple ? nextSelectedValues : (nextSelectedValues[0] ?? null);
       onValueChange?.(nextValue, eventDetails);
 
