@@ -54,8 +54,9 @@ export function getFilterKeyAction(
   if (key === 'Tab') {
     return event.shiftKey ? 'close' : 'ignore';
   }
+  // Without a highlighted item, Enter must not submit a surrounding form.
   if (key === 'Enter') {
-    return hasActiveItem ? 'activate' : 'navigate';
+    return hasActiveItem ? 'activate' : 'block';
   }
 
   const isArrow = key.startsWith('Arrow');

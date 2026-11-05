@@ -73,7 +73,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Portal>
+          <Select.Portal container={props.portalContainer}>
             <Select.Positioner>
               <Select.Popup {...props.popupProps}>
                 <Select.Input aria-label="Filter" onFocus={props.onInputFocus} />

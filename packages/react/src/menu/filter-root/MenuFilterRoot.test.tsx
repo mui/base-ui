@@ -94,7 +94,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       <Menu.FilterProvider {...props.providerProps}>
         <Menu.Root {...props.rootProps}>
           <Menu.Trigger data-testid="trigger">Letters</Menu.Trigger>
-          <Menu.Portal>
+          <Menu.Portal container={props.portalContainer}>
             <Menu.Positioner>
               <Menu.Popup {...props.popupProps}>
                 <Menu.Input aria-label="Filter" onFocus={props.onInputFocus} />

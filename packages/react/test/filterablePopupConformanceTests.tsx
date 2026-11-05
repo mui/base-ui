@@ -149,6 +149,35 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
       expect(reopenedInput).not.toHaveAttribute('aria-activedescendant');
     });
 
+    it('does not submit a surrounding form with Enter while nothing is highlighted', async () => {
+      const onSubmit = vi.fn();
+      function FormTest() {
+        const [container, setContainer] = React.useState<HTMLFormElement | null>(null);
+        return (
+          <form
+            ref={setContainer}
+            onSubmit={(event) => {
+              event.preventDefault();
+              onSubmit();
+            }}
+          >
+            {container && createComponent({ portalContainer: container })}
+            <button type="submit">Submit</button>
+          </form>
+        );
+      }
+      const { user } = await render(<FormTest />);
+      await user.click(screen.getByTestId('trigger'));
+      const input = await findFocusedInput();
+      expect(input.closest('form')).not.toBe(null);
+      await user.keyboard('zz');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('{Enter}');
+
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
     describe('Space in the input', () => {
       async function openAndHighlightAlpha(
         user: Awaited<ReturnType<typeof render>>['user'],
@@ -357,6 +386,7 @@ export interface FilterablePopupTestProps {
   };
   onInputFocus?: () => void;
   onAlphaClick?: () => void;
+  portalContainer?: HTMLElement;
 }
 
 export interface FilterablePopupConformanceTestsConfig {

@@ -21,7 +21,7 @@ describe('getFilterKeyAction', () => {
     ['Tab', key('Tab'), true, false, 'ignore'],
     ['Shift+Tab', key('Tab', { shiftKey: true }), false, false, 'close'],
     ['Enter on a highlight', key('Enter'), true, false, 'activate'],
-    ['Enter without a highlight', key('Enter'), false, true, 'navigate'],
+    ['Enter without a highlight', key('Enter'), false, true, 'block'],
     ['a character', key('a'), true, false, 'edit'],
     ['Space on a highlight in an empty input', key(' '), true, false, 'activate'],
     ['Space without a highlight in an empty input', key(' '), false, false, 'block'],
