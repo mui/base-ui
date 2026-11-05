@@ -31,6 +31,7 @@ export { useHoverFloatingInteraction } from './hooks/useHoverFloatingInteraction
 export { useHoverReferenceInteraction } from './hooks/useHoverReferenceInteraction';
 export { useListNavigation } from './hooks/useListNavigation';
 export { useTypeahead } from './hooks/useTypeahead';
+export { usePopupTypeahead } from './hooks/usePopupTypeahead';
 export { safePolygon } from './safePolygon';
 export type * from './types';
 export {
