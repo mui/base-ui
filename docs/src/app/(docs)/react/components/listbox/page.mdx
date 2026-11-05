@@ -1,0 +1,99 @@
+# Listbox
+
+<Subtitle>An always-visible list for selecting one or more options.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React listbox component for selecting options from an always-visible list."
+/>
+
+import { DemoListboxHero } from './demos/hero';
+
+<DemoListboxHero />
+
+## Usage guidelines
+
+- **Prefer Select for forms**: Use [Select](/react/components/select) instead of Listbox for selection in forms.
+- **Multi-select support**: Set `multiple` to allow selecting more than one item. The value is then an array.
+- **Provide an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Listbox } from '@base-ui/react/listbox';
+
+<Listbox.Root>
+  <Listbox.Label />
+  <Listbox.List>
+    <Listbox.Item>
+      <Listbox.ItemIndicator />
+    </Listbox.Item>
+    <Listbox.Group>
+      <Listbox.GroupLabel />
+    </Listbox.Group>
+  </Listbox.List>
+</Listbox.Root>;
+```
+
+## Examples
+
+### Multiple selection
+
+Add the `multiple` prop to let users select more than one item. The value is an array of the selected items.
+
+import { DemoListboxMultiSelection } from './demos/multi-selection';
+
+<DemoListboxMultiSelection />
+
+### Opt-in multiple selection
+
+Use `multiple="opt-in"` when users opt in to selecting more than one item by holding a modifier key. On touch devices, which have no modifier keys, a tap adds or removes an item, the same as `multiple`.
+
+import { DemoListboxOptInSelection } from './demos/opt-in-selection';
+
+<DemoListboxOptInSelection />
+
+## API reference
+
+import { TypesListbox } from './types';
+
+### Root
+
+<TypesListbox.Root />
+
+### Label
+
+<TypesListbox.Label />
+
+### List
+
+<TypesListbox.List />
+
+### Item
+
+<TypesListbox.Item />
+
+### ItemIndicator
+
+<TypesListbox.ItemIndicator />
+
+### Group
+
+<TypesListbox.Group />
+
+### GroupLabel
+
+<TypesListbox.GroupLabel />
+
+export const metadata = {
+  keywords: [
+    'React Listbox Component',
+    'Listbox',
+    'Option List',
+    'Multi Select',
+    'Accessible Listbox',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
