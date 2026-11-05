@@ -61,6 +61,23 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange).toHaveBeenCalledTimes(1);
       expect(handleValueChange.mock.calls[0][0]).toBe('b');
     });
+
+    it('is not called when Ctrl+A selects a list that is already fully selected', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+    });
   });
 
   describe('prop: onItemHighlighted', () => {
