@@ -11,10 +11,25 @@ import type {
 } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { defaultItemEquality } from '../../internals/itemEquality';
+import { createListboxItems } from '../items/createItems';
+import type {
+  CreateListboxItemsOptions,
+  ListboxItemCollection,
+  ListboxItems,
+  ListboxPrimitiveValue,
+} from '../items/createItems';
 import { ListboxRootContext } from './ListboxRootContext';
 import { ListboxStore } from '../store';
 import { useHighlightChangeNotifier } from '../utils/useHighlightChangeNotifier';
+
+// An array of primitives is a collection whose items are their own key and label.
+const PRIMITIVE_ITEM_OPTIONS: CreateListboxItemsOptions<
+  ListboxPrimitiveValue,
+  ListboxPrimitiveValue
+> = {
+  getValue: (item) => item,
+  getLabel: (item) => String(item),
+};
 
 /**
  * Groups all parts of the listbox.
@@ -33,11 +48,19 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     multiple: multipleProp = false,
     orientation = 'vertical',
     highlightItemOnHover = true,
-    isItemEqualToValue = defaultItemEquality,
-    itemToStringLabel,
     onItemHighlighted,
+    items: itemsProp,
     children,
   } = props;
+
+  // The collection's internal shape, which is opaque to consumers. An array is wrapped in one.
+  const items = React.useMemo(
+    () =>
+      (Array.isArray(itemsProp)
+        ? createListboxItems(itemsProp, PRIMITIVE_ITEM_OPTIONS)
+        : itemsProp) as unknown as ListboxItems | undefined,
+    [itemsProp],
+  );
 
   const generatedId = useBaseUiId();
 
@@ -71,12 +94,11 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
         {
           id: generatedId,
           multiple: multipleProp,
-          itemToStringLabel,
-          isItemEqualToValue,
           value: selectedValues,
           orientation,
           disabled,
           highlightItemOnHover,
+          items,
         },
         {
           valuesRef,
@@ -109,22 +131,20 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
       id: generatedId,
       multiple: multipleProp,
       value: selectedValues,
-      itemToStringLabel,
-      isItemEqualToValue,
       orientation,
       disabled,
       highlightItemOnHover,
+      items,
     });
   }, [
     store,
     generatedId,
     multipleProp,
     selectedValues,
-    itemToStringLabel,
-    isItemEqualToValue,
     orientation,
     disabled,
     highlightItemOnHover,
+    items,
   ]);
 
   useHighlightChangeNotifier<Value>({
@@ -140,9 +160,13 @@ type ListboxInputValue<Value, Multiple extends boolean | 'opt-in' | undefined> =
   ? readonly Value[]
   : Value;
 
+// Distributes over `Value`, so a listbox whose items' values are keys or items gives an array of
+// one kind or the other.
 type ListboxOutputValue<Value, Multiple extends boolean | 'opt-in' | undefined> = Multiple extends
   true | 'opt-in'
-  ? Value[]
+  ? Value extends unknown
+    ? Value[]
+    : never
   : Value;
 
 export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | undefined = false> {
@@ -175,15 +199,6 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    */
   highlightItemOnHover?: boolean | undefined;
   /**
-   * Custom comparison logic used to determine if a listbox item value matches the current selected value.
-   * Defaults to `Object.is` comparison.
-   */
-  isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
-  /**
-   * Converts an object value to a string label for display.
-   */
-  itemToStringLabel?: ((itemValue: Value) => string) | undefined;
-  /**
    * The uncontrolled value of the listbox when it's initially rendered.
    *
    * To render a controlled listbox, use the `value` prop instead.
@@ -211,10 +226,25 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
    *   rather than a `PointerEvent`.
    * - `'none'`: the highlight changed for another reason, such as an item receiving or losing focus.
+   *
+   * With `items`, the highlighted item may not be rendered yet, so scroll it into view.
    */
   onItemHighlighted?:
     | ((itemValue: Value | undefined, eventDetails: ListboxRootHighlightEventDetails) => void)
     | undefined;
+  // `& {}` makes `value` and `defaultValue` infer `Value` ahead of the items, so they can narrow it
+  // to keys or items.
+  /**
+   * Every item in the list, including those that aren't rendered. Pass them when the list is
+   * virtualized, so keyboard navigation, typeahead and selection can reach items that aren't
+   * rendered.
+   *
+   * Pass an array of strings or numbers, each of which is an item's value and label, or a
+   * collection created with `Listbox.createItems()` for any other data. Give each `Listbox.Item`
+   * its value, or with a collection, its item's key or the item itself.
+   */
+  items?:
+    readonly (Value & ListboxPrimitiveValue)[] | ListboxItemCollection<any, Value & {}> | undefined;
 }
 
 export interface ListboxRootState {}

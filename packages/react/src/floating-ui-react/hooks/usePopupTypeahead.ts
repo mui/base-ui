@@ -8,7 +8,13 @@ import { stopEvent } from '../utils/event';
 import { useTypeahead } from './useTypeahead';
 import type { UseTypeaheadProps } from './useTypeahead';
 
-export interface UsePopupTypeaheadProps extends UseTypeaheadProps {}
+export interface UsePopupTypeaheadProps extends UseTypeaheadProps {
+  /**
+   * A ref which contains an array of strings whose indices match the HTML
+   * elements of the list.
+   */
+  listRef: React.RefObject<Array<string | null>>;
+}
 
 /**
  * Typeahead for a popup and its trigger. While the popup is open, typing keys don't reach other

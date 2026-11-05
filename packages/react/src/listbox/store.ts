@@ -1,16 +1,15 @@
 import type * as React from 'react';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
-import { compareItemEquality } from '../internals/itemEquality';
 import type { ListboxRoot } from './root/ListboxRoot';
+import { isItemValue } from './items/createItems';
+import type { ListboxItems } from './items/createItems';
+import type { SelectionItems } from './utils/selectionReducer';
 
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
   /** `'opt-in'` when pressing an item without a modifier replaces the selection. */
   multiple: boolean | 'opt-in';
-
-  itemToStringLabel: ((item: any) => string) | undefined;
-  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
   /** The selected values. An array even when `multiple` is `false`. */
   value: any[];
@@ -21,6 +20,12 @@ export type State = {
   itemFocused: boolean;
   /** The item under the pointer. It's highlighted until a key press or focus leaving clears it. */
   hoveredIndex: number | null;
+  /**
+   * Every item, including those that aren't rendered, when they're passed to `Listbox.Root`.
+   */
+  items: ListboxItems | undefined;
+  /** Whether the item that holds the tab stop is rendered. */
+  activeItemRendered: boolean;
 
   listElement: HTMLElement | null;
 
@@ -32,6 +37,11 @@ export type State = {
 
 export type Context = {
   valuesRef: React.RefObject<Array<any>>;
+  /**
+   * With `items`, whether the items' values are items rather than keys, so values of items that
+   * aren't rendered take the same form. Set once, by the first item that registers a value.
+   */
+  itemValuesAreItems: boolean | undefined;
   labelsRef: React.RefObject<Array<string | null>>;
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
   typingRef: React.RefObject<boolean>;
@@ -39,6 +49,10 @@ export type Context = {
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
   /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
   highlightEvent: Event | undefined;
+  /** An item that should receive focus as soon as it renders, while the list holds focus. */
+  pendingFocusIndexRef: React.RefObject<number | null>;
+  /** Called when an item receives focus. */
+  onItemFocus: (index: number) => void;
 };
 
 /**
@@ -54,9 +68,6 @@ export const selectors = {
   labelId: createSelector((state: State) => state.labelId),
   multiple: createSelector((state: State) => state.multiple),
 
-  itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
-  isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
-
   value: createSelector((state: State) => state.value),
 
   activeIndex: createSelector((state: State) => state.activeIndex),
@@ -65,18 +76,18 @@ export const selectors = {
     (state: State, index: number) => getHighlightedIndex(state) === index,
   ),
 
-  // Value is always an array now, so isSelected always does array membership check.
-  isSelected: createSelector((state: State, index: number, itemValue: any) => {
-    const comparer = state.isItemEqualToValue;
-    const storeValue = state.value;
-
-    return (
-      Array.isArray(storeValue) &&
-      storeValue.some((selectedItem) => compareItemEquality(itemValue, selectedItem, comparer))
-    );
+  isSelected: createSelector((state: State, itemValue: any) => {
+    const { items } = state;
+    if (!items) {
+      return state.value.some((selectedValue) => Object.is(selectedValue, itemValue));
+    }
+    const key = items.keyOf(itemValue);
+    return state.value.some((selectedValue) => Object.is(items.keyOf(selectedValue), key));
   }),
 
   listElement: createSelector((state: State) => state.listElement),
+  items: createSelector((state: State) => state.items),
+  activeItemRendered: createSelector((state: State) => state.activeItemRendered),
 
   orientation: createSelector((state: State) => state.orientation),
 
@@ -101,6 +112,71 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     this.context.highlightEvent = event;
     this.set('activeIndex', index);
     this.context.highlightEvent = undefined;
+  }
+
+  /**
+   * Whether an index is in the list: one of `items` when they're passed, otherwise one of the
+   * rendered items.
+   */
+  isIndexInList(index: number, elements: Array<HTMLElement | null>) {
+    const { items } = this.state;
+    if (index < 0) {
+      return false;
+    }
+    return items != null ? index < items.size : elements[index] != null;
+  }
+
+  /**
+   * The items the selection reducer selects from: the rendered items' values and disabled states,
+   * and, with `items`, those of the items that aren't rendered.
+   */
+  getSelectionItems(): SelectionItems {
+    const { items, disabled } = this.state;
+    const disabledItems = this.context.disabledItemsRef.current;
+    return {
+      count: items ? items.size : this.context.valuesRef.current.length,
+      getValue: (index) => this.getValueAt(index),
+      isSameValue: this.isSameValue,
+      isDisabled: (index) =>
+        disabledItems[index] ?? (items ? disabled || items.getDisabled(index) : false),
+    };
+  }
+
+  /**
+   * The value of the item at a position. With `items`, it's the item or its key, matching the
+   * rendered items' values.
+   */
+  getValueAt(index: number): any {
+    const { items } = this.state;
+    if (!items) {
+      return this.context.valuesRef.current[index];
+    }
+    return this.context.itemValuesAreItems ? items.at(index) : items.keyAt(index);
+  }
+
+  /** Whether two values belong to the same item. With `items`, they're compared by key. */
+  isSameValue = (a: any, b: any): boolean => {
+    const { items } = this.state;
+    return items ? Object.is(items.keyOf(a), items.keyOf(b)) : Object.is(a, b);
+  };
+
+  /**
+   * Records whether the items' values are items rather than keys, from the first item that
+   * registers a value. Later items don't change it.
+   */
+  registerItemValue(value: any) {
+    if (this.context.itemValuesAreItems === undefined && value != null) {
+      this.context.itemValuesAreItems = isItemValue(value);
+    }
+  }
+
+  /** The position of the item with a value, or `-1`. */
+  indexOfValue(value: any): number {
+    const { items } = this.state;
+    if (items) {
+      return items.indexOf(value);
+    }
+    return this.context.valuesRef.current.findIndex((itemValue) => Object.is(itemValue, value));
   }
 
   /**
@@ -138,12 +214,12 @@ function createInitialState(): State {
     id: undefined,
     labelId: undefined,
     multiple: false,
-    itemToStringLabel: undefined,
-    isItemEqualToValue: Object.is,
     value: [],
     activeIndex: null,
     itemFocused: false,
     hoveredIndex: null,
+    items: undefined,
+    activeItemRendered: false,
     listElement: null,
     orientation: 'vertical',
     disabled: false,
@@ -154,11 +230,14 @@ function createInitialState(): State {
 function createInitialContext(): Context {
   return {
     valuesRef: { current: [] },
+    itemValuesAreItems: undefined,
     labelsRef: { current: [] },
     disabledItemsRef: { current: [] },
     typingRef: { current: false },
     lastSelectedIndexRef: { current: null },
     setValue: () => {},
     highlightEvent: undefined,
+    pendingFocusIndexRef: { current: null },
+    onItemFocus: () => {},
   };
 }

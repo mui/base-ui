@@ -54,6 +54,44 @@ import { DemoListboxOptInSelection } from './demos/opt-in-selection';
 
 <DemoListboxOptInSelection />
 
+### Object values
+
+To use objects as values, create the items with `Listbox.createItems()` and pass them to the `items` prop. Make sure `getValue` returns a unique primitive for each item, and give each `Listbox.Item` that value or the object itself to choose what `onValueChange` receives.
+
+```jsx title="Object values"
+function UserList({ users }) {
+  const [value, setValue] = React.useState(users[0]);
+  const items = React.useMemo(
+    () =>
+      Listbox.createItems(users, {
+        getValue: (user) => user.id,
+        getLabel: (user) => user.name,
+      }),
+    [users],
+  );
+
+  return (
+    <Listbox.Root items={items} value={value} onValueChange={setValue}>
+      <Listbox.List>
+        {users.map((user) => (
+          <Listbox.Item key={user.id} value={user}>
+            {user.name}
+          </Listbox.Item>
+        ))}
+      </Listbox.List>
+    </Listbox.Root>
+  );
+}
+```
+
+### Virtualized
+
+Render large lists with a virtualization library such as `@tanstack/react-virtual`.
+
+import { DemoListboxVirtualized } from './demos/virtualized';
+
+<DemoListboxVirtualized />
+
 ## API reference
 
 import { TypesListbox } from './types';
@@ -85,6 +123,12 @@ import { TypesListbox } from './types';
 ### GroupLabel
 
 <TypesListbox.GroupLabel />
+
+## createItems
+
+Creates a collection for the `items` prop of `<Listbox.Root>` from data that isn't strings or numbers.
+
+<TypesListbox.createItems hideDescription />
 
 export const metadata = {
   keywords: [
