@@ -82,7 +82,7 @@ export function useHighlightChangeNotifier<Value>(params: {
         nextHighlight.value,
         createGenericEventDetails(getHighlightReason(event), event, {
           index: nextHighlight.index,
-        }),
+        }) as ListboxRoot.HighlightEventDetails,
       );
     });
   }, [

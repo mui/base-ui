@@ -84,3 +84,15 @@ function ControlledMultiple() {
     eventDetails.range.from;
   }}
 />;
+
+// `items` takes the item values, and `itemToStringLabel` receives one to label it for typeahead.
+<Listbox.Root<{ id: string; name: string }>
+  items={[{ id: 'a', name: 'Apple' }]}
+  itemToStringLabel={(item) => {
+    expectType<{ id: string; name: string }, typeof item>(item);
+    return item.name;
+  }}
+/>;
+
+// @ts-expect-error -- `items` holds the item values, so they match the value type
+<Listbox.Root<string> items={[1, 2]} />;

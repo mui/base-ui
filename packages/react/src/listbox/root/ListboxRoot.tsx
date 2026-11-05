@@ -12,6 +12,7 @@ import type {
 import type { REASONS } from '../../internals/reasons';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { defaultItemEquality } from '../../internals/itemEquality';
+import { stringifyAsLabel } from '../../internals/resolveValueLabel';
 import { ListboxRootContext } from './ListboxRootContext';
 import { ListboxStore } from '../store';
 import { useHighlightChangeNotifier } from '../utils/useHighlightChangeNotifier';
@@ -34,8 +35,9 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     orientation = 'vertical',
     highlightItemOnHover = true,
     isItemEqualToValue = defaultItemEquality,
-    itemToStringLabel,
     onItemHighlighted,
+    items,
+    itemToStringLabel,
     children,
   } = props;
 
@@ -71,12 +73,12 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
         {
           id: generatedId,
           multiple: multipleProp,
-          itemToStringLabel,
           isItemEqualToValue,
           value: selectedValues,
           orientation,
           disabled,
           highlightItemOnHover,
+          items,
         },
         {
           valuesRef,
@@ -109,23 +111,33 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
       id: generatedId,
       multiple: multipleProp,
       value: selectedValues,
-      itemToStringLabel,
       isItemEqualToValue,
       orientation,
       disabled,
       highlightItemOnHover,
+      items,
     });
   }, [
     store,
     generatedId,
     multipleProp,
     selectedValues,
-    itemToStringLabel,
     isItemEqualToValue,
     orientation,
     disabled,
     highlightItemOnHover,
+    items,
   ]);
+
+  // With `items`, the listbox knows every item, including those that aren't rendered, so
+  // selection, typeahead and the tab stop work across the whole list.
+  useIsoLayoutEffect(() => {
+    if (!items) {
+      return;
+    }
+    valuesRef.current = items as any[];
+    labelsRef.current = items.map((item) => stringifyAsLabel(item, itemToStringLabel));
+  }, [items, itemToStringLabel]);
 
   useHighlightChangeNotifier<Value>({
     store,
@@ -180,10 +192,6 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
   /**
-   * Converts an object value to a string label for display.
-   */
-  itemToStringLabel?: ((itemValue: Value) => string) | undefined;
-  /**
    * The uncontrolled value of the listbox when it's initially rendered.
    *
    * To render a controlled listbox, use the `value` prop instead.
@@ -211,10 +219,25 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
    *   rather than a `PointerEvent`.
    * - `'none'`: the highlight changed for another reason, such as an item receiving or losing focus.
+   *
+   * With `items`, the highlighted item may not be rendered yet, so scroll it into view.
    */
   onItemHighlighted?:
     | ((itemValue: Value | undefined, eventDetails: ListboxRootHighlightEventDetails) => void)
     | undefined;
+  /**
+   * The items in the list, including those that aren't rendered.
+   * Pass them when the list is virtualized, and use each item as its `Listbox.Item` value.
+   * Keyboard navigation, typeahead and selection can then reach items that aren't rendered.
+   */
+  items?: readonly Value[] | undefined;
+  /**
+   * When the item values are objects (`<Listbox.Item value={object}>`), this function converts the
+   * object value to a string representation for typeahead.
+   * If the shape of the object is `{ value, label }`, the label will be used automatically without
+   * needing to specify this prop.
+   */
+  itemToStringLabel?: ((itemValue: Value) => string) | undefined;
 }
 
 export interface ListboxRootState {}

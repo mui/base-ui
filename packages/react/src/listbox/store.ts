@@ -9,7 +9,6 @@ export type State = {
   /** `'opt-in'` when pressing an item without a modifier replaces the selection. */
   multiple: boolean | 'opt-in';
 
-  itemToStringLabel: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
   /** The selected values. An array even when `multiple` is `false`. */
@@ -21,6 +20,12 @@ export type State = {
   itemFocused: boolean;
   /** The item under the pointer. It's highlighted until a key press or focus leaving clears it. */
   hoveredIndex: number | null;
+  /**
+   * Every item, including those that aren't rendered, when they're passed to `Listbox.Root`.
+   */
+  items: readonly any[] | undefined;
+  /** Whether the item that holds the tab stop is rendered. */
+  activeItemRendered: boolean;
 
   listElement: HTMLElement | null;
 
@@ -39,6 +44,10 @@ export type Context = {
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
   /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
   highlightEvent: Event | undefined;
+  /** An item that should receive focus as soon as it renders, while the list holds focus. */
+  pendingFocusIndexRef: React.RefObject<number | null>;
+  /** Called when an item receives focus. */
+  onItemFocus: (index: number) => void;
 };
 
 /**
@@ -54,7 +63,6 @@ export const selectors = {
   labelId: createSelector((state: State) => state.labelId),
   multiple: createSelector((state: State) => state.multiple),
 
-  itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
@@ -77,6 +85,8 @@ export const selectors = {
   }),
 
   listElement: createSelector((state: State) => state.listElement),
+  items: createSelector((state: State) => state.items),
+  activeItemRendered: createSelector((state: State) => state.activeItemRendered),
 
   orientation: createSelector((state: State) => state.orientation),
 
@@ -101,6 +111,18 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     this.context.highlightEvent = event;
     this.set('activeIndex', index);
     this.context.highlightEvent = undefined;
+  }
+
+  /**
+   * Whether an index is in the list: one of `items` when they're passed, otherwise one of the
+   * rendered items.
+   */
+  isIndexInList(index: number, elements: Array<HTMLElement | null>) {
+    const { items } = this.state;
+    if (index < 0) {
+      return false;
+    }
+    return items != null ? index < items.length : elements[index] != null;
   }
 
   /**
@@ -138,12 +160,13 @@ function createInitialState(): State {
     id: undefined,
     labelId: undefined,
     multiple: false,
-    itemToStringLabel: undefined,
     isItemEqualToValue: Object.is,
     value: [],
     activeIndex: null,
     itemFocused: false,
     hoveredIndex: null,
+    items: undefined,
+    activeItemRendered: false,
     listElement: null,
     orientation: 'vertical',
     disabled: false,
@@ -160,5 +183,7 @@ function createInitialContext(): Context {
     lastSelectedIndexRef: { current: null },
     setValue: () => {},
     highlightEvent: undefined,
+    pendingFocusIndexRef: { current: null },
+    onItemFocus: () => {},
   };
 }

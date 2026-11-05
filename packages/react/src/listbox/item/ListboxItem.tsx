@@ -67,12 +67,22 @@ export const ListboxItem = React.memo(
       ...elementProps
     } = componentProps;
 
+    const store = useListboxRootContext();
+    const items = store.useState('items');
+    const isItemEqualToValue = store.useState('isItemEqualToValue');
+
+    // With `items`, the item's position comes from its value, since a virtualized list renders
+    // only some of the items and their order in the DOM doesn't match their position.
+    const indexFromItems = React.useMemo(
+      () => (items ? findItemIndex(items, itemValue, isItemEqualToValue) : undefined),
+      [items, itemValue, isItemEqualToValue],
+    );
+
     const listItem = useCompositeListItem({
       guess: true,
       label,
+      index: indexFromItems,
     });
-
-    const store = useListboxRootContext();
 
     const multiple = store.useState('multiple');
     const optInMode = multiple === 'opt-in';
@@ -81,7 +91,6 @@ export const ListboxItem = React.memo(
     const active = store.useState('isActive', listItem.index);
     const highlighted = store.useState('isHighlighted', listItem.index);
     const selected = store.useState('isSelected', listItem.index, itemValue);
-    const isItemEqualToValue = store.useState('isItemEqualToValue');
     const { disabledItemsRef, lastSelectedIndexRef, setValue, valuesRef } = store.context;
 
     const index = listItem.index;
@@ -89,10 +98,11 @@ export const ListboxItem = React.memo(
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useValueAsRef(index);
+    // With `items`, the root already knows every value.
     useListItemValueRegistration({
       index,
       itemValue,
-      hasRegistered,
+      hasRegistered: hasRegistered && !items,
       valuesRef,
     });
 
@@ -108,6 +118,33 @@ export const ListboxItem = React.memo(
         delete disabledItems[index];
       };
     }, [disabled, disabledItemsRef, hasRegistered, index, rootDisabled]);
+
+    // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
+    // and takes its place in the tab order while it isn't.
+    useIsoLayoutEffect(() => {
+      if (!active || !hasRegistered) {
+        return undefined;
+      }
+      store.set('activeItemRendered', true);
+      return () => {
+        store.set('activeItemRendered', false);
+      };
+    }, [active, hasRegistered, store]);
+
+    // The list holds focus while it waits for this item to render, such as after an arrow key
+    // moved past the rendered items of a virtualized list. Take focus from it.
+    useIsoLayoutEffect(() => {
+      const { pendingFocusIndexRef } = store.context;
+      if (!hasRegistered || pendingFocusIndexRef.current !== index) {
+        return;
+      }
+      const listElement = store.state.listElement;
+      if (activeElement(ownerDocument(listElement)) !== listElement) {
+        return;
+      }
+      pendingFocusIndexRef.current = null;
+      itemRef.current?.focus();
+    }, [hasRegistered, index, store]);
 
     const state: ListboxItemState = {
       disabled,
@@ -232,13 +269,19 @@ export const ListboxItem = React.memo(
       'aria-selected': selected,
       tabIndex: active ? 0 : -1,
       onFocus(event) {
+        store.context.pendingFocusIndexRef.current = null;
         store.highlightItem(index, event.nativeEvent);
+        store.context.onItemFocus(index);
       },
       onBlur(event) {
-        // Moving focus to another item keeps the highlight; it moves with focus instead.
+        // Moving focus to another item keeps the highlight; it moves with focus instead. So does
+        // the list holding focus for an item that isn't rendered yet.
         const listElement = store.state.listElement;
         const nextTarget = event.relatedTarget;
-        if (nextTarget !== listElement && contains(listElement, nextTarget)) {
+        if (
+          contains(listElement, nextTarget) &&
+          (nextTarget !== listElement || store.context.pendingFocusIndexRef.current !== null)
+        ) {
           return;
         }
         store.unhighlightItem(event.nativeEvent);

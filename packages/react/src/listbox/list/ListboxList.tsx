@@ -42,6 +42,10 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const orientation = store.useState('orientation');
   const disabled = store.useState('disabled');
   const multiple = store.useState('multiple');
+  const items = store.useState('items');
+  // With `items`, the list knows every item, including those that aren't rendered.
+  const itemCount = items?.length;
+  const activeItemRendered = store.useState('activeItemRendered');
   const optInMode = multiple === 'opt-in';
   const direction = useDirection();
   const { disabledItemsRef, labelsRef, lastSelectedIndexRef, setValue, typingRef, valuesRef } =
@@ -51,6 +55,9 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const keyDownEventRef = React.useRef<KeyboardEvent | undefined>(undefined);
   // Where a Shift+Arrow range starts: the item focused when Shift was pressed.
   const shiftAnchorRef = React.useRef<number | null>(null);
+  // In opt-in mode, an arrow key that moved focus to an item that isn't rendered selects it once
+  // it renders and receives focus.
+  const pendingSelectRef = React.useRef<{ index: number; event: KeyboardEvent } | null>(null);
 
   const onHighlightedIndexChange = useStableCallback((index: number) => {
     const event = keyDownEventRef.current;
@@ -116,6 +123,98 @@ export const ListboxList = React.forwardRef(function ListboxList(
     disabledIndices: EMPTY_ARRAY as number[],
   });
 
+  /**
+   * Highlights an item and moves focus to it. In a virtualized list, the item may not be rendered
+   * yet, so the list holds focus until it renders and the item takes focus from the list.
+   */
+  const focusItem = useStableCallback((index: number, event: Event | undefined) => {
+    const { pendingFocusIndexRef } = store.context;
+    pendingFocusIndexRef.current = null;
+    store.highlightItem(index, event);
+
+    const element = composite.elementsRef.current[index];
+    if (element) {
+      element.focus();
+      return;
+    }
+
+    pendingFocusIndexRef.current = index;
+    store.state.listElement?.focus({ preventScroll: true });
+  });
+
+  // An item that an arrow key moved focus to in opt-in mode is selected once it renders.
+  const onItemFocus = useStableCallback((index: number) => {
+    const pendingSelect = pendingSelectRef.current;
+    if (pendingSelect?.index !== index) {
+      return;
+    }
+    pendingSelectRef.current = null;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    dispatchSelection(
+      { type: 'moveSelection', index },
+      createChangeEventDetails(REASONS.listNavigation, pendingSelect.event),
+      index,
+    );
+  });
+  store.useContextCallback('onItemFocus', onItemFocus);
+
+  /**
+   * Arrow keys, Home and End with `items`. The composite only knows the rendered items, so the
+   * list moves by index instead, through every item.
+   */
+  const handleVirtualizedNavigation = useStableCallback((event: React.KeyboardEvent) => {
+    if (itemCount == null || itemCount === 0) {
+      return;
+    }
+    if (event.shiftKey || event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+
+    const isRtl = direction === 'rtl';
+    let forwardKey = 'ArrowDown';
+    let backwardKey = 'ArrowUp';
+    if (orientation === 'horizontal') {
+      forwardKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
+      backwardKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
+    }
+    const currentIndex = store.state.activeIndex ?? 0;
+
+    let targetIndex: number;
+    if (event.key === forwardKey) {
+      targetIndex = Math.min(currentIndex + 1, itemCount - 1);
+    } else if (event.key === backwardKey) {
+      targetIndex = Math.max(currentIndex - 1, 0);
+    } else if (event.key === 'Home') {
+      targetIndex = 0;
+    } else if (event.key === 'End') {
+      targetIndex = itemCount - 1;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    if (targetIndex === currentIndex) {
+      return;
+    }
+
+    pendingSelectRef.current = null;
+    focusItem(targetIndex, event.nativeEvent);
+
+    // In opt-in mode, the selection follows focus (the APG alternative multiple selection model).
+    if (optInMode && event.key.startsWith('Arrow')) {
+      if (composite.elementsRef.current[targetIndex]) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        dispatchSelection(
+          { type: 'moveSelection', index: targetIndex },
+          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+          targetIndex,
+        );
+      } else {
+        pendingSelectRef.current = { index: targetIndex, event: event.nativeEvent };
+      }
+    }
+  });
+
   // Typeahead, like Select and Menu: keys typed in quick succession build one search, which resets
   // after a pause, and typing the same letter again cycles through the items that start with it.
   const typeahead = useTypeahead({
@@ -128,8 +227,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       typingRef.current = isTyping;
     },
     onMatch(index, event) {
-      store.highlightItem(index, event.nativeEvent);
-      composite.elementsRef.current[index]?.focus();
+      focusItem(index, event.nativeEvent);
     },
   });
 
@@ -175,10 +273,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     const values = valuesRef.current;
     const isItemEqualToValue = store.state.isItemEqualToValue;
 
-    function focusItem(targetIndex: number) {
-      store.highlightItem(targetIndex, event.nativeEvent);
-      elements[targetIndex]?.focus();
-    }
+    const count = itemCount ?? elements.length;
 
     // Opt-in mode: Ctrl+Arrow moves focus without changing the selection. macOS reserves
     // Ctrl+Arrow and uses Cmd+Arrow to jump to the ends, so Option+Arrow does it there.
@@ -197,8 +292,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
       if ((isPrev || isNext) && currentIndex != null) {
         event.preventDefault();
         const targetIndex = isPrev ? currentIndex - 1 : currentIndex + 1;
-        if (targetIndex >= 0 && targetIndex < elements.length && elements[targetIndex]) {
-          focusItem(targetIndex);
+        if (store.isIndexInList(targetIndex, elements)) {
+          focusItem(targetIndex, event.nativeEvent);
         }
       }
     }
@@ -217,13 +312,13 @@ export const ListboxList = React.forwardRef(function ListboxList(
       if ((isPrev || isNext) && currentIndex != null) {
         const targetIndex = isPrev ? currentIndex - 1 : currentIndex + 1;
 
-        if (targetIndex >= 0 && targetIndex < elements.length && elements[targetIndex]) {
+        if (store.isIndexInList(targetIndex, elements)) {
           event.preventDefault();
           if (shiftAnchorRef.current === null) {
             shiftAnchorRef.current = currentIndex;
           }
           const anchorIndex = shiftAnchorRef.current;
-          focusItem(targetIndex);
+          focusItem(targetIndex, event.nativeEvent);
 
           const currentValue = store.state.value;
           const nextValue = selectionReducer(
@@ -260,7 +355,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
           }),
           0,
         );
-        focusItem(0);
+        focusItem(0, event.nativeEvent);
       }
     }
 
@@ -268,7 +363,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'End') {
       event.preventDefault();
       if (currentIndex != null) {
-        const lastIndex = elements.length - 1;
+        const lastIndex = count - 1;
         dispatchSelection(
           { type: 'selectRange', from: currentIndex, to: lastIndex },
           createChangeEventDetails(REASONS.listNavigation, event.nativeEvent, undefined, {
@@ -276,7 +371,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
           }),
           lastIndex,
         );
-        focusItem(lastIndex);
+        focusItem(lastIndex, event.nativeEvent);
       }
     }
 
@@ -287,7 +382,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       dispatchSelection(
         { type: 'selectAll' },
         createChangeEventDetails(REASONS.listNavigation, event.nativeEvent, undefined, {
-          range: { from: 0, to: elements.length - 1, mode: 'replace' },
+          range: { from: 0, to: count - 1, mode: 'replace' },
         }),
       );
     }
@@ -296,6 +391,15 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const setListElement = useStableCallback((element: HTMLElement | null) => {
     store.set('listElement', element);
   });
+
+  // In a virtualized list, the item that holds the tab stop may not be rendered, so the list takes
+  // its place in the tab order until it renders.
+  let tabIndex: number | undefined = -1;
+  if (disabled) {
+    tabIndex = undefined;
+  } else if (itemCount != null && itemCount > 0 && !activeItemRendered) {
+    tabIndex = 0;
+  }
 
   const state: ListboxListState = {
     disabled,
@@ -308,21 +412,37 @@ export const ListboxList = React.forwardRef(function ListboxList(
     'aria-labelledby': labelId,
     'aria-multiselectable': multiple ? true : undefined,
     'aria-orientation': orientation,
-    tabIndex: disabled ? undefined : -1,
+    tabIndex,
     onFocus(event) {
-      // The list isn't a tab stop, but it can receive focus programmatically, such as from a
-      // `Listbox.Label` click. Pass focus on to the item that holds the tab stop.
+      const elements = composite.elementsRef.current;
       if (event.target !== event.currentTarget) {
         return;
       }
+      // The list holds focus until the item it's waiting for renders.
+      if (store.context.pendingFocusIndexRef.current !== null) {
+        return;
+      }
+      // The list isn't a tab stop, but it can receive focus programmatically, such as from a
+      // `Listbox.Label` click. Pass focus on to the item that holds the tab stop.
       const index = store.state.activeIndex ?? getTabStopIndex();
-      composite.elementsRef.current[index]?.focus();
+      if (elements[index]) {
+        elements[index].focus();
+      } else if (itemCount != null && itemCount > 0) {
+        // The item isn't rendered, so highlight it to have it scrolled into view.
+        focusItem(index, event.nativeEvent);
+      }
     },
     onBlur(event) {
       if (contains(event.currentTarget, event.relatedTarget)) {
         return;
       }
+      store.context.pendingFocusIndexRef.current = null;
+      pendingSelectRef.current = null;
       typeahead.endSession();
+      if (event.target === event.currentTarget) {
+        // Focus left while the list held it for an item that isn't rendered.
+        store.unhighlightItem(event.nativeEvent);
+      }
       store.setActiveIndex(getTabStopIndex(), event.nativeEvent);
     },
     onMouseLeave(event) {
@@ -370,7 +490,11 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
       // Let composite handle unmodified arrow keys, Home, End
       keyDownEventRef.current = event.nativeEvent;
-      composite.props.onKeyDown?.(event);
+      if (itemCount != null) {
+        handleVirtualizedNavigation(event);
+      } else {
+        composite.props.onKeyDown?.(event);
+      }
       keyDownEventRef.current = undefined;
 
       // Escape: deselect all items (multi-select modes only)
@@ -399,6 +523,13 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // selection or the items change.
   const value = store.useState('value');
   const onMapChange = useStableCallback((map: Parameters<typeof composite.onMapChange>[0]) => {
+    // With `items`, positions come from the items, so they don't shift as items render.
+    if (store.state.items != null) {
+      if (store.state.activeIndex === null) {
+        store.setActiveIndex(getTabStopIndex());
+      }
+      return;
+    }
     composite.onMapChange(map);
     if (!store.state.itemFocused) {
       store.setActiveIndex(getTabStopIndex());
@@ -431,7 +562,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
   return (
     <CompositeList
       elementsRef={composite.elementsRef}
-      labelsRef={labelsRef}
+      // With `items`, the labels come from the items rather than the rendered text.
+      labelsRef={items ? undefined : labelsRef}
       onMapChange={onMapChange}
     >
       {element}

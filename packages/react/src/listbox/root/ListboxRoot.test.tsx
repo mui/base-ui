@@ -2,8 +2,9 @@ import { expect, vi, describe, it, beforeEach } from 'vitest';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Listbox.Root />', () => {
   beforeEach(() => {
@@ -222,7 +223,7 @@ describe('<Listbox.Root />', () => {
       expect(eventDetails.event.type).toBe('keydown');
     });
 
-    it('reports typeahead with the keyboard reason', async () => {
+    it('reports typeahead matches with the keyboard reason', async () => {
       const handleItemHighlighted = vi.fn();
       await renderList(handleItemHighlighted);
 
@@ -2324,6 +2325,344 @@ describe('<Listbox.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
       expect(screen.getByRole('option', { name: 'a' })).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('prop: items', () => {
+    const WINDOW_SIZE = 5;
+    const ALL_ITEMS = Array.from({ length: 100 }, (_, index) => `Item ${index}`);
+
+    // Renders a window of 5 of the items, like a virtualizer, and scrolls the highlighted item into
+    // view unless `follow` is false.
+    function VirtualList(
+      props: Listbox.Root.Props<string, boolean | 'opt-in'> & {
+        start?: number;
+        follow?: boolean;
+      },
+    ) {
+      const {
+        start: startProp = 0,
+        follow = true,
+        items = ALL_ITEMS,
+        onItemHighlighted,
+        ...rootProps
+      } = props;
+      const [start, setStart] = React.useState(startProp);
+      React.useEffect(() => {
+        setStart(startProp);
+      }, [startProp]);
+
+      const rendered = items.slice(start, start + WINDOW_SIZE);
+
+      return (
+        <div>
+          <button>Before</button>
+          <Listbox.Root
+            {...rootProps}
+            items={items}
+            onItemHighlighted={(itemValue, eventDetails) => {
+              onItemHighlighted?.(itemValue, eventDetails);
+              const { index } = eventDetails;
+              if (follow && index !== -1 && (index < start || index >= start + WINDOW_SIZE)) {
+                setStart(Math.min(index, items.length - WINDOW_SIZE));
+              }
+            }}
+          >
+            <Listbox.List>
+              {rendered.map((item) => (
+                <Listbox.Item key={item} value={item}>
+                  {item}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+          <button>After</button>
+        </div>
+      );
+    }
+
+    it('moves focus past the rendered items once the next item renders', async () => {
+      const handleItemHighlighted = vi.fn();
+      await render(<VirtualList onItemHighlighted={handleItemHighlighted} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 4' }).focus());
+      expect(screen.queryByRole('option', { name: 'Item 5' })).toBe(null);
+
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      // Reported before item 5 renders, with its value from `items`.
+      expect(handleItemHighlighted).toHaveBeenCalledWith(
+        'Item 5',
+        expect.objectContaining({ reason: 'keyboard', index: 5 }),
+      );
+      const item5 = screen.getByRole('option', { name: 'Item 5' });
+      expect(item5).toHaveFocus();
+      expect(item5).toHaveAttribute('data-highlighted');
+    });
+
+    it('moves focus to the last item with End', async () => {
+      await render(<VirtualList />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 0' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'End' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Item 99' })).toHaveFocus();
+    });
+
+    it('holds focus on the list while the next item is not rendered', async () => {
+      const handleItemHighlighted = vi.fn();
+      await render(<VirtualList follow={false} onItemHighlighted={handleItemHighlighted} />);
+
+      const item4 = screen.getByRole('option', { name: 'Item 4' });
+      await act(async () => item4.focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('listbox')).toHaveFocus();
+      expect(item4).not.toHaveAttribute('data-highlighted');
+      // Item 5 stays highlighted while the list holds focus for it.
+      expect(handleItemHighlighted).not.toHaveBeenCalledWith(
+        undefined,
+        expect.objectContaining({ index: -1 }),
+      );
+
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(handleItemHighlighted).toHaveBeenLastCalledWith(
+        'Item 6',
+        expect.objectContaining({ index: 6 }),
+      );
+    });
+
+    it('removes the highlight when focus leaves while the list holds it', async () => {
+      const handleItemHighlighted = vi.fn();
+      const { user } = await render(
+        <VirtualList follow={false} onItemHighlighted={handleItemHighlighted} />,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'Item 4' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      await flushMicrotasks();
+      expect(screen.getByRole('listbox')).toHaveFocus();
+      expect(handleItemHighlighted).toHaveBeenLastCalledWith(
+        'Item 5',
+        expect.objectContaining({ index: 5 }),
+      );
+
+      await user.keyboard('{Tab}');
+
+      expect(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+      expect(handleItemHighlighted).toHaveBeenLastCalledWith(
+        undefined,
+        expect.objectContaining({ index: -1 }),
+      );
+    });
+
+    it('makes the list a tab stop while the item holding the tab stop is not rendered', async () => {
+      const { setProps, user } = await render(<VirtualList />);
+      const list = screen.getByRole('listbox');
+      expect(list).toHaveAttribute('tabindex', '-1');
+
+      await setProps({ start: 50 });
+      expect(screen.queryByRole('option', { name: 'Item 0' })).toBe(null);
+      expect(list).toHaveAttribute('tabindex', '0');
+
+      await act(async () => screen.getByRole('button', { name: 'Before' }).focus());
+      await user.keyboard('{Tab}');
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Item 0' })).toHaveFocus();
+    });
+
+    it('selects an item that renders after an arrow key in opt-in mode', async () => {
+      const handleValueChange = vi.fn();
+      await render(<VirtualList multiple="opt-in" onValueChange={handleValueChange} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 4' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Item 5' })).toHaveFocus();
+      expect(handleValueChange).toHaveBeenLastCalledWith(
+        ['Item 5'],
+        expect.objectContaining({ reason: 'list-navigation' }),
+      );
+    });
+
+    it('selects every item with Ctrl+A, including those not rendered', async () => {
+      const handleValueChange = vi.fn();
+      await render(<VirtualList multiple onValueChange={handleValueChange} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 2' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
+
+      expect(handleValueChange.mock.calls[0][0]).toEqual(ALL_ITEMS);
+      expect(handleValueChange.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          reason: 'list-navigation',
+          range: { from: 0, to: 99, mode: 'replace' },
+        }),
+      );
+    });
+
+    it('adds every item up to the last with Ctrl+Shift+End', async () => {
+      const handleValueChange = vi.fn();
+      await render(<VirtualList multiple onValueChange={handleValueChange} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 2' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, {
+        key: 'End',
+        ctrlKey: true,
+        shiftKey: true,
+      });
+      await flushMicrotasks();
+
+      expect(handleValueChange.mock.calls[0][0]).toEqual(ALL_ITEMS.slice(2));
+      expect(handleValueChange.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          reason: 'list-navigation',
+          range: { from: 2, to: 99, mode: 'add' },
+        }),
+      );
+      expect(screen.getByRole('option', { name: 'Item 99' })).toHaveFocus();
+    });
+
+    it('reports Shift+Arrow ranges that reach past the rendered items', async () => {
+      const handleValueChange = vi.fn();
+      await render(<VirtualList multiple onValueChange={handleValueChange} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 4' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, {
+        key: 'ArrowDown',
+        shiftKey: true,
+      });
+      await flushMicrotasks();
+
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['Item 4', 'Item 5']);
+      expect(handleValueChange.mock.calls[0][1]).toEqual(
+        expect.objectContaining({
+          reason: 'list-navigation',
+          range: { from: 4, to: 5, mode: 'replace' },
+        }),
+      );
+      expect(screen.getByRole('option', { name: 'Item 5' })).toHaveFocus();
+    });
+
+    it('moves focus to a typeahead match that is not rendered', async () => {
+      await render(<VirtualList />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 2' }).focus());
+      for (const key of 'item 50') {
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key });
+        // eslint-disable-next-line no-await-in-loop
+        await flushMicrotasks();
+      }
+
+      expect(screen.getByRole('option', { name: 'Item 50' })).toHaveFocus();
+    });
+
+    it('moves focus to a selected item that is not rendered when tabbing in', async () => {
+      const { user } = await render(<VirtualList defaultValue="Item 50" />);
+      expect(screen.queryByRole('option', { name: 'Item 50' })).toBe(null);
+
+      await act(async () => screen.getByRole('button', { name: 'Before' }).focus());
+      await user.keyboard('{Tab}');
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Item 50' })).toHaveFocus();
+    });
+  });
+
+  // TanStack Virtual measures the scroll container, so it needs a browser.
+  describe.skipIf(isJSDOM)('composition: TanStack Virtual', () => {
+    interface Row {
+      id: string;
+      name: string;
+    }
+
+    const rows: Row[] = Array.from({ length: 100 }, (_, index) => ({
+      id: `row-${index}`,
+      name: index < 50 ? `Apple ${index}` : `Banana ${index}`,
+    }));
+
+    function VirtualizedList(props: { onValueChange?: (value: Row[]) => void }) {
+      const listRef = React.useRef<HTMLDivElement>(null);
+      const virtualizer = useVirtualizer({
+        count: rows.length,
+        getScrollElement: () => listRef.current,
+        estimateSize: () => 20,
+      });
+
+      return (
+        <Listbox.Root
+          multiple
+          items={rows}
+          itemToStringLabel={(row) => row.name}
+          onValueChange={props.onValueChange}
+          onItemHighlighted={(_, eventDetails) => {
+            if (eventDetails.reason !== 'pointer' && eventDetails.index !== -1) {
+              virtualizer.scrollToIndex(eventDetails.index);
+            }
+          }}
+        >
+          <Listbox.List ref={listRef} style={{ height: 100, overflow: 'auto' }}>
+            <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+              {virtualizer.getVirtualItems().map((virtualItem) => (
+                <Listbox.Item
+                  key={virtualItem.key}
+                  value={rows[virtualItem.index]}
+                  style={{
+                    position: 'absolute',
+                    top: virtualItem.start,
+                    height: 20,
+                    width: '100%',
+                  }}
+                >
+                  {rows[virtualItem.index].name}
+                </Listbox.Item>
+              ))}
+            </div>
+          </Listbox.List>
+        </Listbox.Root>
+      );
+    }
+
+    it('moves focus to the last item with End', async () => {
+      const { user } = await render(<VirtualizedList />);
+      expect(screen.queryByRole('option', { name: 'Banana 99' })).toBe(null);
+
+      await act(async () => screen.getByRole('option', { name: 'Apple 0' }).focus());
+      await user.keyboard('{End}');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana 99' })).toHaveFocus();
+      });
+    });
+
+    it('moves focus to a typeahead match that is not rendered', async () => {
+      const { user } = await render(<VirtualizedList />);
+      expect(screen.queryByRole('option', { name: 'Banana 50' })).toBe(null);
+
+      await act(async () => screen.getByRole('option', { name: 'Apple 0' }).focus());
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana 50' })).toHaveFocus();
+      });
+    });
+
+    it('selects every item with Ctrl+A', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(<VirtualizedList onValueChange={handleValueChange} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Apple 0' }).focus());
+      await user.keyboard('{Control>}a{/Control}');
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(rows);
     });
   });
 });
