@@ -1,13 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { isElementVisible, isListIndexDisabled } from '../utils/composite';
 import type { DisabledIndices } from '../utils/composite';
-import type { ElementProps, FloatingRootContext } from '../types';
-import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
 
 export interface UseTypeaheadProps {
@@ -64,12 +61,27 @@ export interface UseTypeaheadProps {
   selectedIndex?: number | null | undefined;
 }
 
+export interface UseTypeaheadReturnValue {
+  /**
+   * Handles a key press, matching the typed string against the list.
+   */
+  onKeyDown: (event: React.KeyboardEvent) => void;
+  /**
+   * Ends the typing session, so the next key press starts a new search from the active item.
+   */
+  endSession: () => void;
+  /**
+   * Ends the typing session and forgets the last match.
+   */
+  reset: () => void;
+}
+
 /**
- * Provides a matching callback that can be used to focus an item as the user
- * types, often used in tandem with `useListNavigation()`.
- * @see https://floating-ui.com/docs/useTypeahead
+ * Matches items as the user types. Keys typed in quick succession build one search, which
+ * starts from the item after the active one and resets after a pause. Typing the same letter
+ * again cycles through the items that start with it.
  */
-export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
+export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue {
   const {
     listRef,
     elementsRef,
@@ -83,7 +95,6 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
   } = props;
 
   const onTyping = useStableCallback(onTypingProp);
-  const open = store.useState('open');
 
   const timeout = useTimeout();
   const stringRef = React.useRef('');
@@ -91,6 +102,10 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
   const matchIndexRef = React.useRef<number | null>(null);
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+    if (!enabled) {
+      return;
+    }
+
     function getElement(index: number) {
       return elementsRef?.current[index];
     }
@@ -153,11 +168,6 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
       return;
     }
 
-    if (open && event.key !== ' ') {
-      stopEvent(event);
-      onTyping?.(true);
-    }
-
     // Capture whether this is a new typing session before mutating the string.
     const isNewSession = stringRef.current === '';
     if (isNewSession) {
@@ -203,30 +213,14 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
     }
   });
 
-  const onBlur = useStableCallback((event: React.FocusEvent) => {
-    const next = event.relatedTarget as Element | null;
-    const currentDomReferenceElement = store.select('domReferenceElement');
-    const currentFloatingElement = store.select('floatingElement');
-    const withinComposite =
-      contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
-
-    // Keep the session if focus moves within the composite (reference <-> floating).
-    if (withinComposite) {
-      return;
-    }
-
-    // End the current typing session when focus leaves the composite entirely.
+  const endSession = useStableCallback(() => {
     timeout.clear();
     stringRef.current = '';
     prevIndexRef.current = matchIndexRef.current;
     onTyping?.(false);
   });
 
-  useIsoLayoutEffect(() => {
-    if (!open && selectedIndex !== null) {
-      return;
-    }
-
+  const reset = useStableCallback(() => {
     timeout.clear();
     matchIndexRef.current = null;
 
@@ -234,12 +228,7 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
       stringRef.current = '';
       onTyping?.(false);
     }
-  }, [open, selectedIndex, timeout, onTyping]);
+  });
 
-  const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
-
-  return React.useMemo(
-    () => (enabled ? { reference: sharedProps, floating: sharedProps } : {}),
-    [enabled, sharedProps],
-  );
+  return React.useMemo(() => ({ onKeyDown, endSession, reset }), [onKeyDown, endSession, reset]);
 }

@@ -23,7 +23,7 @@ import {
   useFloatingParentNodeId,
   useFloatingTree,
   useListNavigation,
-  useTypeahead,
+  usePopupTypeahead,
   useFocus,
 } from '../../src/floating-ui-react';
 import { useFloating } from './useFloating';
@@ -132,7 +132,7 @@ export const MenuComponent = React.forwardRef<
     orientation,
     grid: grid ? gridNavigation : undefined,
   });
-  const typeahead = useTypeahead(context.rootStore, {
+  const typeahead = usePopupTypeahead(context.rootStore, {
     listRef: labelsRef,
     onMatch: isOpen ? setActiveIndex : undefined,
     activeIndex,

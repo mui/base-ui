@@ -4,9 +4,9 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { useTestInteractions } from '#test-utils';
-import { useClick, useTypeahead } from '../index';
+import { useClick, usePopupTypeahead } from '../index';
 import { useFloating } from '../../../test/floating-ui-tests/useFloating';
-import type { UseTypeaheadProps } from './useTypeahead';
+import type { UsePopupTypeaheadProps } from './usePopupTypeahead';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -20,7 +20,7 @@ const useImpl = ({
   addUseClick = false,
   ...props
 }: MatchSpyProps &
-  Pick<UseTypeaheadProps, 'onTyping'> & {
+  Pick<UsePopupTypeaheadProps, 'onTyping'> & {
     list?: Array<string>;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
@@ -33,7 +33,7 @@ const useImpl = ({
     onOpenChange: props.onOpenChange ?? setOpen,
   });
   const listRef = React.useRef(props.list ?? ['one', 'two', 'three']);
-  const typeahead = useTypeahead(context.rootStore, {
+  const typeahead = usePopupTypeahead(context.rootStore, {
     listRef,
     activeIndex,
     onMatch(index) {
@@ -67,7 +67,7 @@ const useImpl = ({
 
 function Combobox(
   props: MatchSpyProps &
-    Pick<UseTypeaheadProps, 'onTyping'> & {
+    Pick<UsePopupTypeaheadProps, 'onTyping'> & {
       list?: Array<string>;
       open?: boolean;
     },
@@ -95,7 +95,7 @@ function ComboboxWithElementsRef(
   });
   const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
-  const typeahead = useTypeahead(context.rootStore, {
+  const typeahead = usePopupTypeahead(context.rootStore, {
     listRef,
     elementsRef,
     activeIndex,
@@ -133,14 +133,18 @@ function ComboboxWithElementsRef(
   );
 }
 
-describe('useTypeahead', () => {
+describe('usePopupTypeahead', () => {
   it('passes the matching keydown event to onMatch', async () => {
     const onMatch = vi.fn();
 
     function App() {
       const { refs, context } = useFloating({ open: true });
       const listRef = React.useRef(['one', 'two', 'three']);
-      const typeahead = useTypeahead(context.rootStore, { listRef, activeIndex: null, onMatch });
+      const typeahead = usePopupTypeahead(context.rootStore, {
+        listRef,
+        activeIndex: null,
+        onMatch,
+      });
       const { getReferenceProps } = useTestInteractions([typeahead]);
       return <input {...getReferenceProps({ role: 'combobox', ref: refs.setReference })} />;
     }

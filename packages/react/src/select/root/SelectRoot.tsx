@@ -17,7 +17,7 @@ import {
   useDismiss,
   useFloatingRootContext,
   useListNavigation,
-  useTypeahead,
+  usePopupTypeahead,
 } from '../../floating-ui-react';
 import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -385,7 +385,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const typeahead = useTypeahead(floatingContext, {
+  const typeahead = usePopupTypeahead(floatingContext, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     enabled: !disabled && (open || (!readOnly && !multiple)),
