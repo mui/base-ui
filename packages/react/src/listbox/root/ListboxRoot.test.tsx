@@ -212,6 +212,37 @@ describe('<Listbox.Root />', () => {
 
       expect(itemB).toHaveAttribute('data-highlighted');
     });
+
+    it('keeps the highlight on the focused item when the items are reordered', async () => {
+      function App({ items }: { items: string[] }) {
+        return (
+          <Listbox.Root>
+            <Listbox.List>
+              {items.map((item) => (
+                <Listbox.Item key={item} value={item}>
+                  {item}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+      const { setProps, user } = await render(<App items={['a', 'b', 'c']} />);
+      const itemA = screen.getByRole('option', { name: 'a' });
+
+      await act(async () => itemA.focus());
+      expect(itemA).toHaveAttribute('data-highlighted');
+
+      await setProps({ items: ['b', 'a', 'c'] });
+      await flushMicrotasks();
+
+      expect(itemA).toHaveFocus();
+      expect(itemA).toHaveAttribute('data-highlighted');
+      expect(screen.getByRole('option', { name: 'b' })).not.toHaveAttribute('data-highlighted');
+
+      await user.keyboard('{ArrowDown}');
+      expect(screen.getByRole('option', { name: 'c' })).toHaveFocus();
+    });
   });
 
   describe('tab stop', () => {
