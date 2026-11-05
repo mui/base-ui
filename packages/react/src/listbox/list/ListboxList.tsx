@@ -17,6 +17,7 @@ import { compareItemEquality } from '../../internals/itemEquality';
 import { useCompositeRoot, CompositeList } from '../../internals/composite';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { useListboxRootContext } from '../root/ListboxRootContext';
+import type { ListboxRoot } from '../root/ListboxRoot';
 import { selectionReducer } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
 
@@ -61,8 +62,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     }
 
     // In opt-in mode, moving focus with an arrow key and no modifier moves the selection to
-    // the focused item (the APG alternative multiple selection model). Moving to a disabled item
-    // clears the selection, since it can't be selected.
+    // the focused item (the APG alternative multiple selection model).
     if (
       optInMode &&
       event &&
@@ -73,7 +73,11 @@ export const ListboxList = React.forwardRef(function ListboxList(
       !event.altKey
     ) {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      dispatchSelection({ type: 'moveSelection', index }, event, index);
+      dispatchSelection(
+        { type: 'moveSelection', index },
+        createChangeEventDetails(REASONS.listNavigation, event),
+        index,
+      );
     }
   });
 
@@ -168,9 +172,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const dispatchSelection = useStableCallback(
     (
       action: SelectionAction,
-      event: KeyboardEvent,
+      eventDetails: ListboxRoot.ChangeEventDetails,
       anchorIndex?: number,
-      reason: typeof REASONS.listNavigation | typeof REASONS.escapeKey = REASONS.listNavigation,
     ) => {
       const currentValue = store.state.value;
       const isItemEqualToValue = store.state.isItemEqualToValue;
@@ -181,7 +184,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         disabledItemsRef.current,
         isItemEqualToValue,
       );
-      setValue(nextValue, createChangeEventDetails(reason, event));
+      setValue(nextValue, eventDetails);
       if (anchorIndex !== undefined) {
         lastSelectedIndexRef.current = anchorIndex;
       }
@@ -265,7 +268,13 @@ export const ListboxList = React.forwardRef(function ListboxList(
           if (!areArraysEqual(currentValue, nextValue, isItemEqualToValue)) {
             setValue(
               nextValue,
-              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent, undefined, {
+                range: {
+                  from: Math.min(anchorIndex, targetIndex),
+                  to: Math.max(anchorIndex, targetIndex),
+                  mode: 'replace',
+                },
+              }),
             );
           }
         }
@@ -276,7 +285,13 @@ export const ListboxList = React.forwardRef(function ListboxList(
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Home') {
       event.preventDefault();
       if (currentIndex != null) {
-        dispatchSelection({ type: 'selectRange', from: 0, to: currentIndex }, event.nativeEvent, 0);
+        dispatchSelection(
+          { type: 'selectRange', from: 0, to: currentIndex },
+          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent, undefined, {
+            range: { from: 0, to: currentIndex, mode: 'add' },
+          }),
+          0,
+        );
         focusItem(0);
       }
     }
@@ -288,7 +303,9 @@ export const ListboxList = React.forwardRef(function ListboxList(
         const lastIndex = elements.length - 1;
         dispatchSelection(
           { type: 'selectRange', from: currentIndex, to: lastIndex },
-          event.nativeEvent,
+          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent, undefined, {
+            range: { from: currentIndex, to: lastIndex, mode: 'add' },
+          }),
           lastIndex,
         );
         focusItem(lastIndex);
@@ -299,7 +316,12 @@ export const ListboxList = React.forwardRef(function ListboxList(
     // Escape already clears the selection.
     if ((event.ctrlKey || event.metaKey) && (event.key === 'a' || event.key === 'A')) {
       event.preventDefault();
-      dispatchSelection({ type: 'selectAll' }, event.nativeEvent);
+      dispatchSelection(
+        { type: 'selectAll' },
+        createChangeEventDetails(REASONS.listNavigation, event.nativeEvent, undefined, {
+          range: { from: 0, to: elements.length - 1, mode: 'replace' },
+        }),
+      );
     }
   });
 
@@ -361,7 +383,10 @@ export const ListboxList = React.forwardRef(function ListboxList(
       if (event.key === 'Escape' && multiple) {
         const currentValue = store.state.value;
         if (Array.isArray(currentValue) && currentValue.length > 0) {
-          dispatchSelection({ type: 'clear' }, event.nativeEvent, undefined, REASONS.escapeKey);
+          dispatchSelection(
+            { type: 'clear' },
+            createChangeEventDetails(REASONS.escapeKey, event.nativeEvent),
+          );
         }
       }
 

@@ -59,6 +59,11 @@ type ListboxRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
+  /**
+   * Set when the change selects a range of items, such as with Shift+Click, Shift+Arrow or
+   * Ctrl/Cmd+A.
+   */
+  range?: { from: number; to: number; mode: 'replace' | 'add' };
 };
 ```
 

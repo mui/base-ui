@@ -18,6 +18,7 @@ import { REASONS } from '../../internals/reasons';
 import { useCompositeListItem } from '../../internals/composite';
 import { findItemIndex } from '../../internals/itemEquality';
 import { useListboxRootContext } from '../root/ListboxRootContext';
+import type { ListboxRoot } from '../root/ListboxRoot';
 import { ListboxItemContext } from './ListboxItemContext';
 import { selectionReducer } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
@@ -142,19 +143,40 @@ export const ListboxItem = React.memo(
       } = {},
     ) {
       let action: SelectionAction;
+      let eventDetails: ListboxRoot.ChangeEventDetails = createChangeEventDetails(
+        REASONS.itemPress,
+        event,
+      );
       // Touch has no modifier keys, so `multiple="opt-in"` toggles on tap like `multiple`.
       const replaceOnPress = optInMode && !touch;
+      const anchorIndex = lastSelectedIndexRef.current;
 
       if (shiftKey && multiple) {
         if (replaceOnPress && ctrlKey) {
           // Ctrl/Cmd+Shift adds the range to the existing selection.
-          const anchorIndex = lastSelectedIndexRef.current;
-          action =
-            anchorIndex === null
-              ? { type: 'toggle', index }
-              : { type: 'selectRange', from: anchorIndex, to: index };
+          if (anchorIndex === null) {
+            action = { type: 'toggle', index };
+          } else {
+            action = { type: 'selectRange', from: anchorIndex, to: index };
+            eventDetails = createChangeEventDetails(REASONS.itemPress, event, undefined, {
+              range: {
+                from: Math.min(anchorIndex, index),
+                to: Math.max(anchorIndex, index),
+                mode: 'add',
+              },
+            });
+          }
         } else {
-          action = { type: 'extendTo', index, anchorIndex: lastSelectedIndexRef.current };
+          action = { type: 'extendTo', index, anchorIndex };
+          if (anchorIndex !== null) {
+            eventDetails = createChangeEventDetails(REASONS.itemPress, event, undefined, {
+              range: {
+                from: Math.min(anchorIndex, index),
+                to: Math.max(anchorIndex, index),
+                mode: 'replace',
+              },
+            });
+          }
         }
       } else if (multiple && (!replaceOnPress || ctrlKey)) {
         // `multiple` toggles on every press; `multiple="opt-in"` toggles with Ctrl/Cmd.
@@ -172,7 +194,7 @@ export const ListboxItem = React.memo(
         disabledItemsRef.current,
         isItemEqualToValue,
       );
-      setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
+      setValue(nextValue, eventDetails);
 
       // Update selection anchor (used by Shift+Click range selection)
       if (action.type !== 'extendTo') {

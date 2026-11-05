@@ -70,3 +70,17 @@ function ControlledMultiple() {
 
 // @ts-expect-error -- set the id on `Listbox.List`, which renders the listbox element
 <Listbox.Root id="artists" />;
+
+// Range selections report their positions and mode in the optional `range` field.
+<Listbox.Root
+  multiple
+  onValueChange={(value, eventDetails) => {
+    if (eventDetails.range) {
+      expectType<number, typeof eventDetails.range.from>(eventDetails.range.from);
+      expectType<number, typeof eventDetails.range.to>(eventDetails.range.to);
+      expectType<'replace' | 'add', typeof eventDetails.range.mode>(eventDetails.range.mode);
+    }
+    // @ts-expect-error -- `range` isn't set on every change
+    eventDetails.range.from;
+  }}
+/>;

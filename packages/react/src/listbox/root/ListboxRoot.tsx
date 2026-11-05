@@ -222,7 +222,33 @@ export interface ListboxRootState {}
 export type ListboxRootChangeEventReason =
   typeof REASONS.itemPress | typeof REASONS.listNavigation | typeof REASONS.escapeKey;
 
-export type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
+export type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<
+  ListboxRootChangeEventReason,
+  {
+    /**
+     * Set when the change selects a range of items, such as with Shift+Click, Shift+Arrow or
+     * Ctrl/Cmd+A.
+     */
+    range?:
+      | {
+          /**
+           * The index of the first item in the range.
+           */
+          from: number;
+          /**
+           * The index of the last item in the range, inclusive.
+           */
+          to: number;
+          /**
+           * How the range changes the selection.
+           * - `'replace'`: the range becomes the selection.
+           * - `'add'`: the range is added to the selection.
+           */
+          mode: 'replace' | 'add';
+        }
+      | undefined;
+  }
+>;
 
 export type ListboxRootHighlightEventReason =
   typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;

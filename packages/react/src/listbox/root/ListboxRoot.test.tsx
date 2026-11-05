@@ -61,6 +61,132 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange).toHaveBeenCalledTimes(1);
       expect(handleValueChange.mock.calls[0][0]).toBe('b');
     });
+
+    describe('range selections', () => {
+      function renderList(rootProps: Listbox.Root.Props<string, true | 'opt-in'>) {
+        return render(
+          <Listbox.Root {...rootProps}>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b">b</Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
+              <Listbox.Item value="d">d</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>,
+        );
+      }
+
+      it('reports Shift+Click as a range that replaces the selection', async () => {
+        const handleValueChange = vi.fn();
+        await renderList({ multiple: true, onValueChange: handleValueChange });
+
+        fireEvent.click(screen.getByRole('option', { name: 'b' }));
+        expect(handleValueChange.mock.calls[0][1].range).toBe(undefined);
+
+        fireEvent.click(screen.getByRole('option', { name: 'd' }), { shiftKey: true });
+
+        const eventDetails = handleValueChange.mock.calls[1][1];
+        expect(eventDetails.reason).toBe('item-press');
+        expect(eventDetails.range.from).toBe(1);
+        expect(eventDetails.range.to).toBe(3);
+        expect(eventDetails.range.mode).toBe('replace');
+      });
+
+      it('reports a backwards Shift+Arrow range in ascending order', async () => {
+        const handleValueChange = vi.fn();
+        await renderList({ multiple: true, onValueChange: handleValueChange });
+
+        await act(async () => screen.getByRole('option', { name: 'c' }).focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, {
+          key: 'ArrowUp',
+          shiftKey: true,
+        });
+
+        const eventDetails = handleValueChange.mock.calls[0][1];
+        expect(eventDetails.reason).toBe('list-navigation');
+        expect(eventDetails.range.from).toBe(1);
+        expect(eventDetails.range.to).toBe(2);
+        expect(eventDetails.range.mode).toBe('replace');
+      });
+
+      it.each([
+        { name: 'Shift+Click', multiple: true as const, modifiers: {} },
+        {
+          name: 'Ctrl+Shift+Click in opt-in mode',
+          multiple: 'opt-in' as const,
+          modifiers: { ctrlKey: true },
+        },
+      ])('reports a backwards $name range in ascending order', async ({ multiple, modifiers }) => {
+        const handleValueChange = vi.fn();
+        await renderList({ multiple, onValueChange: handleValueChange });
+
+        fireEvent.click(screen.getByRole('option', { name: 'd' }));
+        fireEvent.click(screen.getByRole('option', { name: 'b' }), {
+          shiftKey: true,
+          ...modifiers,
+        });
+
+        const eventDetails = handleValueChange.mock.calls[1][1];
+        expect(eventDetails.reason).toBe('item-press');
+        expect(eventDetails.range.from).toBe(1);
+        expect(eventDetails.range.to).toBe(3);
+      });
+
+      it('reports Ctrl+A as a range of every item that replaces the selection', async () => {
+        const handleValueChange = vi.fn();
+        await renderList({ multiple: true, onValueChange: handleValueChange });
+
+        await act(async () => screen.getByRole('option', { name: 'b' }).focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
+
+        const eventDetails = handleValueChange.mock.calls[0][1];
+        expect(eventDetails.reason).toBe('list-navigation');
+        expect(eventDetails.range.from).toBe(0);
+        expect(eventDetails.range.to).toBe(3);
+        expect(eventDetails.range.mode).toBe('replace');
+      });
+
+      it.each([
+        { name: 'Ctrl+Shift+Home', key: 'Home', expectedFrom: 0, expectedTo: 1 },
+        { name: 'Ctrl+Shift+End', key: 'End', expectedFrom: 1, expectedTo: 3 },
+      ])(
+        'reports $name as a range added to the selection',
+        async ({ key, expectedFrom, expectedTo }) => {
+          const handleValueChange = vi.fn();
+          await renderList({ multiple: true, onValueChange: handleValueChange });
+
+          await act(async () => screen.getByRole('option', { name: 'b' }).focus());
+          fireEvent.keyDown(document.activeElement as HTMLElement, {
+            key,
+            ctrlKey: true,
+            shiftKey: true,
+          });
+
+          const eventDetails = handleValueChange.mock.calls[0][1];
+          expect(eventDetails.reason).toBe('list-navigation');
+          expect(eventDetails.range.from).toBe(expectedFrom);
+          expect(eventDetails.range.to).toBe(expectedTo);
+          expect(eventDetails.range.mode).toBe('add');
+        },
+      );
+
+      it('reports Ctrl+Shift+Click in opt-in mode as a range added to the selection', async () => {
+        const handleValueChange = vi.fn();
+        await renderList({ multiple: 'opt-in', onValueChange: handleValueChange });
+
+        fireEvent.click(screen.getByRole('option', { name: 'a' }));
+        fireEvent.click(screen.getByRole('option', { name: 'c' }), {
+          ctrlKey: true,
+          shiftKey: true,
+        });
+
+        const eventDetails = handleValueChange.mock.calls[1][1];
+        expect(eventDetails.reason).toBe('item-press');
+        expect(eventDetails.range.from).toBe(0);
+        expect(eventDetails.range.to).toBe(2);
+        expect(eventDetails.range.mode).toBe('add');
+      });
+    });
   });
 
   describe('prop: onItemHighlighted', () => {
