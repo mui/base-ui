@@ -1227,7 +1227,7 @@ describe('<Dialog.Root />', () => {
           Element.prototype.requestPointerLock =
             requestPointerLockSpy as typeof originalRequestPointerLock;
 
-          await render(
+          const { user } = await render(
             <ContainedTriggerDialog
               rootProps={{ defaultOpen: true, modal: false }}
               popupProps={{
@@ -1251,7 +1251,8 @@ describe('<Dialog.Root />', () => {
           fireEvent.mouseUp(document.body, { button: 0 });
           await flushMicrotasks();
 
-          fireEvent.click(document.body);
+          // A new outside click includes its own press, distinct from the scrub release.
+          await user.click(document.body);
 
           await waitFor(() => {
             expect(screen.queryByRole('dialog')).toBe(null);
