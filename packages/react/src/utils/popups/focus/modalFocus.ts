@@ -2,7 +2,13 @@ import { isElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { PopupInteractionStore } from '../types';
-import { collectOutsideElements, correctElements, buildKeepSet, markOthers } from './markOthers';
+import {
+  collectOutsideElements,
+  correctElements,
+  buildKeepSet,
+  markOthers,
+  liveRegionSelector,
+} from './markOthers';
 
 export interface FocusScope {
   parent: FocusScope | null;
@@ -23,9 +29,18 @@ interface ModalDocument {
   observer: MutationObserver;
   shadowRoots: Set<ShadowRoot>;
   handleFocus: (event: Event) => void;
+  handlePointer: (event: Event) => void;
 }
 
 const documents = new WeakMap<Document, ModalDocument>();
+const pointerEvents = [
+  'pointerdown',
+  'pointerup',
+  'click',
+  'auxclick',
+  'dblclick',
+  'contextmenu',
+] as const;
 // Interaction views share the Root context, which identifies their common owner.
 const openOrder = new WeakMap<object, number>();
 let nextOpenOrder = 0;
@@ -105,6 +120,15 @@ function getActiveScope(state: ModalDocument): FocusScope | undefined {
     .pop();
 }
 
+function getInertScope(state: ModalDocument): FocusScope | undefined {
+  // A focus-only child does not release its parent's pointer exclusion.
+  let scope = getActiveScope(state);
+  while (scope && !scope.inert) {
+    scope = getParentScope(scope, state.scopes);
+  }
+  return scope;
+}
+
 function getInsideElements(state: ModalDocument, active = getActiveScope(state)): Element[] {
   return active
     ? state.scopes
@@ -181,21 +205,21 @@ export function refreshModalFocus(doc: Document): void {
     Array.from(roots).some((root) => !state.shadowRoots.has(root))
   ) {
     state.observer.disconnect();
-    state.shadowRoots.forEach((root) => root.removeEventListener('focus', state.handleFocus, true));
+    state.shadowRoots.forEach((root) => {
+      root.removeEventListener('focus', state.handleFocus, true);
+      pointerEvents.forEach((type) => root.removeEventListener(type, state.handlePointer, true));
+    });
     state.observer.observe(doc.body, { childList: true, subtree: true });
     roots.forEach((root) => {
       state.observer.observe(root, { childList: true, subtree: true });
       root.addEventListener('focus', state.handleFocus, true);
+      pointerEvents.forEach((type) => root.addEventListener(type, state.handlePointer, true));
     });
     state.shadowRoots = roots;
   }
 
   const inside = correctElements(doc.body, getInsideElements(state));
-  // A focus-only child does not release its parent's pointer exclusion.
-  let inertScope = getActiveScope(state);
-  while (inertScope && !inertScope.inert) {
-    inertScope = getParentScope(inertScope, state.scopes);
-  }
+  const inertScope = getInertScope(state);
   const interactionInside = inertScope ? getInsideElements(state, inertScope) : [];
   const outside = new Set<Element>();
   // A shadow host can be an allowed body branch without making its other
@@ -273,6 +297,33 @@ export function registerFocusScope(scope: FocusScope, doc: Document): () => void
       }
       getActiveScope(current)?.handleFocus?.(event as FocusEvent);
     };
+    const handlePointer = (event: Event) => {
+      const current = documents.get(doc);
+      const scope = current && getInertScope(current);
+      if (!current || !scope) {
+        return;
+      }
+      const path = event.composedPath();
+      if (!path.some((node) => isElement(node) && node.matches(liveRegionSelector))) {
+        return;
+      }
+      const target = getTarget(event);
+      // A closed root exposes only its host at document capture. Its own capture
+      // listener can distinguish allowed popup content from outside siblings.
+      if (Array.from(current.shadowRoots).some((root) => root.host === target)) {
+        return;
+      }
+      if (
+        isElement(target) &&
+        getInsideElements(current, scope).some((inside) => contains(inside, target))
+      ) {
+        return;
+      }
+      // Announcements remain accessible, but their arbitrary pointer handlers
+      // and shadow descendants must obey the same modal exclusion as inert content.
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    };
     state = {
       scopes: [],
       inertElements: new Map(),
@@ -280,9 +331,11 @@ export function registerFocusScope(scope: FocusScope, doc: Document): () => void
       observer,
       shadowRoots: new Set(),
       handleFocus,
+      handlePointer,
     };
     documents.set(doc, state);
     doc.addEventListener('focus', handleFocus, true);
+    pointerEvents.forEach((type) => doc.addEventListener(type, handlePointer, true));
     observer.observe(doc.body, { childList: true, subtree: true });
   }
   const current = state;
@@ -310,10 +363,14 @@ export function registerFocusScope(scope: FocusScope, doc: Document): () => void
     refreshModalFocus(doc);
     if (current.scopes.length === 0) {
       current.observer.disconnect();
-      current.shadowRoots.forEach((root) =>
-        root.removeEventListener('focus', current.handleFocus, true),
-      );
+      current.shadowRoots.forEach((root) => {
+        root.removeEventListener('focus', current.handleFocus, true);
+        pointerEvents.forEach((type) =>
+          root.removeEventListener(type, current.handlePointer, true),
+        );
+      });
       doc.removeEventListener('focus', current.handleFocus, true);
+      pointerEvents.forEach((type) => doc.removeEventListener(type, current.handlePointer, true));
       documents.delete(doc);
     }
   };

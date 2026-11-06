@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { screen, fireEvent, waitFor, act } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Dialog } from '../../../dialog';
@@ -321,6 +321,82 @@ describe.runIf('inert' in HTMLElement.prototype)('modal outside exclusion', () =
       outside.remove();
     }
   });
+
+  test.each([{ mode: 'light' }, { mode: 'open' }, { mode: 'closed' }] as const)(
+    'preserves announcements without enabling outside $mode pointer actions',
+    async ({ mode }) => {
+      const { userEvent } = await import('vitest/browser');
+      const live = document.createElement('div');
+      live.setAttribute('role', 'status');
+      live.style.cssText = 'position:fixed;top:0;left:0;width:120px;height:40px;z-index:2147483647';
+      const host = document.createElement('div');
+      const target = document.createElement(mode === 'light' ? 'div' : 'button');
+      target.textContent = 'Outside action';
+      target.style.cssText = 'width:120px;height:40px';
+      const activate = vi.fn();
+      target.addEventListener('pointerdown', activate);
+      target.addEventListener('click', activate);
+      if (mode === 'light') {
+        host.append(target);
+      } else {
+        host.attachShadow({ mode }).append(target);
+      }
+      live.append(host);
+      document.body.append(live);
+      let unmount = () => {};
+      try {
+        await userEvent.click(live);
+        expect(activate).toHaveBeenCalledTimes(2);
+        ({ unmount } = await render(<Modal name="modal" />));
+        await waitFor(() => expect(screen.getByText('modal first')).toHaveFocus());
+        expect(screen.getByRole('status')).toBe(live);
+        await userEvent.click(live);
+        expect(activate).toHaveBeenCalledTimes(2);
+        expect(screen.getByText('modal first')).toHaveFocus();
+        unmount();
+        await userEvent.click(live);
+        expect(activate).toHaveBeenCalledTimes(4);
+      } finally {
+        unmount();
+        live.remove();
+      }
+    },
+  );
+
+  test.each([{ mode: 'open' }, { mode: 'closed' }] as const)(
+    'allows modal pointer actions in an owning $mode live-region shadow root',
+    async ({ mode }) => {
+      const { userEvent } = await import('vitest/browser');
+      const live = document.createElement('div');
+      live.setAttribute('aria-live', 'polite');
+      live.style.cssText = 'position:fixed;top:0;left:0;width:120px;height:40px';
+      const root = live.attachShadow({ mode });
+      document.body.append(live);
+      const activate = vi.fn();
+      const { unmount } = await render(
+        <Dialog.Root defaultOpen>
+          <Dialog.Portal container={root}>
+            <Dialog.Popup style={{ position: 'relative', width: 120, height: 40 }}>
+              <button onClick={activate} style={{ width: 120, height: 40 }}>
+                Inside action
+              </button>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+      try {
+        await waitFor(() => expect(root.activeElement?.textContent).toBe('Inside action'));
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          await userEvent.click(live);
+        });
+        expect(activate).toHaveBeenCalledOnce();
+      } finally {
+        unmount();
+        live.remove();
+      }
+    },
+  );
 
   test('blocks existing and same-task inserted controls, including live regions', async () => {
     const { unmount } = await render(

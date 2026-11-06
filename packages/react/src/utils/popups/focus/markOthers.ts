@@ -46,7 +46,7 @@ export const buildKeepSet = (targets: Element[]): Set<Node> => {
 };
 
 // Include implicit live regions as well as explicit aria-live containers.
-const liveRegionSelector = '[aria-live],[role="alert"],[role="status"],[role="log"]';
+export const liveRegionSelector = '[aria-live],[role="alert"],[role="status"],[role="log"]';
 
 export const collectOutsideElements = (
   root: HTMLElement | ShadowRoot,
