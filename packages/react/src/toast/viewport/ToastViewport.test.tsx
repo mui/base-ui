@@ -3,13 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import type { UserEvent } from '@testing-library/user-event';
 import { Toast } from '@base-ui/react/toast';
-import {
-  createRenderer,
-  describeConformance,
-  isJSDOM,
-  resetBrowserPointer,
-  wait,
-} from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { List, Button } from '../utils/test-utils';
 
@@ -1858,90 +1852,112 @@ describe('<Toast.Viewport />', () => {
       expect(fireEvent.keyDown(viewport, { key: 'F6' })).toBe(true);
     });
 
-    it('keeps timers paused when a hovered toast is clicked while nothing had focus', async ({
-      onTestFinished,
-    }) => {
-      const { userEvent } = await import('vitest/browser');
-      onTestFinished(resetBrowserPointer);
-      const manager = Toast.createToastManager();
-
-      await render(
-        <Toast.Provider toastManager={manager} timeout={300}>
-          <Toast.Viewport>
-            <TitleList />
-          </Toast.Viewport>
-        </Toast.Provider>,
-      );
-
-      await act(async () => {
-        manager.add({ id: 'toast', title: 'title' });
-      });
-      expect(document.activeElement).toBe(document.body);
-
-      // Real browser input (vitest/browser) updates React state outside Testing Library's act.
-      // eslint-disable-next-line testing-library/no-unnecessary-act
-      await act(async () => {
-        await userEvent.click(screen.getByTestId('toast-title'));
-      });
-      expect(screen.getByTestId('toast')).toHaveFocus();
-
-      await act(async () => {
-        await wait(600);
+    describe('timer pausing', () => {
+      // Keep native input and animation frames real while controlling toast expiry.
+      const { render, clock } = createRenderer({
+        clock: 'fake',
+        clockOptions: { toFake: ['setTimeout', 'clearTimeout', 'Date'] },
       });
 
-      expect(screen.getByTestId('toast')).toBeInTheDocument();
-    });
+      it('keeps timers paused when a hovered toast is clicked while nothing had focus', async ({
+        onTestFinished,
+      }) => {
+        const { userEvent } = await import('vitest/browser');
+        onTestFinished(resetBrowserPointer);
+        const manager = Toast.createToastManager();
 
-    it('keeps timers paused when the window regains focus while a toast is hovered', async ({
-      onTestFinished,
-    }) => {
-      const { userEvent } = await import('vitest/browser');
-      onTestFinished(resetBrowserPointer);
-      const manager = Toast.createToastManager();
+        await render(
+          <Toast.Provider toastManager={manager} timeout={300}>
+            <button type="button">outside</button>
+            <Toast.Viewport>
+              <TitleList />
+            </Toast.Viewport>
+          </Toast.Provider>,
+        );
 
-      await render(
-        <Toast.Provider toastManager={manager} timeout={300}>
-          <Toast.Viewport data-testid="viewport">
-            <TitleList />
-          </Toast.Viewport>
-        </Toast.Provider>,
-      );
+        await act(async () => {
+          manager.add({ id: 'toast', title: 'title' });
+        });
+        expect(document.activeElement).toBe(document.body);
 
-      await act(async () => {
-        manager.add({ id: 'toast', title: 'title' });
+        // Real browser input (vitest/browser) updates React state outside Testing Library's act.
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('toast-title'));
+        });
+        expect(screen.getByTestId('toast')).toHaveFocus();
+
+        await clock.tickAsync(600);
+
+        expect(screen.getByTestId('toast')).toBeInTheDocument();
+
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          await userEvent.click(screen.getByRole('button', { name: 'outside' }));
+        });
+        await clock.tickAsync(299);
+        expect(screen.getByTestId('toast')).toBeInTheDocument();
+        await clock.tickAsync(1);
+        expect(screen.queryByTestId('toast')).not.toBeInTheDocument();
       });
 
-      // eslint-disable-next-line testing-library/no-unnecessary-act
-      await act(async () => {
-        await userEvent.hover(screen.getByTestId('toast'));
+      it('keeps timers paused when the window regains focus while a toast is hovered', async ({
+        onTestFinished,
+      }) => {
+        const { userEvent } = await import('vitest/browser');
+        onTestFinished(resetBrowserPointer);
+        const manager = Toast.createToastManager();
+
+        await render(
+          <Toast.Provider toastManager={manager} timeout={300}>
+            <button type="button">outside</button>
+            <Toast.Viewport data-testid="viewport">
+              <TitleList />
+            </Toast.Viewport>
+          </Toast.Provider>,
+        );
+
+        await act(async () => {
+          manager.add({ id: 'toast', title: 'title' });
+        });
+
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          await userEvent.hover(screen.getByTestId('toast'));
+        });
+        expect(screen.getByTestId('viewport')).toHaveAttribute('data-expanded');
+
+        // Focusing an element in the parent frame blurs this window for real.
+        const parentInput = window.parent.document.createElement('input');
+        // Keep the parent layout unchanged so the pointer stays over the toast.
+        parentInput.style.position = 'fixed';
+        parentInput.style.left = '-1000px';
+        window.parent.document.body.appendChild(parentInput);
+        onTestFinished(() => parentInput.remove());
+
+        await act(async () => {
+          parentInput.focus();
+        });
+        expect(document.hasFocus()).toBe(false);
+
+        await act(async () => {
+          window.focus();
+        });
+        expect(document.hasFocus()).toBe(true);
+
+        await clock.tickAsync(600);
+
+        expect(screen.getByTestId('toast')).toBeInTheDocument();
+
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          await userEvent.click(screen.getByRole('button', { name: 'outside' }));
+        });
+        await clock.tickAsync(299);
+        expect(screen.getByTestId('toast')).toBeInTheDocument();
+        await clock.tickAsync(1);
+        expect(screen.queryByTestId('toast')).not.toBeInTheDocument();
       });
-      expect(screen.getByTestId('viewport')).toHaveAttribute('data-expanded');
-
-      // Focusing an element in the parent frame blurs this window for real.
-      const parentInput = window.parent.document.createElement('input');
-      // Keep the parent layout unchanged so the pointer stays over the toast.
-      parentInput.style.position = 'fixed';
-      parentInput.style.left = '-1000px';
-      window.parent.document.body.appendChild(parentInput);
-      onTestFinished(() => parentInput.remove());
-
-      await act(async () => {
-        parentInput.focus();
-        await wait(50);
-      });
-      expect(document.hasFocus()).toBe(false);
-
-      await act(async () => {
-        window.focus();
-        await wait(50);
-      });
-      expect(document.hasFocus()).toBe(true);
-
-      await act(async () => {
-        await wait(600);
-      });
-
-      expect(screen.getByTestId('toast')).toBeInTheDocument();
     });
 
     it('moves focus to a visible toast when the next one was limited', async () => {
