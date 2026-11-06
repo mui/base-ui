@@ -357,10 +357,20 @@ describe('<Select.ScrollArrow />', () => {
       fireEvent.mouseDown(element);
     }
 
-    async function settle() {
+    async function advanceFrames() {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(100);
       });
+    }
+
+    /**
+     * A mouse press opens the popup in one frame, and the popup reads its scroller in the next.
+     * React 18 commits the open only as `act` exits, once the clock has stopped, so that next frame
+     * needs an `act` of its own.
+     */
+    async function settle() {
+      await advanceFrames();
+      await advanceFrames();
     }
 
     /**
