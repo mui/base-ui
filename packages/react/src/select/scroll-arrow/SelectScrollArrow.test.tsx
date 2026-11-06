@@ -1,7 +1,7 @@
 import { expect, vi, describe, it, beforeEach, afterEach } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, pressWithTouch } from '#test-utils';
 
 const DEFAULT_ITEM_OFFSETS = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360];
 
@@ -349,6 +349,115 @@ describe('<Select.ScrollArrow />', () => {
     advanceTimers(40);
 
     expect(downArrow).not.toHaveAttribute('data-visible');
+  });
+
+  describe('opening and closing', () => {
+    function pressWithMouse(element: HTMLElement) {
+      fireEvent.pointerDown(element, { pointerType: 'mouse' });
+      fireEvent.mouseDown(element);
+    }
+
+    async function settle() {
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(100);
+      });
+    }
+
+    /**
+     * Renders once, so `children` stay the same elements and only the select itself can re-render
+     * the arrows. Focus keeps the closed popup mounted, so one arrow instance sees the whole cycle.
+     */
+    async function renderClosedSelect(scrollHeight: number) {
+      const renders = { up: 0, down: 0 };
+      let scrollTop = 100;
+
+      await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.ScrollUpArrow
+                  keepMounted
+                  data-testid="up"
+                  render={(props) => {
+                    renders.up += 1;
+                    return <div {...props} />;
+                  }}
+                />
+                <Select.List
+                  ref={(node) =>
+                    stubScroller(
+                      node,
+                      { scrollHeight, clientHeight: 200 },
+                      () => scrollTop,
+                      (value) => {
+                        scrollTop = value;
+                      },
+                    )
+                  }
+                >
+                  <Select.Item value="one">One</Select.Item>
+                </Select.List>
+                <Select.ScrollDownArrow
+                  keepMounted
+                  data-testid="down"
+                  render={(props) => {
+                    renders.down += 1;
+                    return <div {...props} />;
+                  }}
+                />
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.focus(trigger);
+      await settle();
+
+      return { renders, trigger };
+    }
+
+    it.each([
+      { name: 'a list that fits, opened with a mouse', scrollHeight: 200, press: pressWithMouse },
+      { name: 'a list that overflows, opened by touch', scrollHeight: 400, press: pressWithTouch },
+    ])('does not re-render hidden arrows for $name', async ({ scrollHeight, press }) => {
+      const { renders, trigger } = await renderClosedSelect(scrollHeight);
+
+      expect(renders.up).toBeGreaterThan(0);
+      expect(renders.down).toBeGreaterThan(0);
+
+      const before = { ...renders };
+
+      press(trigger);
+      await settle();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('down')).not.toHaveAttribute('data-visible');
+      expect(renders).toEqual(before);
+
+      fireEvent.keyDown(screen.getByRole('option'), { key: 'Escape' });
+      await settle();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(renders).toEqual(before);
+    });
+
+    it.each([
+      { name: 'shows the arrows when a mouse opens', press: pressWithMouse, visible: true },
+      { name: 'hides the arrows when touch opens', press: pressWithTouch, visible: false },
+    ])('$name a list that overflows both ways', async ({ press, visible }) => {
+      const { trigger } = await renderClosedSelect(400);
+
+      press(trigger);
+      await settle();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('up').hasAttribute('data-visible')).toBe(visible);
+      expect(screen.getByTestId('down').hasAttribute('data-visible')).toBe(visible);
+    });
   });
 
   it('ignores pointer interaction when the arrow has no scrollable popup', async () => {

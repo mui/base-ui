@@ -4,7 +4,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
+import { useSelectScrollArrowContext } from '../positioner/SelectPositionerContext';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -29,15 +29,9 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const isUp = direction === 'up';
 
   const store = useSelectRootContext();
-  const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectPositionerContext();
+  const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectScrollArrowContext();
 
-  const visibleSelector = isUp ? 'scrollUpArrowVisible' : 'scrollDownArrowVisible';
-
-  const stateVisible = store.useState(visibleSelector);
-  const openMethod = store.useState('openMethod');
-
-  // Scroll arrows are disabled for touch modality as they are a hover-only element.
-  const visible = stateVisible && openMethod !== 'touch';
+  const visible = store.useState(isUp ? 'scrollUpArrowShown' : 'scrollDownArrowShown');
 
   const timeout = useTimeout();
 
