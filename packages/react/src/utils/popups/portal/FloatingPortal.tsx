@@ -285,6 +285,38 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     [portalNode],
   );
 
+  const handleBeforeOutsideGuardFocus = useStableCallback(
+    (event: React.FocusEvent<HTMLSpanElement>) => {
+      // The guards only render with a portal node.
+      if (isOutsideEvent(event, portalNode!)) {
+        beforeInsideRef.current?.focus();
+      } else {
+        const domReference = focusManagerState ? focusManagerState.domReference : null;
+        const prevTabbable = getPreviousTabbable(domReference);
+        prevTabbable?.focus();
+      }
+    },
+  );
+
+  const handleAfterOutsideGuardFocus = useStableCallback(
+    (event: React.FocusEvent<HTMLSpanElement>) => {
+      if (isOutsideEvent(event, portalNode!)) {
+        afterInsideRef.current?.focus();
+      } else {
+        const domReference = focusManagerState ? focusManagerState.domReference : null;
+        const nextTabbable = getNextTabbable(domReference);
+        nextTabbable?.focus();
+
+        if (focusManagerState?.closeOnFocusOut) {
+          focusManagerState?.onOpenChange(
+            false,
+            createChangeEventDetails(REASONS.focusOut, event.nativeEvent),
+          );
+        }
+      }
+    },
+  );
+
   return (
     <React.Fragment>
       {portalSubtree}
@@ -293,15 +325,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           <FocusGuard
             data-type="outside"
             ref={beforeOutsideRef}
-            onFocus={(event) => {
-              if (isOutsideEvent(event, portalNode)) {
-                beforeInsideRef.current?.focus();
-              } else {
-                const domReference = focusManagerState ? focusManagerState.domReference : null;
-                const prevTabbable = getPreviousTabbable(domReference);
-                prevTabbable?.focus();
-              }
-            }}
+            onFocus={handleBeforeOutsideGuardFocus}
           />
         )}
         {shouldRenderGuards && portalNode && (
@@ -312,22 +336,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           <FocusGuard
             data-type="outside"
             ref={afterOutsideRef}
-            onFocus={(event) => {
-              if (isOutsideEvent(event, portalNode)) {
-                afterInsideRef.current?.focus();
-              } else {
-                const domReference = focusManagerState ? focusManagerState.domReference : null;
-                const nextTabbable = getNextTabbable(domReference);
-                nextTabbable?.focus();
-
-                if (focusManagerState?.closeOnFocusOut) {
-                  focusManagerState?.onOpenChange(
-                    false,
-                    createChangeEventDetails(REASONS.focusOut, event.nativeEvent),
-                  );
-                }
-              }
-            }}
+            onFocus={handleAfterOutsideGuardFocus}
           />
         )}
       </PortalContext.Provider>
