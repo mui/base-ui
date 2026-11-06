@@ -5,8 +5,8 @@ import styles from '../../_index.module.css';
 export default function ExamplePopover() {
   return (
     <Popover.Root>
-      <Popover.Trigger openOnHover className={styles.Button}>
-        Shipping
+      <Popover.Trigger openOnHover className={styles.IconButton} aria-label="Shipping information">
+        <InfoIcon />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8}>
@@ -26,6 +26,26 @@ export default function ExamplePopover() {
         </Popover.Positioner>
       </Popover.Portal>
     </Popover.Root>
+  );
+}
+
+function InfoIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <circle cx="8" cy="8" r="6.5" />
+      <path d="M8 7.5v3.5" />
+      <circle cx="8" cy="5" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
 
