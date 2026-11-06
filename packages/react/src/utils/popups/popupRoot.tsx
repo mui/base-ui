@@ -6,6 +6,8 @@ import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useFloatingParentNodeId } from './tree/FloatingTree';
+import { PopupOwnerContext } from './PopupOwnerContext';
+import type { PopupInteractionStore } from './types';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -243,7 +245,7 @@ function usePopupRootTransitions<Store extends PopupRootStore>(
  *
  * It's a plain function rather than a component, so it adds no fiber.
  */
-export function renderPopupRootChildren<Store, Payload>(parameters: {
+export function renderPopupRootChildren<Store extends PopupInteractionStore, Payload>(parameters: {
   store: Store;
   handle: PopupRootStoreHandle<Store> | undefined;
   interactions?: React.ReactNode;
@@ -253,11 +255,11 @@ export function renderPopupRootChildren<Store, Payload>(parameters: {
   const { store, handle, interactions, children, payload } = parameters;
 
   return (
-    <React.Fragment>
+    <PopupOwnerContext.Provider value={store}>
       {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {interactions}
       {typeof children === 'function' ? children({ payload }) : children}
-    </React.Fragment>
+    </PopupOwnerContext.Provider>
   );
 }
 
@@ -287,11 +289,13 @@ function usePopupRootStore<Store extends PopupRootStore>(
   defaultPopupId: string | undefined,
 ): Store {
   const nested = useFloatingParentNodeId() != null;
+  const parentPopup = React.useContext(PopupOwnerContext);
 
   const store = useRefWithInit(() => createStore(defaultPopupId)).current;
 
   store.useSyncedValue('defaultPopupId', defaultPopupId);
   store.context.nested = nested;
+  store.context.parentPopup = parentPopup;
 
   return store;
 }

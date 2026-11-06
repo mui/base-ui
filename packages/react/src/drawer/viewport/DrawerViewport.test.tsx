@@ -198,7 +198,12 @@ describe('<Drawer.Viewport />', () => {
     }
 
     expect(selection.rangeCount).toBe(1);
-    expect(selection.toString()).toBe('Outside');
+    const preservedRange = selection.getRangeAt(0);
+    expect(preservedRange.startContainer).toBe(textNode);
+    expect(preservedRange.startOffset).toBe(0);
+    expect(preservedRange.endContainer).toBe(textNode);
+    expect(preservedRange.endOffset).toBe(7);
+    expect(preservedRange.toString()).toBe('Outside');
   });
 
   it('does not clear text selection on touch swipe start', async () => {

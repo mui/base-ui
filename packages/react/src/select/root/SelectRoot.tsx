@@ -38,6 +38,7 @@ import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
+import { PopupOwnerContext } from '../../utils/popups/PopupOwnerContext';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
@@ -451,7 +452,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   return (
     <SelectRootContext.Provider value={store}>
       <SelectSelectionContext.Provider value={selection}>
-        {children}
+        <PopupOwnerContext.Provider value={store}>{children}</PopupOwnerContext.Provider>
       </SelectSelectionContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {

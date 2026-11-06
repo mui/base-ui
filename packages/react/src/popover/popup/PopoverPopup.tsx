@@ -112,6 +112,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       store={store}
       openInteractionType={openMethod}
       modal={focusManagerModal}
+      outsideElementsInert={modal === true}
       disabled={!mounted || openReason === REASONS.triggerHover}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}

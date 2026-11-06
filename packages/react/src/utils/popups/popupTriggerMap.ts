@@ -1,3 +1,5 @@
+import type { PopupInteractionStore } from './types';
+
 /**
  * Development-only reverse index of element to registered id, keyed by the owning map.
  *
@@ -27,13 +29,15 @@ function getDevElementIds(map: PopupTriggerMap) {
  */
 export class PopupTriggerMap {
   private idMap: Map<string, Element> = new Map();
+  // An active trigger can outlive its registration during popup closing.
+  private owners = new WeakMap<Element, PopupInteractionStore | null>();
 
   /**
    * Adds a trigger element with the given ID.
    *
    * Note: The provided element is assumed to not be registered under multiple IDs.
    */
-  public add(id: string, element: Element) {
+  public add(id: string, element: Element, owner?: PopupInteractionStore | null) {
     if (process.env.NODE_ENV !== 'production') {
       const elementIds = getDevElementIds(this);
 
@@ -57,6 +61,15 @@ export class PopupTriggerMap {
     }
 
     this.idMap.set(id, element);
+    if (owner === undefined) {
+      this.owners.delete(element);
+    } else {
+      this.owners.set(element, owner);
+    }
+  }
+
+  public getOwner(element: Element): PopupInteractionStore | null | undefined {
+    return this.owners.get(element);
   }
 
   /**

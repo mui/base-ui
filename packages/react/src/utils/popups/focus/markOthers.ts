@@ -17,32 +17,20 @@ let uncontrolledElementsSet = new WeakSet<Element>();
 let markerCounterMap = new WeakMap<Element, number>();
 let lockCount = 0;
 
-function unwrapHost(node: Node | null): Element | null {
-  if (!node) {
-    return null;
-  }
-
-  return isShadowRoot(node) ? node.host : unwrapHost(node.parentNode);
-}
-
-const correctElements = (parent: HTMLElement, targets: Element[]): Element[] =>
-  targets
-    .map((target) => {
-      if (parent.contains(target)) {
-        return target;
+export const correctElements = (parent: HTMLElement | ShadowRoot, targets: Element[]): Element[] =>
+  targets.flatMap((target) => {
+    let current = target;
+    while (!parent.contains(current)) {
+      const root = current.getRootNode();
+      if (!isShadowRoot(root)) {
+        return [];
       }
+      current = root.host;
+    }
+    return [current];
+  });
 
-      const correctedTarget = unwrapHost(target);
-
-      if (parent.contains(correctedTarget)) {
-        return correctedTarget;
-      }
-
-      return null;
-    })
-    .filter((x): x is Element => x != null);
-
-const buildKeepSet = (targets: Element[]): Set<Node> => {
+export const buildKeepSet = (targets: Element[]): Set<Node> => {
   const keep = new Set<Node>();
 
   targets.forEach((target) => {
@@ -56,14 +44,14 @@ const buildKeepSet = (targets: Element[]): Set<Node> => {
   return keep;
 };
 
-const collectOutsideElements = (
-  root: HTMLElement,
+export const collectOutsideElements = (
+  root: HTMLElement | ShadowRoot,
   keepElements: Set<Node>,
   stopElements: Set<Node>,
 ): Element[] => {
   const outside: Element[] = [];
 
-  const walk = (parent: Element | null) => {
+  const walk = (parent: Element | ShadowRoot | null) => {
     if (!parent || stopElements.has(parent)) {
       return;
     }

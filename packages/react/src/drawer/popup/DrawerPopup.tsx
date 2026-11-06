@@ -401,6 +401,11 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       modal={modal !== false}
+      outsideElementsInert={modal === true}
+      getInsideElements={() => [
+        store.context.backdropRef.current,
+        store.context.internalBackdropRef.current,
+      ]}
       restoreFocus="popup"
     >
       {element}

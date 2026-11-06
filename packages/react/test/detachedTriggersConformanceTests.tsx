@@ -366,7 +366,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
           it('allows controlling the open state and active trigger programmatically', async () => {
             const handle = getHandle();
 
-            function Controlled() {
+            function Controlled({ programmaticTriggerId }: { programmaticTriggerId?: string }) {
               const [open, setOpen] = React.useState(false);
               const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
@@ -377,7 +377,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
                     handle={handle}
                     rootProps={{
                       open,
-                      triggerId,
+                      triggerId: programmaticTriggerId ?? triggerId,
                       onOpenChange: (
                         nextOpen: boolean,
                         details: { trigger: Element | undefined },
@@ -397,15 +397,6 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
                   >
                     Open Trigger 1
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpen(true);
-                      setTriggerId('trigger-2');
-                    }}
-                  >
-                    Open Trigger 2
-                  </button>
                   <button type="button" onClick={() => setOpen(false)}>
                     Close externally
                   </button>
@@ -413,11 +404,10 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
               );
             }
 
-            const { user } = await render(<Controlled />);
+            const { user, rerender } = await render(<Controlled />);
 
             // Queried up front: a modal popup hides the rest of the page from the accessibility tree.
             const openTrigger1 = screen.getByRole('button', { name: 'Open Trigger 1' });
-            const openTrigger2 = screen.getByRole('button', { name: 'Open Trigger 2' });
             const closeExternally = screen.getByRole('button', { name: 'Close externally' });
 
             await user.click(openTrigger1);
@@ -425,7 +415,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
             expectActiveTrigger(1);
             await expectPositionerAlignedWith(getTrigger(1));
 
-            await user.click(openTrigger2);
+            await rerender(<Controlled programmaticTriggerId="trigger-2" />);
             await waitForContent('2');
             expectActiveTrigger(2);
             await expectPositionerAlignedWith(getTrigger(2));
@@ -433,11 +423,6 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
             if (Close) {
               await user.click(screen.getByText('Close popup'));
               await waitForPopupClosed();
-              // Focus returns to the element that opened the popup.
-              await waitFor(() => {
-                // eslint-disable-next-line vitest/no-conditional-expect -- only popups with a Close part can be closed from inside
-                expect(openTrigger2).toHaveFocus();
-              });
             } else {
               await user.click(closeExternally);
               await waitForPopupClosed();

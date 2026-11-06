@@ -15,6 +15,7 @@ import { getOverflowAncestors } from '@floating-ui/react-dom';
 import type { ElementProps } from '../../utils/popups/types';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
+import { PopupOwnerContext } from '../../utils/popups/PopupOwnerContext';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useClick } from '../../utils/popups/interactions/useClick';
@@ -1686,7 +1687,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       <ComboboxHasItemsContext.Provider value={hasItems}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
           <ComboboxInputValueContext.Provider value={inputValue}>
-            {children}
+            <PopupOwnerContext.Provider value={store}>{children}</PopupOwnerContext.Provider>
           </ComboboxInputValueContext.Provider>
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxHasItemsContext.Provider>

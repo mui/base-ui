@@ -105,6 +105,11 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       modal={modal !== false}
+      outsideElementsInert={modal === true}
+      getInsideElements={() => [
+        store.context.backdropRef.current,
+        store.context.internalBackdropRef.current,
+      ]}
       restoreFocus="popup"
     >
       {element}

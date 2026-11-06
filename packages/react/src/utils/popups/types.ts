@@ -72,6 +72,7 @@ export interface PopupInteractionReader {
  * code that can run against them only reads these fields.
  */
 export interface PopupInteractionContext {
+  parentPopup?: PopupInteractionStore | null | undefined;
   readonly events: PopupEvents;
   nested: boolean;
   readonly triggerElements: PopupTriggerMap;

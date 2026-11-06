@@ -5,6 +5,9 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { PopupOwnerContext } from './PopupOwnerContext';
+import { refreshModalFocus } from './focus/modalFocus';
 import { FOCUSABLE_ATTRIBUTE } from './constants';
 import type { HTMLProps } from '../../internals/types';
 import type {
@@ -55,13 +58,17 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   id: string | undefined,
   store: PopupTriggerDataStore<State>,
 ) {
+  const owner = React.useContext(PopupOwnerContext);
+  const parentOwner = Object.is(owner?.context, store.context)
+    ? (owner?.context.parentPopup ?? null)
+    : owner;
   const registrationRef = React.useRef<{
     store: PopupTriggerDataStore<State>;
     id: string;
     element: Element;
   } | null>(null);
 
-  return useStableCallback((element: Element | null) => {
+  const register = useStableCallback((element: Element | null) => {
     const registration = registrationRef.current;
 
     if (registration !== null) {
@@ -70,6 +77,10 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
         registration.store === store &&
         registration.id === id
       ) {
+        if (store.context.triggerElements.getOwner(element) !== parentOwner) {
+          store.context.triggerElements.add(id, element, parentOwner);
+          refreshModalFocus(ownerDocument(element));
+        }
         // Already registered where it belongs, so the caller's migration effect is free on mount.
         return;
       }
@@ -86,10 +97,18 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
 
     if (element !== null && id !== undefined) {
       registrationRef.current = { store, id, element };
-      store.context.triggerElements.add(id, element);
+      store.context.triggerElements.add(id, element, parentOwner);
       syncTriggerCount(store);
     }
   });
+
+  useIsoLayoutEffect(() => {
+    if (registrationRef.current) {
+      register(registrationRef.current.element);
+    }
+  }, [parentOwner, register]);
+
+  return register;
 }
 
 /**
