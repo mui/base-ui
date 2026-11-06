@@ -12,7 +12,7 @@ import type {
   Side,
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import { SelectPositionerContext } from './SelectPositionerContext';
+import { SelectPositionerContext, SelectScrollArrowContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { clearStyles } from '../popup/utils';
@@ -212,10 +212,13 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       side: renderedSide,
       alignItemWithTriggerActive,
       setControlledAlignItemWithTrigger,
-      scrollUpArrowRef,
-      scrollDownArrowRef,
     }),
     [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
+  );
+
+  const scrollArrowContextValue: SelectScrollArrowContext = React.useMemo(
+    () => ({ side: renderedSide, scrollUpArrowRef, scrollDownArrowRef }),
+    [renderedSide],
   );
 
   return (
@@ -225,8 +228,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       onMapChange={onMapChange}
     >
       <SelectPositionerContext.Provider value={contextValue}>
-        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
-        {element}
+        <SelectScrollArrowContext.Provider value={scrollArrowContextValue}>
+          {mounted && modal && (
+            <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
+          )}
+          {element}
+        </SelectScrollArrowContext.Provider>
       </SelectPositionerContext.Provider>
     </CompositeList>
   );

@@ -6,8 +6,6 @@ export interface SelectPositionerContext extends Omit<UseAnchorPositioningReturn
   side: 'none' | Side;
   alignItemWithTriggerActive: boolean;
   setControlledAlignItemWithTrigger: React.Dispatch<React.SetStateAction<boolean>>;
-  scrollUpArrowRef: React.RefObject<HTMLDivElement | null>;
-  scrollDownArrowRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const SelectPositionerContext = React.createContext<SelectPositionerContext | undefined>(
@@ -16,6 +14,30 @@ export const SelectPositionerContext = React.createContext<SelectPositionerConte
 
 export function useSelectPositionerContext() {
   const context = React.useContext(SelectPositionerContext);
+  if (!context) {
+    throw new Error(
+      'Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.',
+    );
+  }
+  return context;
+}
+
+/**
+ * What the scroll arrows read from the positioner. Separate from `SelectPositionerContext`, whose
+ * value changes with every position update, so that a hidden arrow doesn't re-render on those.
+ */
+export interface SelectScrollArrowContext {
+  side: 'none' | Side;
+  scrollUpArrowRef: React.RefObject<HTMLDivElement | null>;
+  scrollDownArrowRef: React.RefObject<HTMLDivElement | null>;
+}
+
+export const SelectScrollArrowContext = React.createContext<SelectScrollArrowContext | undefined>(
+  undefined,
+);
+
+export function useSelectScrollArrowContext() {
+  const context = React.useContext(SelectScrollArrowContext);
   if (!context) {
     throw new Error(
       'Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.',
