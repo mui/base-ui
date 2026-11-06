@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
@@ -49,6 +50,7 @@ export interface UseTriggerSwitchTransitionParameters {
 export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitionParameters): void {
   const { store, domReference, positionerElement, open } = parameters;
 
+  const positionFrame = useAnimationFrame();
   const previousTriggerRef = React.useRef<Element | null>(null);
   const pendingSwitchRef = React.useRef<AbortController | null>(null);
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
@@ -58,6 +60,7 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
       return;
     }
 
+    positionFrame.cancel();
     pendingSwitchRef.current?.abort();
     pendingSwitchRef.current = null;
 
@@ -69,7 +72,7 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
     if (store.state.instantType === 'trigger-change') {
       store.set('instantType', undefined);
     }
-  }, [open, store]);
+  }, [open, positionFrame, store]);
 
   useIsoLayoutEffect(() => {
     const currentTrigger = domReference;
@@ -96,17 +99,22 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
     const abortController = new AbortController();
     pendingSwitchRef.current = abortController;
 
-    runOnceAnimationsFinish(() => {
-      // The abort above covers a committed close, but the animations can finish
-      // in the same frame the close commits. Writing `trigger-change` then would
-      // leave stale state behind for the next open to inherit.
-      if (store.select('open')) {
-        store.set('instantType', 'trigger-change');
-      }
-    }, abortController.signal);
+    // Anchor positioning commits asynchronously after a trigger change. Observe
+    // its animations after that update, rather than completing an unstarted move.
+    positionFrame.request(() => {
+      runOnceAnimationsFinish(() => {
+        // The abort above covers a committed close, but the animations can finish
+        // in the same frame the close commits. Writing `trigger-change` then would
+        // leave stale state behind for the next open to inherit.
+        if (store.select('open')) {
+          store.set('instantType', 'trigger-change');
+        }
+      }, abortController.signal);
+    });
 
     return () => {
+      positionFrame.cancel();
       abortController.abort();
     };
-  }, [domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, positionFrame, runOnceAnimationsFinish, store]);
 }

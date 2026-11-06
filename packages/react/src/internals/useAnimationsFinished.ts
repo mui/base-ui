@@ -1,7 +1,8 @@
 'use client';
-import type * as React from 'react';
+import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { NOOP } from '@base-ui/utils/empty';
 import { resolveRef } from '../utils/resolveRef';
@@ -91,6 +92,10 @@ export function useAnimationsFinished(
   batch = false,
 ) {
   const frame = useAnimationFrame();
+  const pendingLookup = React.useRef<((animations: Animation[]) => void) | null>(null);
+  useOnMount(() => () => {
+    pendingLookup.current = null;
+  });
 
   return useStableCallback(
     (
@@ -106,6 +111,7 @@ export function useAnimationsFinished(
       signal: AbortSignal | null = null,
     ) => {
       frame.cancel();
+      pendingLookup.current = null;
 
       const element = resolveRef(elementOrRef);
       if (element == null) {
@@ -141,13 +147,25 @@ export function useAnimationsFinished(
       }
 
       function exec() {
-        getAnimationsBatched([resolvedElement, waitForAnimations]);
+        const lookup = (animations: Animation[]) => {
+          if (pendingLookup.current !== lookup) {
+            return;
+          }
+          pendingLookup.current = null;
+          waitForAnimations(animations);
+        };
+        pendingLookup.current = lookup;
+        getAnimationsBatched([resolvedElement, lookup]);
       }
 
       function waitForAnimations(animations: Animation[]) {
         // Discard fulfilled Animation values so unfinished animations cannot retain their targets.
         Promise.all(
-          animations.filter(isFiniteAnimation).map((animation) => animation.finished.then(NOOP)),
+          animations
+            .filter(
+              (animation) => isFiniteAnimation(animation) && animation.playState !== 'finished',
+            )
+            .map((animation) => animation.finished.then(NOOP)),
         ).then(
           () => {
             if (!signal?.aborted) {
@@ -192,7 +210,8 @@ export function useAnimationsFinished(
         return;
       }
 
-      frame.request(exec);
+      // getAnimations() reflects pending CSS changes; closing needs no extra rendering frame.
+      exec();
     },
   );
 }

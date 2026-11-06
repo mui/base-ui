@@ -78,6 +78,25 @@ function Test({ getAnimations, onFinished, signal, batch }: TestProps) {
 describe('useAnimationsFinished', () => {
   const { render } = createRenderer();
 
+  it.each([
+    { name: 'no animations', finished: false },
+    { name: 'an already-finished animation', finished: true },
+  ])('completes $name without a rendering frame', async ({ finished }) => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const nextFrame = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(0);
+    const onFinished = vi.fn();
+    const animation = createAnimation().animation;
+    Object.defineProperty(animation, 'playState', { value: 'finished' });
+    try {
+      await render(
+        <Test getAnimations={() => (finished ? [animation] : [])} onFinished={onFinished} />,
+      );
+      expect(onFinished).toHaveBeenCalledTimes(1);
+    } finally {
+      nextFrame.mockRestore();
+    }
+  });
+
   it.each(['finish', 'cancel'] as const)(
     'ignores infinite animations when a finite animation completes via %s',
     async (completion) => {
@@ -407,6 +426,54 @@ describe('useAnimationsFinished', () => {
     } finally {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
     }
+  });
+
+  describe.skipIf(isJSDOM)('closing styles', () => {
+    it.each(['transition', 'animation'] as const)(
+      'waits for a CSS %s introduced by the closing commit',
+      async (kind) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const onFinished = vi.fn();
+        function Closing() {
+          const ref = React.useRef<HTMLDivElement>(null);
+          const [closed, setClosed] = React.useState(false);
+          const finish = useAnimationsFinished(ref);
+          React.useEffect(() => {
+            if (closed) {
+              finish(onFinished);
+            }
+          }, [closed, finish]);
+          return (
+            <React.Fragment>
+              <style>{`
+            .closing-style { opacity: 1; ${kind === 'transition' ? 'transition: opacity 60s linear;' : ''} }
+            .closing-style[data-closed] { opacity: 0; ${kind === 'animation' ? 'animation: close-style 60s linear;' : ''} }
+            @keyframes close-style { from { opacity: 1; } to { opacity: 0; } }
+          `}</style>
+              <button onClick={() => setClosed(true)}>Close animation</button>
+              <div
+                ref={ref}
+                data-testid="closing-style"
+                className="closing-style"
+                data-closed={closed ? '' : undefined}
+              />
+            </React.Fragment>
+          );
+        }
+        const { user } = await render(<Closing />);
+        const target = screen.getByTestId('closing-style');
+        expect(getComputedStyle(target).opacity).toBe('1');
+        await user.click(screen.getByRole('button', { name: 'Close animation' }));
+        const animations = target.getAnimations();
+        expect(animations).toHaveLength(1);
+        expect(onFinished).not.toHaveBeenCalled();
+        await act(async () => {
+          animations[0].finish();
+          await flushMicrotasks();
+        });
+        expect(onFinished).toHaveBeenCalledTimes(1);
+      },
+    );
   });
 
   describe.skipIf(isJSDOM)('elements checked in the same frame', () => {
