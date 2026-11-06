@@ -1,5 +1,5 @@
 'use client';
-import type * as React from 'react';
+import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { getTabbableNearElement, isOutsideEvent } from './focus/tabbable';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -35,38 +35,40 @@ export function useTriggerFocusGuards(
   store: TriggerFocusGuardStore,
   triggerElementRef: React.RefObject<HTMLElement | null>,
 ) {
-  function closeAndFocus(
-    event: React.FocusEvent<HTMLElement>,
-    direction: 1 | -1,
-    positionerElement: HTMLElement | null,
-  ) {
-    const guard = event.currentTarget;
+  return React.useMemo(() => {
+    function closeAndFocus(
+      event: React.FocusEvent<HTMLElement>,
+      direction: 1 | -1,
+      positionerElement: HTMLElement | null,
+    ) {
+      const guard = event.currentTarget;
 
-    ReactDOM.flushSync(() => {
-      store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent, guard));
-    });
+      ReactDOM.flushSync(() => {
+        store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent, guard));
+      });
 
-    // The close callback may change the tab order. Resolve it after the flush, using
-    // the trigger as the anchor if the guard unmounted, even when its tabIndex is -1.
-    getTabbableNearElement(
-      guard.isConnected ? guard : triggerElementRef.current,
-      direction,
-      positionerElement,
-    )?.focus();
-  }
-
-  function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {
-    closeAndFocus(event, -1, store.select('positionerElement'));
-  }
-
-  function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
-    const positionerElement = store.select('positionerElement');
-    if (positionerElement && isOutsideEvent(event, positionerElement)) {
-      store.context.beforeContentFocusGuardRef.current?.focus();
-    } else {
-      closeAndFocus(event, 1, positionerElement);
+      // The close callback may change the tab order. Resolve it after the flush, using
+      // the trigger as the anchor if the guard unmounted, even when its tabIndex is -1.
+      getTabbableNearElement(
+        guard.isConnected ? guard : triggerElementRef.current,
+        direction,
+        positionerElement,
+      )?.focus();
     }
-  }
 
-  return { handlePreFocusGuardFocus, handleFocusTargetFocus };
+    function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {
+      closeAndFocus(event, -1, store.select('positionerElement'));
+    }
+
+    function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
+      const positionerElement = store.select('positionerElement');
+      if (positionerElement && isOutsideEvent(event, positionerElement)) {
+        store.context.beforeContentFocusGuardRef.current?.focus();
+      } else {
+        closeAndFocus(event, 1, positionerElement);
+      }
+    }
+
+    return { handlePreFocusGuardFocus, handleFocusTargetFocus };
+  }, [store, triggerElementRef]);
 }
