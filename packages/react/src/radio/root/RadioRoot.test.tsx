@@ -321,7 +321,7 @@ describe('<Radio.Root />', () => {
       expect(screen.getByRole('radio', { name: 'B' })).toHaveFocus();
     });
 
-    it('keeps the tab stop on the checked radio when every radio is disabled', async () => {
+    it('keeps a single tab stop on the first radio when every radio is disabled', async () => {
       await render(
         <RadioGroup defaultValue="b">
           <Radio.Root value="a" disabled data-testid="a" />
@@ -329,12 +329,24 @@ describe('<Radio.Root />', () => {
         </RadioGroup>,
       );
 
-      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
-      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
     });
   });
 
   describe('prop: readOnly', () => {
+    it('keeps the tab stop on a checked radio that is read-only', async () => {
+      await render(
+        <RadioGroup defaultValue="b">
+          <Radio.Root value="a" data-testid="a" />
+          <Radio.Root value="b" readOnly data-testid="b" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '0');
+    });
+
     it('acquires the field focused state on focus', async () => {
       await render(
         <Field.Root data-testid="field">

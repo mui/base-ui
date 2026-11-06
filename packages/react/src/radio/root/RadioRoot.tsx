@@ -132,7 +132,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     role: 'radio',
     'aria-checked': checked,
     'aria-labelledby': ariaLabelledBy,
-    [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
+    // A disabled checked radio can't hold the group's tab stop, so the composite falls
+    // back to the first enabled radio instead.
+    [ACTIVE_COMPOSITE_ITEM as string]: checked && !disabled ? '' : undefined,
     id: nativeButton ? inputId : id,
     // Only a fully disabled group leaves the tab order. A single disabled radio
     // keeps the composite tab index.
