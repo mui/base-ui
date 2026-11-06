@@ -274,16 +274,63 @@ describe('<Radio.Root />', () => {
       expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
     });
 
-    it('keeps the tab stop on a checked radio that is disabled', async () => {
+    it.each([
+      { name: 'first radio', checked: 'a', disabled: ['a'], tabStop: 'b' },
+      { name: 'second radio', checked: 'b', disabled: ['b'], tabStop: 'a' },
+      { name: 'leading disabled radios', checked: 'b', disabled: ['a', 'b'], tabStop: 'c' },
+    ])(
+      'moves the tab stop to the first enabled radio when the checked radio is disabled ($name)',
+      async ({ checked, disabled, tabStop }) => {
+        await render(
+          <RadioGroup defaultValue={checked}>
+            <Radio.Root value="a" disabled={disabled.includes('a')} data-testid="a" />
+            <Radio.Root value="b" disabled={disabled.includes('b')} data-testid="b" />
+            <Radio.Root value="c" disabled={disabled.includes('c')} data-testid="c" />
+          </RadioGroup>,
+        );
+
+        expect(screen.getByTestId(tabStop)).toHaveAttribute('tabindex', '0');
+        expect(screen.getAllByRole('radio').filter((radio) => radio.tabIndex === 0)).toHaveLength(
+          1,
+        );
+      },
+    );
+
+    it('keeps the group in the tab order when the checked native button radio is disabled', async () => {
+      const { user } = await render(
+        <div>
+          <button type="button">Before</button>
+          <RadioGroup defaultValue="a">
+            <Radio.Root value="a" disabled nativeButton render={<button type="button" />}>
+              A
+            </Radio.Root>
+            <Radio.Root value="b" nativeButton render={<button type="button" />}>
+              B
+            </Radio.Root>
+          </RadioGroup>
+        </div>,
+      );
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'Before' }).focus();
+      });
+      expect(screen.getByRole('button', { name: 'Before' })).toHaveFocus();
+
+      await user.keyboard('{Tab}');
+
+      expect(screen.getByRole('radio', { name: 'B' })).toHaveFocus();
+    });
+
+    it('keeps the tab stop on the checked radio when every radio is disabled', async () => {
       await render(
-        <RadioGroup defaultValue="a">
+        <RadioGroup defaultValue="b">
           <Radio.Root value="a" disabled data-testid="a" />
-          <Radio.Root value="b" data-testid="b" />
+          <Radio.Root value="b" disabled data-testid="b" />
         </RadioGroup>,
       );
 
-      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '0');
-      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '0');
     });
   });
 

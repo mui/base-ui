@@ -146,17 +146,22 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     // and automatic indexes and leaves gaps.
     const activeIndex = activeItem ? (map.get(activeItem)?.index ?? -1) : -1;
 
-    if (activeIndex !== -1) {
+    if (
+      activeIndex !== -1 &&
+      !isListIndexDisabled(elementsRef.current, activeIndex, disabledIndices)
+    ) {
       onHighlightedIndexChange(activeIndex);
     } else if (isListIndexDisabled(sortedElements, highlightedIndex, disabledIndices)) {
-      // The default highlighted item is disabled, so it should not hold the single
-      // roving tab stop: a natively disabled element is removed from the tab order,
-      // and an aria-disabled one should not be the entry point. Move the tab stop
-      // to the first enabled item. If every item is disabled, keep the current
-      // highlighted index.
+      // The default highlighted item (or a disabled active item) should not hold the
+      // single roving tab stop: a natively disabled element is removed from the tab
+      // order, and an aria-disabled one should not be the entry point. Move the tab
+      // stop to the first enabled item. If every item is disabled, keep the active
+      // item, or the current highlighted index when there is none.
       const firstEnabledIndex = findNonDisabledListIndex(sortedElements, { disabledIndices });
       if (!isIndexOutOfListBounds(sortedElements, firstEnabledIndex)) {
         onHighlightedIndexChange(firstEnabledIndex);
+      } else if (activeIndex !== -1) {
+        onHighlightedIndexChange(activeIndex);
       }
     }
 

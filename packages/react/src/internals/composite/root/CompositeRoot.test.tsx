@@ -930,6 +930,32 @@ describe('Composite', () => {
     });
   });
 
+  it('moves the initial tab stop to the first enabled item when the active item is disabled', async () => {
+    await render(
+      <CompositeRoot>
+        <CompositeItem data-testid="1" aria-disabled="true" />
+        <CompositeItem data-testid="2" aria-disabled="true" data-composite-item-active="" />
+        <CompositeItem data-testid="3" />
+      </CompositeRoot>,
+    );
+
+    expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+  });
+
+  it('keeps the initial tab stop on the active item when all items are disabled', async () => {
+    await render(
+      <CompositeRoot>
+        <CompositeItem data-testid="1" aria-disabled="true" />
+        <CompositeItem data-testid="2" aria-disabled="true" data-composite-item-active="" />
+      </CompositeRoot>,
+    );
+
+    expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+  });
+
   describe('prop: disabledIndices', () => {
     it('moves the initial tab stop to the first enabled item when the default item is disabled', async () => {
       await render(
