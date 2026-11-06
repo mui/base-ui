@@ -1868,6 +1868,8 @@ describe('FloatingFocusManager', () => {
       );
 
       test('preserves keyboard close modality when reopening before focus restoration', async () => {
+        const finalFocus = vi.fn(() => true);
+
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);
           const [reopenOnClose, setReopenOnClose] = React.useState(false);
@@ -1894,7 +1896,11 @@ describe('FloatingFocusManager', () => {
               <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
               <button data-testid="reopen-on-close" onClick={() => setReopenOnClose(true)} />
               <FloatingPortal>
-                <FloatingFocusManager store={context.rootStore} disabled={!isOpen}>
+                <FloatingFocusManager
+                  store={context.rootStore}
+                  disabled={!isOpen}
+                  returnFocus={finalFocus}
+                >
                   <div ref={refs.setFloating} {...getFloatingProps()}>
                     <button data-testid="child" />
                   </div>
@@ -1924,7 +1930,9 @@ describe('FloatingFocusManager', () => {
               focusVisible: true,
             });
           });
+          expect(finalFocus).toHaveBeenCalledExactlyOnceWith('keyboard');
           expect(screen.getByTestId('open-state')).toHaveTextContent('true');
+          expect(screen.getByTestId('child')).toHaveFocus();
         } finally {
           focusSpy.mockRestore();
         }

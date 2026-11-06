@@ -206,8 +206,8 @@ export function refreshModalFocus(doc: Document): void {
     }
     const targets = correctElements(root, interactionInside);
     if (targets.length) {
-      collectOutsideElements(root, buildKeepSet(targets), new Set(targets)).forEach((element) =>
-        outside.add(element),
+      collectOutsideElements(root, buildKeepSet(targets), new Set(targets), true).forEach(
+        (element) => outside.add(element),
       );
     }
   }

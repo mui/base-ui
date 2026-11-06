@@ -2,6 +2,7 @@
 // https://github.com/theKashey/aria-hidden/blob/9220c8f4a4fd35f63bee5510a9f41a37264382d4/src/index.ts
 import { getNodeName, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { isFocusableCandidate } from './tabbable';
 
 type Undo = () => void;
 
@@ -44,14 +45,26 @@ export const buildKeepSet = (targets: Element[]): Set<Node> => {
   return keep;
 };
 
+// Include implicit live regions as well as explicit aria-live containers.
+const liveRegionSelector = '[aria-live],[role="alert"],[role="status"],[role="log"]';
+
 export const collectOutsideElements = (
   root: HTMLElement | ShadowRoot,
   keepElements: Set<Node>,
   stopElements: Set<Node>,
+  preserveLiveRegions = false,
 ): Element[] => {
+  const liveRegions = new Set(
+    preserveLiveRegions
+      ? Array.from(root.querySelectorAll(liveRegionSelector)).filter(
+          (element) => !isFocusableCandidate(element),
+        )
+      : [],
+  );
+  const liveAncestors = buildKeepSet(Array.from(liveRegions));
   const outside: Element[] = [];
 
-  const walk = (parent: Element | ShadowRoot | null) => {
+  const walk = (parent: Element | ShadowRoot | null, insideLiveRegion = false) => {
     if (!parent || stopElements.has(parent)) {
       return;
     }
@@ -61,8 +74,13 @@ export const collectOutsideElements = (
         return;
       }
 
-      if (keepElements.has(node)) {
-        walk(node);
+      const live = insideLiveRegion || liveRegions.has(node);
+      if (
+        keepElements.has(node) ||
+        (!isFocusableCandidate(node) && (liveAncestors.has(node) || live))
+      ) {
+        // Preserve announcement text without enabling interactive descendants.
+        walk(node, live);
       } else {
         outside.push(node);
       }
@@ -90,7 +108,7 @@ function applyAttributeToOthers(
   if (ariaHidden) {
     const ariaLiveElements = correctElements(
       body,
-      Array.from(body.querySelectorAll('[aria-live]')),
+      Array.from(body.querySelectorAll(liveRegionSelector)),
     );
     const controlElements = avoidElements.concat(ariaLiveElements);
     const controlTargets = collectOutsideElements(

@@ -41,7 +41,7 @@ function isWithinOpenDetailsSummary(element: Element, details: Element) {
   return !!summary && (element === summary || contains(summary, element));
 }
 
-function isFocusableCandidate(element: Element | null): element is FocusableElement {
+export function isFocusableCandidate(element: Element | null): element is FocusableElement {
   const nodeName = element ? getNodeName(element) : '';
 
   return (

@@ -47,6 +47,7 @@ import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../../internals/constants';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { resolveRef } from '../../resolveRef';
+import { isHoverOpenEvent } from '../interactions/useHoverShared';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
   const win = ownerWindow(getTarget(event));
@@ -389,7 +390,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   useIsoLayoutEffect(() => {
     scope.modal = modal && !isUntrappedTypeableCombobox;
-    scope.inert = outsideElementsInert;
+    scope.inert = outsideElementsInert && !isHoverOpenEvent(storeContext.openEvent?.type);
     refreshModalFocus(doc);
   });
 
@@ -422,6 +423,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         }
         return;
       }
+      // Let the existing restore-focus path choose a visible tabbable after focus is lost.
+      if (
+        restoreFocus &&
+        eventTarget === doc.body &&
+        isElement(event.relatedTarget) &&
+        contains(floating, event.relatedTarget) &&
+        !isElementVisible(event.relatedTarget)
+      ) {
+        return;
+      }
       event.stopImmediatePropagation();
       refreshModalFocus(doc);
       const previous =
@@ -440,7 +451,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     return () => {
       scope.handleFocus = undefined;
     };
-  }, [disabled, open, floating, floatingFocusElement, scope, doc, getTabbableContent]);
+  }, [
+    disabled,
+    open,
+    floating,
+    floatingFocusElement,
+    scope,
+    doc,
+    getTabbableContent,
+    restoreFocus,
+  ]);
 
   // Prevent Tab from escaping the modal when there are no tabbable elements.
   React.useEffect(() => {
@@ -561,7 +581,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       queueMicrotask(() => {
         // A modal owner may have synchronously rejected an outside focus move.
         // Do not dismiss a child popup after focus has already returned to it.
-        if (activeElement(doc) === target) {
+        if (!isFocusAllowed(doc.body) && activeElement(doc) === target) {
           return;
         }
         const nodeId = getNodeId();
@@ -618,6 +638,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           !isElementVisible(target) &&
           activeElement(doc) === doc.body
         ) {
+          const prevTabbable = lastFocusedElementRef.current;
           // Let `FloatingPortal` effect knows that focus is still inside the
           // floating tree.
           if (isHTMLElement(floatingFocusElement)) {
@@ -641,7 +662,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           }
 
           const tabbableContent = getTabbableContent() as Array<Element | null>;
-          const prevTabbable = lastFocusedElementRef.current;
           const nodeToFocus =
             (prevTabbable && tabbableContent.includes(prevTabbable) ? prevTabbable : null) ||
             tabbableContent[tabbableContent.length - 1] ||
@@ -1029,6 +1049,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
       const closeType = closeTypeRef.current;
+      // Snapshot the closing session before a synchronous reopen changes modal ownership.
+      const returnElement = getReturnElement(closeType);
 
       const job = { cancelled: false };
       pendingReturnFocusRef.current = job;
@@ -1039,9 +1061,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         }
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
-        // Resolve after closing scopes release their exclusion; an outer modal
-        // may still exclude the element that was focused before this popup.
-        const returnElement = getReturnElement(closeType);
         let tabbableReturnElement = getFirstTabbableElement(returnElement);
         // A hidden element, such as an item in a closed Select or `keepMounted` Menu, can't take
         // focus. Use the newest visible element focused before it instead, unless the closing

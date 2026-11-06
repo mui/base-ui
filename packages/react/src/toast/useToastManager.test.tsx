@@ -2093,19 +2093,41 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
       await render(
         <Toast.Provider>
-          <Toast.Viewport>
+          <Toast.Viewport data-testid="toast-viewport">
             <ToastInDialogList />
           </Toast.Viewport>
+          <div aria-live="polite">
+            <span>Background announcement</span>
+            <button data-testid="background-action">Background action</button>
+          </div>
           <HighPriorityToastInDialog />
         </Toast.Provider>,
       );
 
+      await tick(clock, 50);
       const addToastButton = screen.getByRole('button', { name: 'add' });
+      expect(addToastButton).toHaveFocus();
       fireEvent.click(addToastButton);
 
       const toastRoot = screen.getByTestId('toast-root');
       expect(toastRoot).toHaveAttribute('aria-hidden', 'true');
       expect(screen.queryByRole('alert')).not.toBe(null);
+
+      // Wait for the modal's exclusion observer to process the new announcement.
+      const viewport = screen.getByTestId('toast-viewport');
+      await flushMicrotasks();
+      expect(viewport.closest('[inert]')).not.toBe(null);
+      const announcement = screen.getByRole('alert');
+      expect(announcement).toHaveAttribute('aria-atomic', 'true');
+      expect(announcement).toHaveTextContent('High priority toast');
+      expect(announcement).toHaveTextContent('This is urgent');
+      expect(announcement.closest('[inert],[aria-hidden="true"]')).toBe(null);
+      expect(viewport).not.toContainElement(announcement);
+
+      const backgroundAction = screen.getByTestId('background-action');
+      expect(backgroundAction.closest('[inert]')).not.toBe(null);
+      backgroundAction.focus();
+      expect(addToastButton).toHaveFocus();
     });
   });
 });
