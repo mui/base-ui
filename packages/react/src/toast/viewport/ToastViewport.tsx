@@ -5,6 +5,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -158,6 +159,27 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   React.useEffect(flushMouseLeave, [hasTransitioningToasts, store]);
+
+  const handleDocumentMouseOver = useStableCallback((event: MouseEvent) => {
+    if (
+      store.state.hovering &&
+      !contains(store.state.viewport, getTarget(event) as Element | null)
+    ) {
+      handleMouseLeave();
+    }
+  });
+
+  React.useEffect(() => {
+    const viewport = store.state.viewport;
+    if (!expanded || !viewport) {
+      return undefined;
+    }
+
+    // When the toast under the pointer is removed, the browser sends no `mouseout` from the
+    // viewport, so React never calls `onMouseLeave`. The next `mouseover` outside the viewport
+    // is the only sign that the pointer has left.
+    return addEventListener(ownerDocument(viewport), 'mouseover', handleDocumentMouseOver, true);
+  }, [expanded, store, handleDocumentMouseOver]);
 
   function handleMouseEnter() {
     store.pauseTimers();
