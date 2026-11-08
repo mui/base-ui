@@ -54,6 +54,14 @@ import { DemoListboxOptInSelection } from './demos/opt-in-selection';
 
 <DemoListboxOptInSelection />
 
+### Grouped
+
+Use `Listbox.Group` and `Listbox.GroupLabel` to group related items.
+
+import { DemoListboxGrouped } from './demos/grouped';
+
+<DemoListboxGrouped />
+
 ### Object values
 
 To use objects as values, create the items with `Listbox.createItems()` and pass them to the `items` prop. Make sure `getValue` returns a unique primitive for each item, and give each `Listbox.Item` that value or the object itself to choose what `onValueChange` receives.
