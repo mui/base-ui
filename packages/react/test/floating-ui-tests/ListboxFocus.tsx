@@ -43,7 +43,8 @@ function Listbox({ children }: { children: React.ReactNode }) {
     focusItemOnHover: false,
   });
   const typeahead = usePopupTypeahead(context.rootStore, {
-    listRef: labelsRef,
+    getLabel: (index) => labelsRef.current[index] ?? null,
+    getCount: () => labelsRef.current.length,
     activeIndex,
     selectedIndex,
     onMatch: handleTypeaheadMatch,

@@ -555,7 +555,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const typeahead = usePopupTypeahead(floatingRootContext, {
     // Under virtual focus the input owns typing, so typeahead would race the filter query.
     enabled: !disabled && !virtualFocus,
-    listRef: store.context.itemLabels,
+    getLabel: (index) => store.context.itemLabels.current[index] ?? null,
+    getCount: () => store.context.itemLabels.current.length,
     elementsRef: store.context.itemDomElements,
     activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,

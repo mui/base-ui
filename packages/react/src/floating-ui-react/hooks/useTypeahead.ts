@@ -9,19 +9,14 @@ import { stopEvent } from '../utils/event';
 
 export interface UseTypeaheadProps {
   /**
-   * A ref which contains an array of strings whose indices match the HTML
-   * elements of the list. Use `getLabel` and `getCount` instead when the labels are read one at a
-   * time, such as from items that aren't rendered.
+   * Returns the label of the item at an index, or `null` when it has none. Labels are read one at
+   * a time, so a match near the active item doesn't read the rest.
    */
-  listRef?: React.RefObject<Array<string | null>> | undefined;
+  getLabel: (index: number) => string | null;
   /**
-   * Returns the label of the item at an index. Used with `getCount` instead of `listRef`.
+   * Returns how many items there are.
    */
-  getLabel?: ((index: number) => string | null) | undefined;
-  /**
-   * Returns how many items there are. Used with `getLabel` instead of `listRef`.
-   */
-  getCount?: (() => number) | undefined;
+  getCount: () => number;
   /**
    * The index of the active (focused or highlighted) item in the list.
    * @default null
@@ -32,7 +27,7 @@ export interface UseTypeaheadProps {
    */
   onMatch?: ((index: number, event: React.KeyboardEvent) => void) | undefined;
   /**
-   * Optional list of item elements that correspond to `listRef` indices.
+   * Optional list of item elements, by index.
    * When an element exists for an index, typeahead skips it if it is hidden by
    * `display: none`, `visibility: hidden|collapse`, other browser-reported
    * visibility checks, or native disabled state.
@@ -91,9 +86,8 @@ export interface UseTypeaheadReturnValue {
  */
 export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue {
   const {
-    listRef,
-    getLabel: getLabelProp,
-    getCount: getCountProp,
+    getLabel,
+    getCount,
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
@@ -133,11 +127,6 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
       return disabledIndices == null || !isListIndexDisabled(EMPTY_ARRAY, index, disabledIndices);
     }
 
-    // Labels are read one at a time, so a match near the active item doesn't read the rest.
-    const getCount = () => getCountProp?.() ?? listRef?.current?.length ?? 0;
-    const getLabel = (index: number) =>
-      getLabelProp ? getLabelProp(index) : (listRef?.current?.[index] ?? null);
-
     function getMatchingIndex(string: string, startIndex = 0) {
       const count = getCount();
       if (count === 0) {
@@ -171,7 +160,6 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     }
 
     if (
-      (!getLabelProp && listRef?.current == null) ||
       // Character key.
       event.key.length !== 1 ||
       // Modifier key.
