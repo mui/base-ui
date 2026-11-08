@@ -34,7 +34,8 @@ const useImpl = ({
   });
   const listRef = React.useRef(props.list ?? ['one', 'two', 'three']);
   const typeahead = usePopupTypeahead(context.rootStore, {
-    listRef,
+    getLabel: (index) => listRef.current[index] ?? null,
+    getCount: () => listRef.current.length,
     activeIndex,
     onMatch(index) {
       setActiveIndex(index);
@@ -96,7 +97,8 @@ function ComboboxWithElementsRef(
   const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const typeahead = usePopupTypeahead(context.rootStore, {
-    listRef,
+    getLabel: (index) => listRef.current[index] ?? null,
+    getCount: () => listRef.current.length,
     elementsRef,
     activeIndex,
     onMatch(index) {
@@ -141,7 +143,8 @@ describe('usePopupTypeahead', () => {
       const { refs, context } = useFloating({ open: true });
       const listRef = React.useRef(['one', 'two', 'three']);
       const typeahead = usePopupTypeahead(context.rootStore, {
-        listRef,
+        getLabel: (index) => listRef.current[index] ?? null,
+        getCount: () => listRef.current.length,
         activeIndex: null,
         onMatch,
       });
