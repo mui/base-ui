@@ -18,8 +18,14 @@ export type SelectionAction =
 export interface SelectionItems {
   count: number;
   getValue: (index: number) => any;
+  indexOfValue: (value: any) => number;
   isSameValue: (a: any, b: any) => boolean;
   isDisabled: (index: number) => boolean;
+  /**
+   * Whether replacing the selection keeps the selected disabled items, which users can't
+   * deselect. Set with multiple selection, where other items can be selected alongside them.
+   */
+  keepsDisabled: boolean;
 }
 
 /**
@@ -36,14 +42,29 @@ export function selectionReducer(
   currentValue: any[],
   items: SelectionItems,
 ): any[] {
-  const { count, getValue, isSameValue, isDisabled } = items;
+  const { count, getValue, indexOfValue, isSameValue, isDisabled, keepsDisabled } = items;
+
+  // Replaces the selection with `values`, which are never disabled. With multiple selection, the
+  // selected disabled items stay selected, since users can't deselect them.
+  function replaceWith(values: any[]): any[] {
+    if (!keepsDisabled) {
+      return values.length === 0 ? (EMPTY_ARRAY as any[]) : values;
+    }
+    const selectedDisabled = currentValue.filter((v) => {
+      const index = indexOfValue(v);
+      return index !== -1 && isDisabled(index);
+    });
+    const next = [...values, ...selectedDisabled];
+    return next.length === 0 ? (EMPTY_ARRAY as any[]) : next;
+  }
+
   switch (action.type) {
     case 'select': {
       const itemValue = getValue(action.index);
       if (itemValue === undefined || isDisabled(action.index)) {
         return currentValue;
       }
-      return [itemValue];
+      return replaceWith([itemValue]);
     }
 
     // Moving focus in opt-in mode: the focused item becomes the selection, and a disabled one
@@ -51,9 +72,9 @@ export function selectionReducer(
     case 'moveSelection': {
       const itemValue = getValue(action.index);
       if (itemValue === undefined || isDisabled(action.index)) {
-        return EMPTY_ARRAY as any[];
+        return replaceWith([]);
       }
-      return [itemValue];
+      return replaceWith([itemValue]);
     }
 
     case 'toggle': {
@@ -72,7 +93,9 @@ export function selectionReducer(
       if (anchorIndex === null) {
         // No anchor — treat as a single select
         const itemValue = getValue(action.index);
-        return itemValue !== undefined && !isDisabled(action.index) ? [itemValue] : currentValue;
+        return itemValue !== undefined && !isDisabled(action.index)
+          ? replaceWith([itemValue])
+          : currentValue;
       }
       const start = Math.min(anchorIndex, action.index);
       const end = Math.max(anchorIndex, action.index);
@@ -83,7 +106,7 @@ export function selectionReducer(
           rangeValues.push(val);
         }
       }
-      return rangeValues;
+      return replaceWith(rangeValues);
     }
 
     case 'selectRange': {
@@ -99,11 +122,15 @@ export function selectionReducer(
       return nextValue;
     }
 
+    // Disabled items keep their state: the selected ones stay selected, and the others aren't.
     case 'selectAll': {
       const nextValue: any[] = [];
       for (let i = 0; i < count; i += 1) {
         const val = getValue(i);
-        if (val !== undefined && !isDisabled(i)) {
+        if (
+          val !== undefined &&
+          (!isDisabled(i) || currentValue.some((v) => isSameValue(v, val)))
+        ) {
           nextValue.push(val);
         }
       }
@@ -111,7 +138,7 @@ export function selectionReducer(
     }
 
     case 'clear': {
-      return EMPTY_ARRAY as any[];
+      return replaceWith([]);
     }
 
     default:

@@ -131,14 +131,17 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
    * and, with `items`, those of the items that aren't rendered.
    */
   getSelectionItems(): SelectionItems {
-    const { items, disabled } = this.state;
+    const { items, disabled, multiple } = this.state;
     const disabledItems = this.context.disabledItemsRef.current;
     return {
       count: items ? items.size : this.context.valuesRef.current.length,
       getValue: (index) => this.getValueAt(index),
+      indexOfValue: (value) => this.indexOfValue(value),
       isSameValue: this.isSameValue,
       isDisabled: (index) =>
         disabledItems[index] ?? (items ? disabled || items.getDisabled(index) : false),
+
+      keepsDisabled: multiple !== false,
     };
   }
 

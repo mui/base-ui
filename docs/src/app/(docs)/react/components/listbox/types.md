@@ -306,8 +306,8 @@ type CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveValue> = {
   /** Projects an item to the label used for typeahead. */
   getLabel: (item: Item) => string;
   /**
-   * Whether an item is disabled. Disabled items can't be selected, including by Ctrl/Cmd+A or a
-   * range that reaches items that aren't rendered.
+   * Whether an item is disabled. Users can't change whether a disabled item is selected, including
+   * with Ctrl/Cmd+A or a range that reaches items that aren't rendered.
    * @default () => false
    */
   getDisabled?: (item: Item) => boolean;
