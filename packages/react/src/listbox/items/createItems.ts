@@ -14,8 +14,8 @@ export interface CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveVal
    */
   getLabel: (item: Item) => string;
   /**
-   * Whether an item is disabled. Disabled items can't be selected, including by Ctrl/Cmd+A or a
-   * range that reaches items that aren't rendered.
+   * Whether an item is disabled. Users can't change whether a disabled item is selected, including
+   * with Ctrl/Cmd+A or a range that reaches items that aren't rendered.
    * @default () => false
    */
   getDisabled?: ((item: Item) => boolean) | undefined;

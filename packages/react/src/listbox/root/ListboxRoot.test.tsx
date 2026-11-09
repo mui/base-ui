@@ -1510,6 +1510,70 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('disabled', () => {
+    it('keeps a selected disabled item selected when Shift+Click replaces the selection', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Listbox.Root multiple defaultValue={['b']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+            <Listbox.Item value="d">d</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'c' }));
+      await user.keyboard('{Shift>}');
+      await user.click(screen.getByRole('option', { name: 'd' }));
+      await user.keyboard('{/Shift}');
+
+      expect(handleValueChange).toHaveBeenLastCalledWith(['c', 'd', 'b'], expect.anything());
+    });
+
+    it('keeps a selected disabled item selected when Escape clears the selection', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'Escape' });
+
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['b']);
+    });
+
+    it('keeps a selected disabled item selected when Ctrl+A selects all', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple defaultValue={['b']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c" disabled>
+              c
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
+
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
+    });
+
     it('should not allow selection when disabled', async () => {
       const handleValueChange = vi.fn();
 
