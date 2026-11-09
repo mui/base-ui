@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
-import * as CollapsiblePanelCssVars from './CollapsiblePanelCssVars';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
@@ -18,24 +16,11 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   componentProps: CollapsiblePanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
-      if (componentProps.hiddenUntilFound && componentProps.keepMounted === false) {
-        warn(
-          'The `keepMounted={false}` prop on `Collapsible.Panel` is ignored when `hiddenUntilFound` is enabled, since the panel must remain mounted while closed.',
-        );
-      }
-    }, [componentProps.hiddenUntilFound, componentProps.keepMounted]);
-  }
-
   return useCollapsiblePanel(
     componentProps,
     forwardedRef,
     collapsibleStateAttributesMapping,
-    CollapsiblePanelCssVars.collapsiblePanelHeight,
-    CollapsiblePanelCssVars.collapsiblePanelWidth,
+    '--collapsible-panel',
   );
 });
 

@@ -95,6 +95,88 @@ describe('<Accordion.Root />', () => {
       expect(panel).toHaveAttribute('aria-labelledby', 'custom-trigger-id');
     });
 
+    it('falls back to generated ids when trigger or panel id is an empty string', async () => {
+      await render(
+        <Accordion.Root defaultValue={[0]}>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger id="">Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel id="">{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      const panel = screen.getByText(PANEL_CONTENT_1);
+
+      expect(trigger.id).toMatch(/^base-ui-/);
+      expect(panel.id).toMatch(/^base-ui-/);
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+      expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
+    });
+
+    it('updates trigger aria-controls when a manual panel id changes or is removed', async () => {
+      function App({ panelId }: { panelId?: string }) {
+        return (
+          <Accordion.Root defaultValue={[0]}>
+            <Accordion.Item value={0}>
+              <Accordion.Header>
+                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel id={panelId}>{PANEL_CONTENT_1}</Accordion.Panel>
+            </Accordion.Item>
+          </Accordion.Root>
+        );
+      }
+
+      const { rerender } = await render(<App panelId="panel-a" />);
+      const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      const panel = screen.getByText(PANEL_CONTENT_1);
+
+      expect(panel).toHaveAttribute('id', 'panel-a');
+      expect(trigger).toHaveAttribute('aria-controls', 'panel-a');
+
+      await rerender(<App panelId="panel-b" />);
+      expect(panel).toHaveAttribute('id', 'panel-b');
+      expect(trigger).toHaveAttribute('aria-controls', 'panel-b');
+
+      await rerender(<App panelId={undefined} />);
+      expect(panel.id).toMatch(/^base-ui-/);
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+    });
+
+    it('unregisters and restores a custom panel id when the panel remounts', async () => {
+      function App({ panelMounted }: { panelMounted: boolean }) {
+        return (
+          <React.StrictMode>
+            <Accordion.Root defaultValue={[0]}>
+              <Accordion.Item value={0}>
+                <Accordion.Header>
+                  <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+                </Accordion.Header>
+                {panelMounted && (
+                  <Accordion.Panel id="custom-panel-id">{PANEL_CONTENT_1}</Accordion.Panel>
+                )}
+              </Accordion.Item>
+            </Accordion.Root>
+          </React.StrictMode>
+        );
+      }
+
+      const { rerender } = await render(<App panelMounted />);
+      const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+
+      expect(trigger).toHaveAttribute('aria-controls', 'custom-panel-id');
+
+      await rerender(<App panelMounted={false} />);
+      expect(trigger).not.toHaveAttribute('aria-controls');
+
+      await rerender(<App panelMounted />);
+      expect(trigger).toHaveAttribute('aria-controls', 'custom-panel-id');
+      expect(screen.getByText(PANEL_CONTENT_1)).toHaveAttribute('id', 'custom-panel-id');
+    });
+
     it('updates panel labeling when a manual trigger id is added or changed', async () => {
       function App() {
         const [triggerId, setTriggerId] = React.useState<string | undefined>();

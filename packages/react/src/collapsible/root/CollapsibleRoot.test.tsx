@@ -47,6 +47,47 @@ describe('<Collapsible.Root />', () => {
       expect(panel).toHaveAttribute('id', 'custom-panel-id');
     });
 
+    it('falls back to the generated panel id when panel id is an empty string', async () => {
+      await render(
+        <Collapsible.Root defaultOpen>
+          <Collapsible.Trigger />
+          <Collapsible.Panel id="" data-testid="panel" />
+        </Collapsible.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      const panel = screen.getByTestId('panel');
+
+      expect(panel.id).toMatch(/^base-ui-/);
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+    });
+
+    it('updates trigger aria-controls when a manual panel id changes or is removed', async () => {
+      function App({ panelId }: { panelId?: string }) {
+        return (
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger />
+            <Collapsible.Panel id={panelId} data-testid="panel" />
+          </Collapsible.Root>
+        );
+      }
+
+      const { rerender } = await render(<App panelId="panel-a" />);
+      const trigger = screen.getByRole('button');
+      const panel = screen.getByTestId('panel');
+
+      expect(panel).toHaveAttribute('id', 'panel-a');
+      expect(trigger).toHaveAttribute('aria-controls', 'panel-a');
+
+      await rerender(<App panelId="panel-b" />);
+      expect(panel).toHaveAttribute('id', 'panel-b');
+      expect(trigger).toHaveAttribute('aria-controls', 'panel-b');
+
+      await rerender(<App panelId={undefined} />);
+      expect(panel.id).toMatch(/^base-ui-/);
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+    });
+
     it('unregisters and restores the generated panel id when the panel remounts', async () => {
       function App({ panelMounted }: { panelMounted: boolean }) {
         return (
@@ -67,6 +108,31 @@ describe('<Collapsible.Root />', () => {
 
       await rerender(<App panelMounted />);
       expect(trigger).toHaveAttribute('aria-controls', screen.getByTestId('panel').id);
+    });
+
+    it('unregisters and restores a custom panel id when the panel remounts', async () => {
+      function App({ panelMounted }: { panelMounted: boolean }) {
+        return (
+          <React.StrictMode>
+            <Collapsible.Root defaultOpen>
+              <Collapsible.Trigger />
+              {panelMounted && <Collapsible.Panel id="custom-panel-id" data-testid="panel" />}
+            </Collapsible.Root>
+          </React.StrictMode>
+        );
+      }
+
+      const { rerender } = await render(<App panelMounted />);
+      const trigger = screen.getByRole('button');
+
+      expect(trigger).toHaveAttribute('aria-controls', 'custom-panel-id');
+
+      await rerender(<App panelMounted={false} />);
+      expect(trigger).not.toHaveAttribute('aria-controls');
+
+      await rerender(<App panelMounted />);
+      expect(trigger).toHaveAttribute('aria-controls', 'custom-panel-id');
+      expect(screen.getByTestId('panel')).toHaveAttribute('id', 'custom-panel-id');
     });
   });
 

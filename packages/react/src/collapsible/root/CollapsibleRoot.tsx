@@ -4,11 +4,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
-import type { UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
  * Groups all parts of the collapsible.
@@ -52,10 +52,17 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   );
 });
 
-export interface CollapsibleRootState extends Pick<
-  UseCollapsibleRootReturnValue,
-  'open' | 'disabled' | 'transitionStatus'
-> {}
+export interface CollapsibleRootState {
+  /**
+   * Whether the collapsible panel is currently open.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  transitionStatus: TransitionStatus;
+}
 
 export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRootState> {
   /**

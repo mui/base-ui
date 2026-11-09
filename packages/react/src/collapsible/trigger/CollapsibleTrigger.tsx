@@ -4,7 +4,7 @@ import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
-import { useCollapsibleTrigger } from '../root/useCollapsibleRoot';
+import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 
 const stateAttributesMapping: StateAttributesMapping<CollapsibleRootState> = {

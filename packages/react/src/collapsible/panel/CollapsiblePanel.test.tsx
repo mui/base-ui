@@ -404,12 +404,15 @@ describe('<Collapsible.Panel />', () => {
 
         const trigger = screen.getByRole('button', { name: 'Trigger' });
         const panel = screen.getByTestId('panel');
+        panel.style.setProperty('align-items', 'center', 'important');
 
         fireEvent.click(trigger);
 
         expect(panel).toHaveAttribute('data-starting-style');
         expect(panel.style.getPropertyValue('justify-content')).toBe('initial');
         expect(panel.style.getPropertyPriority('justify-content')).toBe('important');
+        expect(panel.style.getPropertyValue('align-items')).toBe('initial');
+        expect(panel.style.getPropertyPriority('align-items')).toBe('important');
         expect(warnSpy).toHaveBeenCalledWith(
           'Base UI: CSS transitions and CSS animations both detected on Collapsible or Accordion panel. Only one of either animation type should be used.',
         );
@@ -419,6 +422,8 @@ describe('<Collapsible.Panel />', () => {
         });
 
         expect(panel.style.justifyContent).toBe('center');
+        expect(panel.style.getPropertyValue('align-items')).toBe('center');
+        expect(panel.style.getPropertyPriority('align-items')).toBe('important');
       } finally {
         warnSpy.mockRestore();
       }

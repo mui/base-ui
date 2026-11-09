@@ -17,9 +17,10 @@ import { resolveStyle } from '../../utils/resolveStyle';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import * as CollapsiblePanelDataAttributes from './CollapsiblePanelDataAttributes';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
-import { useRegisterFallbackId } from '../root/useCollapsibleRoot';
+import { useRegisterFallbackId } from '../root/useFallbackId';
 
 type AnimationType = 'css-transition' | 'css-animation' | 'none';
 
@@ -33,19 +34,22 @@ const EMPTY_DIMENSIONS: Dimensions = {
   width: undefined,
 };
 
-export function useCollapsiblePanel<State extends Record<string, any>>(
+export interface UseCollapsiblePanelOptions<State extends Record<string, any>> {
+  hiddenUntilFound?: boolean | undefined;
+  keepMounted?: boolean | undefined;
+  itemState?: Omit<State, 'transitionStatus'> | undefined;
+  extraProps?: HTMLProps | undefined;
+}
+
+export function useCollapsiblePanel<State extends { transitionStatus: TransitionStatus }>(
   componentProps: BaseUIComponentProps<'div', State> & {
     hiddenUntilFound?: boolean | undefined;
     keepMounted?: boolean | undefined;
   },
   externalRef: React.ForwardedRef<HTMLDivElement>,
   stateAttributesMapping: StateAttributesMapping<State>,
-  heightCssVar: string,
-  widthCssVar: string,
-  hiddenUntilFoundParam?: boolean,
-  keepMountedParam?: boolean,
-  itemState?: Record<string, any>,
-  extraProps?: HTMLProps,
+  cssVarPrefix: string,
+  options?: UseCollapsiblePanelOptions<State>,
 ) {
   const {
     className,
@@ -57,20 +61,36 @@ export function useCollapsiblePanel<State extends Record<string, any>>(
     ...elementProps
   } = componentProps;
 
-  const hiddenUntilFound = hiddenUntilFoundParam ?? hiddenUntilFoundProp ?? false;
-  const keepMounted = keepMountedParam ?? keepMountedProp ?? false;
+  const isAccordion = options !== undefined;
+  const hiddenUntilFound = hiddenUntilFoundProp ?? options?.hiddenUntilFound ?? false;
+  const keepMounted = keepMountedProp ?? options?.keepMounted ?? false;
+
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (keepMountedProp === false && hiddenUntilFound) {
+        warn(
+          `The \`keepMounted={false}\` prop on ${
+            isAccordion
+              ? 'an `Accordion.Panel` is ignored when `hiddenUntilFound` is enabled on the panel or root'
+              : '`Collapsible.Panel` is ignored when `hiddenUntilFound` is enabled'
+          }, since the panel must remain mounted while closed.`,
+        );
+      }
+    }, [hiddenUntilFound, isAccordion, keepMountedProp]);
+  }
 
   const {
     defaultPanelId,
     mounted,
     onOpenChange,
-    open,
     setMounted,
     setOpen,
     setPanelIdState,
     state: collapsibleState,
-    transitionStatus,
   } = useCollapsibleRootContext();
+  const { open, transitionStatus } = collapsibleState;
 
   const idParam = useRegisterFallbackId(idProp, defaultPanelId, setPanelIdState);
 
@@ -489,9 +509,9 @@ export function useCollapsiblePanel<State extends Record<string, any>>(
   const shouldRender = keepMounted || hiddenUntilFound || mounted || open;
 
   const panelState = {
-    ...(itemState ?? collapsibleState),
+    ...(options?.itemState ?? (collapsibleState as unknown as Omit<State, 'transitionStatus'>)),
     transitionStatus: panelTransitionStatus,
-  } as unknown as State;
+  } as State;
 
   const resolvedStyle = resolveStyle(style, panelState);
 
@@ -512,13 +532,13 @@ export function useCollapsiblePanel<State extends Record<string, any>>(
           hidden,
           id: idParam,
           style: {
-            [heightCssVar]:
+            [`${cssVarPrefix}-height`]:
               renderedDimensions.height === undefined ? 'auto' : `${renderedDimensions.height}px`,
-            [widthCssVar]:
+            [`${cssVarPrefix}-width`]:
               renderedDimensions.width === undefined ? 'auto' : `${renderedDimensions.width}px`,
           },
         },
-        extraProps,
+        options?.extraProps,
         elementProps,
         resolvedStyle ? { style: resolvedStyle } : undefined,
         // Resolve the public `style` prop so temporary `animationName: 'none'`

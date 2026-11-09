@@ -2,10 +2,8 @@
 import * as React from 'react';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
-import {
-  useCollapsibleTrigger,
-  useRegisterFallbackId,
-} from '../../collapsible/root/useCollapsibleRoot';
+import { useRegisterFallbackId } from '../../collapsible/root/useFallbackId';
+import { useCollapsibleTrigger } from '../../collapsible/trigger/useCollapsibleTrigger';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
@@ -30,7 +28,12 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   const { defaultTriggerId, state, setTriggerId } = useAccordionItemContext();
   const id = useRegisterFallbackId(componentProps.id, defaultTriggerId, setTriggerId);
 
-  return useCollapsibleTrigger(componentProps, forwardedRef, stateAttributesMapping, state, id);
+  return useCollapsibleTrigger(
+    { ...componentProps, id },
+    forwardedRef,
+    stateAttributesMapping,
+    state,
+  );
 });
 
 export interface AccordionTriggerState extends AccordionItemState {}
