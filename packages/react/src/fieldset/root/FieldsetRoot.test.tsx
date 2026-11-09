@@ -1,19 +1,18 @@
 import { expect, describe, it } from 'vitest';
 import * as React from 'react';
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { Slider } from '@base-ui/react/slider';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Fieldset.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Fieldset.Root />, () => ({
-    inheritComponent: 'fieldset',
     refInstanceof: window.HTMLFieldSetElement,
     render,
   }));

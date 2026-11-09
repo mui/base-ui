@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -17,17 +18,17 @@ import { useSetFieldFocused } from '../../internals/field-root-context/useSetFie
 import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import {
   clickHighlightedItem,
   getChipNavigationKeys,
-  getIndexAfterChipRemoval,
   useListEmpty,
   usePopupSide,
 } from '../utils/parts';
@@ -76,7 +77,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const selectionMode = store.useState('selectionMode');
   const autoHighlightMode = store.useState('autoHighlight');
   const inputProps = store.useState('inputProps');
-  const triggerProps = store.useState('triggerProps');
+  const triggerProps = store.useState('triggerProps', true);
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const selectedValue = store.useState('selectedValue');
@@ -99,7 +100,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
   const lastActiveIndexRef = React.useRef<number | null>(null);
-  const shouldRestoreActiveIndexRef = React.useRef(false);
+
+  // Restore the saved highlight on refocus only within the same open cycle.
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      lastActiveIndexRef.current = null;
+    }
+  }, [open]);
 
   const inputOwnsFormValue = selectionMode === 'none' && !hasPositionerParent;
 
@@ -121,16 +128,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     ? elementProps
     : validation.getValidationProps(disabled, elementProps);
 
-  function clearHighlight() {
+  function clearHighlight(event: Event) {
     store.context.setIndices({
       activeIndex: null,
       selectedIndex: null,
-      type: store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
+      type: getHighlightReason(event),
+      event,
     });
-  }
-
-  function markPointerActive() {
-    store.context.keyboardActiveRef.current = false;
   }
 
   const state: ComboboxInputState = {
@@ -149,35 +153,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
     let nextIndex: number | undefined;
 
-    const { highlightedChipIndex } = comboboxChipsContext;
     const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
-    const [previousChipKey, nextChipKey] = getChipNavigationKeys(direction);
+    const [previousChipKey] = getChipNavigationKeys(direction);
 
-    if (highlightedChipIndex !== undefined) {
-      if (event.key === previousChipKey) {
-        event.preventDefault();
-        if (highlightedChipIndex > 0) {
-          nextIndex = highlightedChipIndex - 1;
-        } else {
-          nextIndex = undefined;
-        }
-      } else if (event.key === nextChipKey) {
-        event.preventDefault();
-        if (highlightedChipIndex < renderedChipsCount - 1) {
-          nextIndex = highlightedChipIndex + 1;
-        } else {
-          nextIndex = undefined;
-        }
-      } else if (event.key === 'Backspace' || event.key === 'Delete') {
-        event.preventDefault();
-        // Move highlight appropriately after removal.
-        nextIndex = getIndexAfterChipRemoval(highlightedChipIndex, selectedValue.length);
-        clearHighlight();
-      }
-      return nextIndex;
-    }
-
-    // Handle navigation when no chip is highlighted
     if (
       event.key === previousChipKey &&
       (event.currentTarget.selectionStart ?? 0) === 0 &&
@@ -210,12 +188,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onFocus() {
           setFocused(true);
 
-          if (!inline || !shouldRestoreActiveIndexRef.current) {
+          if (!inline) {
             return;
           }
 
-          shouldRestoreActiveIndexRef.current = false;
           const nextActiveIndex = lastActiveIndexRef.current;
+          lastActiveIndexRef.current = null;
 
           if (
             nextActiveIndex == null ||
@@ -234,7 +212,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           const activeIndex = store.state.activeIndex;
           if (inline && activeIndex !== null && autoHighlightMode !== 'always') {
             lastActiveIndexRef.current = activeIndex;
-            shouldRestoreActiveIndexRef.current = true;
             store.context.setIndices({ activeIndex: null });
           }
 
@@ -273,10 +250,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               return;
             }
 
-            store.context.setOpen(true, createChangeEventDetails(REASONS.inputChange, nativeEvent));
+            store.setOpen(true, createChangeEventDetails(REASONS.inputChange, nativeEvent));
             // When autoHighlight is enabled, keep the highlight (will be set to 0 in root).
             if (!autoHighlightEnabled) {
-              clearHighlight();
+              clearHighlight(nativeEvent);
             }
           }
 
@@ -291,10 +268,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             setComposingValue(nextVal);
 
             if (nextVal === '' && !store.state.openOnInputClick && !store.state.inputInsidePopup) {
-              store.context.setOpen(
-                false,
-                createChangeEventDetails(REASONS.inputClear, nativeEvent),
-              );
+              store.setOpen(false, createChangeEventDetails(REASONS.inputClear, nativeEvent));
             }
 
             const trimmed = nextVal.trim();
@@ -303,7 +277,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             maybeOpenOnInput(trimmed);
 
             if (open && store.state.activeIndex !== null && !shouldMaintainHighlight) {
-              clearHighlight();
+              clearHighlight(nativeEvent);
             }
 
             return;
@@ -325,7 +299,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             }
 
             if (!store.state.openOnInputClick) {
-              store.context.setOpen(false, clearDetails);
+              store.setOpen(false, clearDetails);
             }
           }
 
@@ -335,16 +309,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           // virtual focus returns to the input (aria-activedescendant is
           // cleared).
           if (open && store.state.activeIndex !== null && !autoHighlightEnabled) {
-            clearHighlight();
+            clearHighlight(nativeEvent);
           }
         },
         onKeyDown(event) {
           if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
             return;
           }
-
-          // Tracked before the guards so `readOnly` browsing reports keyboard highlight reasons.
-          store.context.keyboardActiveRef.current = true;
 
           if (disabled || readOnly) {
             // Browsing can highlight an item, and Enter there must not submit the form.
@@ -392,12 +363,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
-          // Handle deletion when no chip is highlighted and the input is empty.
+          // Handle deletion when the input is empty.
           if (
             comboboxChipsContext &&
             event.key === 'Backspace' &&
             input.value === '' &&
-            comboboxChipsContext.highlightedChipIndex === undefined &&
             Array.isArray(selectedValue) &&
             selectedValue.length > 0
           ) {
@@ -409,7 +379,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               (_: any, index: number) => index !== removalIndex,
             );
             // If the removed item was also the active (highlighted) item, clear highlight
-            clearHighlight();
+            clearHighlight(event.nativeEvent);
             store.context.setSelectedValue(
               newValue,
               createChangeEventDetails(REASONS.none, event.nativeEvent),
@@ -417,19 +387,23 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
-          const hadHighlightedChip = comboboxChipsContext?.highlightedChipIndex !== undefined;
           const nextIndex = handleKeyDown(event);
-
-          comboboxChipsContext?.setHighlightedChipIndex(nextIndex);
 
           if (nextIndex !== undefined) {
             comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
-          } else if (hadHighlightedChip) {
-            store.context.inputRef.current?.focus();
           }
 
           // event.isComposing
           if (event.which === 229) {
+            return;
+          }
+
+          // Space types into a non-empty input, and otherwise selects the highlighted item.
+          if (event.key === ' ' && open && input.value === '') {
+            stopEvent(event);
+            if (store.state.activeIndex !== null) {
+              clickHighlightedItem(store, store.state.activeIndex, event.nativeEvent);
+            }
             return;
           }
 
@@ -443,7 +417,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               }
 
               // Allow form submission when no item is highlighted.
-              store.context.setOpen(false, createChangeEventDetails(REASONS.none, nativeEvent));
+              store.setOpen(false, createChangeEventDetails(REASONS.none, nativeEvent));
               return;
             }
 
@@ -451,8 +425,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             clickHighlightedItem(store, activeIndex, nativeEvent);
           }
         },
-        onPointerMove: markPointerActive,
-        onPointerDown: markPointerActive,
       },
       validationProps,
     ],

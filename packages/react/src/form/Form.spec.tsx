@@ -11,7 +11,7 @@ interface Values {
   onFormSubmit={(values) => {
     expectType<string, typeof values.name>(values.name);
     expectType<number, typeof values.age>(values.age);
-    // @ts-expect-error
+    // @ts-expect-error The inferred form values contain name and age, not email.
     values.email.startsWith('a');
   }}
 />;

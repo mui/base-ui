@@ -1,3 +1,5 @@
+import { getComputedStyle } from '@floating-ui/utils/dom';
+
 export function getOffset(
   element: Element | null,
   prop: 'margin' | 'padding',

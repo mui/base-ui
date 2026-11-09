@@ -59,20 +59,22 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
 
-  const selectionMode = store.useState('selectionMode');
-  const rootDisabled = store.useState('disabled');
-  const readOnly = store.useState('readOnly');
-  const isItemEqualToValue = store.useState('isItemEqualToValue');
+  const {
+    props: itemProps,
+    id: rootId,
+    selectionMode,
+    disabled: rootDisabled,
+    readOnly,
+    isItemEqualToValue,
+  } = store.useState('itemRoot');
 
   const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
   const index = indexProp ?? indexFromFilter ?? listItem.index;
   const hasRegistered = index !== -1;
 
-  const rootId = store.useState('id');
   const highlighted = store.useState('isActive', index);
   const matchesSelectedValue = store.useState('isSelected', itemValue);
-  const itemProps = store.useState('itemProps');
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
 

@@ -1,18 +1,13 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { Field } from '@base-ui/react/field';
 
 export default function ExampleSelectGrouped() {
   return (
-    <Field.Root className="flex flex-col items-start gap-1">
-      <Field.Label
-        className="cursor-default text-sm font-bold text-neutral-950 dark:text-white"
-        nativeLabel={false}
-        render={<div />}
-      >
-        Produce
-      </Field.Label>
+    <div className="flex flex-col items-start gap-1">
       <Select.Root items={groupedProduce}>
+        <Select.Label className="cursor-default text-sm font-bold text-neutral-950 dark:text-white">
+          Produce
+        </Select.Label>
         <Select.Trigger className="flex h-8 min-w-44 items-center justify-between gap-3 pl-2 pr-1 text-sm leading-none whitespace-nowrap border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-pressed:bg-neutral-100 dark:data-pressed:bg-neutral-800 font-normal focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
           <Select.Value
             className="data-placeholder:text-neutral-500 dark:data-placeholder:text-neutral-400"
@@ -61,7 +56,7 @@ export default function ExampleSelectGrouped() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 

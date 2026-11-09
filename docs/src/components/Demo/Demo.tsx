@@ -204,7 +204,7 @@ export function Demo({ className, ...demoProps }: DemoProps) {
                 <CopyIcon aria-hidden="true" />
               )}
               Copy link to source
-              <span className="sr-only" aria-live="polite">
+              <span className="bui-sr-only" aria-live="polite">
                 {sourceLinkCopied && 'Link copied!'}
               </span>
             </Menu.Item>

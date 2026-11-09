@@ -99,13 +99,12 @@ describe('<Menu.CheckboxItem />', () => {
   });
 
   describe('state management', () => {
-    (
-      [
-        [true, 'true', 'checked'],
-        [false, 'false', 'unchecked'],
-      ] as const
-    ).forEach(([checked, ariaChecked, dataState]) =>
-      it('adds the state and ARIA attributes when checked', async () => {
+    it.each([
+      { checked: true, ariaChecked: 'true', dataState: 'checked' },
+      { checked: false, ariaChecked: 'false', dataState: 'unchecked' },
+    ])(
+      'adds the state and ARIA attributes when checked=$checked',
+      async ({ checked, ariaChecked, dataState }) => {
         const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
@@ -125,7 +124,7 @@ describe('<Menu.CheckboxItem />', () => {
         const item = screen.getByRole('menuitemcheckbox');
         expect(item).toHaveAttribute('aria-checked', ariaChecked);
         expect(item).toHaveAttribute(`data-${dataState}`, '');
-      }),
+      },
     );
 
     it('toggles the checked state when clicked', async () => {
@@ -187,6 +186,45 @@ describe('<Menu.CheckboxItem />', () => {
 
       await user.keyboard(`[Space]`);
       expect(item).toHaveAttribute('data-unchecked', '');
+    });
+
+    it('toggles with Space after closing during typeahead and reopening', async () => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Settings</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemcheckbox')).toHaveFocus();
+      });
+
+      await user.keyboard('s[Escape]');
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+      const item = screen.getByRole('menuitemcheckbox');
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+      expect(item).toHaveAttribute('aria-checked', 'false');
+
+      await user.keyboard('[Space]');
+      expect(item).toHaveAttribute('aria-checked', 'true');
     });
 
     it.skipIf(isJSDOM)(

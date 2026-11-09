@@ -1729,10 +1729,10 @@ describe('<Toast.Root />', () => {
 
       // Verify each toast has a valid (non-negative) index
       await waitFor(() => {
-        toasts.forEach((toastEl) => {
-          const toastIndex = parseInt(toastEl.style.getPropertyValue('--toast-index'), 10);
-          expect(toastIndex).toBeGreaterThanOrEqual(0);
-        });
+        const toastIndexes = toasts.map((toastEl) =>
+          parseInt(toastEl.style.getPropertyValue('--toast-index'), 10),
+        );
+        expect(toastIndexes.every((toastIndex) => toastIndex >= 0)).toBe(true);
       });
     });
   });

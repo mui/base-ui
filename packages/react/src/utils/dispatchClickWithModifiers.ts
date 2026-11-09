@@ -12,14 +12,18 @@ interface ModifierState {
  * modifier state, which `click()` always reports as unpressed. Like `click()`,
  * the untrusted click still runs native activation behavior (form submission,
  * link navigation).
- * `detail` defaults to 0 (the native convention for keyboard-generated clicks);
- * pass `detail: 1` when the click represents a mouse gesture so consumers keying
- * off `detail === 0` don't classify it as a keyboard activation.
+ * `detail` defaults to 0 and `pointerType` to `''` (the native convention for
+ * keyboard-generated clicks). When the click represents a mouse gesture, pass
+ * `detail: 1` and `pointerType: 'mouse'` so consumers don't classify it as a
+ * keyboard activation.
  */
 export function dispatchClickWithModifiers(
   target: Element,
   sourceEvent: ModifierState,
-  { detail = 0 }: { detail?: number | undefined } = {},
+  {
+    detail = 0,
+    pointerType = '',
+  }: { detail?: number | undefined; pointerType?: string | undefined } = {},
 ) {
   target.dispatchEvent(
     new (ownerWindow(target).PointerEvent)('click', {
@@ -27,6 +31,7 @@ export function dispatchClickWithModifiers(
       cancelable: true,
       composed: true,
       detail,
+      pointerType,
       shiftKey: sourceEvent.shiftKey,
       ctrlKey: sourceEvent.ctrlKey,
       altKey: sourceEvent.altKey,

@@ -115,10 +115,11 @@ describe('RequestQueue', () => {
 
     // Reject 'a' -> removed from pending by catch handler, queue continues to 'b'
     deferreds.get('a')!.reject(new Error('fail'));
+    // 'b' only starts after the catch handler has removed 'a'.
     await vi.waitFor(() => {
-      expect(queue.getRequestStatus('a')).toBe('unknown');
       expect(queue.getRequestStatus('b')).toBe('pending');
     });
+    expect(queue.getRequestStatus('a')).toBe('unknown');
 
     deferreds.get('b')!.resolve();
     await queuePromise;

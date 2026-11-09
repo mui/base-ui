@@ -2,7 +2,7 @@ import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { CheckboxRootContext } from '../root/CheckboxRootContext';
 
 const testContext = {
@@ -64,16 +64,6 @@ describe('<Checkbox.Indicator />', () => {
     );
     const indicator = screen.getByTestId('indicator');
     expect(indicator).not.toBe(null);
-  });
-
-  it('should spread extra props', async () => {
-    await render(
-      <Checkbox.Root defaultChecked>
-        <Checkbox.Indicator data-testid="indicator" data-extra-prop="Lorem ipsum" />
-      </Checkbox.Root>,
-    );
-    const indicator = screen.getByTestId('indicator');
-    expect(indicator).toHaveAttribute('data-extra-prop', 'Lorem ipsum');
   });
 
   describe('prop: keepMounted', () => {
@@ -296,16 +286,13 @@ describe('<Checkbox.Indicator />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
       expect(screen.getByTestId('indicator')).not.toBe(null);
 
-      await user.click(screen.getByText('Uncheck'));
+      // `user.click` can yield a frame, which is long enough for the 1ms animation to finish.
+      fireEvent.click(screen.getByText('Uncheck'));
 
-      await waitFor(() => {
-        const indicator = screen.queryByTestId('indicator');
-        expect(indicator).not.toBe(null);
-        expect(indicator).toHaveAttribute('data-ending-style');
-      });
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
 
       await waitFor(() => {
         expect(screen.queryByTestId('indicator')).toBe(null);

@@ -240,7 +240,12 @@ type FieldControlChangeEventDetails = {
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -415,6 +420,148 @@ type FieldValidityData = {
 };
 ```
 
+### FieldControlDataAttributes
+
+Data attributes of [Control](#control).
+
+```typescript
+declare namespace FieldControlDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
+
+### FieldDescriptionDataAttributes
+
+Data attributes of [Description](#description).
+
+```typescript
+declare namespace FieldDescriptionDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
+
+### FieldErrorDataAttributes
+
+Data attributes of [Error](#error).
+
+```typescript
+declare namespace FieldErrorDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+  /** Present when the error message begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the error message is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### FieldItemDataAttributes
+
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace FieldItemDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
+
+### FieldLabelDataAttributes
+
+Data attributes of [Label](#label).
+
+```typescript
+declare namespace FieldLabelDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
+
+### FieldRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace FieldRootDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is valid. */
+  const valid: 'data-valid';
+  /** Present when the field is invalid. */
+  const invalid: 'data-invalid';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
+```
+
 ## External Types
 
 ### ValidationMode
@@ -432,7 +579,7 @@ type ValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 - `Field.Control`: `Field.Control`, `Field.Control.State`, `Field.Control.Props`, `Field.Control.ChangeEventReason`, `Field.Control.ChangeEventDetails`
 - `Field.Validity`: `Field.Validity`, `Field.Validity.State`, `Field.Validity.Props`
 - `Field.Item`: `Field.Item`, `Field.Item.State`, `Field.Item.Props`
-- `Default`: `Field.ValidityData`, `FieldValidityData`, `FieldRootActions`, `FieldRootState`, `FieldRootProps`, `FieldLabelState`, `FieldLabelProps`, `FieldDescriptionState`, `FieldDescriptionProps`, `FieldErrorState`, `FieldErrorProps`, `FieldControlState`, `FieldControlProps`, `FieldControlChangeEventReason`, `FieldControlChangeEventDetails`, `FieldValidityState`, `FieldValidityProps`, `FieldItemState`, `FieldItemProps`
+- `Default`: `Field.ValidityData`, `FieldRootDataAttributes`, `FieldLabelDataAttributes`, `FieldErrorDataAttributes`, `FieldDescriptionDataAttributes`, `FieldControlDataAttributes`, `FieldItemDataAttributes`, `FieldValidityData`, `FieldRootActions`, `FieldRootState`, `FieldRootProps`, `FieldLabelState`, `FieldLabelProps`, `FieldDescriptionState`, `FieldDescriptionProps`, `FieldErrorState`, `FieldErrorProps`, `FieldControlState`, `FieldControlProps`, `FieldControlChangeEventReason`, `FieldControlChangeEventDetails`, `FieldValidityState`, `FieldValidityProps`, `FieldItemState`, `FieldItemProps`
 
 ## Canonical Types
 
@@ -456,3 +603,11 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Field.Item.State`: `FieldItemState`
 - `Field.Item.Props`: `FieldItemProps`
 - `Field.ValidityData`: `FieldValidityData`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `Promise`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise>

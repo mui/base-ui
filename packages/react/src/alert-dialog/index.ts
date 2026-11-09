@@ -31,3 +31,10 @@ export type {
   DialogViewportProps as AlertDialogViewportProps,
   DialogViewportState as AlertDialogViewportState,
 } from '../dialog/viewport/DialogViewport';
+
+export * as AlertDialogBackdropDataAttributes from '../dialog/backdrop/DialogBackdropDataAttributes';
+export * as AlertDialogCloseDataAttributes from '../dialog/close/DialogCloseDataAttributes';
+export * as AlertDialogPopupCssVariables from '../dialog/popup/DialogPopupCssVars';
+export * as AlertDialogPopupDataAttributes from '../dialog/popup/DialogPopupDataAttributes';
+export * as AlertDialogTriggerDataAttributes from './trigger/AlertDialogTriggerDataAttributes';
+export * as AlertDialogViewportDataAttributes from '../dialog/viewport/DialogViewportDataAttributes';

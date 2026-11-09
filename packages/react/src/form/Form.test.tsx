@@ -7,15 +7,8 @@ import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
 import { Switch } from '@base-ui/react/switch';
-import {
-  createRenderer,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-  within,
-} from '@mui/internal-test-utils';
-import { describeConformance } from '../../test/describeConformance';
+import { fireEvent, flushMicrotasks, screen, waitFor, within } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Form />', () => {
   const { render } = createRenderer();
@@ -28,7 +21,7 @@ describe('<Form />', () => {
   it('does not submit if there are errors', async () => {
     const onSubmit = vi.fn();
 
-    const { user } = render(
+    const { user } = await render(
       <Form onSubmit={onSubmit}>
         <Field.Root>
           <Field.Control required />
@@ -74,7 +67,7 @@ describe('<Form />', () => {
   });
 
   it('keeps focusing the first invalid field after a control value changes', async () => {
-    const { user } = render(
+    const { user } = await render(
       <Form>
         <Field.Root name="a">
           <Checkbox.Root required data-testid="a" />
@@ -177,7 +170,7 @@ describe('<Form />', () => {
 
     // Strict Mode re-runs effects when a keyed subtree moves, which would re-register
     // the fields in DOM order and mask the registration/DOM order divergence.
-    const { user } = render(<App />, { strict: false });
+    const { user } = await render(<App />, { strict: false });
 
     // Keyed reorder moves the DOM nodes without remounting, so the internal
     // registration Map keeps the original order while the DOM order flips.
@@ -193,7 +186,7 @@ describe('<Form />', () => {
     });
     const validate = vi.fn(() => new Promise<null>(() => {}));
 
-    render(
+    await render(
       <Form onSubmit={onSubmit}>
         <Field.Root validate={validate}>
           <Field.Control />
@@ -286,8 +279,9 @@ describe('<Form />', () => {
     await flushMicrotasks();
   });
 
-  (['onBlur', 'onChange'] as const).forEach((validationMode) => {
-    it(`blocks submission on a resolved async error in ${validationMode} mode`, async () => {
+  it.each([{ validationMode: 'onBlur' as const }, { validationMode: 'onChange' as const }])(
+    'blocks submission on a resolved async error in $validationMode mode',
+    async ({ validationMode }) => {
       const onFormSubmit = vi.fn();
       const validate = vi.fn((value: unknown) =>
         Promise.resolve(value === 'taken' ? 'Username is taken' : null),
@@ -319,15 +313,15 @@ describe('<Form />', () => {
       expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
 
       await flushMicrotasks();
-    });
-  });
+    },
+  );
 
   it('does not submit if an unnamed registered field control is invalid', async () => {
     const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
     });
 
-    const { user } = render(
+    const { user } = await render(
       <Form onSubmit={onSubmit}>
         <Field.Root>
           <Switch.Root required />
@@ -349,7 +343,7 @@ describe('<Form />', () => {
       event.preventDefault();
     });
 
-    const { user } = render(
+    const { user } = await render(
       <Form onSubmit={onSubmit}>
         <Field.Root>
           <Switch.Root required />
@@ -383,7 +377,7 @@ describe('<Form />', () => {
       event.preventDefault();
     });
 
-    const { user } = render(
+    const { user } = await render(
       <Form onSubmit={onSubmit}>
         <Field.Root name="shared">
           <Switch.Root required data-testid="first" />
@@ -411,7 +405,7 @@ describe('<Form />', () => {
       event.preventDefault();
     });
 
-    const { user } = render(
+    const { user } = await render(
       <Form onSubmit={onSubmit}>
         <Field.Root>
           <Switch.Root required data-testid="first" />
@@ -472,7 +466,7 @@ describe('<Form />', () => {
   it('excludes disabled fieldset fields from validation and onFormSubmit values', async () => {
     const handleSubmit = vi.fn();
 
-    render(
+    await render(
       <Form onFormSubmit={handleSubmit}>
         <Fieldset.Root disabled>
           <Field.Root name="disabled">
@@ -518,7 +512,7 @@ describe('<Form />', () => {
       );
     }
 
-    const { user } = render(<App />);
+    const { user } = await render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Submit' }));
 
@@ -564,7 +558,7 @@ describe('<Form />', () => {
       );
     }
 
-    const { user } = render(<App />);
+    const { user } = await render(<App />);
 
     await user.click(screen.getByRole('button', { name: 'Submit' }));
 
@@ -603,7 +597,7 @@ describe('<Form />', () => {
       );
     }
 
-    const { user } = render(<App />);
+    const { user } = await render(<App />);
     const submit = screen.getByRole('button', { name: 'Submit' });
 
     await user.click(submit);
@@ -631,8 +625,8 @@ describe('<Form />', () => {
   });
 
   describe('prop: errors', () => {
-    it('should mark <Field.Control> as invalid and populate <Field.Error>', () => {
-      render(
+    it('should mark <Field.Control> as invalid and populate <Field.Error>', async () => {
+      await render(
         <Form errors={{ foo: 'bar' }}>
           <Field.Root name="foo">
             <Field.Control />
@@ -645,8 +639,8 @@ describe('<Form />', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
     });
 
-    it('should not mark <Field.Control> as invalid if no error is provided', () => {
-      render(
+    it('should not mark <Field.Control> as invalid if no error is provided', async () => {
+      await render(
         <Form>
           <Field.Root name="foo">
             <Field.Control />
@@ -686,7 +680,7 @@ describe('<Form />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByRole('button', { name: 'Submit' }));
       await waitFor(() => expect(screen.getByTestId('first')).toHaveFocus());
@@ -731,7 +725,7 @@ describe('<Form />', () => {
     }
 
     it('focuses the first invalid field only on submit', async () => {
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       const submit = screen.getByRole('button');
       const name = screen.getByTestId('name');
@@ -757,7 +751,7 @@ describe('<Form />', () => {
     });
 
     it('does not swap focus immediately on change after two submissions', async () => {
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       const submit = screen.getByRole('button');
       const name = screen.getByTestId('name');
@@ -775,7 +769,7 @@ describe('<Form />', () => {
     });
 
     it('removes errors upon change', async () => {
-      render(<App />);
+      await render(<App />);
 
       const name = screen.getByTestId('name');
       const age = screen.getByTestId('age');
@@ -826,7 +820,7 @@ describe('<Form />', () => {
         );
       }
 
-      const { user } = render(<Test />);
+      const { user } = await render(<Test />);
 
       const input = screen.getByTestId('name');
       await user.click(input);
@@ -859,7 +853,7 @@ describe('<Form />', () => {
         );
       }
 
-      const { user } = render(<Test />);
+      const { user } = await render(<Test />);
 
       const input = screen.getByTestId('name');
       expect(screen.getByTestId('name-error')).toHaveTextContent('server error');
@@ -886,7 +880,7 @@ describe('<Form />', () => {
         );
       }
 
-      const { user } = render(<Test />);
+      const { user } = await render(<Test />);
 
       const input = screen.getByTestId('name');
       expect(screen.getByTestId('name-error')).toHaveTextContent('server error');
@@ -936,7 +930,7 @@ describe('<Form />', () => {
         );
       }
 
-      render(<MultiChangeApp />);
+      await render(<MultiChangeApp />);
 
       expect(screen.queryByTestId('a-error')).not.toBe(null);
       expect(screen.queryByTestId('b-error')).not.toBe(null);
@@ -970,7 +964,7 @@ describe('<Form />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       fireEvent.click(screen.getByText('submit'));
 
@@ -996,7 +990,7 @@ describe('<Form />', () => {
           </Form>
         );
       }
-      render(<App />);
+      await render(<App />);
       expect(screen.queryByTestId('error')).toBe(null);
       fireEvent.click(screen.getByText('submit'));
       expect(submitSpy.mock.calls.length).toBe(0);
@@ -1008,7 +1002,7 @@ describe('<Form />', () => {
     const submitSpy = vi.fn();
     const validateSpy = vi.fn(() => null);
 
-    const { user } = render(
+    const { user } = await render(
       <Form onSubmit={submitSpy}>
         <Field.Root name="name" invalid validate={validateSpy} validationMode="onChange">
           <Field.Control data-testid="name" />
@@ -1031,13 +1025,13 @@ describe('<Form />', () => {
   });
 
   describe('prop: noValidate', () => {
-    it('should disable native validation if set to true (default)', () => {
-      render(<Form data-testid="form" />);
+    it('should disable native validation if set to true (default)', async () => {
+      await render(<Form data-testid="form" />);
       expect(screen.getByTestId('form')).toHaveAttribute('novalidate');
     });
 
-    it('should enable native validation if set to false', () => {
-      render(<Form noValidate={false} data-testid="form" />);
+    it('should enable native validation if set to false', async () => {
+      await render(<Form noValidate={false} data-testid="form" />);
       expect(screen.getByTestId('form')).not.toHaveAttribute('novalidate');
     });
   });
@@ -1156,7 +1150,7 @@ describe('<Form />', () => {
         );
       }
 
-      const { user } = render(
+      const { user } = await render(
         <React.StrictMode>
           <App />
         </React.StrictMode>,

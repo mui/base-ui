@@ -4,17 +4,13 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useClientPoint, useDismiss } from '../../floating-ui-react';
+import { useClientPoint } from '../../utils/popups/interactions/useClientPoint';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import {
-  PopupHandleAttachment,
-  useImplicitActiveTrigger,
-  usePopupRootStore,
-  useOpenStateTransitions,
-  usePopupInteractionProps,
-} from '../../utils/popups';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+import { renderPopupRootChildren, usePopupRoot } from '../../utils/popups/popupRoot';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 import { mergeProps } from '../../merge-props';
 import { TooltipStore } from '../store/TooltipStore';
 import type { State as TooltipStoreState } from '../store/TooltipStore';
@@ -32,45 +28,20 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 ) {
   const {
     disabled = false,
-    defaultOpen = false,
-    open: openProp,
     disableHoverablePopup = false,
     trackCursorAxis = 'none',
-    actionsRef,
-    onOpenChange,
-    onOpenChangeComplete,
     handle,
-    triggerId: triggerIdProp,
-    defaultTriggerId: defaultTriggerIdProp = null,
     children,
   } = props;
 
-  const store = usePopupRootStore(
-    (floatingId, nested) =>
-      new TooltipStore<Payload>(
-        {
-          open: defaultOpen,
-          openProp,
-          activeTriggerId: defaultTriggerIdProp,
-          triggerIdProp,
-        },
-        floatingId,
-        nested,
-      ),
+  const { store, open, mounted, payload, transitionStatus } = usePopupRoot(
+    props,
+    (initialState, defaultPopupId) => new TooltipStore<Payload>(initialState, defaultPopupId),
+    { closeOnActiveTriggerUnmount: true, disabled },
   );
 
-  store.useControlledProp('openProp', openProp);
-  store.useControlledProp('triggerIdProp', triggerIdProp);
-
-  store.useContextCallback('onOpenChange', onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
-
   const openState = store.useState('open');
-  const open = !disabled && openState;
-
   const activeTriggerId = store.useState('activeTriggerId');
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload') as Payload | undefined;
 
   store.useSyncedValues({
     trackCursorAxis,
@@ -78,8 +49,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     disabled,
   });
 
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -125,24 +94,23 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     }
   }, [store, activeTriggerId, open]);
 
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({
-      unmount: forceUnmount,
-      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-    }),
-    [forceUnmount, store],
-  );
-
   const shouldRenderInteractions = open || mounted || (!disabled && trackCursorAxis !== 'none');
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && (
-        <TooltipInteractions store={store} disabled={disabled} trackCursorAxis={trackCursorAxis} />
-      )}
-      {typeof children === 'function' ? children({ payload }) : children}
+      {renderPopupRootChildren({
+        store,
+        handle,
+        interactions: shouldRenderInteractions && (
+          <TooltipInteractions
+            store={store}
+            disabled={disabled}
+            trackCursorAxis={trackCursorAxis}
+          />
+        ),
+        children,
+        payload,
+      })}
     </TooltipRootContext.Provider>
   );
 });
@@ -255,13 +223,11 @@ function TooltipInteractions<Payload>({
   disabled: boolean;
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
 }) {
-  const floatingRootContext = store.useState('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     enabled: !disabled,
     referencePress: () => store.select('closeOnClick'),
   });
-  const clientPoint = useClientPoint(floatingRootContext, {
+  const clientPoint = useClientPoint(store, {
     enabled: !disabled && trackCursorAxis !== 'none',
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });

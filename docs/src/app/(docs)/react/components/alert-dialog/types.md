@@ -72,7 +72,12 @@ type AlertDialogRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -406,6 +411,105 @@ Closes the dialog.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
+## Additional Types
+
+### AlertDialogBackdropDataAttributes
+
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace AlertDialogBackdropDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### AlertDialogCloseDataAttributes
+
+Data attributes of [Close](#close).
+
+```typescript
+declare namespace AlertDialogCloseDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### AlertDialogPopupCssVariables
+
+CSS variables of [Popup](#popup).
+
+```typescript
+declare namespace AlertDialogPopupCssVariables {
+  /**
+   * Indicates how many dialogs are nested within.
+   * @type number
+   */
+  const nestedDialogs: '--nested-dialogs';
+}
+```
+
+### AlertDialogPopupDataAttributes
+
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace AlertDialogPopupDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the dialog is nested within another dialog. */
+  const nested: 'data-nested';
+  /** Present when the dialog has other open dialogs nested within it. */
+  const nestedDialogOpen: 'data-nested-dialog-open';
+}
+```
+
+### AlertDialogTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace AlertDialogTriggerDataAttributes {
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the corresponding alert dialog is open. */
+  const popupOpen: 'data-popup-open';
+}
+```
+
+### AlertDialogViewportDataAttributes
+
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace AlertDialogViewportDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the dialog is nested within another dialog. */
+  const nested: 'data-nested';
+  /** Present when the dialog has other open dialogs nested within it. */
+  const nestedDialogOpen: 'data-nested-dialog-open';
+}
+```
+
 ## External Types
 
 ### PayloadChildRenderFunction
@@ -433,7 +537,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `AlertDialog.Viewport`: `AlertDialog.Viewport`, `AlertDialog.Viewport.State`, `AlertDialog.Viewport.Props`
 - `AlertDialog.Handle`
 - `AlertDialog.createHandle`
-- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
+- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogBackdropDataAttributes`, `AlertDialogCloseDataAttributes`, `AlertDialogPopupCssVariables`, `AlertDialogPopupDataAttributes`, `AlertDialogTriggerDataAttributes`, `AlertDialogViewportDataAttributes`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
 
 ## Canonical Types
 
@@ -460,3 +564,17 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `AlertDialog.Trigger.State`: `AlertDialogTriggerState`
 - `AlertDialog.Viewport.State`: `AlertDialogViewportState`
 - `AlertDialog.Viewport.Props`: `AlertDialogViewportProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLElement`: <https://developer.mozilla.org/docs/Web/API/HTMLElement>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `ShadowRoot`: <https://developer.mozilla.org/docs/Web/API/ShadowRoot>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

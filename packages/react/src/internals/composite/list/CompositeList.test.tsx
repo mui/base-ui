@@ -382,6 +382,49 @@ describe('<CompositeList />', () => {
       expect(screen.getByTestId('last')).toHaveAttribute('data-index', '1');
     });
 
+    it('keeps syncing refs after replacing items under Strict Mode', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      let hideItem: () => void = () => {};
+
+      function HideableItem(props: { label: string }) {
+        const [hidden, setHidden] = React.useState(false);
+        hideItem = () => setHidden(true);
+        return hidden ? null : <Item label={props.label} />;
+      }
+
+      function App() {
+        const [labels, setLabels] = React.useState(['a', 'b']);
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setLabels(['c', 'd'])}>
+              Replace
+            </button>
+            <CompositeList elementsRef={elementsRef}>
+              {labels.map((label) => (
+                <HideableItem key={label} label={label} />
+              ))}
+            </CompositeList>
+          </React.Fragment>
+        );
+      }
+
+      // The list re-renders while new items mount, then Strict Mode replays their refs.
+      const { user } = await render(<App />, { strict: true });
+
+      await user.click(screen.getByRole('button', { name: 'Replace' }));
+
+      expect(elementsRef.current).toEqual([screen.getByTestId('c'), screen.getByTestId('d')]);
+
+      // The item hides itself without re-rendering the list.
+      await act(async () => {
+        hideItem();
+      });
+
+      expect(elementsRef.current).toEqual([screen.getByTestId('c')]);
+    });
+
     it('assigns correct guessed indexes during the first render', async () => {
       const renderCounts: Record<string, number> = { a: 0, b: 0, c: 0 };
       const initialIndexes: Record<string, number> = {};

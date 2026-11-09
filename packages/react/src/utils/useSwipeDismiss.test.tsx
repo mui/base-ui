@@ -1577,7 +1577,7 @@ describe('useSwipeDismiss', () => {
   });
 
   it.each([
-    { trailingTime: 1040, releaseTime: 1048, expectedVelocity: 1.25 },
+    { trailingTime: 1040, releaseTime: 1048, expectedVelocity: 2.5 },
     { trailingTime: 1040, releaseTime: 1113, expectedVelocity: 0 },
     { trailingTime: 1113, releaseTime: 1121, expectedVelocity: 0 },
   ])(
@@ -1701,10 +1701,145 @@ describe('useSwipeDismiss', () => {
 
         await flushMicrotasks();
 
-        // Keep the last moving sample (20px / 16ms), unless it is older than 80ms.
+        // Keep the last moving sample (20px / 8ms), unless it is older than 80ms.
         const details = onRelease.mock.calls[0]?.[0];
         expect(details?.releaseVelocityY).toBeCloseTo(expectedVelocity, 4);
         expect(details?.releaseVelocityX).toBeCloseTo(0, 2);
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
+
+  it.each([
+    {
+      name: '60 Hz input',
+      moves: [
+        [1016, 14.4],
+        [1032, 28.8],
+        [1048, 43.2],
+        [1064, 57.6],
+      ],
+      release: [1080, 57.6],
+      expected: 0.9,
+    },
+    {
+      name: '120 Hz input',
+      moves: [
+        [1008, 7.2],
+        [1016, 14.4],
+        [1024, 21.6],
+        [1032, 28.8],
+      ],
+      release: [1040, 28.8],
+      expected: 0.9,
+    },
+    {
+      name: 'a slower final step',
+      moves: [
+        [1008, 10],
+        [1016, 20],
+        [1024, 30],
+        [1032, 31],
+      ],
+      release: [1040, 31],
+      expected: 0.125,
+    },
+    {
+      name: 'a flick after a pause',
+      moves: [
+        [1008, 10],
+        [1016, 20],
+        [1216, 30],
+        [1224, 40],
+      ],
+      release: [1232, 40],
+      expected: 1.25,
+    },
+    {
+      // 8px over 2ms is floored to 4ms.
+      name: 'near-simultaneous samples',
+      moves: [
+        [1008, 10],
+        [1010, 18],
+      ],
+      release: [1018, 18],
+      expected: 2,
+    },
+  ])(
+    'measures release velocity from the latest movement ($name)',
+    async ({ moves, release, expected }) => {
+      const onRelease = vi.fn();
+
+      function SwipeBoxLatestMovement() {
+        const ref = React.useRef<HTMLDivElement>(null);
+        const swipe = useSwipeDismiss({
+          enabled: true,
+          directions: ['down'],
+          elementRef: ref,
+          movementCssVars: { x: '--x', y: '--y' },
+          onRelease,
+        });
+
+        return (
+          <div
+            data-testid="release-velocity-latest-movement"
+            ref={ref}
+            style={swipe.getDragStyles()}
+            {...swipe.getPointerProps()}
+          />
+        );
+      }
+
+      vi.useFakeTimers();
+      try {
+        await render(<SwipeBoxLatestMovement />);
+        const element = screen.getByTestId('release-velocity-latest-movement');
+
+        firePointer.down(element, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 0,
+          clientY: 0,
+          bubbles: true,
+          pointerType: 'mouse',
+          movementX: 0,
+          movementY: 0,
+          timeStamp: 1000,
+        });
+
+        await flushMicrotasks();
+
+        let lastY = 0;
+        for (const [timeStamp, clientY] of moves) {
+          firePointer.move(element, {
+            pointerId: 1,
+            buttons: 1,
+            clientX: 0,
+            clientY,
+            bubbles: true,
+            movementX: 0,
+            movementY: clientY - lastY,
+            timeStamp,
+          });
+          lastY = clientY;
+          // eslint-disable-next-line no-await-in-loop
+          await flushMicrotasks();
+        }
+
+        firePointer.up(element, {
+          pointerId: 1,
+          clientX: 0,
+          clientY: release[1],
+          bubbles: true,
+          timeStamp: release[0],
+        });
+
+        await flushMicrotasks();
+
+        const details = onRelease.mock.calls[0]?.[0];
+        expect(details?.releaseVelocityY).toBeCloseTo(expected, 4);
       } finally {
         vi.useRealTimers();
       }
@@ -1891,9 +2026,9 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      // 10px over the 16ms minimum duration. Measuring from the press would report 0.05.
+      // 10px over 8ms. Measuring from the press would report 0.05.
       const details = onRelease.mock.calls[0]?.[0];
-      expect(details?.releaseVelocityY).toBeCloseTo(0.625, 4);
+      expect(details?.releaseVelocityY).toBeCloseTo(1.25, 4);
     } finally {
       vi.useRealTimers();
     }

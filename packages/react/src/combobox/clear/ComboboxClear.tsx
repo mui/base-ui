@@ -12,7 +12,8 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { getHighlightReason } from '../../utils/getHighlightReason';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {
   ...transitionStatusMapping,
@@ -102,7 +103,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
 
-          const type = store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
+          const type = getHighlightReason(event);
 
           store.context.setInputValue(
             '',
@@ -116,9 +117,14 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             );
             // A distinct object shape: `Store.update` iterates own keys, so passing an explicit
             // `selectedIndex: undefined` would overwrite the state instead of leaving it alone.
-            store.context.setIndices({ activeIndex: null, selectedIndex: null, type });
+            store.context.setIndices({
+              activeIndex: null,
+              selectedIndex: null,
+              type,
+              event: event.nativeEvent,
+            });
           } else {
-            store.context.setIndices({ activeIndex: null, type });
+            store.context.setIndices({ activeIndex: null, type, event: event.nativeEvent });
           }
 
           store.context.inputRef.current?.focus();

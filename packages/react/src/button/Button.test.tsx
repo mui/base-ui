@@ -1,6 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { Button } from '@base-ui/react/button';
+import { Button, ButtonDataAttributes } from '@base-ui/react/button';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
@@ -116,7 +116,7 @@ describe('<Button />', () => {
       const button = screen.getByRole('button');
 
       expect(button).toHaveAttribute('disabled');
-      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute(ButtonDataAttributes.disabled);
       expect(button).not.toHaveAttribute('aria-disabled');
 
       await user.keyboard('[Tab]');
@@ -153,7 +153,7 @@ describe('<Button />', () => {
       const button = screen.getByRole('button');
 
       expect(button).not.toHaveAttribute('disabled');
-      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute(ButtonDataAttributes.disabled);
       expect(button).toHaveAttribute('aria-disabled', 'true');
       expect(button).toHaveAttribute('tabindex', '-1');
 
@@ -192,7 +192,7 @@ describe('<Button />', () => {
       const button = screen.getByRole('button');
 
       expect(button).not.toHaveAttribute('disabled');
-      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute(ButtonDataAttributes.disabled);
       expect(button).toHaveAttribute('aria-disabled', 'true');
       expect(button).toHaveAttribute('tabindex', '0');
 
@@ -227,7 +227,7 @@ describe('<Button />', () => {
         const button = screen.getByRole('button');
 
         expect(button).not.toHaveAttribute('disabled');
-        expect(button).toHaveAttribute('data-disabled');
+        expect(button).toHaveAttribute(ButtonDataAttributes.disabled);
         expect(button).toHaveAttribute('aria-disabled', 'true');
 
         await user.hover(button);
@@ -303,7 +303,7 @@ describe('<Button />', () => {
       const button = screen.getByRole('button');
 
       expect(button).not.toHaveAttribute('disabled');
-      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute(ButtonDataAttributes.disabled);
       expect(button).toHaveAttribute('aria-disabled', 'true');
       expect(button).toHaveAttribute('tabindex', '0');
 

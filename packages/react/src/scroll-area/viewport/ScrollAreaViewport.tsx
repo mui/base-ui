@@ -363,7 +363,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   }
 
   const props: React.ComponentProps<'div'> = {
-    role: 'presentation',
     ...(rootId && { 'data-id': `${rootId}-viewport` }),
     // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
     // Keep non-scrollable viewports out of tab order.

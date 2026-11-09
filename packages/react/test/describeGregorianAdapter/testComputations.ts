@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, onTestFinished } from 'vitest';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
 import type {
   TemporalAdapter,
@@ -6,7 +6,13 @@ import type {
   TemporalTimezone,
 } from '../../src/internals/temporal';
 import type { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
-import { TEST_DATE_ISO_STRING, TEST_DATE_LOCALE_STRING } from './describeGregorianAdapter.utils';
+import {
+  TEST_DATE_ISO_STRING,
+  TEST_DATE_LOCALE_STRING,
+  getAdapterWeekendDays,
+  hasIntlWeekInfo,
+  stubIntlWeekInfo,
+} from './describeGregorianAdapter.utils';
 
 /**
  * To check if the date has the right offset even after changing its date parts,
@@ -25,6 +31,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
   adapterFr,
   setDefaultTimezone,
   createDateInFrenchLocale,
+  createAdapterWithLocale,
 }) => {
   const testDateIso = adapter.date(TEST_DATE_ISO_STRING, 'default');
   const testDateIsoInSystemTz = adapter.date(TEST_DATE_ISO_STRING, 'system');
@@ -854,5 +861,58 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
 
   it('Method: getWeekNumber', () => {
     expect(adapter.getWeekNumber(testDateIso)).toBe(44);
+  });
+
+  describe('Method: isWeekend', () => {
+    it('should handle basic use-cases', () => {
+      // Tuesday
+      expect(adapter.isWeekend(testDateIso)).toBe(false);
+      expect(adapterFr.isWeekend(testDateIso)).toBe(false);
+
+      // Saturday and Sunday
+      expect(adapter.isWeekend(adapter.addDays(testDateIso, 4))).toBe(true);
+      expect(adapter.isWeekend(adapter.addDays(testDateIso, 5))).toBe(true);
+      expect(adapterFr.isWeekend(adapterFr.addDays(testDateIso, 4))).toBe(true);
+      expect(adapterFr.isWeekend(adapterFr.addDays(testDateIso, 5))).toBe(true);
+    });
+
+    it.skipIf(!hasIntlWeekInfo)('should use the weekend days of the locale', () => {
+      expect(getAdapterWeekendDays(createAdapterWithLocale('en-US'))).toEqual([6, 7]);
+      expect(getAdapterWeekendDays(createAdapterWithLocale('he'))).toEqual([5, 6]);
+      expect(getAdapterWeekendDays(createAdapterWithLocale('en-IN'))).toEqual([7]);
+    });
+
+    it.skipIf(!hasIntlWeekInfo)(
+      'should use the adapter locale when the date has another locale',
+      () => {
+        // Friday
+        const friday = createDateInFrenchLocale('2018-11-02T12:00:00.000Z');
+        expect(createAdapterWithLocale('he').isWeekend(friday)).toBe(true);
+      },
+    );
+
+    it('should use the day in the timezone of the date', () => {
+      // Friday in UTC, Saturday in Kiritimati (UTC+14)
+      const friday = adapter.date('2018-11-02T12:00:00.000Z', 'UTC');
+      expect(adapter.isWeekend(friday)).toBe(false);
+      expect(adapter.isWeekend(adapter.setTimezone(friday, 'Pacific/Kiritimati'))).toBe(true);
+    });
+
+    // Some adapters cache the weekend days per locale,
+    // so each of the tests below uses a locale that isn't used by any other test.
+    it('should support engines that only expose the week info method', () => {
+      onTestFinished(stubIntlWeekInfo('method'));
+      expect(getAdapterWeekendDays(createAdapterWithLocale('ar-SA'))).toEqual([2, 3]);
+    });
+
+    it('should support engines that only expose the week info accessor', () => {
+      onTestFinished(stubIntlWeekInfo('accessor'));
+      expect(getAdapterWeekendDays(createAdapterWithLocale('hi'))).toEqual([2, 3]);
+    });
+
+    it('should fall back to Saturday and Sunday when the engine has no week info', () => {
+      onTestFinished(stubIntlWeekInfo('none'));
+      expect(getAdapterWeekendDays(createAdapterWithLocale('ar-EG'))).toEqual([6, 7]);
+    });
   });
 };

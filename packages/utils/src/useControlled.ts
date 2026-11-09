@@ -39,7 +39,8 @@ export function useControlled<T = unknown>({
 }: UseControlledProps<T>): [T | undefined, React.Dispatch<React.SetStateAction<T | undefined>>] {
   // isControlled is ignored in the hook dependency lists as it should never change.
   const { current: isControlled } = React.useRef(controlled !== undefined);
-  const [valueState, setValue] = React.useState(defaultProp);
+  // Wrap the default so a function value is stored as-is instead of being called as an initializer.
+  const [valueState, setValue] = React.useState(() => defaultProp);
   // Keep the initial mode, but use the initial default if a controlled value disappears.
   // This preserves the defined-default overload while the mode-switch warning is emitted below.
   const value = isControlled && controlled !== undefined ? controlled : valueState;

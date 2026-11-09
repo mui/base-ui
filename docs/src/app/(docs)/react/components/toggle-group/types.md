@@ -75,9 +75,34 @@ type ToggleGroupChangeEventDetails = {
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
+```
+
+## Additional Types
+
+### ToggleGroupDataAttributes
+
+Data attributes of [ToggleGroup](#togglegroup).
+
+```typescript
+declare namespace ToggleGroupDataAttributes {
+  /** Present when the toggle group is disabled. */
+  const disabled: 'data-disabled';
+  /**
+   * Indicates the orientation of the toggle group.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the toggle group allows multiple buttons to be in the pressed state at the same time. */
+  const multiple: 'data-multiple';
+}
 ```
 
 ## External Types
@@ -96,3 +121,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `ToggleGroup.Props`: `ToggleGroupProps`
 - `ToggleGroup.ChangeEventReason`: `ToggleGroupChangeEventReason`
 - `ToggleGroup.ChangeEventDetails`: `ToggleGroupChangeEventDetails`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>

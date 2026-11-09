@@ -203,33 +203,14 @@
   .Avatar {
     grid-column: 1;
     grid-row: 1 / span 2;
-
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    vertical-align: middle;
-    -webkit-user-select: none;
-    user-select: none;
-    font-weight: 700;
-    color: oklch(14.5% 0 0deg);
-    background-color: oklch(92.2% 0 0deg);
-    font-size: 0.875rem;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    height: 3rem;
     width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: white;
       background-color: oklch(26.9% 0 0deg);
     }
-  }
-
-  .AvatarImage {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
   }
 
   .ProfileActions {

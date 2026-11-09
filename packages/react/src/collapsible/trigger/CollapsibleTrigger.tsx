@@ -34,12 +34,14 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 
   const {
     className,
-    disabled = contextDisabled,
+    disabled: disabledProp,
     render,
     nativeButton = true,
     style,
     ...elementProps
   } = componentProps;
+
+  const disabled = disabledProp || contextDisabled;
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -47,7 +49,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   });
 
   const element = useRenderElement('button', componentProps, {
-    state,
+    state: { ...state, disabled },
     ref: [forwardedRef, buttonRef],
     props: [
       {
