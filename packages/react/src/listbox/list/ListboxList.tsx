@@ -3,7 +3,6 @@ import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -11,10 +10,11 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { useCompositeRoot } from '../../internals/composite/root/useCompositeRoot';
 import { stopEvent } from '../../utils/popups/event';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { useListboxRootContext } from '../root/ListboxRootContext';
+import { resolveListKeyCommand } from '../utils/listKeyCommand';
+import type { ListKeyCommand } from '../utils/listKeyCommand';
 
 /**
  * A container for the listbox items.
@@ -40,56 +40,15 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // With `items`, the list knows every item, including those that aren't rendered.
   const itemCount = items?.size;
   const activeItemRendered = store.useState('activeItemRendered');
-  const optInMode = multiple === 'opt-in';
   const direction = useDirection();
   const { labelsRef, typingRef } = store.context;
 
-  // The keydown being handled by the list, so composite navigation can report it.
-  const keyDownEventRef = React.useRef<KeyboardEvent | undefined>(undefined);
+  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   // Where a Shift+Arrow range starts: the item focused when Shift was pressed.
   const shiftAnchorRef = React.useRef<number | null>(null);
   // In opt-in mode, an arrow key that moved focus to an item that isn't rendered selects it once
   // it renders and receives focus.
   const pendingSelectRef = React.useRef<{ index: number; event: KeyboardEvent } | null>(null);
-
-  const onHighlightedIndexChange = useStableCallback((index: number) => {
-    const event = keyDownEventRef.current;
-    if (event) {
-      // Keyboard navigation focuses the item next.
-      store.highlightItem(index, event);
-    } else {
-      // Items were added or removed, so the tab stop moves without focus moving.
-      store.setActiveIndex(index);
-    }
-
-    // In opt-in mode, moving focus with an arrow key and no modifier moves the selection to
-    // the focused item (the APG alternative multiple selection model).
-    if (
-      optInMode &&
-      event &&
-      event.key.startsWith('Arrow') &&
-      !event.shiftKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.altKey
-    ) {
-      store.selection.moveTo(index, event);
-    }
-  });
-
-  const composite = useCompositeRoot({
-    orientation,
-    // The APG listbox pattern doesn't wrap focus from the last option to the first.
-    loopFocus: false,
-    highlightedIndex: activeIndex ?? 0,
-    onHighlightedIndexChange,
-    direction,
-    enableHomeAndEndKeys: true,
-    stopEventPropagation: false,
-    // Listbox items remain keyboard-focusable even when disabled; selection
-    // logic still guards against activating them.
-    disabledIndices: EMPTY_ARRAY as number[],
-  });
 
   /**
    * Highlights an item and moves focus to it. In a virtualized list, the item may not be rendered
@@ -100,7 +59,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     pendingFocusIndexRef.current = null;
     store.highlightItem(index, event);
 
-    const element = composite.elementsRef.current[index];
+    const element = elementsRef.current[index];
     if (element) {
       element.focus();
       return;
@@ -121,55 +80,47 @@ export const ListboxList = React.forwardRef(function ListboxList(
   });
   store.useContextCallback('onItemFocus', onItemFocus);
 
-  /**
-   * Arrow keys, Home and End with `items`. The composite only knows the rendered items, so the
-   * list moves by index instead, through every item.
-   */
-  const handleVirtualizedNavigation = useStableCallback((event: React.KeyboardEvent) => {
-    if (itemCount == null || itemCount === 0) {
-      return;
-    }
-    if (event.shiftKey || event.ctrlKey || event.metaKey || event.altKey) {
-      return;
+  const runKeyCommand = useStableCallback((command: ListKeyCommand, event: React.KeyboardEvent) => {
+    const nativeEvent = event.nativeEvent;
+    // Escape keeps its default action, so a surrounding popup can still close.
+    if (command.type !== 'clear') {
+      event.preventDefault();
     }
 
-    const isRtl = direction === 'rtl';
-    let forwardKey = 'ArrowDown';
-    let backwardKey = 'ArrowUp';
-    if (orientation === 'horizontal') {
-      forwardKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
-      backwardKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
-    }
-    const currentIndex = store.state.activeIndex ?? 0;
-
-    let targetIndex: number;
-    if (event.key === forwardKey) {
-      targetIndex = Math.min(currentIndex + 1, itemCount - 1);
-    } else if (event.key === backwardKey) {
-      targetIndex = Math.max(currentIndex - 1, 0);
-    } else if (event.key === 'Home') {
-      targetIndex = 0;
-    } else if (event.key === 'End') {
-      targetIndex = itemCount - 1;
-    } else {
-      return;
-    }
-
-    event.preventDefault();
-    if (targetIndex === currentIndex) {
-      return;
-    }
-
-    pendingSelectRef.current = null;
-    focusItem(targetIndex, event.nativeEvent);
-
-    // In opt-in mode, the selection follows focus (the APG alternative multiple selection model).
-    if (optInMode && event.key.startsWith('Arrow')) {
-      if (composite.elementsRef.current[targetIndex]) {
-        store.selection.moveTo(targetIndex, event.nativeEvent);
-      } else {
-        pendingSelectRef.current = { index: targetIndex, event: event.nativeEvent };
+    switch (command.type) {
+      case 'move':
+        pendingSelectRef.current = null;
+        focusItem(command.index, nativeEvent);
+        if (!command.select) {
+          break;
+        }
+        if (elementsRef.current[command.index]) {
+          store.selection.moveTo(command.index, nativeEvent);
+        } else {
+          // The item isn't rendered yet, so it's selected once it renders and receives focus.
+          pendingSelectRef.current = { index: command.index, event: nativeEvent };
+        }
+        break;
+      case 'extend': {
+        if (shiftAnchorRef.current === null) {
+          shiftAnchorRef.current = store.state.activeIndex;
+        }
+        const anchorIndex = shiftAnchorRef.current ?? command.index;
+        focusItem(command.index, nativeEvent);
+        store.selection.extendTo(command.index, anchorIndex, nativeEvent);
+        break;
       }
+      case 'selectRange':
+        store.selection.selectRange(command.from, command.to, command.focusIndex, nativeEvent);
+        focusItem(command.focusIndex, nativeEvent);
+        break;
+      case 'selectAll':
+        store.selection.selectAll(nativeEvent);
+        break;
+      case 'clear':
+        store.selection.clear(nativeEvent);
+        break;
+      default:
     }
   });
 
@@ -178,7 +129,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const typeahead = useTypeahead({
     getLabel: (index) => store.getLabelAt(index),
     getCount: () => store.getCount(),
-    elementsRef: composite.elementsRef,
+    elementsRef,
     activeIndex,
     enabled: !disabled,
     resetMs: TYPEAHEAD_RESET_MS,
@@ -188,99 +139,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
     onMatch(index, event) {
       focusItem(index, event.nativeEvent);
     },
-  });
-
-  /**
-   * Maps keyboard events to selection actions based on the current selection mode.
-   * Only handles multi-item keyboard shortcuts (Shift+Arrow, Ctrl+Shift+Home/End, Ctrl+A).
-   * Single-item selection (Enter/Space) is handled in ListboxItem.
-   */
-  const handleSelectionKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    if (!multiple) {
-      return;
-    }
-
-    const isVertical = orientation === 'vertical';
-    const currentIndex = store.state.activeIndex;
-    const elements = composite.elementsRef.current;
-
-    const count = itemCount ?? elements.length;
-
-    // Opt-in mode: Ctrl+Arrow moves focus without changing the selection. macOS reserves
-    // Ctrl+Arrow and uses Cmd+Arrow to jump to the ends, so Option+Arrow does it there.
-    const isMoveWithoutSelecting = platform.os.mac
-      ? event.altKey && !event.ctrlKey && !event.metaKey
-      : event.ctrlKey || event.metaKey;
-    if (optInMode && isMoveWithoutSelecting && !event.shiftKey) {
-      const isRtl = direction === 'rtl';
-      const isPrev =
-        (isVertical && event.key === 'ArrowUp') ||
-        (!isVertical && (isRtl ? event.key === 'ArrowRight' : event.key === 'ArrowLeft'));
-      const isNext =
-        (isVertical && event.key === 'ArrowDown') ||
-        (!isVertical && (isRtl ? event.key === 'ArrowLeft' : event.key === 'ArrowRight'));
-
-      if ((isPrev || isNext) && currentIndex != null) {
-        event.preventDefault();
-        const targetIndex = isPrev ? currentIndex - 1 : currentIndex + 1;
-        if (store.isIndexInList(targetIndex, elements)) {
-          focusItem(targetIndex, event.nativeEvent);
-        }
-      }
-    }
-
-    // Shift+Arrow: Move focus and select the range from the anchor to the focused item,
-    // replacing the rest of the selection, so the range grows and shrinks as focus moves.
-    if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
-      const isRtl = direction === 'rtl';
-      const isPrev =
-        (isVertical && event.key === 'ArrowUp') ||
-        (!isVertical && (isRtl ? event.key === 'ArrowRight' : event.key === 'ArrowLeft'));
-      const isNext =
-        (isVertical && event.key === 'ArrowDown') ||
-        (!isVertical && (isRtl ? event.key === 'ArrowLeft' : event.key === 'ArrowRight'));
-
-      if ((isPrev || isNext) && currentIndex != null) {
-        const targetIndex = isPrev ? currentIndex - 1 : currentIndex + 1;
-
-        if (store.isIndexInList(targetIndex, elements)) {
-          event.preventDefault();
-          if (shiftAnchorRef.current === null) {
-            shiftAnchorRef.current = currentIndex;
-          }
-          const anchorIndex = shiftAnchorRef.current;
-          focusItem(targetIndex, event.nativeEvent);
-
-          store.selection.extendTo(targetIndex, anchorIndex, event.nativeEvent);
-        }
-      }
-    }
-
-    // Ctrl+Shift+Home: Select from focus to first
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Home') {
-      event.preventDefault();
-      if (currentIndex != null) {
-        store.selection.selectRange(0, currentIndex, 0, event.nativeEvent);
-        focusItem(0, event.nativeEvent);
-      }
-    }
-
-    // Ctrl+Shift+End: Select from focus to last
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'End') {
-      event.preventDefault();
-      if (currentIndex != null) {
-        const lastIndex = count - 1;
-        store.selection.selectRange(currentIndex, lastIndex, lastIndex, event.nativeEvent);
-        focusItem(lastIndex, event.nativeEvent);
-      }
-    }
-
-    // Ctrl+A / Cmd+A: Select all. The APG makes deselecting a fully selected list optional, and
-    // Escape already clears the selection.
-    if ((event.ctrlKey || event.metaKey) && (event.key === 'a' || event.key === 'A')) {
-      event.preventDefault();
-      store.selection.selectAll(event.nativeEvent);
-    }
   });
 
   const setListElement = useStableCallback((element: HTMLElement | null) => {
@@ -309,7 +167,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     'aria-orientation': orientation,
     tabIndex,
     onFocus(event) {
-      const elements = composite.elementsRef.current;
+      const elements = elementsRef.current;
       if (event.target !== event.currentTarget) {
         return;
       }
@@ -383,22 +241,17 @@ export const ListboxList = React.forwardRef(function ListboxList(
         shiftAnchorRef.current = null;
       }
 
-      // Let composite handle unmodified arrow keys, Home, End
-      keyDownEventRef.current = event.nativeEvent;
-      if (itemCount != null) {
-        handleVirtualizedNavigation(event);
-      } else {
-        composite.props.onKeyDown?.(event);
+      const command = resolveListKeyCommand(event, {
+        orientation,
+        rtl: direction === 'rtl',
+        currentIndex: store.state.activeIndex,
+        count: itemCount ?? elementsRef.current.length,
+        multiple,
+        mac: platform.os.mac,
+      });
+      if (command) {
+        runKeyCommand(command, event);
       }
-      keyDownEventRef.current = undefined;
-
-      // Escape: deselect all items (multi-select modes only)
-      if (event.key === 'Escape' && multiple) {
-        store.selection.clear(event.nativeEvent);
-      }
-
-      // Selection keyboard shortcuts (multiple selection only)
-      handleSelectionKeyDown(event);
 
       // The keyboard takes over from the pointer, so the highlight returns to the focused item
       // until the pointer moves again.
@@ -411,7 +264,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // While no item has focus, keep the tab stop on the first selected item, including when the
   // selection or the items change.
   const value = store.useState('value');
-  const onMapChange = useStableCallback((map: Parameters<typeof composite.onMapChange>[0]) => {
+  const onMapChange = useStableCallback(() => {
     // With `items`, positions come from the items, so they don't shift as items render.
     if (store.state.items != null) {
       if (store.state.activeIndex === null) {
@@ -419,7 +272,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
       }
       return;
     }
-    composite.onMapChange(map);
     if (!store.state.itemFocused) {
       store.syncTabStop();
       return;
@@ -427,11 +279,14 @@ export const ListboxList = React.forwardRef(function ListboxList(
     // Items can move around the focused item, such as when reordering them, so the tab stop
     // follows the focused item to its new index.
     const focusedElement = activeElement(ownerDocument(store.state.listElement));
-    const focusedIndex = composite.elementsRef.current.findIndex(
+    const focusedIndex = elementsRef.current.findIndex(
       (element) => element != null && element === focusedElement,
     );
     if (focusedIndex !== -1) {
       store.setActiveIndex(focusedIndex);
+    } else if (!elementsRef.current[store.state.activeIndex ?? -1]) {
+      // The focused item was removed and nothing took its position.
+      store.setActiveIndex(store.getTabStopIndex());
     }
   });
   useIsoLayoutEffect(() => {
@@ -439,16 +294,14 @@ export const ListboxList = React.forwardRef(function ListboxList(
   }, [value, store]);
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, setListElement, composite.props.ref],
+    ref: [forwardedRef, setListElement],
     state,
     props: [defaultProps, elementProps],
   });
 
-  // Use composite's elementsRef for the CompositeList so that keyboard navigation
-  // and item registration share the same ref.
   return (
     <CompositeList
-      elementsRef={composite.elementsRef}
+      elementsRef={elementsRef}
       // With `items`, the labels come from the items rather than the rendered text.
       labelsRef={items ? undefined : labelsRef}
       onMapChange={onMapChange}

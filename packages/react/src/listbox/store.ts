@@ -156,18 +156,6 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
   }
 
   /**
-   * Whether an index is in the list: one of `items` when they're passed, otherwise one of the
-   * rendered items.
-   */
-  isIndexInList(index: number, elements: Array<HTMLElement | null>) {
-    const { items } = this.state;
-    if (index < 0) {
-      return false;
-    }
-    return items != null ? index < items.size : elements[index] != null;
-  }
-
-  /**
    * The items the selection reducer selects from: the rendered items' values and disabled states,
    * and, with `items`, those of the items that aren't rendered.
    */
