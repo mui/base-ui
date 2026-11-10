@@ -1,14 +1,16 @@
 'use client';
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
+import { clamp } from '@base-ui/utils/clamp';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -23,18 +25,21 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
   getOTPValidationConfig,
   normalizeOTPValue,
   normalizeOTPValueWithDetails,
-  type OTPValidationType,
 } from '../utils/otp';
+import type { OTPValidationType } from '../utils/otp';
 
 /**
  * Groups all OTP field parts and manages their state.
@@ -51,7 +56,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     'aria-labelledby': ariaLabelledByProp,
     id: idProp,
     autoComplete = 'one-time-code',
-    defaultValue,
+    defaultValue = '',
     value: valueProp,
     onValueChange,
     onValueComplete: onValueCompleteProp,
@@ -83,7 +88,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     state: fieldState,
     validation,
     validationMode,
-    setFocused,
+    setFocused: setFieldFocused,
     setTouched,
   } = useFieldRootContext();
   const { clearErrors } = useFormContext();
@@ -101,6 +106,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const inputRefs = React.useRef<Array<HTMLInputElement | null>>([]);
+  const hiddenInputElementRef = React.useRef<HTMLInputElement | null>(null);
   const pendingFocusRef = React.useRef<{
     index: number;
     value: string;
@@ -149,6 +155,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     setFilled(filled);
   }, [filled, setFilled]);
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useOTPFieldRootDevWarnings({
@@ -160,7 +167,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   useRegisterFieldControl(firstInputRef, id, value, undefined, !disabled, nameProp);
 
   const focusInput = useStableCallback((index: number) => {
-    const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
+    const targetIndex = clamp(index, 0, Math.max(inputRefs.current.length - 1, 0));
     const target = inputRefs.current[targetIndex];
     target?.focus();
     target?.select();
@@ -171,7 +178,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   });
 
   function requestSubmit() {
-    let formElement = validation.inputRef.current?.form ?? inputRefs.current[0]?.form ?? null;
+    // Not `validation.inputRef`: outside a Field, every control shares it.
+    // The hidden input only renders for a valid `length` and the slots may be portaled,
+    // so prefer the hidden input's form before falling back to the first slot.
+    let formElement = hiddenInputElementRef.current?.form ?? inputRefs.current[0]?.form ?? null;
 
     if (form) {
       const associatedElement = ownerDocument(rootRef.current).getElementById(form);
@@ -209,6 +219,20 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       }
     }
 
+    // When the value shrinks externally, move focus off slots past the first empty one so typing
+    // and Backspace keep working.
+    const focusedElement = activeElement(ownerDocument(rootRef.current));
+
+    if (
+      focusedElement &&
+      inputRefs.current.indexOf(focusedElement as HTMLInputElement) > value.length
+    ) {
+      focusInput(value.length);
+      // Slots may not have their updated indexes yet when leading slots unmount, so sync the
+      // tab stop with the redirect target directly.
+      setFocusedIndex(value.length);
+    }
+
     const pendingCompleteValue = pendingCompleteValueRef.current;
 
     if (pendingCompleteValue != null) {
@@ -223,10 +247,13 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
       const normalizedValue = normalizeOTPValue(nextValue, length, validationType, normalizeValue);
+      const canComplete =
+        details.reason === REASONS.inputChange || details.reason === REASONS.inputPaste;
       const completeEventDetails =
+        canComplete &&
         normalizedValue.length === length &&
         (valueRef.current.length !== length || details.reason === REASONS.inputPaste)
-          ? getCompleteEventDetails(details)
+          ? createGenericEventDetails(details.reason, details.event)
           : null;
 
       if (normalizedValue === valueRef.current) {
@@ -271,8 +298,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       }
 
       setFocusedIndex(index);
-      setFocusedState(true);
-      setFocused(true);
       event.currentTarget.select();
     },
   );
@@ -284,7 +309,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
     setTouched(true);
     setFocusedState(false);
-    setFocused(false);
+    setFieldFocused(false);
 
     if (validationMode === 'onBlur') {
       validation.commit(valueRef.current);
@@ -339,6 +364,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       normalizeValue,
       setValue,
+      setFocused: setFocusedState,
       state,
       validationType,
       value,
@@ -364,6 +390,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       normalizeValue,
       setValue,
+      setFocusedState,
       state,
       validationType,
       value,
@@ -383,6 +410,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     ],
     stateAttributesMapping: rootStateAttributesMapping,
   });
+
+  const hiddenInputRef = useMergedRefs(validation.inputRef, hiddenInputElementRef);
 
   return (
     <CompositeList
@@ -429,7 +458,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
                 }
               },
             })}
-            ref={validation.inputRef}
+            ref={hiddenInputRef}
             type="text"
             id={id && name == null ? `${id}-hidden-input` : undefined}
             form={form}
@@ -445,21 +474,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
             required={required}
             aria-hidden
             tabIndex={-1}
-            style={name ? visuallyHiddenInput : visuallyHidden}
+            style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+            onInvalid={handleHiddenInputInvalid}
           />
         )}
       </OTPFieldRootContext.Provider>
     </CompositeList>
   );
 });
-
-function getCompleteEventDetails(details: OTPFieldRoot.ChangeEventDetails) {
-  if (details.reason === REASONS.inputChange || details.reason === REASONS.inputPaste) {
-    return createGenericEventDetails(details.reason, details.event);
-  }
-
-  return null;
-}
 
 export interface OTPFieldRootProps extends Omit<
   BaseUIComponentProps<'div', OTPFieldRootState>,
@@ -558,8 +580,7 @@ export interface OTPFieldRootProps extends Omit<
    * - `'keyboard'` for keyboard interactions that change the value
    */
   onValueChange?:
-    | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when entered text contains characters that are rejected by validation or
    * normalization before the OTP value updates.
@@ -567,8 +588,7 @@ export interface OTPFieldRootProps extends Omit<
    * The `value` argument is the attempted user-entered string before normalization.
    */
   onValueInvalid?:
-    | ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void) | undefined;
   /**
    * Callback function that is fired when the OTP value becomes complete, or when a complete value
    * is pasted while the OTP is already complete.
@@ -579,8 +599,7 @@ export interface OTPFieldRootProps extends Omit<
    * If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.
    */
   onValueComplete?:
-    | ((value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void) | undefined;
 }
 
 export interface OTPFieldRootState extends FieldRootState {
@@ -623,8 +642,7 @@ export type OTPFieldRootInvalidEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.InvalidEventReason>;
 
 export type OTPFieldRootCompleteEventReason =
-  | typeof REASONS.inputChange
-  | typeof REASONS.inputPaste;
+  typeof REASONS.inputChange | typeof REASONS.inputPaste;
 export type OTPFieldRootCompleteEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.CompleteEventReason>;
 

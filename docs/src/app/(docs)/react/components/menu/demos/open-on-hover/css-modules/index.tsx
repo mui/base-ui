@@ -9,7 +9,7 @@ export default function ExampleMenu() {
         Add to playlist <CaretDownIcon />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner className={styles.Positioner} sideOffset={8}>
+        <Menu.Positioner className={styles.Positioner} sideOffset={8} align="start">
           <Menu.Popup className={styles.Popup}>
             <Menu.Item className={styles.Item}>Get Up!</Menu.Item>
             <Menu.Item className={styles.Item}>Inside Out</Menu.Item>

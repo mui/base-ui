@@ -9,6 +9,39 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.9.0',
+    versionSlug: 'v1-9-0',
+    date: '2026-10-09',
+    highlights: [
+      'New menu filtering behavior (preview).',
+      'Improve mount performance of large lists in Combobox, Menu, and Select.',
+      'Improve Drawer swipe gestures and virtual keyboard interactions.',
+      'Many accessibility, focus, and interaction fixes.',
+    ],
+  },
+  {
+    version: 'v1.8.0',
+    versionSlug: 'v1-8-0',
+    date: '2026-09-04',
+    highlights: [
+      'New `createItems` collection API for `Combobox`.',
+      'Derive Toast updates from the current toast with a function.',
+      'Add `keepMounted` to `<Avatar.Image>` to support native lazy-loading and optimized images.',
+      'Mount Menu and Popover triggers faster.',
+      'Many accessibility, focus, validation, and interaction fixes.',
+    ],
+  },
+  {
+    version: 'v1.7.0',
+    versionSlug: 'v1-7-0',
+    date: '2026-08-04',
+    highlights: [
+      '`<ScrollArea.Thumb>` adds overscroll feedback on WebKit.',
+      'Reduce bundle size and improve performance across components.',
+      'Many accessibility and bug fixes.',
+    ],
+  },
+  {
     version: 'v1.6.0',
     versionSlug: 'v1-6-0',
     date: '2026-06-18',

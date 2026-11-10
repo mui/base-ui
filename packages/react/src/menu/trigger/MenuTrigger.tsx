@@ -6,37 +6,37 @@ import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
 import {
-  safePolygon,
-  useClick,
   useFloatingTree,
-  useFocus,
-  useHoverReferenceInteraction,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
-import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { contains } from '../../floating-ui-react/utils';
+} from '../../utils/popups/tree/FloatingTree';
+import { useFocus } from '../../utils/popups/interactions/useFocus';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
+import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
-import { MenuHandle } from '../store/MenuHandle';
-import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useMixedToggleClickHandler } from './useMixedToggleClickHandler';
+import type { MenuHandle } from '../store/MenuHandle';
 import { useMenubarContext } from '../../menubar/MenubarContext';
-import { MenuParent } from '../root/MenuRoot';
+import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { mergeProps } from '../../merge-props';
 
 /**
@@ -74,16 +74,17 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
+
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const popupId = store.useState('triggerPopupId', thisTriggerId);
+  const controlsId = store.useState('triggerControlsId', thisTriggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
   const floatingTreeRootFromContext = useFloatingTree();
+
   const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
     return floatingTreeRootFromContext ?? new FloatingTreeStore();
   }, [floatingTreeRootFromContext]);
@@ -109,6 +110,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const isInMenubar = parent.type === 'menubar';
 
   const rootDisabled = store.useState('disabled');
+
   const disabled = disabledProp || rootDisabled || (isInMenubar && parent.context.disabled);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -133,7 +135,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     allowMouseUpTriggerTimeout.clear();
     store.context.allowMouseUpTriggerRef.current = false;
 
-    const mouseUpTarget = mouseEvent.target as Element | null;
+    const mouseUpTarget = getTarget(mouseEvent) as Element | null;
 
     if (
       contains(triggerRef.current, mouseUpTarget) ||
@@ -155,20 +157,26 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   });
 
   React.useEffect(() => {
+    const doc = ownerDocument(triggerRef.current);
+
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
-      const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+
+      return () => {
+        doc.removeEventListener('mouseup', handleDocumentMouseUp);
+      };
     }
+
+    return undefined;
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
   const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
 
-  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     enabled:
       openOnHover &&
       !disabled &&
-      parent.type !== 'context-menu' &&
       (!isInMenubar || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
     handleClose: safePolygon({ blockPointerEvents: !isInMenubar }),
     mouseOnly: true,
@@ -178,7 +186,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   // Whether to ignore clicks to open the menu.
@@ -186,15 +193,15 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
-  const click = useClick(floatingRootContext, {
-    enabled: !disabled && parent.type !== 'context-menu',
+  const click = useClick(store, {
+    enabled: !disabled,
     event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,
     ignoreMouse: false,
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
-  const focus = useFocus(floatingRootContext, {
+  const focus = useFocus(store, {
     enabled: !disabled && parentMenubarHasSubmenuOpen,
   });
 
@@ -210,9 +217,13 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   );
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  // A filterable menu keeps real focus inside its popup and publishes what its trigger needs.
+  const filterTriggerProps = store.useState('filterTriggerProps');
 
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
+  const { handlePreFocusGuardFocus, handleFocusTargetFocus } = useTriggerFocusGuards(
+    store,
+    triggerElementRef,
+  );
 
   const state: MenuTriggerState = {
     disabled,
@@ -226,7 +237,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
-      'aria-controls': popupId,
+      'aria-controls': controlsId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {
@@ -242,6 +253,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
       },
     },
+    filterTriggerProps,
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
     elementProps,
@@ -278,7 +290,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     return (
       <React.Fragment>
         <FocusGuard
-          ref={preFocusGuardRef}
+          ref={store.context.beforeTriggerFocusGuardRef}
           onFocus={handlePreFocusGuardFocus}
           key={`${thisTriggerId}-pre-focus-guard`}
         />
@@ -360,8 +372,9 @@ export namespace MenuTrigger {
 function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
   const [stickIfOpen, setStickIfOpen] = React.useState(false);
+
   useIsoLayoutEffect(() => {
-    if (open && openReason === 'trigger-hover') {
+    if (open && openReason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the menu if it's open.
       // If they clicked within 500ms of the menu opening, keep it open.
       setStickIfOpen(true);
@@ -378,8 +391,6 @@ function useStickIfOpen(open: boolean, openReason: string | null) {
 }
 
 function useMenuParent() {
-  const contextMenuContext = useContextMenuRootContext(true);
-  const parentContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
 
   const parent: MenuParent = React.useMemo(() => {
@@ -390,20 +401,10 @@ function useMenuParent() {
       };
     }
 
-    // Ensure this is not a Menu nested inside ContextMenu.Trigger.
-    // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
-    // <MenuRootContext.Provider value={undefined}>
-    if (contextMenuContext && !parentContext) {
-      return {
-        type: 'context-menu',
-        context: contextMenuContext,
-      };
-    }
-
     return {
       type: undefined,
     };
-  }, [contextMenuContext, parentContext, menubarContext]);
+  }, [menubarContext]);
 
   return parent;
 }

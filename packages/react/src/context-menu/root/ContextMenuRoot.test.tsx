@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, beforeEach, it } from 'vitest';
 import {
   fireEvent,
   flushMicrotasks,
@@ -96,6 +96,56 @@ describe('<ContextMenu.Root />', () => {
       expect(submenuOnOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
       expect(rootOnOpenChange.mock.lastCall?.[0]).toBe(false);
       expect(rootOnOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+    });
+
+    it('does not activate a submenu trigger when releasing the context menu pointer over it', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const submenuOnOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-root-popup">
+                <ContextMenu.SubmenuRoot onOpenChange={submenuOnOpenChange}>
+                  <ContextMenu.SubmenuTrigger
+                    data-testid="context-submenu-trigger"
+                    openOnHover={false}
+                  >
+                    More options
+                  </ContextMenu.SubmenuTrigger>
+                  <ContextMenu.Portal>
+                    <ContextMenu.Positioner>
+                      <ContextMenu.Popup data-testid="context-submenu-popup">
+                        <ContextMenu.Item>Deep action</ContextMenu.Item>
+                      </ContextMenu.Popup>
+                    </ContextMenu.Positioner>
+                  </ContextMenu.Portal>
+                </ContextMenu.SubmenuRoot>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+      fireEvent.contextMenu(trigger, { clientX: 20, clientY: 20, button: 2 });
+      await screen.findByTestId('context-root-popup');
+
+      fireEvent.pointerMove(document.body, { clientX: 24, clientY: 24 });
+      fireEvent.mouseUp(screen.getByTestId('context-submenu-trigger'), {
+        button: 2,
+        clientX: 24,
+        clientY: 24,
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-submenu-popup')).toBe(null);
+      expect(submenuOnOpenChange).not.toHaveBeenCalled();
     });
 
     it('ignores mouseup directly under the cursor when the context menu spawns there', async () => {
@@ -231,6 +281,64 @@ describe('<ContextMenu.Root />', () => {
       expect(screen.queryByTestId('context-popup')).toBe(null);
       expect(onOpenChange.mock.calls.length).toBe(0);
     });
+  });
+
+  it('returns focus to the focused surface when closing with Shift+Tab', async () => {
+    const { user } = await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger render={<button />}>Surface</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>Item</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const surface = screen.getByRole('button', { name: 'Surface' });
+    await user.tab();
+    expect(surface).toHaveFocus();
+    fireEvent.contextMenu(surface, { clientX: 20, clientY: 20, button: 2 });
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toHaveFocus();
+    });
+
+    await user.tab({ shift: true });
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+    expect(surface).toHaveFocus();
+  });
+
+  it('returns focus to the focused surface when closing with Tab', async () => {
+    const { user } = await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger render={<button />}>Surface</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>Item</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const surface = screen.getByRole('button', { name: 'Surface' });
+    await user.tab();
+    expect(surface).toHaveFocus();
+    fireEvent.contextMenu(surface, { clientX: 20, clientY: 20, button: 2 });
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toHaveFocus();
+    });
+
+    await user.tab();
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+    expect(surface).toHaveFocus();
   });
 
   describe.skipIf(isJSDOM)('prop: collisionAvoidance', () => {

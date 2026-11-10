@@ -10,10 +10,34 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'url';
 import remarkConfig from './.remarkrc.mjs';
+import baseUiTestRules from './scripts/eslint/testRules.mjs';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const playgroundRootDir = path.join(dirname, 'playground', 'vite-app');
+
+const baseConfig = createBaseConfig({
+  baseDirectory: dirname,
+  markdown: true,
+  consistentTypeImports: true,
+});
+
+// Flat config replaces rule options rather than merging them, so any block that sets
+// `no-restricted-syntax` for a narrower set of files drops everything the base config declared.
+// Re-including these keeps the shared restrictions (React namespace imports, `throw Error()`,
+// the `window.setTimeout` family) in force wherever an override adds an entry of its own.
+const baseRestrictedSyntax = baseConfig
+  .flatMap((entry) => entry.rules?.['no-restricted-syntax'] ?? [])
+  .filter((entry) => typeof entry === 'object');
+
+if (baseRestrictedSyntax.length === 0) {
+  // Extracting nothing would silently drop every shared restriction from the overrides below,
+  // which is the failure this re-inclusion exists to prevent — so fail loudly instead.
+  throw new Error(
+    'eslint.config.mjs: found no `no-restricted-syntax` entries in the base config. ' +
+      'Its shape likely changed; update the extraction above before the overrides lose these rules.',
+  );
+}
 
 const OneLevelImportMessage = [
   'Prefer one level nested imports to avoid bundling everything in dev mode or breaking CJS/ESM split.',
@@ -34,10 +58,7 @@ const NO_RESTRICTED_IMPORTS_PATHS_TOP_LEVEL_PACKAGES = [
 
 export default defineConfig(
   globalIgnores(['./examples', './playground/vite-app/dist']),
-  createBaseConfig({
-    baseDirectory: dirname,
-    markdown: true,
-  }),
+  baseConfig,
   // eslint-plugin-mdx loads `.remarkrc.mjs` itself, but ESLint doesn't know
   // that file is a config dependency, so `--cache` doesn't invalidate when
   // it changes. Embedding the imported value in a setting puts its content
@@ -136,10 +157,106 @@ export default defineConfig(
     files: [
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,
+      // shared suites that test files call
+      'packages/react/test/describeConformance.tsx',
+      'packages/react/test/conformanceTests/*.tsx',
+      'packages/react/test/*Tests.tsx',
     ],
-    extends: createTestConfig({ useMocha: false }),
+    extends: createTestConfig(),
+    plugins: {
+      'base-ui-test': baseUiTestRules,
+    },
     rules: {
       'mui/add-undef-to-optional': 'off',
+      // Tests type lazily-loaded modules with `typeof import('./x')`, which the rule's
+      // `disallowTypeAnnotations` default rejects. Top-level type imports stay enforced.
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { fixStyle: 'separate-type-imports', disallowTypeAnnotations: false },
+      ],
+      // These helpers assert internally (shared between multiple tests).
+      'vitest/expect-expect': [
+        'error',
+        {
+          assertFunctionNames: [
+            'expect',
+            'expect*',
+            'assert*',
+            'openAndCloseDialog',
+            'openAndClosePopover',
+            'takeScreenshot',
+            'waitForBubbleToOverlapActiveTab',
+          ],
+        },
+      ],
+      // Parameterized suites pass loop variables as titles.
+      'vitest/valid-title': ['error', { allowArguments: true }],
+      'no-restricted-syntax': [
+        'error',
+        ...baseRestrictedSyntax,
+        {
+          // `timeStamp` is read-only and not an `EventInit` member, so `fireEvent` accepts it from
+          // the type system and then silently drops it: the event ends up stamped off the
+          // environment's clock instead, which is the real one in a browser. Velocity-sensitive
+          // assertions then depend on how long the runner took between two calls.
+          selector:
+            "CallExpression[callee.object.name='fireEvent'] ObjectExpression > Property[key.name='timeStamp']",
+          message:
+            '`fireEvent` silently drops `timeStamp`, so the event is stamped off the environment clock ' +
+            '— the real one in a browser. Use `firePointer` from `#test-utils` for pointer events; ' +
+            'touch events have no equivalent helper yet.',
+        },
+      ],
+      'base-ui-test/no-chai-style': 'error',
+      'base-ui-test/no-event-init-spies': 'error',
+      'base-ui-test/no-standalone-user-event-setup': 'error',
+      'base-ui-test/no-tests-in-foreach': 'error',
+      'base-ui-test/wait-for-single-expect': 'error',
+      'vitest/no-conditional-expect': 'error',
+      'vitest/no-disabled-tests': 'error',
+    },
+  },
+  {
+    files: [`test/e2e/**/*${EXTENSION_TEST_FILE}`],
+    rules: {
+      // The e2e suite asserts with Playwright's `expect` (initPlaywrightMatchers),
+      // which the scope-naive vitest globals rule mistakes for the vitest global.
+      'vitest/prefer-importing-vitest-globals': 'off',
+    },
+  },
+  {
+    name: 'Base UI React tests',
+    // `#test-utils` exists only in @base-ui/react; @base-ui/utils tests can't depend on it.
+    files: [
+      `packages/react/**/*${EXTENSION_TEST_FILE}`,
+      'packages/react/test/describeConformance.tsx',
+      'packages/react/test/conformanceTests/*.tsx',
+      'packages/react/test/*Tests.tsx',
+    ],
+    rules: {
+      // Assumes the async `#test-utils` renderer: awaiting the synchronous
+      // `@mui/internal-test-utils` renderer (used by @base-ui/utils tests) flushes nothing.
+      'base-ui-test/no-flush-after-render': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@mui/internal-test-utils',
+              importNames: ['createRenderer', 'describeConformance'],
+              message:
+                "Import from '#test-utils': its `render` is async and wrapped in act, and its conformance suite is the Base UI one.",
+            },
+          ],
+          patterns: [
+            ...NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED,
+            {
+              regex: '(^|/)test/(createRenderer|describeConformance)$',
+              message: "Import test utilities from '#test-utils'.",
+            },
+          ],
+        },
+      ],
     },
   },
   baseSpecRules,

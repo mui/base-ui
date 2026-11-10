@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { NOOP } from '@base-ui/utils/empty';
+import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
@@ -9,18 +11,11 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
-import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
-/**
- * A menu item that toggles a setting on or off.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItemPlain(
   componentProps: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -30,29 +25,25 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     id: idProp,
     label,
     nativeButton = false,
-    disabled = false,
+    disabled: disabledProp = false,
     closeOnClick = false,
-    checked: checkedProp,
-    defaultChecked,
+    checked = false,
     onCheckedChange,
     style,
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ label });
-  const menuPositionerContext = useMenuPositionerContext(true);
+  const { store } = useMenuRootContext();
+
+  const listItem = useCompositeListItem({ guess: true, label });
   const id = useBaseUiId(idProp);
 
-  const { store } = useMenuRootContext();
+  const rootDisabled = store.useState('disabled');
   const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
   const itemProps = store.useState('itemProps');
 
-  const [checked, setChecked] = useControlled({
-    controlled: checkedProp,
-    default: defaultChecked ?? false,
-    name: 'MenuCheckboxItem',
-    state: 'checked',
-  });
+  const disabled = disabledProp || rootDisabled;
 
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick,
@@ -61,7 +52,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.context.nodeId,
+    nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
@@ -76,16 +67,10 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   function handleClick(event: React.MouseEvent) {
     const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
-      preventUnmountOnClose() {},
+      preventUnmountOnClose: NOOP,
     });
 
     onCheckedChange?.(!checked, details);
-
-    if (details.isCanceled) {
-      return;
-    }
-
-    setChecked((currentlyChecked) => !currentlyChecked);
   }
 
   const element = useRenderElement('div', componentProps, {
@@ -106,6 +91,52 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   return (
     <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
+  );
+});
+
+/**
+ * A menu item that toggles a setting on or off.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+  props: MenuCheckboxItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { checked: checkedProp, defaultChecked, onCheckedChange, ...plainProps } = props;
+
+  // Owned above the element so an uncontrolled item keeps its state while a filter hides it.
+  const [checked, setChecked] = useControlled({
+    controlled: checkedProp,
+    default: defaultChecked ?? false,
+    name: 'MenuCheckboxItem',
+    state: 'checked',
+  });
+
+  const filterItem = useMenuFilterItem(props, forwardedRef);
+
+  function handleCheckedChange(
+    nextChecked: boolean,
+    eventDetails: MenuCheckboxItem.ChangeEventDetails,
+  ) {
+    onCheckedChange?.(nextChecked, eventDetails);
+    if (!eventDetails.isCanceled) {
+      setChecked(nextChecked);
+    }
+  }
+
+  if (!filterItem.visible) {
+    return null;
+  }
+
+  return (
+    <MenuCheckboxItemPlain
+      {...plainProps}
+      checked={checked}
+      onCheckedChange={handleCheckedChange}
+      ref={filterItem.ref}
+    />
   );
 });
 
@@ -143,8 +174,7 @@ export interface MenuCheckboxItemProps
    * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange?:
-    | ((checked: boolean, eventDetails: MenuCheckboxItem.ChangeEventDetails) => void)
-    | undefined;
+    ((checked: boolean, eventDetails: MenuCheckboxItem.ChangeEventDetails) => void) | undefined;
   /**
    * The click handler for the menu item.
    */
@@ -155,7 +185,8 @@ export interface MenuCheckboxItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
+   * Overrides the text used for keyboard text navigation and filtering.
+   * Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

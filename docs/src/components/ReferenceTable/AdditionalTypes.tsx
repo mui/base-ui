@@ -41,7 +41,7 @@ export function AdditionalTypes({
             additionalType.slug && show?.includes(additionalType.slug) ? 'true' : undefined
           }
         >
-          <h4 className="ReferenceSectionHeading AdditionalTypeHeading">
+          <h3 className="ReferenceSectionHeading AdditionalTypeHeading">
             {additionalType.name}
             <a
               href="#"
@@ -53,7 +53,7 @@ export function AdditionalTypes({
             >
               {hydrated && canGoBack ? 'Back' : 'Hide'}
             </a>
-          </h4>
+          </h3>
           {additionalType.data.reExportOf ? (
             <p className="AdditionalTypeReExport">
               Re-Export of{' '}

@@ -3,7 +3,8 @@ import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import clsx from 'clsx';
 import NextLink from 'next/link';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import '../../../../demo-data/theme/css-modules/theme.css';
 import classes from './menu.module.css';
 

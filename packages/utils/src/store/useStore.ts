@@ -4,7 +4,8 @@ import * as React from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
 import { isReactVersionAtLeast } from '../reactVersion';
-import { register, getInstance, Instance } from '../fastHooks';
+import type { Instance } from '../fastHooks';
+import { register, getInstance } from '../fastHooks';
 import type { ReadonlyStore } from './Store';
 
 /* Some tests fail in R18 with the raw useSyncExternalStore. It may be possible to make it work

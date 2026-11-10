@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../internals/types';
-import { Field, type FieldControlState } from '../field';
+import { Field } from '../field';
+import type { FieldControlState } from '../field';
 
 /**
  * A native input element that automatically works with [Field](https://base-ui.com/react/components/field).

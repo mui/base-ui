@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useForm, Controller, type Mode } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import type { Mode } from 'react-hook-form';
 import { Form } from '@base-ui/react/form';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { Field } from '@base-ui/react/field';
@@ -16,7 +17,8 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import styles from './form.module.css';
 import { CheckIcon, ChevronUpDownIcon, HorizontalRuleIcon } from './_icons';
 
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 
 interface Settings {
   validationMode: Mode;

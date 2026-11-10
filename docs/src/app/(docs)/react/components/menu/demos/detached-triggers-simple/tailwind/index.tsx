@@ -10,14 +10,14 @@ export default function MenuDetachedTriggersSimpleDemo() {
       <Menu.Trigger
         handle={demoMenu}
         aria-label="Project actions"
-        className="flex size-8 items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-popup-open:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+        className="flex size-8 items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:data-pressed:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
         <EllipsisHorizontalIcon />
       </Menu.Trigger>
 
       <Menu.Root handle={demoMenu}>
         <Menu.Portal>
-          <Menu.Positioner sideOffset={8} className="outline-hidden">
+          <Menu.Positioner sideOffset={8} align="start" className="outline-hidden">
             <Menu.Popup className={popupClass}>
               <Menu.Item className={itemClass}>Rename</Menu.Item>
               <Menu.Item className={itemClass}>Duplicate</Menu.Item>

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, it } from 'vitest';
 import * as React from 'react';
 import { screen, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
@@ -41,6 +41,24 @@ describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
       </NumberField.Root>,
     );
     expect(screen.queryByRole('presentation')).not.toBe(null);
+  });
+
+  it('throws a descriptive error when rendered outside <NumberField.ScrubArea>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <NumberField.Root>
+            <NumberField.ScrubAreaCursor />
+          </NumberField.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: NumberFieldScrubAreaContext is missing. NumberFieldScrubArea parts must be placed within <NumberField.ScrubArea>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it('renders when using mouse input', async () => {

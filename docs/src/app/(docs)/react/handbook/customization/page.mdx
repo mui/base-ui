@@ -55,6 +55,7 @@ An event can be canceled with the `cancel()` method on `eventDetails`:
 
 This lets you leave the component uncontrolled as its internal state is prevented from updating.
 This is an alternative to controlling the component with external state and guarding the state updates conditionally.
+When the component is controlled, `cancel()` is still the way to decline a change: a request that is ignored instead stays pending until the `open` prop changes, so a later close is still reported.
 
 ### Allowing propagation of the DOM event
 

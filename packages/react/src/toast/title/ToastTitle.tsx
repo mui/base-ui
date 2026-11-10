@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useToastLabelPart } from '../utils/useToastLabelPart';
+import { useToastLabelElement, useToastLabelPart } from '../utils/useToastLabelPart';
 
 /**
  * A title that labels the toast.
@@ -23,7 +23,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     ...elementProps
   } = componentProps;
 
-  const { id, children, shouldRender, type } = useToastLabelPart(idProp, childrenProp, 'title');
+  const { id, children, type, setId } = useToastLabelPart(idProp, childrenProp, 'title');
 
   const state: ToastTitleState = { type };
 
@@ -33,7 +33,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     props: { ...elementProps, id, children },
   });
 
-  return shouldRender ? element : null;
+  return useToastLabelElement(element, id, setId);
 });
 
 export interface ToastTitleState {

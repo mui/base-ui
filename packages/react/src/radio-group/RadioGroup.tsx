@@ -1,31 +1,34 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
-import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../internals/composite/composite';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import type { FieldRootState } from '../field/root/FieldRoot';
+import { isEligibleInput } from '../field/root/useFieldValidation';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
 import { useValueChanged } from '../internals/useValueChanged';
 import { RadioGroupContext } from './RadioGroupContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import { REASONS } from '../internals/reasons';
+import type { REASONS } from '../internals/reasons';
 
 const MODIFIER_KEYS = [SHIFT];
 
 /**
- * Provides a shared state to a series of radio buttons.
+ * Provides shared state to a series of radio buttons.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
+ * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio-group)
  */
 export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   componentProps: RadioGroup.Props<Value>,
@@ -61,7 +64,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     validityData,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
-  const { clearErrors } = useFormContext();
+  const { clearErrors, elementRef } = useFormContext();
   const fieldsetContext = useFieldsetRootContext(true);
 
   const disabled = fieldDisabled || disabledProp;
@@ -88,72 +91,79 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
   );
 
-  const controlRef = React.useRef<HTMLElement>(null);
+  const getInputControl = validation.getInputControl;
+  const controlRef = React.useMemo<React.RefObject<HTMLElement | null>>(
+    () => ({
+      get current() {
+        return getInputControl();
+      },
+    }),
+    [getInputControl],
+  );
   const groupInputRef = React.useRef<HTMLInputElement | null>(null);
   const firstEnabledInputRef = React.useRef<HTMLInputElement | null>(null);
+  const mergedInputRef = useMergedRefs(groupInputRef, inputRefProp);
+  const lastAppliedInputRef = React.useRef(mergedInputRef);
 
-  function setInputRef(hiddenInput: HTMLInputElement | null) {
-    let cleanup: void | (() => void) | undefined = undefined;
-
-    if (inputRefProp) {
-      if (typeof inputRefProp === 'function') {
-        cleanup = inputRefProp(hiddenInput);
-      } else {
-        inputRefProp.current = hiddenInput;
-      }
+  // Only forwards the public `inputRef` and tracks the current representative for that forwarding.
+  // The registry (`validation.registeredInputs`) is authoritative for validation and form-value
+  // projection, so the group must not write `validation.inputRef`: a stale, unmounted radio left
+  // there would become the Field's fallback once the registry empties and keep blocking submission.
+  const setInputRef = useStableCallback((hiddenInput: HTMLInputElement | null) => {
+    if (groupInputRef.current === hiddenInput && lastAppliedInputRef.current === mergedInputRef) {
+      return;
     }
 
-    groupInputRef.current = hiddenInput;
-    validation.inputRef.current = hiddenInput;
+    lastAppliedInputRef.current = mergedInputRef;
+    void mergedInputRef?.(hiddenInput);
+  });
 
-    return cleanup;
-  }
-
-  const registerControlRef = useStableCallback(
-    (element: HTMLElement | null, isDisabled = false) => {
-      if (!element) {
-        return;
-      }
-
-      if (isDisabled) {
-        if (controlRef.current === element) {
-          controlRef.current = null;
-        }
-        return;
-      }
-
-      if (controlRef.current == null) {
-        controlRef.current = element;
-      }
-    },
-  );
+  useIsoLayoutEffect(() => {
+    setInputRef(groupInputRef.current);
+  }, [mergedInputRef, setInputRef]);
 
   const registerInputRef = useStableCallback((input: HTMLInputElement | null) => {
-    if (!input || input.disabled) {
+    if (!input) {
       return undefined;
     }
 
-    if (!firstEnabledInputRef.current) {
-      firstEnabledInputRef.current = input;
+    if (!input.disabled) {
+      if (!firstEnabledInputRef.current) {
+        firstEnabledInputRef.current = input;
+      }
+
+      const currentInput = groupInputRef.current;
+      if (input.checked || currentInput == null || currentInput.disabled) {
+        setInputRef(input);
+      }
     }
 
-    const currentInput = groupInputRef.current;
-    if (input.checked || currentInput == null || currentInput.disabled) {
-      return setInputRef(input);
-    }
-
-    return undefined;
+    // Detach when this input unmounts while still forwarded, so consumers don't
+    // keep holding a disconnected node. The input may have become the forwarded
+    // one after attach (via the re-registration effect), so always return this.
+    return () => {
+      if (firstEnabledInputRef.current === input) {
+        firstEnabledInputRef.current = null;
+      }
+      if (groupInputRef.current === input) {
+        setInputRef(null);
+      }
+    };
   });
 
   const getFormValue = useStableCallback(() => {
-    // Disabled radios are excluded from native form submission, so a disabled
-    // selection shouldn't be reported as the field's value either.
-    const input = groupInputRef.current;
-    if (!input || input.disabled || !input.checked) {
-      return null;
+    const formElement = elementRef.current;
+    if (!formElement) {
+      return checkedValue ?? null;
     }
 
-    return checkedValue ?? null;
+    for (const input of validation.registeredInputs.keys()) {
+      if (input.checked && isEligibleInput(input, formElement)) {
+        return checkedValue ?? null;
+      }
+    }
+
+    return null;
   });
 
   useRegisterFieldControl(controlRef, id, checkedValue ?? null, getFormValue, !disabled, nameProp);
@@ -168,8 +178,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
-      // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
-      void setInputRef(fallbackInput);
+      setInputRef(fallbackInput);
     }
   });
 
@@ -190,7 +199,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       validation,
       name,
       readOnly,
-      registerControlRef,
       registerInputRef,
       required,
       setCheckedValue,
@@ -204,7 +212,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       validation,
       name,
       readOnly,
-      registerControlRef,
       registerInputRef,
       required,
       setCheckedValue,
@@ -220,11 +227,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': ariaLabelledby,
-    onFocus() {
-      setFocused(true);
-    },
     onBlur(event) {
       if (!contains(event.currentTarget, event.relatedTarget)) {
+        setTouched(false);
         setFieldTouched(true);
         setFocused(false);
 
@@ -236,7 +241,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     onKeyDownCapture(event) {
       if (event.key.startsWith('Arrow')) {
         setTouched(true);
-        setFocused(true);
       }
     },
   };

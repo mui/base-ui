@@ -2,9 +2,10 @@
 import * as React from 'react';
 import { useMenuCheckboxItemContext } from '../checkbox-item/MenuCheckboxItemContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
-import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 
 /**
@@ -23,9 +24,11 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
+  const { transitionStatus, mounted, setMounted } = useTransitionStatus(item.checked);
 
   useOpenChangeComplete({
+    batch: true,
+    enabled: !item.checked,
     open: item.checked,
     ref: indicatorRef,
     onComplete() {
@@ -50,7 +53,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
       'aria-hidden': true,
       ...elementProps,
     },
-    enabled: keepMounted || item.checked,
+    enabled: keepMounted || mounted,
   });
 
   return element;

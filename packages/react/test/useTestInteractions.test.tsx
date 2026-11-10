@@ -1,8 +1,8 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { useTestInteractions } from './useTestInteractions';
-import { FOCUSABLE_ATTRIBUTE } from '../src/floating-ui-react/utils/constants';
+import { FOCUSABLE_ATTRIBUTE } from '../src/utils/popups/constants';
 
 describe('useTestInteractions', () => {
   it('correctly merges functions', () => {
@@ -24,9 +24,9 @@ describe('useTestInteractions', () => {
 
       const { onClick, onKeyDown } = getReferenceProps({ onClick: userOnClick });
 
-      // @ts-expect-error
+      // @ts-expect-error The prop getter returns unknown values; these supplied handlers are callable.
       onClick();
-      // @ts-expect-error
+      // @ts-expect-error The prop getter returns unknown values; these supplied handlers are callable.
       onKeyDown();
 
       return null;
@@ -44,7 +44,7 @@ describe('useTestInteractions', () => {
     function App() {
       const { getReferenceProps } = useTestInteractions([{ reference: { onClick() {} } }]);
       expect(() =>
-        // @ts-expect-error
+        // @ts-expect-error The prop getter returns unknown values; the interaction supplies a callable onClick.
         getReferenceProps({ onClick: undefined }).onClick(),
       ).not.toThrowError();
       return null;
@@ -58,7 +58,7 @@ describe('useTestInteractions', () => {
       const { getReferenceProps } = useTestInteractions([]);
 
       const props = getReferenceProps({
-        // @ts-expect-error
+        // @ts-expect-error onlyShowVotes is a custom prop outside React HTMLProps.
         onlyShowVotes: true,
         onyx: () => {},
       });
@@ -77,11 +77,11 @@ describe('useTestInteractions', () => {
       const { getReferenceProps } = useTestInteractions([]);
 
       const props = getReferenceProps({
-        // @ts-expect-error
+        // @ts-expect-error onyx is a custom callback outside React HTMLProps.
         onyx: () => 'returned value',
       });
 
-      // @ts-expect-error
+      // @ts-expect-error The prop getter returns unknown values; the supplied onyx callback is callable.
       expect(props.onyx()).toBe('returned value');
 
       return null;
@@ -129,6 +129,9 @@ describe('useTestInteractions', () => {
   });
 
   it('prop getters are memoized', () => {
+    const renderedGetters: Array<ReturnType<typeof useTestInteractions>> = [];
+    const effectRuns = vi.fn();
+
     function App() {
       const [, setCount] = React.useState(0);
       const propsList = React.useMemo(
@@ -140,9 +143,12 @@ describe('useTestInteractions', () => {
         [],
       );
 
-      const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions(propsList);
+      const interactions = useTestInteractions(propsList);
+      const { getReferenceProps, getFloatingProps, getItemProps } = interactions;
+      renderedGetters.push(interactions);
 
       React.useEffect(() => {
+        effectRuns();
         setCount((count) => count + 1);
       }, [getReferenceProps, getFloatingProps, getItemProps]);
 
@@ -150,5 +156,12 @@ describe('useTestInteractions', () => {
     }
 
     render(<App />);
+
+    // The state update re-renders once; stable getters keep the effect from firing again.
+    expect(effectRuns).toHaveBeenCalledTimes(1);
+    expect(renderedGetters).toHaveLength(2);
+    expect(renderedGetters[1].getReferenceProps).toBe(renderedGetters[0].getReferenceProps);
+    expect(renderedGetters[1].getFloatingProps).toBe(renderedGetters[0].getFloatingProps);
+    expect(renderedGetters[1].getItemProps).toBe(renderedGetters[0].getItemProps);
   });
 });

@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { type SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
+import { useExperimentSettings } from './_components/SettingsPanel';
+import type { SettingsMetadata } from './_components/SettingsPanel';
 import styles from './inline-positioning.module.css';
 
 interface Settings {

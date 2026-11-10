@@ -1,26 +1,21 @@
 'use client';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { Avatar } from '@base-ui/react/avatar';
 
 const demoPopover = Popover.createHandle<React.ComponentType>();
 
 const triggerClassName =
-  'flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal whitespace-nowrap text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-popup-open:bg-neutral-100 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
+  'flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal whitespace-nowrap text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-pressed:bg-neutral-100 dark:data-pressed:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
 export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div className="flex gap-2">
-      <Popover.Trigger
-        className={triggerClassName}
-        handle={demoPopover}
-        payload={NotificationsPanel}
-      >
-        Notifications
+      <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ShippingPanel}>
+        Shipping
       </Popover.Trigger>
 
-      <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ActivityPanel}>
-        Activity
+      <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ReturnsPanel}>
+        Returns
       </Popover.Trigger>
 
       <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ProfilePanel}>
@@ -63,6 +58,13 @@ export default function PopoverDetachedTriggersFullDemo() {
                 >
                   {Payload !== undefined && <Payload />}
                 </Popover.Viewport>
+
+                <Popover.Close
+                  aria-label="Close"
+                  className="absolute top-1 right-1 flex size-7 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+                >
+                  <XIcon />
+                </Popover.Close>
               </Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
@@ -72,12 +74,12 @@ export default function PopoverDetachedTriggersFullDemo() {
   );
 }
 
-function NotificationsPanel() {
+function ShippingPanel() {
   return (
     <div className="flex flex-col gap-1">
-      <Popover.Title className="text-sm font-bold">Notifications</Popover.Title>
+      <Popover.Title className="pr-8 text-sm font-bold">Free shipping</Popover.Title>
       <Popover.Description className="text-sm text-neutral-600 dark:text-neutral-400">
-        You are all caught up. Good job!
+        Orders over $50 arrive in 3–5 business days at no extra cost.
       </Popover.Description>
     </div>
   );
@@ -86,17 +88,16 @@ function NotificationsPanel() {
 function ProfilePanel() {
   return (
     <div className="grid w-max grid-cols-[auto_auto] gap-x-2">
-      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 text-sm font-bold">
+      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 pr-8 text-sm font-bold">
         Jason Eventon
       </Popover.Title>
-      <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex h-12 w-12 items-center justify-center overflow-hidden bg-neutral-200 dark:bg-neutral-800 align-middle text-sm leading-none font-bold text-neutral-950 dark:text-white select-none">
-        <Avatar.Image
-          src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
-          width="48"
-          height="48"
-          className="h-full w-full object-cover"
-        />
-      </Avatar.Root>
+      <img
+        src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
+        width="48"
+        height="48"
+        alt=""
+        className="col-start-1 col-end-2 row-start-1 row-end-3 h-12 w-12 object-cover bg-neutral-200 dark:bg-neutral-800"
+      />
       <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm text-neutral-600 dark:text-neutral-400">
         Pro plan
       </span>
@@ -118,13 +119,31 @@ function ProfilePanel() {
   );
 }
 
-function ActivityPanel() {
+function ReturnsPanel() {
   return (
     <div className="flex flex-col gap-1">
-      <Popover.Title className="text-sm font-bold">Activity</Popover.Title>
+      <Popover.Title className="pr-8 text-sm font-bold">Free returns</Popover.Title>
       <Popover.Description className="text-sm text-neutral-600 dark:text-neutral-400">
-        Nothing interesting happened recently.
+        Return any item within 30 days for a full refund.
       </Popover.Description>
     </div>
+  );
+}
+
+function XIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m4.5 4.5 7 7m-7 0 7-7" />
+    </svg>
   );
 }

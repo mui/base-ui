@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
-import { TemporalAdapterFormats } from '../../src/internals/temporal';
-import { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
+import type { TemporalAdapterFormats } from '../../src/internals/temporal';
+import type { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
 
 export const testFormats: DescribeGregorianAdapterTestSuite = ({ adapter }) => {
   const expectFormattedDate = (format: keyof TemporalAdapterFormats, expected: string) => {

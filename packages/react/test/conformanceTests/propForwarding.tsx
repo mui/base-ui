@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { expect } from 'vitest';
-import { flushMicrotasks, randomStringValue, screen } from '@mui/internal-test-utils';
+import { expect, describe, it } from 'vitest';
+import { randomStringValue, screen } from '@mui/internal-test-utils';
 import { throwMissingPropError } from './utils';
 import type {
   ConformantComponentProps,
@@ -28,8 +28,6 @@ export function testPropForwarding(
 
       await render(React.cloneElement(element, { 'data-testid': 'root', ...otherProps }));
 
-      await flushMicrotasks();
-
       const customRoot = screen.getByTestId('root');
       expect(customRoot).toHaveAttribute('lang', otherProps.lang);
       expect(customRoot).toHaveAttribute('data-foobar', otherProps['data-foobar']);
@@ -51,8 +49,6 @@ export function testPropForwarding(
         }),
       );
 
-      await flushMicrotasks();
-
       const customRoot = screen.getByTestId('custom-root');
       expect(customRoot).toHaveAttribute('lang', otherProps.lang);
       expect(customRoot).toHaveAttribute('data-foobar', otherProps['data-foobar']);
@@ -72,8 +68,6 @@ export function testPropForwarding(
         }),
       );
 
-      await flushMicrotasks();
-
       const customRoot = screen.getByTestId('custom-root');
       expect(customRoot).toHaveAttribute('lang', otherProps.lang);
       expect(customRoot).toHaveAttribute('data-foobar', otherProps['data-foobar']);
@@ -87,39 +81,18 @@ export function testPropForwarding(
         }),
       );
 
-      await flushMicrotasks();
-
       const customRoot = screen.getByTestId('custom-root');
       expect(customRoot).toHaveAttribute('style');
       expect(customRoot.getAttribute('style')).toContain('color: green');
     });
 
-    it('forwards the custom `style` attribute defined on the render function', async () => {
-      await render(
-        React.cloneElement(element, {
-          render: (props: any) => {
-            return <Element {...props} style={{ color: 'green' }} data-testid="custom-root" />;
-          },
-          ...(button && { nativeButton }),
-        }),
-      );
-
-      await flushMicrotasks();
-
-      const customRoot = screen.getByTestId('custom-root');
-      expect(customRoot).toHaveAttribute('style');
-      expect(customRoot.getAttribute('style')).toContain('color: green');
-    });
-
-    it('forwards the custom `style` attribute defined on the render function', async () => {
+    it('forwards the custom `style` attribute defined on the render element', async () => {
       await render(
         React.cloneElement(element, {
           render: <Element style={{ color: 'green' }} data-testid="custom-root" />,
           ...(button && { nativeButton }),
         }),
       );
-
-      await flushMicrotasks();
 
       const customRoot = screen.getByTestId('custom-root');
       expect(customRoot).toHaveAttribute('style');

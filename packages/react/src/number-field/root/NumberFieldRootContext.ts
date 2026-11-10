@@ -9,10 +9,12 @@ export interface NumberFieldRootContext {
   minWithDefault: number;
   maxWithDefault: number;
   id: string | undefined;
+  form: string | undefined;
   setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
   getStepAmount: (event?: EventWithOptionalKeyState) => number;
   incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  focusInput: () => void;
   allowInputSyncRef: React.RefObject<boolean | null>;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   valueRef: React.RefObject<number | null>;

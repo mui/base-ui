@@ -1,10 +1,10 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Meter } from '@base-ui/react/meter';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, mockRuntimeLocale } from '#test-utils';
 
 describe('<Meter.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   function formatPercent(value: number) {
     return value.toLocaleString(undefined, { style: 'percent' });
@@ -247,15 +247,18 @@ describe('<Meter.Root />', () => {
       expect(meter).toHaveAttribute('aria-valuetext', formatValue(30));
     });
 
-    it('formats the raw value while clamping range attributes and indicator width', async () => {
+    it('formats the clamped value while clamping range attributes and indicator width', async () => {
       const format: Intl.NumberFormatOptions = {
         style: 'currency',
         currency: 'USD',
       };
-      const expectedValue = new Intl.NumberFormat(undefined, format).format(150);
+      const expectedValue = new Intl.NumberFormat(undefined, format).format(100);
+      const getAriaValueText = vi.fn(
+        (formattedValue: string, rawValue: number) => `${formattedValue} (raw: ${rawValue})`,
+      );
 
       await render(
-        <Meter.Root value={150} format={format}>
+        <Meter.Root value={150} format={format} getAriaValueText={getAriaValueText}>
           <Meter.Value data-testid="value" />
           <Meter.Track>
             <Meter.Indicator data-testid="indicator" />
@@ -266,7 +269,8 @@ describe('<Meter.Root />', () => {
       const meter = screen.getByRole('meter');
       expect(screen.getByTestId('value').textContent).toBe(expectedValue);
       expect(meter).toHaveAttribute('aria-valuenow', '100');
-      expect(meter).toHaveAttribute('aria-valuetext', expectedValue);
+      expect(getAriaValueText).toHaveBeenLastCalledWith(expectedValue, 150);
+      expect(meter).toHaveAttribute('aria-valuetext', `${expectedValue} (raw: 150)`);
       expect(screen.getByTestId('indicator').style.width).toBe('100%');
     });
   });
@@ -291,6 +295,26 @@ describe('<Meter.Root />', () => {
       );
 
       expect(screen.getByTestId('value').textContent).toBe(expectedValue);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('formats with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(
+        <Meter.Root value={1234.5} max={2000} format={format} />,
+      );
+      expect(screen.getByRole('meter').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('en-US', format),
+      );
+
+      await hydrate();
+      expect(screen.getByRole('meter').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('de-DE', format),
+      );
     });
   });
 });

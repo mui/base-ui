@@ -1,7 +1,7 @@
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import * as DialogPopupDataAttributes from '../popup/DialogPopupDataAttributes';
 
 /**
  * Shared by `Dialog.Popup` and `Dialog.Viewport`, whose states have the same shape.
@@ -13,9 +13,8 @@ export const dialogStateAttributesMapping: StateAttributesMapping<{
   nested: boolean;
   nestedDialogOpen: boolean;
 }> = {
-  ...popupStateMapping,
-  ...transitionStatusMapping,
+  ...popupTransitionStateMapping,
   nestedDialogOpen(value) {
-    return value ? { 'data-nested-dialog-open': '' } : null;
+    return value ? { [DialogPopupDataAttributes.nestedDialogOpen]: '' } : null;
   },
 };

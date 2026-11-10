@@ -5,23 +5,23 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
+import { clamp } from '@base-ui/utils/clamp';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { clamp } from '../../internals/clamp';
-import { areArraysEqual } from '../../internals/areArraysEqual';
-import { activeElement, contains } from '../../floating-ui-react/utils';
-import {
-  CompositeList,
-  type CompositeMetadata,
-} from '../../internals/composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -132,7 +132,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const pressedThumbIndexRef = React.useRef(-1);
   // The values when the current drag interaction started.
   const pressedValuesRef = React.useRef<readonly number[] | null>(null);
-  const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
+  const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>(REASONS.none);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -141,7 +141,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
   const [thumbMap, setThumbMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<ThumbMetadata>>(),
   );
   const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
     undefined,
@@ -191,21 +191,17 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   });
 
   const setValue = useStableCallback(
-    (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => {
+    (newValue: number | number[], details: SliderRoot.ChangeEventDetails) => {
       if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
         return false;
       }
-
-      const changeDetails =
-        details ??
-        createChangeEventDetails(REASONS.none, undefined, undefined, { activeThumbIndex: -1 });
 
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
       // Clone the event to not override `target` of the original event.
-      const nativeEvent = changeDetails.event;
-      const EventConstructor = (nativeEvent.constructor as typeof Event | undefined) ?? Event;
+      const nativeEvent = details.event;
+      const EventConstructor = nativeEvent.constructor as typeof Event;
       const clonedEvent = new EventConstructor(nativeEvent.type, nativeEvent);
 
       Object.defineProperty(clonedEvent, 'target', {
@@ -213,15 +209,15 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         value: { value: newValue, name },
       });
 
-      changeDetails.event = clonedEvent;
+      details.event = clonedEvent;
 
-      onValueChange(newValue, changeDetails);
+      onValueChange(newValue, details);
 
-      if (changeDetails.isCanceled) {
+      if (details.isCanceled) {
         return false;
       }
 
-      lastChangeReasonRef.current = changeDetails.reason;
+      lastChangeReasonRef.current = details.reason;
 
       setValueUnwrapped(newValue as Value);
 
@@ -250,6 +246,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     if (min >= max) {
       warn('Slider `max` must be greater than `min`.');
@@ -257,18 +254,22 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   }
 
   useIsoLayoutEffect(() => {
+    if (!disabled) {
+      return;
+    }
+
     const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && contains(sliderRef.current, activeEl)) {
+    if (contains(sliderRef.current, activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
       (activeEl as HTMLElement).blur();
     }
-  }, [disabled]);
 
-  if (disabled && active !== -1) {
-    setActive(-1);
-  }
+    if (active !== -1) {
+      setActive(-1);
+    }
+  }, [active, disabled, setActive]);
 
   const state: SliderRootState = React.useMemo(
     () => ({
@@ -308,6 +309,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       handleInputChange,
       indicatorPosition,
       inset: thumbAlignment !== 'center',
+      isArrayValue: range,
       labelId: ariaLabelledby,
       rootLabelId: defaultLabelId,
       largeStep,
@@ -358,6 +360,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
+      range,
       registerFieldControlRef,
       setActive,
       setValue,
@@ -463,6 +466,7 @@ export interface SliderRootProps<
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**

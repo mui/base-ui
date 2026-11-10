@@ -41,8 +41,30 @@ typedManager.update('typed', {
   },
 });
 
+typedManager.update('typed', {
+  // @ts-expect-error - id is a missing property, `data` replaces the whole value
+  data: {
+    count: 2,
+  },
+});
+
+typedManager.update('typed', (prevToast) => {
+  expectType<ToastPayload | undefined, typeof prevToast.data>(prevToast.data);
+  return { data: { id: 'typed-update', count: 2 } };
+});
+
+// @ts-expect-error - count is a missing property, the updater returns the whole value
+typedManager.update('typed', () => ({ data: { id: 'typed-update' } }));
+
 typedManager.promise(Promise.resolve(2), {
-  loading: 'loading',
+  loading: {
+    id: 'typed',
+    title: 'loading',
+    data: {
+      id: 'typed-loading',
+      count: 0,
+    },
+  },
   success: (value) => ({
     title: `${value}`,
     data: {
@@ -51,6 +73,14 @@ typedManager.promise(Promise.resolve(2), {
     },
   }),
   error: 'error',
+});
+
+typedManager.promise(Promise.resolve(2), {
+  loading: 'loading',
+  // @ts-expect-error - id is only accepted on loading
+  success: { id: 'typed', title: 'success' },
+  // @ts-expect-error - id is only accepted on loading
+  error: { id: 'typed', title: 'error' },
 });
 
 const legacyManager = createToastManager();
@@ -71,8 +101,12 @@ legacyManager.update<ToastPayload>('legacy', {
   },
 });
 
+legacyManager.update<ToastPayload>('legacy', (prevToast) => ({
+  data: { id: 'legacy', count: (prevToast.data?.count ?? 0) + 1 },
+}));
+
 legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
-  loading: 'loading',
+  loading: { id: 'legacy', title: 'loading' },
   success: (value) => ({
     title: `${value}`,
     data: {
@@ -81,4 +115,22 @@ legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
     },
   }),
   error: 'error',
+});
+
+type CallableData = () => string;
+const callableManager = createToastManager<CallableData>();
+
+callableManager.add({ data: () => 'initial' });
+
+callableManager.update('callable', { data: () => 'replacement' });
+
+callableManager.update('callable', (prevToast) => {
+  expectType<CallableData | undefined, typeof prevToast.data>(prevToast.data);
+  return { data: prevToast.data };
+});
+
+callableManager.promise(Promise.resolve(1), {
+  loading: { data: () => 'loading' },
+  success: { data: () => 'done' },
+  error: 'failed',
 });

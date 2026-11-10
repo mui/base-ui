@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { Accordion } from '@base-ui/react/accordion';
@@ -27,6 +27,29 @@ describe('<Accordion.Panel />', () => {
       ),
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('warns when a panel enables hiddenUntilFound and disables keepMounted', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Accordion.Root>
+          <Accordion.Item>
+            <Accordion.Panel hiddenUntilFound keepMounted={false}>
+              {PANEL_CONTENT}
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Base UI: The `keepMounted={false}` prop on an `Accordion.Panel` is ignored when `hiddenUntilFound` is enabled on the panel or root, since the panel must remain mounted while closed.',
+      );
+      expect(screen.getByText(PANEL_CONTENT).getAttribute('hidden')).toBe('until-found');
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
 
   describe('server-side rendering', () => {
     it('suppresses the initial keyframe animation from inline styles when rendered open', async () => {
@@ -154,23 +177,31 @@ describe('<Accordion.Panel />', () => {
       const panel2 = screen.getByTestId('panel-2');
 
       await waitFor(() => {
-        expect(panel1).toHaveAttribute('data-open');
         expect(panel1.style.getPropertyValue('--accordion-panel-height')).toBe('auto');
       });
+      expect(panel1).toHaveAttribute('data-open');
 
       await user.click(trigger2);
 
+      // The closing panel's mid-transition state is transient, so capture it in one snapshot.
       await waitFor(() => {
-        expect(panel1).toHaveAttribute('data-ending-style');
-        expect(panel1).not.toHaveAttribute('hidden');
-        expect(panel1.style.getPropertyValue('--accordion-panel-height')).toMatch(/px$/);
-        expect(panel2).toHaveAttribute('data-open');
+        expect({
+          panel1EndingStyle: panel1.hasAttribute('data-ending-style'),
+          panel1Hidden: panel1.hasAttribute('hidden'),
+          panel1HeightInPx: /px$/.test(panel1.style.getPropertyValue('--accordion-panel-height')),
+          panel2Open: panel2.hasAttribute('data-open'),
+        }).toEqual({
+          panel1EndingStyle: true,
+          panel1Hidden: false,
+          panel1HeightInPx: true,
+          panel2Open: true,
+        });
       });
 
       await waitFor(() => {
         expect(panel1).toHaveAttribute('hidden');
-        expect(panel2).not.toHaveAttribute('hidden');
       });
+      expect(panel2).not.toHaveAttribute('hidden');
     });
   });
 

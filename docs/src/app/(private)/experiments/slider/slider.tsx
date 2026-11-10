@@ -1,7 +1,8 @@
 'use client';
 import { Slider } from '@base-ui/react/slider';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import '../../../../demo-data/theme/css-modules/theme.css';
 import styles from './slider.module.css';
 import verticalStyles from './vertical.module.css';

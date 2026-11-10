@@ -3,13 +3,14 @@ import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { stopEvent } from '../../utils/popups/event';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { REASONS } from '../../internals/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
@@ -118,29 +119,38 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     );
   }
 
+  function cancelLongPress() {
+    longPressTimeout.clear();
+    touchPositionRef.current = null;
+  }
+
   function handleTouchStart(event: React.TouchEvent) {
     if (disabled) {
+      cancelLongPress();
       return;
     }
     allowMouseUpTriggerRef.current = false;
-    if (event.touches.length === 1) {
-      event.stopPropagation();
-      const touch = event.touches[0];
-      touchPositionRef.current = { x: touch.clientX, y: touch.clientY };
-      longPressTimeout.start(LONG_PRESS_DELAY, () => {
-        if (touchPositionRef.current) {
-          handleLongPress(
-            touchPositionRef.current.x,
-            touchPositionRef.current.y,
-            event.nativeEvent,
-          );
-        }
-      });
+    if (event.touches.length !== 1) {
+      cancelLongPress();
+      return;
     }
+
+    event.stopPropagation();
+    const touch = event.touches[0];
+    const touchPosition = { x: touch.clientX, y: touch.clientY };
+    touchPositionRef.current = touchPosition;
+    longPressTimeout.start(LONG_PRESS_DELAY, () => {
+      handleLongPress(touchPosition.x, touchPosition.y, event.nativeEvent);
+    });
   }
 
   function handleTouchMove(event: React.TouchEvent) {
-    if (longPressTimeout.isStarted() && touchPositionRef.current && event.touches.length === 1) {
+    if (event.touches.length !== 1) {
+      cancelLongPress();
+      return;
+    }
+
+    if (longPressTimeout.isStarted() && touchPositionRef.current) {
       const touch = event.touches[0];
       const moveThreshold = 10;
 
@@ -148,14 +158,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       const deltaY = Math.abs(touch.clientY - touchPositionRef.current.y);
 
       if (deltaX > moveThreshold || deltaY > moveThreshold) {
-        longPressTimeout.clear();
+        cancelLongPress();
       }
     }
-  }
-
-  function handleTouchEnd() {
-    longPressTimeout.clear();
-    touchPositionRef.current = null;
   }
 
   React.useEffect(
@@ -199,8 +204,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         onContextMenu: handleContextMenu,
         onTouchStart: handleTouchStart,
         onTouchMove: handleTouchMove,
-        onTouchEnd: handleTouchEnd,
-        onTouchCancel: handleTouchEnd,
+        onTouchEnd: cancelLongPress,
+        onTouchCancel: cancelLongPress,
         style: {
           WebkitTouchCallout: 'none',
         },

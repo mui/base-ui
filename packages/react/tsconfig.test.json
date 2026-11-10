@@ -9,7 +9,7 @@
     "moduleResolution": "bundler",
     "rootDir": ".",
     "outDir": "build-tests",
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": ["vitest/globals", "@testing-library/jest-dom/vitest"]
   },
   "include": [
     "vitest-env.d.ts",
@@ -21,5 +21,5 @@
     "src/global.d.ts",
     "package.json"
   ],
-  "references": [{ "path": "./tsconfig.build.json" }]
+  "references": [{ "path": "./tsconfig.typecheck.json" }]
 }

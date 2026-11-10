@@ -1,17 +1,83 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import {
+  advanceReactClock,
+  createRenderer,
+  isJSDOM,
+  popupConformanceTests,
+  resetBrowserPointer,
+} from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 describe('<PreviewCard.Root />', () => {
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the card before the test interacts.
+  beforeEach(resetBrowserPointer);
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render, clock } = createRenderer();
+
+  it('keeps the payload while a controlled reopen moves to another trigger', async () => {
+    const handle = PreviewCard.createHandle<string>();
+    const payloads: Array<string | undefined> = [];
+    let setState!: (state: { open: boolean; triggerId: string | null }) => void;
+
+    function App() {
+      const [state, setStateInternal] = React.useState<{ open: boolean; triggerId: string | null }>(
+        {
+          open: true,
+          triggerId: 'first',
+        },
+      );
+      setState = setStateInternal;
+      return (
+        <React.Fragment>
+          <PreviewCard.Trigger handle={handle} id="first" payload="First">
+            First
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger handle={handle} id="second" payload="Second">
+            Second
+          </PreviewCard.Trigger>
+          <PreviewCard.Root handle={handle} open={state.open} triggerId={state.triggerId}>
+            {({ payload }) => {
+              payloads.push(payload);
+              return (
+                <PreviewCard.Portal>
+                  <PreviewCard.Positioner>
+                    <PreviewCard.Popup>{payload}</PreviewCard.Popup>
+                  </PreviewCard.Positioner>
+                </PreviewCard.Portal>
+              );
+            }}
+          </PreviewCard.Root>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+    await act(async () => {
+      setState({ open: false, triggerId: null });
+    });
+
+    payloads.length = 0;
+    await act(async () => {
+      setState({ open: true, triggerId: 'second' });
+    });
+
+    expect(payloads).not.toContain(undefined);
+    expect(payloads.at(-1)).toBe('Second');
+  });
+
+  async function tick(ms: number) {
+    await advanceReactClock(clock, ms);
+  }
 
   popupConformanceTests({
     createComponent: (props) => (
@@ -28,6 +94,51 @@ describe('<PreviewCard.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
+  });
+
+  describe('data-instant', () => {
+    async function setupKeepMountedCard() {
+      await render(
+        <PreviewCard.Root>
+          <PreviewCard.Trigger href="#" delay={0}>
+            Link
+          </PreviewCard.Trigger>
+          <PreviewCard.Portal keepMounted>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup data-testid="popup">Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+      return screen.getByRole('link', { name: 'Link' });
+    }
+
+    it('is focus when the card opens from trigger focus', async () => {
+      const trigger = await setupKeepMountedCard();
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+
+      await act(async () => trigger.focus());
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'focus');
+    });
+
+    it('is dismiss when Escape closes the card', async () => {
+      const trigger = await setupKeepMountedCard();
+      await act(async () => trigger.focus());
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+
+      fireEvent.keyDown(trigger, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
   });
 
   describe.for([
@@ -47,7 +158,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
 
         await flushMicrotasks();
 
@@ -63,13 +174,15 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
 
         await flushMicrotasks();
 
         fireEvent.mouseLeave(trigger);
 
-        clock.tick(CLOSE_DELAY);
+        await flushMicrotasks();
+
+        await tick(CLOSE_DELAY);
 
         expect(screen.queryByText('Content')).toBe(null);
       });
@@ -86,7 +199,7 @@ describe('<PreviewCard.Root />', () => {
 
         await act(async () => trigger.focus());
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
 
         await flushMicrotasks();
 
@@ -99,11 +212,11 @@ describe('<PreviewCard.Root />', () => {
         const trigger = screen.getByRole('link', { name: 'Link' });
 
         await act(async () => trigger.focus());
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
         await flushMicrotasks();
 
         await act(async () => trigger.blur());
-        clock.tick(CLOSE_DELAY);
+        await tick(CLOSE_DELAY);
 
         expect(screen.queryByText('Content')).toBe(null);
       });
@@ -140,7 +253,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
 
         await flushMicrotasks();
 
@@ -148,7 +261,9 @@ describe('<PreviewCard.Root />', () => {
 
         fireEvent.mouseLeave(trigger);
 
-        clock.tick(CLOSE_DELAY);
+        await flushMicrotasks();
+
+        await tick(CLOSE_DELAY);
 
         expect(screen.queryByText('Content')).toBe(null);
         expect(handleChange.mock.calls.length).toBe(2);
@@ -181,7 +296,9 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(positioner);
         fireEvent.mouseLeave(positioner);
 
-        clock.tick(CLOSE_DELAY);
+        await flushMicrotasks();
+
+        await tick(CLOSE_DELAY);
 
         await flushMicrotasks();
 
@@ -202,7 +319,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
         await flushMicrotasks();
 
         expect(screen.queryByText('Content')).not.toBe(null);
@@ -212,13 +329,15 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(positioner);
         fireEvent.mouseLeave(positioner);
 
-        clock.tick(CLOSE_DELAY);
+        await flushMicrotasks();
+
+        await tick(CLOSE_DELAY);
         await flushMicrotasks();
 
         expect(screen.queryByText('Content')).toBe(null);
       });
 
-      it('should not call onChange when the open state does not change', async () => {
+      it('does not call onOpenChange again when the trigger is re-hovered while open', async () => {
         const handleChange = vi.fn();
 
         function App() {
@@ -246,58 +365,31 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
 
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
-        expect(handleChange.mock.calls.length).toBe(1);
-        expect(handleChange.mock.calls[0][0]).toBe(false);
+        expect(handleChange).toHaveBeenCalledTimes(1);
+
+        // Leave and re-enter before the close delay runs out: the card stays open.
+        fireEvent.mouseLeave(trigger);
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+        expect(handleChange).toHaveBeenCalledTimes(1);
+        expect(handleChange).toHaveBeenNthCalledWith(1, false);
       });
     });
 
     describe('prop: defaultOpen', () => {
       clock.withFakeTimers();
 
-      it('should open when the component is rendered', async () => {
-        await render(
-          <TestPreviewCard
-            rootProps={{
-              defaultOpen: true,
-            }}
-          />,
-        );
-
-        expect(screen.getByText('Content')).not.toBe(null);
-      });
-
-      it('should not open when the component is rendered and open is controlled', async () => {
-        await render(
-          <TestPreviewCard
-            rootProps={{
-              defaultOpen: true,
-              open: false,
-            }}
-          />,
-        );
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-
-      it('should not close when the component is rendered and open is controlled', async () => {
-        await render(
-          <TestPreviewCard
-            rootProps={{
-              defaultOpen: true,
-              open: true,
-            }}
-          />,
-        );
-
-        expect(screen.getByText('Content')).not.toBe(null);
-      });
-
-      it('should remain uncontrolled', async () => {
+      it('closes when the trigger is unhovered after opening by default', async () => {
         await render(
           <TestPreviewCard
             rootProps={{
@@ -312,7 +404,9 @@ describe('<PreviewCard.Root />', () => {
 
         fireEvent.mouseLeave(trigger);
 
-        clock.tick(CLOSE_DELAY);
+        await flushMicrotasks();
+
+        await tick(CLOSE_DELAY);
 
         expect(screen.queryByText('Content')).toBe(null);
       });
@@ -333,7 +427,9 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(positioner);
         fireEvent.mouseLeave(positioner);
 
-        clock.tick(CLOSE_DELAY);
+        await flushMicrotasks();
+
+        await tick(CLOSE_DELAY);
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
@@ -355,7 +451,7 @@ describe('<PreviewCard.Root />', () => {
 
         expect(screen.queryByText('Content')).toBe(null);
 
-        clock.tick(100);
+        await tick(100);
 
         await flushMicrotasks();
 
@@ -374,7 +470,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
 
         await flushMicrotasks();
 
@@ -384,31 +480,7 @@ describe('<PreviewCard.Root />', () => {
 
         expect(screen.getByText('Content')).not.toBe(null);
 
-        clock.tick(100);
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-    });
-
-    describe('BaseUIChangeEventDetails', () => {
-      it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-        await render(
-          <TestPreviewCard
-            rootProps={{
-              onOpenChange: (nextOpen, eventDetails) => {
-                if (nextOpen) {
-                  eventDetails.cancel();
-                }
-              },
-            }}
-          />,
-        );
-
-        const trigger = screen.getByRole('link', { name: 'Link' });
-        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-        await flushMicrotasks();
+        await tick(100);
 
         expect(screen.queryByText('Content')).toBe(null);
       });
@@ -426,7 +498,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
 
-        clock.tick(100);
+        await tick(100);
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
@@ -441,7 +513,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
 
-        clock.tick(100);
+        await tick(100);
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
@@ -491,276 +563,33 @@ describe('<PreviewCard.Root />', () => {
           expect(screen.queryByTestId('positioner')).toBe(null);
         });
       });
-    });
 
-    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-      it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
+      it('closes the preview card when the `close` method is called', async () => {
+        const onOpenChange = vi.fn();
+        const actionsRef = React.createRef<PreviewCard.Root.Actions>();
 
-        function Test() {
-          const [open, setOpen] = React.useState(true);
-          return (
-            <div>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPreviewCard
-                rootProps={{
-                  open,
-                  onOpenChangeComplete,
-                }}
-              />
-            </div>
-          );
-        }
+        const { user } = await render(
+          <TestPreviewCard rootProps={{ actionsRef, onOpenChange }} triggerProps={{ delay: 0 }} />,
+        );
 
-        const { user } = await render(<Test />);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on close when the exit animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(true);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPreviewCard
-                rootProps={{
-                  open,
-                  onOpenChangeComplete,
-                }}
-                popupProps={{
-                  className: 'animation-test-indicator',
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        expect(screen.getByTestId('popup')).not.toBe(null);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-    });
-
-    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-      it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(true);
-          return (
-            <div>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPreviewCard
-                rootProps={{
-                  open,
-                  onOpenChangeComplete,
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on close when the exit animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(true);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPreviewCard
-                rootProps={{
-                  open,
-                  onOpenChangeComplete,
-                }}
-                popupProps={{
-                  className: 'animation-test-indicator',
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        expect(screen.getByTestId('popup')).not.toBe(null);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on open when there is no enter animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(false);
-          return (
-            <div>
-              <button onClick={() => setOpen(true)}>Open</button>
-              <TestPreviewCard
-                rootProps={{
-                  open,
-                  onOpenChangeComplete,
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
+        const trigger = screen.getByRole('link', { name: 'Link' });
+        await user.hover(trigger);
 
         await waitFor(() => {
           expect(screen.queryByTestId('popup')).not.toBe(null);
         });
 
-        expect(onOpenChangeComplete.mock.calls.length).toBe(2);
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
+        await act(async () => actionsRef.current?.close());
 
-      it('is called on open when the enter animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            from {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-starting-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(false);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(true)}>Open</button>
-              <TestPreviewCard
-                rootProps={{
-                  open,
-                  onOpenChangeComplete,
-                }}
-                popupProps={{
-                  className: 'animation-test-indicator',
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        // Wait for open animation to finish
         await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+          expect(screen.queryByTestId('positioner')).toBe(null);
         });
 
-        expect(screen.queryByTestId('popup')).not.toBe(null);
-      });
-
-      it('does not get called on mount when not open', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        await render(
-          <TestPreviewCard
-            rootProps={{
-              onOpenChangeComplete,
-            }}
-          />,
+        expect(trigger).not.toHaveAttribute('data-popup-open');
+        expect(onOpenChange).toHaveBeenLastCalledWith(
+          false,
+          expect.objectContaining({ reason: REASONS.imperativeAction }),
         );
-
-        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
       });
     });
   });
@@ -940,7 +769,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(childTrigger);
         fireEvent.mouseMove(childTrigger);
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
         await flushMicrotasks();
 
         let childPopup = screen.getByTestId('child-popup').parentElement!;
@@ -951,14 +780,14 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseMove(document.body);
 
         // Advance partway through close delay but not all the way
-        clock.tick(CLOSE_DELAY / 2);
+        await tick(CLOSE_DELAY / 2);
         await flushMicrotasks();
 
         // Step 4: Re-enter parent popup before it closes
         fireEvent.mouseEnter(parentPopup);
 
         // Let the child's close delay finish — child closes
-        clock.tick(CLOSE_DELAY);
+        await tick(CLOSE_DELAY);
         await flushMicrotasks();
 
         // Parent should still be open
@@ -969,7 +798,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseEnter(childTrigger);
         fireEvent.mouseMove(childTrigger);
 
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
         await flushMicrotasks();
 
         // Parent and child should be open
@@ -980,7 +809,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseLeave(parentPopup, { relatedTarget: childPopup });
         fireEvent.mouseEnter(childPopup);
 
-        clock.tick(CLOSE_DELAY);
+        await tick(CLOSE_DELAY);
 
         expect(screen.queryByTestId('parent-popup')).not.toBe(null);
         expect(screen.queryByTestId('child-popup')).not.toBe(null);
@@ -1024,7 +853,7 @@ describe('<PreviewCard.Root />', () => {
 
         const parentTrigger = screen.getByTestId('parent-trigger');
         fireEvent.mouseEnter(parentTrigger);
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
 
         // Events must be triggered on positioner elements (parent of popup)
         const parentPopup = screen.getByTestId('parent-popup').parentElement!;
@@ -1033,7 +862,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseLeave(parentTrigger, { relatedTarget: parentPopup });
         fireEvent.mouseEnter(parentPopup);
         fireEvent.mouseEnter(childTrigger);
-        clock.tick(OPEN_DELAY);
+        await tick(OPEN_DELAY);
 
         const childPopup = screen.getByTestId('child-popup').parentElement!;
 
@@ -1043,12 +872,35 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseLeave(childPopup);
         fireEvent.mouseMove(document.body);
 
-        clock.tick(CLOSE_DELAY + 10);
+        await tick(CLOSE_DELAY + 10);
         await flushMicrotasks();
 
         expect(screen.queryByTestId('child-popup')).toBe(null);
         expect(screen.queryByTestId('parent-popup')).toBe(null);
       });
+    });
+  });
+
+  describe('close requests', () => {
+    it('reports the active trigger for an Escape close', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <PreviewCard.Root defaultOpen onOpenChange={onOpenChange}>
+          <PreviewCard.Trigger href="#">Trigger</PreviewCard.Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await user.keyboard('[Escape]');
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(screen.getByText('Trigger'));
     });
   });
 });

@@ -4,16 +4,17 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { HTMLProps } from '../../internals/types';
+import type { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
-import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
+import * as CollapsiblePanelDataAttributes from './CollapsiblePanelDataAttributes';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
@@ -66,12 +67,9 @@ export function useCollapsiblePanel(
   const pendingTemporaryStyleRestoreRef = React.useRef<(() => void) | null>(null);
 
   const mergedPanelRef = useMergedRefs(externalRef, panelRef);
-  const latestStateRef = useValueAsRef({
-    mounted,
-    open,
-  });
+  const latestOpenRef = useValueAsRef(open);
   // Only used to handle panel close
-  const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef, false, false);
+  const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef);
 
   const hidden = !open && !mounted;
   const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
@@ -149,6 +147,13 @@ export function useCollapsiblePanel(
   }, [markActivityResumeAnimationSuppressed, restorePendingTemporaryStyle]);
 
   useIsoLayoutEffect(() => {
+    // A render function can remove the panel on close. Clear one-shot open animation
+    // suppression even without an element, so the next open animates normally.
+    if (!open) {
+      shouldPreventMountAnimationRef.current = false;
+      shouldPreventActivityResumeAnimationRef.current = false;
+    }
+
     const panel = panelRef.current;
     if (!panel) {
       return undefined;
@@ -206,34 +211,27 @@ export function useCollapsiblePanel(
         return restoreLayoutStyles;
       }
 
-      if (animationType === 'css-animation') {
-        setDimensions(getDimensions(panel));
+      setDimensions(getDimensions(panel));
 
-        if (!skipNextOpen) {
-          const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
-          restoreAnimationName();
-
-          return undefined;
-        }
-
-        const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
-        const restoreAnimationDuration = setTemporaryStyle(panel, 'animation-duration', '0s');
-
+      const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
+      if (!skipNextOpen) {
         restoreAnimationName();
-        setPendingTemporaryStyleRestore(restoreAnimationDuration);
-        setForcePanelIdle(true);
-
         return undefined;
       }
+
+      const restoreAnimationDuration = setTemporaryStyle(panel, 'animation-duration', '0s');
+
+      restoreAnimationName();
+      setPendingTemporaryStyleRestore(restoreAnimationDuration);
+      setForcePanelIdle(true);
+
+      return undefined;
     }
 
     // Capture the current size as soon as close is requested, before the
     // deferred ending phase applies closed styles. This keeps close transitions
     // starting from a measured pixel value, including interrupted opens.
     if (!open && mounted && (transitionStatus === 'idle' || transitionStatus === 'starting')) {
-      shouldPreventMountAnimationRef.current = false;
-      shouldPreventActivityResumeAnimationRef.current = false;
-
       if (animationType === 'none') {
         setDimensions(EMPTY_DIMENSIONS, false);
         setMounted(false);
@@ -248,13 +246,16 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
+    // Reachable when `transitionStatus` already flipped to `ending` before this effect ran, so
+    // the close branch above was skipped. Without motion there is nothing to wait for, so unmount
+    // here instead of deferring to the animation-finished path below.
     if (animationType === 'none') {
       setMounted(false);
       return undefined;
     }
 
     const nextDimensions = getDimensions(panel);
-    const hasMeasuredSize = (nextDimensions.height ?? 0) > 0 || (nextDimensions.width ?? 0) > 0;
+    const hasMeasuredSize = nextDimensions.height > 0 || nextDimensions.width > 0;
 
     if (!hasMeasuredSize) {
       setMounted(false);
@@ -285,6 +286,11 @@ export function useCollapsiblePanel(
     open: true,
     ref: panelRef,
     onComplete() {
+      // `useOpenChangeComplete` only aborts from its effect cleanup, which React runs in the
+      // post-paint passive flush. An animation's `finished` microtask can resolve after the render
+      // that set `open` to `false` but before that cleanup, so re-check the latest value here.
+      // Clearing the measured size in that window would make the close transition start from
+      // `height: 0` instead of the expanded pixel height.
       if (!open) {
         return;
       }
@@ -306,6 +312,10 @@ export function useCollapsiblePanel(
 
     const panel = panelRef.current;
     if (!panel) {
+      // A render function can drop the panel element while it closes. There is nothing left
+      // to animate, so finish closing instead of staying in the ending phase.
+      setMounted(false);
+      setDimensions(EMPTY_DIMENSIONS, false);
       return undefined;
     }
 
@@ -313,7 +323,10 @@ export function useCollapsiblePanel(
     let endingStyleFrame = -1;
 
     function handleComplete() {
-      if (latestStateRef.current.open) {
+      // Same post-paint race as the `useOpenChangeComplete` callback above, except `open` is
+      // captured by this effect's closure and always `false` here, so read the latest value from
+      // a ref. Unmounting a panel that has already reopened would drop it from the DOM.
+      if (latestOpenRef.current) {
         return;
       }
 
@@ -322,9 +335,7 @@ export function useCollapsiblePanel(
     }
 
     endingStyleFrame = AnimationFrame.request(() => {
-      if (!abortController.signal.aborted) {
-        runOnceCloseAnimationsFinish(handleComplete, abortController.signal);
-      }
+      runOnceCloseAnimationsFinish(handleComplete, abortController.signal);
     });
 
     return () => {
@@ -332,7 +343,7 @@ export function useCollapsiblePanel(
       abortController.abort();
     };
   }, [
-    latestStateRef,
+    latestOpenRef,
     mounted,
     open,
     panelTransitionStatus,
@@ -361,22 +372,90 @@ export function useCollapsiblePanel(
         return undefined;
       }
 
-      function handleBeforeMatch(event: Event) {
+      const revealDecisionTimeout = Timeout.create();
+      let revertRevealFrame = -1;
+
+      // Reverting must wait until the browser has measured the match, and React
+      // cannot do it: it keeps rendering the same `hidden` and `data-starting-style`
+      // props while the panel stays closed, so it never rewrites attributes that were
+      // changed behind its back (the browser removes `hidden` as part of the reveal).
+      //
+      // Whether the open arrived is decided in a task, not a frame: `setOpen` has
+      // already scheduled React's own task by the time the timeout is queued, so the
+      // decision drains after the commit even when a busy main thread delays both,
+      // whereas a rendering update could preempt the still-queued commit and make an
+      // animation frame read a stale value. When the consumer ignores the open, no
+      // commit is ever scheduled and the decision holds. The DOM revert then runs
+      // in a frame so it stays atomic with respect to paint.
+      const scheduleRevealRevert = (
+        revertSkippedMotion: boolean,
+        restoreStartingStyle: boolean,
+      ) => {
+        revealDecisionTimeout.start(0, () => {
+          if (latestOpenRef.current) {
+            return;
+          }
+
+          revertRevealFrame = AnimationFrame.request(() => {
+            if (latestOpenRef.current) {
+              return;
+            }
+
+            if (revertSkippedMotion) {
+              // The open never happened, so the next one is an ordinary open that
+              // should keep its author-defined motion.
+              shouldSkipNextOpenRef.current = false;
+            }
+
+            if (restoreStartingStyle) {
+              panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+            }
+
+            panel.setAttribute('hidden', 'until-found');
+          });
+        });
+      };
+
+      // Declared as a `const` after the null check so `panel` stays narrowed: the
+      // handler must touch the same element the listener is attached to.
+      const handleBeforeMatch = (event: Event) => {
         const eventDetails = createChangeEventDetails(REASONS.none, event);
 
         onOpenChange(true, eventDetails);
 
         if (eventDetails.isCanceled) {
+          // A canceled reveal means the panel must stay hidden, so undo the
+          // browser's removal of `hidden` and keep the content searchable.
+          scheduleRevealRevert(false, false);
           return;
         }
 
         shouldSkipNextOpenRef.current = true;
-        setOpen(true);
-      }
 
-      return addEventListener(panel, 'beforematch', handleBeforeMatch);
+        // The browser removes `hidden` and measures the match in the same task that
+        // dispatches this event, while the React state update below only lands in a
+        // later one. Panels kept collapsed by persisted starting styles would still
+        // be zero-sized at that point and the match highlight is dropped, so drop
+        // those styles synchronously here.
+        const hadStartingStyle = panel.hasAttribute(CollapsiblePanelDataAttributes.startingStyle);
+        panel.removeAttribute(CollapsiblePanelDataAttributes.startingStyle);
+
+        setOpen(true);
+
+        // A controlled panel whose `onOpenChange` is ignored never receives the open
+        // state, so return it to the fully closed state once the browser has measured.
+        scheduleRevealRevert(true, hadStartingStyle);
+      };
+
+      const cleanupBeforeMatchListener = addEventListener(panel, 'beforematch', handleBeforeMatch);
+
+      return () => {
+        revealDecisionTimeout.clear();
+        AnimationFrame.cancel(revertRevealFrame);
+        cleanupBeforeMatchListener();
+      };
     },
-    [onOpenChange, setOpen],
+    [latestOpenRef, onOpenChange, setOpen],
   );
 
   const shouldRender = keepMounted || hiddenUntilFound || mounted || open;
@@ -398,7 +477,7 @@ export function useCollapsiblePanel(
   };
 }
 
-function getDimensions(element: HTMLElement): Dimensions {
+function getDimensions(element: HTMLElement) {
   return {
     height: element.scrollHeight,
     width: element.scrollWidth,
@@ -407,7 +486,7 @@ function getDimensions(element: HTMLElement): Dimensions {
 
 function getAnimationType(
   element: HTMLElement,
-  hasSuppressedMountAnimation: boolean = false,
+  hasSuppressedMountAnimation: boolean,
 ): AnimationType {
   const panelStyles = ownerWindow(element).getComputedStyle(element);
   const hasAnimation =
@@ -420,6 +499,7 @@ function getAnimationType(
   const hasTransition = hasNonZeroDuration(panelStyles.transitionDuration);
 
   if (hasAnimation && hasTransition) {
+    /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
     if (process.env.NODE_ENV !== 'production') {
       warn(
         'CSS transitions and CSS animations both detected on Collapsible or Accordion panel.',

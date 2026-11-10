@@ -1,8 +1,8 @@
-import { expect } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { screen } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, positionerConformanceTests } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Tooltip.Trigger.Props,
@@ -25,331 +25,65 @@ describe('<Tooltip.Positioner />', () => {
     },
   }));
 
-  const baselineX = 10;
-  const baselineY = 36;
-  const popupWidth = 52;
-  const popupHeight = 24;
-  const anchorWidth = 72;
-  const anchorHeight = 36;
-  const triggerStyle = { width: anchorWidth, height: anchorHeight };
-  const popupStyle = { width: popupWidth, height: popupHeight };
-
-  it.skipIf(isJSDOM)('does not transition from the viewport origin on first open', async () => {
-    let transitionRuns = 0;
-
-    function App() {
-      const [open, setOpen] = React.useState(false);
-
-      return (
-        <React.Fragment>
-          <style>{`
-            .initial-position-transition-test {
-              transition: transform 200ms linear;
-            }
-          `}</style>
-          <button type="button" onClick={() => setOpen(true)}>
-            Open
-          </button>
-          <Tooltip.Root open={open}>
-            <Trigger style={triggerStyle}>Trigger</Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Positioner
-                ref={(element) => {
-                  element?.addEventListener('transitionrun', (event) => {
-                    if (event.propertyName === 'transform') {
-                      transitionRuns += 1;
-                    }
-                  });
-                }}
-                className="initial-position-transition-test"
-                data-testid="positioner"
-              >
-                <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-              </Tooltip.Positioner>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </React.Fragment>
+  describe('prop: side', () => {
+    it('uses the side prop over the default', async () => {
+      await render(
+        <Tooltip.Root open>
+          <Trigger>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner" side="bottom" />
+          </Tooltip.Portal>
+        </Tooltip.Root>,
       );
+
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'bottom');
+    });
+  });
+
+  it('throws a descriptive error when rendered outside <Tooltip.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Tooltip.Positioner />)).rejects.toThrow(
+        'Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
     }
-
-    await render(<App />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
-
-    const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner.style.opacity).toBe('');
-    });
-
-    await waitFor(() => {
-      expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
-    });
-    expect(transitionRuns).toBe(0);
   });
 
-  describe.skipIf(isJSDOM)('prop: sideOffset', () => {
-    it('offsets the side when a number is specified', async () => {
-      const sideOffset = 7;
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner data-testid="positioner" sideOffset={sideOffset}>
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
+  it('throws a descriptive error when rendered outside <Tooltip.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX,
-        y: baselineY + sideOffset,
-      });
-    });
-
-    it('offsets the side when a function is specified', async () => {
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner
-              data-testid="positioner"
-              sideOffset={(data) => data.positioner.width + data.anchor.width}
-            >
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX,
-        y: baselineY + popupWidth + anchorWidth,
-      });
-    });
-
-    it('can read the latest side inside sideOffset', async () => {
-      let side = 'none';
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner
-              side="left"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('right');
-    });
-
-    it('can read the latest align inside sideOffset', async () => {
-      let align = 'none';
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner
-              side="right"
-              align="start"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                align = data.align;
-                return 0;
-              }}
-            >
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      // correctly flips the align in the browser
-      expect(align).toBe('end');
-    });
-
-    it('reads logical side inside sideOffset', async () => {
-      let side = 'none';
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner
-              side="inline-start"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('inline-end');
-    });
+    try {
+      await expect(
+        render(
+          <Tooltip.Root open>
+            <Tooltip.Positioner />
+          </Tooltip.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <Tooltip.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
-  describe.skipIf(isJSDOM)('prop: alignOffset', () => {
-    it('offsets the align when a number is specified', async () => {
-      const alignOffset = 7;
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner data-testid="positioner" alignOffset={alignOffset}>
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX + alignOffset,
-        y: baselineY,
-      });
-    });
-
-    it('offsets the align when a function is specified', async () => {
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner
-              data-testid="positioner"
-              alignOffset={(data) => data.positioner.width}
-            >
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX + popupWidth,
-        y: baselineY,
-      });
-    });
-
-    it('can read the latest side inside alignOffset', async () => {
-      let side = 'none';
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner
-              side="left"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('right');
-    });
-
-    it('can read the latest align inside alignOffset', async () => {
-      let align = 'none';
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner
-              side="right"
-              align="start"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                align = data.align;
-                return 0;
-              }}
-            >
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      // correctly flips the align in the browser
-      expect(align).toBe('end');
-    });
-
-    it('reads logical side inside alignOffset', async () => {
-      let side = 'none';
-      await render(
-        <Tooltip.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Positioner
-              side="inline-start"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('inline-end');
-    });
-  });
-
-  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    await render(
-      <Tooltip.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
+  positionerConformanceTests({
+    render,
+    viewport: true,
+    defaultSide: 'top',
+    defaultCollisionAvoidance: 'popup',
+    createComponent: ({ root, trigger, positioner, popup, viewport }) => (
+      <Tooltip.Root {...root}>
+        <Trigger {...trigger}>Trigger</Trigger>
         <Tooltip.Portal>
-          <Tooltip.Positioner data-testid="positioner">
-            <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
-          </Tooltip.Positioner>
-        </Tooltip.Portal>
-      </Tooltip.Root>,
-    );
-
-    const positioner = screen.getByTestId('positioner');
-    expect(positioner.style.transform).not.toBe('');
-  });
-
-  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    await render(
-      <Tooltip.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Positioner data-testid="positioner">
-            <Tooltip.Popup style={popupStyle}>
-              <Tooltip.Viewport>Popup</Tooltip.Viewport>
+          <Tooltip.Positioner {...positioner}>
+            <Tooltip.Popup {...popup}>
+              {viewport ? <Tooltip.Viewport>Popup</Tooltip.Viewport> : 'Popup'}
             </Tooltip.Popup>
           </Tooltip.Positioner>
         </Tooltip.Portal>
-      </Tooltip.Root>,
-    );
-
-    const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner.style.transform).toBe('');
-    });
+      </Tooltip.Root>
+    ),
   });
 });

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
@@ -14,15 +14,18 @@ import { stateAttributesMapping } from '../stateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLabel';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Represents the switch itself.
@@ -62,7 +65,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     setDirty,
     validityData,
     setFilled,
-    setFocused,
     validationMode,
     disabled: fieldDisabled,
     name: fieldName,
@@ -77,14 +79,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
+  const setFocused = useSetFieldFocused(disabled, switchRef);
 
   const id = useBaseUiId();
 
-  const controlId = useLabelableId({
-    id: idProp,
-    implicit: false,
-    controlRef: switchRef,
-  });
+  const controlId = useLabelableId({ id: idProp });
   const hiddenInputId = nativeButton ? undefined : controlId;
 
   const [checked, setCheckedState] = useControlled({
@@ -97,15 +96,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   useRegisterFieldControl(switchRef, id, checked, undefined, !disabled, nameProp);
 
   useIsoLayoutEffect(() => {
-    if (inputRef.current) {
-      setFilled(inputRef.current.checked);
-    }
-  }, [setFilled]);
+    setFilled(checked);
+  }, [checked, setFilled]);
 
   useValueChanged(checked, () => {
     clearErrors(name);
     setDirty(checked !== validityData.initialValue);
-    setFilled(checked);
 
     validation.change(checked);
   });
@@ -120,6 +116,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     inputRef,
     !nativeButton,
     hiddenInputId,
+    resolveRenderedAriaLabel(componentProps),
   );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
@@ -130,9 +127,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     'aria-required': required || undefined,
     'aria-labelledby': ariaLabelledBy,
     onFocus() {
-      if (!disabled) {
-        setFocused(true);
-      }
+      setFocused(true);
     },
     onBlur() {
       const element = inputRef.current;
@@ -171,7 +166,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     id: hiddenInputId,
     name,
     required,
-    style: name ? visuallyHiddenInput : visuallyHidden,
+    style: name ? visuallyHiddenInput : visuallyHiddenInputPinned,
+    onInvalid: handleHiddenInputInvalid,
     tabIndex: -1,
     type: 'checkbox',
     'aria-hidden': true,
@@ -307,8 +303,7 @@ export interface SwitchRootProps
    * Event handler called when the switch is activated or deactivated.
    */
   onCheckedChange?:
-    | ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the user should be unable to activate or deactivate the switch.
    * @default false

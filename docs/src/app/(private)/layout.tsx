@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Metadata, Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (

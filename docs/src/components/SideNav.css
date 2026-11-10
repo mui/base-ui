@@ -142,7 +142,7 @@
     user-select: none;
 
     @media (hover: hover) {
-      &:not([data-active]):hover {
+      &:hover {
         text-decoration: underline;
         text-underline-offset: 2px;
         text-decoration-thickness: 1px;
@@ -159,7 +159,6 @@
       outline-offset: -1px;
       font-weight: var(--font-weight-400);
       word-spacing: -0.005em;
-      cursor: default;
     }
 
     &:focus-visible {

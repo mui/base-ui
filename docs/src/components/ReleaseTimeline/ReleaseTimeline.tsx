@@ -23,7 +23,6 @@ function renderHighlight(text: string): React.ReactNode {
 export function ReleaseTimeline() {
   return (
     <ul className="ReleaseTimeline" aria-label="Release timeline">
-      <div className="TimelineSpine" />
       {releases.map((release) => (
         <li key={release.versionSlug} className="TimelineItem">
           <article className="TimelineCard">
@@ -31,7 +30,7 @@ export function ReleaseTimeline() {
               <time className="TimelineDate" dateTime={release.date}>
                 {dateFormatter.format(new Date(release.date))}
               </time>
-              <h3 className="TimelineVersion">
+              <h2 className="TimelineVersion">
                 <Link
                   className="TimelineVersionLink"
                   href={`/react/overview/releases/${release.versionSlug}`}
@@ -39,7 +38,7 @@ export function ReleaseTimeline() {
                   {release.version}
                 </Link>
                 {release.latest && <span className="TimelineBadge">Latest</span>}
-              </h3>
+              </h2>
             </div>
             <ul className="TimelineHighlights">
               {release.highlights.map((highlight, i) => (

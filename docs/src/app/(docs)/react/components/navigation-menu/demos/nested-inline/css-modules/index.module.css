@@ -56,7 +56,7 @@
     }
   }
 
-  &[data-popup-open] {
+  &[data-pressed] {
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
@@ -305,7 +305,7 @@
     }
   }
 
-  &[data-popup-open] {
+  &[data-pressed] {
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
@@ -470,14 +470,6 @@
   text-align: left;
   border: 0;
   background-color: transparent;
-
-  &[data-popup-open] {
-    background-color: oklch(97% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
-    }
-  }
 
   @media (hover: hover) {
     &:hover {

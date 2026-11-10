@@ -9,6 +9,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": false,
+    "stripInternal": true,
     "rootDir": "./src",
     "outDir": "build",
     "types": ["@mui/internal-code-infra/build-env"]

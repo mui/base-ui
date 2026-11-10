@@ -1,7 +1,8 @@
-import { expect, vi } from 'vitest';
-import { createRenderer, screen, waitFor } from '@mui/internal-test-utils';
+import { expect, vi, describe, it } from 'vitest';
+import * as React from 'react';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Fieldset } from '@base-ui/react/fieldset';
-import { describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Fieldset.Legend />', () => {
   const { render, renderToString } = createRenderer();
@@ -13,8 +14,8 @@ describe('<Fieldset.Legend />', () => {
     },
   }));
 
-  it('should set aria-labelledby on the fieldset automatically', () => {
-    render(
+  it('should set aria-labelledby on the fieldset automatically', async () => {
+    await render(
       <Fieldset.Root>
         <Fieldset.Legend data-testid="legend">Legend</Fieldset.Legend>
       </Fieldset.Root>,
@@ -26,8 +27,8 @@ describe('<Fieldset.Legend />', () => {
     );
   });
 
-  it('should set aria-labelledby on the fieldset with custom id', () => {
-    render(
+  it('should set aria-labelledby on the fieldset with custom id', async () => {
+    await render(
       <Fieldset.Root>
         <Fieldset.Legend id="legend-id" />
       </Fieldset.Root>,
@@ -36,11 +37,50 @@ describe('<Fieldset.Legend />', () => {
     expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'legend-id');
   });
 
-  it('throws a descriptive error when rendered outside <Fieldset.Root>', () => {
+  it('reflects the disabled state', async () => {
+    await render(
+      <Fieldset.Root disabled>
+        <Fieldset.Legend data-testid="legend">Legend</Fieldset.Legend>
+      </Fieldset.Root>,
+    );
+
+    expect(screen.getByTestId('legend')).toHaveAttribute('data-disabled');
+  });
+
+  it('updates and clears the legend association', async () => {
+    function App() {
+      const [legendId, setLegendId] = React.useState('legend-a');
+      const [showLegend, setShowLegend] = React.useState(true);
+
+      return (
+        <React.Fragment>
+          <Fieldset.Root>
+            {showLegend ? <Fieldset.Legend id={legendId}>Legend</Fieldset.Legend> : null}
+          </Fieldset.Root>
+          <button type="button" onClick={() => setLegendId('legend-b')}>
+            Change id
+          </button>
+          <button type="button" onClick={() => setShowLegend(false)}>
+            Remove legend
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+
+    expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'legend-a');
+    fireEvent.click(screen.getByRole('button', { name: 'Change id' }));
+    expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'legend-b');
+    fireEvent.click(screen.getByRole('button', { name: 'Remove legend' }));
+    expect(screen.getByRole('group')).not.toHaveAttribute('aria-labelledby');
+  });
+
+  it('throws a descriptive error when rendered outside <Fieldset.Root>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     try {
-      expect(() => render(<Fieldset.Legend />)).toThrow(
+      await expect(render(<Fieldset.Legend />)).rejects.toThrow(
         'Base UI: FieldsetRootContext is missing. Fieldset parts must be placed within <Fieldset.Root>.',
       );
     } finally {

@@ -22,14 +22,10 @@ export const ToastContent = React.forwardRef(function ToastContent(
   const contentRef = React.useRef<HTMLDivElement | null>(null);
 
   useIsoLayoutEffect(() => {
-    const node = contentRef.current;
-    if (!node) {
-      return undefined;
-    }
-
     recalculateHeight();
 
-    if (typeof ResizeObserver !== 'function' || typeof MutationObserver !== 'function') {
+    const node = contentRef.current;
+    if (!node || typeof ResizeObserver !== 'function' || typeof MutationObserver !== 'function') {
       return undefined;
     }
 

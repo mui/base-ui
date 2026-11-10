@@ -125,7 +125,12 @@ type NumberFieldRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   direction?: Direction;
 };
@@ -534,6 +539,211 @@ type NumberFieldIncrementState = {
 };
 ```
 
+## Additional Types
+
+### NumberFieldDecrementDataAttributes
+
+Data attributes of [Decrement](#decrement).
+
+```typescript
+declare namespace NumberFieldDecrementDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldGroupDataAttributes
+
+Data attributes of [Group](#group).
+
+```typescript
+declare namespace NumberFieldGroupDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldIncrementDataAttributes
+
+Data attributes of [Increment](#increment).
+
+```typescript
+declare namespace NumberFieldIncrementDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldInputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace NumberFieldInputDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace NumberFieldRootDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldScrubAreaCursorDataAttributes
+
+Data attributes of [ScrubAreaCursor](#scrubareacursor).
+
+```typescript
+declare namespace NumberFieldScrubAreaCursorDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldScrubAreaDataAttributes
+
+Data attributes of [ScrubArea](#scrubarea).
+
+```typescript
+declare namespace NumberFieldScrubAreaDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
 ## External Types
 
 ### Direction
@@ -551,7 +761,7 @@ type Direction = -1 | 1;
 - `NumberField.Input`: `NumberField.Input`, `NumberField.Input.State`, `NumberField.Input.Props`
 - `NumberField.ScrubArea`: `NumberField.ScrubArea`, `NumberField.ScrubArea.State`, `NumberField.ScrubArea.Props`
 - `NumberField.ScrubAreaCursor`: `NumberField.ScrubAreaCursor`, `NumberField.ScrubAreaCursor.State`, `NumberField.ScrubAreaCursor.Props`
-- `Default`: `NumberFieldRootProps`, `NumberFieldRootState`, `NumberFieldRootChangeEventReason`, `NumberFieldRootChangeEventDetails`, `NumberFieldRootCommitEventReason`, `NumberFieldRootCommitEventDetails`, `NumberFieldGroupState`, `NumberFieldGroupProps`, `NumberFieldIncrementState`, `NumberFieldIncrementProps`, `NumberFieldDecrementState`, `NumberFieldDecrementProps`, `NumberFieldInputState`, `NumberFieldInputProps`, `NumberFieldScrubAreaState`, `NumberFieldScrubAreaProps`, `NumberFieldScrubAreaCursorState`, `NumberFieldScrubAreaCursorProps`
+- `Default`: `NumberFieldRootDataAttributes`, `NumberFieldGroupDataAttributes`, `NumberFieldIncrementDataAttributes`, `NumberFieldDecrementDataAttributes`, `NumberFieldInputDataAttributes`, `NumberFieldScrubAreaDataAttributes`, `NumberFieldScrubAreaCursorDataAttributes`, `NumberFieldRootProps`, `NumberFieldRootState`, `NumberFieldRootChangeEventReason`, `NumberFieldRootChangeEventDetails`, `NumberFieldRootCommitEventReason`, `NumberFieldRootCommitEventDetails`, `NumberFieldGroupState`, `NumberFieldGroupProps`, `NumberFieldIncrementState`, `NumberFieldIncrementProps`, `NumberFieldDecrementState`, `NumberFieldDecrementProps`, `NumberFieldInputState`, `NumberFieldInputProps`, `NumberFieldScrubAreaState`, `NumberFieldScrubAreaProps`, `NumberFieldScrubAreaCursorState`, `NumberFieldScrubAreaCursorProps`
 
 ## Canonical Types
 
@@ -575,3 +785,21 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `NumberField.ScrubArea.Props`: `NumberFieldScrubAreaProps`
 - `NumberField.ScrubAreaCursor.State`: `NumberFieldScrubAreaCursorState`
 - `NumberField.ScrubAreaCursor.Props`: `NumberFieldScrubAreaCursorProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `ClipboardEvent`: <https://developer.mozilla.org/docs/Web/API/ClipboardEvent>
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>
+- `InputEvent`: <https://developer.mozilla.org/docs/Web/API/InputEvent>
+- `Intl.LocalesArgument`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument>
+- `Intl.NumberFormatOptions`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>
+- `WheelEvent`: <https://developer.mozilla.org/docs/Web/API/WheelEvent>

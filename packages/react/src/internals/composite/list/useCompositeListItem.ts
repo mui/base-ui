@@ -4,14 +4,21 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
+  /**
+   * Whether to guess the initial index from render order, avoiding a re-render after mount for
+   * flat lists.
+   * @default false
+   */
+  guess?: boolean | undefined;
   index?: number | undefined;
   label?: string | null | undefined;
+  /**
+   * Metadata published with the item. Keep object values referentially stable to avoid
+   * unnecessarily detaching and reattaching the callback ref.
+   */
   metadata?: Metadata | undefined;
+  /** Keep the ref object stable to avoid unnecessarily reattaching the item. */
   textRef?: React.RefObject<HTMLElement | null> | undefined;
-  /** Enables guessing the indexes. This avoids a re-render after mount, which is useful for
-   * large lists. This should be used for lists that are likely flat and vertical, other cases
-   * might trigger a re-render anyway. */
-  indexGuessBehavior?: IndexGuessBehavior | undefined;
 }
 
 interface UseCompositeListItemReturnValue {
@@ -19,74 +26,60 @@ interface UseCompositeListItemReturnValue {
   index: number;
 }
 
-const GUESS_FROM_ORDER = 1;
-
-export const IndexGuessBehavior = {
-  None: 0,
-  GuessFromOrder: GUESS_FROM_ORDER,
-} as const;
-export type IndexGuessBehavior = (typeof IndexGuessBehavior)[keyof typeof IndexGuessBehavior];
-
 /**
  * Used to register a list item and its index (DOM position) in the `CompositeList`.
  */
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { label, metadata, textRef, indexGuessBehavior, index: externalIndex } = params;
+  const { guess, label, metadata, textRef, index: externalIndex } = params;
 
-  const { register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef } =
-    useCompositeListContext();
+  const { register, unregister, subscribeMapChange, nextIndexRef } = useCompositeListContext();
 
+  // Guess the index from the render order. This avoids a re-render after mount for
+  // flat lists rendered in DOM order; when the guess is wrong (grouped or out-of-order
+  // rendering), the commit flush corrects it before paint.
   const indexRef = React.useRef(-1);
-  const [index, setIndex] = React.useState<number>(
-    externalIndex ??
-      (indexGuessBehavior === GUESS_FROM_ORDER
-        ? () => {
-            if (indexRef.current === -1) {
-              const newIndex = nextIndexRef.current;
-              nextIndexRef.current += 1;
-              indexRef.current = newIndex;
-            }
-            return indexRef.current;
+  const [internalIndex, setInternalIndex] = React.useState<number>(
+    externalIndex == null && guess
+      ? () => {
+          if (indexRef.current === -1) {
+            const newIndex = nextIndexRef.current;
+            nextIndexRef.current += 1;
+            indexRef.current = newIndex;
           }
-        : -1),
+          return indexRef.current;
+        }
+      : -1,
   );
+  const index = externalIndex ?? internalIndex;
 
   const componentRef = React.useRef<Element | null>(null);
 
+  // Deliberately identity-sensitive: nested items sharing one DOM node rely on ref attachment
+  // order to decide which registration wins, and republishing from an effect instead would let
+  // an inner item's later update silently take ownership from the outer one.
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
+      const previousNode = componentRef.current;
+
+      if (previousNode) {
+        unregister(previousNode);
+      }
+
       componentRef.current = node;
 
-      if (index !== -1 && node !== null) {
-        elementsRef.current[index] = node;
-
-        if (labelsRef) {
-          const isLabelDefined = label !== undefined;
-          labelsRef.current[index] = isLabelDefined
-            ? label
-            : (textRef?.current?.textContent ?? node.textContent);
-        }
+      if (node) {
+        register(node, {
+          metadata: metadata ?? null,
+          index: externalIndex ?? null,
+          label,
+          textRef,
+        });
       }
     },
-    [index, elementsRef, labelsRef, label, textRef],
+    [externalIndex, register, unregister, metadata, label, textRef],
   );
-
-  useIsoLayoutEffect(() => {
-    if (externalIndex != null) {
-      return undefined;
-    }
-
-    const node = componentRef.current;
-    if (node) {
-      register(node, metadata);
-      return () => {
-        unregister(node);
-      };
-    }
-    return undefined;
-  }, [externalIndex, register, unregister, metadata]);
 
   useIsoLayoutEffect(() => {
     if (externalIndex != null) {
@@ -97,10 +90,10 @@ export function useCompositeListItem<Metadata>(
       const i = componentRef.current ? map.get(componentRef.current)?.index : null;
 
       if (i != null) {
-        setIndex(i);
+        setInternalIndex(i);
       }
     });
-  }, [externalIndex, subscribeMapChange, setIndex]);
+  }, [externalIndex, subscribeMapChange]);
 
   return { ref, index };
 }

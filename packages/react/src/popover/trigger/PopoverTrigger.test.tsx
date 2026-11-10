@@ -1,6 +1,13 @@
-import { expect } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
+import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  enterWithMouse,
+  isJSDOM,
+  resetBrowserPointer,
+} from '#test-utils';
 import {
   act,
   fireEvent,
@@ -12,16 +19,30 @@ import {
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Trigger />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   describeConformance(<Popover.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render(node) {
       return render(<Popover.Root open>{node}</Popover.Root>);
     },
   }));
+
+  it('throws a descriptive error when rendered without a root or a handle', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Popover.Trigger>Toggle</Popover.Trigger>)).rejects.toThrow(
+        'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describe('prop: disabled', () => {
     it('disables the popover', async () => {
@@ -91,6 +112,96 @@ describe('<Popover.Trigger />', () => {
 
       expect(screen.queryByText('Content')).toBe(null);
       expect(trigger).not.toHaveAttribute('data-popup-open');
+    });
+  });
+
+  describe('openOnHover opened by touch', () => {
+    function MultiTriggerPopover() {
+      return (
+        <Popover.Root>
+          {({ payload }) => (
+            <React.Fragment>
+              <Popover.Trigger
+                payload="One"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
+                One
+              </Popover.Trigger>
+              <Popover.Trigger
+                payload="Two"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
+                Two
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <span data-testid="content">{payload as string}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </React.Fragment>
+          )}
+        </Popover.Root>
+      );
+    }
+
+    async function pressTrigger(trigger: HTMLElement, pointerType: 'mouse' | 'touch') {
+      // eslint-disable-next-line testing-library/no-unnecessary-act -- flush the complete synthetic press before the browser can dispatch physical pointer movement
+      await act(async () => {
+        fireEvent.pointerDown(trigger, { pointerType });
+        fireEvent.mouseDown(trigger);
+        fireEvent.click(trigger, { detail: 1 });
+      });
+    }
+
+    function hoverTrigger(trigger: HTMLElement) {
+      enterWithMouse(trigger);
+    }
+
+    // A touch tap leaves the pointer parked wherever the cursor happens to be, so hover must stay
+    // disarmed until the popover is reopened by some other means. Otherwise a stray hover over a
+    // sibling trigger silently swaps the content the user just tapped for.
+    it('keeps ownership on the tapped trigger when a sibling trigger is hovered', async () => {
+      await render(<MultiTriggerPopover />);
+
+      const one = screen.getByRole('button', { name: 'One' });
+      const two = screen.getByRole('button', { name: 'Two' });
+
+      await pressTrigger(one, 'touch');
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+
+      hoverTrigger(two);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+      expect(two).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    // The same hover must still take over when the popover was opened with a mouse, so the guard
+    // above can't be a blanket disable.
+    it('hands ownership to a hovered sibling trigger when opened by mouse', async () => {
+      await render(<MultiTriggerPopover />);
+
+      const one = screen.getByRole('button', { name: 'One' });
+      const two = screen.getByRole('button', { name: 'Two' });
+
+      await pressTrigger(one, 'mouse');
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+
+      hoverTrigger(two);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('content')).toHaveTextContent('Two');
+      expect(two).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
@@ -184,29 +295,6 @@ describe('<Popover.Trigger />', () => {
 
     clock.withFakeTimers();
 
-    it('does not close the popover if the user clicks too quickly', async () => {
-      await renderFakeTimers(
-        <Popover.Root>
-          <Popover.Trigger delay={0} openOnHover />
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup />
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseMove(trigger);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
-
-      fireEvent.click(trigger);
-
-      expect(trigger).toHaveAttribute('data-popup-open');
-    });
-
     it('closes the popover if the user clicks patiently', async () => {
       await renderFakeTimers(
         <Popover.Root>
@@ -228,6 +316,11 @@ describe('<Popover.Trigger />', () => {
       fireEvent.click(trigger);
 
       expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      // Leaving the trigger afterwards doesn't reopen it.
+      fireEvent.mouseLeave(trigger);
+
+      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks if the user clicks impatiently', async () => {
@@ -246,9 +339,15 @@ describe('<Popover.Trigger />', () => {
 
       fireEvent.mouseEnter(trigger);
 
+      // The hover opened the popover, so the click below lands on an open popover.
+      expect(trigger).toHaveAttribute('data-popup-open');
+
       clock.tick(PATIENT_CLICK_THRESHOLD - 1);
 
       fireEvent.click(trigger);
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+
       fireEvent.mouseLeave(trigger);
 
       expect(trigger).toHaveAttribute('data-popup-open');
@@ -256,30 +355,6 @@ describe('<Popover.Trigger />', () => {
       clock.tick(1);
 
       expect(trigger).toHaveAttribute('data-popup-open');
-    });
-
-    it('does not stick if the user clicks patiently', async () => {
-      await renderFakeTimers(
-        <Popover.Root>
-          <Popover.Trigger delay={0} openOnHover />
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup />
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD);
-
-      fireEvent.click(trigger);
-      fireEvent.mouseLeave(trigger);
-
-      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks when clicked before the hover delay completes', async () => {
@@ -345,6 +420,68 @@ describe('<Popover.Trigger />', () => {
 
       fireEvent.click(trigger);
       expect(screen.getByText('Content')).not.toBe(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('opened by hover', () => {
+    beforeEach(() => {
+      ignoreActWarnings();
+    });
+
+    async function renderOpenedByHover(tabIndex?: number) {
+      const { userEvent: user } = await import('vitest/browser');
+      await render(
+        <div>
+          <button data-testid="before">Before</button>
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0} tabIndex={tabIndex}>
+              Toggle
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <button>Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after">After</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.hover(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      return { trigger, user };
+    }
+
+    it.each([
+      { direction: 'forward', destination: 'after' },
+      { direction: 'backward', destination: 'before' },
+    ])('tabs $direction from the trigger in native order', async ({ direction, destination }) => {
+      const { trigger, user } = await renderOpenedByHover();
+      await act(async () => trigger.focus());
+      expect(trigger).toHaveFocus();
+
+      await user.tab({ shift: direction === 'backward' });
+
+      expect(screen.getByTestId(destination)).toHaveFocus();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it.each([
+      { tabIndex: 0, result: 'onto the trigger' },
+      { tabIndex: -1, result: 'past an untabbable trigger' },
+    ])('tabs $result', async ({ tabIndex }) => {
+      const { trigger, user } = await renderOpenedByHover(tabIndex);
+      await act(async () => screen.getByTestId('before').focus());
+
+      await user.tab();
+
+      expect(tabIndex === 0 ? trigger : screen.getByTestId('after')).toHaveFocus();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
   });
 

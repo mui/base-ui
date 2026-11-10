@@ -2,10 +2,8 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  createGenericEventDetails,
-  type BaseUIGenericEventDetails,
-} from '../internals/createBaseUIEventDetails';
+import { createGenericEventDetails } from '../internals/createBaseUIEventDetails';
+import type { BaseUIGenericEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
 import type { BaseUIComponentProps } from '../internals/types';
 import { FormContext } from '../internals/form-context/FormContext';
@@ -36,21 +34,38 @@ export const Form = React.forwardRef(function Form<
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
+  const elementRef = React.useRef<HTMLFormElement>(null);
   const submittedRef = React.useRef(false);
-  const submitAttemptedRef = React.useRef(false);
+  const submitCountRef = React.useRef(0);
 
   const focusFirstInvalid = useStableCallback(() => {
-    const invalidField = Array.from(formRef.current.fields.values()).find(
-      (field) => field.validityData.state.valid === false,
-    );
-    const control = invalidField?.controlRef.current;
-    if (control) {
-      control.focus();
-      if (control.tagName === 'INPUT') {
-        (control as HTMLInputElement).select();
+    // A field can be invalid without a focusable control (for example a checkbox group whose
+    // custom validation failed while every checkbox is unmounted, disabled, or reassociated).
+    // Keep submission blocked, but move focus to the first invalid field that has a usable control.
+    // Registration order can diverge from DOM order (keyed fields reordered without
+    // remounting, portals), so pick the first control by document position. For controls
+    // in disconnected trees (e.g. separate shadow roots), where document position is
+    // implementation-specific, keep registration order.
+    let hasInvalid = false;
+    let firstControl: HTMLElement | null = null;
+    for (const field of formRef.current.fields.values()) {
+      if (field.validityData.state.valid !== false) {
+        continue;
+      }
+      hasInvalid = true;
+      const control = field.controlRef.current;
+      if (control && (!firstControl || comesBeforeInSameTree(control, firstControl))) {
+        firstControl = control;
       }
     }
-    return invalidField !== undefined;
+    if (firstControl) {
+      firstControl.focus();
+      if (firstControl.tagName === 'INPUT') {
+        (firstControl as HTMLInputElement).select();
+      }
+      return true;
+    }
+    return hasInvalid;
   });
 
   const [errors, setErrors] = React.useState(externalErrors);
@@ -87,12 +102,12 @@ export const Form = React.forwardRef(function Form<
   );
 
   const element = useRenderElement('form', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, elementRef],
     props: [
       {
         noValidate: true,
         onSubmit(event) {
-          submitAttemptedRef.current = true;
+          submitCountRef.current += 1;
 
           // Async validation isn't supported to stop the submit event.
           formRef.current.fields.forEach((field) => {
@@ -126,20 +141,27 @@ export const Form = React.forwardRef(function Form<
   });
 
   const clearErrors = useStableCallback((name: string | undefined) => {
-    if (name && errors && Object.hasOwn(errors, name)) {
-      const nextErrors = { ...errors };
-      delete nextErrors[name];
-      setErrors(nextErrors);
+    if (!name) {
+      return;
     }
+    setErrors((previousErrors) => {
+      if (!previousErrors || !Object.hasOwn(previousErrors, name)) {
+        return previousErrors;
+      }
+      const nextErrors = { ...previousErrors };
+      delete nextErrors[name];
+      return nextErrors;
+    });
   });
 
   const contextValue: FormContext = React.useMemo(
     () => ({
+      elementRef,
       formRef,
       validationMode,
       errors: errors ?? EMPTY_OBJECT,
       clearErrors,
-      submitAttemptedRef,
+      submitCountRef,
     }),
     [formRef, validationMode, errors, clearErrors],
   );
@@ -189,8 +211,7 @@ export interface FormProps<
    * `preventDefault()` is called on the native submit event when used.
    */
   onFormSubmit?:
-    | ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void)
-    | undefined;
+    ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void) | undefined;
   /**
    * A ref to imperative actions.
    * - `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.
@@ -216,4 +237,13 @@ export namespace Form {
   export type SubmitEventDetails = FormSubmitEventDetails;
 
   export type Values<FormValues extends Record<string, any> = Record<string, any>> = FormValues;
+}
+
+/* eslint-disable no-bitwise */
+function comesBeforeInSameTree(element: Node, reference: Node) {
+  const position = element.compareDocumentPosition(reference);
+  return (
+    (position & Node.DOCUMENT_POSITION_DISCONNECTED) === 0 &&
+    (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+  );
 }

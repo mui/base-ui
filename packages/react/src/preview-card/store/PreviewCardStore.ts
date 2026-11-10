@@ -1,25 +1,28 @@
-import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
-import {
-  applyPopupOpenChange,
-  createPopupFloatingRootContext,
-  createInitialPopupStoreState,
-  InlineRectCoords,
+import type * as React from 'react';
+import { NOOP } from '@base-ui/utils/empty';
+import type {
   PopupStoreContext,
-  popupStoreSelectors,
   PopupStoreState,
-  PopupTriggerMap,
-  type PopupTriggerStoreKeys,
-  updateInlineRectCoords,
-} from '../../utils/popups';
-import { type PreviewCardRoot } from '../root/PreviewCardRoot';
+  PopupTriggerStoreKeys,
+} from '../../utils/popups/store';
+import { updateInlineRectCoords } from '../../utils/popups/inlineRect';
+import type { InlineRectCoords } from '../../utils/popups/inlineRect';
+import {
+  BasePopupStore,
+  createInitialPopupStoreState,
+  createPopupStoreContext,
+  getHoverPopupInstantType,
+  popupStoreSelectors,
+} from '../../utils/popups/store';
+import type { PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
-import { NullStore } from '../../utils/NullStore';
+import { NullStore } from '../../utils/popups/NullStore';
 import { CLOSE_DELAY } from '../utils/constants';
+import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
   closeDelay: number;
 };
 
@@ -29,9 +32,10 @@ export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
-  instantType: createSelector((state: State<unknown>) => state.instantType),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
-  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  instantType: (state: State<unknown>) => state.instantType,
+  adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
+    state.adaptiveOrigin,
+  closeDelay: (state: State<unknown>) => state.closeDelay,
 };
 
 type Selectors = typeof selectors;
@@ -39,66 +43,57 @@ type Selectors = typeof selectors;
 /**
  * The store view that detached handle-backed triggers read from. Both the real `PreviewCardStore`
  * and the inert fallback store satisfy it, so a trigger can read from whichever store the handle
- * currently exposes. Narrowed to the trigger-data members a trigger uses; it exposes no popup-open
- * mutator, so the inert fallback can be a plain `NullStore`.
+ * currently exposes. Narrowed to the trigger-data members a trigger uses, plus `setOpen`, which
+ * the inert fallback provides as a no-op.
  */
 export type PreviewCardHandleStore<Payload> = Pick<
   PreviewCardStore<Payload>,
-  PopupTriggerStoreKeys
+  PopupTriggerStoreKeys | 'setOpen'
 >;
 
-export class PreviewCardStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class PreviewCardStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  Selectors
+  Selectors,
+  PreviewCardRoot.ChangeEventDetails
 > {
-  constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
-  ) {
-    const triggerElements = new PopupTriggerMap();
+  constructor(initialState: Partial<State<Payload>>, defaultPopupId: string | undefined) {
     super(
-      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
-      createInitialContext(triggerElements),
+      createInitialState<Payload>(initialState, defaultPopupId),
+      createInitialContext(),
       selectors,
     );
   }
 
-  public setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<PreviewCardRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) {
     const { inlineRectCoordsRef } = this.context;
 
-    applyPopupOpenChange<State<Payload>, PreviewCardRoot.ChangeEventDetails>(
-      this,
-      nextOpen,
-      eventDetails as PreviewCardRoot.ChangeEventDetails,
-      {
-        onBeforeDispatch() {
-          // Capture the hovered inline-rect coordinates so the card anchors to the
-          // exact point on the link that was hovered.
-          const event = eventDetails.event;
-          if (
-            nextOpen &&
-            eventDetails.reason === REASONS.triggerHover &&
-            eventDetails.trigger &&
-            'clientX' in event &&
-            'clientY' in event &&
-            inlineRectCoordsRef.current?.element !== eventDetails.trigger
-          ) {
-            updateInlineRectCoords(
-              inlineRectCoordsRef,
-              eventDetails.trigger,
-              event.clientX,
-              event.clientY,
-            );
-          }
-        },
-      },
-    );
-  };
+    // Capture the hovered inline-rect coordinates so the card anchors to the
+    // exact point on the link that was hovered.
+    const event = eventDetails.event;
+    if (
+      nextOpen &&
+      eventDetails.reason === REASONS.triggerHover &&
+      eventDetails.trigger &&
+      'clientX' in event &&
+      'clientY' in event &&
+      inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
+    }
+
+    return getHoverPopupInstantType(nextOpen, eventDetails.reason);
+  }
+
+  protected prepareUnmount() {
+    this.context.inlineRectCoordsRef.current = undefined;
+    return {};
+  }
 }
 
 /**
@@ -107,40 +102,32 @@ export class PreviewCardStore<Payload> extends ReactStore<
  * so detached triggers can register before migrating to the live root store.
  */
 export function createNullPreviewCardStore<Payload>(): PreviewCardHandleStore<Payload> {
-  const triggerElements = new PopupTriggerMap();
-
-  return new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
-    Object.freeze(createInitialContext(triggerElements)),
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    Object.freeze(createInitialState<Payload>(undefined)),
+    Object.freeze(createInitialContext()),
     selectors,
   );
+  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  triggerElements: PopupTriggerMap,
-  floatingId?: string | undefined,
-  nested = false,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     instantType: undefined,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
     closeDelay: CLOSE_DELAY,
     ...initialState,
   };
 
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
-
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(): Context {
   return {
-    popupRef: React.createRef<HTMLElement | null>(),
-    onOpenChange: undefined,
-    onOpenChangeComplete: undefined,
-    triggerElements,
+    ...createPopupStoreContext(),
     inlineRectCoordsRef: { current: undefined },
   };
 }

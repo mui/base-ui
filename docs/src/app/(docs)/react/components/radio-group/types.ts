@@ -1,4 +1,7 @@
+import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
-import { createTypes } from 'docs/src/utils/createTypes';
+import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-export const TypesRadioGroup = createTypes(import.meta.url, RadioGroup, { excludeFromIndex: true });
+const { types } = createMultipleTypes(import.meta.url, { RadioGroup, Radio });
+
+export const TypesRadioGroup = types;

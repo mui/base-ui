@@ -52,7 +52,7 @@ import { Toast } from '@base-ui/react/toast';
 
 - `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
 - <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
-  keyboard focus.
+  keyboard focus. Pressing <kbd>F6</kbd> again returns focus to where it was.
 - The `data-base-ui-swipe-ignore` attribute can be manually added to elements inside of a toast to prevent swipe-to-dismiss gestures on them. Interactive elements are automatically prevented.
 
 ## Global manager
@@ -90,12 +90,15 @@ The `--toast-offset-y` CSS variable can be used to determine the vertical offset
 }
 ```
 
-`<Toast.Content>` is used to hide overflow from taller toasts while the stack is collapsed.
+While the stack is collapsed, each toast's height can be clamped to the frontmost toast's height using the `--toast-frontmost-height` CSS variable, and `<Toast.Content>` is used to hide the content of the toasts behind it.
 The `data-behind` attribute marks content that sits behind the frontmost toast and pairs with the `data-expanded` attribute so the content fades back in when the viewport expands:
 
 ```css title="Collapsed content"
+.Toast {
+  height: var(--toast-frontmost-height, var(--toast-height));
+}
+
 .ToastContent {
-  overflow: hidden;
   transition: opacity 0.25s;
 }
 
@@ -160,6 +163,10 @@ This can be used to replay attention-grabbing styles by switching animation name
 
 Toasts can be anchored to a specific element using `<Toast.Positioner>` and the `positionerProps` option when adding a toast. This is useful for showing contextual feedback like transient "Copied" toasts that appear near the button that triggered the action.
 
+import { DemoToastAnchored } from './demos/anchored';
+
+<DemoToastAnchored />
+
 Anchored toasts should be rendered in a separate `<Toast.Provider>` from stacked toasts. A global toast manager can be created for each to manage them separately throughout your app:
 
 ```tsx title="Mixing stacked and anchored toasts"
@@ -180,41 +187,7 @@ function App() {
     </React.Fragment>
   );
 }
-
-function AnchoredToasts() {
-  const { toasts } = Toast.useToastManager();
-  return (
-    <Toast.Portal>
-      <Toast.Viewport>
-        {toasts.map((toast) => (
-          <Toast.Positioner key={toast.id} toast={toast}>
-            <Toast.Root toast={toast}>{/* ... */}</Toast.Root>
-          </Toast.Positioner>
-        ))}
-      </Toast.Viewport>
-    </Toast.Portal>
-  );
-}
-
-function StackedToasts() {
-  const { toasts } = Toast.useToastManager();
-  return (
-    <Toast.Portal>
-      <Toast.Viewport>
-        {toasts.map((toast) => (
-          <Toast.Root key={toast.id} toast={toast}>
-            {/* ... */}
-          </Toast.Root>
-        ))}
-      </Toast.Viewport>
-    </Toast.Portal>
-  );
-}
 ```
-
-import { DemoToastAnchored } from './demos/anchored';
-
-<DemoToastAnchored />
 
 ### Custom position
 
@@ -264,8 +237,8 @@ import { DemoToastDeduplicate } from './demos/deduplicate';
 
 ### Varying heights
 
-Toasts with varying heights are stacked by ensuring that the `<Toast.Content>` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0.
-This prevents taller toasts from overflowing the stack when collapsed.
+Toasts with varying heights are stacked by clamping every toast's height to the frontmost toast at index 0 using the `--toast-frontmost-height` CSS variable, while the `data-behind` attribute hides the content of the toasts behind it.
+Avoid sizing `<Toast.Content>` to the root's height (such as `height: 100%`), as resizing it alongside the root cancels the root's height transition.
 
 import { DemoToastVaryingHeights } from './demos/varying-heights';
 
@@ -377,6 +350,14 @@ toastManager.update(toastId, {
 });
 ```
 
+Options replace the corresponding values of the toast, including custom `data`, which is replaced as a whole. To derive the update from the current state of the toast, pass a function instead. It receives the current toast and returns the options to apply. Custom `data` is `undefined` when the toast has none yet:
+
+```jsx title="Deriving the update from the current toast"
+toastManager.update(toastId, (prevToast) => ({
+  data: prevToast.data && { ...prevToast.data, progress: 100 },
+}));
+```
+
 ### `close` method
 
 Closes the toast, removing it from the toast list after any animations complete.
@@ -409,7 +390,7 @@ const promise = toastManager.promise(
 );
 ```
 
-Each state also accepts the [method options](#toastmanagerupdateoptions) object to granularly control the toast for each state:
+The `loading` state accepts the [`add` method options](#toastmanageraddoptions). The `success` and `error` states accept the [`update` method options](#toastmanagerupdateoptions):
 
 ```tsx title="Method options configuration"
 const promise = toastManager.promise(
@@ -418,6 +399,7 @@ const promise = toastManager.promise(
   }),
   {
     loading: {
+      id: 'my-toast',
       title: 'Loading…',
       description: 'The promise is loading.',
     },
@@ -439,13 +421,17 @@ const promise = toastManager.promise(
 );
 ```
 
+Providing `loading.id` lets you update or close the toast by that ID. Reusing an ID updates the existing toast in place instead of adding another.
+
 See full [`promise` method](#ToastuseToastManager-promise)
 
 [//]: # '@exclude-table-of-contents'
 
-## Additional Types
+## Additional types
 
-<TypesToastAdditional showAdditionalTypes={['toastmanagerupdateoptions']} />
+<TypesToastAdditional
+  showAdditionalTypes={['toastmanageraddoptions', 'toastmanagerupdateoptions']}
+/>
 
 export const metadata = {
   keywords: [

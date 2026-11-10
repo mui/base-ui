@@ -9,3 +9,11 @@
 @import './components/List.css';
 @import './components/Separator.css';
 @import './components/Text.css';
+
+@layer theme {
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-content: var(--gray-s1);
+    }
+  }
+}

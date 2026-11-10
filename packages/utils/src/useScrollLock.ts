@@ -6,11 +6,20 @@ import { ownerDocument, ownerWindow } from './owner';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
-import { NOOP } from './empty';
 
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
+
+// The viewport's overflow comes from <html> when it establishes its own scroll container, and
+// propagates from <body> otherwise. An `overflow` style on the other element doesn't lock the page.
+function getViewportScroller(html: HTMLElement, body: HTMLElement) {
+  return isOverflowElement(html) ? html : body;
+}
+
+function isPageScrollLocked(win: typeof window, html: HTMLElement, body: HTMLElement) {
+  return /hidden|clip/.test(win.getComputedStyle(getViewportScroller(html, body)).overflowY);
+}
 
 function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
@@ -33,7 +42,7 @@ function supportsStableScrollbarGutter(referenceElement: Element | null) {
   const html = doc.documentElement;
   const body = doc.body;
 
-  const scrollContainer = isOverflowElement(html) ? html : body;
+  const scrollContainer = getViewportScroller(html, body);
 
   const originalScrollContainerOverflowY = scrollContainer.style.overflowY;
   const originalHtmlStyleGutter = html.style.scrollbarGutter;
@@ -61,7 +70,7 @@ function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   // won't have any effect.
   // But if <body> has an `overflow` style (like `overflow-x: hidden`), we need to lock it
   // instead, as sticky elements shift otherwise.
-  const elementToLock = isOverflowElement(html) ? html : body;
+  const elementToLock = getViewportScroller(html, body);
   const originalElementToLockStyles = {
     overflowY: elementToLock.style.overflowY,
     overflowX: elementToLock.style.overflowX,
@@ -137,7 +146,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     // with whitespace. Warn if <body> has margins?
     const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
     const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
-    const elementToLock = isOverflowElement(html) ? html : body;
+    const elementToLock = getViewportScroller(html, body);
 
     updateGutterOnly = supportsStableScrollbarGutter(referenceElement);
 
@@ -172,7 +181,9 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
         marginY || scrollbarHeight ? `calc(100dvh - ${marginY + scrollbarHeight}px)` : '100dvh',
       width: marginX || scrollbarWidth ? `calc(100vw - ${marginX + scrollbarWidth}px)` : '100vw',
       boxSizing: 'border-box',
-      overflow: 'hidden',
+      // Assign the longhands that `cleanup` restores, so nothing is left behind.
+      overflowY: 'hidden',
+      overflowX: 'hidden',
       scrollBehavior: 'unset',
     });
 
@@ -249,11 +260,30 @@ class ScrollLocker {
 
     const doc = ownerDocument(referenceElement);
     const html = doc.documentElement;
-    const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
+    const body = doc.body;
+    const win = ownerWindow(html);
 
-    // If the site author already hid overflow on <html>, respect it and bail out.
-    if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
-      this.restore = NOOP;
+    // The page is already locked, either by the site author or by a non-Base UI overlay that
+    // hasn't cleaned up yet. Leave it alone and wait for the lock to clear before taking over,
+    // otherwise we'd snapshot the locked state and restore it after our own lock is released.
+    if (isPageScrollLocked(win, html, body)) {
+      const observer = new win.MutationObserver(() => {
+        if (isPageScrollLocked(win, html, body)) {
+          return;
+        }
+        observer.disconnect();
+        this.restore = null;
+        this.lock(referenceElement);
+      });
+
+      // Watch every attribute: locks are applied through inline styles, classes, or attributes
+      // paired with a stylesheet (`data-scroll-locked` in react-remove-scroll, for example).
+      const options: MutationObserverInit = { attributes: true };
+
+      observer.observe(html, options);
+      observer.observe(body, options);
+
+      this.restore = () => observer.disconnect();
       return;
     }
 

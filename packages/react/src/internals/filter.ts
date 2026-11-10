@@ -1,24 +1,25 @@
+import { stringifyLocale } from '@base-ui/utils/stringifyLocale';
 import { stringifyAsLabel } from './resolveValueLabel';
-import { stringifyLocale } from '../utils/stringifyLocale';
 
 const filterCache = new Map<string, Filter>();
 
 export function getFilter(options: GetFilterParameters = {}): Filter {
-  const mergedOptions: Intl.CollatorOptions = {
+  const { locale, ...restOptions } = options;
+  const collatorOptions: Intl.CollatorOptions = {
     usage: 'search',
     sensitivity: 'base',
     ignorePunctuation: true,
-    ...options,
+    ...restOptions,
   };
 
-  const cacheKey = `${stringifyLocale(options.locale)}|${JSON.stringify(mergedOptions)}`;
+  const cacheKey = `${stringifyLocale(locale)}|${JSON.stringify(collatorOptions)}`;
   const cachedFilter = filterCache.get(cacheKey);
 
   if (cachedFilter) {
     return cachedFilter;
   }
 
-  const collator = new Intl.Collator(options.locale, mergedOptions);
+  const collator = new Intl.Collator(locale, collatorOptions);
 
   const filter: Filter = {
     contains<Item>(item: Item, query: string, itemToString?: (item: Item) => string) {

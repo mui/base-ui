@@ -1,13 +1,11 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
 
 type ElementType = React.ElementType;
 type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
 type InputProps<T extends React.ElementType> =
-  | PropsOf<T>
-  | ((otherProps: PropsOf<T>) => PropsOf<T>)
-  | undefined;
+  PropsOf<T> | ((otherProps: PropsOf<T>) => PropsOf<T>) | undefined;
 
 const EMPTY_PROPS = {};
 
@@ -119,7 +117,7 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
 function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<T>) {
   if (isPropsGetter(inputProps)) {
     // Getter-returned handlers intentionally keep their existing semantics.
-    return { ...resolvePropsGetter(inputProps, EMPTY_PROPS) };
+    return { ...inputProps(EMPTY_PROPS as PropsOf<T>) };
   }
 
   return copyInitialProps(inputProps);
@@ -127,7 +125,7 @@ function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<
 
 function mergeInto<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
   if (isPropsGetter(inputProps)) {
-    return resolvePropsGetter(inputProps, merged as PropsOf<T>);
+    return inputProps(merged as PropsOf<T>);
   }
   return mutablyMergeInto(merged, inputProps);
 }
@@ -207,17 +205,6 @@ function isPropsGetter<T extends React.ComponentType>(
   inputProps: InputProps<T>,
 ): inputProps is (props: PropsOf<T>) => PropsOf<T> {
   return typeof inputProps === 'function';
-}
-
-function resolvePropsGetter<T extends ElementType>(
-  inputProps: InputProps<ElementType>,
-  previousProps: PropsOf<T>,
-) {
-  if (isPropsGetter(inputProps)) {
-    return inputProps(previousProps);
-  }
-
-  return inputProps ?? (EMPTY_PROPS as PropsOf<T>);
 }
 
 function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Function | undefined) {

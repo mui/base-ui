@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { motion, type HTMLMotionProps } from 'motion/react';
+import { motion } from 'motion/react';
+import type { HTMLMotionProps } from 'motion/react';
 import styles from './index.module.css';
 
 export default function AnimatedPopoverMotionKeepMountedTrueDemo() {

@@ -41,7 +41,10 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type AccordionRootState<TValue = any> = {
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: TValue[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -79,7 +82,12 @@ type AccordionRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -106,10 +114,11 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type | Description                                  |
-| :-------------- | :--- | :------------------------------------------- |
-| data-panel-open | -    | Present when the accordion panel is open.    |
-| data-disabled   | -    | Present when the accordion item is disabled. |
+| Attribute       | Type     | Description                                                 |
+| :-------------- | :------- | :---------------------------------------------------------- |
+| data-panel-open | -        | Present when the accordion panel is open.                   |
+| data-disabled   | -        | Present when the trigger or its accordion item is disabled. |
+| data-index      | `number` | Indicates the index of the accordion item.                  |
 
 ### Trigger.Props
 
@@ -125,7 +134,10 @@ type AccordionTriggerState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -189,7 +201,10 @@ type AccordionItemState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -227,7 +242,12 @@ type AccordionItemChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -267,7 +287,10 @@ type AccordionHeaderState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -333,7 +356,10 @@ type AccordionPanelState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -351,6 +377,116 @@ type AccordionPanelState = {
 ```
 
 ## Additional Types
+
+### AccordionHeaderDataAttributes
+
+Data attributes of [Header](#header).
+
+```typescript
+declare namespace AccordionHeaderDataAttributes {
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
+  const index: 'data-index';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the accordion item is open. */
+  const open: 'data-open';
+}
+```
+
+### AccordionItemDataAttributes
+
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace AccordionItemDataAttributes {
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
+  const index: 'data-index';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the accordion item is open. */
+  const open: 'data-open';
+}
+```
+
+### AccordionPanelCssVariables
+
+CSS variables of [Panel](#panel).
+
+```typescript
+declare namespace AccordionPanelCssVariables {
+  /**
+   * The accordion panel's height.
+   * @type number
+   */
+  const accordionPanelHeight: '--accordion-panel-height';
+  /**
+   * The accordion panel's width.
+   * @type number
+   */
+  const accordionPanelWidth: '--accordion-panel-width';
+}
+```
+
+### AccordionPanelDataAttributes
+
+Data attributes of [Panel](#panel).
+
+```typescript
+declare namespace AccordionPanelDataAttributes {
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
+  const index: 'data-index';
+  /** Present when the accordion panel is open. */
+  const open: 'data-open';
+  /** Indicates the orientation of the accordion. */
+  const orientation: 'data-orientation';
+  /** Present when the accordion item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the panel begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the panel is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### AccordionRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace AccordionRootDataAttributes {
+  /** Present when the accordion is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the accordion. */
+  const orientation: 'data-orientation';
+}
+```
+
+### AccordionTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace AccordionTriggerDataAttributes {
+  /**
+   * Indicates the index of the accordion item.
+   * @type number
+   */
+  const index: 'data-index';
+  /** Present when the accordion panel is open. */
+  const panelOpen: 'data-panel-open';
+  /** Present when the trigger or its accordion item is disabled. */
+  const disabled: 'data-disabled';
+}
+```
 
 ### AccordionValue
 
@@ -373,7 +509,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Accordion.Header`: `Accordion.Header`, `Accordion.Header.State`, `Accordion.Header.Props`
 - `Accordion.Trigger`: `Accordion.Trigger`, `Accordion.Trigger.State`, `Accordion.Trigger.Props`
 - `Accordion.Panel`: `Accordion.Panel`, `Accordion.Panel.State`, `Accordion.Panel.Props`
-- `Default`: `AccordionValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderState`, `AccordionHeaderProps`, `AccordionTriggerState`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
+- `Default`: `AccordionRootDataAttributes`, `AccordionItemDataAttributes`, `AccordionHeaderDataAttributes`, `AccordionTriggerDataAttributes`, `AccordionPanelCssVariables`, `AccordionPanelDataAttributes`, `AccordionValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderState`, `AccordionHeaderProps`, `AccordionTriggerState`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
 
 ## Canonical Types
 
@@ -393,3 +529,14 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Accordion.Trigger.Props`: `AccordionTriggerProps`
 - `Accordion.Panel.State`: `AccordionPanelState`
 - `Accordion.Panel.Props`: `AccordionPanelProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

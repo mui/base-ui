@@ -3,32 +3,30 @@ import c from 'clsx';
 import * as React from 'react';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
+import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
+import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
-  autoUpdate,
-  flip,
-  FloatingFocusManager,
   FloatingNode,
-  FloatingPortal,
   FloatingTree,
-  offset,
-  safePolygon,
-  shift,
-  useClick,
-  useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
-  useHover,
-  useListNavigation,
-  useTypeahead,
-  useFocus,
-} from '../../src/floating-ui-react';
-import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
+} from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
+import { useFocus } from '../../src/utils/popups/interactions/useFocus';
+import { useFloating } from './useFloating';
+import { gridNavigation } from '../../src/utils/popups/interactions/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';
 
@@ -110,21 +108,24 @@ export const MenuComponent = React.forwardRef<
     ],
     whileElementsMounted: autoUpdate,
   });
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
-  const hoverContext = isNested && allowHover ? context : fallbackContext;
+  const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
+  const hoverStore = isNested && allowHover ? context.rootStore : fallbackStore;
 
-  const hover = useHover(hoverContext, {
+  const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
+    triggerElementRef: hoverStore === fallbackStore ? undefined : refs.domReference,
   });
-  const click = useClick(context, {
+  useHoverPopupInteraction(hoverStore);
+  const hover = React.useMemo(() => ({ reference: hoverReferenceProps }), [hoverReferenceProps]);
+  const click = useClick(context.rootStore, {
     event: 'mousedown',
     toggle: !isNested || !allowHover,
     ignoreMouse: isNested,
   });
-  const focus = useFocus(context, { enabled: openOnFocus });
-  const dismiss = useDismiss(context, { bubbles: true });
-  const listNavigation = useListNavigation(context, {
+  const focus = useFocus(context.rootStore, { enabled: openOnFocus });
+  const dismiss = useDismiss(context.rootStore, { bubbles: true });
+  const listNavigation = useListNavigation(context.rootStore, {
     listRef: elementsRef,
     activeIndex,
     nested: isNested,
@@ -132,7 +133,7 @@ export const MenuComponent = React.forwardRef<
     orientation,
     grid: grid ? gridNavigation : undefined,
   });
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef: labelsRef,
     onMatch: isOpen ? setActiveIndex : undefined,
     activeIndex,
@@ -215,7 +216,7 @@ export const MenuComponent = React.forwardRef<
         id={triggerId}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-controls={isOpen ? context.floatingId : undefined}
+        aria-controls={isOpen ? context.defaultPopupId : undefined}
         data-open={isOpen ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabIndex={!isNested ? props.tabIndex : parent.activeIndex === item.index ? 0 : -1}
@@ -266,14 +267,14 @@ export const MenuComponent = React.forwardRef<
           {(keepMounted || isOpen) && (
             <FloatingPortal>
               <FloatingFocusManager
-                context={context}
+                store={context.rootStore}
                 modal={false}
                 initialFocus={!isNested}
                 returnFocus={!isNested}
               >
                 <div
                   ref={refs.setFloating}
-                  id={context.floatingId}
+                  id={context.defaultPopupId}
                   role="menu"
                   aria-labelledby={triggerId}
                   className={c(
@@ -287,7 +288,7 @@ export const MenuComponent = React.forwardRef<
                   )}
                   style={{
                     ...floatingStyles,
-                    // @ts-expect-error css var
+                    // @ts-expect-error React CSSProperties does not declare the custom --cols property.
                     '--cols': GRID_COLUMN_COUNT,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',

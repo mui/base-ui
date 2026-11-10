@@ -1,108 +1,119 @@
-import { Store, createSelector } from '@base-ui/utils/store';
-import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
-import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
+import type { AdaptiveOriginMiddleware } from '../utils/popups/positioning/adaptiveOriginConstants';
+import type { PopupInteractionReader, PositioningInteractionStore } from '../utils/popups/types';
+import { popupStoreSelectors } from '../utils/popups/store';
+import { ValuePopupStore, valuePopupSelectors } from '../utils/popups/value-popup/ValuePopupStore';
+import type {
+  ValuePopupContext,
+  ValuePopupState,
+} from '../utils/popups/value-popup/ValuePopupStore';
 
-export type State = {
-  id: string | undefined;
-  labelId: string | undefined;
-
+export type State = ValuePopupState & {
   items: readonly any[] | undefined;
-
-  selectedValue: any;
-
-  open: boolean;
-  mounted: boolean;
-  transitionStatus: TransitionStatus;
-  forceMounted: boolean;
 
   inline: boolean;
 
-  activeIndex: number | null;
-  selectedIndex: number | null;
-
-  popupProps: HTMLProps;
+  listProps: HTMLProps;
   inputProps: HTMLProps;
-  triggerProps: HTMLProps;
-  itemProps: HTMLProps;
+  // Root values every item reads, combined so each item needs a single subscription for them.
+  itemRoot: {
+    props: HTMLProps;
+    id: string | undefined;
+    selectionMode: 'single' | 'multiple' | 'none';
+    disabled: boolean;
+    readOnly: boolean;
+    isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
+  };
 
-  positionerElement: HTMLElement | null;
-  listElement: HTMLElement | null;
-  popupId: string | undefined;
-  triggerElement: HTMLElement | null;
+  /**
+   * The id of the popup element, which the trigger points at with `aria-controls` while the input
+   * is inside the popup.
+   */
+  popupElementId: string | undefined;
   inputElement: HTMLInputElement | null;
   inputGroupElement: HTMLDivElement | null;
-  popupSide: Side | null;
-
-  openMethod: InteractionType | null;
 
   inputInsidePopup: boolean;
   inputOwnsFormValue: boolean;
 
-  selectionMode: 'single' | 'multiple' | 'none';
-
-  listRef: React.RefObject<Array<HTMLElement | null>>;
-  labelsRef: React.RefObject<Array<string | null>>;
-  popupRef: React.RefObject<HTMLDivElement | null>;
-  emptyRef: React.RefObject<HTMLDivElement | null>;
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  startDismissRef: React.RefObject<HTMLSpanElement | null>;
-  endDismissRef: React.RefObject<HTMLSpanElement | null>;
-  keyboardActiveRef: React.RefObject<boolean>;
-  chipsContainerRef: React.RefObject<HTMLDivElement | null>;
-  clearRef: React.RefObject<HTMLButtonElement | null>;
-  valuesRef: React.RefObject<Array<any>>;
-  pointerDownItemRef: React.RefObject<Element | null>;
-  selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
-
-  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setIndices: (indices: {
-    activeIndex?: number | null | undefined;
-    selectedIndex?: number | null | undefined;
-    type?: 'keyboard' | 'pointer' | 'none' | undefined;
-  }) => void;
-  forceMount: () => void;
-  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
-  requestSubmit: () => void;
-
   name: string | undefined;
   form: string | undefined;
-  disabled: boolean;
-  readOnly: boolean;
-  required: boolean;
   grid: boolean;
   virtualized: boolean;
-  onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
-  itemToStringLabel?: ((item: any) => string) | undefined;
-  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
-  modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
   hasInputValue: boolean;
+
+  // The shared positioner reads these. A combobox has neither an instant transition nor an
+  // adaptive origin, so they stay `undefined`.
+  instantType: undefined;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
-export type ComboboxStore = Store<State>;
+/**
+ * Non-reactive values shared with the combobox parts. Nothing here is observable through
+ * `selectors`, so writing to a ref never notifies subscribers.
+ */
+export type ComboboxStoreContext = ValuePopupContext<AriaCombobox.OpenChangeEventDetails> & {
+  /** The popup element. */
+  readonly popupRef: React.RefObject<HTMLDivElement | null>;
+  /** The empty-state element. */
+  readonly emptyRef: React.RefObject<HTMLDivElement | null>;
+  /** The input element that owns the combobox role. */
+  readonly inputRef: React.RefObject<HTMLInputElement | null>;
+  /** Internal dismiss button rendered before the popup content. */
+  readonly startDismissRef: React.RefObject<HTMLSpanElement | null>;
+  /** Internal dismiss button rendered after the popup content. */
+  readonly endDismissRef: React.RefObject<HTMLSpanElement | null>;
+  /** Container holding the selection chips. */
+  readonly chipsContainerRef: React.RefObject<HTMLDivElement | null>;
+  /** The clear button. */
+  readonly clearRef: React.RefObject<HTMLButtonElement | null>;
+  /** Item element that received the last pointerdown, to pair it with a mouseup. */
+  readonly pointerDownItemRef: React.RefObject<Element | null>;
+  /** Native event that triggered the in-flight selection. */
+  readonly selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
+
+  // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
+  // first render, so they are not `readonly`.
+
+  /** Clears what the open session left behind once the popup unmounts. */
+  handleUnmount: () => void;
+  /** Sets the input value. */
+  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Sets the selected value. */
+  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Sets the active and/or selected index. */
+  setIndices: (indices: {
+    activeIndex?: number | null | undefined;
+    selectedIndex?: number | null | undefined;
+    type?: AriaCombobox.HighlightEventReason | undefined;
+    event?: Event | undefined;
+  }) => void;
+  /** Mounts the popup subtree without opening it, to resolve derived item labels. */
+  forceMount: () => void;
+  /** Applies a selection originating from an item. */
+  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
+  /** Requests submission of the owning form. */
+  requestSubmit: () => void;
+};
 
 export const selectors = {
-  id: createSelector((state: State) => state.id),
-  labelId: createSelector((state: State) => state.labelId),
+  ...valuePopupSelectors,
+  items: (state: State) => state.items,
+  hasNullItemLabel: (state: State, enabled: boolean) =>
+    enabled ? hasNullItemLabel(state.items) : false,
 
-  items: createSelector((state: State) => state.items),
-
-  selectedValue: createSelector((state: State) => state.selectedValue),
-  hasSelectionChips: createSelector((state: State) => {
+  hasSelectionChips: (state: State) => {
     const selectedValue = state.selectedValue;
     return Array.isArray(selectedValue) && selectedValue.length > 0;
-  }),
+  },
 
-  hasSelectedValue: createSelector((state: State) => {
+  hasSelectedValue: (state: State) => {
     const { selectedValue, selectionMode } = state;
     if (selectedValue == null) {
       return false;
@@ -111,22 +122,11 @@ export const selectors = {
       return selectedValue.length > 0;
     }
     return true;
-  }),
+  },
 
-  hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
-    return enabled ? hasNullItemLabel(state.items) : false;
-  }),
+  inline: (state: State) => state.inline,
 
-  open: createSelector((state: State) => state.open),
-  mounted: createSelector((state: State) => state.mounted),
-  forceMounted: createSelector((state: State) => state.forceMounted),
-
-  inline: createSelector((state: State) => state.inline),
-
-  activeIndex: createSelector((state: State) => state.activeIndex),
-  selectedIndex: createSelector((state: State) => state.selectedIndex),
-  isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, itemValue: any) => {
+  isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const selectedValue = state.selectedValue;
     if (Array.isArray(selectedValue)) {
@@ -135,39 +135,79 @@ export const selectors = {
       );
     }
     return compareItemEquality(itemValue, selectedValue, comparer);
-  }),
+  },
 
-  transitionStatus: createSelector((state: State) => state.transitionStatus),
+  listProps: (state: State) => state.listProps,
+  inputProps: (state: State) => state.inputProps,
+  itemRoot: (state: State) => state.itemRoot,
 
-  popupProps: createSelector((state: State) => state.popupProps),
-  inputProps: createSelector((state: State) => state.inputProps),
-  triggerProps: createSelector((state: State) => state.triggerProps),
-  itemProps: createSelector((state: State) => state.itemProps),
+  popupElementId: (state: State) => state.popupElementId,
+  inputElement: (state: State) => state.inputElement,
+  inputGroupElement: (state: State) => state.inputGroupElement,
+  // See `interactions`.
+  interactionOpen: (state: State) => popupStoreSelectors.open(state) || state.inline,
+  // The shared selector hides the positioner while an opening popup mounts, which list navigation
+  // reads as the list going away, resetting the highlight that typing just set.
+  interactionPositionerElement: (state: State) => state.positionerElement,
 
-  positionerElement: createSelector((state: State) => state.positionerElement),
-  listElement: createSelector((state: State) => state.listElement),
-  popupId: createSelector((state: State) => state.popupId),
-  triggerElement: createSelector((state: State) => state.triggerElement),
-  inputElement: createSelector((state: State) => state.inputElement),
-  inputGroupElement: createSelector((state: State) => state.inputGroupElement),
-  popupSide: createSelector((state: State) => state.popupSide),
+  inputInsidePopup: (state: State) => state.inputInsidePopup,
+  inputOwnsFormValue: (state: State) => state.inputOwnsFormValue,
 
-  openMethod: createSelector((state: State) => state.openMethod),
-
-  inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
-  inputOwnsFormValue: createSelector((state: State) => state.inputOwnsFormValue),
-
-  selectionMode: createSelector((state: State) => state.selectionMode),
-
-  name: createSelector((state: State) => state.name),
-  form: createSelector((state: State) => state.form),
-  disabled: createSelector((state: State) => state.disabled),
-  readOnly: createSelector((state: State) => state.readOnly),
-  required: createSelector((state: State) => state.required),
-  grid: createSelector((state: State) => state.grid),
-  virtualized: createSelector((state: State) => state.virtualized),
-  itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
-  isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
-  modal: createSelector((state: State) => state.modal),
-  autoHighlight: createSelector((state: State) => state.autoHighlight),
+  name: (state: State) => state.name,
+  form: (state: State) => state.form,
+  grid: (state: State) => state.grid,
+  virtualized: (state: State) => state.virtualized,
+  autoHighlight: (state: State) => state.autoHighlight,
+  instantType: (state: State) => state.instantType,
+  adaptiveOrigin: (state: State) => state.adaptiveOrigin,
 };
+
+export class ComboboxStore extends ValuePopupStore<
+  State,
+  ComboboxStoreContext,
+  typeof selectors,
+  AriaCombobox.OpenChangeEventDetails
+> {
+  /**
+   * The store the interaction hooks read. An inline list renders for as long as it's in the tree,
+   * so the hooks see it as open (`interactionOpen`) even while the open state is `false`. They also
+   * see the positioner element for as long as it's in the DOM. Everything else is the store itself.
+   */
+  readonly interactions: PositioningInteractionStore = createInteractionView(this);
+
+  // The input, or the trigger when the input is inside the popup.
+  protected getAnchorElement(state: Readonly<State>) {
+    return state.inputInsidePopup ? state.triggerElement : state.inputElement;
+  }
+
+  // The input requests an open on every keystroke and press; only an actual change is one.
+  protected isOpenChangeIgnored(nextOpen: boolean) {
+    return nextOpen === this.select('open');
+  }
+
+  protected prepareUnmount() {
+    this.context.handleUnmount();
+    return {};
+  }
+}
+
+type InteractionKey =
+  'open' | 'transitionStatus' | 'anchorElement' | 'anchor' | 'positionerElement' | 'defaultPopupId';
+
+function createInteractionView(store: ComboboxStore): PositioningInteractionStore {
+  const getKey = (key: InteractionKey): keyof typeof selectors => {
+    if (key === 'open') {
+      return 'interactionOpen';
+    }
+    return key === 'positionerElement' ? 'interactionPositionerElement' : key;
+  };
+
+  return {
+    select: ((key: InteractionKey) => store.select(getKey(key))) as PopupInteractionReader,
+    useState: ((key: InteractionKey) => store.useState(getKey(key))) as PopupInteractionReader,
+    set: (key: 'anchorOverride' | 'anchorElement', value: any) => store.set(key, value),
+    setOpen: store.setOpen,
+    context: store.context,
+    clearPositioning: () => store.clearPositioning(),
+  };
+}

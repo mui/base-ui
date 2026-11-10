@@ -1,0 +1,44 @@
+.page {
+  max-width: 40rem;
+
+  & p {
+    margin-block: 0.75rem;
+  }
+
+  & h2 {
+    margin-block-start: 2rem;
+    font-size: 1rem;
+  }
+}
+
+.list {
+  position: relative;
+  display: flex;
+  gap: 0.25rem;
+  width: fit-content;
+  border-bottom: 1px solid var(--color-gray-300, #ccc);
+}
+
+.tab {
+  all: unset;
+  padding: 0.625rem 1rem;
+  cursor: pointer;
+
+  &[data-selected] {
+    color: var(--color-blue, blue);
+    font-weight: 600;
+  }
+}
+
+.indicator {
+  position: absolute;
+  bottom: 0;
+  left: var(--active-tab-left);
+  width: var(--active-tab-width);
+  height: 3px;
+  background-color: var(--color-blue, blue);
+}
+
+.fallback {
+  color: var(--color-gray-500, #999);
+}

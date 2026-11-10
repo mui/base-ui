@@ -1,6 +1,6 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type UserWorkspaceConfig } from 'vitest/config';
+import type { UserWorkspaceConfig } from 'vitest/config';
 // eslint-disable-next-line import/extensions
 import viteConfig from '@base-ui/monorepo-tests/vite.shared.config.mjs';
 import { playwright } from '@vitest/browser-playwright';
@@ -35,7 +35,11 @@ function getBrowserConfig(): BrowserModeConfig {
 
   return {
     enabled: true,
-    provider: playwright(),
+    provider: playwright({
+      contextOptions: {
+        timezoneId: 'UTC',
+      },
+    }),
     screenshotFailures: false,
     headless: true,
     instances,
@@ -63,6 +67,9 @@ const config: UserWorkspaceConfig = {
         }
       : undefined,
   test: {
+    sequence: {
+      hooks: 'list',
+    },
     exclude: ['node_modules', 'build', '**/*.spec.*'],
     globals: true,
     setupFiles: [resolve(WORKSPACE_ROOT, './test/setupVitest.ts')],

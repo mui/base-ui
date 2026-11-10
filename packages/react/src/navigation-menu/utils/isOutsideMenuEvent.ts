@@ -1,5 +1,6 @@
-import { FloatingTreeType } from '../../floating-ui-react';
-import { contains, getNodeChildren } from '../../floating-ui-react/utils';
+import { contains } from '@base-ui/utils/shadowDom';
+import type { FloatingTreeType } from '../../utils/popups/types';
+import { getNodeChildren } from '../../utils/popups/tree/nodes';
 
 interface Targets {
   currentTarget: HTMLElement | null;
@@ -20,10 +21,8 @@ export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, pa
     ? getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
         contains(node.context?.elements.floating, relatedTarget),
       )
-    : [];
+    : false;
 
-  // For nested scenarios without popupElement, we need to be more lenient
-  // and only close if we're definitely outside the root
   if (!popupElement) {
     return !contains(rootRef.current, relatedTarget) && !nodeChildrenContains;
   }
@@ -32,10 +31,6 @@ export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, pa
     !contains(popupElement, currentTarget) &&
     !contains(popupElement, relatedTarget) &&
     !contains(rootRef.current, relatedTarget) &&
-    !nodeChildrenContains &&
-    !(
-      contains(popupElement, relatedTarget) &&
-      relatedTarget?.hasAttribute('data-base-ui-focus-guard')
-    )
+    !nodeChildrenContains
   );
 }

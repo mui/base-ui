@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
@@ -31,5 +31,27 @@ describe('<Combobox.Collection />', () => {
     expect(screen.getByTestId('item-alpha')).not.toBe(null);
     expect(screen.getByTestId('item-beta')).not.toBe(null);
     expect(screen.getByTestId('item-alpine')).not.toBe(null);
+  });
+
+  it('renders nothing when a nested group does not provide items', async () => {
+    await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Group data-testid="group">
+                  <Combobox.Collection>
+                    {(item) => <span key={item}>{item}</span>}
+                  </Combobox.Collection>
+                </Combobox.Group>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    expect(screen.getByTestId('group')).toBeEmptyDOMElement();
   });
 });

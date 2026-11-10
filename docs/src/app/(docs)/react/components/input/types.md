@@ -77,9 +77,39 @@ type InputChangeEventDetails = {
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
+```
+
+## Additional Types
+
+### InputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace InputDataAttributes {
+  /** Present when the input is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the input is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the input is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the input has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the input's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the input is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the input is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ## Canonical Types
@@ -90,3 +120,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Input.State`: `InputState`
 - `Input.ChangeEventReason`: `InputChangeEventReason`
 - `Input.ChangeEventDetails`: `InputChangeEventDetails`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>

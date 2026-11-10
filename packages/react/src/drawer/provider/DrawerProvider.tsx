@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  DrawerProviderContext,
-  type DrawerVisualState,
-  type DrawerVisualStateStore,
-} from './DrawerProviderContext';
+import { DrawerProviderContext } from './DrawerProviderContext';
+import type { DrawerVisualState, DrawerVisualStateStore } from './DrawerProviderContext';
 
 /**
  * Provides a shared context for coordinating global Drawer UI, such as indent/background effects based on whether any Drawer is open.
@@ -16,42 +14,31 @@ import {
 export function DrawerProvider(props: DrawerProvider.Props) {
   const { children } = props;
 
-  const [openById, setOpenById] = React.useState(() => new Map<string, boolean>());
+  const openDrawersRef = useRefWithInit(() => new Set<object>());
+  const [active, setActive] = React.useState(false);
   const [visualStateStore] = React.useState(createVisualStateStore);
 
-  const setDrawerOpen = useStableCallback((drawerId: string, open: boolean) => {
-    setOpenById((prev) => {
-      const prevOpen = prev.get(drawerId);
-      if (prevOpen === open) {
-        return prev;
-      }
-
-      const next = new Map(prev);
-      next.set(drawerId, open);
-      return next;
-    });
-  });
-
-  const removeDrawer = useStableCallback((drawerId: string) => {
-    setOpenById((prev) => {
-      if (!prev.has(drawerId)) {
-        return prev;
-      }
-
-      const next = new Map(prev);
-      next.delete(drawerId);
-      return next;
-    });
-  });
-
-  const active = React.useMemo(() => {
-    for (const open of openById.values()) {
-      if (open) {
-        return true;
-      }
+  const setDrawerOpen = useStableCallback((drawer: object, open: boolean) => {
+    const openDrawers = openDrawersRef.current;
+    if (openDrawers.has(drawer) === open) {
+      return;
     }
-    return false;
-  }, [openById]);
+
+    const wasActive = openDrawers.size > 0;
+    if (open) {
+      openDrawers.add(drawer);
+    } else {
+      openDrawers.delete(drawer);
+    }
+    const isActive = openDrawers.size > 0;
+    if (isActive !== wasActive) {
+      setActive(isActive);
+    }
+  });
+
+  const removeDrawer = useStableCallback((drawer: object) => {
+    setDrawerOpen(drawer, false);
+  });
 
   const contextValue = React.useMemo(
     () => ({

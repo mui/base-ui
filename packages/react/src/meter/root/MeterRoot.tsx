@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { clamp } from '@base-ui/utils/clamp';
 import { MeterRootContext } from './MeterRootContext';
-import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { formatNumber } from '../../utils/formatNumber';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import { formatRangeValue } from '../../utils/formatRangeValue';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { clamp } from '../../internals/clamp';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 
 /**
  * Groups all parts of the meter and provides the value for screen readers.
@@ -33,17 +34,16 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
+  const formatLocale = useFormatLocale(locale);
 
   // `clamp` handles infinity, but NaN needs an explicit fallback before normalizing range outputs.
   const rawPercentage = valueToPercent(valueProp, min, max);
   const percentageValue = clamp(Number.isNaN(rawPercentage) ? 0 : rawPercentage, 0, 100);
   const clampedValue = clamp(Number.isNaN(valueProp) ? min : valueProp, min, max);
 
-  // Without an explicit `format`, the value is displayed as its position within the range so the
-  // text stays in sync with the indicator fill for any `min`/`max` (not just the default 0–100).
-  const formattedValue = format
-    ? formatNumber(valueProp, locale, format)
-    : formatNumber(percentageValue / 100, locale, { style: 'percent' });
+  // Format the clamped value so visible and accessible text stay in sync with `aria-valuenow` and
+  // the indicator fill. The raw value remains available as the second `getAriaValueText` argument.
+  const formattedValue = formatRangeValue(clampedValue, percentageValue, formatLocale, format);
 
   let ariaValuetext = formattedValue;
   if (getAriaValueText) {
@@ -69,12 +69,14 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
 
   const contextValue: MeterRootContext = React.useMemo(
     () => ({
-      formattedValue,
+      clampedValue,
+      format,
+      locale,
       percentageValue,
       setLabelId,
       value: valueProp,
     }),
-    [formattedValue, percentageValue, setLabelId, valueProp],
+    [clampedValue, format, locale, percentageValue, setLabelId, valueProp],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -103,6 +105,7 @@ export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRootSta
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**

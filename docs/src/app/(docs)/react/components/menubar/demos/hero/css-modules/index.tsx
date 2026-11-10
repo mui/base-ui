@@ -89,7 +89,7 @@ export default function ExampleMenubar() {
               </Menu.Item>
 
               <Menu.SubmenuRoot>
-                <Menu.SubmenuTrigger className={styles.MenuItem}>
+                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                   Layout
                   <CaretRightIcon />
                 </Menu.SubmenuTrigger>

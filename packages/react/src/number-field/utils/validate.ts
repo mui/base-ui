@@ -1,5 +1,5 @@
-import { clamp } from '../../internals/clamp';
-import { getFormatter } from '../../utils/formatNumber';
+import { clamp } from '@base-ui/utils/clamp';
+import { getFormatter } from '@base-ui/utils/formatNumber';
 import { parseNumber } from './parse';
 
 // A relative factor scaled by the step size when snapping (`stepSize * STEP_EPSILON_FACTOR`).

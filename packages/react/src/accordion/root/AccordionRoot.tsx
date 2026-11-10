@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps, Orientation } from '../../internals/types';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { REASONS } from '../../internals/reasons';
 
 const rootStateAttributesMapping = {
   value: () => null,
@@ -41,9 +41,12 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     ...elementProps
   } = componentProps;
 
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
+
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on `Accordion.Root` is ignored when `hiddenUntilFound` is enabled, since panels must remain mounted while closed.',
@@ -51,16 +54,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
       }
     }, [hiddenUntilFoundProp, keepMountedProp]);
   }
-
-  // memoized to allow omitting both defaultValue and value
-  // which would otherwise trigger a warning in useControlled
-  const defaultValue = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return defaultValueProp ?? [];
-    }
-
-    return undefined;
-  }, [valueProp, defaultValueProp]);
 
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
@@ -77,29 +70,21 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
       nextOpen: boolean,
       details: AccordionRoot.ChangeEventDetails,
     ) => {
+      let nextValue: AccordionRoot.Value<Value>;
       if (!multiple) {
-        const nextValue = value[0] === newValue ? [] : [newValue];
-        onValueChange?.(nextValue, details);
-        if (details.isCanceled) {
-          return;
-        }
-        setValue(nextValue);
+        nextValue = value[0] === newValue ? [] : [newValue];
       } else if (nextOpen) {
-        const nextOpenValues = value.slice();
-        nextOpenValues.push(newValue);
-        onValueChange?.(nextOpenValues, details);
-        if (details.isCanceled) {
-          return;
-        }
-        setValue(nextOpenValues);
+        // Not `concat`: an item value can itself be an array, which `concat` would flatten.
+        nextValue = [...value, newValue];
       } else {
-        const nextOpenValues = value.filter((v) => v !== newValue);
-        onValueChange?.(nextOpenValues, details);
-        if (details.isCanceled) {
-          return;
-        }
-        setValue(nextOpenValues);
+        nextValue = value.filter((v) => v !== newValue);
       }
+
+      onValueChange?.(nextValue, details);
+      if (details.isCanceled) {
+        return;
+      }
+      setValue(nextValue);
     },
   );
 
@@ -145,6 +130,7 @@ export type AccordionValue<Value = any> = Value[];
 export interface AccordionRootState<Value = any> {
   /**
    * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
    */
   value: AccordionValue<Value>;
   /**

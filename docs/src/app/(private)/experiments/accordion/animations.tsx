@@ -5,7 +5,8 @@ import type { Accordion as BaseAccordion } from '@base-ui/react/accordion';
 import * as Accordion from './_components/Accordion';
 import layoutStyles from './accordion.module.css';
 import styles from './animations.module.css';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 
 interface Settings extends Record<string, boolean> {}
 

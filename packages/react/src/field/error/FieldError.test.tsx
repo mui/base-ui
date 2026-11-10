@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
@@ -211,6 +211,40 @@ describe('<Field.Error />', () => {
       expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
     });
 
+    it('renders client validation error arrays as a list', async () => {
+      await render(
+        <Form>
+          <Field.Root validate={() => ['First error', 'Second error']}>
+            <Field.Control />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('submit'));
+
+      const list = screen.getByTestId('default-error').querySelector('ul');
+      expect(list).not.toBe(null);
+      expect(list?.querySelectorAll('li')).toHaveLength(2);
+      expect(screen.getByText('First error')).not.toBe(null);
+      expect(screen.getByText('Second error')).not.toBe(null);
+    });
+
+    it('does not register an empty error id', async () => {
+      await render(
+        <Field.Root invalid>
+          <Field.Control aria-describedby="external-description" />
+          <Field.Error id="">Message</Field.Error>
+        </Field.Root>,
+      );
+
+      expect(screen.getByRole('textbox')).toHaveAttribute(
+        'aria-describedby',
+        'external-description',
+      );
+    });
+
     it('ignores empty Form error arrays', async () => {
       await render(
         <Form errors={{ username: [] }}>
@@ -374,16 +408,13 @@ describe('<Field.Error />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
       expect(screen.getByTestId('error')).not.toBe(null);
 
-      await user.click(screen.getByText('Hide'));
+      // `user.click` can yield a frame, which is long enough for the 1ms animation to finish.
+      fireEvent.click(screen.getByText('Hide'));
 
-      await waitFor(() => {
-        const error = screen.queryByTestId('error');
-        expect(error).not.toBe(null);
-        expect(error).toHaveAttribute('data-ending-style');
-      });
+      expect(screen.getByTestId('error')).toHaveAttribute('data-ending-style');
 
       await waitFor(() => {
         expect(screen.queryByTestId('error')).toBe(null);

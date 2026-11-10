@@ -44,7 +44,7 @@
     }
   }
 
-  &[data-popup-open] {
+  &[data-pressed] {
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
@@ -118,11 +118,6 @@
   font-size: 0.875rem;
   line-height: 1rem;
 
-  &[data-popup-open] {
-    z-index: 0;
-    position: relative;
-  }
-
   &[data-highlighted] {
     z-index: 0;
     position: relative;
@@ -133,32 +128,12 @@
     }
   }
 
-  &[data-popup-open]::before,
   &[data-highlighted]::before {
     content: '';
     z-index: -1;
     position: absolute;
     inset-block: 0;
     inset-inline: 0.25rem;
-  }
-
-  &[data-popup-open]::before {
-    background-color: oklch(97% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
-    }
-  }
-
-  &[data-highlighted]::before {
-    background-color: oklch(14.5% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: white;
-    }
-  }
-
-  &[data-highlighted][data-popup-open]::before {
     background-color: oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
@@ -180,6 +155,32 @@
   justify-content: space-between;
   gap: 1rem;
   padding-right: 0.5rem;
+
+  &[data-popup-open] {
+    z-index: 0;
+    position: relative;
+  }
+
+  &[data-popup-open]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &[data-highlighted][data-popup-open]::before {
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
 }
 
 .Separator {

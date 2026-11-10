@@ -1,10 +1,34 @@
-import { afterEach, expect } from 'vitest';
+import { afterEach, beforeEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
-import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { ContextMenu } from '@base-ui/react/context-menu';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import {
+  describeConformance,
+  createRenderer,
+  isJSDOM,
+  resetBrowserPointer,
+  positionerConformanceTests,
+} from '#test-utils';
+import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
+
+const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
+
+vi.mock('../../internals/useAnchorPositioning', async () => {
+  const actual = await vi.importActual<typeof import('../../internals/useAnchorPositioning')>(
+    '../../internals/useAnchorPositioning',
+  );
+
+  return {
+    ...actual,
+    useAnchorPositioning: ((...args: Parameters<typeof actual.useAnchorPositioning>) => {
+      useAnchorPositioningSpy(...args);
+      return actual.useAnchorPositioning(...args);
+    }) satisfies typeof actual.useAnchorPositioning,
+  };
+});
 
 const Trigger = React.forwardRef(function Trigger(
   props: Menu.Trigger.Props,
@@ -14,7 +38,152 @@ const Trigger = React.forwardRef(function Trigger(
 });
 
 describe('<Menu.Positioner />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    useAnchorPositioningSpy.mockClear();
+  });
+
+  it('throws when rendered outside Menu.Portal', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root open>
+            <Menu.Positioner />
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <Menu.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('enables lazy flipping for a filter menu', async () => {
+    await render(
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter" />
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    // `'placement'` and not `true`: the filter menu locks the alignment as well as the side, so a
+    // popup that flipped once does not jitter back while typing resizes it. Combobox stays on
+    // `true` (side only), which is what it shipped with.
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe('placement');
+  });
+
+  describe('collision avoidance', () => {
+    function SubmenuApp(props: {
+      collisionAvoidance?: Menu.Positioner.Props['collisionAvoidance'];
+    }) {
+      return (
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot open>
+                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu-positioner" {...props}>
+                      <Menu.Popup />
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    function lastCallFor(positioner: HTMLElement) {
+      const calls = useAnchorPositioningSpy.mock.calls.filter(
+        ([params]) => params.interactionStore.select('positionerElement') === positioner,
+      );
+      return calls[calls.length - 1]?.[0];
+    }
+
+    it('uses the dropdown default for a context menu', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+          <ContextMenu.Portal keepMounted>
+            <ContextMenu.Positioner data-testid="positioner">
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(lastCallFor(screen.getByTestId('positioner'))?.collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the dropdown default for a menubar menu', async () => {
+      await render(
+        <Menubar>
+          <Menu.Root open>
+            <Menu.Trigger>File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup />
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      expect(lastCallFor(screen.getByTestId('positioner'))?.collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the popup default for a submenu', async () => {
+      await render(<SubmenuApp />);
+
+      expect(lastCallFor(screen.getByTestId('submenu-positioner'))?.collisionAvoidance).toEqual(
+        POPUP_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the collisionAvoidance prop over the default', async () => {
+      const collisionAvoidance = { side: 'none', align: 'none' } as const;
+      await render(<SubmenuApp collisionAvoidance={collisionAvoidance} />);
+
+      expect(lastCallFor(screen.getByTestId('submenu-positioner'))?.collisionAvoidance).toBe(
+        collisionAvoidance,
+      );
+    });
+  });
+
+  it('leaves lazy flipping off for a plain menu', async () => {
+    await render(
+      <Menu.Root open>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup />
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(false);
+  });
 
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
@@ -26,6 +195,120 @@ describe('<Menu.Positioner />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  describe('layout viewport', () => {
+    it('uses the layout viewport for a root context menu', async () => {
+      await render(
+        <ContextMenu.Root open>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup>Popup</ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0].shift).toEqual({
+        crossAxis: true,
+        rootBoundary: 'layoutViewport',
+      });
+    });
+
+    it('disables cross-axis shifting when side collision avoidance is flip', async () => {
+      await render(
+        <ContextMenu.Root open>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner collisionAvoidance={{ side: 'flip' }}>
+              <ContextMenu.Popup>Popup</ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0].shift).toEqual({
+        crossAxis: false,
+        rootBoundary: 'layoutViewport',
+      });
+    });
+
+    it('preserves explicit context-menu placement and offsets', async () => {
+      await render(
+        <ContextMenu.Root open>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner side="right" align="center" sideOffset={11} alignOffset={13}>
+              <ContextMenu.Popup>Popup</ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0]).toMatchObject({
+        side: 'right',
+        align: 'center',
+        sideOffset: 11,
+        alignOffset: 13,
+      });
+    });
+
+    it('uses the visual viewport for a context menu submenu', async () => {
+      await render(
+        <ContextMenu.Root open>
+          <ContextMenu.SubmenuRoot defaultOpen>
+            <ContextMenu.Portal>
+              <ContextMenu.Positioner>
+                <ContextMenu.Popup>Popup</ContextMenu.Popup>
+              </ContextMenu.Positioner>
+            </ContextMenu.Portal>
+          </ContextMenu.SubmenuRoot>
+        </ContextMenu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy).toHaveBeenCalled();
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0].shift).toBe(undefined);
+    });
+  });
+
+  it('closes an open submenu with a sibling reason when its controlled parent closes', async () => {
+    const onSubmenuOpenChange = vi.fn();
+    let closeParent = () => {};
+
+    function Test() {
+      const [open, setOpen] = React.useState(true);
+      closeParent = () => setOpen(false);
+
+      return (
+        <Menu.Root open={open}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot defaultOpen onOpenChange={onSubmenuOpenChange}>
+                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup" />
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    await render(<Test />);
+    expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+
+    await act(async () => {
+      closeParent();
+    });
+
+    await waitFor(() => {
+      expect(onSubmenuOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+    expect(onSubmenuOpenChange.mock.lastCall?.[1].reason).toBe('sibling-open');
+  });
 
   describe.skipIf(isJSDOM)('prop: anchor', () => {
     it('should be placed near the specified element when a ref is passed', async () => {
@@ -222,6 +505,9 @@ describe('<Menu.Positioner />', () => {
       }
 
       await render(<TestComponent />);
+
+      expect(screen.getByTestId('positioner')).toBeInTheDocument();
+      expect(screen.getAllByRole('menuitem')).toHaveLength(2);
     });
 
     it('should react to the anchor changing from a ref to undefined and back', async () => {
@@ -378,14 +664,8 @@ describe('<Menu.Positioner />', () => {
     });
   });
 
-  const baselineX = 10;
-  const baselineY = 36;
-  const popupWidth = 52;
-  const popupHeight = 24;
-  const anchorWidth = 72;
-  const anchorHeight = 36;
-  const triggerStyle = { width: anchorWidth, height: anchorHeight };
-  const popupStyle = { width: popupWidth, height: popupHeight };
+  const triggerStyle = { width: 72, height: 36 };
+  const popupStyle = { width: 52, height: 24 };
 
   describe.skipIf(isJSDOM)('Menubar parent', () => {
     it('uses bottom as the default side when the menubar is horizontal', async () => {
@@ -437,226 +717,20 @@ describe('<Menu.Positioner />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: sideOffset', () => {
-    it('offsets the side when a number is specified', async () => {
-      const sideOffset = 7;
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="positioner" sideOffset={sideOffset}>
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').style.transform).toBe(
-        `translate(${baselineX}px, ${baselineY + sideOffset}px)`,
-      );
-    });
-
-    it('offsets the side when a function is specified', async () => {
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner
-              data-testid="positioner"
-              sideOffset={(data) => data.positioner.width + data.anchor.width}
-            >
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').style.transform).toBe(
-        `translate(${baselineX}px, ${baselineY + popupWidth + anchorWidth}px)`,
-      );
-    });
-
-    it('can read the latest side inside sideOffset', async () => {
-      let side = 'none';
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner
-              side="left"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('right');
-    });
-
-    it('can read the latest align inside sideOffset', async () => {
-      let align = 'none';
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner
-              side="right"
-              align="start"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                align = data.align;
-                return 0;
-              }}
-            >
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      // correctly flips the align in the browser
-      expect(align).toBe('end');
-    });
-
-    it('reads logical side inside sideOffset', async () => {
-      let side = 'none';
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner
-              side="inline-start"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('inline-end');
-    });
-  });
-
-  describe.skipIf(isJSDOM)('prop: alignOffset', () => {
-    it('offsets the align when a number is specified', async () => {
-      const alignOffset = 7;
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="positioner" alignOffset={alignOffset}>
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').style.transform).toBe(
-        `translate(${baselineX + alignOffset}px, ${baselineY}px)`,
-      );
-    });
-
-    it('offsets the align when a function is specified', async () => {
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="positioner" alignOffset={(data) => data.positioner.width}>
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').style.transform).toBe(
-        `translate(${baselineX + popupWidth}px, ${baselineY}px)`,
-      );
-    });
-
-    it('can read the latest side inside alignOffset', async () => {
-      let side = 'none';
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner
-              side="left"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('right');
-    });
-
-    it('can read the latest align inside alignOffset', async () => {
-      let align = 'none';
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner
-              side="right"
-              align="start"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                align = data.align;
-                return 0;
-              }}
-            >
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      // correctly flips the align in the browser
-      expect(align).toBe('end');
-    });
-
-    it('reads logical side inside alignOffset', async () => {
-      let side = 'none';
-      await render(
-        <Menu.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Menu.Portal>
-            <Menu.Positioner
-              side="inline-start"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('inline-end');
-    });
+  positionerConformanceTests({
+    render,
+    viewport: true,
+    createComponent: ({ root, trigger, positioner, popup, viewport }) => (
+      <Menu.Root {...root}>
+        <Trigger {...trigger}>Trigger</Trigger>
+        <Menu.Portal>
+          <Menu.Positioner {...positioner}>
+            <Menu.Popup {...popup}>
+              {viewport ? <Menu.Viewport>Popup</Menu.Viewport> : 'Popup'}
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    ),
   });
 });

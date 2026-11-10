@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -14,7 +14,7 @@ describe('<Toast.Action />', () => {
 
   describeConformance(<Toast.Action>action</Toast.Action>, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render(node) {
       return render(
@@ -28,6 +28,46 @@ describe('<Toast.Action />', () => {
   }));
 
   it('performs an action when clicked', async () => {
+    const onClick = vi.fn();
+
+    function AddButton() {
+      const { add } = Toast.useToastManager();
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            add({
+              title: 'title',
+              actionProps: {
+                children: 'action',
+                onClick,
+              },
+            })
+          }
+        >
+          add
+        </button>
+      );
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <AddButton />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+    expect(onClick).not.toHaveBeenCalled();
+
+    await user.click(screen.getByTestId('action'));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('forwards actionProps to the button', async () => {
     const { user } = await render(
       <Toast.Provider>
         <Toast.Viewport>
@@ -77,5 +117,47 @@ describe('<Toast.Action />', () => {
 
     const actionElement = screen.queryByTestId('action');
     expect(actionElement).toBe(null);
+  });
+
+  it('renders content passed through the render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Action render={<button type="button">render prop action</button>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('render prop action')).not.toBe(null);
+  });
+
+  it('does not render a childless render prop when there is no action content', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Action render={<button type="button" data-testid="action-render" />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.queryByTestId('action-render')).toBe(null);
+  });
+
+  it('renders the toast action content through a childless render prop', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test', actionProps: { children: 'Undo' } }}>
+            <Toast.Action render={<button type="button" />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByText('Undo')).not.toBe(null);
   });
 });

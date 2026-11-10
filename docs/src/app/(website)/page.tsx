@@ -50,7 +50,7 @@ export default function Homepage() {
       />
 
       <section className="bui-d-c">
-        <h1 className="Text sz-3 bp2:sz-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
+        <h1 className="Text sz-4 bp2:sz-5 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
           Unstyled UI components for building accessible user interfaces
         </h1>
         <div className="bui-gcs-1 bui-gce-9">
@@ -178,10 +178,6 @@ export default function Homepage() {
               <span className="Text sz-2">Director of Engineering</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text sz-2">Albert Yu</span>
-              <span className="Text sz-2">Engineer</span>
-            </li>
-            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text sz-2">Flavien Delangle</span>
               <span className="Text sz-2">Engineer</span>
             </li>
@@ -191,10 +187,6 @@ export default function Homepage() {
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text sz-2">Jenna Smith</span>
-              <span className="Text sz-2">Engineer</span>
-            </li>
-            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text sz-2">Lukas Tyla</span>
               <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">

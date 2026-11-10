@@ -97,7 +97,12 @@ type SwitchRootChangeEventDetails = {
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -160,11 +165,75 @@ type SwitchThumbState = {
 };
 ```
 
+## Additional Types
+
+### SwitchRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace SwitchRootDataAttributes {
+  /** Present when the switch is checked. */
+  const checked: 'data-checked';
+  /** Present when the switch is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the switch is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the switch is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the switch is required. */
+  const required: 'data-required';
+  /** Present when the switch is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the switch is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the switch has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the switch's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the switch is active (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the switch is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SwitchThumbDataAttributes
+
+Data attributes of [Thumb](#thumb).
+
+```typescript
+declare namespace SwitchThumbDataAttributes {
+  /** Present when the switch is checked. */
+  const checked: 'data-checked';
+  /** Present when the switch is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the switch is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the switch is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the switch is required. */
+  const required: 'data-required';
+  /** Present when the switch is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the switch is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the switch has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the switch's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the switch is active (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the switch is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
 ## Export Groups
 
 - `Switch.Root`: `Switch.Root`, `Switch.Root.State`, `Switch.Root.Props`, `Switch.Root.ChangeEventReason`, `Switch.Root.ChangeEventDetails`
 - `Switch.Thumb`: `Switch.Thumb`, `Switch.Thumb.Props`, `Switch.Thumb.State`
-- `Default`: `SwitchRootState`, `SwitchRootProps`, `SwitchRootChangeEventReason`, `SwitchRootChangeEventDetails`, `SwitchThumbProps`, `SwitchThumbState`
+- `Default`: `SwitchRootDataAttributes`, `SwitchThumbDataAttributes`, `SwitchRootState`, `SwitchRootProps`, `SwitchRootChangeEventReason`, `SwitchRootChangeEventDetails`, `SwitchThumbProps`, `SwitchThumbState`
 
 ## Canonical Types
 
@@ -176,3 +245,11 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Switch.Root.ChangeEventDetails`: `SwitchRootChangeEventDetails`
 - `Switch.Thumb.Props`: `SwitchThumbProps`
 - `Switch.Thumb.State`: `SwitchThumbState`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>

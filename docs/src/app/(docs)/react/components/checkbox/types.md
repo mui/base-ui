@@ -102,7 +102,12 @@ type CheckboxRootChangeEventDetails = {
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -173,11 +178,83 @@ type CheckboxIndicatorState = {
 };
 ```
 
+## Additional Types
+
+### CheckboxIndicatorDataAttributes
+
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace CheckboxIndicatorDataAttributes {
+  /** Present when the checkbox is checked. */
+  const checked: 'data-checked';
+  /** Present when the checkbox is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the checkbox is in an indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present when the checkbox is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the checkbox is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the checkbox is required. */
+  const required: 'data-required';
+  /** Present when the checkbox indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the checkbox indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the checkbox is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the checkbox is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the checkbox has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the checkbox's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the checkbox is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the checkbox is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### CheckboxRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace CheckboxRootDataAttributes {
+  /** Present when the checkbox is checked. */
+  const checked: 'data-checked';
+  /** Present when the checkbox is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the checkbox is in an indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present when the checkbox is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the checkbox is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the checkbox is required. */
+  const required: 'data-required';
+  /** Present when the checkbox is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the checkbox is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the checkbox has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the checkbox's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the checkbox is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the checkbox is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
 ## Export Groups
 
 - `Checkbox.Root`: `Checkbox.Root`, `Checkbox.Root.State`, `Checkbox.Root.Props`, `Checkbox.Root.ChangeEventReason`, `Checkbox.Root.ChangeEventDetails`
 - `Checkbox.Indicator`: `Checkbox.Indicator`, `Checkbox.Indicator.State`, `Checkbox.Indicator.Props`
-- `Default`: `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`
+- `Default`: `CheckboxRootDataAttributes`, `CheckboxIndicatorDataAttributes`, `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`
 
 ## Canonical Types
 
@@ -189,3 +266,11 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Checkbox.Root.ChangeEventDetails`: `CheckboxRootChangeEventDetails`
 - `Checkbox.Indicator.State`: `CheckboxIndicatorState`
 - `Checkbox.Indicator.Props`: `CheckboxIndicatorProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>

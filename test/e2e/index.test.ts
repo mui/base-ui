@@ -1,5 +1,6 @@
 import { describe, it, beforeAll, afterAll } from 'vitest';
-import { chromium, expect, Page, Browser } from '@playwright/test';
+import type { Page, Browser } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
 const BASE_URL = 'http://localhost:5173';
@@ -260,10 +261,18 @@ describe('e2e', () => {
         async () => {
           await renderFixture('menu/LinkItemNavigation');
 
-          await page.keyboard.press('Tab');
+          const trigger = page.getByTestId('menu-trigger');
+          await trigger.focus();
           await page.keyboard.press('Enter');
+
+          const linkOne = page.getByTestId('link-one');
+          await expect(linkOne).toBeFocused();
+
           // first item (page one) is initially highlighted
           await page.keyboard.press('ArrowDown');
+
+          const linkTwo = page.getByTestId('link-two');
+          await expect(linkTwo).toBeFocused();
           await page.keyboard.press('Enter');
 
           await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);

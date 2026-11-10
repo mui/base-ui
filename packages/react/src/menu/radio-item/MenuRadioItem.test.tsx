@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { fireEvent, act, waitFor, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -32,6 +32,24 @@ describe('<Menu.RadioItem />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('throws when rendered outside Menu.RadioGroup', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root open>
+            <Menu.RadioItem value="one" />
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
@@ -156,8 +174,9 @@ describe('<Menu.RadioItem />', () => {
       expect(item).toHaveAttribute('data-checked', '');
     });
 
-    ['Space', 'Enter'].forEach((key) => {
-      it(`selects the item when ${key} is pressed`, async () => {
+    it.each([{ key: 'Space' }, { key: 'Enter' }])(
+      'selects the item when $key is pressed',
+      async ({ key }) => {
         const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
@@ -184,8 +203,8 @@ describe('<Menu.RadioItem />', () => {
 
         await user.keyboard(`[${key}]`);
         expect(item).toHaveAttribute('data-checked', '');
-      });
-    });
+      },
+    );
 
     it.skipIf(isJSDOM)(
       'does not select when Space is pressed during an active typeahead session',

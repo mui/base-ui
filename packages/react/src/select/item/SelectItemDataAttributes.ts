@@ -1,14 +1,12 @@
-export enum SelectItemDataAttributes {
-  /**
-   * Present when the select item is selected.
-   */
-  selected = 'data-selected',
-  /**
-   * Present when the select item is highlighted.
-   */
-  highlighted = 'data-highlighted',
-  /**
-   * Present when the select item is disabled.
-   */
-  disabled = 'data-disabled',
-}
+/**
+ * Present when the select item is selected.
+ */
+export const selected = 'data-selected';
+/**
+ * Present when the select item is highlighted.
+ */
+export const highlighted = 'data-highlighted';
+/**
+ * Present when the select item is disabled.
+ */
+export const disabled = 'data-disabled';

@@ -35,6 +35,7 @@ export default function getBabelConfig(api) {
     ...baseConfig,
     plugins: [...baseConfig.plugins, ...plugins],
     overrides: [
+      ...(baseConfig.overrides ?? []),
       {
         exclude: /\.test\.(js|ts|tsx)$/,
         plugins: ['@babel/plugin-transform-react-constant-elements'],

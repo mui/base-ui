@@ -1,10 +1,13 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { Input } from '@base-ui/react/input';
+import { createRenderer, describeConformance, hiddenInputSizeTests, pasteText } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 describe('<OTPField.Root />', () => {
@@ -28,31 +31,16 @@ describe('<OTPField.Root />', () => {
     );
   }
 
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <OTPField {...props} />,
+  });
+
   function getValues() {
     return screen
       .getAllByRole<HTMLInputElement>('textbox')
       .map((input) => input.value)
       .join('');
-  }
-
-  function pasteText(target: HTMLElement, value: string) {
-    if (isJSDOM) {
-      fireEvent.paste(target, {
-        clipboardData: {
-          getData: () => value,
-        },
-      });
-      return;
-    }
-
-    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
-    Object.defineProperty(pasteEvent, 'clipboardData', {
-      value: {
-        getData: () => value,
-      },
-    });
-
-    fireEvent(target, pasteEvent);
   }
 
   describe('value handling', () => {
@@ -164,21 +152,7 @@ describe('<OTPField.Root />', () => {
 
       describe('hidden validation input', () => {
         it('renders the hidden validation input with an alphanumeric pattern during SSR', () => {
-          renderToString(
-            <OTPFieldBase.Root
-              name="otp"
-              required
-              length={OTP_LENGTH}
-              validationType="alphanumeric"
-            >
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-            </OTPFieldBase.Root>,
-          );
+          renderToString(<OTPField name="otp" required validationType="alphanumeric" />);
 
           const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
 
@@ -677,6 +651,38 @@ describe('<OTPField.Root />', () => {
       expect(group).toHaveAttribute('aria-labelledby', label.id);
       expect(group).toHaveAttribute('aria-describedby', `external-description ${description.id}`);
     });
+
+    it('validates the latest value only after focus leaves the OTP field in onBlur mode', async () => {
+      const validate = vi.fn(() => null);
+
+      await render(
+        <React.Fragment>
+          <Form>
+            <Field.Root name="otp" validationMode="onBlur" validate={validate}>
+              <OTPField validationType="none" />
+            </Field.Root>
+          </Form>
+          <button type="button">Outside</button>
+        </React.Fragment>,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        inputs[0].focus();
+      });
+      fireEvent.change(inputs[0], { target: { value: '1' } });
+
+      fireEvent.blur(inputs[1], { relatedTarget: inputs[2] });
+      expect(validate).not.toHaveBeenCalled();
+
+      fireEvent.blur(inputs[1], {
+        relatedTarget: screen.getByRole('button', { name: 'Outside' }),
+      });
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.calls[0]).toEqual(['1', { otp: '1' }]);
+    });
   });
 
   describe('accessibility', () => {
@@ -832,6 +838,181 @@ describe('<OTPField.Root />', () => {
         expect(onValueChange).toHaveBeenCalledTimes(1);
         expect(onValueChange.mock.calls[0]?.[0]).toBe('123456');
         expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
+      });
+    });
+
+    describe('external value changes', () => {
+      it.each([
+        { name: 'cleared', nextValue: '', expectedIndex: 0 },
+        { name: 'shortened', nextValue: '12', expectedIndex: 2 },
+      ])(
+        'moves focus to the first empty slot when a controlled value is $name while focused',
+        async ({ nextValue, expectedIndex }) => {
+          const onValueChange = vi.fn();
+          const { setProps } = await render(
+            <OTPField value="111111" onValueChange={onValueChange} />,
+          );
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          await act(async () => {
+            inputs[5].focus();
+          });
+
+          expect(inputs[5]).toHaveFocus();
+
+          await setProps({ value: nextValue, onValueChange });
+
+          expect(inputs[expectedIndex]).toHaveFocus();
+          expect(inputs[expectedIndex]).toHaveAttribute('tabindex', '0');
+          expect(inputs[5]).toHaveAttribute('tabindex', '-1');
+        },
+      );
+
+      it('keeps focus on the tab stop when leading slots unmount as the value is cleared', async () => {
+        const onValueChange = vi.fn();
+
+        function TrailingSlots(props: { length: number; value: string }) {
+          return (
+            <OTPFieldBase.Root
+              length={props.length}
+              value={props.value}
+              onValueChange={onValueChange}
+            >
+              {Array.from({ length: props.length }, (_, index) => (
+                <OTPFieldBase.Input key={OTP_LENGTH - props.length + index} />
+              ))}
+            </OTPFieldBase.Root>
+          );
+        }
+
+        const { setProps } = await render(<TrailingSlots length={OTP_LENGTH} value="123456" />);
+
+        const lastInput = screen.getAllByRole<HTMLInputElement>('textbox')[5];
+
+        await act(async () => {
+          lastInput.focus();
+        });
+
+        expect(lastInput).toHaveFocus();
+
+        // The slot-count dev warning lags one commit behind a runtime `length` change.
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        await setProps({ length: 3, value: '' });
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        expect(inputs).toHaveLength(3);
+        expect(inputs[0]).toHaveFocus();
+        expect(inputs[0]).toHaveAttribute('tabindex', '0');
+        expect(inputs[2]).toHaveAttribute('tabindex', '-1');
+      });
+
+      it('keeps focus on a slot that is still reachable after a controlled value shrinks', async () => {
+        const onValueChange = vi.fn();
+        const { setProps } = await render(
+          <OTPField value="111111" onValueChange={onValueChange} />,
+        );
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        await act(async () => {
+          inputs[1].focus();
+        });
+
+        await setProps({ value: '111', onValueChange });
+
+        expect(inputs[1]).toHaveFocus();
+      });
+
+      it('does not move focus into the field when the value is cleared while focus is outside', async () => {
+        function Test() {
+          const [value, setValue] = React.useState('111111');
+
+          return (
+            <React.Fragment>
+              <OTPField value={value} onValueChange={setValue} />
+              <button type="button" onClick={() => setValue('')}>
+                Clear
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        const button = screen.getByRole('button', { name: 'Clear' });
+
+        await act(async () => {
+          button.focus();
+        });
+
+        fireEvent.click(button);
+
+        expect(getValues()).toBe('');
+        expect(button).toHaveFocus();
+      });
+
+      it('accepts typing and Backspace after a controlled clear while focused', async () => {
+        vi.useFakeTimers();
+
+        try {
+          function Test() {
+            const [value, setValue] = React.useState('');
+
+            return (
+              <OTPField
+                value={value}
+                onValueChange={setValue}
+                onValueComplete={() => {
+                  setTimeout(() => {
+                    setValue('');
+                  }, 300);
+                }}
+              />
+            );
+          }
+
+          await render(<Test />);
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          await act(async () => {
+            inputs[0].focus();
+          });
+
+          fireEvent.change(inputs[0], { target: { value: '111111' } });
+
+          expect(inputs[5]).toHaveFocus();
+
+          await act(async () => {
+            vi.advanceTimersByTime(300);
+          });
+
+          expect(getValues()).toBe('');
+          expect(inputs[0]).toHaveFocus();
+
+          fireEvent.change(inputs[0], { target: { value: '9' } });
+
+          expect(inputs[1]).toHaveFocus();
+
+          fireEvent.change(inputs[1], { target: { value: '8' } });
+
+          expect(getValues()).toBe('98');
+          expect(inputs[2]).toHaveFocus();
+
+          fireEvent.keyDown(inputs[2], { key: 'Backspace' });
+
+          expect(inputs[1]).toHaveFocus();
+
+          fireEvent.keyDown(inputs[1], { key: 'Backspace' });
+
+          expect(getValues()).toBe('');
+          expect(inputs[0]).toHaveFocus();
+        } finally {
+          vi.useRealTimers();
+        }
       });
     });
 
@@ -1000,6 +1181,50 @@ describe('<OTPField.Root />', () => {
       expect(document.querySelector('input[name="otp"]')).not.toBeNull();
     });
 
+    it('redirects hidden validation input focus to the first visible slot', async () => {
+      await render(<OTPField name="otp" />);
+
+      const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+      expect(hiddenInput).not.toBeNull();
+
+      await act(async () => {
+        hiddenInput!.focus();
+      });
+
+      expect(firstInput).toHaveFocus();
+    });
+
+    it('accepts valid hidden-input autofill and moves focus to the first slot when autofill is cleared', async () => {
+      const onValueChange = vi.fn();
+      const onValueInvalid = vi.fn();
+
+      await render(
+        <OTPField name="otp" onValueChange={onValueChange} onValueInvalid={onValueInvalid} />,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+      expect(hiddenInput).not.toBeNull();
+
+      fireEvent.change(hiddenInput!, { target: { value: '123456' } });
+
+      expect(getValues()).toBe('123456');
+      expect(inputs[5]).toHaveFocus();
+      expect(onValueInvalid).not.toHaveBeenCalled();
+
+      fireEvent.change(hiddenInput!, { target: { value: '' } });
+
+      expect(getValues()).toBe('');
+      expect(inputs[0]).toHaveFocus();
+      expect(inputs[0]).toHaveAttribute('tabindex', '0');
+      expect(inputs[5]).toHaveAttribute('tabindex', '-1');
+      expect(onValueChange.mock.calls.map((call) => call[0])).toEqual(['123456', '']);
+      expect(onValueInvalid).not.toHaveBeenCalled();
+    });
+
     it('handles password manager autofill through the hidden input', async () => {
       const onValueChange = vi.fn();
       const onValueInvalid = vi.fn();
@@ -1073,55 +1298,38 @@ describe('<OTPField.Root />', () => {
     });
 
     it.each([
-      { lockState: 'readOnly', label: 'inside Field', withField: true },
-      { lockState: 'disabled', label: 'inside Field', withField: true },
-      { lockState: 'readOnly', label: 'outside Field', withField: false },
-      { lockState: 'disabled', label: 'outside Field', withField: false },
+      { lockState: 'readOnly', ariaInvalid: 'true' },
+      { lockState: 'disabled', ariaInvalid: null },
     ] as const)(
-      'ignores hidden-input autofill when $lockState $label',
-      async ({ lockState, withField }) => {
+      'ignores hidden-input autofill when $lockState inside Field',
+      async ({ lockState, ariaInvalid }) => {
         const onValueChange = vi.fn();
         const onValueInvalid = vi.fn();
         const onValueComplete = vi.fn();
-        const otpField = (
-          <OTPField
-            readOnly={lockState === 'readOnly'}
-            disabled={lockState === 'disabled'}
-            name={withField ? undefined : 'otp'}
-            onValueChange={onValueChange}
-            onValueInvalid={onValueInvalid}
-            onValueComplete={onValueComplete}
-          />
-        );
 
         await render(
-          withField ? (
-            <Form errors={{ otp: 'test' }}>
-              <Field.Root name="otp">
-                {otpField}
-                <Field.Error data-testid="error" />
-              </Field.Root>
-            </Form>
-          ) : (
-            otpField
-          ),
+          <Form errors={{ otp: 'test' }}>
+            <Field.Root name="otp">
+              <OTPField
+                readOnly={lockState === 'readOnly'}
+                disabled={lockState === 'disabled'}
+                onValueChange={onValueChange}
+                onValueInvalid={onValueInvalid}
+                onValueComplete={onValueComplete}
+              />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>,
         );
 
         const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
 
         expect(hiddenInput).not.toBeNull();
-
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-          const inputs = screen.getAllByRole('textbox');
-          inputs.forEach((input) => {
-            if (lockState === 'disabled') {
-              expect(input).not.toHaveAttribute('aria-invalid');
-            } else {
-              expect(input).toHaveAttribute('aria-invalid', 'true');
-            }
-          });
-        }
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+        const inputs = screen.getAllByRole('textbox');
+        expect(inputs.map((input) => input.getAttribute('aria-invalid'))).toEqual(
+          inputs.map(() => ariaInvalid),
+        );
 
         fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
 
@@ -1129,10 +1337,43 @@ describe('<OTPField.Root />', () => {
         expect(onValueChange).not.toHaveBeenCalled();
         expect(onValueInvalid).not.toHaveBeenCalled();
         expect(onValueComplete).not.toHaveBeenCalled();
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      },
+    );
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-        }
+    it.each([{ lockState: 'readOnly' }, { lockState: 'disabled' }] as const)(
+      'ignores hidden-input autofill when $lockState outside Field',
+      async ({ lockState }) => {
+        const onValueChange = vi.fn();
+        const onValueInvalid = vi.fn();
+        const onValueComplete = vi.fn();
+
+        await render(
+          <OTPField
+            readOnly={lockState === 'readOnly'}
+            disabled={lockState === 'disabled'}
+            name="otp"
+            onValueChange={onValueChange}
+            onValueInvalid={onValueInvalid}
+            onValueComplete={onValueComplete}
+          />,
+        );
+
+        const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+        expect(hiddenInput).not.toBeNull();
+        // Without a Field wrapper, nothing marks the inputs invalid.
+        const inputs = screen.getAllByRole('textbox');
+        expect(inputs.map((input) => input.getAttribute('aria-invalid'))).toEqual(
+          inputs.map(() => null),
+        );
+
+        fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
+
+        expect(getValues()).toBe('');
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueInvalid).not.toHaveBeenCalled();
+        expect(onValueComplete).not.toHaveBeenCalled();
       },
     );
 
@@ -1169,6 +1410,71 @@ describe('<OTPField.Root />', () => {
         expect(handleSubmit).not.toHaveBeenCalled();
       });
 
+      it('submits its own form when an unscoped control in another form mounts later', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const handleOtherSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+
+        await render(
+          <React.Fragment>
+            <form onSubmit={handleSubmit}>
+              <OTPField autoSubmit />
+            </form>
+            <form onSubmit={handleOtherSubmit}>
+              <Input aria-label="Unrelated input" />
+            </form>
+          </React.Fragment>,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        fireEvent.change(firstInput, { target: { value: '123456' } });
+
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+        expect(handleOtherSubmit).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        {
+          name: 'the root is portaled through render',
+          renderOTPField: () => (
+            <OTPField
+              autoSubmit
+              render={(props) => ReactDOM.createPortal(<div {...props} />, document.body)}
+            />
+          ),
+        },
+        {
+          name: 'the inputs are portaled',
+          renderOTPField: () => (
+            <OTPFieldBase.Root length={OTP_LENGTH} autoSubmit>
+              {ReactDOM.createPortal(
+                Array.from({ length: OTP_LENGTH }, (_, index) => (
+                  <OTPFieldBase.Input key={index} />
+                )),
+                document.body,
+              )}
+            </OTPFieldBase.Root>
+          ),
+        },
+      ])('submits the hidden input form when $name', async ({ renderOTPField }) => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+
+        await render(<form onSubmit={handleSubmit}>{renderOTPField()}</form>);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        expect(firstInput.form).toBe(null);
+
+        fireEvent.change(firstInput, { target: { value: '123456' } });
+
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+      });
+
       it('submits the completed named OTP value from the owning form when enabled', async () => {
         const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
@@ -1189,6 +1495,29 @@ describe('<OTPField.Root />', () => {
 
         expect(getValues()).toBe('123456');
         expect(handleSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      it('keeps the completed value when the owning form has no requestSubmit method', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const onValueComplete = vi.fn();
+
+        await render(
+          <form aria-label="verification" onSubmit={handleSubmit}>
+            <OTPField name="otp" autoSubmit onValueComplete={onValueComplete} />
+          </form>,
+        );
+
+        const form = screen.getByRole<HTMLFormElement>('form', { name: 'verification' });
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        Object.defineProperty(form, 'requestSubmit', { configurable: true, value: undefined });
+
+        fireEvent.change(firstInput, { target: { value: '123456' } });
+
+        expect(getValues()).toBe('123456');
+        expect(onValueComplete).toHaveBeenCalledTimes(1);
+        expect(handleSubmit).not.toHaveBeenCalled();
       });
 
       it('does not call flushSync inside a layout effect when auto-submitting a Base UI Form', async () => {
@@ -1317,20 +1646,48 @@ describe('<OTPField.Root />', () => {
         expect(getValues()).toBe('123456');
         expect(handleSubmit).toHaveBeenCalledTimes(1);
       });
+
+      it('does not submit an ancestor form when the explicit form id is not a form', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+
+        await render(
+          <React.Fragment>
+            <div id="verification-form" />
+            <form onSubmit={handleSubmit}>
+              <OTPField form="verification-form" name="otp" autoSubmit />
+            </form>
+          </React.Fragment>,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        fireEvent.change(firstInput, { target: { value: '123456' } });
+
+        expect(getValues()).toBe('123456');
+        expect(handleSubmit).not.toHaveBeenCalled();
+      });
     });
 
     describe('server-side rendering', () => {
+      it('renders visible inputs with unique IDs', () => {
+        renderToString(<OTPField data-testid="root" id="verification-code" />);
+
+        const inputs = screen.getByTestId('root').querySelectorAll('input');
+
+        expect(Array.from(inputs, (input) => input.id)).toEqual([
+          'verification-code',
+          'verification-code-2',
+          'verification-code-3',
+          'verification-code-4',
+          'verification-code-5',
+          'verification-code-6',
+        ]);
+      });
+
       it('renders a hidden validation input with the provided length', () => {
-        renderToString(
-          <OTPFieldBase.Root name="otp" required length={OTP_LENGTH}>
-            <OTPFieldBase.Input />
-            <OTPFieldBase.Input />
-            <OTPFieldBase.Input />
-            <OTPFieldBase.Input />
-            <OTPFieldBase.Input />
-            <OTPFieldBase.Input />
-          </OTPFieldBase.Root>,
-        );
+        renderToString(<OTPField name="otp" required />);
 
         const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
 
@@ -1342,17 +1699,130 @@ describe('<OTPField.Root />', () => {
     });
   });
 
+  describe('[data-focused] without a blur event', () => {
+    function Fields(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+      const { firstMounted = true, firstDisabled = false } = props;
+      return (
+        <Field.Root data-testid="field">
+          {firstMounted && <OTPField data-testid="first" disabled={firstDisabled} />}
+        </Field.Root>
+      );
+    }
+
+    it('is removed when the focused field becomes disabled', async () => {
+      const { setProps } = await render(<Fields />);
+
+      await act(async () => {
+        screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+      });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      expect(screen.getByTestId('first')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('first')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is removed when the focused field unmounts', async () => {
+      const { setProps } = await render(<Fields />);
+
+      await act(async () => {
+        screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+      });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is kept when a previously focused slot unmounts after focus moves to a sibling', async () => {
+      // `inputCount` trails `length` by a render, so shrinking both at once warns about a
+      // mismatch that never reaches the DOM. Silencing it keeps the test from passing only on
+      // CI's retry, where `warn`'s dedupe swallows the message it failed on the first time.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function TestCase(props: { firstMounted?: boolean }) {
+        const { firstMounted = true } = props;
+        return (
+          <Field.Root data-testid="field">
+            <OTPFieldBase.Root length={firstMounted ? 3 : 2} defaultValue="1" data-testid="otp">
+              {firstMounted && <OTPFieldBase.Input key="first" />}
+              <OTPFieldBase.Input key="second" />
+              <OTPFieldBase.Input key="third" />
+            </OTPFieldBase.Root>
+          </Field.Root>
+        );
+      }
+
+      try {
+        const { setProps } = await render(<TestCase />);
+        const [first, second] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        await act(async () => {
+          first.focus();
+        });
+        await act(async () => {
+          second.focus();
+        });
+
+        expect(second).toHaveFocus();
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+        expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(second).toHaveFocus();
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+        expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
+
+    it('is removed when the focused slot unmounts but its field remains', async () => {
+      // Unmounting one slot leaves `length` out of sync with the rendered inputs, which is
+      // irrelevant to what this test asserts. `warn` dedupes on the message, so `length={3}`
+      // keeps this silenced warning from consuming the messages other tests assert.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function TestCase(props: { firstMounted?: boolean }) {
+        const { firstMounted = true } = props;
+        return (
+          <Field.Root data-testid="field">
+            <OTPFieldBase.Root length={3} data-testid="otp">
+              {firstMounted && <OTPFieldBase.Input />}
+              <OTPFieldBase.Input />
+              <OTPFieldBase.Input />
+            </OTPFieldBase.Root>
+          </Field.Root>
+        );
+      }
+
+      try {
+        const { setProps } = await render(<TestCase />);
+
+        await act(async () => {
+          screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+        });
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+        expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+        expect(screen.getByTestId('otp')).not.toHaveAttribute('data-focused');
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
+  });
+
   it('updates standalone filled and focused state on the root', async () => {
-    await render(
-      <OTPFieldBase.Root data-testid="root" length={OTP_LENGTH}>
-        <OTPFieldBase.Input />
-        <OTPFieldBase.Input />
-        <OTPFieldBase.Input />
-        <OTPFieldBase.Input />
-        <OTPFieldBase.Input />
-        <OTPFieldBase.Input />
-      </OTPFieldBase.Root>,
-    );
+    await render(<OTPField data-testid="root" />);
 
     const root = screen.getByTestId('root');
     const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
@@ -1412,10 +1882,36 @@ describe('<OTPField.Root />', () => {
     warnSpy.mockRestore();
   });
 
+  it('warns with singular input wording when one input is rendered', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ownerStackSpy =
+      typeof SafeReact.captureOwnerStack === 'function'
+        ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+        : null;
+
+    try {
+      await render(
+        <OTPFieldBase.Root length={2}>
+          <OTPFieldBase.Input />
+        </OTPFieldBase.Root>,
+      );
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0]?.[0]).toContain('Received `length={2}` but rendered 1 input.');
+    } finally {
+      ownerStackSpy?.mockRestore();
+      warnSpy.mockRestore();
+    }
+  });
+
   it.each([0, -1, 3.7, Number.NaN, Number.POSITIVE_INFINITY])(
     'warns when length is not a positive integer (%p)',
     async (invalidLength) => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const ownerStackSpy =
+        typeof SafeReact.captureOwnerStack === 'function'
+          ? vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null)
+          : null;
 
       try {
         await render(<OTPFieldBase.Root length={invalidLength} />);
@@ -1425,6 +1921,7 @@ describe('<OTPField.Root />', () => {
           `Base UI: <OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(invalidLength)}}\`.`,
         );
       } finally {
+        ownerStackSpy?.mockRestore();
         warnSpy.mockRestore();
       }
     },

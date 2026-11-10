@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Accordion } from '@base-ui/react/accordion';
@@ -9,12 +9,33 @@ const PANEL_CONTENT_1 = 'Panel contents 1';
 const PANEL_CONTENT_2 = 'Panel contents 2';
 
 describe('<Accordion.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Accordion.Root />, () => ({
     render,
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('warns when hiddenUntilFound overrides keepMounted={false}', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Accordion.Root hiddenUntilFound keepMounted={false}>
+          <Accordion.Item>
+            <Accordion.Panel>Panel</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Base UI: The `keepMounted={false}` prop on `Accordion.Root` is ignored when `hiddenUntilFound` is enabled, since panels must remain mounted while closed.',
+      );
+      expect(screen.getByText('Panel').getAttribute('hidden')).toBe('until-found');
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
 
   describe('ARIA attributes', () => {
     it('renders correct ARIA attributes', async () => {
@@ -109,16 +130,16 @@ describe('<Accordion.Root />', () => {
       await user.click(screen.getByRole('button', { name: 'Set id 1' }));
 
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('id', 'custom-trigger-id-1');
         expect(panel).toHaveAttribute('aria-labelledby', 'custom-trigger-id-1');
       });
+      expect(trigger).toHaveAttribute('id', 'custom-trigger-id-1');
 
       await user.click(screen.getByRole('button', { name: 'Set id 2' }));
 
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('id', 'custom-trigger-id-2');
         expect(panel).toHaveAttribute('aria-labelledby', 'custom-trigger-id-2');
       });
+      expect(trigger).toHaveAttribute('id', 'custom-trigger-id-2');
     });
 
     it('restores panel labeling when a manual trigger id is removed', async () => {
@@ -152,8 +173,73 @@ describe('<Accordion.Root />', () => {
       await user.click(screen.getByRole('button', { name: 'Remove id' }));
 
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('id');
-        expect(trigger).not.toHaveAttribute('id', 'custom-trigger-id');
+        expect(panel.getAttribute('aria-labelledby')).toMatch(/^base-ui-/);
+      });
+      expect(trigger).toHaveAttribute('id', panel.getAttribute('aria-labelledby'));
+    });
+
+    it('unregisters generated part ids when the trigger or panel unmounts', async () => {
+      function App({ parts }: { parts: 'both' | 'trigger' | 'panel' }) {
+        return (
+          <React.StrictMode>
+            <Accordion.Root defaultValue={[0]}>
+              <Accordion.Item value={0}>
+                <Accordion.Header>
+                  {parts !== 'panel' && <Accordion.Trigger>Trigger 1</Accordion.Trigger>}
+                </Accordion.Header>
+                {parts !== 'trigger' && <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>}
+              </Accordion.Item>
+            </Accordion.Root>
+          </React.StrictMode>
+        );
+      }
+
+      const { rerender } = await render(<App parts="both" />);
+
+      await rerender(<App parts="panel" />);
+      expect(screen.getByText(PANEL_CONTENT_1)).not.toHaveAttribute('aria-labelledby');
+
+      await rerender(<App parts="both" />);
+      let trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      let panel = screen.getByText(PANEL_CONTENT_1);
+      expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
+
+      await rerender(<App parts="trigger" />);
+      expect(screen.getByRole('button', { name: 'Trigger 1' })).not.toHaveAttribute(
+        'aria-controls',
+      );
+
+      await rerender(<App parts="both" />);
+      trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      panel = screen.getByText(PANEL_CONTENT_1);
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+    });
+
+    it.skipIf(isJSDOM)('preserves generated part associations during hydration', async () => {
+      const { hydrate } = renderToString(
+        <Accordion.Root defaultValue={[0]}>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      let trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      let panel = screen.getByText(PANEL_CONTENT_1);
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+      expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
+
+      hydrate();
+
+      await waitFor(() => {
+        trigger = screen.getByRole('button', { name: 'Trigger 1' });
+        panel = screen.getByText(PANEL_CONTENT_1);
+        expect(trigger).toHaveAttribute('aria-controls', panel.id);
+      });
+      await waitFor(() => {
         expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
       });
     });
@@ -403,57 +489,60 @@ describe('<Accordion.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
-    [true, false].forEach((isNativeButton) => {
-      describe(`rendering ${isNativeButton ? 'interactive' : 'non-interactive'} triggers`, () => {
-        ['Enter', 'Space'].forEach((key) => {
-          it(`key: ${key} toggles the Accordion open state`, async () => {
-            const { user } = await render(
-              <Accordion.Root>
-                <Accordion.Item>
-                  <Accordion.Header>
-                    <Accordion.Trigger
-                      nativeButton={isNativeButton}
-                      render={isNativeButton ? undefined : <span />}
-                    >
-                      Trigger 1
-                    </Accordion.Trigger>
-                  </Accordion.Header>
-                  <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
-                </Accordion.Item>
-              </Accordion.Root>,
-            );
+    it.each([
+      { triggerKind: 'interactive', isNativeButton: true, key: 'Enter' },
+      { triggerKind: 'interactive', isNativeButton: true, key: 'Space' },
+      { triggerKind: 'non-interactive', isNativeButton: false, key: 'Enter' },
+      { triggerKind: 'non-interactive', isNativeButton: false, key: 'Space' },
+    ])(
+      'key: $key toggles the Accordion open state with $triggerKind triggers',
+      async ({ isNativeButton, key }) => {
+        const { user } = await render(
+          <Accordion.Root>
+            <Accordion.Item>
+              <Accordion.Header>
+                <Accordion.Trigger
+                  nativeButton={isNativeButton}
+                  render={isNativeButton ? undefined : <span />}
+                >
+                  Trigger 1
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+            </Accordion.Item>
+          </Accordion.Root>,
+        );
 
-            const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button');
 
-            expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
-            expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+        expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
 
-            await user.keyboard('[Tab]');
-            expect(trigger).toHaveFocus();
-            await user.keyboard(`[${key}]`);
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        await user.keyboard(`[${key}]`);
 
-            expect(trigger).toHaveAttribute('aria-expanded', 'true');
-            expect(trigger).toHaveAttribute('data-panel-open');
-            expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
-            expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
-            expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(trigger).toHaveAttribute('data-panel-open');
+        expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
+        expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
 
-            await user.keyboard(`[${key}]`);
+        await user.keyboard(`[${key}]`);
 
-            expect(trigger).toHaveAttribute('aria-expanded', 'false');
-            expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
-          });
-        });
-      });
-    });
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      },
+    );
   });
 
   describe('keyboard activation timing', () => {
-    [true, false].forEach((isNativeButton) => {
-      it(`opens and closes on Space keyup when rendering ${
-        isNativeButton ? 'interactive' : 'non-interactive'
-      } triggers`, async () => {
+    it.each([
+      { triggerKind: 'interactive', isNativeButton: true },
+      { triggerKind: 'non-interactive', isNativeButton: false },
+    ])(
+      'opens and closes on Space keyup when rendering $triggerKind triggers',
+      async ({ isNativeButton }) => {
         const onOpenChange = vi.fn();
 
         const { user } = await render(
@@ -498,8 +587,8 @@ describe('<Accordion.Root />', () => {
         expect(screen.queryByText(PANEL_CONTENT_1)).not.toBeInTheDocument();
         expect(onOpenChange).toHaveBeenCalledTimes(2);
         expect(onOpenChange).toHaveBeenLastCalledWith(false, expect.anything());
-      });
-    });
+      },
+    );
   });
 
   describe('BaseUIChangeEventDetails', () => {
@@ -556,6 +645,32 @@ describe('<Accordion.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
       expect(onValueChange.mock.calls.length).toBe(1);
+    });
+
+    it('onValueChange cancel() prevents closing while uncontrolled', async () => {
+      const onValueChange = vi.fn((_value, eventDetails) => {
+        eventDetails.cancel();
+      });
+
+      await render(
+        <Accordion.Root defaultValue={[0]} onValueChange={onValueChange}>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.click(trigger);
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
+      expect(onValueChange).toHaveBeenCalledOnce();
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([]);
     });
 
     it('onOpenChange cancel() prevents onValueChange while controlled', async () => {
@@ -675,6 +790,30 @@ describe('<Accordion.Root />', () => {
       expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
       expect(onValueChange.mock.calls.length).toBe(1);
     });
+
+    it('keeps an array item value intact while multiple', async () => {
+      const itemValue = ['section', 'details'];
+      const onValueChange = vi.fn();
+
+      await render(
+        <Accordion.Root multiple onValueChange={onValueChange}>
+          <Accordion.Item value={itemValue}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.click(trigger);
+
+      expect(onValueChange.mock.calls[0][0]).toEqual([itemValue]);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
+    });
   });
 
   describe.skipIf(isJSDOM)('prop: multiple', () => {
@@ -709,6 +848,13 @@ describe('<Accordion.Root />', () => {
       expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
       expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
       expect(trigger1).toHaveAttribute('data-panel-open');
+      expect(trigger2).toHaveAttribute('data-panel-open');
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      expect(screen.getByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
       expect(trigger2).toHaveAttribute('data-panel-open');
     });
 

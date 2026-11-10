@@ -1,7 +1,5 @@
-export enum ToastCloseDataAttributes {
-  /**
-   * The type of the toast.
-   * @type {string}
-   */
-  type = 'data-type',
-}
+/**
+ * The type of the toast.
+ * @type {string}
+ */
+export const type = 'data-type';

@@ -31,6 +31,7 @@ export const drag = 'drag' as const;
 export const wheel = 'wheel' as const;
 export const scrub = 'scrub' as const;
 
+export const popupClose = 'popup-close' as const;
 export const cancelOpen = 'cancel-open' as const;
 export const siblingOpen = 'sibling-open' as const;
 export const disabled = 'disabled' as const;

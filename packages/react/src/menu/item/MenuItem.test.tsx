@@ -1,8 +1,8 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it, onTestFinished } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 
 describe('<Menu.Item />', () => {
   const { render, clock } = createRenderer({
@@ -20,6 +20,18 @@ describe('<Menu.Item />', () => {
       return render(<Menu.Root open>{node}</Menu.Root>);
     },
   }));
+
+  it('throws when rendered outside Menu.Root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.Item />)).rejects.toThrow(
+        'Base UI: MenuRootContext is missing. Menu parts must be placed within <Menu.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('calls the onClick handler when clicked', async () => {
     const onClick = vi.fn();
@@ -42,6 +54,92 @@ describe('<Menu.Item />', () => {
 
     expect(onClick.mock.calls.length).toBe(1);
   });
+
+  it.skipIf(isJSDOM).each([
+    { name: 'default', nativeButton: false },
+    { name: 'native button', nativeButton: true },
+  ])(
+    'native press focuses a $name item before mouseup and click without hover focus',
+    async ({ nativeButton }) => {
+      // Testing Library's `user.click` calls `focus()` itself, so it can't verify browser focus.
+      ignoreActWarnings();
+      onTestFinished(resetBrowserPointer);
+      const { userEvent } = await import('vitest/browser');
+      let focusedAtMouseUp: Element | null = null;
+      let focusedAtClick: Element | null = null;
+      await render(
+        <Menu.Root open highlightItemOnHover={false}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <input aria-label="Start" />
+                <Menu.Item
+                  closeOnClick={false}
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button type="button" /> : undefined}
+                  onMouseUp={(event) => {
+                    focusedAtMouseUp = event.currentTarget.ownerDocument.activeElement;
+                  }}
+                  onClick={(event) => {
+                    focusedAtClick = event.currentTarget.ownerDocument.activeElement;
+                  }}
+                >
+                  Item
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const input = screen.getByRole('textbox', { name: 'Start' });
+      const item = screen.getByRole('menuitem', { name: 'Item' });
+      await userEvent.click(input);
+      expect(input).toHaveFocus();
+
+      await userEvent.click(item);
+
+      expect(focusedAtMouseUp).toBe(item);
+      expect(focusedAtClick).toBe(item);
+    },
+  );
+
+  it.each([{ press: 'mouse' }, { press: 'Enter' }])(
+    'preserves focus moved by onClick after $press activation',
+    async ({ press }) => {
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Root>
+            <Menu.Trigger>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup finalFocus={false}>
+                  <Menu.Item onClick={() => screen.getByRole('textbox').focus()}>
+                    Focus editor
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <textarea aria-label="Editor" />
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const item = screen.getByRole('menuitem');
+      expect(screen.getByRole('textbox')).not.toHaveFocus();
+
+      if (press === 'Enter') {
+        await act(() => item.focus());
+        await user.keyboard('{Enter}');
+      } else {
+        await user.click(item);
+      }
+
+      expect(screen.queryByRole('menuitem')).toBe(null);
+      expect(screen.getByRole('textbox')).toHaveFocus();
+    },
+  );
 
   it('does not close the menu when onClick prevents Base UI handler', async () => {
     const onClick = vi.fn((event) => event.preventBaseUIHandler());

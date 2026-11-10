@@ -1,5 +1,6 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Combobox } from '@base-ui/react/combobox';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -74,6 +75,34 @@ describe('<Combobox.InputGroup />', () => {
 
     expect(input).toHaveFocus();
     expect(screen.queryByRole('listbox')).not.toBe(null);
+  });
+
+  it('does not focus the input when pressing content in a nested React portal', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['a']}>
+        <Combobox.InputGroup>
+          <Combobox.Input data-testid="input" />
+          {ReactDOM.createPortal(<div data-testid="portal" />, document.body)}
+        </Combobox.InputGroup>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    expect(input).not.toHaveFocus();
+
+    await user.pointer({ keys: '[MouseLeft]', target: screen.getByTestId('portal') });
+
+    expect(input).not.toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
   });
 
   it('does not handle chip presses a second time when chips are nested inside the input group', async () => {
@@ -165,7 +194,7 @@ describe('<Combobox.InputGroup />', () => {
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
-  it('does not focus or open when readOnly', async () => {
+  it('focuses the input and opens when readOnly', async () => {
     await render(
       <Combobox.Root items={['a', 'b']} multiple readOnly defaultValue={['a']}>
         <Combobox.InputGroup data-testid="group" style={{ padding: 10 }}>
@@ -190,8 +219,8 @@ describe('<Combobox.InputGroup />', () => {
 
     fireEvent.mouseDown(screen.getByTestId('group'));
 
-    expect(screen.getByTestId('input')).not.toHaveFocus();
-    expect(screen.queryByRole('listbox')).toBe(null);
+    expect(screen.getByTestId('input')).toHaveFocus();
+    expect(screen.queryByRole('listbox')).not.toBe(null);
   });
 
   it('has role prop', async () => {

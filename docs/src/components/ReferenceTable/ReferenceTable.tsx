@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useTypes, type TypesTableProps } from '@mui/internal-docs-infra/useTypes';
+import { useTypes } from '@mui/internal-docs-infra/useTypes';
+import type { TypesTableProps } from '@mui/internal-docs-infra/useTypes';
 import { ReferenceAccordion } from './ReferenceAccordion';
 import { AttributesReferenceTable } from './AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './CssVariablesReferenceTable';
@@ -12,7 +13,7 @@ import { AdditionalTypes } from './AdditionalTypes';
 import * as CodeBlock from '../CodeBlock';
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <h4 className="ReferenceSectionHeading">{children}</h4>;
+  return <h3 className="ReferenceSectionHeading">{children}</h3>;
 }
 
 type UseTypesResult = ReturnType<typeof useTypes>;

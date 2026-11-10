@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type TransitionStatus } from '../../internals/useTransitionStatus';
-import { type BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 
 /**
  * An overlay displayed beneath the popup.
