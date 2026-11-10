@@ -41,44 +41,10 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const itemCount = items?.size;
   const activeItemRendered = store.useState('activeItemRendered');
   const direction = useDirection();
-  const { labelsRef, typingRef } = store.context;
+  const { elementsRef, labelsRef, typingRef } = store.context;
 
-  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   // Where a Shift+Arrow range starts: the item focused when Shift was pressed.
   const shiftAnchorRef = React.useRef<number | null>(null);
-  // In opt-in mode, an arrow key that moved focus to an item that isn't rendered selects it once
-  // it renders and receives focus.
-  const pendingSelectRef = React.useRef<{ index: number; event: KeyboardEvent } | null>(null);
-
-  /**
-   * Highlights an item and moves focus to it. In a virtualized list, the item may not be rendered
-   * yet, so the list holds focus until it renders and the item takes focus from the list.
-   */
-  const focusItem = useStableCallback((index: number, event: Event | undefined) => {
-    const { pendingFocusIndexRef } = store.context;
-    pendingFocusIndexRef.current = null;
-    store.highlightItem(index, event);
-
-    const element = elementsRef.current[index];
-    if (element) {
-      element.focus();
-      return;
-    }
-
-    pendingFocusIndexRef.current = index;
-    store.state.listElement?.focus({ preventScroll: true });
-  });
-
-  // An item that an arrow key moved focus to in opt-in mode is selected once it renders.
-  const onItemFocus = useStableCallback((index: number) => {
-    const pendingSelect = pendingSelectRef.current;
-    if (pendingSelect?.index !== index) {
-      return;
-    }
-    pendingSelectRef.current = null;
-    store.selection.moveTo(index, pendingSelect.event);
-  });
-  store.useContextCallback('onItemFocus', onItemFocus);
 
   const runKeyCommand = useStableCallback((command: ListKeyCommand, event: React.KeyboardEvent) => {
     const nativeEvent = event.nativeEvent;
@@ -89,30 +55,25 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
     switch (command.type) {
       case 'move':
-        pendingSelectRef.current = null;
-        focusItem(command.index, nativeEvent);
-        if (!command.select) {
-          break;
-        }
-        if (elementsRef.current[command.index]) {
-          store.selection.moveTo(command.index, nativeEvent);
-        } else {
-          // The item isn't rendered yet, so it's selected once it renders and receives focus.
-          pendingSelectRef.current = { index: command.index, event: nativeEvent };
-        }
+        store.focus.moveTo(
+          command.index,
+          nativeEvent,
+          // An item that isn't rendered yet is selected once it renders and receives focus.
+          command.select ? () => store.selection.moveTo(command.index, nativeEvent) : undefined,
+        );
         break;
       case 'extend': {
         if (shiftAnchorRef.current === null) {
           shiftAnchorRef.current = store.state.activeIndex;
         }
         const anchorIndex = shiftAnchorRef.current ?? command.index;
-        focusItem(command.index, nativeEvent);
+        store.focus.moveTo(command.index, nativeEvent);
         store.selection.extendTo(command.index, anchorIndex, nativeEvent);
         break;
       }
       case 'selectRange':
         store.selection.selectRange(command.from, command.to, command.focusIndex, nativeEvent);
-        focusItem(command.focusIndex, nativeEvent);
+        store.focus.moveTo(command.focusIndex, nativeEvent);
         break;
       case 'selectAll':
         store.selection.selectAll(nativeEvent);
@@ -137,7 +98,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       typingRef.current = isTyping;
     },
     onMatch(index, event) {
-      focusItem(index, event.nativeEvent);
+      store.focus.moveTo(index, event.nativeEvent);
     },
   });
 
@@ -172,7 +133,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         return;
       }
       // The list holds focus until the item it's waiting for renders.
-      if (store.context.pendingFocusIndexRef.current !== null) {
+      if (store.focus.isPending()) {
         return;
       }
       // The list isn't a tab stop, but it can receive focus programmatically, such as from a
@@ -182,15 +143,14 @@ export const ListboxList = React.forwardRef(function ListboxList(
         elements[index].focus();
       } else if (itemCount != null && itemCount > 0) {
         // The item isn't rendered, so highlight it to have it scrolled into view.
-        focusItem(index, event.nativeEvent);
+        store.focus.moveTo(index, event.nativeEvent);
       }
     },
     onBlur(event) {
       if (contains(event.currentTarget, event.relatedTarget)) {
         return;
       }
-      store.context.pendingFocusIndexRef.current = null;
-      pendingSelectRef.current = null;
+      store.focus.cancel();
       typeahead.endSession();
       if (event.target === event.currentTarget) {
         // Focus left while the list held it for an item that isn't rendered.

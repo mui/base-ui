@@ -5,6 +5,7 @@ import { isItemValue } from './items/createItems';
 import type { ListboxItems } from './items/createItems';
 import { REASONS } from '../internals/reasons';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { ListFocus } from './utils/listFocus';
 import { ListSelection } from './utils/listSelection';
 import type { SelectionItems } from './utils/listSelection';
 
@@ -52,10 +53,8 @@ export type Context = {
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
   /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
   highlightEvent: Event | undefined;
-  /** An item that should receive focus as soon as it renders, while the list holds focus. */
-  pendingFocusIndexRef: React.RefObject<number | null>;
-  /** Called when an item receives focus. */
-  onItemFocus: (index: number) => void;
+  /** The rendered items' elements, by position. */
+  elementsRef: React.RefObject<Array<HTMLElement | null>>;
 };
 
 /**
@@ -121,6 +120,13 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     commit: (nextValue, source, event) => {
       this.context.setValue(nextValue, createChangeEventDetails(SELECTION_REASONS[source], event));
     },
+  });
+
+  /** Moves focus to items, waiting for those that aren't rendered yet. */
+  focus = new ListFocus<Event>({
+    getElement: (index) => this.context.elementsRef.current[index],
+    getListElement: () => this.state.listElement,
+    highlight: (index, event) => this.highlightItem(index, event),
   });
 
   /**
@@ -282,7 +288,6 @@ function createInitialContext(): Context {
     typingRef: { current: false },
     setValue: () => {},
     highlightEvent: undefined,
-    pendingFocusIndexRef: { current: null },
-    onItemFocus: () => {},
+    elementsRef: { current: [] },
   };
 }

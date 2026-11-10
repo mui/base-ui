@@ -159,16 +159,9 @@ export const ListboxItem = React.memo(
     // The list holds focus while it waits for this item to render, such as after an arrow key
     // moved past the rendered items of a virtualized list. Take focus from it.
     useIsoLayoutEffect(() => {
-      const { pendingFocusIndexRef } = store.context;
-      if (!hasRegistered || pendingFocusIndexRef.current !== index) {
-        return;
+      if (hasRegistered) {
+        store.focus.itemRendered(index, itemRef.current);
       }
-      const listElement = store.state.listElement;
-      if (activeElement(ownerDocument(listElement)) !== listElement) {
-        return;
-      }
-      pendingFocusIndexRef.current = null;
-      itemRef.current?.focus();
     }, [hasRegistered, index, store]);
 
     const state: ListboxItemState = {
@@ -222,9 +215,8 @@ export const ListboxItem = React.memo(
       'aria-selected': selected,
       tabIndex: active ? 0 : -1,
       onFocus(event) {
-        store.context.pendingFocusIndexRef.current = null;
         store.highlightItem(index, event.nativeEvent);
-        store.context.onItemFocus(index);
+        store.focus.itemFocused(index);
       },
       onBlur(event) {
         // Moving focus to another item keeps the highlight; it moves with focus instead. So does
@@ -233,7 +225,7 @@ export const ListboxItem = React.memo(
         const nextTarget = event.relatedTarget;
         if (
           contains(listElement, nextTarget) &&
-          (nextTarget !== listElement || store.context.pendingFocusIndexRef.current !== null)
+          (nextTarget !== listElement || store.focus.isPending())
         ) {
           return;
         }
