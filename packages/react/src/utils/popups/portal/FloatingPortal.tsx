@@ -58,9 +58,6 @@ export interface UseFloatingPortalNodeProps {
     HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null> | undefined;
   componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
-  /**
-   * Content portaled into the portal node once it exists.
-   */
   children?: React.ReactNode;
 }
 
@@ -181,10 +178,7 @@ export function useFloatingPortalNode(
       },
       elementProps,
       {
-        // The children are portaled into `portalElement` as its React child, so in the React
-        // tree they sit inside both the outer portal and the portal element. Rendering them
-        // next to the portal element instead makes React dispatch bubbling events from the
-        // popup twice to ancestors, and never to the portal element's own handlers.
+        // As a sibling of `portalElement`, React would dispatch bubbling events twice.
         children: portalNode ? ReactDOM.createPortal(children, portalNode) : null,
       },
     ],
