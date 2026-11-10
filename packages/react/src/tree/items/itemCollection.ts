@@ -13,7 +13,10 @@ export declare class TreeItemCollection<in out TItem> {
   private readonly __treeItemCollectionBrand: (item: TItem) => TItem;
 }
 
-/** @internal */
+/**
+ * The members behind a `TreeItemCollection`. The package doesn't export it, but the built
+ * types of other modules reference it, so `stripInternal` must keep it.
+ */
 export interface InternalTreeItemCollection<TItem = any> {
   readonly [TREE_ITEM_COLLECTION]: true;
   readonly data: readonly TItem[] | undefined;
