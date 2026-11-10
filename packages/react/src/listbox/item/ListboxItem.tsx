@@ -17,28 +17,35 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useListboxRootContext } from '../root/ListboxRootContext';
+import type { ListboxStore } from '../store';
 import { ListboxItemContext } from './ListboxItemContext';
 
 function useListItemValueRegistration(params: {
   index: number;
   itemValue: any;
   hasRegistered: boolean;
-  valuesRef: React.RefObject<Array<any>>;
+  store: ListboxStore;
 }) {
-  const { index, itemValue, hasRegistered, valuesRef } = params;
+  const { index, itemValue, hasRegistered, store } = params;
 
   useIsoLayoutEffect(() => {
     if (!hasRegistered) {
       return undefined;
     }
 
-    const values = valuesRef.current;
+    const values = store.context.valuesRef.current;
     values[index] = itemValue;
+
+    // A selected item holds the tab stop, which was placed before this position was known when
+    // the item mounted out of order.
+    if (store.state.value.some((selectedValue) => store.isSameValue(selectedValue, itemValue))) {
+      store.syncTabStop();
+    }
 
     return () => {
       delete values[index];
     };
-  }, [hasRegistered, index, itemValue, valuesRef]);
+  }, [hasRegistered, index, itemValue, store]);
 }
 
 /**
@@ -83,7 +90,7 @@ export const ListboxItem = React.memo(
     const active = store.useState('isActive', listItem.index);
     const highlighted = store.useState('isHighlighted', listItem.index);
     const selected = store.useState('isSelected', itemValue);
-    const { disabledItemsRef, valuesRef } = store.context;
+    const { disabledItemsRef } = store.context;
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
@@ -115,7 +122,7 @@ export const ListboxItem = React.memo(
       index,
       itemValue,
       hasRegistered: hasRegistered && !items,
-      valuesRef,
+      store,
     });
 
     useIsoLayoutEffect(() => {

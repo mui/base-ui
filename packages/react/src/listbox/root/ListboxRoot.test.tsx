@@ -318,6 +318,29 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('tabindex', '0');
     });
 
+    it('keeps the tab stop on the selected item when an item is added before it', async () => {
+      function App({ items }: { items: string[] }) {
+        return (
+          <Listbox.Root defaultValue="c">
+            <Listbox.List>
+              {items.map((item) => (
+                <Listbox.Item key={item} value={item}>
+                  {item}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+      const { setProps } = await render(<App items={['b', 'c']} />);
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('tabindex', '0');
+
+      await setProps({ items: ['a', 'b', 'c'] });
+
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('tabindex', '0');
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('tabindex', '-1');
+    });
+
     it('moves the tab stop to a newly selected item while the list does not have focus', async () => {
       const { setProps } = await render(
         <Listbox.Root value="a">

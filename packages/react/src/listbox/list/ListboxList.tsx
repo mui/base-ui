@@ -77,21 +77,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
     }
   });
 
-  /**
-   * The item that should receive focus when the list receives focus: the first selected item,
-   * or the first item when nothing is selected, as the APG listbox pattern describes.
-   */
-  const getTabStopIndex = useStableCallback(() => {
-    let tabStopIndex = -1;
-    for (const selectedValue of store.state.value) {
-      const index = store.indexOfValue(selectedValue);
-      if (index !== -1 && (tabStopIndex === -1 || index < tabStopIndex)) {
-        tabStopIndex = index;
-      }
-    }
-    return tabStopIndex === -1 ? 0 : tabStopIndex;
-  });
-
   const composite = useCompositeRoot({
     orientation,
     // The APG listbox pattern doesn't wrap focus from the last option to the first.
@@ -334,7 +319,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       }
       // The list isn't a tab stop, but it can receive focus programmatically, such as from a
       // `Listbox.Label` click. Pass focus on to the item that holds the tab stop.
-      const index = store.state.activeIndex ?? getTabStopIndex();
+      const index = store.state.activeIndex ?? store.getTabStopIndex();
       if (elements[index]) {
         elements[index].focus();
       } else if (itemCount != null && itemCount > 0) {
@@ -353,7 +338,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         // Focus left while the list held it for an item that isn't rendered.
         store.unhighlightItem(event.nativeEvent);
       }
-      store.setActiveIndex(getTabStopIndex(), event.nativeEvent);
+      store.setActiveIndex(store.getTabStopIndex(), event.nativeEvent);
     },
     onMouseLeave(event) {
       store.hoverItem(null, event.nativeEvent);
@@ -430,13 +415,13 @@ export const ListboxList = React.forwardRef(function ListboxList(
     // With `items`, positions come from the items, so they don't shift as items render.
     if (store.state.items != null) {
       if (store.state.activeIndex === null) {
-        store.setActiveIndex(getTabStopIndex());
+        store.setActiveIndex(store.getTabStopIndex());
       }
       return;
     }
     composite.onMapChange(map);
     if (!store.state.itemFocused) {
-      store.setActiveIndex(getTabStopIndex());
+      store.syncTabStop();
       return;
     }
     // Items can move around the focused item, such as when reordering them, so the tab stop
@@ -450,10 +435,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
     }
   });
   useIsoLayoutEffect(() => {
-    if (!store.state.itemFocused) {
-      store.setActiveIndex(getTabStopIndex());
-    }
-  }, [value, store, getTabStopIndex]);
+    store.syncTabStop();
+  }, [value, store]);
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement, composite.props.ref],

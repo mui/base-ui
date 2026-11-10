@@ -124,6 +124,28 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
   });
 
   /**
+   * The item that receives focus when the list does: the first selected item, or the first item
+   * when nothing is selected, as the APG listbox pattern describes.
+   */
+  getTabStopIndex(): number {
+    let tabStopIndex = -1;
+    for (const selectedValue of this.state.value) {
+      const index = this.indexOfValue(selectedValue);
+      if (index !== -1 && (tabStopIndex === -1 || index < tabStopIndex)) {
+        tabStopIndex = index;
+      }
+    }
+    return tabStopIndex === -1 ? 0 : tabStopIndex;
+  }
+
+  /** Puts the tab stop back on the item that should hold it, unless an item has focus. */
+  syncTabStop() {
+    if (!this.state.itemFocused) {
+      this.setActiveIndex(this.getTabStopIndex());
+    }
+  }
+
+  /**
    * Moves the tab stop without changing whether an item has focus, and records the event that
    * caused it, so `onItemHighlighted` can report the reason.
    */
