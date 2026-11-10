@@ -1,59 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { ItemIndicator } from '../../utils/ItemIndicator';
 import { useListboxItemContext } from '../item/ListboxItemContext';
-
-const Inner = React.memo(
-  React.forwardRef(
-    (
-      componentProps: ListboxItemIndicator.Props,
-      forwardedRef: React.ForwardedRef<HTMLSpanElement>,
-    ) => {
-      const { render, className, style, keepMounted, ...elementProps } = componentProps;
-
-      const { selected } = useListboxItemContext();
-
-      const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-
-      const { transitionStatus, setMounted } = useTransitionStatus(selected);
-
-      const state: ListboxItemIndicatorState = {
-        selected,
-        transitionStatus,
-      };
-
-      const element = useRenderElement('span', componentProps, {
-        ref: [forwardedRef, indicatorRef],
-        state,
-        props: [
-          {
-            'aria-hidden': true,
-            children: '✔️',
-          },
-          elementProps,
-        ],
-        stateAttributesMapping: transitionStatusMapping,
-      });
-
-      useOpenChangeComplete({
-        open: selected,
-        ref: indicatorRef,
-        onComplete() {
-          if (!selected) {
-            setMounted(false);
-          }
-        },
-      });
-
-      return element;
-    },
-  ),
-);
 
 /**
  * Indicates whether the listbox item is selected.
@@ -65,16 +15,14 @@ export const ListboxItemIndicator = React.forwardRef(function ListboxItemIndicat
   componentProps: ListboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const keepMounted = componentProps.keepMounted ?? false;
-
   const { selected } = useListboxItemContext();
 
-  const shouldRender = keepMounted || selected;
+  const shouldRender = componentProps.keepMounted || selected;
   if (!shouldRender) {
     return null;
   }
 
-  return <Inner {...componentProps} ref={forwardedRef} />;
+  return <ItemIndicator {...componentProps} selected={selected} ref={forwardedRef} />;
 });
 
 export interface ListboxItemIndicatorState {

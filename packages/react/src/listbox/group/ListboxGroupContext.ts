@@ -8,11 +8,9 @@ export interface ListboxGroupContext {
 
 export const ListboxGroupContext = React.createContext<ListboxGroupContext | undefined>(undefined);
 
-export function useListboxGroupContext(optional?: false): ListboxGroupContext;
-export function useListboxGroupContext(optional: true): ListboxGroupContext | undefined;
-export function useListboxGroupContext(optional?: boolean) {
+export function useListboxGroupContext() {
   const context = React.useContext(ListboxGroupContext);
-  if (context === undefined && !optional) {
+  if (context === undefined) {
     throw new Error(
       'Base UI: ListboxGroupContext is missing. ListboxGroup parts must be placed within <Listbox.Group>.',
     );

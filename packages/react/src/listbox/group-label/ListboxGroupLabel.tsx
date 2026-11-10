@@ -24,11 +24,14 @@ export const ListboxGroupLabel = React.forwardRef(function ListboxGroupLabel(
 
   useIsoLayoutEffect(() => {
     setLabelId(id);
+    return () => {
+      setLabelId((currentId) => (currentId === id ? undefined : currentId));
+    };
   }, [id, setLabelId]);
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    props: [{ id }, elementProps],
+    props: [{ id, 'aria-hidden': true }, elementProps],
   });
 
   return element;

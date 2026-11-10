@@ -15,7 +15,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useCompositeListItem } from '../../internals/composite';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { ListboxItemContext } from './ListboxItemContext';
 import { selectionReducer } from '../utils/selectionReducer';
@@ -361,8 +361,9 @@ export interface ListboxItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Overrides the text used for keyboard text navigation.
-   * Falls back to the rendered text when not provided.
+   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   *
+   * Defaults to the item text content if not provided.
    */
   label?: string | undefined;
 }

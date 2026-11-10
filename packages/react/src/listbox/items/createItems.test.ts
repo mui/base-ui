@@ -27,5 +27,24 @@ describe('Listbox.createItems', () => {
 
       expect(getValue).toHaveBeenCalledTimes(fruits.length);
     });
+
+    it('returns the first item and logs an error when two items derive the same value', () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const duplicated = [...fruits, { id: 'apple', name: 'Clone' }];
+
+      try {
+        const items = Listbox.createItems(duplicated, {
+          getValue: (fruit) => fruit.id,
+          getLabel: (fruit) => fruit.name,
+        });
+
+        expect(items.get('apple')).toBe(duplicated[0]);
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Two items passed to createItems() derived the value apple'),
+        );
+      } finally {
+        consoleErrorSpy.mockRestore();
+      }
+    });
   });
 });

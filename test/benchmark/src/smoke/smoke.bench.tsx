@@ -15,6 +15,7 @@ import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
+import { Listbox } from '@base-ui/react/listbox';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
 import { Meter } from '@base-ui/react/meter';
@@ -285,6 +286,19 @@ smokeBenchmark('Form', 20, (row) => (
 ));
 
 smokeBenchmark('Input', 100, (row) => <Input key={row.id} aria-label={row.label} />);
+
+smokeBenchmark('Listbox', 40, (row) => (
+  <Listbox.Root key={row.id}>
+    <Listbox.List aria-label={row.label}>
+      {options.map((option) => (
+        <Listbox.Item key={option.id} value={option.value}>
+          <Listbox.ItemIndicator />
+          {option.label}
+        </Listbox.Item>
+      ))}
+    </Listbox.List>
+  </Listbox.Root>
+));
 
 smokeBenchmark('Menu', 60, (row) => (
   <Menu.Root key={row.id}>

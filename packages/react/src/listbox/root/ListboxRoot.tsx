@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
@@ -133,26 +132,15 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
 
   store.useContextCallback('setValue', setValue);
 
-  useIsoLayoutEffect(() => {
-    store.update({
-      id: generatedId,
-      multiple: multipleProp,
-      value: selectedValues,
-      orientation,
-      disabled,
-      highlightItemOnHover,
-      items,
-    });
-  }, [
-    store,
-    generatedId,
-    multipleProp,
-    selectedValues,
+  store.useSyncedValues({
+    id: generatedId,
+    multiple: multipleProp,
+    value: selectedValues,
     orientation,
     disabled,
     highlightItemOnHover,
     items,
-  ]);
+  });
 
   useHighlightChangeNotifier<Value>({
     store,

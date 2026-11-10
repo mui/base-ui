@@ -1,3 +1,5 @@
+import { error } from '@base-ui/utils/error';
+
 export type ListboxPrimitiveValue = string | number | bigint | boolean;
 
 export interface CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveValue> {
@@ -96,6 +98,12 @@ export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
       // Keys should be unique. When they aren't, the first item with a key wins.
       if (!indexByKey.has(key)) {
         indexByKey.set(key, index);
+      } else if (process.env.NODE_ENV !== 'production') {
+        error(
+          `Two items passed to createItems() derived the value ${String(key)}, so selection ` +
+            'cannot tell them apart: the first item wins and every item carrying the value ' +
+            'renders as selected. Return a unique value from `getValue`.',
+        );
       }
     }
     return indexByKey;

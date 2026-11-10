@@ -56,7 +56,12 @@ type ListboxRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -120,7 +125,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                       | Default | Description                                                                                                                                                                                   |
 | :----------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                   | -       | Overrides the text used for keyboard text navigation.&#xA;Falls back to the rendered text when not provided.                                                                                  |
+| label        | `string`                                                                                   | -       | Specifies the text label to use when the item is matched during keyboard text navigation. Defaults to the item text content if not provided.                                                  |
 | value        | `any`                                                                                      | `null`  | A unique value that identifies this listbox item.                                                                                                                                             |
 | nativeButton | `boolean`                                                                                  | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                  | `false` | Whether the component should ignore user interaction.&#xA;When it's not set and the root has `items`, `getDisabled` decides.                                                                  |
@@ -238,6 +243,13 @@ Renders a `<span>` element.
 | keepMounted | `boolean`                                                                                           | -       | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                                    |
 | render      | `ReactElement \| ((props: HTMLProps, state: Listbox.ItemIndicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**ItemIndicator Data Attributes:**
+
+| Attribute           | Type | Description                                     |
+| :------------------ | :--- | :---------------------------------------------- |
+| data-starting-style | -    | Present when the indicator begins animating in. |
+| data-ending-style   | -    | Present when the indicator is animating out.    |
+
 ### ItemIndicator.Props
 
 Re-export of [ItemIndicator](#itemindicator) props.
@@ -329,6 +341,19 @@ declare namespace ListboxItemDataAttributes {
 }
 ```
 
+### ListboxItemIndicatorDataAttributes
+
+Data attributes of [ItemIndicator](#itemindicator).
+
+```typescript
+declare namespace ListboxItemIndicatorDataAttributes {
+  /** Present when the indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
 ### ListboxListDataAttributes
 
 Data attributes of [List](#list).
@@ -342,6 +367,12 @@ declare namespace ListboxListDataAttributes {
 }
 ```
 
+### ListboxPrimitiveValue
+
+```typescript
+type ListboxPrimitiveValue = string | number | bigint | boolean;
+```
+
 ## Export Groups
 
 - `Listbox.Root`: `Listbox.Root`, `Listbox.Root.Props`, `Listbox.Root.State`, `Listbox.Root.ChangeEventReason`, `Listbox.Root.ChangeEventDetails`, `Listbox.Root.HighlightEventReason`, `Listbox.Root.HighlightEventDetails`
@@ -352,7 +383,7 @@ declare namespace ListboxListDataAttributes {
 - `Listbox.Group`: `Listbox.Group`, `Listbox.Group.State`, `Listbox.Group.Props`
 - `Listbox.GroupLabel`: `Listbox.GroupLabel`, `Listbox.GroupLabel.State`, `Listbox.GroupLabel.Props`
 - `Listbox.createItems`
-- `Default`: `CreateListboxItemsOptions`, `ListboxItemCollection`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
+- `Default`: `CreateListboxItemsOptions`, `ListboxItemCollection`, `ListboxPrimitiveValue`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxItemIndicatorDataAttributes`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
 
 ## Canonical Types
 
@@ -376,3 +407,13 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Listbox.Group.Props`: `ListboxGroupProps`
 - `Listbox.GroupLabel.State`: `ListboxGroupLabelState`
 - `Listbox.GroupLabel.Props`: `ListboxGroupLabelProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>

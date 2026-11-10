@@ -1,16 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { Store } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useLabel } from '../../internals/labelable-provider';
-import { focusElementWithVisible } from '../../internals/labelable-provider/useLabel';
+import { focusElementWithVisible, useLabel } from '../../internals/labelable-provider/useLabel';
+import { getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { useListboxRootContext } from '../root/ListboxRootContext';
-
-function getDefaultLabelId(rootId: string | undefined) {
-  return rootId ? `${rootId}-label` : undefined;
-}
 
 /**
  * An accessible label that is automatically associated with the listbox.
@@ -37,7 +32,7 @@ export const ListboxLabel = React.forwardRef(function ListboxLabel(
     const currentLabelId = store.state.labelId;
     const resolvedLabelId =
       typeof nextLabelId === 'function' ? nextLabelId(currentLabelId) : nextLabelId;
-    (store as Store<{ labelId: string | undefined }>).set('labelId', resolvedLabelId);
+    store.set('labelId', resolvedLabelId);
   });
 
   // Focus the list element directly, so a custom or changed `id` on the list can't break it.
