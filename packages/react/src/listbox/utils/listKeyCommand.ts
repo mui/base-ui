@@ -70,15 +70,17 @@ export function resolveListKeyCommand(
     return { type: 'move', index, select: optIn && step !== 0 };
   }
 
+  const ctrlOrMeta = ctrlKey || metaKey;
+  const shiftArrow = shiftKey && !ctrlOrMeta && step !== 0;
+
   if (!multiple) {
-    return null;
+    // The list owns the arrow keys even when they do nothing, so the page doesn't scroll.
+    return shiftArrow ? { type: 'none' } : null;
   }
 
   if (key.key === 'Escape') {
     return { type: 'clear' };
   }
-
-  const ctrlOrMeta = ctrlKey || metaKey;
 
   // Opt-in mode: Ctrl+Arrow moves focus without changing the selection. macOS reserves
   // Ctrl+Arrow and uses Cmd+Arrow to jump to the ends, so Option+Arrow does it there.
@@ -88,9 +90,11 @@ export function resolveListKeyCommand(
     return isInList(index, count) ? { type: 'move', index, select: false } : { type: 'none' };
   }
 
-  if (shiftKey && !ctrlOrMeta && step !== 0 && currentIndex != null) {
-    const index = currentIndex + step;
-    return isInList(index, count) ? { type: 'extend', index } : null;
+  if (shiftArrow) {
+    const index = (currentIndex ?? -1) + step;
+    return currentIndex != null && isInList(index, count)
+      ? { type: 'extend', index }
+      : { type: 'none' };
   }
 
   if (ctrlOrMeta && shiftKey && (key.key === 'Home' || key.key === 'End')) {

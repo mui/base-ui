@@ -131,10 +131,10 @@ describe('resolveListKeyCommand', () => {
       });
     });
 
-    it('does not extend past the last item', () => {
+    it('does nothing on Shift+ArrowDown on the last item', () => {
       expect(
         resolve({ key: 'ArrowDown', shiftKey: true }, { multiple: true, currentIndex: 4 }),
-      ).toBe(null);
+      ).toEqual({ type: 'none' });
     });
 
     it('selects from the first item to the focused one on Ctrl+Shift+Home', () => {
@@ -169,12 +169,17 @@ describe('resolveListKeyCommand', () => {
     });
 
     it.each([
-      { name: 'Shift+ArrowDown', key: { key: 'ArrowDown', shiftKey: true } },
       { name: 'Ctrl+Shift+End', key: { key: 'End', ctrlKey: true, shiftKey: true } },
       { name: 'Ctrl+A', key: { key: 'a', ctrlKey: true } },
       { name: 'Escape', key: { key: 'Escape' } },
     ])('ignores $name when the list selects a single item', ({ key }) => {
       expect(resolve(key, { multiple: false })).toBe(null);
+    });
+
+    it('does nothing on Shift+ArrowDown when the list selects a single item', () => {
+      expect(resolve({ key: 'ArrowDown', shiftKey: true }, { multiple: false })).toEqual({
+        type: 'none',
+      });
     });
   });
 });

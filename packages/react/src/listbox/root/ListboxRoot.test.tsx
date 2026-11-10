@@ -811,6 +811,31 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('keyboard navigation', () => {
+    it.each([
+      { name: 'ArrowDown', init: { key: 'ArrowDown' }, prevented: true },
+      { name: 'Shift+ArrowDown', init: { key: 'ArrowDown', shiftKey: true }, prevented: true },
+      { name: 'ArrowRight', init: { key: 'ArrowRight' }, prevented: false },
+    ])(
+      'prevents the default action of $name on the last item: $prevented',
+      async ({ init, prevented }) => {
+        await render(
+          <Listbox.Root multiple>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b">b</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>,
+        );
+        const itemB = screen.getByRole('option', { name: 'b' });
+        await act(async () => itemB.focus());
+
+        const notPrevented = fireEvent.keyDown(itemB, init);
+
+        expect(notPrevented).toBe(!prevented);
+        expect(itemB).toHaveFocus();
+      },
+    );
+
     it('should move highlight with arrow keys', async () => {
       await render(
         <Listbox.Root>
