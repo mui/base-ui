@@ -1,0 +1,418 @@
+# Tree
+
+<Subtitle>A hierarchical list of items that expand to reveal their children.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React tree component for interactive hierarchical data."
+/>
+
+import { DemoTreeHero } from './demos/hero';
+
+<DemoTreeHero />
+
+## Usage guidelines
+
+- **Avoid trees for site navigation**: Prefer links grouped under disclosure buttons, such as [Collapsible](/react/components/collapsible). The [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) caution against trees for site navigation. If you use one, follow the [links](#links) example.
+- **Give the tree an accessible name**: Prefer `<Tree.Label>`, or provide an `aria-label` on `<Tree.List>` when no visible label is rendered.
+- **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`, and give icon-only custom controls an `aria-label`. The built-in checkbox, expansion trigger, and clear button have English names that include the item label, such as "Expand Documents": pass your own `aria-label` to translate them.
+- **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<Tree.ItemExpansionTrigger>`, and `<Tree.ItemCheckbox>` with checkbox selection, so they can expand and select items by tapping.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Tree } from '@base-ui/react/tree';
+
+<Tree.FilterProvider>
+  <Tree.Root>
+    <Tree.Label />
+    <Tree.Input />
+    <Tree.Clear />
+    <Tree.Status />
+    <Tree.Empty />
+
+    <Tree.List>
+      {(item) => (
+        <>
+          <Tree.Item itemId={item.id}>
+            <Tree.ItemContent>
+              <Tree.ItemIndentGuide />
+              <Tree.ItemExpansionTrigger />
+              <Tree.ItemCheckbox>
+                <Tree.ItemCheckboxIndicator />
+              </Tree.ItemCheckbox>
+              <Tree.ItemGroupIndicator />
+              <Tree.ItemButton />
+              <Tree.ItemInput />
+              <Tree.ItemLink />
+              <Tree.ItemControl />
+            </Tree.ItemContent>
+          </Tree.Item>
+          <Tree.GroupTransition />
+        </>
+      )}
+    </Tree.List>
+  </Tree.Root>
+</Tree.FilterProvider>;
+```
+
+`<Tree.FilterProvider>` wraps `<Tree.Root>` to add filtering, so trees without it don't bundle the filter. Adding or removing it remounts the tree, so keep it rendered and pass an empty `value` to turn filtering off.
+
+## Item models
+
+To add fields to the standard item, extend `Tree.DefaultItem` and redeclare `children` with your own type. Otherwise, nested items only need the standard fields, while callbacks type them as your model.
+
+```tsx title="Extending the standard item"
+interface Folder extends Tree.DefaultItem {
+  color: string;
+  children?: Folder[];
+}
+```
+
+For any other item model, use `Tree.createItems()`. Supply `setChildren` for nested edits and managed reparenting.
+
+```tsx title="Custom item model"
+const items = Tree.createItems(nodes, {
+  getId: (node) => node.key,
+  getLabel: (node) => node.name,
+  getChildren: (node) => node.nodes,
+  setChildren: (node, children) => ({ ...node, nodes: [...children] }),
+});
+
+<Tree.Root items={items}>
+  <Tree.List<Node>>{(node) => <Row node={node} />}</Tree.List>
+</Tree.Root>;
+```
+
+The root infers the item type from `items`. Parts outside the root's props, such as `<Tree.List>` and the providers, can't see it, so they type items as `any` unless you pass the type, as `<Tree.List<Node>>` does.
+
+## Keyboard navigation
+
+| Key                                                   | Behavior                                                                                                                                                                                                               |
+| :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                                        | Moves from the row through its controls, then out of the tree.                                                                                                                                                         |
+| <kbd>Arrow Down</kbd>                                 | Moves to the next visible row.                                                                                                                                                                                         |
+| <kbd>Arrow Up</kbd>                                   | Moves to the previous visible row.                                                                                                                                                                                     |
+| <kbd>Arrow Right</kbd>                                | Expands a collapsed row. Otherwise moves to the row's first control, or to its first child when the row has no controls.                                                                                               |
+| <kbd>Arrow Left</kbd>                                 | Collapses an expanded row, otherwise moves to its parent.                                                                                                                                                              |
+| <kbd>Home</kbd>/<kbd>End</kbd>                        | Moves to the first or last visible row.                                                                                                                                                                                |
+| <kbd>Page Up</kbd>/<kbd>Page Down</kbd>               | Moves up or down by as many rows as fit in the scroll container, stopping at the first or last visible row.                                                                                                            |
+| <kbd>Enter</kbd>                                      | Expands or collapses a row with children. Selects a row without children, or toggles it in multiple-selection mode without the propagation <kbd>Space</kbd> applies. Follows the row's link when it can't be selected. |
+| <kbd>Space</kbd>                                      | Selects or deselects the row.                                                                                                                                                                                          |
+| <kbd>Shift+Arrow Down</kbd>/<kbd>Shift+Arrow Up</kbd> | In multiple-selection mode, moves to the next or previous row and extends the selection.                                                                                                                               |
+| <kbd>Shift+Space</kbd>                                | In multiple-selection mode, selects the range between the last selected row and the focused row.                                                                                                                       |
+| <kbd>Ctrl+Shift+Home</kbd>/<kbd>Ctrl+Shift+End</kbd>  | In multiple-selection mode, selects from the focused row to the first or last row.                                                                                                                                     |
+| <kbd>Ctrl+A</kbd>                                     | In multiple-selection mode, selects all rows, or deselects them when they are all selected.                                                                                                                            |
+| <kbd>Escape</kbd>                                     | In multiple-selection mode, deselects all rows.                                                                                                                                                                        |
+| <kbd>\*</kbd>                                         | Expands every sibling of the focused row.                                                                                                                                                                              |
+| Printable characters                                  | Moves to the next row whose label starts with the typed characters, ignoring case and accents.                                                                                                                         |
+
+Shift+Arrow extends the selection from the last selected row, as in a desktop file manager, rather than toggling each row it moves to. In right-to-left layouts, the left and right arrow behavior is reversed. When focus leaves the tree, the row it left keeps the tab stop.
+
+### Controls inside items
+
+Render controls with `<Tree.ItemButton>`, `<Tree.ItemInput>`, `<Tree.ItemLink>`, or `<Tree.ItemControl>` to include them in the item's keyboard navigation. `<Tree.ItemCheckbox>` is included automatically. See the [item controls example](#item-controls).
+
+```tsx title="Controls inside an item"
+<Tree.Item itemId={task.id} aria-description="Press Tab to reach the task controls">
+  <Tree.ItemContent>
+    <Tree.ItemLink href={task.url}>{task.label}</Tree.ItemLink>
+    <Tree.ItemInput aria-label={`Estimate for ${task.label}`} />
+    <Tree.ItemButton aria-label={`Remove ${task.label}`}>
+      <RemoveIcon />
+    </Tree.ItemButton>
+  </Tree.ItemContent>
+</Tree.Item>
+```
+
+A focused row announces its label, not its controls or the rest of its content.
+
+- Describe how to reach the controls with `aria-description` on the items that have them, or once on `<Tree.List>` when most items do.
+- Pass secondary content, such as a count or a status, to `aria-describedby` on `<Tree.Item>`.
+
+Base UI doesn't ship these strings, so translate them with the rest of your interface.
+
+To use a popup trigger as a control, pass it to the `render` prop of `<Tree.ItemButton>`:
+
+```tsx title="Using popups with item controls"
+<Menu.Root>
+  {/* @highlight */}
+  <Tree.ItemButton render={<Menu.Trigger />} aria-label={`Actions for ${item.label}`} />
+  <Menu.Portal>{/* Compose the rest of the menu */}</Menu.Portal>
+</Menu.Root>
+```
+
+When a control has focus:
+
+| Key                                 | Behavior                                                                                                   |
+| :---------------------------------- | :--------------------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>/<kbd>Shift+Tab</kbd> | Moves to the next or previous control. From the first control, <kbd>Shift+Tab</kbd> moves back to the row. |
+| <kbd>Arrow Right</kbd>              | Moves to the next control.                                                                                 |
+| <kbd>Arrow Left</kbd>               | Moves to the previous control, or back to the row from the first control.                                  |
+| <kbd>Arrow Down</kbd>               | Moves to the next visible row.                                                                             |
+| <kbd>Arrow Up</kbd>                 | Moves to the previous visible row.                                                                         |
+| <kbd>Home</kbd>/<kbd>End</kbd>      | Moves to the first or last control of the row.                                                             |
+| <kbd>Escape</kbd>                   | Moves back to the row.                                                                                     |
+
+Controls keep the keys they use, such as the caret keys of a text input or the up and down arrows of a popup trigger. Typeahead characters, <kbd>Space</kbd>, and <kbd>Enter</kbd> always belong to the control. Use the `controlKeys` prop to change which keys a control keeps. `<Tree.ItemControl>` keeps every key by default, so assign the key groups the tree should handle. For example, a custom rating widget that only uses the left and right arrows:
+
+```tsx title="Custom control"
+<Tree.ItemControl
+  render={<RatingInput />}
+  controlKeys={{ vertical: 'tree', homeEnd: 'tree', escape: 'tree' }}
+/>
+```
+
+The part must render the element that receives focus. Other focusable elements inside an item keep all of their keys, stay out of the item's navigation, and add a tab stop to every item.
+
+## Examples
+
+### Checkbox selection
+
+Use `<Tree.ItemCheckbox>` to select an item with a checkbox. Set `selectionMode="multiple"` on `<Tree.Root>` to allow more than one item to be selected.
+
+import { DemoTreeCheckboxItems } from './demos/checkbox-items';
+
+<DemoTreeCheckboxItems />
+
+### Selection propagation
+
+The `checkboxSelectionPropagation` prop controls how checkbox selection affects related items. With `descendants`, selecting a parent selects its whole branch. With `parents`, selecting all selectable children selects their parent. Both are enabled by default in multiple-selection mode.
+
+import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
+
+<DemoTreeSelectionPropagation />
+
+### Select all
+
+In multiple-selection mode, use `Tree.SELECTION_ALL` to select every selectable item without listing its ID.
+
+```tsx
+<Tree.Root items={items} selectionMode="multiple" defaultSelectedItems={Tree.SELECTION_ALL}>
+  <Tree.List>{renderItem}</Tree.List>
+</Tree.Root>
+```
+
+### Links
+
+Render `<Tree.ItemLink>` inside `<Tree.ItemContent>` to link an item to another page, and set `active` on the current page's link. With `selectionMode="none"`, <kbd>Enter</kbd> follows the link instead of selecting the item. Tabbing into the tree focuses the current page's item, unless an item is selected or another item had focus before.
+
+import { DemoTreeLinkItems } from './demos/link-items';
+
+<DemoTreeLinkItems />
+
+### Item controls
+
+Each task combines a link, an estimate input, a switch, and a remove button. Press <kbd>Tab</kbd> or <kbd>Arrow Right</kbd> from a task to reach them.
+
+import { DemoTreeItemControls } from './demos/item-controls';
+
+<DemoTreeItemControls />
+
+### Animated expansion
+
+Render `<Tree.GroupTransition>` after each item to animate expanding and collapsing branches. Use the `--tree-group-transition-height` CSS variable with the `data-starting-style` and `data-ending-style` attributes to animate the group's height.
+
+import { DemoTreeAnimated } from './demos/animated';
+
+<DemoTreeAnimated />
+
+### Filtering
+
+Wrap `<Tree.Root>` in `<Tree.FilterProvider>` and add `<Tree.Input>` inside the root.
+Type to narrow the items, then press <kbd>Arrow Down</kbd> or <kbd>Enter</kbd> to focus the first match, or <kbd>Arrow Up</kbd> to focus the last one.
+Typing while an item has focus continues the query, and <kbd>Escape</kbd> clears it.
+
+import { DemoTreeFiltering } from './demos/filtering';
+
+<DemoTreeFiltering />
+
+A match keeps its ancestors visible. Use `mode` to choose how the items that don't match are shown.
+
+#### Matching items
+
+Items match their label by default and receive a `data-filter-match` attribute.
+
+By default, an item matches when its label contains the query, ignoring case, accents, and punctuation.
+Use `filter` to replace the matching. It receives each item's label, the trimmed query, and the item, and keeps the item when it returns `true`.
+
+```jsx title="Custom matching"
+<Tree.FilterProvider
+  filter={(text, query, item) => text.startsWith(query) || item.tags.includes(query)}
+>
+  <Tree.Root items={items}>{/* tree parts */}</Tree.Root>
+</Tree.FilterProvider>
+```
+
+`Tree.useFilter` provides the same locale-aware comparisons:
+
+```jsx title="Locale-aware prefix matching"
+const { startsWith } = Tree.useFilter();
+
+<Tree.FilterProvider filter={startsWith}>
+  <Tree.Root items={items}>{/* tree parts */}</Tree.Root>
+</Tree.FilterProvider>;
+```
+
+#### External filtering
+
+To match items on a server, pass the matches to `filteredItems`. The tree keeps showing their ancestors and applies `mode`. Every match must also be in the tree's items.
+
+```jsx title="Server-side matches"
+<Tree.FilterProvider value={query} onValueChange={setQuery} filteredItems={matches}>
+  <Tree.Root items={items}>{/* tree parts */}</Tree.Root>
+</Tree.FilterProvider>
+```
+
+To render the results yourself, pass `filter={null}` and give the root the filtered items.
+
+### Status messages
+
+`<Tree.Status>` politely announces filter matches and selection changes to screen readers.
+Keep it mounted and hide it visually, as the demos above do, since screen readers don't reliably announce a live region that appears with its message.
+
+The messages are in English.
+To translate them or write your own, pass the content as `children`, or a function that receives the latest `change` and its default `message`:
+
+```jsx title="Custom status messages"
+<Tree.Status>
+  {({ change, message }) =>
+    change?.type === 'filter' ? `${change.matchCount} files found.` : message
+  }
+</Tree.Status>
+```
+
+### Sticky ancestors
+
+To keep the ancestors of the rows at the top visible while scrolling, render copies of them above the list. With a fixed row height, the scroll position tells which row each copy covers, and `actionsRef` gives that row's ancestors. Hide the copies from assistive technology, and in `onItemHighlighted`, scroll a highlighted row out from under them.
+
+import { DemoTreeStickyAncestors } from './demos/sticky-ancestors';
+
+<DemoTreeStickyAncestors />
+
+### Updating items
+
+Use `actionsRef.current.applyTransaction()` to add, update, move, or remove items without rebuilding `items` yourself. The operations apply in the order they're called, as a single change, and each one sees the items as the earlier ones left them.
+
+import { DemoTreeUpdatingItems } from './demos/updating-items';
+
+<DemoTreeUpdatingItems />
+
+`onItemsChange` lists the changes in `eventDetails.changes`, in the order they applied, so applying them to another copy of the items, such as on a server, gives the same result. With a controlled `items`, inserted items render only once the parent passes them back, so wait for that before focusing them.
+
+### High-frequency updates
+
+Set `transactionThrottle` to commit the transactions of a short window together.
+
+import { DemoTreeHighFrequencyUpdates } from './demos/high-frequency-updates';
+
+<DemoTreeHighFrequencyUpdates />
+
+## API reference
+
+import { TypesTree, TypesTreeAdditional } from './types';
+
+### FilterProvider
+
+<TypesTree.FilterProvider />
+
+### Root
+
+<TypesTree.Root />
+
+### Label
+
+<TypesTree.Label />
+
+### List
+
+<TypesTree.List />
+
+### Item
+
+<TypesTree.Item />
+
+### ItemContent
+
+<TypesTree.ItemContent />
+
+### ItemCheckbox
+
+<TypesTree.ItemCheckbox />
+
+### ItemCheckboxIndicator
+
+<TypesTree.ItemCheckboxIndicator />
+
+### ItemGroupIndicator
+
+<TypesTree.ItemGroupIndicator />
+
+### ItemIndentGuide
+
+<TypesTree.ItemIndentGuide />
+
+### ItemExpansionTrigger
+
+<TypesTree.ItemExpansionTrigger />
+
+### ItemButton
+
+<TypesTree.ItemButton />
+
+### ItemInput
+
+<TypesTree.ItemInput />
+
+### ItemLink
+
+<TypesTree.ItemLink />
+
+### ItemControl
+
+<TypesTree.ItemControl />
+
+### Input
+
+<TypesTree.Input />
+
+### Clear
+
+<TypesTree.Clear />
+
+### Empty
+
+<TypesTree.Empty />
+
+### Status
+
+<TypesTree.Status />
+
+### GroupTransition
+
+<TypesTree.GroupTransition />
+
+## createItems
+
+Normalizes a custom item model into a collection for the `items` prop of `<Tree.Root>`, deriving each item's ID, label, and children.
+Create static collections at module scope, and memoize dynamic collections by their data and every value their accessors read.
+
+<TypesTree.createItems hideDescription />
+
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+This hook is used when customizing how items match.
+Call its methods inside the `filter` prop of `<Tree.FilterProvider>`.
+
+<TypesTree.useFilter hideDescription />
+
+## Additional types
+
+<TypesTreeAdditional />
+
+export const metadata = {
+  keywords: ['React Tree', 'Accessible Tree', 'Hierarchical Grid', 'Base UI'],
+};

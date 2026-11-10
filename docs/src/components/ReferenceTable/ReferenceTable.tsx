@@ -52,7 +52,9 @@ function CallableReturnValue({ name, data }: { name: string; data: CallableData[
   return (
     <div className="ReferenceBlock">
       <SectionHeading>Return value</SectionHeading>
-      {data.type}
+      {/* `toArray` keys the nodes: the rendered type arrives as a list of tokens
+          once the payload is deserialized on the client, and React wants keys. */}
+      {React.Children.toArray(data.type)}
       {data.detailedType && <CodeBlock.Root>{data.detailedType}</CodeBlock.Root>}
     </div>
   );

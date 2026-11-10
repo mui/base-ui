@@ -1,0 +1,438 @@
+.Demo {
+  --bg: white;
+  --fg: oklch(14.5% 0 0deg);
+  --muted: oklch(55.6% 0 0deg);
+  --frame: oklch(92.2% 0 0deg);
+  --line: oklch(80% 0 0deg);
+  --hover: oklch(97% 0 0deg);
+  --invalid: oklch(57.7% 0.245 27.3deg);
+
+  @media (prefers-color-scheme: dark) {
+    --bg: oklch(14.5% 0 0deg);
+    --fg: white;
+    --muted: oklch(70.8% 0 0deg);
+    --frame: oklch(37.1% 0 0deg);
+    --line: oklch(45% 0 0deg);
+    --hover: oklch(26.9% 0 0deg);
+    --invalid: oklch(70.4% 0.191 22.2deg);
+  }
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: min(100%, 46rem);
+  color: var(--fg);
+  font-size: 0.875rem;
+}
+
+.Panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--frame);
+}
+
+.Header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  border-bottom: 1px solid var(--frame);
+}
+
+.Footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--frame);
+}
+
+.Title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ShortcutsButton,
+.IconButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8125rem;
+
+  @media (hover: hover) {
+    &:hover {
+      color: var(--fg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+
+  &[data-popup-open] {
+    color: var(--fg);
+  }
+}
+
+.IconButton {
+  width: 1.75rem;
+  padding: 0;
+}
+
+.Builder {
+  --indent: 1.5rem;
+  --gutter: 0.75rem;
+  --handle: 1.25rem;
+
+  min-height: 16rem;
+  max-height: 26rem;
+  overflow: auto;
+  padding-block: 0.375rem;
+  outline: none;
+}
+
+.Row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding-inline: calc(var(--gutter) + var(--indent) * (var(--tree-item-level) - 1)) var(--gutter);
+  outline: none;
+
+  &:focus-within {
+    background: var(--hover);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--hover);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+}
+
+.RowContent {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.Row:not([data-root])::after,
+.Row:not([data-root]) .RowContent::before,
+.Row[data-kind='group']:not([data-empty]) .RowContent::after,
+.Guides > span {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: calc(
+    var(--gutter) + var(--indent) * (var(--tree-item-level) - 2) + var(--handle) / 2
+  );
+  border-inline-start: 1px solid var(--line);
+  pointer-events: none;
+}
+
+.Row[data-last-child]::after {
+  bottom: 50%;
+}
+
+.Row:not([data-root]) .RowContent::before {
+  top: 50%;
+  width: calc(var(--indent) - var(--handle) / 2 - 0.125rem);
+  border-inline-start: 0;
+  border-top: 1px solid var(--line);
+}
+
+.Row[data-kind='group']:not([data-empty]) .RowContent::after {
+  top: calc(50% + var(--handle) / 2);
+  margin-inline-start: var(--indent);
+}
+
+.Guides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  & > span {
+    inset-inline-start: calc(
+      var(--gutter) + var(--indent) * (var(--tree-indent-guide-level) - 2) + var(--handle) / 2
+    );
+  }
+
+  & > span:is([data-level='1'], [data-last]) {
+    display: none;
+  }
+}
+
+.Handle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--handle);
+  height: var(--handle);
+  color: var(--muted);
+}
+
+.Field {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem;
+  height: 1.75rem;
+  margin: 0;
+  padding: 0 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--fg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -1px;
+  }
+
+  &[data-popup-open] {
+    border-color: var(--fg);
+  }
+
+  &[data-placeholder],
+  &:placeholder-shown {
+    border-style: dashed;
+    color: var(--muted);
+  }
+
+  &[aria-invalid]:not([data-placeholder], :placeholder-shown) {
+    border-color: var(--invalid);
+  }
+}
+
+.Column {
+  width: max(5.5rem, calc(9rem - var(--indent) * (var(--tree-item-level) - 2)));
+}
+
+.Operator {
+  width: 8.5rem;
+}
+
+.Value {
+  flex: 1 1 0;
+  min-width: 5rem;
+}
+
+.Join {
+  width: 4.5rem;
+}
+
+.FieldValue {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.FieldIcon {
+  display: inline-flex;
+}
+
+.Range {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.Muted {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.Invalid {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 1rem;
+  color: var(--invalid);
+}
+
+.RowActions {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 0.125rem;
+  margin-inline-start: auto;
+}
+
+.Button {
+  height: 2rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-weight: 500;
+
+  &[data-primary] {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+  }
+}
+
+.Applied {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.Expression {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--frame);
+  background: var(--hover);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.VisuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The popups portal outside the demo root, so they can't read its tokens. */
+.Positioner {
+  z-index: 1;
+  outline: 0;
+}
+
+.Popup {
+  box-sizing: border-box;
+  background: white;
+  color: oklch(14.5% 0 0deg);
+  border: 1px solid oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  font-size: 0.8125rem;
+  outline: 0;
+
+  @media (prefers-color-scheme: dark) {
+    background: oklch(14.5% 0 0deg);
+    color: white;
+    border-color: white;
+    box-shadow: none;
+  }
+}
+
+.Popup {
+  min-width: max(var(--anchor-width), 8rem);
+  max-height: min(var(--available-height), 18rem);
+  overflow-y: auto;
+  padding-block: 0.25rem;
+}
+
+.PopupItem,
+.MenuItem {
+  display: grid;
+  grid-template-columns: 0.75rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem 0.25rem 0.5rem;
+  cursor: default;
+  outline: 0;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    background: oklch(14.5% 0 0deg);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background: white;
+      color: oklch(14.5% 0 0deg);
+    }
+  }
+}
+
+.MenuItem {
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  padding-inline-start: 0.75rem;
+}
+
+.PopupItemIndicator {
+  display: inline-flex;
+}
+
+.PopupItemText {
+  grid-column: 2;
+}
+
+.Shortcuts {
+  max-height: var(--available-height);
+  padding: 0.75rem 1rem;
+}
+
+.ShortcutList {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  margin: 0.75rem 0 0;
+
+  & dt {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  & dd {
+    margin: 0;
+  }
+}
+
+.Kbd {
+  padding: 0 0.25rem;
+  border: 1px solid;
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  white-space: nowrap;
+  opacity: 0.7;
+}

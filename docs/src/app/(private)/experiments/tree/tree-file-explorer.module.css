@@ -1,0 +1,284 @@
+.Explorer,
+.Menu,
+.Help {
+  /* `--bg` is a solid color so the pinned rows hide the rows they cover. */
+  --bg: white;
+  --fg: oklch(14.5% 0 0deg);
+  --muted: oklch(55.6% 0 0deg);
+  --frame: oklch(92.2% 0 0deg);
+  --hover: oklch(97% 0 0deg);
+  --selected: oklch(92.2% 0 0deg);
+  --shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    --bg: oklch(14.5% 0 0deg);
+    --fg: white;
+    --muted: oklch(70.8% 0 0deg);
+    --frame: oklch(37.1% 0 0deg);
+    --hover: oklch(26.9% 0 0deg);
+    --selected: oklch(37.1% 0 0deg);
+    --shadow: none;
+  }
+
+  color: var(--fg);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.Explorer {
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 20rem;
+  height: 28rem;
+  background: var(--bg);
+  border: 1px solid var(--frame);
+}
+
+.Header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: 2rem;
+  padding-inline: 0.75rem 0.25rem;
+  border-bottom: 1px solid var(--frame);
+}
+
+.Title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.Toolbar {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.ToolbarButton,
+.ExpansionTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+}
+
+.ToolbarButton {
+  width: 1.5rem;
+  height: 1.5rem;
+  font: inherit;
+  font-weight: 600;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--hover);
+      color: var(--fg);
+    }
+  }
+
+  &[data-popup-open] {
+    background-color: var(--selected);
+    color: var(--fg);
+  }
+}
+
+.ToolbarButton:focus-visible,
+.Tree:focus-visible,
+.Item:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: -2px;
+}
+
+.Body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.Tree {
+  height: 100%;
+  padding-block: 0.25rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Matches the list's top padding, so each pinned row covers a whole row. */
+.Sticky {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  z-index: 1;
+  padding-top: 0.25rem;
+  background: var(--bg);
+  box-shadow: 0 1px 0 var(--frame);
+}
+
+.Item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 22px;
+  box-sizing: border-box;
+  padding-inline: calc(0.5rem + (var(--tree-item-level) - 1) * 1rem) 0.5rem;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+
+  &:not([data-expandable]) {
+    padding-inline-start: calc(1.75rem + (var(--tree-item-level) - 1) * 1rem);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--hover);
+    }
+  }
+
+  &[data-selected] {
+    background-color: var(--selected);
+  }
+
+  &[data-cut] {
+    color: color-mix(in oklch, var(--fg) 65%, transparent);
+
+    & .FileIcon {
+      opacity: 0.5;
+    }
+  }
+}
+
+.ItemContent {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.IndentGuide {
+  display: contents;
+
+  & > span {
+    position: absolute;
+    inset-inline-start: calc(var(--tree-indent-guide-level) * 1rem);
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--frame);
+  }
+
+  & > span[data-last] {
+    bottom: 50%;
+  }
+}
+
+.ExpansionTrigger {
+  width: 1rem;
+  height: 1rem;
+
+  & svg {
+    width: 0.625rem;
+    height: 0.625rem;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: transform 100ms ease;
+    }
+  }
+
+  &[data-expanded] svg {
+    transform: rotate(90deg);
+  }
+}
+
+.FileIcon,
+.ToolbarButton svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.Label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.Menu,
+.Help {
+  background: var(--bg);
+  border: 1px solid var(--fg);
+  box-shadow: var(--shadow);
+  outline: 0;
+}
+
+.Menu {
+  min-width: 13rem;
+  padding-block: 0.25rem;
+}
+
+.MenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  height: 1.5rem;
+  padding-inline: 0.75rem;
+  cursor: default;
+  outline: 0;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    background-color: var(--fg);
+    color: var(--bg);
+
+    & .Kbd {
+      color: inherit;
+    }
+  }
+
+  &[data-disabled] {
+    opacity: 0.4;
+  }
+}
+
+.MenuSeparator {
+  height: 1px;
+  margin-block: 0.25rem;
+  background-color: var(--frame);
+}
+
+.Kbd {
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.Help {
+  padding: 0.5rem 0.75rem 0.75rem;
+  white-space: nowrap;
+}
+
+.HelpList {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.125rem 1rem;
+  margin: 0.5rem 0 0;
+
+  & dd {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin: 0;
+  }
+}
