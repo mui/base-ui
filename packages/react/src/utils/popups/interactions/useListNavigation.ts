@@ -7,7 +7,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { platform } from '@base-ui/utils/platform';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
@@ -710,13 +710,12 @@ export function useListNavigation(
 
         forceSyncFocusRef.current = true;
 
-        const relatedTarget = event.relatedTarget as HTMLElement | null;
-
-        if (!focusItemOnHover || listRef.current.includes(relatedTarget)) {
+        if (!resetOnPointerLeaveRef.current) {
           return;
         }
 
-        if (!resetOnPointerLeaveRef.current) {
+        const relatedTarget = isElement(event.relatedTarget) ? event.relatedTarget : null;
+        if (!focusItemOnHover || listRef.current.some((item) => contains(item, relatedTarget))) {
           return;
         }
 
