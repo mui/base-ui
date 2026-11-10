@@ -348,8 +348,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.3.0)(react@19.3.1)
       '@mui/internal-docs-infra':
-        specifier: 0.13.1-canary.29
-        version: 0.13.1-canary.29(@types/react@19.3.0)(next@16.4.5(@babel/core@8.1.0)(@playwright/test@1.65.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)
+        specifier: 0.13.1-canary.30
+        version: 0.13.1-canary.30(@types/react@19.3.0)(next@16.4.5(@babel/core@8.1.0)(@playwright/test@1.65.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)
       '@next/mdx':
         specifier: ^16.4.5
         version: 16.4.5(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.32)(sharp@0.35.5(@types/node@22.20.5))(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.3.0)(react@19.3.1))
@@ -2403,8 +2403,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.13.1-canary.29':
-    resolution: {integrity: sha512-w3BDyjFcW7j7DXJFhsZ7QEdfjS6X891zLqvze6CpHsWprhPt97JXNSIV33+GhPVjHlsljldULpHhUNjpQ+ua3g==}
+  '@mui/internal-docs-infra@0.13.1-canary.30':
+    resolution: {integrity: sha512-6KBxp4RjVQ6GKulPTbAT5jO9LhM1xNnTfkI9wk9ZaAxV3X5o3DPUeFE38EGYSqFh/TiV1OuKQCBJdkKktd7M8g==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -2439,8 +2439,8 @@ packages:
       '@emotion/react':
         optional: true
 
-  '@mui/internal-typescript-api-extractor@0.1.1-canary.1':
-    resolution: {integrity: sha512-qO14IwkNvZw9fi6YT4DbDJlX+Yq0ZHHmIP42P8tyO5W2EQoyAyfq/jRgf7orfqVzbk9XOzBRR/FSAV0lmVhZsw==}
+  '@mui/internal-typescript-api-extractor@0.1.1-canary.2':
+    resolution: {integrity: sha512-ZhPAK7nyh4qEzsLwTd/ixAik9Fc2vYINhLZ7xwhjAteokRiTgPu0knxcEobnoimrr3wKSEeTZ0UY6/lZgKCoDQ==}
     engines: {node: '>=22.12.0'}
     peerDependencies:
       typescript: ^5.8 || ^6.0
@@ -8373,6 +8373,10 @@ packages:
     resolution: {integrity: sha512-a8C9hpTUniedzTv4ICnzZh8ejppqJEe7+yTgL3dDwd4Rv6+nFbNVtHkWIa1jm3Lg/ejcYEOLerk3a0e8njjoLw==}
     engines: {node: '>=18.20.8'}
 
+  remark-typography@0.8.11:
+    resolution: {integrity: sha512-zJ2c11YMIqCZE04pSyxrM99ajNQt/rXT4vWtuC3qi4fgg9V5uAjpJNtmeFxlPRUlFYP+vcCXbawVQmpmwW7lmg==}
+    engines: {node: '>=18.20.8'}
+
   remove-accents@0.5.0:
     resolution: {integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==}
 
@@ -11422,13 +11426,13 @@ snapshots:
       - ts-declaration-location
       - vitest
 
-  '@mui/internal-docs-infra@0.13.1-canary.29(@types/react@19.3.0)(next@16.4.5(@babel/core@8.1.0)(@playwright/test@1.65.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)':
+  '@mui/internal-docs-infra@0.13.1-canary.30(@types/react@19.3.0)(next@16.4.5(@babel/core@8.1.0)(@playwright/test@1.65.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)':
     dependencies:
       '@babel/runtime': 8.1.0
       '@csstools/postcss-light-dark-function': 3.0.8(postcss@8.5.32)
       '@csstools/postcss-relative-color-syntax': 4.0.16(postcss@8.5.32)
       '@csstools/postcss-stepped-value-functions': 5.0.9(postcss@8.5.32)
-      '@mui/internal-typescript-api-extractor': 0.1.1-canary.1(@typescript/typescript6@6.0.2)
+      '@mui/internal-typescript-api-extractor': 0.1.1-canary.2(@typescript/typescript6@6.0.2)
       '@orama/orama': 3.1.18
       '@orama/plugin-qps': 3.1.18
       '@orama/stemmers': 3.1.18
@@ -11459,12 +11463,12 @@ snapshots:
       remark-mdx: 3.1.1(supports-color@10.2.2)
       remark-parse: 11.0.0(supports-color@10.2.2)
       remark-stringify: 11.0.0
-      remark-typography: 0.8.10
+      remark-typography: 0.8.11
       sucrase: 3.35.1
       typescript: '@typescript/typescript6@6.0.2'
       uint8-to-base64: 0.2.1
       unified: 11.0.5
-      unist-util-visit: 5.1.0
+      unist-util-visit: 5.2.0
       vscode-oniguruma: 2.0.1
       yargs: 18.2.0
       zx: 8.8.5
@@ -11502,7 +11506,7 @@ snapshots:
       - vite
       - vitest
 
-  '@mui/internal-typescript-api-extractor@0.1.1-canary.1(@typescript/typescript6@6.0.2)':
+  '@mui/internal-typescript-api-extractor@0.1.1-canary.2(@typescript/typescript6@6.0.2)':
     dependencies:
       '@babel/runtime': 8.1.0
       typescript: '@typescript/typescript6@6.0.2'
@@ -18280,6 +18284,16 @@ snapshots:
       unified: 11.0.5
 
   remark-typography@0.8.10:
+    dependencies:
+      '@types/mdast': 4.0.4
+      codsen-utils: 1.10.3
+      string-apostrophes: 4.2.7
+      string-dashes: 1.4.7
+      string-remove-widows: 4.2.11
+      unified: 11.0.5
+      vfile: 6.0.3
+
+  remark-typography@0.8.11:
     dependencies:
       '@types/mdast': 4.0.4
       codsen-utils: 1.10.3
