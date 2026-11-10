@@ -90,30 +90,7 @@ const items = Tree.createItems(nodes, {
 
 The root infers the item type from `items`. Parts outside the root's props, such as `<Tree.List>` and the providers, can't see it, so they type items as `any` unless you pass the type, as `<Tree.List<Node>>` does.
 
-## Keyboard navigation
-
-| Key                                                   | Behavior                                                                                                                                                                                                               |
-| :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                                        | Moves from the row through its controls, then out of the tree.                                                                                                                                                         |
-| <kbd>Arrow Down</kbd>                                 | Moves to the next visible row.                                                                                                                                                                                         |
-| <kbd>Arrow Up</kbd>                                   | Moves to the previous visible row.                                                                                                                                                                                     |
-| <kbd>Arrow Right</kbd>                                | Expands a collapsed row. Otherwise moves to the row's first control, or to its first child when the row has no controls.                                                                                               |
-| <kbd>Arrow Left</kbd>                                 | Collapses an expanded row, otherwise moves to its parent.                                                                                                                                                              |
-| <kbd>Home</kbd>/<kbd>End</kbd>                        | Moves to the first or last visible row.                                                                                                                                                                                |
-| <kbd>Page Up</kbd>/<kbd>Page Down</kbd>               | Moves up or down by as many rows as fit in the scroll container, stopping at the first or last visible row.                                                                                                            |
-| <kbd>Enter</kbd>                                      | Expands or collapses a row with children. Selects a row without children, or toggles it in multiple-selection mode without the propagation <kbd>Space</kbd> applies. Follows the row's link when it can't be selected. |
-| <kbd>Space</kbd>                                      | Selects or deselects the row.                                                                                                                                                                                          |
-| <kbd>Shift+Arrow Down</kbd>/<kbd>Shift+Arrow Up</kbd> | In multiple-selection mode, moves to the next or previous row and extends the selection.                                                                                                                               |
-| <kbd>Shift+Space</kbd>                                | In multiple-selection mode, selects the range between the last selected row and the focused row.                                                                                                                       |
-| <kbd>Ctrl+Shift+Home</kbd>/<kbd>Ctrl+Shift+End</kbd>  | In multiple-selection mode, selects from the focused row to the first or last row.                                                                                                                                     |
-| <kbd>Ctrl+A</kbd>                                     | In multiple-selection mode, selects all rows, or deselects them when they are all selected.                                                                                                                            |
-| <kbd>Escape</kbd>                                     | In multiple-selection mode, deselects all rows.                                                                                                                                                                        |
-| <kbd>\*</kbd>                                         | Expands every sibling of the focused row.                                                                                                                                                                              |
-| Printable characters                                  | Moves to the next row whose label starts with the typed characters, ignoring case and accents.                                                                                                                         |
-
-Shift+Arrow extends the selection from the last selected row, as in a desktop file manager, rather than toggling each row it moves to. In right-to-left layouts, the left and right arrow behavior is reversed. When focus leaves the tree, the row it left keeps the tab stop.
-
-### Controls inside items
+## Controls inside items
 
 Render controls with `<Tree.ItemButton>`, `<Tree.ItemInput>`, `<Tree.ItemLink>`, or `<Tree.ItemControl>` to include them in the item's keyboard navigation. `<Tree.ItemCheckbox>` is included automatically. See the [item controls example](#item-controls).
 
@@ -145,18 +122,6 @@ To use a popup trigger as a control, pass it to the `render` prop of `<Tree.Item
   <Menu.Portal>{/* Compose the rest of the menu */}</Menu.Portal>
 </Menu.Root>
 ```
-
-When a control has focus:
-
-| Key                                 | Behavior                                                                                                   |
-| :---------------------------------- | :--------------------------------------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>/<kbd>Shift+Tab</kbd> | Moves to the next or previous control. From the first control, <kbd>Shift+Tab</kbd> moves back to the row. |
-| <kbd>Arrow Right</kbd>              | Moves to the next control.                                                                                 |
-| <kbd>Arrow Left</kbd>               | Moves to the previous control, or back to the row from the first control.                                  |
-| <kbd>Arrow Down</kbd>               | Moves to the next visible row.                                                                             |
-| <kbd>Arrow Up</kbd>                 | Moves to the previous visible row.                                                                         |
-| <kbd>Home</kbd>/<kbd>End</kbd>      | Moves to the first or last control of the row.                                                             |
-| <kbd>Escape</kbd>                   | Moves back to the row.                                                                                     |
 
 Controls keep the keys they use, such as the caret keys of a text input or the up and down arrows of a popup trigger. Typeahead characters, <kbd>Space</kbd>, and <kbd>Enter</kbd> always belong to the control. Use the `controlKeys` prop to change which keys a control keeps. `<Tree.ItemControl>` keeps every key by default, so assign the key groups the tree should handle. For example, a custom rating widget that only uses the left and right arrows:
 
