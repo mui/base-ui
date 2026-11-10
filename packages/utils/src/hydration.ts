@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-/* We need to import the shim because React 17 does not support the `useSyncExternalStore` API. */
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { isReactVersionAtLeast } from './reactVersion';
+import { SafeReact } from './safeReact';
 
 const emptySubscribe = () => () => {};
 const getTrue = () => true;
@@ -11,8 +10,8 @@ const getFalse = () => false;
 function useIsHydratedModern() {
   // The server snapshot is what React renders with while hydrating, so this
   // distinguishes a hydration pass from a client-only mount, which reads the
-  // client snapshot straight away.
-  return useSyncExternalStore(emptySubscribe, getTrue, getFalse);
+  // client snapshot straight away. Only used on React 18+, which has the hook natively.
+  return SafeReact.useSyncExternalStore(emptySubscribe, getTrue, getFalse);
 }
 
 /**

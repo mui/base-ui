@@ -2,7 +2,13 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
-import { createFormDataSpy, createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createFormDataSpy,
+  createRenderer,
+  describeConformance,
+  hiddenInputSizeTests,
+  isJSDOM,
+} from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 
@@ -15,6 +21,11 @@ describe('<Switch.Root />', () => {
     button: true,
     render,
   }));
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <Switch.Root {...props} />,
+  });
 
   describe('interactions', () => {
     it('tolerates imperative interaction in its ref callback before the hidden input mounts', async () => {
@@ -183,6 +194,29 @@ describe('<Switch.Root />', () => {
           <Field.Root>
             <Field.Label>
               <Switch.Root aria-label="Bluetooth" />
+              Bluetooth
+            </Field.Label>
+          </Field.Root>
+        </React.Fragment>,
+      );
+
+      const [nativeLabelled, fieldLabelled] = screen.getAllByRole('switch');
+      expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(nativeLabelled).toHaveAccessibleName('Wi-Fi');
+      expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(fieldLabelled).toHaveAccessibleName('Bluetooth');
+    });
+
+    it("prefers a render element's `aria-label` over an associated label", async () => {
+      await render(
+        <React.Fragment>
+          <label>
+            <Switch.Root render={<span aria-label="Wi-Fi" />} />
+            Wi-Fi
+          </label>
+          <Field.Root>
+            <Field.Label>
+              <Switch.Root render={<span aria-label="Bluetooth" />} />
               Bluetooth
             </Field.Label>
           </Field.Root>

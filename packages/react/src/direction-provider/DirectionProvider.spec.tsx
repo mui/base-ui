@@ -23,6 +23,6 @@ expectType<TextDirection | undefined, typeof props.direction>(props.direction);
 <DirectionProvider direction="rtl" />;
 
 const invalidDirection = (
-  // @ts-expect-error
+  // @ts-expect-error Only ltr and rtl are supported directions.
   <DirectionProvider direction="vertical" />
 );

@@ -17,7 +17,7 @@ Doesn't render its own HTML element.
 | open                 | `boolean`                                                                                             | -            | Whether the menu is currently open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | onOpenChange         | `((open: boolean, eventDetails: ContextMenu.Root.ChangeEventDetails) => void)`                        | -            | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | highlightItemOnHover | `boolean`                                                                                             | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| actionsRef           | `React.RefObject<MenuRoot.Actions \| null>`                                                           | -            | A ref to imperative actions. `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.                                                                                                                                                                                                                                                       |
+| actionsRef           | `React.RefObject<ContextMenu.Root.Actions \| null>`                                                   | -            | A ref to imperative actions. `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.                                                                                                                                                                                                                                                       |
 | loopFocus            | `boolean`                                                                                             | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | onItemHighlighted    | `((highlightedItem: HTMLElement \| undefined, eventDetails: MenuRoot.HighlightEventDetails) => void)` | -            | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item element (or `undefined` if no item is highlighted) and details&#xA;containing the reason for the change, the event, and the item's text label.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`&#xA;rather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as automatic highlighting while&#xA;filtering, the item list changing, or the popup opening or closing. |
 | onOpenChangeComplete | `((open: boolean) => void)`                                                                           | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -86,7 +86,12 @@ type ContextMenuRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -577,7 +582,12 @@ type ContextMenuSubmenuRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -705,7 +715,12 @@ type ContextMenuRadioGroupChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -892,7 +907,12 @@ type ContextMenuCheckboxItemChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -1364,3 +1384,19 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `ContextMenu.SubmenuRoot.State`: `ContextMenuSubmenuRootState`
 - `ContextMenu.SubmenuTrigger.Props`: `ContextMenuSubmenuTriggerProps`
 - `ContextMenu.SubmenuTrigger.State`: `ContextMenuSubmenuTriggerState`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLAnchorElement`: <https://developer.mozilla.org/docs/Web/API/HTMLAnchorElement>
+- `HTMLDivElement`: <https://developer.mozilla.org/docs/Web/API/HTMLDivElement>
+- `HTMLElement`: <https://developer.mozilla.org/docs/Web/API/HTMLElement>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `ShadowRoot`: <https://developer.mozilla.org/docs/Web/API/ShadowRoot>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

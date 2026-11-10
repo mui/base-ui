@@ -2,7 +2,12 @@
 import * as React from 'react';
 
 export type MeterRootContext = {
-  formattedValue: string;
+  /**
+   * The value clamped to the range.
+   */
+  clampedValue: number;
+  format: Intl.NumberFormatOptions | undefined;
+  locale: Intl.LocalesArgument | undefined;
   /**
    * The value normalized to a `0`–`100` percentage of the range, clamped to those bounds.
    */

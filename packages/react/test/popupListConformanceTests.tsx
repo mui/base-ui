@@ -27,7 +27,6 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     focusModel = 'dom',
     homeEnd = true,
     selectable = false,
-    spaceActivates = true,
     enterSpaceOpen = true,
     typeahead = true,
     modal = true,
@@ -330,6 +329,40 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         expect(getHighlightedIndex()).toBe(2);
       });
 
+      it('keeps the highlight when the pointer moves straight onto content inside another item', async () => {
+        const { user } = await renderList();
+        await openWithMouse(user);
+        await user.hover(getItem(1));
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(1);
+        });
+
+        const nextItemContent = getItem(2).firstElementChild;
+        expect(nextItemContent).toBeInstanceOf(HTMLElement);
+        fireEvent.pointerLeave(getItem(1), {
+          pointerType: 'mouse',
+          relatedTarget: nextItemContent,
+        });
+        await settle();
+
+        expect(getHighlightedIndex()).toBe(1);
+      });
+
+      it('clears the highlight when the pointer leaves an item to outside the document', async () => {
+        const { user } = await renderList();
+        await openWithMouse(user);
+        await user.hover(getItem(1));
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(1);
+        });
+
+        // React sets `relatedTarget` to `window` when the native one is null.
+        fireEvent.pointerLeave(getItem(1), { pointerType: 'mouse', relatedTarget: null });
+        await settle();
+
+        expect(getHighlightedIndex()).toBe(-1);
+      });
+
       it('does not activate a disabled item', async () => {
         const onItemClick = vi.fn();
         const onValueChange = vi.fn();
@@ -593,28 +626,25 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         await expectFocusOnItem(start);
       });
 
-      it.each(spaceActivates ? ['{Enter}', ' '] : ['{Enter}'])(
-        'activates the highlighted item once with %s',
-        async (key) => {
-          const spies = createSpies();
-          const { user } = await renderList(spies.options);
-          const start = await openWithKeyboard(user);
-          await user.keyboard('{ArrowDown}');
-          await expectFocusOnItem(start + 1);
+      it.each(['{Enter}', ' '])('activates the highlighted item once with %s', async (key) => {
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
+        const start = await openWithKeyboard(user);
+        await user.keyboard('{ArrowDown}');
+        await expectFocusOnItem(start + 1);
 
-          await user.keyboard(key);
+        await user.keyboard(key);
 
-          await waitForClosed();
-          expect(spies.activated).toEqual([ITEMS[start + 1]]);
-          // `onValueChange` is only passed to selectable lists.
-          expect(spies.onValueChange.mock.calls.map(([value]) => value)).toEqual(
-            selectable ? [ITEMS[start + 1]] : [],
-          );
-          await waitFor(() => {
-            expect(getTrigger()).toHaveFocus();
-          });
-        },
-      );
+        await waitForClosed();
+        expect(spies.activated).toEqual([ITEMS[start + 1]]);
+        // `onValueChange` is only passed to selectable lists.
+        expect(spies.onValueChange.mock.calls.map(([value]) => value)).toEqual(
+          selectable ? [ITEMS[start + 1]] : [],
+        );
+        await waitFor(() => {
+          expect(getTrigger()).toHaveFocus();
+        });
+      });
 
       it('does not submit a surrounding form', async () => {
         const onSubmit = vi.fn();
@@ -1099,11 +1129,6 @@ export interface PopupListTestConfig {
    * @default false
    */
   selectable?: boolean;
-  /**
-   * Whether Space activates the highlighted item. Comboboxes type it into the input instead.
-   * @default true
-   */
-  spaceActivates?: boolean;
   /**
    * Whether Enter and Space open the popup from the trigger.
    * @default true

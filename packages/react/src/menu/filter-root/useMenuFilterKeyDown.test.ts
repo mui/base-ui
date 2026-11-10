@@ -23,7 +23,10 @@ describe('getMenuFilterKeyAction', () => {
     ['Enter on a highlight', key('Enter'), true, false, 'activate'],
     ['Enter without a highlight', key('Enter'), false, true, 'navigate'],
     ['a character', key('a'), true, false, 'edit'],
-    ['Space', key(' '), true, false, 'edit'],
+    ['Space on a highlight in an empty input', key(' '), true, false, 'activate'],
+    ['Space without a highlight in an empty input', key(' '), false, false, 'block'],
+    ['Space on a highlight in a non-empty input', key(' '), true, true, 'edit'],
+    ['Shift+Space in an empty input', key(' ', { shiftKey: true }), true, false, 'edit'],
     ['Shift+ArrowDown', key('ArrowDown', { shiftKey: true }), true, true, 'edit'],
     ['Ctrl+ArrowLeft', key('ArrowLeft', { ctrlKey: true }), true, true, 'edit'],
     ['Shift+Escape', key('Escape', { shiftKey: true }), true, true, 'navigate'],
@@ -31,7 +34,7 @@ describe('getMenuFilterKeyAction', () => {
     ['Home without a highlight', key('Home'), false, false, 'edit'],
     ['Home on a highlight in an empty input', key('Home'), true, false, 'navigate'],
     ['Home on a highlight in a non-empty input', key('Home'), true, true, 'edit'],
-    ['ArrowRight on a submenu trigger', key('ArrowRight'), true, true, 'submenu', true],
+    ['ArrowRight on a submenu trigger', key('ArrowRight'), true, false, 'submenu', true],
     ['ArrowLeft on a submenu trigger', key('ArrowLeft'), true, false, 'submenu', true],
     ['ArrowRight on an item in a non-empty input', key('ArrowRight'), true, true, 'edit'],
     ['ArrowLeft on an item in an empty input', key('ArrowLeft'), true, false, 'navigate'],
@@ -48,6 +51,48 @@ describe('getMenuFilterKeyAction', () => {
           hasActiveItem,
           activeItemOpensSubmenu,
           hasValue,
+          caretAtStart: !hasValue,
+          caretAtEnd: !hasValue,
+        }),
+      ).toBe(expected);
+    },
+  );
+
+  it.each<{
+    key: string;
+    rtl: boolean;
+    caret: 'start' | 'middle' | 'end';
+    submenu: boolean;
+    expected: MenuFilterKeyAction;
+  }>([
+    { rtl: false, key: 'ArrowRight', caret: 'end', submenu: true, expected: 'submenu' },
+    { rtl: false, key: 'ArrowRight', caret: 'middle', submenu: true, expected: 'edit' },
+    { rtl: false, key: 'ArrowRight', caret: 'start', submenu: true, expected: 'edit' },
+    { rtl: false, key: 'ArrowRight', caret: 'end', submenu: false, expected: 'navigate' },
+    { rtl: false, key: 'ArrowLeft', caret: 'start', submenu: false, expected: 'navigate' },
+    { rtl: false, key: 'ArrowLeft', caret: 'start', submenu: true, expected: 'submenu' },
+    { rtl: false, key: 'ArrowLeft', caret: 'middle', submenu: false, expected: 'edit' },
+    { rtl: false, key: 'ArrowLeft', caret: 'end', submenu: false, expected: 'edit' },
+    { rtl: true, key: 'ArrowLeft', caret: 'end', submenu: true, expected: 'submenu' },
+    { rtl: true, key: 'ArrowLeft', caret: 'middle', submenu: true, expected: 'edit' },
+    { rtl: true, key: 'ArrowLeft', caret: 'start', submenu: true, expected: 'edit' },
+    { rtl: true, key: 'ArrowLeft', caret: 'end', submenu: false, expected: 'navigate' },
+    { rtl: true, key: 'ArrowRight', caret: 'start', submenu: false, expected: 'navigate' },
+    { rtl: true, key: 'ArrowRight', caret: 'start', submenu: true, expected: 'submenu' },
+    { rtl: true, key: 'ArrowRight', caret: 'middle', submenu: false, expected: 'edit' },
+    { rtl: true, key: 'ArrowRight', caret: 'end', submenu: false, expected: 'edit' },
+  ])(
+    'vertical with a query (RTL: $rtl): $key with the caret at the $caret (submenu trigger: $submenu)',
+    ({ key: value, rtl, caret, submenu, expected }) => {
+      expect(
+        getMenuFilterKeyAction(key(value), {
+          orientation: 'vertical',
+          rtl,
+          hasActiveItem: true,
+          activeItemOpensSubmenu: submenu,
+          hasValue: true,
+          caretAtStart: caret === 'start',
+          caretAtEnd: caret === 'end',
         }),
       ).toBe(expected);
     },
@@ -71,6 +116,8 @@ describe('getMenuFilterKeyAction', () => {
           hasActiveItem,
           activeItemOpensSubmenu,
           hasValue,
+          caretAtStart: !hasValue,
+          caretAtEnd: !hasValue,
         }),
       ).toBe(expected);
     },

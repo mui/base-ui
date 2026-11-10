@@ -81,6 +81,7 @@ describe('<Combobox.Positioner />', () => {
 
   positionerConformanceTests({
     render,
+    stableState: false,
     createComponent: ({ root, trigger, positioner, popup }) => (
       <Combobox.Root {...root}>
         <Combobox.Input {...trigger} />

@@ -30,7 +30,7 @@ export type * from './separator/ComboboxSeparator';
 export type {
   Filter as ComboboxFilter,
   UseComboboxFilterOptions as ComboboxFilterOptions,
-} from '../combobox/root/utils/useFilter';
+} from './root/utils/useFilter';
 
 export type { ComboboxPrimitiveValue, CreateComboboxItemsOptions } from './items/createItems';
 export type { ComboboxItemCollection } from './items/itemCollection';

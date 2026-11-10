@@ -48,6 +48,40 @@ Working with Tooltip is a common example.
 </Dialog.Root>
 ```
 
+## How props are merged
+
+When the `render` prop receives an element, the part's props and the element's props are merged onto a single element.
+For example, this toolbar button renders a menu trigger:
+
+```tsx title="index.tsx"
+<Toolbar.Button
+  className="toolbar-button"
+  style={{ color: 'red', padding: 4 }}
+  onClick={handleToolbarClick}
+  ref={toolbarButtonRef}
+  render={
+    <Menu.Trigger
+      className="menu-trigger"
+      style={{ color: 'blue' }}
+      onClick={handleMenuClick}
+      ref={menuTriggerRef}
+    />
+  }
+/>
+```
+
+The rendered `<button>` gets:
+
+- `className="menu-trigger toolbar-button"`: class names are combined, starting with the render element's.
+- `style={{ color: 'blue', padding: 4 }}`: style objects are merged, and the render element's values win.
+- Both click handlers, starting with `handleMenuClick`. Calling [`event.preventBaseUIHandler()`](/react/handbook/customization#preventing-base-ui-from-handling-a-react-event) skips every handler that runs after it, so calling it in `handleMenuClick` also skips `handleToolbarClick`. Some parts call it internally.
+- Both refs: `toolbarButtonRef` and `menuTriggerRef` point to the same element.
+
+For other attributes set on both, such as `id` or `title`, the render element's value wins.
+Component props like `disabled` are read by each part separately, so a value on the render element doesn't override the part's own.
+
+The `render` prop merges props with [`mergeProps`](/react/utils/merge-props), except for refs: `mergeProps` keeps only the rightmost `ref`, while the `render` prop keeps all of them.
+
 ## Changing the default rendered element
 
 You can also use the `render` prop to override the rendered element of the component.

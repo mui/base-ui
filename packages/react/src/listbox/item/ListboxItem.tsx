@@ -4,6 +4,7 @@ import { platform } from '@base-ui/utils/platform';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import type {
   BaseUIComponentProps,
   BaseUIEvent,
@@ -12,7 +13,6 @@ import type {
 } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
-import { activeElement, contains } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useCompositeListItem } from '../../internals/composite';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMenuFilterPopup } from './useMenuFilterPopup';
-import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
+import type { FloatingFocusManagerProps } from '../../utils/popups/focus/FloatingFocusManager';
 import { MenuPopupPlain } from '../popup/MenuPopup';
 import type { MenuPopupProps } from '../popup/MenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describe, it, expect, vi } from 'vitest';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, pressWithScreenReader } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
 function Test(props: { submenuTriggerProps?: React.ComponentProps<typeof Menu.SubmenuTrigger> }) {
@@ -43,13 +43,6 @@ function fireScreenReaderMouseDown(element: Element) {
   fireEvent.mouseDown(element, { detail: 0 });
 }
 
-// Chrome performs a screen reader activation (TalkBack, VoiceOver, NVDA) as a synthetic mouse
-// press: a zero-pressure 1x1 `pointerdown` followed by `mousedown` and a `detail: 0` click.
-function fireScreenReaderPress(element: Element) {
-  fireScreenReaderMouseDown(element);
-  fireEvent.click(element, { detail: 0 });
-}
-
 async function waitForFrames(count = 2) {
   for (let i = 0; i < count; i += 1) {
     // eslint-disable-next-line no-await-in-loop
@@ -72,13 +65,13 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
     const submenuTrigger = await screen.findByTestId('submenu-trigger');
 
-    fireScreenReaderPress(submenuTrigger);
+    pressWithScreenReader(submenuTrigger);
 
     // Let opening focus settle before activating again.
     await screen.findByTestId('submenu');
     await waitForFrames();
 
-    fireScreenReaderPress(submenuTrigger);
+    pressWithScreenReader(submenuTrigger);
 
     await waitFor(() => {
       expect(screen.queryByTestId('submenu')).toBe(null);
@@ -86,7 +79,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
     expect(screen.getByTestId('parent-menu')).not.toBe(null);
     await waitForFrames();
 
-    fireScreenReaderPress(submenuTrigger);
+    pressWithScreenReader(submenuTrigger);
 
     expect(await screen.findByTestId('submenu')).not.toBe(null);
     await waitForFrames();
@@ -151,7 +144,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
     const submenuTrigger = await screen.findByTestId('submenu-trigger');
 
-    fireScreenReaderPress(screen.getByTestId('icon'));
+    pressWithScreenReader(screen.getByTestId('icon'));
 
     await screen.findByTestId('submenu');
     expect(onOpenChange).toHaveBeenCalledWith(
@@ -222,7 +215,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
     });
     const submenuTrigger = screen.getByTestId('submenu-trigger');
 
-    fireScreenReaderPress(submenuTrigger);
+    pressWithScreenReader(submenuTrigger);
 
     expect(await screen.findByTestId('submenu')).not.toBe(null);
     await waitFor(() => {
@@ -268,7 +261,7 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with a screen reader press', (
       expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
     });
 
-    fireScreenReaderPress(screen.getByTestId('submenu-trigger'));
+    pressWithScreenReader(screen.getByTestId('submenu-trigger'));
 
     await waitFor(() => {
       expect(screen.getByRole('searchbox', { name: 'Filter more' })).toHaveFocus();

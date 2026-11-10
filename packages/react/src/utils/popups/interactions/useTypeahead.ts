@@ -1,0 +1,244 @@
+'use client';
+import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { isElementVisible, isListIndexDisabled } from '../../../internals/composite/listIndex';
+import type { DisabledIndices } from '../../../internals/composite/listIndex';
+import { stopEvent } from '../event';
+
+export interface UseTypeaheadProps {
+  /**
+   * Returns the label of the item at an index, or `null` when it has none. Labels are read one at
+   * a time, so a match near the active item doesn't read the rest.
+   */
+  getLabel: (index: number) => string | null;
+  /**
+   * Returns how many items there are.
+   */
+  getCount: () => number;
+  /**
+   * The index of the active (focused or highlighted) item in the list.
+   * @default null
+   */
+  activeIndex: number | null;
+  /**
+   * Callback invoked with the matching index if found as the user types.
+   */
+  onMatch?: ((index: number, event: React.KeyboardEvent) => void) | undefined;
+  /**
+   * Optional list of item elements, by index.
+   * When an element exists for an index, typeahead skips it if it is hidden by
+   * `display: none`, `visibility: hidden|collapse`, other browser-reported
+   * visibility checks, or native disabled state.
+   */
+  elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
+  /**
+   * Indices that are disabled, either as an array or a predicate (the same shape as
+   * `useListNavigation`'s `disabledIndices`). Disabled items are skipped while matching,
+   * so a single keypress advances to the next selectable item (matching native `<select>`
+   * and arrow-key navigation). The explicit disabled check doesn't read `elementsRef`, so
+   * consumers whose items stay mounted-but-hidden while closed can still skip disabled items
+   * without passing `elementsRef`.
+   */
+  disabledIndices?: DisabledIndices | undefined;
+  /**
+   * Callback invoked with the current typing activity as the user types.
+   */
+  onTyping?: ((isTyping: boolean) => void) | undefined;
+  /**
+   * Whether the Hook is enabled, including all internal Effects and event
+   * handlers.
+   * @default true
+   */
+  enabled?: boolean | undefined;
+  /**
+   * The number of milliseconds to wait before resetting the typed string.
+   * @default 750
+   */
+  resetMs?: number | undefined;
+  /**
+   * The index of the selected item in the list, if available.
+   * @default null
+   */
+  selectedIndex?: number | null | undefined;
+}
+
+export interface UseTypeaheadReturnValue {
+  /**
+   * Handles a key press, matching the typed string against the list.
+   */
+  onKeyDown: (event: React.KeyboardEvent) => void;
+  /**
+   * Ends the typing session, so the next key press starts a new search from the active item.
+   */
+  endSession: () => void;
+  /**
+   * Ends the typing session and forgets the last match.
+   */
+  reset: () => void;
+}
+
+/**
+ * Matches items as the user types. Keys typed in quick succession build one search, which
+ * starts from the item after the active one and resets after a pause. Typing the same letter
+ * again cycles through the items that start with it.
+ */
+export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue {
+  const {
+    getLabel,
+    getCount,
+    elementsRef,
+    activeIndex,
+    onMatch: onMatchProp,
+    disabledIndices,
+    onTyping: onTypingProp,
+    enabled = true,
+    resetMs = 750,
+    selectedIndex = null,
+  } = props;
+
+  const onTyping = useStableCallback(onTypingProp);
+
+  const timeout = useTimeout();
+  const stringRef = React.useRef('');
+  const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
+  const matchIndexRef = React.useRef<number | null>(null);
+
+  const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+    if (!enabled) {
+      return;
+    }
+
+    function getElement(index: number) {
+      return elementsRef?.current[index];
+    }
+
+    function isItemAvailable(index: number) {
+      const element = getElement(index);
+      if ((element && !isElementVisible(element)) || element?.matches(':disabled')) {
+        return false;
+      }
+      // Visibility and native disabled state are handled above; pass an empty
+      // element list so `isListIndexDisabled` resolves only the explicit
+      // `disabledIndices` (array/predicate) and skips its own fallbacks.
+      // Consumers that don't pass `disabledIndices` keep matching every visible
+      // item except native disabled elements provided through `elementsRef`.
+      return disabledIndices == null || !isListIndexDisabled(EMPTY_ARRAY, index, disabledIndices);
+    }
+
+    function getMatchingIndex(string: string, startIndex = 0) {
+      const count = getCount();
+      if (count === 0) {
+        return -1;
+      }
+
+      const normalizedStartIndex = ((startIndex % count) + count) % count;
+      const lowerString = string.toLowerCase();
+
+      for (let offset = 0; offset < count; offset += 1) {
+        const index = (normalizedStartIndex + offset) % count;
+        const text = getLabel(index);
+        if (!text?.toLowerCase().startsWith(lowerString) || !isItemAvailable(index)) {
+          continue;
+        }
+        return index;
+      }
+      return -1;
+    }
+
+    if (stringRef.current.length > 0 && event.key === ' ') {
+      // Space should continue the in-progress typeahead session.
+      stopEvent(event);
+      onTyping?.(true);
+    }
+
+    if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
+      if (getMatchingIndex(stringRef.current) === -1 && event.key !== ' ') {
+        onTyping?.(false);
+      }
+    }
+
+    if (
+      // Character key.
+      event.key.length !== 1 ||
+      // Modifier key.
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    // Capture whether this is a new typing session before mutating the string.
+    const isNewSession = stringRef.current === '';
+    if (isNewSession) {
+      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
+    }
+
+    // Bail out if the list contains a word like "llama" or "aaron". TODO:
+    // allow it in this case, too. Unavailable items are skipped while matching, so
+    // they must be ignored here as well — otherwise a hidden or disabled double-letter
+    // label would block rapid cycling through the available items.
+    // Only checked when the same letter is typed again, so the other keys don't read every label.
+    const allowRapidSuccessionOfFirstLetter = () => {
+      const count = getCount();
+      for (let index = 0; index < count; index += 1) {
+        const text = getLabel(index);
+        if (text && isItemAvailable(index) && text[0]?.toLowerCase() === text[1]?.toLowerCase()) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // Allows the user to cycle through items that start with the same letter
+    // in rapid succession.
+    if (stringRef.current === event.key && allowRapidSuccessionOfFirstLetter()) {
+      stringRef.current = '';
+      prevIndexRef.current = matchIndexRef.current;
+    }
+
+    stringRef.current += event.key;
+    timeout.start(resetMs, () => {
+      stringRef.current = '';
+      prevIndexRef.current = matchIndexRef.current;
+      onTyping?.(false);
+    });
+
+    // Compute the starting index for this search.
+    // If this is a new typing session (string is empty), base it on the current
+    // selection/active item; otherwise continue from the last matched index.
+    const prevIndex = isNewSession ? (selectedIndex ?? activeIndex ?? -1) : prevIndexRef.current;
+    const startIndex = (prevIndex ?? 0) + 1;
+
+    const index = getMatchingIndex(stringRef.current, startIndex);
+
+    if (index !== -1) {
+      onMatchProp?.(index, event);
+      matchIndexRef.current = index;
+    } else if (event.key !== ' ') {
+      stringRef.current = '';
+      onTyping?.(false);
+    }
+  });
+
+  const endSession = useStableCallback(() => {
+    timeout.clear();
+    stringRef.current = '';
+    prevIndexRef.current = matchIndexRef.current;
+    onTyping?.(false);
+  });
+
+  const reset = useStableCallback(() => {
+    timeout.clear();
+    matchIndexRef.current = null;
+
+    if (stringRef.current !== '') {
+      stringRef.current = '';
+      onTyping?.(false);
+    }
+  });
+
+  return React.useMemo(() => ({ onKeyDown, endSession, reset }), [onKeyDown, endSession, reset]);
+}
