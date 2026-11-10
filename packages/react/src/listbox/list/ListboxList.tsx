@@ -4,23 +4,17 @@ import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useCompositeRoot } from '../../internals/composite/root/useCompositeRoot';
 import { stopEvent } from '../../utils/popups/event';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { useListboxRootContext } from '../root/ListboxRootContext';
-import type { ListboxRoot } from '../root/ListboxRoot';
-import { selectionReducer } from '../utils/selectionReducer';
-import type { SelectionAction } from '../utils/selectionReducer';
 
 /**
  * A container for the listbox items.
@@ -48,7 +42,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const activeItemRendered = store.useState('activeItemRendered');
   const optInMode = multiple === 'opt-in';
   const direction = useDirection();
-  const { labelsRef, lastSelectedIndexRef, setValue, typingRef } = store.context;
+  const { labelsRef, typingRef } = store.context;
 
   // The keydown being handled by the list, so composite navigation can report it.
   const keyDownEventRef = React.useRef<KeyboardEvent | undefined>(undefined);
@@ -79,12 +73,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       !event.metaKey &&
       !event.altKey
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      dispatchSelection(
-        { type: 'moveSelection', index },
-        createChangeEventDetails(REASONS.listNavigation, event),
-        index,
-      );
+      store.selection.moveTo(index, event);
     }
   });
 
@@ -143,12 +132,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       return;
     }
     pendingSelectRef.current = null;
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    dispatchSelection(
-      { type: 'moveSelection', index },
-      createChangeEventDetails(REASONS.listNavigation, pendingSelect.event),
-      index,
-    );
+    store.selection.moveTo(index, pendingSelect.event);
   });
   store.useContextCallback('onItemFocus', onItemFocus);
 
@@ -197,12 +181,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     // In opt-in mode, the selection follows focus (the APG alternative multiple selection model).
     if (optInMode && event.key.startsWith('Arrow')) {
       if (composite.elementsRef.current[targetIndex]) {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        dispatchSelection(
-          { type: 'moveSelection', index: targetIndex },
-          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-          targetIndex,
-        );
+        store.selection.moveTo(targetIndex, event.nativeEvent);
       } else {
         pendingSelectRef.current = { index: targetIndex, event: event.nativeEvent };
       }
@@ -225,24 +204,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
       focusItem(index, event.nativeEvent);
     },
   });
-
-  /**
-   * Dispatches a selection action through the reducer and commits the result.
-   * Centralizes the pattern of: compute next value → setValue → update anchor.
-   */
-  const dispatchSelection = useStableCallback(
-    (
-      action: SelectionAction,
-      eventDetails: ListboxRoot.ChangeEventDetails,
-      anchorIndex?: number,
-    ) => {
-      const nextValue = selectionReducer(action, store.state.value, store.getSelectionItems());
-      setValue(nextValue, eventDetails);
-      if (anchorIndex !== undefined) {
-        lastSelectedIndexRef.current = anchorIndex;
-      }
-    },
-  );
 
   /**
    * Maps keyboard events to selection actions based on the current selection mode.
@@ -305,18 +266,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
           const anchorIndex = shiftAnchorRef.current;
           focusItem(targetIndex, event.nativeEvent);
 
-          const currentValue = store.state.value;
-          const nextValue = selectionReducer(
-            { type: 'extendTo', index: targetIndex, anchorIndex },
-            currentValue,
-            store.getSelectionItems(),
-          );
-          if (!areArraysEqual(currentValue, nextValue, store.isSameValue)) {
-            setValue(
-              nextValue,
-              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-            );
-          }
+          store.selection.extendTo(targetIndex, anchorIndex, event.nativeEvent);
         }
       }
     }
@@ -325,11 +275,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Home') {
       event.preventDefault();
       if (currentIndex != null) {
-        dispatchSelection(
-          { type: 'selectRange', from: 0, to: currentIndex },
-          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-          0,
-        );
+        store.selection.selectRange(0, currentIndex, 0, event.nativeEvent);
         focusItem(0, event.nativeEvent);
       }
     }
@@ -339,11 +285,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       event.preventDefault();
       if (currentIndex != null) {
         const lastIndex = count - 1;
-        dispatchSelection(
-          { type: 'selectRange', from: currentIndex, to: lastIndex },
-          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-          lastIndex,
-        );
+        store.selection.selectRange(currentIndex, lastIndex, lastIndex, event.nativeEvent);
         focusItem(lastIndex, event.nativeEvent);
       }
     }
@@ -352,10 +294,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     // Escape already clears the selection.
     if ((event.ctrlKey || event.metaKey) && (event.key === 'a' || event.key === 'A')) {
       event.preventDefault();
-      dispatchSelection(
-        { type: 'selectAll' },
-        createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-      );
+      store.selection.selectAll(event.nativeEvent);
     }
   });
 
@@ -470,13 +409,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
       // Escape: deselect all items (multi-select modes only)
       if (event.key === 'Escape' && multiple) {
-        const currentValue = store.state.value;
-        if (Array.isArray(currentValue) && currentValue.length > 0) {
-          dispatchSelection(
-            { type: 'clear' },
-            createChangeEventDetails(REASONS.escapeKey, event.nativeEvent),
-          );
-        }
+        store.selection.clear(event.nativeEvent);
       }
 
       // Selection keyboard shortcuts (multiple selection only)

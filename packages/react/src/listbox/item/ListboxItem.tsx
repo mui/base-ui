@@ -15,13 +15,9 @@ import type {
 } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { ListboxItemContext } from './ListboxItemContext';
-import { selectionReducer } from '../utils/selectionReducer';
-import type { SelectionAction } from '../utils/selectionReducer';
 
 function useListItemValueRegistration(params: {
   index: number;
@@ -87,7 +83,7 @@ export const ListboxItem = React.memo(
     const active = store.useState('isActive', listItem.index);
     const highlighted = store.useState('isHighlighted', listItem.index);
     const selected = store.useState('isSelected', itemValue);
-    const { disabledItemsRef, lastSelectedIndexRef, setValue, valuesRef } = store.context;
+    const { disabledItemsRef, valuesRef } = store.context;
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
@@ -185,55 +181,6 @@ export const ListboxItem = React.memo(
       composite: true,
     });
 
-    /**
-     * Maps a click event (with modifier keys) to a SelectionAction,
-     * then dispatches it through the reducer.
-     */
-    function commitSelection(
-      event: MouseEvent | KeyboardEvent,
-      {
-        shiftKey = false,
-        ctrlKey = false,
-        touch = false,
-      }: {
-        shiftKey?: boolean | undefined;
-        ctrlKey?: boolean | undefined;
-        touch?: boolean | undefined;
-      } = {},
-    ) {
-      let action: SelectionAction;
-      // Touch has no modifier keys, so `multiple="opt-in"` toggles on tap like `multiple`.
-      const replaceOnPress = optInMode && !touch;
-      const anchorIndex = lastSelectedIndexRef.current;
-
-      if (shiftKey && multiple) {
-        if (replaceOnPress && ctrlKey) {
-          // Ctrl/Cmd+Shift adds the range to the existing selection.
-          if (anchorIndex === null) {
-            action = { type: 'toggle', index };
-          } else {
-            action = { type: 'selectRange', from: anchorIndex, to: index };
-          }
-        } else {
-          action = { type: 'extendTo', index, anchorIndex };
-        }
-      } else if (multiple && (!replaceOnPress || ctrlKey)) {
-        // `multiple` toggles on every press; `multiple="opt-in"` toggles with Ctrl/Cmd.
-        action = { type: 'toggle', index };
-      } else {
-        // Single selection, or `multiple="opt-in"` without a modifier.
-        action = { type: 'select', index };
-      }
-
-      const nextValue = selectionReducer(action, store.state.value, store.getSelectionItems());
-      setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
-
-      // Update selection anchor (used by Shift+Click range selection)
-      if (action.type !== 'extendTo') {
-        lastSelectedIndexRef.current = index;
-      }
-    }
-
     function handleItemKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
       lastKeyRef.current = event.key;
       const currentIndex = store.indexOfValue(itemValue);
@@ -254,7 +201,11 @@ export const ListboxItem = React.memo(
         event.preventDefault();
         event.preventBaseUIHandler();
         if (!disabled && !rootDisabled) {
-          commitSelection(event.nativeEvent, { shiftKey: event.shiftKey, ctrlKey: true });
+          store.selection.press(
+            index,
+            { shiftKey: event.shiftKey, ctrlKey: true },
+            event.nativeEvent,
+          );
         }
       }
     }
@@ -322,11 +273,15 @@ export const ListboxItem = React.memo(
         }
 
         lastKeyRef.current = null;
-        commitSelection(event.nativeEvent, {
-          shiftKey: event.shiftKey,
-          ctrlKey: event.ctrlKey || event.metaKey,
-          touch: event.type !== 'keydown' && lastPointerTypeRef.current === 'touch',
-        });
+        store.selection.press(
+          index,
+          {
+            shiftKey: event.shiftKey,
+            ctrlKey: event.ctrlKey || event.metaKey,
+            touch: event.type !== 'keydown' && lastPointerTypeRef.current === 'touch',
+          },
+          event.nativeEvent,
+        );
       },
     };
 

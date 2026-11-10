@@ -86,7 +86,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   const valuesRef = React.useRef<Array<any>>([]);
   const disabledItemsRef = React.useRef<Array<boolean | undefined>>([]);
   const typingRef = React.useRef(false);
-  const lastSelectedIndexRef = React.useRef<number | null>(null);
 
   const store = useRefWithInit(
     () =>
@@ -105,7 +104,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
           labelsRef,
           disabledItemsRef,
           typingRef,
-          lastSelectedIndexRef,
         },
       ),
   ).current;

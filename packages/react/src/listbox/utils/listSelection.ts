@@ -1,11 +1,10 @@
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 
 /**
- * Typed actions that describe selection intent. Both click handlers and
- * keyboard handlers produce these; the pure `selectionReducer` computes
- * the next value array.
+ * What a selection gesture does to the selected values. `selectionReducer` computes the next
+ * values from one.
  */
-export type SelectionAction =
+type SelectionAction =
   | { type: 'select'; index: number }
   | { type: 'moveSelection'; index: number }
   | { type: 'toggle'; index: number }
@@ -28,16 +27,118 @@ export interface SelectionItems {
   keepsDisabled: boolean;
 }
 
+/** Which modifiers were held during a press, and whether it was a touch. */
+export interface PressModifiers {
+  shiftKey?: boolean | undefined;
+  /** Ctrl, or Cmd on macOS. */
+  ctrlKey?: boolean | undefined;
+  /** Touch has no modifier keys, so opt-in multiple selection toggles on tap. */
+  touch?: boolean | undefined;
+}
+
+/** What caused a selection change. */
+export type SelectionSource = 'press' | 'keyboard' | 'escape';
+
+export interface ListSelectionParameters<E> {
+  /** The selected values. */
+  getValue: () => any[];
+  /** The items to select from. */
+  getItems: () => SelectionItems;
+  /**
+   * `false` for single selection, `true` when each item is toggled independently, and `'opt-in'`
+   * when a press without a modifier replaces the selection.
+   */
+  getMultiple: () => boolean | 'opt-in';
+  /** Receives the next selected values. Called even when they're the same as the current ones. */
+  commit: (nextValue: any[], source: SelectionSource, event: E) => void;
+}
+
 /**
- * Pure reducer that computes the next selection value from an action.
- * Has no side effects — does not touch refs, store, or DOM.
- *
- * @param action - What the user intends to do.
- * @param currentValue - The current selected values array.
- * @param items - Reads each item's value and disabled state, by position.
- * @returns The new selected values array.
+ * The selection gestures of a list of options, as the APG listbox pattern describes them. Turns
+ * presses and keyboard commands into the next selected values, and remembers the item that
+ * Shift+press extends a range from.
  */
-export function selectionReducer(
+export class ListSelection<E = Event> {
+  declare private readonly parameters: ListSelectionParameters<E>;
+
+  /** The last pressed or selected item, which Shift+press extends a range from. */
+  private pressAnchor: number | null = null;
+
+  constructor(parameters: ListSelectionParameters<E>) {
+    this.parameters = parameters;
+  }
+
+  /** A click, tap, or Enter/Space on an item. */
+  press(index: number, modifiers: PressModifiers, event: E) {
+    const { shiftKey = false, ctrlKey = false, touch = false } = modifiers;
+    const multiple = this.parameters.getMultiple();
+    const replaceOnPress = multiple === 'opt-in' && !touch;
+    const anchorIndex = this.pressAnchor;
+
+    let action: SelectionAction;
+    if (shiftKey && multiple) {
+      if (replaceOnPress && ctrlKey) {
+        // Ctrl/Cmd+Shift adds the range to the existing selection.
+        action =
+          anchorIndex === null
+            ? { type: 'toggle', index }
+            : { type: 'selectRange', from: anchorIndex, to: index };
+      } else {
+        action = { type: 'extendTo', index, anchorIndex };
+      }
+    } else if (multiple && (!replaceOnPress || ctrlKey)) {
+      // `multiple` toggles on every press; opt-in mode toggles with Ctrl/Cmd.
+      action = { type: 'toggle', index };
+    } else {
+      action = { type: 'select', index };
+    }
+
+    this.dispatch(action, 'press', event);
+
+    // Extending a range keeps its anchor, so the next Shift+press extends from the same item.
+    if (action.type !== 'extendTo') {
+      this.pressAnchor = index;
+    }
+  }
+
+  /** Moves the selection to an item, as focus moves to it in opt-in mode. */
+  moveTo(index: number, event: E) {
+    this.dispatch({ type: 'moveSelection', index }, 'keyboard', event);
+    this.pressAnchor = index;
+  }
+
+  /**
+   * Selects the range from an anchor to an item, replacing the rest of the selection, so the
+   * range grows and shrinks as the item changes.
+   */
+  extendTo(index: number, anchorIndex: number | null, event: E) {
+    this.dispatch({ type: 'extendTo', index, anchorIndex }, 'keyboard', event);
+  }
+
+  /** Adds a range to the selection. `anchorIndex` is where the next Shift+press extends from. */
+  selectRange(from: number, to: number, anchorIndex: number, event: E) {
+    this.dispatch({ type: 'selectRange', from, to }, 'keyboard', event);
+    this.pressAnchor = anchorIndex;
+  }
+
+  selectAll(event: E) {
+    this.dispatch({ type: 'selectAll' }, 'keyboard', event);
+  }
+
+  clear(event: E) {
+    this.dispatch({ type: 'clear' }, 'escape', event);
+  }
+
+  private dispatch(action: SelectionAction, source: SelectionSource, event: E) {
+    const { getValue, getItems, commit } = this.parameters;
+    commit(selectionReducer(action, getValue(), getItems()), source, event);
+  }
+}
+
+/**
+ * Computes the next selected values from an action. It has no side effects.
+ */
+function selectionReducer(
   action: SelectionAction,
   currentValue: any[],
   items: SelectionItems,

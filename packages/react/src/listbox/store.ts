@@ -3,7 +3,10 @@ import { ReactStore, createSelector } from '@base-ui/utils/store';
 import type { ListboxRoot } from './root/ListboxRoot';
 import { isItemValue } from './items/createItems';
 import type { ListboxItems } from './items/createItems';
-import type { SelectionItems } from './utils/selectionReducer';
+import { REASONS } from '../internals/reasons';
+import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { ListSelection } from './utils/listSelection';
+import type { SelectionItems } from './utils/listSelection';
 
 export type State = {
   id: string | undefined;
@@ -46,7 +49,6 @@ export type Context = {
   /** The rendered items' disabled states. Not used with `items`, where the data decides. */
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
   typingRef: React.RefObject<boolean>;
-  lastSelectedIndexRef: React.RefObject<number | null>;
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
   /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
   highlightEvent: Event | undefined;
@@ -63,6 +65,12 @@ export type Context = {
 export function getHighlightedIndex(state: State) {
   return state.hoveredIndex ?? (state.itemFocused ? state.activeIndex : null);
 }
+
+const SELECTION_REASONS = {
+  press: REASONS.itemPress,
+  keyboard: REASONS.listNavigation,
+  escape: REASONS.escapeKey,
+} as const;
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
@@ -104,6 +112,16 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
       selectors,
     );
   }
+
+  /** The selection gestures. They commit the next selected values through `setValue`. */
+  selection = new ListSelection<MouseEvent | KeyboardEvent>({
+    getValue: () => this.state.value,
+    getItems: () => this.getSelectionItems(),
+    getMultiple: () => this.state.multiple,
+    commit: (nextValue, source, event) => {
+      this.context.setValue(nextValue, createChangeEventDetails(SELECTION_REASONS[source], event));
+    },
+  });
 
   /**
    * Moves the tab stop without changing whether an item has focus, and records the event that
@@ -252,7 +270,6 @@ function createInitialContext(): Context {
     labelsRef: { current: [] },
     disabledItemsRef: { current: [] },
     typingRef: { current: false },
-    lastSelectedIndexRef: { current: null },
     setValue: () => {},
     highlightEvent: undefined,
     pendingFocusIndexRef: { current: null },
