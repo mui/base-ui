@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { reset as resetLoggedMessages } from '@base-ui/utils/warn';
 import { createRenderer } from '#test-utils';
 
 describe('<Listbox.Root />', () => {
@@ -2157,26 +2158,113 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'Item 50' })).toHaveFocus();
     });
 
-    it('enables a rendered item with `disabled={false}` that `getDisabled` reports as disabled', async () => {
+    describe('item props', () => {
       const names = ['Item 0', 'Item 1', 'Item 2'];
-      const items = Listbox.createItems(names, {
-        getValue: (name) => name,
-        getLabel: (name) => name,
-        getDisabled: () => true,
-      });
-      await render(
-        <Listbox.Root items={items}>
-          <Listbox.List>
-            <Listbox.Item value="Item 0">Item 0</Listbox.Item>
-            <Listbox.Item value="Item 1" disabled={false}>
-              Item 1
-            </Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
 
-      expect(screen.getByRole('option', { name: 'Item 0' })).toHaveAttribute('data-disabled');
-      expect(screen.getByRole('option', { name: 'Item 1' })).not.toHaveAttribute('data-disabled');
+      beforeEach(() => {
+        resetLoggedMessages();
+      });
+
+      it('takes the disabled state from `getDisabled`, ignoring the `disabled` prop', async () => {
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const items = Listbox.createItems(names, {
+          getValue: (name) => name,
+          getLabel: (name) => name,
+          getDisabled: (name) => name === 'Item 0',
+        });
+
+        try {
+          await render(
+            <Listbox.Root items={items}>
+              <Listbox.List>
+                <Listbox.Item value="Item 0" disabled={false}>
+                  Item 0
+                </Listbox.Item>
+                <Listbox.Item value="Item 1" disabled>
+                  Item 1
+                </Listbox.Item>
+              </Listbox.List>
+            </Listbox.Root>,
+          );
+
+          expect(screen.getByRole('option', { name: 'Item 0' })).toHaveAttribute('data-disabled');
+          expect(screen.getByRole('option', { name: 'Item 1' })).not.toHaveAttribute(
+            'data-disabled',
+          );
+          expect(consoleWarnSpy).toHaveBeenCalledWith(
+            expect.stringContaining('ignores the `disabled` and `label` props'),
+          );
+        } finally {
+          consoleWarnSpy.mockRestore();
+        }
+      });
+
+      it('takes the typeahead label from `getLabel`, ignoring the `label` prop', async () => {
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        try {
+          await render(
+            <Listbox.Root items={names}>
+              <Listbox.List>
+                <Listbox.Item value="Item 0">Item 0</Listbox.Item>
+                <Listbox.Item value="Item 1" label="Other">
+                  Item 1
+                </Listbox.Item>
+              </Listbox.List>
+            </Listbox.Root>,
+          );
+
+          await act(async () => screen.getByRole('option', { name: 'Item 0' }).focus());
+          fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'o' });
+          await flushMicrotasks();
+
+          expect(screen.getByRole('option', { name: 'Item 0' })).toHaveFocus();
+          expect(consoleWarnSpy).toHaveBeenCalledWith(
+            expect.stringContaining('ignores the `disabled` and `label` props'),
+          );
+        } finally {
+          consoleWarnSpy.mockRestore();
+        }
+      });
+
+      it('does not warn when the items have neither prop', async () => {
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        try {
+          await render(
+            <Listbox.Root items={names}>
+              <Listbox.List>
+                <Listbox.Item value="Item 0">Item 0</Listbox.Item>
+              </Listbox.List>
+            </Listbox.Root>,
+          );
+
+          expect(consoleWarnSpy).not.toHaveBeenCalled();
+        } finally {
+          consoleWarnSpy.mockRestore();
+        }
+      });
+
+      it('logs an error for a rendered item whose value is not in `items`', async () => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        try {
+          await render(
+            <Listbox.Root items={names}>
+              <Listbox.List>
+                <Listbox.Item value="Item 0">Item 0</Listbox.Item>
+                <Listbox.Item value="Unknown">Unknown</Listbox.Item>
+              </Listbox.List>
+            </Listbox.Root>,
+          );
+
+          expect(consoleErrorSpy).toHaveBeenCalledWith(
+            expect.stringContaining('has the value Unknown, which is not in the `items`'),
+          );
+        } finally {
+          consoleErrorSpy.mockRestore();
+        }
+      });
     });
 
     it('moves focus to a selected item that is not rendered when tabbing in', async () => {

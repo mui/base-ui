@@ -43,6 +43,7 @@ export type Context = {
    */
   itemValuesAreItems: boolean | undefined;
   labelsRef: React.RefObject<Array<string | null>>;
+  /** The rendered items' disabled states. Not used with `items`, where the data decides. */
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
   typingRef: React.RefObject<boolean>;
   lastSelectedIndexRef: React.RefObject<number | null>;
@@ -138,8 +139,10 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
       getValue: (index) => this.getValueAt(index),
       indexOfValue: (value) => this.indexOfValue(value),
       isSameValue: this.isSameValue,
+      // With `items`, the data decides, so the answer is the same whether or not an item is
+      // rendered.
       isDisabled: (index) =>
-        disabledItems[index] ?? (items ? disabled || items.getDisabled(index) : false),
+        items ? disabled || items.getDisabled(index) : (disabledItems[index] ?? false),
 
       keepsDisabled: multiple !== false,
     };
@@ -155,6 +158,18 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
       return this.context.valuesRef.current[index];
     }
     return this.context.itemValuesAreItems ? items.at(index) : items.keyAt(index);
+  }
+
+  /** How many items the list has, including those that aren't rendered. */
+  getCount(): number {
+    const { items } = this.state;
+    return items ? items.size : this.context.labelsRef.current.length;
+  }
+
+  /** The label of the item at a position, used by typeahead. */
+  getLabelAt(index: number): string | null {
+    const { items } = this.state;
+    return items ? items.getLabel(index) : (this.context.labelsRef.current[index] ?? null);
   }
 
   /** Whether two values belong to the same item. With `items`, they're compared by key. */

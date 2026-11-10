@@ -4,6 +4,8 @@ import { platform } from '@base-ui/utils/platform';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { error } from '@base-ui/utils/error';
+import { warn } from '@base-ui/utils/warn';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import type {
   BaseUIComponentProps,
@@ -89,8 +91,26 @@ export const ListboxItem = React.memo(
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
-    // The `disabled` prop controls it when it's set. Otherwise, with `items`, `getDisabled` does.
-    const disabled = disabledProp ?? (items != null && hasRegistered && items.getDisabled(index));
+    // With `items`, the data decides whether an item is disabled, so the answer doesn't depend on
+    // whether the item is rendered.
+    const disabled = items ? hasRegistered && items.getDisabled(index) : (disabledProp ?? false);
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (items && (disabledProp !== undefined || label !== undefined)) {
+        warn(
+          '<Listbox.Item> ignores the `disabled` and `label` props when <Listbox.Root> has `items`, ' +
+            "because the list must know every item's state and label, including those that aren't " +
+            'rendered. Use the `getDisabled` and `getLabel` options of `Listbox.createItems()` instead.',
+        );
+      }
+      if (items && indexFromItems === -1) {
+        error(
+          `A <Listbox.Item> has the value ${String(itemValue)}, which is not in the \`items\` passed to ` +
+            "<Listbox.Root>, so it can't be highlighted or selected. Render only items that " +
+            'are in `items`.',
+        );
+      }
+    }
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useValueAsRef(index);
@@ -109,7 +129,7 @@ export const ListboxItem = React.memo(
     }, [hasRegistered, itemValue, store]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
+      if (!hasRegistered || items) {
         return undefined;
       }
 
@@ -119,7 +139,7 @@ export const ListboxItem = React.memo(
       return () => {
         delete disabledItems[index];
       };
-    }, [disabled, disabledItemsRef, hasRegistered, index, rootDisabled]);
+    }, [disabled, disabledItemsRef, hasRegistered, index, items, rootDisabled]);
 
     // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
     // and takes its place in the tab order while it isn't.
@@ -356,7 +376,9 @@ export interface ListboxItemProps
   value?: any;
   /**
    * Whether the component should ignore user interaction.
-   * When it's not set and the root has `items`, `getDisabled` decides.
+   *
+   * Ignored when the root has `items`. Use the `getDisabled` option of `Listbox.createItems()`
+   * instead.
    * @default false
    */
   disabled?: boolean | undefined;
@@ -364,6 +386,9 @@ export interface ListboxItemProps
    * Specifies the text label to use when the item is matched during keyboard text navigation.
    *
    * Defaults to the item text content if not provided.
+   *
+   * Ignored when the root has `items`. Use the `getLabel` option of `Listbox.createItems()`
+   * instead.
    */
   label?: string | undefined;
 }

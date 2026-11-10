@@ -212,10 +212,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // Typeahead, like Select and Menu: keys typed in quick succession build one search, which resets
   // after a pause, and typing the same letter again cycles through the items that start with it.
   const typeahead = useTypeahead({
-    // With `items`, labels come from the collection, including those of items that aren't
-    // rendered.
-    getLabel: (index) => (items ? items.getLabel(index) : (labelsRef.current[index] ?? null)),
-    getCount: () => (items ? items.size : labelsRef.current.length),
+    getLabel: (index) => store.getLabelAt(index),
+    getCount: () => store.getCount(),
     elementsRef: composite.elementsRef,
     activeIndex,
     enabled: !disabled,

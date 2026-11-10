@@ -92,6 +92,8 @@ function UserList({ users }) {
 }
 ```
 
+When `items` is set, disabled items and the labels used for keyboard text navigation come from the `getDisabled` and `getLabel` options. The `disabled` and `label` props of `Listbox.Item` are ignored.
+
 ### Virtualized
 
 Render large lists with a virtualization library such as `@tanstack/react-virtual`.
