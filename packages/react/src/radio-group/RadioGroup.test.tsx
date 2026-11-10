@@ -2437,6 +2437,30 @@ describe('<RadioGroup />', () => {
   });
 
   describe('form reset', () => {
+    it('submits the restored state right after form.reset()', async () => {
+      await render(
+        <form data-testid="form">
+          <RadioGroup name="size" defaultValue="s">
+            <Radio.Root value="s" data-testid="s" />
+            <Radio.Root value="m" data-testid="m" />
+          </RadioGroup>
+        </form>,
+      );
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      fireEvent.click(screen.getByTestId('m'));
+      expect(new FormData(form).get('size')).toBe('m');
+
+      let submitted: FormDataEntryValue | null = 'not read';
+      await act(async () => {
+        form.reset();
+        submitted = new FormData(form).get('size');
+      });
+
+      expect(submitted).toBe('s');
+      expect(screen.getByTestId('s')).toHaveAttribute('aria-checked', 'true');
+    });
+
     it('restores the initial value, reports form-reset and clears field state', async () => {
       const onValueChange = vi.fn();
       await render(
@@ -2470,10 +2494,11 @@ describe('<RadioGroup />', () => {
       expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
     });
 
-    it('unchecks every radio when there is no initial value', async () => {
+    it('unchecks every radio without calling onValueChange when there is no initial value', async () => {
+      const onValueChange = vi.fn();
       await render(
         <form data-testid="form">
-          <RadioGroup name="r">
+          <RadioGroup name="r" onValueChange={onValueChange}>
             <Radio.Root value="a" />
             <Radio.Root value="b" data-testid="b" />
           </RadioGroup>
@@ -2482,12 +2507,14 @@ describe('<RadioGroup />', () => {
 
       fireEvent.click(screen.getByTestId('b'));
       expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
 
       await resetForm();
 
       expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
       const inputs = document.querySelectorAll<HTMLInputElement>('input[name="r"]');
       expect(Array.from(inputs).some((input) => input.checked)).toBe(false);
+      expect(onValueChange).toHaveBeenCalledTimes(1);
     });
 
     it.skipIf(isJSDOM)(

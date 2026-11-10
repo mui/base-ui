@@ -19,6 +19,7 @@ import { useFormContext } from '../internals/form-context/FormContext';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
 import { useValueChanged } from '../internals/useValueChanged';
 import { useFormReset } from '../internals/useFormReset';
+import { serializeValue } from '../internals/serializeValue';
 import { RadioGroupContext } from './RadioGroupContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { REASONS } from '../internals/reasons';
@@ -185,9 +186,21 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
   const [initialValue] = React.useState(checkedValue);
 
-  const resetRef = useFormReset((eventDetails) => {
+  const resetRef = useFormReset((eventDetails, inputs) => {
     if (checkedValue !== initialValue) {
-      setCheckedValue(initialValue as Value, eventDetails);
+      if (initialValue === undefined) {
+        // `onValueChange` has no way to report "no value", so an empty initial state is restored
+        // without it.
+        setCheckedValueUnwrapped(undefined);
+      } else {
+        setCheckedValue(initialValue, eventDetails);
+      }
+    }
+    if (externalValue === undefined && !eventDetails.isCanceled) {
+      for (const input of inputs) {
+        // Lets reads right after `form.reset()` see the restored state before React commits.
+        input.defaultChecked = initialValue != null && input.value === serializeValue(initialValue);
+      }
     }
   });
 

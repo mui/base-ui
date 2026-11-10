@@ -1539,8 +1539,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const [initialInputValue] = React.useState(inputValue);
 
   const resetRef = useFormReset((eventDetails) => {
-    // An input outside the popup shows the label of a single selection.
-    const showsLabel = single && !inputInsidePopup;
+    // Without its own input value, an input outside the popup shows the label of a single selection.
+    const showsLabel = single && !inputInsidePopup && !hasInputValue;
     if (
       selectionMode !== 'none' &&
       isSelectedValueDirty(selectedValue, initialSelectedValue, isItemEqualToValue)
@@ -1552,8 +1552,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       }
     }
     // Labels can resolve after mount, so read the current one instead of the initial input value.
-    const nextInputValue =
-      showsLabel && !hasInputValue ? selectedLabelString : String(initialInputValue);
+    const nextInputValue = showsLabel ? selectedLabelString : String(initialInputValue);
     if (inputValue !== nextInputValue) {
       setInputValue(
         nextInputValue,

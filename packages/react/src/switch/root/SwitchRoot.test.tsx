@@ -1364,6 +1364,27 @@ describe('<Switch.Root />', () => {
   });
 
   describe('form reset', () => {
+    it('submits the restored state right after form.reset()', async () => {
+      await render(
+        <form data-testid="form">
+          <Switch.Root name="notifications" />
+        </form>,
+      );
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      fireEvent.click(screen.getByRole('switch'));
+      expect(new FormData(form).get('notifications')).toBe('on');
+
+      let submitted: FormDataEntryValue | null = 'not read';
+      await act(async () => {
+        form.reset();
+        submitted = new FormData(form).get('notifications');
+      });
+
+      expect(submitted).toBe(null);
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('restores the initial state, reports form-reset and clears field state', async () => {
       const onCheckedChange = vi.fn();
       await render(

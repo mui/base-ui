@@ -128,12 +128,31 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   }, [value, setFilled]);
 
   const [initialValue] = React.useState(value);
+  // A checkbox input only carries its `value` while checked.
+  const [memberValues] = React.useState(() => new WeakMap<HTMLInputElement, string>());
 
-  const resetRef = useFormReset((eventDetails) => {
-    if (!areArraysEqual(value, initialValue)) {
-      setValue(initialValue, eventDetails);
-      if (!eventDetails.isCanceled) {
-        parent.setCycleValue(initialValue);
+  const resetRef = useFormReset((eventDetails, inputs) => {
+    const form = eventDetails.event.target;
+    // Checkboxes associated with another form keep their state.
+    const kept = inputs
+      .filter((input) => input.form !== form)
+      .map((input) => memberValues.get(input));
+    const nextValue = kept.length
+      ? initialValue
+          .filter((item) => !kept.includes(item))
+          .concat(value.filter((item) => kept.includes(item)))
+      : initialValue;
+    if (!areArraysEqual(value, nextValue)) {
+      setValue(nextValue, eventDetails);
+    }
+    if (eventDetails.isCanceled) {
+      return;
+    }
+    parent.setCycleValue(nextValue);
+    if (externalValue === undefined) {
+      for (const input of inputs) {
+        // Lets reads right after `form.reset()` see the restored state before React commits.
+        input.defaultChecked = nextValue.includes(memberValues.get(input)!);
       }
     }
   });
@@ -167,8 +186,19 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       validation,
       registerControlId,
       resetRef,
+      memberValues,
     }),
-    [allValues, value, setValue, parent, disabled, validation, registerControlId, resetRef],
+    [
+      allValues,
+      value,
+      setValue,
+      parent,
+      disabled,
+      validation,
+      registerControlId,
+      resetRef,
+      memberValues,
+    ],
   );
 
   const element = useRenderElement('div', componentProps, {

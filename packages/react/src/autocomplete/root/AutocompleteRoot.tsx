@@ -90,11 +90,14 @@ export function AutocompleteRoot<ItemValue>(
     staticItems || other.filter === null ? null : (other.filter ?? collator.contains);
 
   function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
+    onValueChange?.(nextValue, eventDetails);
+    if (eventDetails.isCanceled) {
+      return;
+    }
     setInlineInputValue('');
     if (!isControlled) {
       setInternalValue(nextValue);
     }
-    onValueChange?.(nextValue, eventDetails);
   }
 
   function handleItemHighlighted(

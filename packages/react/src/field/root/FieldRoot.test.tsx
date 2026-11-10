@@ -3095,6 +3095,25 @@ describe('<Field.Root />', () => {
   });
 
   describe('form reset', () => {
+    it('does not validate the restored value', async () => {
+      const validate = vi.fn(() => null);
+      await render(
+        <form data-testid="form">
+          <Field.Root validationMode="onChange" validate={validate}>
+            <Checkbox.Root />
+          </Field.Root>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByRole('checkbox'));
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      await resetForm();
+
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'false');
+      expect(validate).toHaveBeenCalledTimes(1);
+    });
+
     it('clears the custom validity message it installed', async () => {
       await render(
         <form data-testid="form">

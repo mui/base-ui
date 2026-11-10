@@ -3946,6 +3946,30 @@ describe('<Slider.Root />', () => {
   });
 
   describe('form reset', () => {
+    it('does not commit a press that a reset replaced', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Slider.Root defaultValue={0} onValueCommitted={onValueCommitted}>
+            <Slider.Control data-testid="control">
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </form>,
+      );
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+      fireEvent.pointerDown(control, { buttons: 1, clientX: 30 });
+      expect(screen.getByRole('slider')).toHaveAttribute('aria-valuenow', '30');
+
+      await resetForm();
+      expect(screen.getByRole('slider')).toHaveAttribute('aria-valuenow', '0');
+      fireEvent.pointerUp(control, { buttons: 1, clientX: 30 });
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
     it('restores the default value with no active thumb and clears field state', async () => {
       const onValueChange = vi.fn();
       await render(

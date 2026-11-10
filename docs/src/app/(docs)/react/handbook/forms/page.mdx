@@ -233,9 +233,9 @@ import { Form } from '@base-ui/react/form';
 
 ## Resetting forms
 
-A reset button (`<button type="reset">`) or a call to `form.reset()` restores every control in the form to its initial value and returns its field to a pristine state, clearing its dirty, touched, and validity state. Each control reports the change through its change callback with the `'form-reset'` reason. Calling `event.preventDefault()` in the form's `onReset` handler cancels the whole reset. Don't call `event.stopPropagation()` there: controls listen for the reset on the document, so they would keep their values while the browser still resets their native inputs.
+A reset button (`<button type="reset">`) or a call to `form.reset()` restores every control in the form to its initial value and returns its field to a pristine state, clearing its dirty, touched, and validity state. Each control reports the change through its change callback with the `'form-reset'` reason, except a radio group with no initial value, which clears its selection without calling `onValueChange`. Calling `event.preventDefault()` in an `onReset` handler on the form or one of its React ancestors cancels the whole reset. Controls listen for the reset on the document, so don't call `event.stopPropagation()` in those handlers, and don't cancel the reset from a native listener on `window`: in both cases the controls and the browser's native inputs would end up out of sync.
 
-Controlled components reset to the value they had when they first rendered. To reset to a different value, remount the form with a new `key`. To keep a control's current value, cancel its change:
+A controlled component's change callback receives the value it had when it first rendered, and the component shows that value once you apply it. To reset to a different value, remount the form with a new `key`. To keep a control's current value, cancel its change, which also keeps its field's dirty, touched, and validity state:
 
 ```tsx title="Keeping a value on reset"
 <Select.Root

@@ -14510,6 +14510,38 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('form reset', () => {
+    it('restores an explicit initial input value along with the selection', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>('a');
+        return (
+          <form data-testid="form">
+            <Combobox.Root
+              items={['a', 'b']}
+              value={value}
+              onValueChange={setValue}
+              defaultInputValue="search"
+            >
+              <Combobox.Input data-testid="input" />
+            </Combobox.Root>
+            <button type="button" onClick={() => setValue('b')}>
+              Change
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByTestId('input');
+      expect(input).toHaveValue('search');
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+      fireEvent.change(input, { target: { value: 'typed' } });
+      expect(input).toHaveValue('typed');
+
+      await resetForm();
+
+      expect(input).toHaveValue('search');
+    });
+
     it('restores a controlled selection and its label', async () => {
       const onValueChange = vi.fn();
 

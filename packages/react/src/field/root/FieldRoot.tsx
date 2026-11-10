@@ -127,6 +127,8 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     [disabled, touched, dirty, valid, filled, focused],
   );
 
+  const resettingRef = React.useRef(false);
+
   const validation = useFieldValidation({
     setValidityData,
     validate,
@@ -138,6 +140,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     shouldValidateOnChange,
     validationMode,
     registeredFieldIdRef,
+    resettingRef,
   });
 
   const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
@@ -152,11 +155,16 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     validityData,
   });
 
-  const [resetCount, reset] = React.useReducer((count: number) => count + 1, 0);
+  const [resetCount, bumpResetCount] = React.useReducer((count: number) => count + 1, 0);
+  const reset = useStableCallback(() => {
+    resettingRef.current = true;
+    bumpResetCount();
+  });
 
-  // Parent layout effects run after the control's, so this also discards the validation the
-  // control starts when its value is restored.
+  // Parent layout effects run after the control's, so the control restoring its value doesn't
+  // start validation in between.
   useValueChanged(resetCount, () => {
+    resettingRef.current = false;
     validation.change(undefined, true);
     if (dirtyProp === undefined) {
       markedDirtyRef.current = false;

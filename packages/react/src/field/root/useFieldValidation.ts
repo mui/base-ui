@@ -89,6 +89,7 @@ export function useFieldValidation(
     shouldValidateOnChange,
     validationMode,
     registeredFieldIdRef,
+    resettingRef,
   } = params;
 
   const { controlId, getDescriptionProps } = useLabelableContext();
@@ -349,7 +350,7 @@ export function useFieldValidation(
   const change = useStableCallback((value: unknown, cancelPending = false) => {
     timeout.clear();
     validationCommitIdRef.current += 1;
-    if (cancelPending) {
+    if (cancelPending || resettingRef.current) {
       clearCustomValidity();
       return;
     }
@@ -404,6 +405,10 @@ export interface UseFieldValidationParameters {
   shouldValidateOnChange: () => boolean;
   validationMode: Form.ValidationMode;
   registeredFieldIdRef: React.RefObject<string | undefined>;
+  /**
+   * Whether a form reset is restoring the field, which skips validating the restored value.
+   */
+  resettingRef: React.RefObject<boolean>;
 }
 
 export interface UseFieldValidationReturnValue {

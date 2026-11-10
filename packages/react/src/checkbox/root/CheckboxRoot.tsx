@@ -158,10 +158,16 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const inputRef = React.useRef<HTMLInputElement>(null);
   const registerFieldInput = validation.registerInput;
   const registeredInputValue = groupContext ? value : undefined;
+  const memberValues = groupContext?.memberValues;
   const registerInput = React.useCallback(
-    (element: HTMLInputElement) =>
-      registerFieldInput(element, { controlRef, value: registeredInputValue }),
-    [registerFieldInput, registeredInputValue],
+    (element: HTMLInputElement) => {
+      // Called with `null` on detach when there's no field cleanup to return.
+      if (element && registeredInputValue !== undefined) {
+        memberValues?.set(element, registeredInputValue);
+      }
+      return registerFieldInput(element, { controlRef, value: registeredInputValue });
+    },
+    [registerFieldInput, registeredInputValue, memberValues],
   );
   function setChecked(nextChecked: boolean, details: CheckboxRoot.ChangeEventDetails) {
     onCheckedChange?.(nextChecked, details);
@@ -188,9 +194,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   }
 
   const [initialChecked] = React.useState(checked);
-  const resetRef = useFormReset((eventDetails) => {
+  const resetRef = useFormReset((eventDetails, [input]) => {
     if (checked !== initialChecked) {
       setChecked(initialChecked, eventDetails);
+    }
+    // Lets reads right after `form.reset()` see the restored state before React commits.
+    if (groupChecked === undefined && !eventDetails.isCanceled) {
+      input.defaultChecked = initialChecked;
     }
   });
   const mergedInputRef = useMergedRefs(

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { createGenericEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIGenericEventDetails } from '../internals/createBaseUIEventDetails';
@@ -101,8 +102,20 @@ export const Form = React.forwardRef(function Form<
     [],
   );
 
+  // A reset form is pristine again, so fields stop revalidating on change until the next submit.
+  // Like the controls, this listens on the root so every React `onReset` can cancel the reset first.
+  const resetRef = React.useCallback(
+    (form: HTMLFormElement) =>
+      addEventListener(form.getRootNode(), 'reset', (event) => {
+        if (event.target === form && !event.defaultPrevented) {
+          submitCountRef.current = 0;
+        }
+      }),
+    [],
+  );
+
   const element = useRenderElement('form', componentProps, {
-    ref: [forwardedRef, elementRef],
+    ref: [forwardedRef, elementRef, resetRef],
     props: [
       {
         noValidate: true,
@@ -133,12 +146,6 @@ export const Form = React.forwardRef(function Form<
             });
 
             onFormSubmit(formValues, createGenericEventDetails(REASONS.none, event.nativeEvent));
-          }
-        },
-        onReset(event) {
-          // A reset form is pristine again, so fields stop revalidating on change until the next submit.
-          if (!event.defaultPrevented) {
-            submitCountRef.current = 0;
           }
         },
       },

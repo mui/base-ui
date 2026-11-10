@@ -79,9 +79,15 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [initialValue] = React.useState(serializedValue);
 
-  const resetRef = useFormReset((eventDetails, input) => {
+  const resetRef = useFormReset((eventDetails, [input]) => {
     // React keeps a controlled input's `value` attribute in sync, so the browser won't restore it.
-    const nextValue = isControlled ? (initialValue ?? '') : input.defaultValue;
+    let nextValue = initialValue ?? '';
+    if (!isControlled) {
+      // A copy reads the sanitized value the browser restores, such as a range's midpoint.
+      const restored = input.cloneNode() as HTMLInputElement;
+      restored.value = input.defaultValue;
+      nextValue = restored.value;
+    }
     if (nextValue !== input.value) {
       onValueChange?.(
         nextValue,

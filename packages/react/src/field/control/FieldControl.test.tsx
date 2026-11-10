@@ -717,6 +717,27 @@ describe('<Field.Control />', () => {
     });
   });
   describe('form reset', () => {
+    it('reports the sanitized value the browser restores', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <Field.Control type="range" min={0} max={100} onValueChange={onValueChange} />
+          </Field.Root>
+        </form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('slider');
+      fireEvent.change(input, { target: { value: '80' } });
+      expect(input.value).toBe('80');
+
+      await resetForm();
+
+      expect(input.value).toBe('50');
+      expect(onValueChange.mock.lastCall?.[0]).toBe('50');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-filled');
+    });
+
     it('restores the default value and clears field state', async () => {
       const { user } = await render(
         <form>

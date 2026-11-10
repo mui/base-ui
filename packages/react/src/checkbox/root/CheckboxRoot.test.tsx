@@ -1,6 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
@@ -1956,6 +1956,27 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
   });
   describe('form reset', () => {
+    it('submits the restored state right after form.reset()', async () => {
+      await render(
+        <form data-testid="form">
+          <Checkbox.Root name="terms" />
+        </form>,
+      );
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      fireEvent.click(screen.getByRole('checkbox'));
+      expect(new FormData(form).get('terms')).toBe('on');
+
+      let submitted: FormDataEntryValue | null = 'not read';
+      await act(async () => {
+        form.reset();
+        submitted = new FormData(form).get('terms');
+      });
+
+      expect(submitted).toBe(null);
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('restores defaultChecked and clears field state', async () => {
       const onCheckedChange = vi.fn();
       await render(
@@ -2006,35 +2027,39 @@ describe('<Checkbox.Root />', () => {
       expect(input.checked).toBe(true);
     });
 
-    it('follows the reset React runs after a form action succeeds', async () => {
-      const onCheckedChange = vi.fn();
-      await render(
-        <form data-testid="form" action={async () => {}}>
-          <Field.Root data-testid="field">
-            <Checkbox.Root name="terms" onCheckedChange={onCheckedChange} />
-          </Field.Root>
-        </form>,
-      );
+    // React 18 ignores function actions and submits the form natively.
+    it.skipIf(reactMajor < 19)(
+      'follows the reset React runs after a form action succeeds',
+      async () => {
+        const onCheckedChange = vi.fn();
+        await render(
+          <form data-testid="form" action={async () => {}}>
+            <Field.Root data-testid="field">
+              <Checkbox.Root name="terms" onCheckedChange={onCheckedChange} />
+            </Field.Root>
+          </form>,
+        );
 
-      const checkbox = screen.getByRole('checkbox');
-      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
-      const field = screen.getByTestId('field');
+        const checkbox = screen.getByRole('checkbox');
+        const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        const field = screen.getByTestId('field');
 
-      fireEvent.click(checkbox);
-      expect(checkbox).toHaveAttribute('aria-checked', 'true');
-      expect(field).toHaveAttribute('data-dirty');
+        fireEvent.click(checkbox);
+        expect(checkbox).toHaveAttribute('aria-checked', 'true');
+        expect(field).toHaveAttribute('data-dirty');
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').requestSubmit();
-      });
+        await act(async () => {
+          screen.getByTestId<HTMLFormElement>('form').requestSubmit();
+        });
 
-      await waitFor(() => {
-        expect(checkbox).toHaveAttribute('aria-checked', 'false');
-      });
-      expect(onCheckedChange.mock.calls[1][1].reason).toBe('form-reset');
-      expect(input.checked).toBe(false);
-      expect(field).not.toHaveAttribute('data-dirty');
-    });
+        await waitFor(() => {
+          expect(checkbox).toHaveAttribute('aria-checked', 'false');
+        });
+        expect(onCheckedChange.mock.calls[1][1].reason).toBe('form-reset');
+        expect(input.checked).toBe(false);
+        expect(field).not.toHaveAttribute('data-dirty');
+      },
+    );
 
     it('keeps the input in sync when a controlled checkbox ignores the reset', async () => {
       function App() {

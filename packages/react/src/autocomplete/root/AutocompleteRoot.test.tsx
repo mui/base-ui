@@ -3334,6 +3334,32 @@ describe('<Autocomplete.Root />', () => {
   });
 
   describe('form reset', () => {
+    it('keeps the value when the reset change is canceled', async () => {
+      await render(
+        <form data-testid="form">
+          <Autocomplete.Root
+            items={['apple', 'pear']}
+            defaultValue="apple"
+            onValueChange={(_, eventDetails) => {
+              if (eventDetails.reason === 'form-reset') {
+                eventDetails.cancel();
+              }
+            }}
+          >
+            <Autocomplete.Input data-testid="input" />
+          </Autocomplete.Root>
+        </form>,
+      );
+
+      const input = screen.getByTestId('input');
+      fireEvent.change(input, { target: { value: 'pear' } });
+      expect(input).toHaveValue('pear');
+
+      await resetForm();
+
+      expect(input).toHaveValue('pear');
+    });
+
     it('restores the default value and reports form-reset', async () => {
       const onValueChange = vi.fn();
       await render(

@@ -110,9 +110,13 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const [initialChecked] = React.useState(checked);
 
-  const resetRef = useFormReset((eventDetails) => {
+  const resetRef = useFormReset((eventDetails, [input]) => {
     if (checked !== initialChecked) {
       setChecked(initialChecked, eventDetails);
+    }
+    // Lets reads right after `form.reset()` see the restored state before React commits.
+    if (checkedProp === undefined && !eventDetails.isCanceled) {
+      input.defaultChecked = initialChecked;
     }
   });
 
