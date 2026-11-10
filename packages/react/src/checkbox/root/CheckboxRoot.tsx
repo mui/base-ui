@@ -158,16 +158,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const inputRef = React.useRef<HTMLInputElement>(null);
   const registerFieldInput = validation.registerInput;
   const registeredInputValue = groupContext ? value : undefined;
-  const memberValues = groupContext?.memberValues;
   const registerInput = React.useCallback(
-    (element: HTMLInputElement) => {
-      // Called with `null` on detach when there's no field cleanup to return.
-      if (element && registeredInputValue !== undefined) {
-        memberValues?.set(element, registeredInputValue);
-      }
-      return registerFieldInput(element, { controlRef, value: registeredInputValue });
-    },
-    [registerFieldInput, registeredInputValue, memberValues],
+    (element: HTMLInputElement) =>
+      registerFieldInput(element, { controlRef, value: registeredInputValue }),
+    [registerFieldInput, registeredInputValue],
   );
   function setChecked(nextChecked: boolean, details: CheckboxRoot.ChangeEventDetails) {
     onCheckedChange?.(nextChecked, details);
@@ -289,9 +283,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     },
     // React <19 sets an empty value if `undefined` is passed explicitly
     // To avoid this, we only set the value if it's defined
-    valueProp !== undefined
-      ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
-      : EMPTY_OBJECT,
+    valueProp !== undefined ? { value: valueProp } : EMPTY_OBJECT,
     getDescriptionProps,
     (props) => validation.getValidationProps(disabled, props),
   );

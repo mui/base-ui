@@ -2228,15 +2228,15 @@ describe('<CheckboxGroup />', () => {
       const form = screen.getByTestId<HTMLFormElement>('form');
       fireEvent.click(screen.getByTestId('a'));
       fireEvent.click(screen.getByTestId('b'));
-      expect([...new FormData(form).keys()]).toEqual(['b']);
+      expect([...new FormData(form).entries()]).toEqual([['b', 'b']]);
 
-      let submitted: string[] = [];
+      let submitted: [string, FormDataEntryValue][] = [];
       await act(async () => {
         form.reset();
-        submitted = [...new FormData(form).keys()];
+        submitted = [...new FormData(form).entries()];
       });
 
-      expect(submitted).toEqual(['a']);
+      expect(submitted).toEqual([['a', 'a']]);
       expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
     });
 

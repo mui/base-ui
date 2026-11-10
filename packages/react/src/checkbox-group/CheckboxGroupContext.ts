@@ -25,10 +25,6 @@ export interface CheckboxGroupContext {
    * Restores the group's value when the form is reset. Attached to each checkbox's input.
    */
   resetRef: (input: HTMLInputElement) => () => void;
-  /**
-   * The `value` of each checkbox input in the group.
-   */
-  memberValues: WeakMap<HTMLInputElement, string>;
 }
 
 export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | undefined>(

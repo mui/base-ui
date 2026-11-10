@@ -128,15 +128,11 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   }, [value, setFilled]);
 
   const [initialValue] = React.useState(value);
-  // A checkbox input only carries its `value` while checked.
-  const [memberValues] = React.useState(() => new WeakMap<HTMLInputElement, string>());
 
   const resetRef = useFormReset((eventDetails, inputs) => {
     const form = eventDetails.event.target;
     // Checkboxes associated with another form keep their state.
-    const kept = inputs
-      .filter((input) => input.form !== form)
-      .map((input) => memberValues.get(input));
+    const kept = inputs.filter((input) => input.form !== form).map((input) => input.value);
     const nextValue = kept.length
       ? initialValue
           .filter((item) => !kept.includes(item))
@@ -152,7 +148,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     if (externalValue === undefined) {
       for (const input of inputs) {
         // Lets reads right after `form.reset()` see the restored state before React commits.
-        input.defaultChecked = nextValue.includes(memberValues.get(input)!);
+        input.defaultChecked = nextValue.includes(input.value);
       }
     }
   });
@@ -186,19 +182,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       validation,
       registerControlId,
       resetRef,
-      memberValues,
     }),
-    [
-      allValues,
-      value,
-      setValue,
-      parent,
-      disabled,
-      validation,
-      registerControlId,
-      resetRef,
-      memberValues,
-    ],
+    [allValues, value, setValue, parent, disabled, validation, registerControlId, resetRef],
   );
 
   const element = useRenderElement('div', componentProps, {
