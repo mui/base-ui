@@ -321,6 +321,46 @@ describe('<Radio.Root />', () => {
       expect(screen.getByRole('radio', { name: 'B' })).toHaveFocus();
     });
 
+    it('moves the tab stop to the checked native button radio when it becomes enabled', async () => {
+      function App(props: { disabledB: boolean }) {
+        return (
+          <div>
+            <button type="button">Before</button>
+            <RadioGroup defaultValue="b">
+              <Radio.Root value="a" disabled nativeButton render={<button type="button" />}>
+                A
+              </Radio.Root>
+              <Radio.Root
+                value="b"
+                disabled={props.disabledB}
+                nativeButton
+                render={<button type="button" />}
+              >
+                B
+              </Radio.Root>
+            </RadioGroup>
+            <button type="button">After</button>
+          </div>
+        );
+      }
+
+      const { rerender, user } = await render(<App disabledB />);
+      expect(screen.getByRole('radio', { name: 'B' })).toBeDisabled();
+
+      await rerender(<App disabledB={false} />);
+      expect(screen.getByRole('radio', { name: 'B' })).not.toBeDisabled();
+      expect(screen.getByRole('radio', { name: 'B' })).toHaveAttribute('tabindex', '0');
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'Before' }).focus();
+      });
+      expect(screen.getByRole('button', { name: 'Before' })).toHaveFocus();
+
+      await user.keyboard('{Tab}');
+
+      expect(screen.getByRole('radio', { name: 'B' })).toHaveFocus();
+    });
+
     it('keeps a single tab stop on the first radio when every radio is disabled', async () => {
       await render(
         <RadioGroup defaultValue="b">
