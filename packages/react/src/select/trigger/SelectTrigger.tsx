@@ -100,7 +100,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const setTriggerElement = store.useStateSetter('triggerElement');
 
   const timeoutFocus = useTimeout();
-  const timeoutMouseDown = useTimeout();
   const selectedDelayTimeout = useTimeout();
 
   React.useEffect(() => {
@@ -125,10 +124,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       dragY: 0,
     };
 
-    timeoutMouseDown.clear();
-
     return undefined;
-  }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
+  }, [open, store, selectedDelayTimeout]);
 
   const useFilterTriggerProps = useSelectFilterImpl()?.useTriggerProps ?? useUnfilteredTriggerProps;
   const filterTriggerProps = useFilterTriggerProps();
@@ -205,10 +202,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           store.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
         }
 
-        // Firefox can fire this upon mousedown
-        timeoutMouseDown.start(0, () => {
-          doc.addEventListener('mouseup', handleMouseUp, { once: true });
-        });
+        doc.addEventListener('mouseup', handleMouseUp, { once: true });
       },
     },
     filterTriggerProps,

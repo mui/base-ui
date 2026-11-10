@@ -102,7 +102,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(40rem, calc(100vw - 2rem));
+  width: min(40rem, calc(100% - 2rem));
   max-height: 100%;
   max-width: 100%;
   border: 1px solid oklch(14.5% 0 0deg);
