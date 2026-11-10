@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import type { BaseUIComponentProps } from '../../../internals/types';
 import { useFloatingPortalNode } from './FloatingPortal';
 
@@ -18,14 +17,15 @@ export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
 ) {
   const { children, container, className, render, style, ...elementProps } = componentProps;
 
-  const { node: portalNode, renderSubtree } = useFloatingPortalNode({
+  const { subtree } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
     elementProps,
+    children,
   });
 
-  return renderSubtree(portalNode && ReactDOM.createPortal(children, portalNode));
+  return subtree;
 });
 
 export interface FloatingPortalLiteState {}

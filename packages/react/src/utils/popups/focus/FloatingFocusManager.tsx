@@ -870,8 +870,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
 
       const referenceReturnElement = domReference?.isConnected ? domReference : null;
+      // The effect reruns while open (e.g. when the reference changes), so the element focused
+      // at that point can be inside the popup. It is removed with the popup, so skip it.
       const previousReturnElement =
-        elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
+        elementFocusedBeforeOpen?.isConnected &&
+        getNodeName(elementFocusedBeforeOpen) !== 'body' &&
+        !contains(floating, elementFocusedBeforeOpen)
           ? elementFocusedBeforeOpen
           : null;
 

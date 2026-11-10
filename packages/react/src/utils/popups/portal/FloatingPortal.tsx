@@ -58,6 +58,10 @@ export interface UseFloatingPortalNodeProps {
     HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null> | undefined;
   componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
+  /**
+   * Content portaled into the portal node once it exists.
+   */
+  children?: React.ReactNode;
 }
 
 export interface UseFloatingPortalNodeResult {
@@ -67,13 +71,19 @@ export interface UseFloatingPortalNodeResult {
    * polyfill assigns it in an effect after the node has been created.
    */
   nodeId: string | undefined;
-  renderSubtree: (inner: React.ReactNode) => React.ReactPortal | null;
+  subtree: React.ReactPortal | null;
 }
 
 export function useFloatingPortalNode(
   props: UseFloatingPortalNodeProps = {},
 ): UseFloatingPortalNodeResult {
-  const { ref, container: containerProp, componentProps = EMPTY_OBJECT, elementProps } = props;
+  const {
+    ref,
+    container: containerProp,
+    componentProps = EMPTY_OBJECT,
+    elementProps,
+    children,
+  } = props;
 
   const uniqueId = useId();
   const portalContext = usePortalContext();
@@ -170,21 +180,20 @@ export function useFloatingPortalNode(
         [attr]: '',
       },
       elementProps,
+      {
+        // The children are portaled into `portalElement` as its React child, so in the React
+        // tree they sit inside both the outer portal and the portal element. Rendering them
+        // next to the portal element instead makes React dispatch bubbling events from the
+        // popup twice to ancestors, and never to the portal element's own handlers.
+        children: portalNode ? ReactDOM.createPortal(children, portalNode) : null,
+      },
     ],
   });
 
   // This `createPortal` call injects `portalElement` into the `container`.
-  // The children portal is rendered inside it (not as a sibling) so React treats the
-  // outer portal as an ancestor and doesn't dispatch bubbling events twice.
-  const renderSubtree = (inner: React.ReactNode) =>
+  const portalSubtree =
     containerElement && portalElement
-      ? ReactDOM.createPortal(
-          <React.Fragment>
-            {portalElement}
-            {inner}
-          </React.Fragment>,
-          containerElement,
-        )
+      ? ReactDOM.createPortal(portalElement, containerElement)
       : null;
 
   return {
@@ -194,7 +203,7 @@ export function useFloatingPortalNode(
     nodeId: React.isValidElement<{ id?: string | undefined }>(portalElement)
       ? portalElement.props.id
       : undefined,
-    renderSubtree,
+    subtree: portalSubtree,
   };
 }
 
@@ -217,12 +226,13 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   const {
     node: portalNode,
     nodeId: portalNodeId,
-    renderSubtree,
+    subtree: portalSubtree,
   } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
     elementProps,
+    children,
   });
 
   const beforeOutsideRef = React.useRef<HTMLSpanElement>(null);
@@ -294,7 +304,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 
   return (
     <PortalContext.Provider value={portalContextValue}>
-      {renderSubtree(portalNode && ReactDOM.createPortal(children, portalNode))}
+      {portalSubtree}
       {shouldRenderGuards && portalNode && (
         <FocusGuard
           data-type="outside"
