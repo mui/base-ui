@@ -142,6 +142,9 @@ const demoPopover = Popover.createHandle<{ text: string }>();
               This has been opened by {payload.text} {/* @highlight-text "payload" */}
             </Popover.Description>
           )}
+          <Popover.Close aria-label="Close" className={styles.Close}>
+            <XIcon />
+          </Popover.Close>
         </Popover.Popup>
       </Popover.Positioner>
     </Popover.Portal>
