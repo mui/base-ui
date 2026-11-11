@@ -143,6 +143,8 @@ const selectors = {
     platform.engine.webkit && state.inputFocused && highlighted ? true : undefined,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
+  highlightedWhileOpen: (state: State<unknown>, highlighted: boolean) =>
+    highlighted && popupStoreSelectors.open(state),
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
   // `trigger-change` describes a popup moving between triggers, which only has
   // meaning while it is open. Dropping it once closed keeps a late or stale
