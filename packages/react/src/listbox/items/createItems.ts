@@ -72,8 +72,9 @@ export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
   const { getValue, getLabel, getDisabled } = options;
   const source = data ?? [];
 
-  // Built on first lookup rather than upfront, so a large list that's only scrolled never derives
-  // every key. It's a memo of `data`, which doesn't change, so filling it is idempotent.
+  // Built on first lookup, which a list makes as soon as it renders an item, so only a collection
+  // that's never rendered skips deriving every key. It's a memo of `data`, which doesn't change,
+  // so filling it is idempotent.
   let indexByKey: Map<Key, number> | undefined;
 
   function getIndexByKey() {
