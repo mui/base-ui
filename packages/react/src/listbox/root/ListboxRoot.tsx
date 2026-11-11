@@ -82,30 +82,17 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     return value == null ? EMPTY_ARRAY : [value];
   }, [value, multiple]);
 
-  const labelsRef = React.useRef<Array<string | null>>([]);
-  const valuesRef = React.useRef<Array<any>>([]);
-  const disabledItemsRef = React.useRef<Array<boolean | undefined>>([]);
-  const typingRef = React.useRef(false);
-
   const store = useRefWithInit(
     () =>
-      new ListboxStore(
-        {
-          id: generatedId,
-          multiple: multipleProp,
-          value: selectedValues,
-          orientation,
-          disabled,
-          highlightItemOnHover,
-          items,
-        },
-        {
-          valuesRef,
-          labelsRef,
-          disabledItemsRef,
-          typingRef,
-        },
-      ),
+      new ListboxStore({
+        id: generatedId,
+        multiple: multipleProp,
+        value: selectedValues,
+        orientation,
+        disabled,
+        highlightItemOnHover,
+        items,
+      }),
   ).current;
 
   // Parts report the next selection as an array; convert it to the public shape.

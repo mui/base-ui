@@ -93,12 +93,8 @@ export const selectors = {
 };
 
 export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof selectors> {
-  constructor(initialState?: Partial<State>, context?: Partial<Context>) {
-    super(
-      { ...createInitialState(), ...initialState },
-      { ...createInitialContext(), ...context },
-      selectors,
-    );
+  constructor(initialState?: Partial<State>) {
+    super({ ...createInitialState(), ...initialState }, createInitialContext(), selectors);
   }
 
   /** The selection gestures. They commit the next selected values through `setValue`. */
