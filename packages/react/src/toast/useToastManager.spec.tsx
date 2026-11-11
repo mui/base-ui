@@ -61,7 +61,14 @@ typedManager.update('typed', (prevToast) => {
 typedManager.update('typed', () => ({ data: { id: 'typed-update' } }));
 
 typedManager.promise(Promise.resolve(2), {
-  loading: 'loading',
+  loading: {
+    id: 'typed',
+    title: 'loading',
+    data: {
+      id: 'typed-loading',
+      count: 0,
+    },
+  },
   success: (value) => ({
     title: `${value}`,
     data: {
@@ -70,6 +77,14 @@ typedManager.promise(Promise.resolve(2), {
     },
   }),
   error: 'error',
+});
+
+typedManager.promise(Promise.resolve(2), {
+  loading: 'loading',
+  // @ts-expect-error - id is only accepted on loading
+  success: { id: 'typed', title: 'success' },
+  // @ts-expect-error - id is only accepted on loading
+  error: { id: 'typed', title: 'error' },
 });
 
 const legacyManager = useToastManager();
@@ -95,7 +110,7 @@ legacyManager.update<ToastPayload>('legacy', (prevToast) => ({
 }));
 
 legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
-  loading: 'loading',
+  loading: { id: 'legacy', title: 'loading' },
   success: (value) => ({
     title: `${value}`,
     data: {
