@@ -101,6 +101,22 @@ export class ListSelection<E = Event> {
   }
 
   /**
+   * Selects or deselects one item and leaves the rest of the selection as it is. The next
+   * Shift+press extends a range from the item.
+   */
+  setSelected(index: number, selected: boolean, event: E) {
+    const { value, items } = this.read();
+    const itemValue = enabledValueAt(items, index);
+    if (itemValue === undefined) {
+      return;
+    }
+    if (value.some((v) => items.isSameValue(v, itemValue)) !== selected) {
+      this.parameters.commit(toggle(value, items, index), REASONS.itemPress, event);
+    }
+    this.pressAnchor = index;
+  }
+
+  /**
    * Moves the selection to an item, as focus moves to it in opt-in mode. A disabled item can't be
    * selected, so nothing is.
    */

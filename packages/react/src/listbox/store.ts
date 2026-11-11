@@ -1,10 +1,12 @@
 import type * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import type { ListboxRoot } from './root/ListboxRoot';
 import type { ListboxItems } from './items/createItems';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { ListFocus } from './utils/listFocus';
 import { ListSelection } from './utils/listSelection';
+import { SelectionPainting } from './utils/selectionPainting';
 import type { SelectionItems } from './utils/listSelection';
 
 export type State = {
@@ -122,6 +124,22 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     getElement: (index) => this.context.elementsRef.current[index],
     getListElement: () => this.state.listElement,
     highlight: (index, event) => this.highlightItem(index, event),
+  });
+
+  /** The drag over the items' selection toggles. Focus follows the item under the pointer. */
+  painting = new SelectionPainting({
+    getListElement: () => this.state.listElement,
+    paint: (index, selected, event) => {
+      if (this.getSelectionItems().isDisabled(index)) {
+        return;
+      }
+      // One pointer event can cross several toggles, and each change builds on the one before it,
+      // so the selection has to be up to date before the next item is painted.
+      ReactDOM.flushSync(() => {
+        this.selection.setSelected(index, selected, event);
+      });
+      this.focus.moveTo(index, event);
+    },
   });
 
   /**

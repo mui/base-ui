@@ -172,6 +172,8 @@ export const ListboxItem = React.memo(
 
     function handleItemKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
       lastKeyRef.current = event.key;
+      // A click that this key press causes isn't the one that follows a press on the toggle.
+      store.painting.skipClick = false;
       store.highlightItem(index, event.nativeEvent);
 
       // macOS reserves Ctrl+Space and Cmd+Space, so Option+Space toggles the focused item there.
@@ -221,7 +223,8 @@ export const ListboxItem = React.memo(
         store.unhighlightItem(event.nativeEvent);
       },
       onMouseMove(event) {
-        if (!store.state.highlightItemOnHover || rootDisabled) {
+        // A drag over the selection toggles moves the highlight itself.
+        if (!store.state.highlightItemOnHover || rootDisabled || store.painting.isActive()) {
           return;
         }
         store.hoverItem(index, event.nativeEvent);
@@ -249,6 +252,9 @@ export const ListboxItem = React.memo(
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         handleItemKeyDown(event);
       },
+      onPointerDownCapture() {
+        store.painting.skipClick = false;
+      },
       onPointerDown(event) {
         lastPointerTypeRef.current = event.pointerType;
       },
@@ -258,6 +264,12 @@ export const ListboxItem = React.memo(
         // null but the event type is 'keydown', it means a synthetic click arrived
         // without a real keydown we tracked — ignore it to avoid double-selection.
         if (event.type === 'keydown' && lastKeyRef.current === null) {
+          return;
+        }
+
+        // The press on the selection toggle already changed the selection.
+        if (store.painting.skipClick) {
+          store.painting.skipClick = false;
           return;
         }
 
@@ -284,7 +296,10 @@ export const ListboxItem = React.memo(
       props: [defaultProps, elementProps, getButtonProps],
     });
 
-    const contextValue: ListboxItemContext = React.useMemo(() => ({ selected }), [selected]);
+    const contextValue: ListboxItemContext = React.useMemo(
+      () => ({ selected, disabled, index }),
+      [selected, disabled, index],
+    );
 
     return (
       <ListboxItemContext.Provider value={contextValue}>{element}</ListboxItemContext.Provider>

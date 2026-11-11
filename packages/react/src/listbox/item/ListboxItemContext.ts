@@ -3,6 +3,9 @@ import * as React from 'react';
 
 export interface ListboxItemContext {
   selected: boolean;
+  disabled: boolean;
+  /** The item's position in the list, or `-1` before it's known. */
+  index: number;
 }
 
 export const ListboxItemContext = React.createContext<ListboxItemContext | undefined>(undefined);

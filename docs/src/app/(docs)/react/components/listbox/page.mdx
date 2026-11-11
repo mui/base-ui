@@ -27,6 +27,7 @@ import { Listbox } from '@base-ui/react/listbox';
   <Listbox.Label />
   <Listbox.List>
     <Listbox.Item>
+      <Listbox.ItemSelectionToggle />
       <Listbox.ItemIndicator />
     </Listbox.Item>
     <Listbox.Group>
@@ -62,6 +63,22 @@ On touch devices, which have no modifier keys, a tap adds or removes an item, th
 import { DemoListboxOptInSelection } from './demos/opt-in-selection';
 
 <DemoListboxOptInSelection />
+
+### Selection toggle
+
+Add `Listbox.ItemSelectionToggle` to give each item a control, such as a checkbox, that adds or removes the item without changing the rest of the selection. It's most useful with `multiple="opt-in"`, where pressing the rest of the item replaces the selection.
+
+Pressing a toggle and dragging over the toggles of other items selects or deselects them as well, depending on what the press did to the first item. Holding the pointer near an edge of the scrolling container scrolls it, so the drag can reach items that are out of view.
+
+- **Extend the pressable area**: Only the toggle's own area responds to presses and drags. Make it larger than the visible checkbox, such as with a pseudo-element that spans the height of the row, so a drag doesn't slip between rows.
+- **Scrolling on touch devices**: A drag that starts on a toggle selects items instead of scrolling the list. Leave enough of each item outside the toggle to scroll from.
+- **Keyboard and assistive technology**: The toggle is hidden from assistive technology and can't be focused. Items are selected from the keyboard in the same way with or without it.
+
+`Listbox.ItemIndicator` can be placed inside the toggle to render the checkmark.
+
+import { DemoListboxSelectionToggle } from './demos/selection-toggle';
+
+<DemoListboxSelectionToggle />
 
 ### Grouped
 
@@ -140,6 +157,10 @@ import { TypesListbox } from './types';
 ### ItemIndicator
 
 <TypesListbox.ItemIndicator />
+
+### ItemSelectionToggle
+
+<TypesListbox.ItemSelectionToggle />
 
 ### Group
 

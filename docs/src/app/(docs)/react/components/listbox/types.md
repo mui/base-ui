@@ -287,6 +287,44 @@ their data.
 type ReturnValue = ListboxItemCollection<Item, ListboxPrimitiveValue>;
 ```
 
+### ItemSelectionToggle
+
+A control inside a listbox item, such as a checkbox, that selects or deselects the item without
+changing the rest of the selection when multiple items can be selected. Pressing it and dragging
+over the toggles of other items selects or deselects them too.
+Renders a `<span>` element.
+
+**ItemSelectionToggle Props:**
+
+| Prop      | Type                                                                                                      | Default | Description                                                                                                                                                                                   |
+| :-------- | :-------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `React.ReactNode`                                                                                         | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Listbox.ItemSelectionToggle.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Listbox.ItemSelectionToggle.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Listbox.ItemSelectionToggle.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**ItemSelectionToggle Data Attributes:**
+
+| Attribute     | Type | Description                                |
+| :------------ | :--- | :----------------------------------------- |
+| data-selected | -    | Present when the listbox item is selected. |
+| data-disabled | -    | Present when the listbox item is disabled. |
+
+### ItemSelectionToggle.Props
+
+Re-export of [ItemSelectionToggle](#itemselectiontoggle) props.
+
+### ItemSelectionToggle.State
+
+```typescript
+type ListboxItemSelectionToggleState = {
+  /** Whether the item is selected. */
+  selected: boolean;
+  /** Whether the item should ignore user interaction. */
+  disabled: boolean;
+};
+```
+
 ### ListboxItemCollection
 
 A collection created by `Listbox.createItems()`. Pass it to the root's `items` prop.
@@ -353,6 +391,19 @@ declare namespace ListboxItemIndicatorDataAttributes {
 }
 ```
 
+### ListboxItemSelectionToggleDataAttributes
+
+Data attributes of [ItemSelectionToggle](#itemselectiontoggle).
+
+```typescript
+declare namespace ListboxItemSelectionToggleDataAttributes {
+  /** Present when the listbox item is selected. */
+  const selected: 'data-selected';
+  /** Present when the listbox item is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
 ### ListboxListDataAttributes
 
 Data attributes of [List](#list).
@@ -379,10 +430,11 @@ type ListboxPrimitiveValue = string | number | bigint | boolean;
 - `Listbox.List`: `Listbox.List`, `Listbox.List.Props`, `Listbox.List.State`
 - `Listbox.Item`: `Listbox.Item`, `Listbox.Item.State`, `Listbox.Item.Props`
 - `Listbox.ItemIndicator`: `Listbox.ItemIndicator`, `Listbox.ItemIndicator.State`, `Listbox.ItemIndicator.Props`
+- `Listbox.ItemSelectionToggle`: `Listbox.ItemSelectionToggle`, `Listbox.ItemSelectionToggle.State`, `Listbox.ItemSelectionToggle.Props`
 - `Listbox.Group`: `Listbox.Group`, `Listbox.Group.State`, `Listbox.Group.Props`
 - `Listbox.GroupLabel`: `Listbox.GroupLabel`, `Listbox.GroupLabel.State`, `Listbox.GroupLabel.Props`
 - `Listbox.createItems`
-- `Default`: `CreateListboxItemsOptions`, `ListboxItemCollection`, `ListboxPrimitiveValue`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxItemIndicatorDataAttributes`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
+- `Default`: `CreateListboxItemsOptions`, `ListboxItemCollection`, `ListboxPrimitiveValue`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxItemIndicatorDataAttributes`, `ListboxItemSelectionToggleDataAttributes`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemSelectionToggleState`, `ListboxItemSelectionToggleProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`
 
 ## Canonical Types
 
@@ -402,6 +454,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Listbox.Item.Props`: `ListboxItemProps`
 - `Listbox.ItemIndicator.State`: `ListboxItemIndicatorState`
 - `Listbox.ItemIndicator.Props`: `ListboxItemIndicatorProps`
+- `Listbox.ItemSelectionToggle.State`: `ListboxItemSelectionToggleState`
+- `Listbox.ItemSelectionToggle.Props`: `ListboxItemSelectionToggleProps`
 - `Listbox.Group.State`: `ListboxGroupState`
 - `Listbox.Group.Props`: `ListboxGroupProps`
 - `Listbox.GroupLabel.State`: `ListboxGroupLabelState`

@@ -162,6 +162,11 @@ export const ListboxList = React.forwardRef(function ListboxList(
     onMouseLeave(event) {
       store.hoverItem(null, event.nativeEvent);
     },
+    onClick() {
+      // The click that follows a press on a selection toggle lands here when the pointer was
+      // released outside the pressed item.
+      store.painting.skipClick = false;
+    },
     onPointerDown() {
       // A new pointer press starts a new Shift+Arrow range from wherever focus lands.
       shiftAnchorRef.current = null;
@@ -281,6 +286,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
   useIsoLayoutEffect(() => {
     syncActiveItem();
   }, [value, items, syncActiveItem]);
+
+  React.useEffect(() => () => store.painting.stop(), [store]);
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement],
