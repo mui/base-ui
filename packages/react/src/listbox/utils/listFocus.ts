@@ -12,6 +12,11 @@ export interface ListFocusParameters<E> {
 interface PendingFocus {
   index: number;
   onFocused: (() => void) | undefined;
+  /**
+   * Set while the list holds focus for an item that stopped rendering. Returns the item's current
+   * position, or `-1` once it's gone.
+   */
+  getHeldIndex: (() => number) | undefined;
 }
 
 /**
@@ -45,20 +50,39 @@ export class ListFocus<E = Event> {
       return;
     }
 
-    this.pending = { index, onFocused };
+    this.pending = { index, onFocused, getHeldIndex: undefined };
     getListElement()?.focus({ preventScroll: true });
   }
 
   /**
    * Moves focus from an item that is about to stop rendering to the list, which holds it until
-   * the item renders again.
+   * the item renders again. `getIndex` returns the item's current position, or `-1` once it's
+   * gone, since items can be added or removed around it in the meantime.
    */
-  hold(index: number) {
+  hold(getIndex: () => number) {
     const listElement = this.parameters.getListElement();
-    if (listElement) {
-      this.pending = { index, onFocused: undefined };
-      listElement.focus({ preventScroll: true });
+    if (!listElement) {
+      return;
     }
+    this.pending = { index: getIndex(), onFocused: undefined, getHeldIndex: getIndex };
+    listElement.focus({ preventScroll: true });
+    // A list that can't take focus, such as a disabled one, has nothing to hold.
+    if (activeElement(ownerDocument(listElement)) !== listElement) {
+      this.pending = null;
+    }
+  }
+
+  /**
+   * Looks up where the item that the list holds focus for is now. Returns its position, `-1` when
+   * it was removed, or `undefined` when the list isn't holding focus for an item.
+   */
+  updateHeldIndex(): number | undefined {
+    const pending = this.pending;
+    if (!pending?.getHeldIndex) {
+      return undefined;
+    }
+    pending.index = pending.getHeldIndex();
+    return pending.index;
   }
 
   /** Whether the list holds focus for an item that isn't rendered yet. */
@@ -68,6 +92,8 @@ export class ListFocus<E = Event> {
 
   /** Gives focus to an item that rendered while the list held focus for it. */
   itemRendered(index: number, element: HTMLElement | null) {
+    // Another item may have taken the position of the one the list holds focus for.
+    this.updateHeldIndex();
     if (this.pending?.index !== index || !element) {
       return;
     }
@@ -75,7 +101,9 @@ export class ListFocus<E = Event> {
     if (activeElement(ownerDocument(listElement)) !== listElement) {
       return;
     }
-    element.focus();
+    // The user didn't ask to go back to an item that the list held focus for, so the list stays
+    // where it was scrolled to.
+    element.focus({ preventScroll: this.pending.getHeldIndex != null });
   }
 
   /** Called when an item receives focus, however it got there. */

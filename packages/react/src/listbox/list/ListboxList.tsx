@@ -242,9 +242,20 @@ export const ListboxList = React.forwardRef(function ListboxList(
       return;
     }
 
-    const activeItemIndex = store.state.activeIndex ?? -1;
-    const activeItemElement = elementsRef.current[activeItemIndex];
     const listHasFocus = focusedElement != null && focusedElement === listElement;
+    // The list holds focus for an item that isn't rendered, and items were added or removed
+    // around it, so the tab stop follows it to its new position.
+    const heldIndex = listHasFocus ? store.focus.updateHeldIndex() : undefined;
+    if (heldIndex === -1) {
+      store.focus.cancel();
+    } else if (heldIndex != null && heldIndex !== store.state.activeIndex) {
+      store.setActiveIndex(heldIndex);
+      store.focus.itemRendered(heldIndex, elementsRef.current[heldIndex] ?? null);
+      return;
+    }
+
+    const activeItemIndex = heldIndex === -1 ? -1 : (store.state.activeIndex ?? -1);
+    const activeItemElement = elementsRef.current[activeItemIndex];
     if (activeItemElement) {
       // The list held focus for this item, which rendered at another position.
       if (listHasFocus) {

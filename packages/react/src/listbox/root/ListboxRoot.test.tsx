@@ -4,7 +4,7 @@ import { Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { reset as resetLoggedMessages } from '@base-ui/utils/warn';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 
 // The shortcuts differ on macOS, which `ListboxItem.mac.test.tsx` covers.
 vi.mock('@base-ui/utils/platform', async () => {
@@ -2624,6 +2624,92 @@ describe('<Listbox.Root />', () => {
 
       await setProps({ start: 0 });
       expect(screen.getByRole('option', { name: 'Item 2' })).toHaveFocus();
+    });
+
+    describe('while the list holds focus for an item that stopped rendering', () => {
+      it('returns focus to the item at its new position when items are added before it', async () => {
+        const { setProps } = await render(<VirtualList />);
+        await act(async () => screen.getByRole('option', { name: 'Item 2' }).focus());
+        await setProps({ start: 50 });
+        expect(screen.getByRole('listbox')).toHaveFocus();
+
+        // `setProps` replaces the props it was last called with.
+        const names = ['New', ...ALL_ITEMS];
+        await setProps({ names, start: 50 });
+        await setProps({ names, start: 0 });
+
+        const item2 = screen.getByRole('option', { name: 'Item 2' });
+        expect(item2).toHaveFocus();
+        expect(item2).toHaveAttribute('tabindex', '0');
+      });
+
+      it('moves focus to an item that exists when the item is removed', async () => {
+        const { setProps } = await render(<VirtualList />);
+        await act(async () => screen.getByRole('option', { name: 'Item 2' }).focus());
+        await setProps({ start: 50 });
+        expect(screen.getByRole('listbox')).toHaveFocus();
+
+        await setProps({ names: ALL_ITEMS.filter((name) => name !== 'Item 2'), start: 50 });
+        await flushMicrotasks();
+
+        expect(screen.getByRole('option', { name: 'Item 0' })).toHaveFocus();
+      });
+
+      it('does not hold focus when the list is disabled', async () => {
+        const { setProps } = await render(<VirtualList disabled />);
+        await act(async () => screen.getByRole('option', { name: 'Item 2' }).focus());
+        await setProps({ start: 50 });
+        expect(document.body).toHaveFocus();
+
+        await setProps({ disabled: false, start: 0 });
+        await act(async () => screen.getByRole('listbox').focus());
+
+        expect(screen.getByRole('option', { name: 'Item 0' })).toHaveFocus();
+      });
+
+      it.skipIf(isJSDOM)('keeps the scroll position when the item renders again', async () => {
+        const ROW_HEIGHT = 20;
+        const rows = Array.from({ length: 50 }, (_, index) => `Row ${index}`);
+
+        function ScrollingList(props: { start: number }) {
+          return (
+            <Listbox.Root items={rows}>
+              <Listbox.List style={{ height: 100, overflow: 'auto', position: 'relative' }}>
+                <div style={{ height: rows.length * ROW_HEIGHT }}>
+                  {rows.slice(props.start, props.start + 15).map((row, offset) => (
+                    <Listbox.Item
+                      key={row}
+                      value={row}
+                      style={{
+                        position: 'absolute',
+                        top: (props.start + offset) * ROW_HEIGHT,
+                        height: ROW_HEIGHT,
+                      }}
+                    >
+                      {row}
+                    </Listbox.Item>
+                  ))}
+                </div>
+              </Listbox.List>
+            </Listbox.Root>
+          );
+        }
+
+        const { setProps } = await render(<ScrollingList start={0} />);
+        const list = screen.getByRole('listbox');
+        await act(async () => screen.getByRole('option', { name: 'Row 2' }).focus());
+
+        await setProps({ start: 20 });
+        list.scrollTop = 25 * ROW_HEIGHT;
+        expect(list).toHaveFocus();
+        expect(list.scrollTop).toBe(25 * ROW_HEIGHT);
+
+        // Row 2 renders again outside the visible part of the list, like overscan does.
+        await setProps({ start: 2 });
+
+        expect(screen.getByRole('option', { name: 'Row 2' })).toHaveFocus();
+        expect(list.scrollTop).toBe(25 * ROW_HEIGHT);
+      });
     });
 
     it('moves focus to a typeahead match that is not rendered when the items are an array of strings', async () => {

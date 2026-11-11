@@ -91,7 +91,7 @@ export const ListboxItem = React.memo(
     }
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useValueAsRef(index);
+    const itemValueRef = useValueAsRef(itemValue);
     // With `items`, the root already knows every value and disabled state.
     useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {
@@ -146,12 +146,12 @@ export const ListboxItem = React.memo(
       const element = itemRef.current;
       return () => {
         if (element && activeElement(ownerDocument(element)) === element) {
-          // The item's position when it stops rendering, not when the effect ran.
+          // The item's value when it stops rendering, not when the effect ran.
           // eslint-disable-next-line react-hooks/exhaustive-deps
-          store.focus.hold(indexRef.current);
+          store.focus.hold(() => store.indexOfValue(itemValueRef.current));
         }
       };
-    }, [hasItems, indexRef, store]);
+    }, [hasItems, itemValueRef, store]);
 
     const state: ListboxItemState = {
       disabled,
