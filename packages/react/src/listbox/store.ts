@@ -61,6 +61,21 @@ export function getHighlightedIndex(state: State) {
   return state.hoveredIndex ?? (state.itemFocused ? state.activeIndex : null);
 }
 
+const selectedValueSets = new WeakMap<any[], Set<any>>();
+
+/**
+ * The selected values as a set, built once per `value` array, so that checking whether an item is
+ * selected doesn't scan the selection.
+ */
+function getSelectedValueSet(value: any[]) {
+  let set = selectedValueSets.get(value);
+  if (!set) {
+    set = new Set(value);
+    selectedValueSets.set(value, set);
+  }
+  return set;
+}
+
 export const selectors = {
   id: createSelector((state: State) => state.id),
   labelId: createSelector((state: State) => state.labelId),
@@ -75,7 +90,7 @@ export const selectors = {
   ),
 
   isSelected: createSelector((state: State, itemValue: any) =>
-    state.value.some((selectedValue) => Object.is(selectedValue, itemValue)),
+    getSelectedValueSet(state.value).has(itemValue),
   ),
 
   items: createSelector((state: State) => state.items),

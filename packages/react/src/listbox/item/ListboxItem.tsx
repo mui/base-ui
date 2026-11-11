@@ -105,7 +105,7 @@ export const ListboxItem = React.memo(
 
       // A selected item holds the tab stop, which was placed before this position was known when
       // the item mounted out of order.
-      if (store.state.value.some((selectedValue) => Object.is(selectedValue, itemValue))) {
+      if (store.select('isSelected', itemValue)) {
         store.syncTabStop();
       }
 
