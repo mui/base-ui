@@ -38,6 +38,30 @@ describe('<Listbox.Item /> on macOS', () => {
     expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
   });
 
+  it('does not toggle a focused disabled item on Option+Space', async () => {
+    const handleValueChange = vi.fn();
+
+    await render(
+      <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
+        <Listbox.List>
+          <Listbox.Item value="a">a</Listbox.Item>
+          <Listbox.Item value="b" disabled>
+            b
+          </Listbox.Item>
+        </Listbox.List>
+      </Listbox.Root>,
+    );
+
+    const itemB = screen.getByRole('option', { name: 'b' });
+    await act(async () => itemB.focus());
+
+    fireEvent.keyDown(itemB, { key: '\u00a0', code: 'Space', altKey: true });
+    fireEvent.keyUp(itemB, { key: '\u00a0', code: 'Space', altKey: true });
+    await flushMicrotasks();
+
+    expect(handleValueChange).not.toHaveBeenCalled();
+  });
+
   it('moves focus without changing the selection on Option+arrow keys, then toggles with Option+Space', async () => {
     const handleValueChange = vi.fn();
 

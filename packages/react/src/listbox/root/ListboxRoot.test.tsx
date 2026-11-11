@@ -6,6 +6,13 @@ import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-util
 import { reset as resetLoggedMessages } from '@base-ui/utils/warn';
 import { createRenderer } from '#test-utils';
 
+// The shortcuts differ on macOS, which `ListboxItem.mac.test.tsx` covers.
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+  return { platform: { ...actual.platform, os: { ...actual.platform.os, mac: false } } };
+});
+
 describe('<Listbox.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -42,6 +49,25 @@ describe('<Listbox.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
     });
+
+    it('keeps the selection when the value is not updated', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Listbox.Root value="a" onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'b' }));
+
+      expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
+      expect(
+        screen.getAllByRole('option', { selected: true }).map((option) => option.textContent),
+      ).toEqual(['a']);
+    });
   });
 
   describe('prop: onValueChange', () => {
@@ -61,6 +87,49 @@ describe('<Listbox.Root />', () => {
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
       expect(handleValueChange.mock.calls[0][0]).toBe('b');
+    });
+
+    it('reports a click with the item-press reason', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Listbox.Root onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'b' }));
+
+      expect(handleValueChange.mock.calls[0][1].reason).toBe('item-press');
+    });
+
+    it.each([
+      { outcome: 'keeps', condition: 'canceled', cancel: true, selected: 'a' },
+      { outcome: 'moves', condition: 'not canceled', cancel: false, selected: 'b' },
+    ])('$outcome the selection when the change is $condition', async ({ cancel, selected }) => {
+      const { user } = await render(
+        <Listbox.Root
+          defaultValue="a"
+          onValueChange={(_, eventDetails) => {
+            if (cancel) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'b' }));
+
+      expect(
+        screen.getAllByRole('option', { selected: true }).map((option) => option.textContent),
+      ).toEqual([selected]);
     });
 
     it('is not called when Ctrl+A selects a list that is already fully selected', async () => {
@@ -341,6 +410,37 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('tabindex', '-1');
     });
 
+    it('moves the tab stop to an item that exists when the focused item is removed', async () => {
+      function RemovableList(props: { names: string[] }) {
+        return (
+          <Listbox.Root>
+            <Listbox.List>
+              {props.names.map((name) => (
+                <Listbox.Item key={name} value={name}>
+                  {name}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      const { setProps } = await render(<RemovableList names={['a', 'b', 'c']} />);
+      const itemC = screen.getByRole('option', { name: 'c' });
+      await act(async () => itemC.focus());
+      expect(itemC).toHaveAttribute('tabindex', '0');
+
+      await setProps({ names: ['a', 'b'] });
+
+      const options = screen.getAllByRole('option');
+      expect(options.map((option) => option.getAttribute('tabindex'))).toEqual(['0', '-1']);
+
+      await act(async () => options[0].focus());
+      fireEvent.keyDown(options[0], { key: 'ArrowDown' });
+
+      expect(options[1]).toHaveFocus();
+    });
+
     it('moves the tab stop to a newly selected item while the list does not have focus', async () => {
       const { setProps } = await render(
         <Listbox.Root value="a">
@@ -466,6 +566,44 @@ describe('<Listbox.Root />', () => {
         expect(itemB).not.toHaveAttribute('data-highlighted');
       },
     );
+
+    function renderOptInList() {
+      return render(
+        <Listbox.Root multiple="opt-in">
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+    }
+
+    it('highlights a hovered item without moving focus in opt-in mode', async () => {
+      await renderOptInList();
+      const itemA = screen.getByRole('option', { name: 'a' });
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemA.focus());
+
+      fireEvent.mouseMove(itemB);
+
+      expect(itemA).toHaveFocus();
+      expect(itemB).toHaveAttribute('data-highlighted');
+      expect(itemA).not.toHaveAttribute('data-highlighted');
+    });
+
+    it('returns the highlight to the focused item on a key press', async () => {
+      await renderOptInList();
+      const itemA = screen.getByRole('option', { name: 'a' });
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemA.focus());
+      fireEvent.mouseMove(itemB);
+      expect(itemB).toHaveAttribute('data-highlighted');
+
+      fireEvent.keyDown(itemA, { key: 'Shift' });
+
+      expect(itemA).toHaveAttribute('data-highlighted');
+      expect(itemB).not.toHaveAttribute('data-highlighted');
+    });
 
     it('removes the hover highlight when the pointer leaves the list', async () => {
       await renderListWithOutsideButton();
@@ -957,33 +1095,7 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('multi-select keyboard navigation', () => {
-    it('Space toggles the selection state of the focused option', async () => {
-      const handleValueChange = vi.fn();
-
-      await render(
-        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
-          <Listbox.List>
-            <Listbox.Item value="a">a</Listbox.Item>
-            <Listbox.Item value="b">b</Listbox.Item>
-            <Listbox.Item value="c">c</Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      const itemA = screen.getByRole('option', { name: 'a' });
-      fireEvent.click(itemA);
-
-      expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['a']);
-
-      // Toggle off
-      fireEvent.click(itemA);
-
-      expect(handleValueChange).toHaveBeenCalledTimes(2);
-      expect(handleValueChange.mock.calls[1][0]).toEqual([]);
-    });
-
-    it('Space works reliably on consecutive presses', async () => {
+    it('Space toggles the focused option on consecutive presses', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -1055,7 +1167,7 @@ describe('<Listbox.Root />', () => {
     it('Shift+Space selects contiguous items from most recently selected to focused', async () => {
       const handleValueChange = vi.fn();
 
-      await render(
+      const { user } = await render(
         <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
@@ -1066,18 +1178,17 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      // Click item a to select it (sets lastSelectedIndex)
-      fireEvent.click(screen.getByRole('option', { name: 'a' }));
+      await user.click(screen.getByRole('option', { name: 'b' }));
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['b']);
 
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+      expect(screen.getByRole('option', { name: 'd' })).toHaveFocus();
       expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['a']);
 
-      // Shift+Click on item d for range selection a through d
-      const itemD = screen.getByRole('option', { name: 'd' });
-      fireEvent.click(itemD, { shiftKey: true });
+      await user.keyboard('{Shift>} {/Shift}');
 
       expect(handleValueChange).toHaveBeenCalledTimes(2);
-      expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'b', 'c', 'd']);
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['b', 'c', 'd']);
     });
 
     it('Shift+Click replaces existing selections outside the range', async () => {
@@ -1663,53 +1774,31 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
     });
 
-    it('should not allow selection when disabled', async () => {
+    it.each([
+      { name: 'Enter', key: 'Enter' },
+      { name: 'Space', key: ' ' },
+    ])('does not select a focused disabled item on $name', async ({ key }) => {
       const handleValueChange = vi.fn();
-
       await render(
-        <Listbox.Root disabled onValueChange={handleValueChange}>
+        <Listbox.Root onValueChange={handleValueChange}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
           </Listbox.List>
         </Listbox.Root>,
       );
 
-      fireEvent.click(screen.getByRole('option', { name: 'a' }));
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemB.focus());
+      expect(itemB).toHaveAttribute('data-highlighted');
+
+      fireEvent.keyDown(itemB, { key });
+      fireEvent.keyUp(itemB, { key });
+      await flushMicrotasks();
 
       expect(handleValueChange).not.toHaveBeenCalled();
-    });
-
-    it('marks the list and its items as disabled and takes them out of the tab order', async () => {
-      await render(
-        <Listbox.Root disabled defaultValue="a">
-          <Listbox.List>
-            <Listbox.Item value="a">a</Listbox.Item>
-            <Listbox.Item value="b">b</Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      expect(screen.getByRole('listbox')).toHaveAttribute('aria-disabled', 'true');
-      const options = screen.getAllByRole('option');
-      options.forEach((option) => {
-        expect(option).toHaveAttribute('aria-disabled', 'true');
-        expect(option).toHaveAttribute('data-disabled');
-        expect(option).toHaveAttribute('tabindex', '-1');
-      });
-    });
-
-    it('does not highlight items on hover when disabled', async () => {
-      await render(
-        <Listbox.Root disabled>
-          <Listbox.List>
-            <Listbox.Item value="a">a</Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      fireEvent.mouseMove(screen.getByRole('option', { name: 'a' }));
-
-      expect(screen.getByRole('option', { name: 'a' })).not.toHaveAttribute('data-highlighted');
     });
 
     it('should not allow selection on disabled items', async () => {
@@ -1751,6 +1840,89 @@ describe('<Listbox.Root />', () => {
 
       expect(handleValueChange).toHaveBeenCalledTimes(2);
       expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'c']);
+    });
+  });
+
+  describe('prop: disabled', () => {
+    function renderDisabledList(props: Partial<Listbox.Root.Props<string, true>> = {}) {
+      return render(
+        <Listbox.Root multiple disabled defaultValue={['a']} {...props}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+    }
+
+    it('does not select an item on click', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await renderDisabledList({ onValueChange: handleValueChange });
+
+      await user.click(screen.getByRole('option', { name: 'b' }));
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+    });
+
+    it('marks the list and its items as disabled and takes them out of the tab order', async () => {
+      await renderDisabledList();
+
+      const list = screen.getByRole('listbox');
+      expect(list).toHaveAttribute('aria-disabled', 'true');
+      expect(list).toHaveAttribute('data-disabled');
+      expect(list).not.toHaveAttribute('tabindex');
+      const options = screen.getAllByRole('option');
+      expect(options.map((option) => option.getAttribute('aria-disabled'))).toEqual([
+        'true',
+        'true',
+        'true',
+      ]);
+      expect(options.map((option) => option.hasAttribute('data-disabled'))).toEqual([
+        true,
+        true,
+        true,
+      ]);
+      expect(options.map((option) => option.getAttribute('tabindex'))).toEqual(['-1', '-1', '-1']);
+    });
+
+    it('does not highlight items on hover', async () => {
+      await renderDisabledList();
+      const itemB = screen.getByRole('option', { name: 'b' });
+
+      fireEvent.mouseMove(itemB);
+
+      expect(itemB).not.toHaveAttribute('data-highlighted');
+    });
+
+    it.each([
+      { name: 'ArrowDown', init: { key: 'ArrowDown' } },
+      { name: 'End', init: { key: 'End' } },
+      { name: 'Shift+ArrowDown', init: { key: 'ArrowDown', shiftKey: true } },
+      { name: 'a typed character', init: { key: 'c' } },
+      { name: 'Ctrl+A', init: { key: 'a', ctrlKey: true } },
+      { name: 'Escape', init: { key: 'Escape' } },
+      { name: 'Enter', init: { key: 'Enter' } },
+      { name: 'Space', init: { key: ' ' } },
+    ])('ignores $name', async ({ init }) => {
+      const handleValueChange = vi.fn();
+      const handleItemHighlighted = vi.fn();
+      await renderDisabledList({
+        onValueChange: handleValueChange,
+        onItemHighlighted: handleItemHighlighted,
+      });
+
+      // A press can still put focus on an item of a disabled list.
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => itemB.focus());
+
+      fireEvent.keyDown(itemB, init);
+      fireEvent.keyUp(itemB, init);
+      await flushMicrotasks();
+
+      expect(itemB).toHaveFocus();
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(handleItemHighlighted).not.toHaveBeenCalled();
     });
   });
 
@@ -2110,6 +2282,145 @@ describe('<Listbox.Root />', () => {
       const item5 = screen.getByRole('option', { name: 'Item 5' });
       expect(item5).toHaveFocus();
       expect(item5).toHaveAttribute('data-highlighted');
+    });
+
+    describe('while the item that receives focus is not rendered', () => {
+      async function moveToUnrenderedItem(props: React.ComponentProps<typeof VirtualList> = {}) {
+        const view = await render(<VirtualList follow={false} {...props} />);
+        await act(async () => screen.getByRole('option', { name: 'Item 4' }).focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+        await flushMicrotasks();
+        return view;
+      }
+
+      it('holds focus in the list, which takes the tab stop', async () => {
+        const handleItemHighlighted = vi.fn();
+        await moveToUnrenderedItem({ onItemHighlighted: handleItemHighlighted });
+
+        const list = screen.getByRole('listbox');
+        expect(list).toHaveFocus();
+        expect(list).toHaveAttribute('tabindex', '0');
+        expect(handleItemHighlighted).toHaveBeenLastCalledWith(
+          'Item 5',
+          expect.objectContaining({ reason: 'keyboard', index: 5 }),
+        );
+      });
+
+      it('moves focus to the item once it renders', async () => {
+        const { setProps } = await moveToUnrenderedItem();
+        expect(screen.getByRole('listbox')).toHaveFocus();
+
+        await setProps({ start: 5 });
+
+        const item5 = screen.getByRole('option', { name: 'Item 5' });
+        expect(item5).toHaveFocus();
+        expect(item5).toHaveAttribute('data-highlighted');
+        expect(screen.getByRole('listbox')).toHaveAttribute('tabindex', '-1');
+      });
+
+      it('handles keys pressed on the list', async () => {
+        const handleItemHighlighted = vi.fn();
+        await moveToUnrenderedItem({ onItemHighlighted: handleItemHighlighted });
+
+        fireEvent.keyDown(screen.getByRole('listbox'), { key: 'ArrowDown' });
+
+        expect(handleItemHighlighted).toHaveBeenLastCalledWith(
+          'Item 6',
+          expect.objectContaining({ index: 6 }),
+        );
+      });
+
+      it('removes the highlight when focus leaves the list', async () => {
+        const handleItemHighlighted = vi.fn();
+        const { setProps } = await moveToUnrenderedItem({
+          onItemHighlighted: handleItemHighlighted,
+        });
+        expect(screen.getByRole('listbox')).toHaveFocus();
+
+        const after = screen.getByRole('button', { name: 'After' });
+        await act(async () => after.focus());
+
+        expect(handleItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ index: -1 }),
+        );
+
+        await setProps({ start: 5 });
+
+        expect(after).toHaveFocus();
+        expect(screen.getByRole('option', { name: 'Item 5' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      it('moves the selection in opt-in mode once the item renders', async () => {
+        const handleValueChange = vi.fn();
+        const { setProps } = await moveToUnrenderedItem({
+          multiple: 'opt-in',
+          onValueChange: handleValueChange,
+        });
+        expect(screen.getByRole('listbox')).toHaveFocus();
+        expect(handleValueChange).not.toHaveBeenCalled();
+
+        await setProps({ start: 5 });
+
+        expect(handleValueChange).toHaveBeenCalledTimes(1);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['Item 5']);
+      });
+    });
+
+    it('moves the selection with focus past the rendered items in opt-in mode', async () => {
+      const handleValueChange = vi.fn();
+      await render(<VirtualList multiple="opt-in" onValueChange={handleValueChange} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 4' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Item 5' })).toHaveFocus();
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['Item 5']);
+    });
+
+    it('extends the selection past the rendered items with Shift+ArrowDown', async () => {
+      const handleValueChange = vi.fn();
+      await render(<VirtualList multiple onValueChange={handleValueChange} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 4' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'Shift', shiftKey: true });
+      fireEvent.keyDown(document.activeElement as HTMLElement, {
+        key: 'ArrowDown',
+        shiftKey: true,
+      });
+      await flushMicrotasks();
+      fireEvent.keyDown(document.activeElement as HTMLElement, {
+        key: 'ArrowDown',
+        shiftKey: true,
+      });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Item 6' })).toHaveFocus();
+      expect(handleValueChange).toHaveBeenLastCalledWith(
+        ['Item 4', 'Item 5', 'Item 6'],
+        expect.anything(),
+      );
+    });
+
+    it('selects through the last item with Ctrl+Shift+End, including items not rendered', async () => {
+      const handleValueChange = vi.fn();
+      await render(<VirtualList multiple onValueChange={handleValueChange} />);
+
+      await act(async () => screen.getByRole('option', { name: 'Item 2' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, {
+        key: 'End',
+        ctrlKey: true,
+        shiftKey: true,
+      });
+      await flushMicrotasks();
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(ALL_ITEMS.slice(2));
+      expect(screen.getByRole('option', { name: 'Item 99' })).toHaveFocus();
     });
 
     it('moves focus to the last item with End', async () => {

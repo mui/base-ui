@@ -17,6 +17,38 @@ describe('Listbox.createItems', () => {
       expect(items.get('banana')).toBe(fruits[1]);
     });
 
+    it('returns undefined for a value that no item has', () => {
+      const items = Listbox.createItems(fruits, {
+        getValue: (fruit) => fruit.id,
+        getLabel: (fruit) => fruit.name,
+      });
+
+      expect(items.get('cherry')).toBe(undefined);
+    });
+
+    it('returns undefined while the data is loading', () => {
+      const items = Listbox.createItems(undefined as typeof fruits | undefined, {
+        getValue: (fruit) => fruit.id,
+        getLabel: (fruit) => fruit.name,
+      });
+
+      expect(items.get('apple')).toBe(undefined);
+    });
+
+    it('tells a number from the string with the same digits', () => {
+      const rows = [
+        { id: 1, name: 'One' },
+        { id: 2, name: 'Two' },
+      ];
+      const items = Listbox.createItems(rows, {
+        getValue: (row) => row.id,
+        getLabel: (row) => row.name,
+      });
+
+      expect(items.get(2)).toBe(rows[1]);
+      expect(items.get('2' as unknown as number)).toBe(undefined);
+    });
+
     it('derives the values on the first lookup, not when the collection is created', () => {
       const getValue = vi.fn((fruit: (typeof fruits)[number]) => fruit.id);
       const items = Listbox.createItems(fruits, { getValue, getLabel: (fruit) => fruit.name });
