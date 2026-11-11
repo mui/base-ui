@@ -62,6 +62,12 @@ export interface UseTypeaheadProps {
    * @default null
    */
   selectedIndex?: number | null | undefined;
+  /**
+   * Whether typing keys are stopped from reaching other handlers. Space is always stopped while
+   * the user is typing.
+   * @default false
+   */
+  stopTypingKeys?: boolean | undefined;
 }
 
 export interface UseTypeaheadReturnValue {
@@ -96,6 +102,7 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     enabled = true,
     resetMs = 750,
     selectedIndex = null,
+    stopTypingKeys = false,
   } = props;
 
   const onTyping = useStableCallback(onTypingProp);
@@ -170,6 +177,11 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
       return;
     }
 
+    if (stopTypingKeys && event.key !== ' ') {
+      stopEvent(event);
+      onTyping?.(true);
+    }
+
     // Capture whether this is a new typing session before mutating the string.
     const isNewSession = stringRef.current === '';
     if (isNewSession) {
@@ -240,5 +252,5 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     }
   });
 
-  return React.useMemo(() => ({ onKeyDown, endSession, reset }), [onKeyDown, endSession, reset]);
+  return { onKeyDown, endSession, reset };
 }

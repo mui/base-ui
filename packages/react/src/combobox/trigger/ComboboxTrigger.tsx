@@ -106,8 +106,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
     // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
-    getLabel: (index) => store.context.labelsRef.current[index] ?? null,
-    getCount: () => store.context.labelsRef.current.length,
+    listRef: store.context.labelsRef,
     activeIndex,
     selectedIndex,
     onMatch(index) {

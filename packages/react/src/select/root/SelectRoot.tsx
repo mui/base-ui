@@ -331,8 +331,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     enabled: !disabled && (open || (!readOnly && !multiple)),
-    getLabel: (index) => labelsRef.current[index] ?? null,
-    getCount: () => labelsRef.current.length,
+    listRef: labelsRef,
     activeIndex,
     selectedIndex,
     // Skip disabled items while matching so typeahead advances to the next selectable item

@@ -134,8 +134,7 @@ export const MenuComponent = React.forwardRef<
     grid: grid ? gridNavigation : undefined,
   });
   const typeahead = usePopupTypeahead(context.rootStore, {
-    getLabel: (index) => labelsRef.current[index] ?? null,
-    getCount: () => labelsRef.current.length,
+    listRef: labelsRef,
     onMatch: isOpen ? setActiveIndex : undefined,
     activeIndex,
   });

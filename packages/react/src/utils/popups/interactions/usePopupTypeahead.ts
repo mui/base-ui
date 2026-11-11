@@ -4,11 +4,18 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { contains } from '@base-ui/utils/shadowDom';
 import type { ElementProps, PopupInteractionStore } from '../types';
-import { stopEvent } from '../event';
 import { useTypeahead } from './useTypeahead';
 import type { UseTypeaheadProps } from './useTypeahead';
 
-export type UsePopupTypeaheadProps = UseTypeaheadProps;
+export interface UsePopupTypeaheadProps extends Omit<
+  UseTypeaheadProps,
+  'getLabel' | 'getCount' | 'stopTypingKeys'
+> {
+  /**
+   * A ref which contains all strings of the list items, by index.
+   */
+  listRef: React.RefObject<Array<string | null>>;
+}
 
 /**
  * Typeahead for a popup and its trigger. While the popup is open, typing keys don't reach other
@@ -20,28 +27,14 @@ export function usePopupTypeahead(
   store: PopupInteractionStore,
   props: UsePopupTypeaheadProps,
 ): ElementProps {
-  const { enabled = true, selectedIndex = null, onTyping: onTypingProp } = props;
+  const { listRef, enabled = true, selectedIndex = null } = props;
   const open = store.useState('open');
-  const onTyping = useStableCallback(onTypingProp);
 
-  const typeahead = useTypeahead(props);
-
-  const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    // While the popup is open, typing keys belong to typeahead, so they don't reach other
-    // handlers. Space is stopped by the typeahead itself while the user is typing.
-    if (
-      enabled &&
-      open &&
-      event.key.length === 1 &&
-      event.key !== ' ' &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.altKey
-    ) {
-      stopEvent(event);
-      onTyping(true);
-    }
-    typeahead.onKeyDown(event);
+  const { onKeyDown, endSession, reset } = useTypeahead({
+    ...props,
+    getLabel: (index) => listRef.current[index],
+    getCount: () => listRef.current.length,
+    stopTypingKeys: open,
   });
 
   const onBlur = useStableCallback((event: React.FocusEvent) => {
@@ -57,7 +50,7 @@ export function usePopupTypeahead(
     }
 
     // End the current typing session when focus leaves the composite entirely.
-    typeahead.endSession();
+    endSession();
   });
 
   useIsoLayoutEffect(() => {
@@ -65,8 +58,8 @@ export function usePopupTypeahead(
       return;
     }
 
-    typeahead.reset();
-  }, [open, selectedIndex, typeahead]);
+    reset();
+  }, [open, selectedIndex, reset]);
 
   const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
 
