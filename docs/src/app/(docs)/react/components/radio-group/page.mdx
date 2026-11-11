@@ -88,33 +88,6 @@ Native buttons with wrapping labels are supported by using the `render` callback
 </RadioGroup>
 ```
 
-### Form integration
-
-Use [Field](/react/components/field) and [Fieldset](/react/components/fieldset) for group labeling and form integration:
-
-```tsx title="Using Radio Group in a form"
-<Form>
-  {/* @highlight */}
-  <Field.Root name="storageType">
-    <Fieldset.Root render={<RadioGroup />}>
-      <Fieldset.Legend>Storage type</Fieldset.Legend>
-      <Field.Item>
-        <Field.Label>
-          <Radio.Root value="ssd" />
-          SSD
-        </Field.Label>
-      </Field.Item>
-      <Field.Item>
-        <Field.Label>
-          <Radio.Root value="hdd" />
-          HDD
-        </Field.Label>
-      </Field.Item>
-    </Fieldset.Root>
-  </Field.Root>
-</Form>
-```
-
 ## API reference
 
 ### RadioGroup

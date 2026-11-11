@@ -138,3 +138,9 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Avatar.Image.Props`: `AvatarImageProps`
 - `Avatar.Fallback.State`: `AvatarFallbackState`
 - `Avatar.Fallback.Props`: `AvatarFallbackProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `HTMLImageElement`: <https://developer.mozilla.org/docs/Web/API/HTMLImageElement>

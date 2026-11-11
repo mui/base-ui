@@ -86,39 +86,6 @@ Native buttons with wrapping labels are supported by using the `render` callback
 </CheckboxGroup>
 ```
 
-### Form integration
-
-Use [Field](/react/components/field) and [Fieldset](/react/components/fieldset) for group labeling and form integration:
-
-```tsx title="Using Checkbox Group in a form"
-<Form>
-  {/* @highlight */}
-  <Field.Root name="allowedNetworkProtocols">
-    <Fieldset.Root render={<CheckboxGroup />}>
-      <Fieldset.Legend>Allowed network protocols</Fieldset.Legend>
-      <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="http" />
-          HTTP
-        </Field.Label>
-      </Field.Item>
-      <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="https" />
-          HTTPS
-        </Field.Label>
-      </Field.Item>
-      <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="ssh" />
-          SSH
-        </Field.Label>
-      </Field.Item>
-    </Fieldset.Root>
-  </Field.Root>
-</Form>
-```
-
 ### Parent checkbox
 
 A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be created:

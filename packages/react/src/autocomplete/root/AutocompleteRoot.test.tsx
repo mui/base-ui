@@ -6,7 +6,6 @@ import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/reac
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
-import { Switch } from '@base-ui/react/switch';
 import { REASONS } from '../../internals/reasons';
 
 describe('<Autocomplete.Root />', () => {
@@ -394,6 +393,43 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
+    });
+
+    it('fills the input with the highlighted item on Space while the input is empty', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'beta']} onValueChange={onValueChange}>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+      const alpha = await screen.findByRole('option', { name: 'alpha' });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(alpha).toHaveAttribute('data-highlighted');
+      });
+      expect(input.value).toBe('');
+
+      await user.keyboard(' ');
+
+      expect(input.value).toBe('alpha');
+      expect(onValueChange.mock.lastCall?.[0]).toBe('alpha');
     });
   });
 
@@ -1580,6 +1616,48 @@ describe('<Autocomplete.Root />', () => {
       expect(input.value).toBe('ba');
     });
 
+    it('mode="both": a completion queued after a pointer highlight does not replace an external controlled update', async () => {
+      const items = ['apple', 'banana'];
+
+      function Test() {
+        const [value, setValue] = React.useState('');
+        return (
+          <div>
+            <button type="button" onClick={() => setValue('ba')}>
+              update value
+            </button>
+            <Autocomplete.Root mode="both" items={items} value={value} onValueChange={setValue}>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'a');
+      await user.hover(screen.getByRole('option', { name: 'apple' }));
+      expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute('data-highlighted');
+      expect(input.value).toBe('a');
+
+      fireEvent.click(screen.getByText('update value'));
+      expect(input.value).toBe('ba');
+    });
+
     it('mode="inline": static items with inline overlay', async () => {
       const { user } = await render(
         <Autocomplete.Root mode="inline" openOnInputClick>
@@ -1908,6 +1986,73 @@ describe('<Autocomplete.Root />', () => {
       expect(screen.getByRole('combobox')).toHaveValue('');
       expect(screen.getByRole('option', { name: 'apple' })).not.toBe(null);
     });
+
+    it.each([
+      { mode: 'none' as const },
+      { mode: 'list' as const },
+      { mode: 'inline' as const },
+      { mode: 'both' as const },
+    ])(
+      'delivers a burst of controlled input without exceeding the update depth (mode="$mode")',
+      async ({ mode }) => {
+        const reactGlobals = globalThis as typeof globalThis & {
+          IS_REACT_ACT_ENVIRONMENT?: boolean;
+        };
+        const handleValueChange = vi.fn();
+
+        function Controlled() {
+          const [value, setValue] = React.useState('');
+          return (
+            <Autocomplete.Root
+              mode={mode}
+              value={value}
+              onValueChange={(nextValue) => {
+                handleValueChange(nextValue);
+                setValue(nextValue);
+              }}
+            >
+              <Autocomplete.Input />
+            </Autocomplete.Root>
+          );
+        }
+
+        await render(<Controlled />);
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        const setNativeValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )!.set!;
+        const errors: string[] = [];
+        const handleError = (event: ErrorEvent) => {
+          errors.push(String(event.error?.message ?? event.message));
+          event.preventDefault();
+        };
+        const expectedValues = Array.from({ length: 120 }, (_, index) => 'x'.repeat(index + 1));
+
+        window.addEventListener('error', handleError);
+        // Outside act() so React schedules each update the way it does for real keystrokes.
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+        try {
+          expectedValues.forEach((nextValue) => {
+            setNativeValue.call(input, nextValue);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+
+          await waitFor(() => {
+            expect(input).toHaveValue(expectedValues[expectedValues.length - 1]);
+          });
+        } finally {
+          reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+          window.removeEventListener('error', handleError);
+        }
+
+        expect(errors).toEqual([]);
+        expect(handleValueChange.mock.calls.map(([nextValue]) => nextValue)).toEqual(
+          expectedValues,
+        );
+      },
+    );
   });
 
   describe('prop: submitOnItemClick', () => {
@@ -1981,8 +2126,40 @@ describe('<Autocomplete.Root />', () => {
       expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
     });
 
-    it('uses the combobox input form when another unscoped control owns the validation ref', async () => {
+    it('submits the form of the input when only the input is inside the form', async () => {
       const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+      });
+
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha']} submitOnItemClick>
+          {/* The hidden input renders after the children, outside this form. */}
+          <form onSubmit={handleSubmit}>
+            <Autocomplete.Input />
+          </form>
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      await user.type(screen.getByRole('combobox'), 'a');
+      await user.click(screen.getByRole('option', { name: 'alpha' }));
+
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    it('submits its own form when an unscoped control in another form owns the validation ref', async () => {
+      const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+      });
+      const handleOtherSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
       });
 
@@ -2002,8 +2179,9 @@ describe('<Autocomplete.Root />', () => {
               </Autocomplete.Portal>
             </Autocomplete.Root>
           </form>
-          {/* Claims the shared validation ref so Autocomplete must fall back to its input form. */}
-          <Switch.Root aria-label="Unrelated switch" />
+          <form onSubmit={handleOtherSubmit}>
+            <Input aria-label="Unrelated input" />
+          </form>
         </React.Fragment>,
       );
 
@@ -2011,6 +2189,7 @@ describe('<Autocomplete.Root />', () => {
       await user.click(screen.getByRole('option', { name: 'alpha' }));
 
       expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleOtherSubmit).not.toHaveBeenCalled();
     });
 
     it('when true, pressing Enter in the Input submits the owning form when an item is highlighted', async () => {

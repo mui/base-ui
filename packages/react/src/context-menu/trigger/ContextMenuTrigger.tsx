@@ -3,13 +3,14 @@ import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { stopEvent } from '../../utils/popups/event';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { REASONS } from '../../internals/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 

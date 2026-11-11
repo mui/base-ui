@@ -76,23 +76,6 @@ When the fade is applied to `<ScrollArea.Viewport>` itself, the variables can be
 
 <DemoScrollAreaScrollFade />
 
-### Combining with Tabs
-
-Use `<Tabs.List>`'s `render` prop to render `<ScrollArea.Viewport>` directly when the tab list itself needs the viewport overflow values for a mask fade. This keeps the mask logic on the same element that receives the scroll state.
-
-```jsx title="Tabs with ScrollArea"
-<Tabs.Root defaultValue="overview">
-  <ScrollArea.Root>
-    {/* @highlight */}
-    <Tabs.List render={<ScrollArea.Viewport />}>
-      <Tabs.Tab value="overview">Overview</Tabs.Tab>
-      <Tabs.Indicator />
-    </Tabs.List>
-  </ScrollArea.Root>
-  <Tabs.Panel value="overview">...</Tabs.Panel>
-</Tabs.Root>
-```
-
 ## API reference
 
 import { TypesScrollArea } from './types';

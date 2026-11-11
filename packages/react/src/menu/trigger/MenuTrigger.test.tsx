@@ -147,6 +147,46 @@ describe('<Menu.Trigger />', () => {
     }
   });
 
+  it.each([
+    { name: 'stays open when the mouseup lands inside the popup', insidePopup: true },
+    { name: 'closes when the mouseup lands outside the popup', insidePopup: false },
+  ])('a hover-opened menu in a shadow root $name', async ({ insidePopup }) => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+
+    try {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal container={shadowRoot}>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.hover(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      const popup = shadowRoot.querySelector('[role="menu"]');
+      expect(popup).not.toBe(null);
+
+      fireEvent.mouseUp(insidePopup ? popup! : document.body, { clientX: 500, clientY: 500 });
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', String(insidePopup));
+    } finally {
+      host.remove();
+    }
+  });
+
   describe('keyboard navigation', () => {
     const cases = [
       { buttonType: 'native', key: 'ArrowUp' },
