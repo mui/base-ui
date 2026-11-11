@@ -17,36 +17,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useListboxRootContext } from '../root/ListboxRootContext';
-import type { ListboxStore } from '../store';
 import { ListboxItemContext } from './ListboxItemContext';
-
-function useListItemValueRegistration(params: {
-  index: number;
-  itemValue: any;
-  hasRegistered: boolean;
-  store: ListboxStore;
-}) {
-  const { index, itemValue, hasRegistered, store } = params;
-
-  useIsoLayoutEffect(() => {
-    if (!hasRegistered) {
-      return undefined;
-    }
-
-    const values = store.context.valuesRef.current;
-    values[index] = itemValue;
-
-    // A selected item holds the tab stop, which was placed before this position was known when
-    // the item mounted out of order.
-    if (store.state.value.some((selectedValue) => Object.is(selectedValue, itemValue))) {
-      store.syncTabStop();
-    }
-
-    return () => {
-      delete values[index];
-    };
-  }, [hasRegistered, index, itemValue, store]);
-}
 
 /**
  * An individual option in the listbox.
@@ -83,14 +54,10 @@ export const ListboxItem = React.memo(
       index: indexFromItems,
     });
 
-    const multiple = store.useState('multiple');
-    const optInMode = multiple === 'opt-in';
-    const highlightItemOnHover = store.useState('highlightItemOnHover');
     const rootDisabled = store.useState('disabled');
     const active = store.useState('isActive', listItem.index);
     const highlighted = store.useState('isHighlighted', listItem.index);
     const selected = store.useState('isSelected', itemValue);
-    const { disabledItemsRef } = store.context;
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
@@ -125,26 +92,28 @@ export const ListboxItem = React.memo(
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useValueAsRef(index);
-    // With `items`, the root already knows every value.
-    useListItemValueRegistration({
-      index,
-      itemValue,
-      hasRegistered: hasRegistered && !items,
-      store,
-    });
-
+    // With `items`, the root already knows every value and disabled state.
     useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {
         return undefined;
       }
 
-      const disabledItems = disabledItemsRef.current;
-      disabledItems[index] = disabled;
+      const values = store.context.valuesRef.current;
+      const disabledItems = store.context.disabledItemsRef.current;
+      values[index] = itemValue;
+      disabledItems[index] = itemDisabled;
+
+      // A selected item holds the tab stop, which was placed before this position was known when
+      // the item mounted out of order.
+      if (store.state.value.some((selectedValue) => Object.is(selectedValue, itemValue))) {
+        store.syncTabStop();
+      }
 
       return () => {
+        delete values[index];
         delete disabledItems[index];
       };
-    }, [disabled, disabledItemsRef, hasRegistered, index, items]);
+    }, [hasRegistered, index, itemValue, itemDisabled, items, store]);
 
     // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
     // and takes its place in the tab order while it isn't.
@@ -209,7 +178,7 @@ export const ListboxItem = React.memo(
       // Option+Space types a non-breaking space on macOS, so match the physical key.
       if (
         platform.os.mac &&
-        multiple &&
+        store.state.multiple &&
         event.altKey &&
         !event.ctrlKey &&
         !event.metaKey &&
@@ -252,7 +221,7 @@ export const ListboxItem = React.memo(
         store.unhighlightItem(event.nativeEvent);
       },
       onMouseMove(event) {
-        if (!highlightItemOnHover || rootDisabled) {
+        if (!store.state.highlightItemOnHover || rootDisabled) {
           return;
         }
         store.hoverItem(index, event.nativeEvent);
@@ -262,7 +231,11 @@ export const ListboxItem = React.memo(
         // never moves focus on hover, since arrow keys move the selection from the focused item.
         const listElement = store.state.listElement;
         const element = itemRef.current;
-        if (!optInMode && element && contains(listElement, activeElement(ownerDocument(element)))) {
+        if (
+          store.state.multiple !== 'opt-in' &&
+          element &&
+          contains(listElement, activeElement(ownerDocument(element)))
+        ) {
           store.highlightItem(index, event.nativeEvent);
           element.focus();
         }

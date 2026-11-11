@@ -40,7 +40,10 @@ export type State = {
 export type Context = {
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
-  /** The rendered items' disabled states. Not used with `items`, where the data decides. */
+  /**
+   * The rendered items' own disabled states, without the root's. Not used with `items`, where the
+   * data decides.
+   */
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
   typingRef: React.RefObject<boolean>;
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
@@ -81,7 +84,6 @@ export const selectors = {
   orientation: createSelector((state: State) => state.orientation),
 
   disabled: createSelector((state: State) => state.disabled),
-  highlightItemOnHover: createSelector((state: State) => state.highlightItemOnHover),
 };
 
 export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof selectors> {
@@ -154,7 +156,7 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
       // With `items`, the data decides, so the answer is the same whether or not an item is
       // rendered.
       isDisabled: (index) =>
-        items ? disabled || items.getDisabled(index) : (disabledItems[index] ?? false),
+        disabled || (items ? items.getDisabled(index) : (disabledItems[index] ?? false)),
 
       keepsDisabled: multiple !== false,
     };
