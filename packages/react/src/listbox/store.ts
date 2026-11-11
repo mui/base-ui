@@ -82,7 +82,6 @@ export const selectors = {
     state.value.some((selectedValue) => Object.is(selectedValue, itemValue)),
   ),
 
-  listElement: createSelector((state: State) => state.listElement),
   items: createSelector((state: State) => state.items),
   activeItemRendered: createSelector((state: State) => state.activeItemRendered),
 
