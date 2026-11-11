@@ -125,6 +125,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     role: 'listbox',
     'aria-labelledby': labelId,
     'aria-multiselectable': multiple ? true : undefined,
+    'aria-disabled': disabled || undefined,
     'aria-orientation': orientation,
     tabIndex,
     onFocus(event) {
@@ -221,37 +222,54 @@ export const ListboxList = React.forwardRef(function ListboxList(
     },
   };
 
-  // While no item has focus, keep the tab stop on the first selected item, including when the
-  // selection or the items change.
+  // Keeps the tab stop on an item that exists: the first selected item while no item has focus,
+  // and the focused item otherwise, wherever it moved to. Runs when the selection, the rendered
+  // items or `items` change.
   const value = store.useState('value');
-  const onMapChange = useStableCallback(() => {
-    // With `items`, positions come from the items, so they don't shift as items render.
-    if (store.state.items != null) {
-      if (store.state.activeIndex === null) {
-        store.setActiveIndex(store.getTabStopIndex());
-      }
-      return;
-    }
+  const syncActiveItem = useStableCallback((map?: Map<Element, { index: number }>) => {
     if (!store.state.itemFocused) {
       store.syncTabStop();
       return;
     }
+
     // Items can move around the focused item, such as when reordering them, so the tab stop
     // follows the focused item to its new index.
-    const focusedElement = activeElement(ownerDocument(store.state.listElement));
-    const focusedIndex = elementsRef.current.findIndex(
-      (element) => element != null && element === focusedElement,
-    );
-    if (focusedIndex !== -1) {
+    const listElement = store.state.listElement;
+    const focusedElement = activeElement(ownerDocument(listElement));
+    const focusedIndex = focusedElement ? map?.get(focusedElement)?.index : undefined;
+    if (focusedIndex != null) {
       store.setActiveIndex(focusedIndex);
-    } else if (!elementsRef.current[store.state.activeIndex ?? -1]) {
-      // The focused item was removed and nothing took its position.
-      store.setActiveIndex(store.getTabStopIndex());
+      return;
+    }
+
+    const activeItemIndex = store.state.activeIndex ?? -1;
+    const activeItemElement = elementsRef.current[activeItemIndex];
+    const listHasFocus = focusedElement != null && focusedElement === listElement;
+    if (activeItemElement) {
+      // The list held focus for this item, which rendered at another position.
+      if (listHasFocus) {
+        store.focus.moveTo(activeItemIndex, undefined);
+      }
+      return;
+    }
+    // With `items`, an item that isn't rendered still exists.
+    const count = store.state.items?.size ?? 0;
+    if (activeItemIndex >= 0 && activeItemIndex < count) {
+      return;
+    }
+
+    // The item that held the tab stop was removed and nothing took its position.
+    const tabStopIndex = store.getTabStopIndex();
+    if (listHasFocus && count > 0) {
+      store.focus.moveTo(tabStopIndex, undefined);
+    } else {
+      store.focus.cancel();
+      store.setActiveIndex(tabStopIndex);
     }
   });
   useIsoLayoutEffect(() => {
-    store.syncTabStop();
-  }, [value, store]);
+    syncActiveItem();
+  }, [value, items, syncActiveItem]);
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement],
@@ -264,7 +282,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       elementsRef={elementsRef}
       // With `items`, the labels come from the items rather than the rendered text.
       labelsRef={items ? undefined : labelsRef}
-      onMapChange={onMapChange}
+      onMapChange={syncActiveItem}
     >
       {element}
     </CompositeList>

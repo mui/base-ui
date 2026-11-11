@@ -1,7 +1,6 @@
 import type * as React from 'react';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import type { ListboxRoot } from './root/ListboxRoot';
-import { isItemValue } from './items/createItems';
 import type { ListboxItems } from './items/createItems';
 import { REASONS } from '../internals/reasons';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
@@ -41,11 +40,6 @@ export type State = {
 
 export type Context = {
   valuesRef: React.RefObject<Array<any>>;
-  /**
-   * With `items`, whether the items' values are items rather than keys, so values of items that
-   * aren't rendered take the same form. Set once, by the first item that registers a value.
-   */
-  itemValuesAreItems: boolean | undefined;
   labelsRef: React.RefObject<Array<string | null>>;
   /** The rendered items' disabled states. Not used with `items`, where the data decides. */
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
@@ -84,14 +78,9 @@ export const selectors = {
     (state: State, index: number) => getHighlightedIndex(state) === index,
   ),
 
-  isSelected: createSelector((state: State, itemValue: any) => {
-    const { items } = state;
-    if (!items) {
-      return state.value.some((selectedValue) => Object.is(selectedValue, itemValue));
-    }
-    const key = items.keyOf(itemValue);
-    return state.value.some((selectedValue) => Object.is(items.keyOf(selectedValue), key));
-  }),
+  isSelected: createSelector((state: State, itemValue: any) =>
+    state.value.some((selectedValue) => Object.is(selectedValue, itemValue)),
+  ),
 
   listElement: createSelector((state: State) => state.listElement),
   items: createSelector((state: State) => state.items),
@@ -117,6 +106,7 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     getValue: () => this.state.value,
     getItems: () => this.getSelectionItems(),
     getMultiple: () => this.state.multiple,
+    getDefaultAnchor: () => this.getTabStopIndex(),
     commit: (nextValue, source, event) => {
       this.context.setValue(nextValue, createChangeEventDetails(SELECTION_REASONS[source], event));
     },
@@ -172,7 +162,7 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
       count: items ? items.size : this.context.valuesRef.current.length,
       getValue: (index) => this.getValueAt(index),
       indexOfValue: (value) => this.indexOfValue(value),
-      isSameValue: this.isSameValue,
+      isSameValue: Object.is,
       // With `items`, the data decides, so the answer is the same whether or not an item is
       // rendered.
       isDisabled: (index) =>
@@ -182,16 +172,10 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     };
   }
 
-  /**
-   * The value of the item at a position. With `items`, it's the item or its key, matching the
-   * rendered items' values.
-   */
+  /** The value of the item at a position. */
   getValueAt(index: number): any {
     const { items } = this.state;
-    if (!items) {
-      return this.context.valuesRef.current[index];
-    }
-    return this.context.itemValuesAreItems ? items.at(index) : items.keyAt(index);
+    return items ? items.valueAt(index) : this.context.valuesRef.current[index];
   }
 
   /** How many items the list has, including those that aren't rendered. */
@@ -204,22 +188,6 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
   getLabelAt(index: number): string | null {
     const { items } = this.state;
     return items ? items.getLabel(index) : (this.context.labelsRef.current[index] ?? null);
-  }
-
-  /** Whether two values belong to the same item. With `items`, they're compared by key. */
-  isSameValue = (a: any, b: any): boolean => {
-    const { items } = this.state;
-    return items ? Object.is(items.keyOf(a), items.keyOf(b)) : Object.is(a, b);
-  };
-
-  /**
-   * Records whether the items' values are items rather than keys, from the first item that
-   * registers a value. Later items don't change it.
-   */
-  registerItemValue(value: any) {
-    if (this.context.itemValuesAreItems === undefined && value != null) {
-      this.context.itemValuesAreItems = isItemValue(value);
-    }
   }
 
   /** The position of the item with a value, or `-1`. */
@@ -282,7 +250,6 @@ function createInitialState(): State {
 function createInitialContext(): Context {
   return {
     valuesRef: { current: [] },
-    itemValuesAreItems: undefined,
     labelsRef: { current: [] },
     disabledItemsRef: { current: [] },
     typingRef: { current: false },

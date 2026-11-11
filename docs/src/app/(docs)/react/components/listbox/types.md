@@ -17,7 +17,7 @@ Doesn't render its own HTML element.
 | value                | `Value[] \| Value \| null`                                                                                                     | -            | The value of the listbox. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | onValueChange        | `((value: Value[] \| Value \| null, eventDetails: Listbox.Root.ChangeEventDetails) => void)`                                   | -            | Event handler called when the value of the listbox changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | highlightItemOnHover | `boolean`                                                                                                                      | `true`       | Whether moving the pointer over an item highlights it.&#xA;While focus is in the listbox, the item also receives focus. The pointer never takes focus&#xA;from outside the listbox.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| items                | `(Value & string \| Value & number \| Value & bigint \| Value & false \| Value & true)[] \| ListboxItemCollection<any, Value>` | -            | Every item in the list, including those that aren't rendered. Pass them when the list is&#xA;virtualized, so keyboard navigation, typeahead and selection can reach items that aren't&#xA;rendered. Pass an array of strings or numbers, each of which is an item's value and label, or a&#xA;collection created with `Listbox.createItems()` for any other data. Give each `Listbox.Item`&#xA;its value, or with a collection, its item's key or the item itself.                                                                                                                                                                                    |
+| items                | `(Value & string \| Value & number \| Value & bigint \| Value & false \| Value & true)[] \| ListboxItemCollection<any, Value>` | -            | Every item in the list, including those that aren't rendered. Pass them when the list is&#xA;virtualized, so keyboard navigation, typeahead and selection can reach items that aren't&#xA;rendered. Pass an array of strings or numbers, each of which is an item's value and label, or a&#xA;collection created with `Listbox.createItems()` for any other data. Give each `Listbox.Item`&#xA;its value, which with a collection is what `getValue` returns for the item.                                                                                                                                                                            |
 | multiple             | `boolean \| 'opt-in'`                                                                                                          | `false`      | Whether multiple items can be selected, and how selecting an item affects the current selection. `false`: only one item can be selected.`true`: each item is toggled independently.`'opt-in'`: selecting an item moves the current selection to it, and users hold a modifier key&#xA;to select more than one item. On touch devices, where there are no modifier keys, it behaves&#xA;like `true`.                                                                                                                                                                                                                                                   |
 | onItemHighlighted    | `((itemValue: Value \| undefined, eventDetails: Listbox.Root.HighlightEventDetails) => void)`                                  | -            | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation or typeahead.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`&#xA;rather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as an item receiving or losing focus. With `items`, the highlighted item may not be rendered yet, so scroll it into view. |
 | disabled             | `boolean`                                                                                                                      | `false`      | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -268,7 +268,7 @@ type ListboxItemIndicatorState = {
 ### createItems
 
 Creates a collection for the root's `items` prop from data that isn't strings or numbers. Items
-are matched by the key `getValue` returns, and a virtualized list reaches items that aren't
+are identified by the value `getValue` returns, and a virtualized list reaches items that aren't
 rendered.
 
 Create static collections at module scope, and wrap dynamic ones in `React.useMemo()` keyed by
@@ -276,30 +276,30 @@ their data.
 
 **Parameters:**
 
-| Parameter | Type                                                     | Default | Description                                                      |
-| :-------- | :------------------------------------------------------- | :------ | :--------------------------------------------------------------- |
-| data      | `Item[] \| undefined`                                    | -       | The items, or `undefined` while they are loading.                |
-| options   | `CreateListboxItemsOptions<Item, ListboxPrimitiveValue>` | -       | Functions that derive each item's key, label and disabled state. |
+| Parameter | Type                                                     | Default | Description                                                        |
+| :-------- | :------------------------------------------------------- | :------ | :----------------------------------------------------------------- |
+| data      | `Item[] \| undefined`                                    | -       | The items, or `undefined` while they are loading.                  |
+| options   | `CreateListboxItemsOptions<Item, ListboxPrimitiveValue>` | -       | Functions that derive each item's value, label and disabled state. |
 
 **Return Value:**
 
 ```tsx
-type ReturnValue = ListboxItemCollection<Item, Item | string | number | bigint | boolean>;
+type ReturnValue = ListboxItemCollection<Item, ListboxPrimitiveValue>;
 ```
 
 ### ListboxItemCollection
 
 A collection created by `Listbox.createItems()`. Pass it to the root's `items` prop.
 
-`Value` is what an item's `value` can be: its key or the item itself.
+`Value` is the type `getValue` returns, which is what an item's `value` is.
 
 **Methods:**
 
 ```typescript
-function get(key: Value): Item | undefined;
+function get(value: Value): Item | undefined;
 ```
 
-Returns the item with a key, or `undefined` when there's none.
+Returns the item with a value, or `undefined` when there's none.
 
 ## Additional Types
 
@@ -308,11 +308,10 @@ Returns the item with a key, or `undefined` when there's none.
 ```typescript
 type CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveValue> = {
   /**
-   * Projects an item to the primitive key that identifies it. Each item must derive a unique key.
-   * Prefer stable IDs from your application data.
+   * Projects an item to the primitive value that identifies it. Each item must derive a unique
+   * value. Prefer stable IDs from your application data.
    *
-   * Give each `Listbox.Item` either its key or the item itself as its `value`. The selection holds
-   * the same kind of value: keys, or items.
+   * Give each `Listbox.Item` this value as its `value`. The selection holds the same values.
    */
   getValue: (item: Item) => Key;
   /** Projects an item to the label used for typeahead. */

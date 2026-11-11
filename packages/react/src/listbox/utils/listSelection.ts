@@ -49,6 +49,10 @@ export interface ListSelectionParameters<E> {
    * when a press without a modifier replaces the selection.
    */
   getMultiple: () => boolean | 'opt-in';
+  /**
+   * The item a Shift+press extends a range from when nothing was pressed or selected before it.
+   */
+  getDefaultAnchor: () => number;
   /** Receives the next selected values. Called even when they're the same as the current ones. */
   commit: (nextValue: any[], source: SelectionSource, event: E) => void;
 }
@@ -73,6 +77,9 @@ export class ListSelection<E = Event> {
     const { shiftKey = false, ctrlKey = false, touch = false } = modifiers;
     const multiple = this.parameters.getMultiple();
     const replaceOnPress = multiple === 'opt-in' && !touch;
+    if (shiftKey && multiple && this.pressAnchor === null) {
+      this.pressAnchor = this.parameters.getDefaultAnchor();
+    }
     const anchorIndex = this.pressAnchor;
 
     let action: SelectionAction;

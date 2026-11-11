@@ -81,11 +81,13 @@ const fruits = Listbox.createItems([{ id: 'a', name: 'Apple' }], {
   getDisabled: () => false,
 });
 
-// The value is an item's key or the item itself.
+// The value is what `getValue` returns.
 <Listbox.Root items={fruits} defaultValue="a" />;
+
+// @ts-expect-error -- the value is what `getValue` returns, not the item
 <Listbox.Root items={fruits} defaultValue={{ id: 'a', name: 'Apple' }} />;
 
-// @ts-expect-error -- the value is a key or an item
+// @ts-expect-error -- the value has the type `getValue` returns
 <Listbox.Root items={fruits} defaultValue={1} />;
 
 // `getValue` returns a primitive key.
@@ -95,26 +97,24 @@ Listbox.createItems([{ id: 'a', name: 'Apple' }], {
   getLabel: (fruit) => fruit.name,
 });
 
-// `value` narrows the value to keys or items, so a state setter of either kind fits.
+// A state setter of the value type fits.
 function ControlledFruits() {
-  const [keys, setKeys] = React.useState<string[]>([]);
-  const [objects, setObjects] = React.useState<Array<{ id: string; name: string }>>([]);
-  const [key, setKey] = React.useState<string | null>(null);
+  const [values, setValues] = React.useState<string[]>([]);
+  const [value, setValue] = React.useState<string | null>(null);
   return (
     <React.Fragment>
-      <Listbox.Root items={fruits} multiple value={keys} onValueChange={setKeys} />
-      <Listbox.Root items={fruits} multiple value={objects} onValueChange={setObjects} />
-      <Listbox.Root items={fruits} value={key} onValueChange={setKey} />
+      <Listbox.Root items={fruits} multiple value={values} onValueChange={setValues} />
+      <Listbox.Root items={fruits} value={value} onValueChange={setValue} />
     </React.Fragment>
   );
 }
 
-// Without `value` or `defaultValue`, the value is an array of keys or an array of items.
+// Without `value` or `defaultValue`, the value type comes from the items.
 <Listbox.Root
   items={fruits}
   multiple
   onValueChange={(value) => {
-    expectType<string[] | Array<{ id: string; name: string }>, typeof value>(value);
+    expectType<string[], typeof value>(value);
   }}
 />;
 

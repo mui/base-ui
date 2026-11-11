@@ -62,13 +62,13 @@ import { DemoListboxGrouped } from './demos/grouped';
 
 <DemoListboxGrouped />
 
-### Object values
+### Object data
 
-To use objects as values, create the items with `Listbox.createItems()` and pass them to the `items` prop. Make sure `getValue` returns a unique primitive for each item, and give each `Listbox.Item` that value or the object itself to choose what `onValueChange` receives.
+To describe items that are objects, create a collection with `Listbox.createItems()` and pass it to the `items` prop. Make sure `getValue` returns a unique primitive for each item, such as its ID, and give each `Listbox.Item` that value. The selection holds the same values, and `items.get()` returns the object for one.
 
-```jsx title="Object values"
+```jsx title="Object data"
 function UserList({ users }) {
-  const [value, setValue] = React.useState(users[0]);
+  const [value, setValue] = React.useState(users[0].id);
   const items = React.useMemo(
     () =>
       Listbox.createItems(users, {
@@ -77,12 +77,13 @@ function UserList({ users }) {
       }),
     [users],
   );
+  const selectedUser = items.get(value);
 
   return (
     <Listbox.Root items={items} value={value} onValueChange={setValue}>
       <Listbox.List>
         {users.map((user) => (
-          <Listbox.Item key={user.id} value={user}>
+          <Listbox.Item key={user.id} value={user.id}>
             {user.name}
           </Listbox.Item>
         ))}

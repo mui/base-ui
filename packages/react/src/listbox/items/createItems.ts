@@ -4,11 +4,10 @@ export type ListboxPrimitiveValue = string | number | bigint | boolean;
 
 export interface CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveValue> {
   /**
-   * Projects an item to the primitive key that identifies it. Each item must derive a unique key.
-   * Prefer stable IDs from your application data.
+   * Projects an item to the primitive value that identifies it. Each item must derive a unique
+   * value. Prefer stable IDs from your application data.
    *
-   * Give each `Listbox.Item` either its key or the item itself as its `value`. The selection holds
-   * the same kind of value: keys, or items.
+   * Give each `Listbox.Item` this value as its `value`. The selection holds the same values.
    */
   getValue: (item: Item) => Key;
   /**
@@ -26,32 +25,26 @@ export interface CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveVal
 /**
  * A collection created by `Listbox.createItems()`. Pass it to the root's `items` prop.
  *
- * `Value` is what an item's `value` can be: its key or the item itself.
+ * `Value` is the type `getValue` returns, which is what an item's `value` is.
  */
-// `Value` is contravariant so the root can narrow it to one kind, such as keys, from its `value`
-// or `defaultValue`.
-export declare class ListboxItemCollection<in out Item, in Value = Item> {
+export declare class ListboxItemCollection<in out Item, in Value> {
   private constructor();
   private readonly __listboxItemCollectionBrand: (item: Item, value: Value) => void;
   /**
-   * Returns the item with a key, or `undefined` when there's none.
+   * Returns the item with a value, or `undefined` when there's none.
    */
-  get(key: Extract<Value, ListboxPrimitiveValue>): Item | undefined;
+  get(value: Value): Item | undefined;
 }
 
 /** The collection's internal shape, read by the listbox's parts. */
 export interface ListboxItems<Item = any, Key extends ListboxPrimitiveValue = any> {
   /** How many items there are, including those that aren't rendered. */
   size: number;
-  /** The item with a key. */
-  get: (key: Key) => Item | undefined;
-  /** The item at a position. */
-  at: (index: number) => Item | undefined;
-  /** The key of the item at a position. */
-  keyAt: (index: number) => Key | undefined;
-  /** The key of a value: the value itself when it's a key, or the key of an item. */
-  keyOf: (value: unknown) => unknown;
-  /** The position of the item with a value, which may be its key or the item itself, or `-1`. */
+  /** The item with a value. */
+  get: (value: Key) => Item | undefined;
+  /** The value of the item at a position. */
+  valueAt: (index: number) => Key | undefined;
+  /** The position of the item with a value, or `-1`. */
   indexOf: (value: unknown) => number;
   /** The label of the item at a position. */
   getLabel: (index: number) => string | null;
@@ -59,14 +52,9 @@ export interface ListboxItems<Item = any, Key extends ListboxPrimitiveValue = an
   getDisabled: (index: number) => boolean;
 }
 
-/** Whether a value is an item rather than a key. */
-export function isItemValue(value: unknown) {
-  return typeof value === 'object' && value !== null;
-}
-
 /**
  * Creates a collection for the root's `items` prop from data that isn't strings or numbers. Items
- * are matched by the key `getValue` returns, and a virtualized list reaches items that aren't
+ * are identified by the value `getValue` returns, and a virtualized list reaches items that aren't
  * rendered.
  *
  * Create static collections at module scope, and wrap dynamic ones in `React.useMemo()` keyed by
@@ -75,12 +63,12 @@ export function isItemValue(value: unknown) {
  * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
  *
  * @param data The items, or `undefined` while they are loading.
- * @param options Functions that derive each item's key, label and disabled state.
+ * @param options Functions that derive each item's value, label and disabled state.
  */
 export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
   data: readonly Item[] | undefined,
   options: CreateListboxItemsOptions<Item, Key>,
-): ListboxItemCollection<Item, Key | Item> {
+): ListboxItemCollection<Item, Key> {
   const { getValue, getLabel, getDisabled } = options;
   const source = data ?? [];
 
@@ -113,28 +101,22 @@ export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
     return index >= 0 && index < source.length;
   }
 
-  function keyOf(value: unknown) {
-    return isItemValue(value) ? getValue(value as Item) : value;
-  }
-
   function indexOf(value: unknown) {
-    return getIndexByKey().get(keyOf(value) as Key) ?? -1;
+    return getIndexByKey().get(value as Key) ?? -1;
   }
 
   const items: ListboxItems<Item, Key> = {
     size: source.length,
-    get(key) {
-      const index = indexOf(key);
+    get(value) {
+      const index = indexOf(value);
       return index === -1 ? undefined : source[index];
     },
-    at: (index) => (isInRange(index) ? source[index] : undefined),
-    keyAt: (index) => (isInRange(index) ? getValue(source[index]) : undefined),
-    keyOf,
+    valueAt: (index) => (isInRange(index) ? getValue(source[index]) : undefined),
     indexOf,
     getLabel: (index) => (isInRange(index) ? getLabel(source[index]) : null),
     getDisabled: (index) =>
       getDisabled != null && isInRange(index) ? getDisabled(source[index]) : false,
   };
 
-  return items as unknown as ListboxItemCollection<Item, Key | Item>;
+  return items as unknown as ListboxItemCollection<Item, Key>;
 }

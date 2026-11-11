@@ -26,6 +26,7 @@ function setup(options: { multiple: boolean | 'opt-in'; value?: string[]; disabl
     getValue: () => value,
     getItems: () => items,
     getMultiple: () => multiple,
+    getDefaultAnchor: () => (value.length > 0 ? VALUES.indexOf(value[0]) : 0),
     commit,
   });
 
@@ -86,10 +87,17 @@ describe('ListSelection', () => {
   });
 
   describe('press with Shift', () => {
-    it('selects the item alone when nothing was pressed before', () => {
-      const { selection, getValue } = setup({ multiple: true, value: ['a'] });
+    it('selects the range from the default anchor when nothing was pressed before', () => {
+      const { selection, getValue } = setup({ multiple: true, value: ['b'] });
       selection.press(3, { shiftKey: true }, EVENT);
-      expect(getValue()).toEqual(['d']);
+      expect(getValue()).toEqual(['b', 'c', 'd']);
+    });
+
+    it('keeps the default anchor for the next Shift+press', () => {
+      const { selection, getValue } = setup({ multiple: true });
+      selection.press(2, { shiftKey: true }, EVENT);
+      selection.press(4, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['a', 'b', 'c', 'd', 'e']);
     });
 
     it('selects the range from the last pressed item, replacing the selection', () => {

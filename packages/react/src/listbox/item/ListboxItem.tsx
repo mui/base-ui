@@ -38,7 +38,7 @@ function useListItemValueRegistration(params: {
 
     // A selected item holds the tab stop, which was placed before this position was known when
     // the item mounted out of order.
-    if (store.state.value.some((selectedValue) => store.isSameValue(selectedValue, itemValue))) {
+    if (store.state.value.some((selectedValue) => Object.is(selectedValue, itemValue))) {
       store.syncTabStop();
     }
 
@@ -96,7 +96,10 @@ export const ListboxItem = React.memo(
     const hasRegistered = index !== -1;
     // With `items`, the data decides whether an item is disabled, so the answer doesn't depend on
     // whether the item is rendered.
-    const disabled = items ? hasRegistered && items.getDisabled(index) : (disabledProp ?? false);
+    const itemDisabled = items
+      ? hasRegistered && items.getDisabled(index)
+      : (disabledProp ?? false);
+    const disabled = rootDisabled || itemDisabled;
 
     if (process.env.NODE_ENV !== 'production') {
       if (items && (disabledProp !== undefined || label !== undefined)) {
@@ -106,13 +109,18 @@ export const ListboxItem = React.memo(
             'rendered. Use the `getDisabled` and `getLabel` options of `Listbox.createItems()` instead.',
         );
       }
-      if (items && indexFromItems === -1) {
-        error(
-          `A <Listbox.Item> has the value ${String(itemValue)}, which is not in the \`items\` passed to ` +
-            "<Listbox.Root>, so it can't be highlighted or selected. Render only items that " +
-            'are in `items`.',
-        );
-      }
+      // Checked after the commit against the root's current `items`, which this render may not
+      // have seen yet when the items and the data change together.
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React.useEffect(() => {
+        if (store.state.items?.indexOf(itemValue) === -1) {
+          error(
+            `A <Listbox.Item> has the value ${String(itemValue)}, which is not in the \`items\` passed to ` +
+              "<Listbox.Root>, so it can't be highlighted or selected. Give each item the value " +
+              'that `getValue` returns for it.',
+          );
+        }
+      }, [items, itemValue, store]);
     }
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -126,23 +134,17 @@ export const ListboxItem = React.memo(
     });
 
     useIsoLayoutEffect(() => {
-      if (hasRegistered) {
-        store.registerItemValue(itemValue);
-      }
-    }, [hasRegistered, itemValue, store]);
-
-    useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {
         return undefined;
       }
 
       const disabledItems = disabledItemsRef.current;
-      disabledItems[index] = rootDisabled || disabled;
+      disabledItems[index] = disabled;
 
       return () => {
         delete disabledItems[index];
       };
-    }, [disabled, disabledItemsRef, hasRegistered, index, items, rootDisabled]);
+    }, [disabled, disabledItemsRef, hasRegistered, index, items]);
 
     // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
     // and takes its place in the tab order while it isn't.
@@ -164,6 +166,24 @@ export const ListboxItem = React.memo(
       }
     }, [hasRegistered, index, store]);
 
+    // A virtualized list stops rendering the focused item when it scrolls out of view. The list
+    // takes focus in its place, so the keyboard keeps working, and gives it back once the item
+    // renders again.
+    const hasItems = items != null;
+    useIsoLayoutEffect(() => {
+      if (!hasItems) {
+        return undefined;
+      }
+      const element = itemRef.current;
+      return () => {
+        if (element && activeElement(ownerDocument(element)) === element) {
+          // The item's position when it stops rendering, not when the effect ran.
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          store.focus.hold(indexRef.current);
+        }
+      };
+    }, [hasItems, indexRef, store]);
+
     const state: ListboxItemState = {
       disabled,
       selected,
@@ -183,10 +203,7 @@ export const ListboxItem = React.memo(
 
     function handleItemKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
       lastKeyRef.current = event.key;
-      const currentIndex = store.indexOfValue(itemValue);
-      const resolvedIndex = currentIndex === -1 ? index : currentIndex;
-
-      store.highlightItem(resolvedIndex, event.nativeEvent);
+      store.highlightItem(index, event.nativeEvent);
 
       // macOS reserves Ctrl+Space and Cmd+Space, so Option+Space toggles the focused item there.
       // Option+Space types a non-breaking space on macOS, so match the physical key.
@@ -200,7 +217,7 @@ export const ListboxItem = React.memo(
       ) {
         event.preventDefault();
         event.preventBaseUIHandler();
-        if (!disabled && !rootDisabled) {
+        if (!disabled) {
           store.selection.press(
             index,
             { shiftKey: event.shiftKey, ctrlKey: true },
@@ -213,8 +230,11 @@ export const ListboxItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      tabIndex: active ? 0 : -1,
+      tabIndex: active && !rootDisabled ? 0 : -1,
       onFocus(event) {
+        if (rootDisabled) {
+          return;
+        }
         store.highlightItem(index, event.nativeEvent);
         store.focus.itemFocused(index);
       },
@@ -232,7 +252,7 @@ export const ListboxItem = React.memo(
         store.unhighlightItem(event.nativeEvent);
       },
       onMouseMove(event) {
-        if (!highlightItemOnHover) {
+        if (!highlightItemOnHover || rootDisabled) {
           return;
         }
         store.hoverItem(index, event.nativeEvent);
@@ -248,7 +268,8 @@ export const ListboxItem = React.memo(
         }
       },
       onKeyDownCapture(event: BaseUIEvent<React.KeyboardEvent>) {
-        if (disabled && !rootDisabled) {
+        // A disabled item's button ignores key presses, so they're handled here.
+        if (itemDisabled && !rootDisabled) {
           handleItemKeyDown(event);
         }
       },
@@ -267,7 +288,7 @@ export const ListboxItem = React.memo(
           return;
         }
 
-        if (disabled || rootDisabled) {
+        if (disabled) {
           return;
         }
 

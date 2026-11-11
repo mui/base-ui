@@ -113,7 +113,7 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     (nextSelectedValues: any[], eventDetails: ListboxRoot.ChangeEventDetails) => {
       // Nothing changes when the selection is the same, such as when the focused item is
       // disabled or every item is already selected.
-      if (areArraysEqual(nextSelectedValues, store.state.value, store.isSameValue)) {
+      if (areArraysEqual(nextSelectedValues, store.state.value)) {
         return;
       }
 
@@ -153,13 +153,9 @@ type ListboxInputValue<Value, Multiple extends boolean | 'opt-in' | undefined> =
   ? readonly Value[]
   : Value;
 
-// Distributes over `Value`, so a listbox whose items' values are keys or items gives an array of
-// one kind or the other.
 type ListboxOutputValue<Value, Multiple extends boolean | 'opt-in' | undefined> = Multiple extends
   true | 'opt-in'
-  ? Value extends unknown
-    ? Value[]
-    : never
+  ? Value[]
   : Value;
 
 export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | undefined = false> {
@@ -225,8 +221,6 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
   onItemHighlighted?:
     | ((itemValue: Value | undefined, eventDetails: ListboxRootHighlightEventDetails) => void)
     | undefined;
-  // `& {}` makes `value` and `defaultValue` infer `Value` ahead of the items, so they can narrow it
-  // to keys or items.
   /**
    * Every item in the list, including those that aren't rendered. Pass them when the list is
    * virtualized, so keyboard navigation, typeahead and selection can reach items that aren't
@@ -234,10 +228,10 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    *
    * Pass an array of strings or numbers, each of which is an item's value and label, or a
    * collection created with `Listbox.createItems()` for any other data. Give each `Listbox.Item`
-   * its value, or with a collection, its item's key or the item itself.
+   * its value, which with a collection is what `getValue` returns for the item.
    */
   items?:
-    readonly (Value & ListboxPrimitiveValue)[] | ListboxItemCollection<any, Value & {}> | undefined;
+    readonly (Value & ListboxPrimitiveValue)[] | ListboxItemCollection<any, Value> | undefined;
 }
 
 export interface ListboxRootState {}

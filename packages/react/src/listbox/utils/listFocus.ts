@@ -49,6 +49,18 @@ export class ListFocus<E = Event> {
     getListElement()?.focus({ preventScroll: true });
   }
 
+  /**
+   * Moves focus from an item that is about to stop rendering to the list, which holds it until
+   * the item renders again.
+   */
+  hold(index: number) {
+    const listElement = this.parameters.getListElement();
+    if (listElement) {
+      this.pending = { index, onFocused: undefined };
+      listElement.focus({ preventScroll: true });
+    }
+  }
+
   /** Whether the list holds focus for an item that isn't rendered yet. */
   isPending() {
     return this.pending !== null;
