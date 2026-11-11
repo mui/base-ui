@@ -129,12 +129,20 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
    * when nothing is selected, as the APG listbox pattern describes.
    */
   getTabStopIndex(): number {
+    const { items, value } = this.state;
     let tabStopIndex = -1;
-    for (const selectedValue of this.state.value) {
-      const index = this.indexOfValue(selectedValue);
-      if (index !== -1 && (tabStopIndex === -1 || index < tabStopIndex)) {
-        tabStopIndex = index;
+    if (items) {
+      for (const selectedValue of value) {
+        const index = items.indexOf(selectedValue);
+        if (index !== -1 && (tabStopIndex === -1 || index < tabStopIndex)) {
+          tabStopIndex = index;
+        }
       }
+    } else if (value.length > 0) {
+      const selectedValues = getSelectedValueSet(value);
+      tabStopIndex = this.context.valuesRef.current.findIndex((itemValue) =>
+        selectedValues.has(itemValue),
+      );
     }
     return tabStopIndex === -1 ? 0 : tabStopIndex;
   }

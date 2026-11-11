@@ -228,8 +228,10 @@ function replaceWithRange(
 /** Adds the items between two positions to the selection. */
 function addRange(currentValue: any[], items: SelectionItems, from: number, to: number): any[] {
   const nextValue = [...currentValue];
+  const selectedValues = new Set(currentValue);
   for (const itemValue of enabledValuesBetween(items, from, to)) {
-    if (!nextValue.some((v) => items.isSameValue(v, itemValue))) {
+    if (!selectedValues.has(itemValue)) {
+      selectedValues.add(itemValue);
       nextValue.push(itemValue);
     }
   }
