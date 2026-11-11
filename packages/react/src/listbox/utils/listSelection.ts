@@ -1,19 +1,7 @@
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { REASONS } from '../../internals/reasons';
 
-/**
- * What a selection gesture does to the selected values. `selectionReducer` computes the next
- * values from one.
- */
-type SelectionAction =
-  | { type: 'select'; index: number }
-  | { type: 'moveSelection'; index: number }
-  | { type: 'toggle'; index: number }
-  | { type: 'extendTo'; index: number; anchorIndex: number | null }
-  | { type: 'selectRange'; from: number; to: number }
-  | { type: 'selectAll' }
-  | { type: 'clear' };
-
-/** Reads the items the reducer selects from, by position. */
+/** Reads the items a selection gesture selects from, by position. */
 export interface SelectionItems {
   count: number;
   getValue: (index: number) => any;
@@ -37,7 +25,8 @@ export interface PressModifiers {
 }
 
 /** What caused a selection change. */
-export type SelectionSource = 'press' | 'keyboard' | 'escape';
+export type SelectionReason =
+  typeof REASONS.itemPress | typeof REASONS.listNavigation | typeof REASONS.escapeKey;
 
 export interface ListSelectionParameters<E> {
   /** The selected values. */
@@ -54,7 +43,7 @@ export interface ListSelectionParameters<E> {
    */
   getDefaultAnchor: () => number;
   /** Receives the next selected values. Called even when they're the same as the current ones. */
-  commit: (nextValue: any[], source: SelectionSource, event: E) => void;
+  commit: (nextValue: any[], reason: SelectionReason, event: E) => void;
 }
 
 /**
@@ -81,36 +70,48 @@ export class ListSelection<E = Event> {
       this.pressAnchor = this.parameters.getDefaultAnchor();
     }
     const anchorIndex = this.pressAnchor;
+    const { value, items } = this.read();
 
-    let action: SelectionAction;
+    let nextValue: any[];
+    // Extending a range keeps its anchor, so the next Shift+press extends from the same item.
+    let keepsAnchor = false;
     if (shiftKey && multiple) {
       if (replaceOnPress && ctrlKey) {
         // Ctrl/Cmd+Shift adds the range to the existing selection.
-        action =
+        nextValue =
           anchorIndex === null
-            ? { type: 'toggle', index }
-            : { type: 'selectRange', from: anchorIndex, to: index };
+            ? toggle(value, items, index)
+            : addRange(value, items, anchorIndex, index);
       } else {
-        action = { type: 'extendTo', index, anchorIndex };
+        nextValue = replaceWithRange(value, items, anchorIndex, index);
+        keepsAnchor = true;
       }
     } else if (multiple && (!replaceOnPress || ctrlKey)) {
       // `multiple` toggles on every press; opt-in mode toggles with Ctrl/Cmd.
-      action = { type: 'toggle', index };
+      nextValue = toggle(value, items, index);
     } else {
-      action = { type: 'select', index };
+      nextValue = select(value, items, index);
     }
 
-    this.dispatch(action, 'press', event);
+    this.parameters.commit(nextValue, REASONS.itemPress, event);
 
-    // Extending a range keeps its anchor, so the next Shift+press extends from the same item.
-    if (action.type !== 'extendTo') {
+    if (!keepsAnchor) {
       this.pressAnchor = index;
     }
   }
 
-  /** Moves the selection to an item, as focus moves to it in opt-in mode. */
+  /**
+   * Moves the selection to an item, as focus moves to it in opt-in mode. A disabled item can't be
+   * selected, so nothing is.
+   */
   moveTo(index: number, event: E) {
-    this.dispatch({ type: 'moveSelection', index }, 'keyboard', event);
+    const { value, items } = this.read();
+    const itemValue = enabledValueAt(items, index);
+    this.parameters.commit(
+      replaceWith(value, items, itemValue === undefined ? [] : [itemValue]),
+      REASONS.listNavigation,
+      event,
+    );
     this.pressAnchor = index;
   }
 
@@ -119,137 +120,118 @@ export class ListSelection<E = Event> {
    * range grows and shrinks as the item changes.
    */
   extendTo(index: number, anchorIndex: number | null, event: E) {
-    this.dispatch({ type: 'extendTo', index, anchorIndex }, 'keyboard', event);
+    const { value, items } = this.read();
+    this.parameters.commit(
+      replaceWithRange(value, items, anchorIndex, index),
+      REASONS.listNavigation,
+      event,
+    );
   }
 
   /** Adds a range to the selection. `anchorIndex` is where the next Shift+press extends from. */
   selectRange(from: number, to: number, anchorIndex: number, event: E) {
-    this.dispatch({ type: 'selectRange', from, to }, 'keyboard', event);
+    const { value, items } = this.read();
+    this.parameters.commit(addRange(value, items, from, to), REASONS.listNavigation, event);
     this.pressAnchor = anchorIndex;
   }
 
+  /** Disabled items keep their state: the selected ones stay selected, and the others aren't. */
   selectAll(event: E) {
-    this.dispatch({ type: 'selectAll' }, 'keyboard', event);
+    const { value, items } = this.read();
+    const nextValue: any[] = [];
+    for (let i = 0; i < items.count; i += 1) {
+      const itemValue = items.getValue(i);
+      if (
+        itemValue !== undefined &&
+        (!items.isDisabled(i) || value.some((v) => items.isSameValue(v, itemValue)))
+      ) {
+        nextValue.push(itemValue);
+      }
+    }
+    this.parameters.commit(nextValue, REASONS.listNavigation, event);
   }
 
   clear(event: E) {
-    this.dispatch({ type: 'clear' }, 'escape', event);
+    const { value, items } = this.read();
+    this.parameters.commit(replaceWith(value, items, []), REASONS.escapeKey, event);
   }
 
-  private dispatch(action: SelectionAction, source: SelectionSource, event: E) {
-    const { getValue, getItems, commit } = this.parameters;
-    commit(selectionReducer(action, getValue(), getItems()), source, event);
+  private read() {
+    return { value: this.parameters.getValue(), items: this.parameters.getItems() };
   }
 }
 
+/** The value of an item that can be selected, or `undefined` when it's disabled or missing. */
+function enabledValueAt(items: SelectionItems, index: number): any {
+  const itemValue = items.getValue(index);
+  return itemValue === undefined || items.isDisabled(index) ? undefined : itemValue;
+}
+
+/** The values of the items between two positions that can be selected. */
+function enabledValuesBetween(items: SelectionItems, from: number, to: number): any[] {
+  const values: any[] = [];
+  const end = Math.max(from, to);
+  for (let i = Math.min(from, to); i <= end; i += 1) {
+    const itemValue = enabledValueAt(items, i);
+    if (itemValue !== undefined) {
+      values.push(itemValue);
+    }
+  }
+  return values;
+}
+
 /**
- * Computes the next selected values from an action. It has no side effects.
+ * Replaces the selection with `values`, which are never disabled. With multiple selection, the
+ * selected disabled items stay selected, since users can't deselect them.
  */
-function selectionReducer(
-  action: SelectionAction,
+function replaceWith(currentValue: any[], items: SelectionItems, values: any[]): any[] {
+  let next = values;
+  if (items.keepsDisabled) {
+    const selectedDisabled = currentValue.filter((v) => {
+      const index = items.indexOfValue(v);
+      return index !== -1 && items.isDisabled(index);
+    });
+    next = [...values, ...selectedDisabled];
+  }
+  return next.length === 0 ? (EMPTY_ARRAY as any[]) : next;
+}
+
+/** Makes an item the selection. Nothing changes when it can't be selected. */
+function select(currentValue: any[], items: SelectionItems, index: number): any[] {
+  const itemValue = enabledValueAt(items, index);
+  return itemValue === undefined ? currentValue : replaceWith(currentValue, items, [itemValue]);
+}
+
+function toggle(currentValue: any[], items: SelectionItems, index: number): any[] {
+  const itemValue = enabledValueAt(items, index);
+  if (itemValue === undefined) {
+    return currentValue;
+  }
+  if (currentValue.some((v) => items.isSameValue(v, itemValue))) {
+    return currentValue.filter((v) => !items.isSameValue(v, itemValue));
+  }
+  return [...currentValue, itemValue];
+}
+
+/** Makes the range from an anchor to an item the selection, or just the item without an anchor. */
+function replaceWithRange(
   currentValue: any[],
   items: SelectionItems,
+  anchorIndex: number | null,
+  index: number,
 ): any[] {
-  const { count, getValue, indexOfValue, isSameValue, isDisabled, keepsDisabled } = items;
+  return anchorIndex === null
+    ? select(currentValue, items, index)
+    : replaceWith(currentValue, items, enabledValuesBetween(items, anchorIndex, index));
+}
 
-  // Replaces the selection with `values`, which are never disabled. With multiple selection, the
-  // selected disabled items stay selected, since users can't deselect them.
-  function replaceWith(values: any[]): any[] {
-    if (!keepsDisabled) {
-      return values.length === 0 ? (EMPTY_ARRAY as any[]) : values;
+/** Adds the items between two positions to the selection. */
+function addRange(currentValue: any[], items: SelectionItems, from: number, to: number): any[] {
+  const nextValue = [...currentValue];
+  for (const itemValue of enabledValuesBetween(items, from, to)) {
+    if (!nextValue.some((v) => items.isSameValue(v, itemValue))) {
+      nextValue.push(itemValue);
     }
-    const selectedDisabled = currentValue.filter((v) => {
-      const index = indexOfValue(v);
-      return index !== -1 && isDisabled(index);
-    });
-    const next = [...values, ...selectedDisabled];
-    return next.length === 0 ? (EMPTY_ARRAY as any[]) : next;
   }
-
-  switch (action.type) {
-    case 'select': {
-      const itemValue = getValue(action.index);
-      if (itemValue === undefined || isDisabled(action.index)) {
-        return currentValue;
-      }
-      return replaceWith([itemValue]);
-    }
-
-    // Moving focus in opt-in mode: the focused item becomes the selection, and a disabled one
-    // can't be selected, so nothing is.
-    case 'moveSelection': {
-      const itemValue = getValue(action.index);
-      if (itemValue === undefined || isDisabled(action.index)) {
-        return replaceWith([]);
-      }
-      return replaceWith([itemValue]);
-    }
-
-    case 'toggle': {
-      const itemValue = getValue(action.index);
-      if (itemValue === undefined || isDisabled(action.index)) {
-        return currentValue;
-      }
-      if (currentValue.some((v) => isSameValue(v, itemValue))) {
-        return currentValue.filter((v) => !isSameValue(v, itemValue));
-      }
-      return [...currentValue, itemValue];
-    }
-
-    case 'extendTo': {
-      const anchorIndex = action.anchorIndex;
-      if (anchorIndex === null) {
-        // No anchor — treat as a single select
-        const itemValue = getValue(action.index);
-        return itemValue !== undefined && !isDisabled(action.index)
-          ? replaceWith([itemValue])
-          : currentValue;
-      }
-      const start = Math.min(anchorIndex, action.index);
-      const end = Math.max(anchorIndex, action.index);
-      const rangeValues: any[] = [];
-      for (let i = start; i <= end; i += 1) {
-        const val = getValue(i);
-        if (val !== undefined && !isDisabled(i)) {
-          rangeValues.push(val);
-        }
-      }
-      return replaceWith(rangeValues);
-    }
-
-    case 'selectRange': {
-      const start = Math.min(action.from, action.to);
-      const end = Math.max(action.from, action.to);
-      const nextValue = [...currentValue];
-      for (let i = start; i <= end; i += 1) {
-        const val = getValue(i);
-        if (val !== undefined && !isDisabled(i) && !nextValue.some((v) => isSameValue(v, val))) {
-          nextValue.push(val);
-        }
-      }
-      return nextValue;
-    }
-
-    // Disabled items keep their state: the selected ones stay selected, and the others aren't.
-    case 'selectAll': {
-      const nextValue: any[] = [];
-      for (let i = 0; i < count; i += 1) {
-        const val = getValue(i);
-        if (
-          val !== undefined &&
-          (!isDisabled(i) || currentValue.some((v) => isSameValue(v, val)))
-        ) {
-          nextValue.push(val);
-        }
-      }
-      return nextValue;
-    }
-
-    case 'clear': {
-      return replaceWith([]);
-    }
-
-    default:
-      return currentValue;
-  }
+  return nextValue;
 }

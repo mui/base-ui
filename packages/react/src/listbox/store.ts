@@ -2,7 +2,6 @@ import type * as React from 'react';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import type { ListboxRoot } from './root/ListboxRoot';
 import type { ListboxItems } from './items/createItems';
-import { REASONS } from '../internals/reasons';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { ListFocus } from './utils/listFocus';
 import { ListSelection } from './utils/listSelection';
@@ -59,12 +58,6 @@ export function getHighlightedIndex(state: State) {
   return state.hoveredIndex ?? (state.itemFocused ? state.activeIndex : null);
 }
 
-const SELECTION_REASONS = {
-  press: REASONS.itemPress,
-  keyboard: REASONS.listNavigation,
-  escape: REASONS.escapeKey,
-} as const;
-
 export const selectors = {
   id: createSelector((state: State) => state.id),
   labelId: createSelector((state: State) => state.labelId),
@@ -102,8 +95,8 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     getItems: () => this.getSelectionItems(),
     getMultiple: () => this.state.multiple,
     getDefaultAnchor: () => this.getTabStopIndex(),
-    commit: (nextValue, source, event) => {
-      this.context.setValue(nextValue, createChangeEventDetails(SELECTION_REASONS[source], event));
+    commit: (nextValue, reason, event) => {
+      this.context.setValue(nextValue, createChangeEventDetails(reason, event));
     },
   });
 
@@ -147,7 +140,7 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
   }
 
   /**
-   * The items the selection reducer selects from: the rendered items' values and disabled states,
+   * The items the selection gestures select from: the rendered items' values and disabled states,
    * and, with `items`, those of the items that aren't rendered.
    */
   getSelectionItems(): SelectionItems {

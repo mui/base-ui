@@ -1,4 +1,5 @@
 import { expect, vi, describe, it } from 'vitest';
+import { REASONS } from '../../internals/reasons';
 import { ListSelection } from './listSelection';
 import type { SelectionItems } from './listSelection';
 
@@ -79,10 +80,10 @@ describe('ListSelection', () => {
       expect(getValue()).toEqual(['a', 'c']);
     });
 
-    it('reports the press as the source, with the event', () => {
+    it('reports the press as the reason, with the event', () => {
       const { selection, commit } = setup({ multiple: false });
       selection.press(1, {}, EVENT);
-      expect(commit).toHaveBeenCalledWith(['b'], 'press', EVENT);
+      expect(commit).toHaveBeenCalledWith(['b'], REASONS.itemPress, EVENT);
     });
   });
 
@@ -141,7 +142,7 @@ describe('ListSelection', () => {
     it('moveTo moves the selection and the anchor', () => {
       const { selection, getValue, commit } = setup({ multiple: 'opt-in', value: ['a'] });
       selection.moveTo(2, EVENT);
-      expect(commit).toHaveBeenLastCalledWith(['c'], 'keyboard', EVENT);
+      expect(commit).toHaveBeenLastCalledWith(['c'], REASONS.listNavigation, EVENT);
       selection.press(4, { shiftKey: true }, EVENT);
       expect(getValue()).toEqual(['c', 'd', 'e']);
     });
@@ -179,10 +180,10 @@ describe('ListSelection', () => {
       expect(getValue()).toEqual(['a', 'b', 'd', 'e']);
     });
 
-    it('clear keeps the selected disabled items and reports Escape as the source', () => {
+    it('clear keeps the selected disabled items and reports Escape as the reason', () => {
       const { selection, commit } = setup({ multiple: true, value: ['a', 'b'], disabled: ['b'] });
       selection.clear(EVENT);
-      expect(commit).toHaveBeenCalledWith(['b'], 'escape', EVENT);
+      expect(commit).toHaveBeenCalledWith(['b'], REASONS.escapeKey, EVENT);
     });
   });
 });
