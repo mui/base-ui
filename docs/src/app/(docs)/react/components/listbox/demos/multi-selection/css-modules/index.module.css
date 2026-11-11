@@ -1,37 +1,14 @@
-.Field {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 0.25rem;
-}
-
-.Label {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  color: oklch(20.5% 0 0deg);
-  cursor: default;
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(97% 0 0deg);
-  }
-}
-
-.List {
+.Panel {
   box-sizing: border-box;
   width: 16rem;
-  max-height: 24rem;
-  overflow-y: auto;
-  padding-block: 0.25rem;
-  border-radius: 0.375rem;
-  outline: 0;
-
-  @media (prefers-color-scheme: light) {
-    outline: 1px solid oklch(92.2% 0 0deg);
-  }
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid oklch(37.1% 0 0deg);
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
   }
 
   &:has(:focus-visible) {
@@ -44,44 +21,54 @@
   }
 }
 
+.Header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: oklch(26.9% 0 0deg);
+  }
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  cursor: default;
+}
+
+.Count {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.List {
+  box-sizing: border-box;
+  max-height: 20rem;
+  overflow-y: auto;
+  outline: 0;
+}
+
 .Item {
   box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1rem 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.375rem 0.875rem;
   outline: 0;
   font-size: 0.875rem;
-  line-height: 1rem;
-  color: oklch(20.5% 0 0deg);
-  padding-block: 0.5rem;
-  padding-left: 0.625rem;
-  padding-right: 1rem;
-  display: grid;
-  gap: 0.5rem;
-  align-items: center;
-  grid-template-columns: 0.75rem 1fr;
+  line-height: 1.25rem;
   cursor: default;
   -webkit-user-select: none;
   user-select: none;
 
-  @media (prefers-color-scheme: dark) {
-    color: oklch(97% 0 0deg);
-  }
-
-  @media (pointer: coarse) {
-    padding-block: 0.625rem;
-    font-size: 0.925rem;
-  }
-
   &[data-highlighted] {
-    z-index: 0;
-    position: relative;
-  }
-
-  &[data-highlighted]::before {
-    content: '';
-    z-index: -1;
-    position: absolute;
-    inset-block: 0;
-    inset-inline: 0.25rem;
-    border-radius: 0.25rem;
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
@@ -90,30 +77,42 @@
   }
 
   &[data-disabled] {
-    color: oklch(70.8% 0 0deg);
+    color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: oklch(55.6% 0 0deg);
+      color: oklch(70.8% 0 0deg);
     }
   }
+}
 
-  &[data-disabled][data-highlighted]::before {
-    background-color: oklch(92.2% 0 0deg);
+.Checkbox {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: white;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: oklch(14.5% 0 0deg);
+  }
+
+  .Item[data-selected] & {
+    background-color: oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: oklch(20.5% 0 0deg);
+      background-color: white;
     }
   }
 }
 
 .ItemIndicator {
-  grid-column-start: 1;
-}
-
-.ItemIndicatorIcon {
-  display: block;
-  width: 0.75rem;
-  height: 0.75rem;
+  display: flex;
 }
 
 .ItemText {

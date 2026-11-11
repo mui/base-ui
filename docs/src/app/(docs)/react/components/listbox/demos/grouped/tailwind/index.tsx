@@ -22,25 +22,25 @@ const groups = [
 
 export default function ExampleListboxGrouped() {
   return (
-    <div className="flex flex-col gap-1">
-      <Listbox.Root defaultValue="archive">
-        <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-neutral-900 dark:text-neutral-100">
-          Move to
-        </Listbox.Label>
-        <Listbox.List className="box-border w-64 max-h-96 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-1 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white">
+    <Listbox.Root defaultValue="archive">
+      <div className="w-64 border border-neutral-950 bg-white text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-1 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white">
+        <div className="border-b border-neutral-200 px-3.5 py-3 dark:border-neutral-800">
+          <Listbox.Label className="cursor-default text-sm font-bold">Move to</Listbox.Label>
+        </div>
+        <Listbox.List className="max-h-80 overflow-y-auto outline-hidden">
           {groups.map((group) => (
-            <Listbox.Group key={group.label} className="block pb-0.5 last:pb-0">
-              <Listbox.GroupLabel className="cursor-default py-1.5 pr-4 pl-[1.875rem] text-sm leading-5 text-neutral-500 select-none dark:text-neutral-400">
+            <Listbox.Group key={group.label}>
+              <Listbox.GroupLabel className="cursor-default border-b border-neutral-200 px-3.5 pt-2 pb-1.5 text-xs font-bold tracking-wider text-neutral-500 uppercase select-none dark:border-neutral-800 dark:text-neutral-400">
                 {group.label}
               </Listbox.GroupLabel>
               {group.items.map(({ label, value }) => (
                 <Listbox.Item
                   key={value}
                   value={value}
-                  className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 text-neutral-900 dark:text-neutral-100 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-neutral-100 dark:data-[highlighted]:before:bg-neutral-800 data-[disabled]:text-neutral-400 dark:data-[disabled]:text-neutral-500 data-[disabled]:data-[highlighted]:before:bg-neutral-200 dark:data-[disabled]:data-[highlighted]:before:bg-neutral-900 pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
+                  className="grid cursor-default grid-cols-[1rem_1fr] items-center gap-3 px-3.5 py-1.5 text-sm outline-hidden select-none data-highlighted:bg-neutral-100 dark:data-highlighted:bg-neutral-800 data-disabled:text-neutral-500 dark:data-disabled:text-neutral-400"
                 >
                   <Listbox.ItemIndicator className="col-start-1">
-                    <CheckIcon className="size-3" />
+                    <CheckIcon />
                   </Listbox.ItemIndicator>
                   <span className="col-start-2">{label}</span>
                 </Listbox.Item>
@@ -48,15 +48,23 @@ export default function ExampleListboxGrouped() {
             </Listbox.Group>
           ))}
         </Listbox.List>
-      </Listbox.Root>
-    </div>
+      </div>
+    </Listbox.Root>
   );
 }
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }

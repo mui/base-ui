@@ -1,37 +1,42 @@
+'use client';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 
 const songs = [
-  { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
-  { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
-  { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california', disabled: true },
-  { title: 'Superstition', artist: 'Stevie Wonder', value: 'superstition' },
-  { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
+  { title: 'Billie Jean', value: 'billie-jean' },
+  { title: 'Dancing Queen', value: 'dancing-queen' },
+  { title: 'Like a Prayer', value: 'like-a-prayer' },
+  { title: 'Running Up That Hill', value: 'running-up-that-hill' },
+  { title: 'Hotel California', value: 'hotel-california' },
+  { title: 'London Calling', value: 'london-calling' },
+  { title: 'Heroes', value: 'heroes' },
+  { title: 'Bohemian Rhapsody', value: 'bohemian-rhapsody' },
 ];
 
 export default function ExampleListboxOptInSelection() {
+  const [value, setValue] = React.useState<string[]>(['billie-jean']);
+
   return (
-    <div className="flex flex-col gap-1">
-      <Listbox.Root multiple="opt-in" defaultValue={['billie-jean']}>
-        <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-neutral-900 dark:text-neutral-100">
-          Playlist
-        </Listbox.Label>
-        <Listbox.List className="box-border flex flex-col gap-0.5 w-64 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-1 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white">
-          {songs.map(({ title, artist, value, disabled }) => (
+    <Listbox.Root multiple="opt-in" value={value} onValueChange={setValue}>
+      <div className="w-64 border border-neutral-950 bg-white text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-1 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white">
+        <div className="flex items-baseline justify-between gap-4 border-b border-neutral-200 px-3.5 py-3 dark:border-neutral-800">
+          <Listbox.Label className="cursor-default text-sm font-bold">Songs</Listbox.Label>
+          <span className="text-sm tabular-nums">
+            {value.length} of {songs.length} selected
+          </span>
+        </div>
+        <Listbox.List className="max-h-80 overflow-y-auto outline-hidden">
+          {songs.map(({ title, value: songValue }) => (
             <Listbox.Item
-              key={value}
-              value={value}
-              disabled={disabled}
-              className="group relative z-0 flex flex-col gap-0.5 cursor-default py-2 px-4 text-sm leading-4 text-neutral-900 dark:text-neutral-100 outline-hidden select-none before:absolute before:inset-x-1 before:inset-y-0 before:z-[-1] before:rounded-xs data-[highlighted]:not-data-[selected]:before:bg-neutral-100 dark:data-[highlighted]:not-data-[selected]:before:bg-neutral-800 data-[selected]:text-white data-[selected]:before:bg-neutral-950 dark:data-[selected]:text-neutral-950 dark:data-[selected]:before:bg-white data-[disabled]:text-neutral-400 dark:data-[disabled]:text-neutral-500 pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
+              key={songValue}
+              value={songValue}
+              className="block cursor-default px-3.5 py-1.5 text-sm outline-hidden select-none data-highlighted:not-data-selected:bg-neutral-100 dark:data-highlighted:not-data-selected:bg-neutral-800 data-selected:bg-neutral-950 data-selected:text-white dark:data-selected:bg-white dark:data-selected:text-neutral-950 data-disabled:text-neutral-500 dark:data-disabled:text-neutral-400"
             >
-              <span className="font-semibold">{title}</span>
-              <span className="text-xs text-neutral-500 dark:text-neutral-400 group-data-[selected]:text-neutral-300 dark:group-data-[selected]:text-neutral-600">
-                {artist}
-              </span>
+              {title}
             </Listbox.Item>
           ))}
         </Listbox.List>
-      </Listbox.Root>
-    </div>
+      </div>
+    </Listbox.Root>
   );
 }

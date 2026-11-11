@@ -1,42 +1,117 @@
+'use client';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
-const folders = [
-  { label: 'Inbox', value: 'inbox' },
-  { label: 'Archive', value: 'archive' },
-  { label: 'Drafts', value: 'drafts' },
-  { label: 'Projects', value: 'projects' },
-  { label: 'Receipts', value: 'receipts' },
-  { label: 'Travel', value: 'travel' },
-  { label: 'Work', value: 'work' },
-  { label: 'Personal', value: 'personal' },
+const genres = [
+  {
+    label: 'Pop',
+    songs: [
+      { title: 'Billie Jean', artist: 'Michael Jackson', duration: '4:54', value: 'billie-jean' },
+      { title: 'Dancing Queen', artist: 'ABBA', duration: '3:51', value: 'dancing-queen' },
+      { title: 'Like a Prayer', artist: 'Madonna', duration: '5:41', value: 'like-a-prayer' },
+      {
+        title: 'Running Up That Hill',
+        artist: 'Kate Bush',
+        duration: '5:00',
+        value: 'running-up-that-hill',
+      },
+    ],
+  },
+  {
+    label: 'Rock',
+    songs: [
+      { title: 'Hotel California', artist: 'Eagles', duration: '6:30', value: 'hotel-california' },
+      { title: 'London Calling', artist: 'The Clash', duration: '3:19', value: 'london-calling' },
+      { title: 'Heroes', artist: 'David Bowie', duration: '6:07', value: 'heroes' },
+      { title: 'Bohemian Rhapsody', artist: 'Queen', duration: '5:55', value: 'bohemian-rhapsody' },
+    ],
+  },
+  {
+    label: 'Soul',
+    songs: [
+      { title: 'Superstition', artist: 'Stevie Wonder', duration: '4:26', value: 'superstition' },
+      { title: 'Respect', artist: 'Aretha Franklin', duration: '2:27', value: 'respect' },
+      {
+        title: "What's Going On",
+        artist: 'Marvin Gaye',
+        duration: '3:53',
+        value: 'whats-going-on',
+      },
+      {
+        title: "Let's Stay Together",
+        artist: 'Al Green',
+        duration: '3:18',
+        value: 'lets-stay-together',
+      },
+    ],
+  },
+  {
+    label: 'Electronic',
+    songs: [
+      { title: 'Blue Monday', artist: 'New Order', duration: '7:29', value: 'blue-monday' },
+      {
+        title: 'Around the World',
+        artist: 'Daft Punk',
+        duration: '7:09',
+        value: 'around-the-world',
+      },
+      { title: 'Teardrop', artist: 'Massive Attack', duration: '5:29', value: 'teardrop' },
+      { title: 'Windowlicker', artist: 'Aphex Twin', duration: '6:07', value: 'windowlicker' },
+    ],
+  },
 ];
 
+const songCount = genres.reduce((count, genre) => count + genre.songs.length, 0);
+
 export default function ExampleListbox() {
+  const [value, setValue] = React.useState<string[]>(['billie-jean']);
+
   return (
-    <div className={styles.Field}>
-      <Listbox.Root defaultValue="archive">
-        <Listbox.Label className={styles.Label}>Move to</Listbox.Label>
+    <Listbox.Root multiple value={value} onValueChange={setValue}>
+      <div className={styles.Panel}>
+        <div className={styles.Header}>
+          <Listbox.Label className={styles.Label}>Playlist</Listbox.Label>
+          <span className={styles.Count}>
+            {value.length} of {songCount} selected
+          </span>
+        </div>
         <Listbox.List className={styles.List}>
-          {folders.map(({ label, value }) => (
-            <Listbox.Item key={value} value={value} className={styles.Item}>
-              <Listbox.ItemIndicator className={styles.ItemIndicator}>
-                <CheckIcon className={styles.ItemIndicatorIcon} />
-              </Listbox.ItemIndicator>
-              <span className={styles.ItemText}>{label}</span>
-            </Listbox.Item>
+          {genres.map((genre) => (
+            <Listbox.Group key={genre.label}>
+              <Listbox.GroupLabel className={styles.GroupLabel}>{genre.label}</Listbox.GroupLabel>
+              {genre.songs.map((song) => (
+                <Listbox.Item key={song.value} value={song.value} className={styles.Item}>
+                  <span className={styles.Checkbox}>
+                    <Listbox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon />
+                    </Listbox.ItemIndicator>
+                  </span>
+                  <span className={styles.ItemTitle}>{song.title}</span>
+                  <span className={styles.ItemArtist}>{song.artist}</span>
+                  <span className={styles.ItemDuration}>{song.duration}</span>
+                </Listbox.Item>
+              ))}
+            </Listbox.Group>
           ))}
         </Listbox.List>
-      </Listbox.Root>
-    </div>
+      </div>
+    </Listbox.Root>
   );
 }
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }
