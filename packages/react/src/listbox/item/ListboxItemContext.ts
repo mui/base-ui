@@ -3,8 +3,6 @@ import * as React from 'react';
 
 export interface ListboxItemContext {
   selected: boolean;
-  indexRef: React.RefObject<number>;
-  hasRegistered: boolean;
 }
 
 export const ListboxItemContext = React.createContext<ListboxItemContext | undefined>(undefined);
