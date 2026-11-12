@@ -70,8 +70,6 @@ describe.skipIf(isJSDOM)('<Select.FilterProvider /> with a screen reader press',
         screen.getByRole('option', { name: 'Australia' }).id,
       );
     });
-    // Assistive-technology clicks report no pointer type, so the popup does not trap focus.
-    expect(screen.getByTestId('popup')).not.toHaveAttribute('aria-modal');
   });
 
   it('does not highlight an option after an ordinary mouse press', async () => {

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -83,6 +84,9 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
     if (open) {
       setQueryChanged(false);
     }
+  } else if (!mounted && queryChanged) {
+    // Reset before the next open, which reads it in its first commit.
+    setQueryChanged(false);
   }
 
   // The value a multiple select toggled while filtering, to highlight once the query clears.
@@ -158,13 +162,26 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
 
   store.useSyncedValue('navigateFromSelected', value === '' && !queryChanged);
 
-  // Only an open change records a keyboard open, so a controlled close that bypasses it must not
-  // leave the next programmatic open looking like one.
+  // A keyboard open is recorded with the open request, so a controlled close that bypasses it, or
+  // a controlled `open` that ignores it, must not leave the next programmatic open looking like
+  // one. An ignored request is cleared a task later, once a controlled `open` prop could have
+  // caught up with it.
+  const keyboardOpenTimeout = useTimeout();
   useIsoLayoutEffect(() => {
     if (!open) {
       store.set('keyboardOpen', false);
     }
   }, [open, store]);
+  useIsoLayoutEffect(() => {
+    if (open || !keyboardOpen) {
+      return;
+    }
+    keyboardOpenTimeout.start(0, () => {
+      if (!store.select('open')) {
+        store.set('keyboardOpen', false);
+      }
+    });
+  }, [open, keyboardOpen, store, keyboardOpenTimeout]);
 
   const getActiveIndex = useStableCallback(() => store.state.activeIndex);
   const setActiveIndex = useStableCallback((index: number | null) => {
@@ -187,6 +204,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
   useIsoLayoutEffect(syncActiveItem, [activeIndex, syncActiveItem]);
 
   // An item a multiple select toggled while filtering stays highlighted once the query clears.
+  // The press commits with the clear, so a controlled query that ignores it drops the item.
   useIsoLayoutEffect(() => {
     const toggled = toggledItemRef.current;
     toggledItemRef.current = null;
@@ -208,7 +226,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
         store.set('activeIndex', index);
       }
     });
-  }, [query, store]);
+  });
 
   // Read by every option, so it holds nothing that changes with the highlight.
   const navigationContext: SelectFilterNavigationContext = React.useMemo(

@@ -122,4 +122,24 @@ describe('getFilterKeyAction', () => {
       ).toBe(expected);
     },
   );
+
+  it.each<[string, React.KeyboardEvent, boolean, boolean, FilterKeyAction]>([
+    ['ArrowLeft in a non-empty input', key('ArrowLeft'), true, true, 'edit'],
+    ['ArrowRight in a non-empty input', key('ArrowRight'), false, true, 'edit'],
+    ['ArrowLeft in an empty input', key('ArrowLeft'), true, false, 'navigate'],
+    ['ArrowRight in an empty input', key('ArrowRight'), false, false, 'navigate'],
+    ['ArrowDown without a highlight', key('ArrowDown'), false, true, 'navigate'],
+    ['Home in a non-empty input', key('Home'), true, true, 'edit'],
+    ['End on a highlight in an empty input', key('End'), true, false, 'navigate'],
+  ])('vertical without caret info (select): %s', (_, event, hasActiveItem, hasValue, expected) => {
+    expect(
+      getFilterKeyAction(event, {
+        orientation: 'vertical',
+        rtl: false,
+        hasActiveItem,
+        activeItemOpensSubmenu: false,
+        hasValue,
+      }),
+    ).toBe(expected);
+  });
 });

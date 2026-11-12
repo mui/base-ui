@@ -8,7 +8,8 @@ import type {
 import { useSelectFilterPart } from '../filter-root/SelectFilterContext';
 
 /**
- * A button that clears the input text.
+ * A button that clears the input text, not the selected value.
+ * It's hidden from assistive technology and isn't focusable.
  * Requires the select to be wrapped in `Select.FilterProvider`.
  * Renders a `<button>` element when the input has text.
  *

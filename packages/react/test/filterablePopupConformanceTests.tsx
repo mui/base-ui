@@ -254,6 +254,19 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
       });
     });
 
+    it('does not highlight an item when a controlled open follows an ignored keyboard open', async () => {
+      const { user, setProps } = await render(<ControlledTest open={false} />);
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('[ArrowDown]');
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      await setProps({ open: true });
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter' });
+      await act(() => waitSingleFrame());
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
     describe('list focus', () => {
       it('returns focus to the input when a press focuses the list', async () => {
         const { user } = await render(createComponent({}));
@@ -264,6 +277,26 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
         expect(list).toHaveAttribute('tabindex');
 
         fireEvent.pointerDown(list);
+        await act(async () => list.focus());
+
+        expect(input).toHaveFocus();
+      });
+
+      it('returns focus to the input when a touch press focuses the list after the touch ends', async () => {
+        const { user } = await render(createComponent({}));
+        await user.click(screen.getByTestId('trigger'));
+        const input = await findFocusedInput();
+        const list = screen.getByRole(listRole);
+
+        fireEvent.pointerDown(list, { pointerType: 'touch' });
+        fireEvent.pointerUp(list, { pointerType: 'touch' });
+        // Touch fires the compatibility mousedown, which focuses the list, after the touch ends.
+        await act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, 20);
+            }),
+        );
         await act(async () => list.focus());
 
         expect(input).toHaveFocus();
@@ -315,13 +348,17 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
         async (key) => {
           slowExitAnimation();
           const onOpenChange = vi.fn();
-          const { user } = await render(createComponent({ rootProps: { onOpenChange } }));
+          const onAlphaClick = vi.fn();
+          const { user } = await render(
+            createComponent({ rootProps: { onOpenChange }, onAlphaClick }),
+          );
           const { trigger, input } = await openWithKeyboardAndClose(user);
           const activeItemId = input.getAttribute('aria-activedescendant');
 
           await user.keyboard(`[${key}]`);
 
           expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
+          expect(onAlphaClick).not.toHaveBeenCalled();
           expect(trigger).toHaveAttribute('aria-expanded', 'false');
           expect(input.getAttribute('aria-activedescendant')).toBe(activeItemId);
         },

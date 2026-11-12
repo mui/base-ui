@@ -270,7 +270,7 @@ import { DemoSelectFilter } from './demos/filter';
 
 #### Matching items
 
-Items match their text by default. Use `label` to override it.
+Items match all of their text by default, including the text of `<Select.ItemIndicator>` or any other part inside them. Use `label` to override it.
 
 ```jsx title="Labels"
 <Select.Item value="nl" label="Netherlands">
@@ -346,6 +346,7 @@ The popup opens on the selected item: it is highlighted and scrolled into view.
 Without a selection, opening the select from the keyboard highlights the first item, or the last item with <kbd>ArrowUp</kbd>.
 Use `autoHighlight` to highlight the first match while filtering, or `autoHighlight="always"` to highlight it even when the query is empty.
 The highlighted item has the `data-highlighted` attribute, and `onItemHighlighted` on `<Select.Root>` reports each change with the item's value.
+Its `index` is the item's position among the items that currently match, not in `items`.
 
 #### Focus and keyboard
 
@@ -353,7 +354,7 @@ Opening the select with a click or the keyboard focuses the input. Opening it wi
 Typing on the closed trigger selects the first item whose label starts with the typed text, as in a plain select, without opening it.
 The arrow keys move the highlight while the input keeps focus. <kbd>Tab</kbd> closes the select, and <kbd>Shift</kbd>+<kbd>Tab</kbd> returns focus to the trigger.
 The trigger keeps its `combobox` role and opens a `dialog` that holds the `searchbox` input and the `listbox` list.
-`alignItemWithTrigger` defaults to `false` for filterable selects.
+`alignItemWithTrigger` has no effect in a filterable select.
 
 ## API reference
 

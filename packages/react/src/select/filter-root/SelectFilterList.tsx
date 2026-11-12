@@ -18,7 +18,7 @@ import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
-import { mergeProps } from '../../merge-props';
+import type { HTMLProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { SelectListProps } from '../list/SelectList';
 import { useSelectFilterNavigationContext } from './SelectFilterContext';
@@ -133,35 +133,40 @@ export const SelectFilterList = React.forwardRef(function SelectFilterList(
     resolveAriaLabelledBy(fieldLabelId, labelId) ?? null,
   );
 
-  const listProps = mergeProps<typeof FilterDropdownList>(
-    {
-      id: id === undefined ? undefined : `${id}-list`,
-      role: 'listbox',
-      'aria-multiselectable': multiple || undefined,
-      'aria-readonly': readOnly || undefined,
-      'aria-labelledby': ariaLabelledBy,
-      'aria-activedescendant': listFocused ? highlightedItemId : undefined,
-      onKeyDown: handleKeyDown,
-      onFocus(event: React.FocusEvent<HTMLDivElement>) {
-        if (getTarget(event.nativeEvent) === event.currentTarget) {
-          setListFocused(true);
-        }
-      },
-      onBlur(event: React.FocusEvent<HTMLDivElement>) {
-        if (getTarget(event.nativeEvent) === event.currentTarget) {
-          setListFocused(false);
-        }
-      },
-      onScroll(event: React.UIEvent<HTMLDivElement>) {
-        store.context.scrollHandlerRef.current?.(event.currentTarget);
-      },
-      className:
-        hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
+  const internalProps: HTMLProps = {
+    role: 'listbox',
+    'aria-multiselectable': multiple || undefined,
+    'aria-readonly': readOnly || undefined,
+    'aria-labelledby': ariaLabelledBy,
+    'aria-activedescendant': listFocused ? highlightedItemId : undefined,
+    onKeyDown: handleKeyDown,
+    onFocus(event: React.FocusEvent<HTMLDivElement>) {
+      if (getTarget(event.nativeEvent) === event.currentTarget) {
+        setListFocused(true);
+      }
     },
-    componentProps,
-  );
+    onBlur(event: React.FocusEvent<HTMLDivElement>) {
+      if (getTarget(event.nativeEvent) === event.currentTarget) {
+        setListFocused(false);
+      }
+    },
+    onScroll(event: React.UIEvent<HTMLDivElement>) {
+      store.context.scrollHandlerRef.current?.(event.currentTarget);
+    },
+    className:
+      hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
+  };
 
   const ref = useMergedRefs(forwardedRef, setListElement);
 
-  return <FilterDropdownList {...listProps} ref={ref} />;
+  return (
+    <FilterDropdownList
+      // The list's id is resolved with the rendered element's, which the input's
+      // `aria-controls` follows.
+      id={id === undefined ? undefined : `${id}-list`}
+      {...componentProps}
+      internalProps={internalProps}
+      ref={ref}
+    />
+  );
 });

@@ -108,7 +108,7 @@ function FilterablePopup(props: FilterablePopupProps) {
           aria-label={props.inputLabel}
           placeholder={props.placeholder}
         />
-        <Select.Clear className={styles.Clear} aria-label="Clear filter">
+        <Select.Clear className={styles.Clear}>
           <ClearIcon />
         </Select.Clear>
       </div>

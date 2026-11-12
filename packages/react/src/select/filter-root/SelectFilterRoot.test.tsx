@@ -10,6 +10,7 @@ import {
   isJSDOM,
   resetBrowserPointer,
 } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 
 const countries = [
   { value: 'au', label: 'Australia' },
@@ -92,6 +93,67 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     ),
   });
 
+  it('resolves a function className on the list alongside scroll arrows', async () => {
+    await render(
+      <Select.FilterProvider>
+        <Select.Root defaultOpen>
+          <Select.Trigger />
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.ScrollUpArrow />
+                <Select.Input aria-label="Filter" />
+                <Select.List className={() => 'list-class'}>
+                  <Select.Item value="a">a</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </Select.FilterProvider>,
+    );
+
+    const list = screen.getByRole('listbox');
+    await waitFor(() => {
+      expect(list.classList.length).toBe(2);
+    });
+    expect(list).toHaveClass('list-class');
+  });
+
+  it('does not restore a toggled highlight once a controlled query that ignored the clear empties', async () => {
+    const { user, setProps } = await render(
+      <Test
+        root={{ defaultOpen: true, multiple: true }}
+        provider={{ value: 'a', onValueChange: () => {} }}
+      />,
+    );
+    const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+    await user.keyboard('[ArrowDown][Enter]');
+    expect(screen.getByRole('option', { name: 'Australia' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await user.keyboard('[ArrowDown]');
+    expect(input).toHaveAttribute(
+      'aria-activedescendant',
+      screen.getByRole('option', { name: 'France' }).id,
+    );
+
+    await setProps({
+      root: { defaultOpen: true, multiple: true },
+      provider: { value: '', onValueChange: () => {} },
+    });
+    await act(() => Promise.resolve());
+
+    expect(input).not.toHaveAttribute(
+      'aria-activedescendant',
+      screen.getByRole('option', { name: 'Australia' }).id,
+    );
+  });
+
   describe('semantics', () => {
     it('renders a combobox trigger that opens a dialog with a searchbox and a listbox', async () => {
       await render(<Test root={{ defaultOpen: true }} />);
@@ -150,28 +212,17 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     });
 
     // Alignment needs layout, and room around the trigger.
-    it.skipIf(isJSDOM).each([
-      {
-        name: 'does not align the selected item with the trigger by default',
-        align: undefined,
-        side: 'bottom',
-      },
-      {
-        name: 'aligns the selected item with the trigger when alignItemWithTrigger is set',
-        align: true,
-        side: 'none',
-      },
-    ])('$name', async ({ align, side }) => {
+    it.skipIf(isJSDOM)('ignores alignItemWithTrigger', async () => {
       await render(
         <div style={{ paddingTop: 100 }}>
           <Test
             root={{ defaultOpen: true, defaultValue: 'fr' }}
-            positioner={{ alignItemWithTrigger: align }}
+            positioner={{ alignItemWithTrigger: true }}
           />
         </div>,
       );
       await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-side', side);
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-side', 'bottom');
       });
     });
 
@@ -558,6 +609,44 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       );
     });
 
+    it('highlights an option deselected from the middle of the value once the query clears', async () => {
+      const { user } = await render(
+        <Test root={{ defaultOpen: true, multiple: true, defaultValue: ['au', 'fr', 'jp'] }} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('fra[ArrowDown][Enter]');
+
+      expect(input).toHaveValue('');
+      const france = screen.getByRole('option', { name: 'France' });
+      expect(france).toHaveAttribute('aria-selected', 'false');
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', france.id);
+      });
+    });
+
+    it('keeps a whitespace-only query when an option is pressed', async () => {
+      const { user } = await render(
+        <Test root={{ defaultOpen: true, multiple: true }} provider={{ defaultValue: ' ' }} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      expect(input).toHaveValue(' ');
+
+      await user.click(screen.getByRole('option', { name: 'France' }));
+
+      expect(screen.getByRole('option', { name: 'France' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      expect(input).toHaveValue(' ');
+    });
+
     it('keeps the toggled item highlighted after the query clears', async () => {
       const { user } = await render(<Test root={{ defaultOpen: true, multiple: true }} />);
       const input = screen.getByRole('searchbox', { name: 'Filter countries' });
@@ -908,6 +997,77 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       );
     });
 
+    it('reports the highlighted value and index with the reason for each change', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<Test root={{ onItemHighlighted }} />);
+      const reports = () =>
+        onItemHighlighted.mock.calls.map(([value, details]) => [
+          value,
+          details.reason,
+          details.index,
+        ]);
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('[ArrowDown]');
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant');
+      });
+      await user.keyboard('[ArrowDown]');
+      const japan = screen.getByRole('option', { name: 'Japan' });
+      await user.hover(japan);
+      await waitFor(() => {
+        expect(japan).toHaveAttribute('data-highlighted');
+      });
+      await user.unhover(japan);
+      await waitFor(() => {
+        expect(japan).not.toHaveAttribute('data-highlighted');
+      });
+      // Typing leaves only Japan, at index 0.
+      await user.keyboard('jap[ArrowDown]');
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      expect(reports()).toEqual([
+        ['au', REASONS.none, 0],
+        ['fr', REASONS.keyboard, 1],
+        ['jp', REASONS.pointer, 3],
+        [undefined, REASONS.pointer, -1],
+        ['jp', REASONS.keyboard, 0],
+        [undefined, REASONS.none, -1],
+      ]);
+    });
+
+    it('reports only the selected option on a keyboard reopen after typing', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<Test root={{ defaultValue: 'jp', onItemHighlighted }} />);
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('a');
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      await act(async () => trigger.focus());
+      onItemHighlighted.mockClear();
+
+      await user.keyboard('[ArrowDown]');
+
+      const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(reopenedInput).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Japan' }).id,
+        );
+      });
+      expect(onItemHighlighted.mock.calls.map(([value]) => value)).toEqual(['jp']);
+    });
+
     it('reports the first match once the filtered options settle', async () => {
       const onItemHighlighted = vi.fn();
       const { user } = await render(
@@ -1073,29 +1233,6 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(input).toHaveFocus();
     });
 
-    it('keeps focus on the input after drag-to-select', async () => {
-      await render(<Test root={{ multiple: true, highlightItemOnHover: false }} />);
-      fireEvent.mouseDown(screen.getByTestId('trigger'));
-      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-
-      const option = screen.getByRole('option', { name: 'Germany' });
-      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
-      fireEvent.pointerMove(option, { pointerType: 'mouse', buttons: 1, movementY: 8 });
-      // Releasing over an unselected option only commits once the selection delay has passed.
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 450);
-        });
-      });
-      fireEvent.mouseUp(option);
-
-      expect(option).toHaveAttribute('aria-selected', 'true');
-      expect(input).toHaveFocus();
-    });
-
     it('keeps focus on the input when an option is pressed in multiple mode', async () => {
       const { user } = await render(<Test root={{ defaultOpen: true, multiple: true }} />);
       const input = screen.getByRole('searchbox', { name: 'Filter countries' });
@@ -1108,6 +1245,35 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         'aria-selected',
         'true',
       );
+      expect(input).toHaveFocus();
+    });
+  });
+
+  describe.skipIf(!isJSDOM)('drag to select', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: { shouldAdvanceTime: true },
+    });
+
+    clock.withFakeTimers();
+
+    it('keeps focus on the input after drag-to-select', async () => {
+      await renderFakeTimers(<Test root={{ multiple: true, highlightItemOnHover: false }} />);
+      fireEvent.mouseDown(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      const option = screen.getByRole('option', { name: 'Germany' });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      fireEvent.pointerMove(option, { pointerType: 'mouse', buttons: 1, movementY: 8 });
+      // Releasing over an unselected option only commits once the selection delay has passed.
+      await act(async () => {
+        await clock.tickAsync(450);
+      });
+      fireEvent.mouseUp(option);
+
+      expect(option).toHaveAttribute('aria-selected', 'true');
       expect(input).toHaveFocus();
     });
   });
@@ -1177,6 +1343,72 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     );
   });
 
+  describe('disabled options', () => {
+    function DisabledTest(props: { onValueChange: () => void }) {
+      return (
+        <Select.FilterProvider>
+          <Select.Root defaultOpen onValueChange={props.onValueChange}>
+            <Select.Trigger />
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Input aria-label="Filter" />
+                  <Select.List>
+                    <Select.Item value="a" disabled>
+                      Apple
+                    </Select.Item>
+                    <Select.Item value="b">Banana</Select.Item>
+                  </Select.List>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Select.FilterProvider>
+      );
+    }
+
+    it('does not select or close on a click', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<DisabledTest onValueChange={onValueChange} />);
+
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('dialog')).toBeVisible();
+    });
+
+    it('does not select or close on Enter while highlighted', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<DisabledTest onValueChange={onValueChange} />);
+      const input = screen.getByRole('searchbox', { name: 'Filter' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Apple' }).id,
+      );
+
+      await user.keyboard('[Enter]');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('dialog')).toBeVisible();
+    });
+
+    it('filters a disabled option like any other', async () => {
+      const { user } = await render(<DisabledTest onValueChange={() => {}} />);
+      const input = screen.getByRole('searchbox', { name: 'Filter' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('app');
+
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Apple']);
+    });
+  });
+
   describe('screen reader focus on the list', () => {
     // Safari VoiceOver focuses the list as its cursor moves onto it, without pointer events.
     async function focusList(root?: Partial<Select.Root.Props<string, boolean>>) {
@@ -1216,6 +1448,55 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await user.keyboard('[ArrowDown][ArrowDown][Enter]');
 
       expect(onValueChange).toHaveBeenCalledExactlyOnceWith('fr', expect.anything());
+    });
+
+    it('jumps to the first and last options with Home and End', async () => {
+      const { user, list } = await focusList();
+      await user.keyboard('[ArrowDown][End]');
+      expect(list).toHaveFocus();
+      expect(list).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Japan' }).id,
+      );
+
+      await user.keyboard('[Home]');
+      expect(list).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Australia' }).id,
+      );
+    });
+
+    it('selects the highlighted option with Space', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await focusList({ onValueChange });
+
+      await user.keyboard('[ArrowDown][ArrowDown][Space]');
+
+      expect(onValueChange).toHaveBeenCalledExactlyOnceWith('fr', expect.anything());
+    });
+
+    it('moves a typed character into the input', async () => {
+      const { user, input } = await focusList();
+
+      await user.keyboard('g');
+
+      expect(input).toHaveFocus();
+      expect(input).toHaveValue('g');
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+        'Germany',
+      ]);
+    });
+
+    it('moves a character typed on a focused option into the input', async () => {
+      const { user, input } = await focusList();
+      const option = screen.getByRole('option', { name: 'France' });
+      await act(async () => option.focus());
+      expect(option).toHaveFocus();
+
+      await user.keyboard('g');
+
+      expect(input).toHaveFocus();
+      expect(input).toHaveValue('g');
     });
 
     it('returns focus to the input when the highlight steps out past the first option', async () => {

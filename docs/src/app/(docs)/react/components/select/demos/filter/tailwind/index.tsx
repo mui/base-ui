@@ -107,7 +107,7 @@ function FilterablePopup(props: FilterablePopupProps) {
           aria-label={props.inputLabel}
           placeholder={props.placeholder}
         />
-        <Select.Clear className={clearClass} aria-label="Clear filter">
+        <Select.Clear className={clearClass}>
           <ClearIcon />
         </Select.Clear>
       </div>
@@ -136,8 +136,7 @@ const inputContainerClass =
   'flex items-center border-b border-neutral-300 has-data-highlighted:border-neutral-950 has-data-highlighted:ring-1 has-data-highlighted:ring-neutral-950 has-data-highlighted:ring-inset dark:border-neutral-700 dark:has-data-highlighted:border-white dark:has-data-highlighted:ring-white';
 const inputClass =
   'min-h-8 w-0 flex-1 bg-transparent px-2.5 text-sm leading-none outline-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400';
-const clearClass =
-  'flex size-8 items-center justify-center bg-transparent outline-hidden focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
+const clearClass = 'flex size-8 items-center justify-center bg-transparent';
 const emptyClass = 'p-3 text-sm text-neutral-500 dark:text-neutral-400';
 const listClass =
   'relative max-h-[min(16rem,calc(var(--available-height)-2.0625rem))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0';
