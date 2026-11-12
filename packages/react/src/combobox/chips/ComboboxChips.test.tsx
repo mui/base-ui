@@ -1,4 +1,5 @@
 import { expect, vi, describe, it } from 'vitest';
+import * as ReactDOM from 'react-dom';
 import { Combobox } from '@base-ui/react/combobox';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -62,6 +63,34 @@ describe('<Combobox.Chips />', () => {
     expect(document.activeElement).not.toBe(input);
     fireEvent.mouseDown(chip);
     expect(input).toHaveFocus();
+  });
+
+  it('does not focus the input when pressing content in a nested React portal', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['apple']} multiple>
+        <Combobox.Chips>
+          <Combobox.Input data-testid="input" />
+          {ReactDOM.createPortal(<div data-testid="portal" />, document.body)}
+        </Combobox.Chips>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    expect(input).not.toHaveFocus();
+
+    await user.pointer({ keys: '[MouseLeft]', target: screen.getByTestId('portal') });
+
+    expect(input).not.toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
   });
 
   it('lets onMouseDown prevent the built-in focus and open behavior', async () => {
