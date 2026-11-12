@@ -10,7 +10,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 /** How close to an edge of the scrolling container the pointer starts to scroll it, in pixels. */
 const SCROLL_EDGE_SIZE = 40;
 /** The scrolling speed with the pointer at the edge or past it, in pixels per millisecond. */
-const MAX_SCROLL_SPEED = 0.75;
+const MAX_SCROLL_SPEED = 0.375;
 /** The longest time a frame scrolls for, so a stalled page doesn't jump when it resumes. */
 const MAX_FRAME_DURATION = 50;
 
