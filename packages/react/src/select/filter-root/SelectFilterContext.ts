@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { HTMLProps } from '../../internals/types';
 import type { SelectFilterPopup } from './SelectFilterPopup';
 import type { SelectFilterList } from './SelectFilterList';
@@ -49,15 +49,12 @@ export function useUnfilteredTriggerProps(): HTMLProps {
 }
 
 export interface SelectFilterNavigationContext {
-  /** Re-reads the highlighted option once the list's items settle. */
-  syncActiveItem: () => void;
   /** Whether the trigger was last pressed by a screen reader. */
   virtualPressRef: React.RefObject<boolean>;
 }
 
 // The engine's own context check fires first when a part renders outside the provider.
 export const SelectFilterNavigationContext = React.createContext<SelectFilterNavigationContext>({
-  syncActiveItem: NOOP,
   virtualPressRef: { current: false },
 });
 

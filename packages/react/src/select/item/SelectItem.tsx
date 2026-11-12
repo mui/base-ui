@@ -146,7 +146,9 @@ export const SelectItemPlain = React.forwardRef(function SelectItem(
       const nextValue = selected
         ? removeItem(currentValue, itemValue, isItemEqualToValue)
         : [...currentValue, itemValue];
-      store.context.setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
+      store.context.setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event), {
+        value: itemValue,
+      });
     } else {
       store.context.setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
       store.setOpen(false, createChangeEventDetails(REASONS.itemPress, event));

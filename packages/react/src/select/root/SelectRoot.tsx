@@ -212,6 +212,7 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
           ...createPopupStoreContext(),
           isItemEqualToValue,
           setValue: NOOP,
+          onItemToggle: NOOP,
           handleScrollArrowVisibility: NOOP,
           syncHighlight: NOOP,
           listRef,
@@ -308,7 +309,11 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
   });
 
   const setValue = useStableCallback(
-    (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
+    (
+      nextValue: any,
+      eventDetails: SelectRoot.ChangeEventDetails,
+      toggledItem?: { value: unknown },
+    ) => {
       onValueChange?.(nextValue, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -316,6 +321,9 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
       }
 
       setValueUnwrapped(nextValue);
+      if (toggledItem) {
+        store.context.onItemToggle(toggledItem.value, eventDetails);
+      }
     },
   );
 
@@ -347,9 +355,19 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     value: undefined,
   });
 
-  // Filtering can move another item into the highlighted index, so the value is compared too.
+  // Runs when `activeIndex` commits and when the items settle: filtering can move another item
+  // into the highlighted index, so the value is compared too.
   function syncHighlight() {
     const index = store.state.activeIndex;
+    const item = index === null ? undefined : listRef.current[index];
+    // An item removed in this commit stays registered until the list flushes, and syncs again then.
+    if (item?.isConnected === false) {
+      return;
+    }
+    // A filterable select points its input's `aria-activedescendant` at the element.
+    if (filterable) {
+      store.set('highlightedItem', item ?? undefined);
+    }
     const value = index === null ? undefined : valuesRef.current[index];
     const reported = reportedHighlightRef.current;
     // A hole is an index whose item hasn't registered its value yet; it syncs once it does.

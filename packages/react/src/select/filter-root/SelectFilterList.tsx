@@ -21,7 +21,6 @@ import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifie
 import type { HTMLProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { SelectListProps } from '../list/SelectList';
-import { useSelectFilterNavigationContext } from './SelectFilterContext';
 import { useSelectFilterKeyDown } from './useSelectFilterKeyDown';
 
 /**
@@ -37,7 +36,6 @@ export const SelectFilterList = React.forwardRef(function SelectFilterList(
   const { labelId: fieldLabelId } = useLabelableContext();
   const { onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
-  const { syncActiveItem } = useSelectFilterNavigationContext();
   const { subscribeMapChange } = useCompositeListContext();
 
   const id = store.useState('id');
@@ -120,7 +118,7 @@ export const SelectFilterList = React.forwardRef(function SelectFilterList(
         store.context.handleScrollArrowVisibility(listElement);
       }
     }
-    syncActiveItem();
+    store.context.syncHighlight();
   });
 
   useIsoLayoutEffect(() => {
