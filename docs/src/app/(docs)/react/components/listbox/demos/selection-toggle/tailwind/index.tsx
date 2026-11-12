@@ -11,6 +11,14 @@ const songs = [
   { title: 'London Calling', value: 'london-calling' },
   { title: 'Heroes', value: 'heroes' },
   { title: 'Bohemian Rhapsody', value: 'bohemian-rhapsody' },
+  { title: 'Purple Rain', value: 'purple-rain' },
+  { title: 'Superstition', value: 'superstition' },
+  { title: 'Go Your Own Way', value: 'go-your-own-way' },
+  { title: 'Once in a Lifetime', value: 'once-in-a-lifetime' },
+  { title: 'Take On Me', value: 'take-on-me' },
+  { title: 'Blue Monday', value: 'blue-monday' },
+  { title: 'Under Pressure', value: 'under-pressure' },
+  { title: 'Just Like Heaven', value: 'just-like-heaven' },
 ];
 
 export default function ExampleListboxSelectionToggle() {
