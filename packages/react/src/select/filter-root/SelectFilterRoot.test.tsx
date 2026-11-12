@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { Select } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 import { Dialog } from '@base-ui/react/dialog';
@@ -1257,6 +1257,8 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     clock.withFakeTimers();
 
     it('keeps focus on the input after drag-to-select', async () => {
+      // React 18 reports the fake clock's timer updates outside `act`.
+      ignoreActWarnings();
       await renderFakeTimers(<Test root={{ multiple: true, highlightItemOnHover: false }} />);
       fireEvent.mouseDown(screen.getByTestId('trigger'));
       const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
