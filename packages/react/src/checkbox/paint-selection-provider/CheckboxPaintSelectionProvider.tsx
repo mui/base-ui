@@ -16,9 +16,9 @@ import {
 } from '../../checkbox-group/paint-selection-provider/CheckboxGroupPaintSelectionContext';
 
 /**
- * Enables painting checkboxes with a mouse or pen in the checkbox group it wraps.
+ * Enables painting checkboxes in the checkbox group it wraps.
  * Dragging back to an earlier checkbox restores the items beyond it to their original state.
- * Touch gestures retain native scrolling.
+ * A touch drag that starts on a checkbox paints instead of scrolling the page.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Checkbox Group](https://base-ui.com/react/components/checkbox-group)

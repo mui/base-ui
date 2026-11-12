@@ -48,20 +48,20 @@ function down(element: HTMLElement, pointerType = 'mouse') {
     timeStamp: 100,
   });
 }
-function move(element: HTMLElement) {
+function move(element: HTMLElement, pointerType = 'mouse') {
   firePointer.move(element, {
     ...position(element),
-    pointerType: 'mouse',
+    pointerType,
     pointerId: 1,
     isPrimary: true,
     buttons: 1,
     timeStamp: 120,
   });
 }
-function up(element: HTMLElement) {
+function up(element: HTMLElement, pointerType = 'mouse') {
   firePointer.up(element, {
     ...position(element),
-    pointerType: 'mouse',
+    pointerType,
     pointerId: 1,
     isPrimary: true,
     button: 0,
@@ -72,7 +72,7 @@ function up(element: HTMLElement) {
 describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
   const { render } = createRenderer();
 
-  it('does not paint while disabled', async () => {
+  it('does not paint or block touch panning while disabled', async () => {
     await render(
       <Checkbox.PaintSelectionProvider disabled>
         <CheckboxGroup>
@@ -81,6 +81,7 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
       </Checkbox.PaintSelectionProvider>,
     );
     const [a, b, c] = screen.getAllByRole('checkbox');
+    expect(getComputedStyle(a).touchAction).toBe('auto');
     down(a);
     move(c);
     up(c);
@@ -381,7 +382,7 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
     }
   });
 
-  it('keeps click and keyboard activation and ignores touch dragging', async () => {
+  it('keeps click and keyboard activation', async () => {
     const { user } = await render(
       <Checkbox.PaintSelectionProvider>
         <CheckboxGroup>
@@ -389,7 +390,7 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
         </CheckboxGroup>
       </Checkbox.PaintSelectionProvider>,
     );
-    const [a, b, c] = screen.getAllByRole('checkbox');
+    const [a, b] = screen.getAllByRole('checkbox');
     down(a);
     up(a);
     fireEvent.click(a, { detail: 1 });
@@ -397,10 +398,46 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
     await user.click(b);
     await user.keyboard('[Space]');
     expect(b).toHaveAttribute('aria-checked', 'false');
-    down(b, 'touch');
-    move(c);
-    up(c);
-    expect(c).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it.each([{ pointerType: 'touch' }, { pointerType: 'pen' }])(
+    'paints with $pointerType',
+    async ({ pointerType }) => {
+      await render(
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup>
+            <Checkboxes />
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>,
+      );
+      const [a, b, c, d] = screen.getAllByRole('checkbox');
+      down(a, pointerType);
+      move(c, pointerType);
+      up(c, pointerType);
+      for (const item of [a, b, c]) {
+        expect(item).toHaveAttribute('aria-checked', 'true');
+      }
+      expect(d).toHaveAttribute('aria-checked', 'false');
+    },
+  );
+
+  it('blocks touch panning only on checkboxes that can start a paint', async () => {
+    await render(
+      <React.Fragment>
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup allValues={names}>
+            <Checkbox.Root parent aria-label="all" />
+            <Checkboxes disabled="b" readOnly="c" />
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>
+        <Checkbox.Root aria-label="outside" />
+      </React.Fragment>,
+    );
+    const touchActions = screen
+      .getAllByRole('checkbox')
+      .map((item) => getComputedStyle(item).touchAction);
+    // parent, a, disabled b, read-only c, d, outside
+    expect(touchActions).toEqual(['auto', 'none', 'auto', 'auto', 'none', 'auto']);
   });
 
   it.each(['pointercancel', 'blur', 'unmount'])('cleans up after %s', async (end) => {

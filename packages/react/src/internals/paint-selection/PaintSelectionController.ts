@@ -20,7 +20,7 @@ export interface PaintSelectionChange<Item> {
 
 type Point = { x: number; y: number };
 
-/** A scoped mouse/pen gesture controller. It has no React or selection-model dependency. */
+/** A scoped pointer gesture controller. It has no React or selection-model dependency. */
 export class PaintSelectionController<Item extends PaintSelectionItem> {
   private items = new Map<HTMLElement, Item>();
   private cleanup: (() => void) | undefined;
@@ -52,7 +52,6 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
       event.defaultPrevented ||
       event.button !== 0 ||
       event.isPrimary === false ||
-      (event.pointerType !== 'mouse' && event.pointerType !== 'pen') ||
       event.altKey ||
       event.ctrlKey ||
       event.metaKey ||

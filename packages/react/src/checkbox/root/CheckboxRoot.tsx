@@ -43,6 +43,9 @@ import { useValueChanged } from '../../internals/useValueChanged';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
+// A touch or pen drag would otherwise pan the page, which cancels the pointer.
+const PAINT_STYLE: React.CSSProperties = { touchAction: 'none' };
+
 /**
  * Represents the checkbox itself.
  * Renders a `<span>` element and a hidden `<input>` beside.
@@ -398,6 +401,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       {
         id: rootId,
         role: 'checkbox',
+        style: paintController && !disabled && !readOnly ? PAINT_STYLE : undefined,
         onPointerDown(event: React.PointerEvent<HTMLElement>) {
           paintController?.start(event.currentTarget, event.nativeEvent);
         },
