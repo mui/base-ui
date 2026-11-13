@@ -1,6 +1,7 @@
 import type { HTMLProps } from '../internals/types';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
+import { REASONS } from '../internals/reasons';
 import type { AriaCombobox } from './root/AriaCombobox';
 import type { AdaptiveOriginMiddleware } from '../utils/popups/positioning/adaptiveOriginConstants';
 import type { PopupInteractionReader, PositioningInteractionStore } from '../utils/popups/types';
@@ -48,9 +49,8 @@ export type State = ValuePopupState & {
   submitOnItemClick: boolean;
   hasInputValue: boolean;
 
-  // The shared positioner reads these. A combobox has neither an instant transition nor an
-  // adaptive origin, so they stay `undefined`.
-  instantType: undefined;
+  // The shared positioner reads this to apply instant transition styling on Escape dismissal.
+  instantType: 'dismiss' | undefined;
   adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
@@ -183,6 +183,15 @@ export class ComboboxStore extends ValuePopupStore<
   // The input requests an open on every keystroke and press; only an actual change is one.
   protected isOpenChangeIgnored(nextOpen: boolean) {
     return nextOpen === this.select('open');
+  }
+
+  protected prepareOpenChange(
+    nextOpen: boolean,
+    eventDetails: AriaCombobox.OpenChangeEventDetails,
+  ) {
+    const instantType: State['instantType'] =
+      !nextOpen && eventDetails.reason === REASONS.escapeKey ? 'dismiss' : undefined;
+    return { instantType };
   }
 
   protected prepareUnmount() {
