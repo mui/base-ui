@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { describe, expect, it } from 'vitest';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { createRenderer } from '#test-utils';
-import { isJSDOM, waitForPositioned } from '#test-utils';
+import { isJSDOM, waitForPositioned, waitSingleFrame } from '#test-utils';
 import type {
   Align,
   CollisionAvoidance,
@@ -109,6 +109,78 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
   }
 
   describe.skipIf(isJSDOM)('Positioner conformance', () => {
+    it.each([
+      { name: 'stylesheet', inlineStyle: undefined },
+      {
+        name: 'inline',
+        inlineStyle: { transition: 'transform 200ms linear' } satisfies React.CSSProperties,
+      },
+    ])('preserves $name transitions after the first positioned frame', async ({ inlineStyle }) => {
+      let transitionRuns = 0;
+      ignoreActWarnings();
+      const setPositionerElement = (element: HTMLDivElement | null) => {
+        element?.addEventListener('transitionrun', (event) => {
+          if (event.target === element && event.propertyName === 'transform') {
+            transitionRuns += 1;
+          }
+        });
+      };
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const [sideOffset, setSideOffset] = React.useState(0);
+
+        return (
+          <React.Fragment>
+            <style>{`
+                .positioner-transition-test {
+                  transition: transform 200ms linear;
+                }
+              `}</style>
+            <button type="button" onClick={() => setOpen(!open)}>
+              Toggle popup
+            </button>
+            <button type="button" onClick={() => setSideOffset(40)}>
+              Move popup
+            </button>
+            {prepareComponent({
+              open,
+              positioner: {
+                sideOffset,
+                className: 'positioner-transition-test',
+                style: inlineStyle,
+                ref: setPositionerElement,
+              },
+            })}
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const moveButton = screen.getByRole('button', { name: 'Move popup' });
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle popup' }));
+
+      const positioner = await screen.findByTestId('positioner');
+      await waitForPositioned(positioner);
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await waitSingleFrame();
+
+      expect(positioner.style.transitionProperty).toBe(inlineStyle ? 'transform' : '');
+      expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
+      expect(transitionRuns).toBe(0);
+
+      const initialTransform = positioner.style.transform;
+      fireEvent.click(moveButton);
+
+      await waitFor(() => {
+        expect(transitionRuns).toBeGreaterThan(0);
+      });
+      expect(positioner.style.transform).not.toBe(initialTransform);
+      expect(getComputedStyle(positioner).transitionProperty).toBe('transform');
+    });
+
     describe.each(offsetCases)(
       'prop: $prop',
       ({ prop, numberPosition, offsetFunction, functionPosition }) => {
@@ -337,7 +409,10 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
   });
 }
 
-export interface PositionerTestProps {
+export interface PositionerTestProps
+  extends
+    Pick<React.HTMLAttributes<HTMLDivElement>, 'className' | 'style'>,
+    React.RefAttributes<HTMLDivElement> {
   'data-testid': string;
   side?: Side;
   align?: Align;
