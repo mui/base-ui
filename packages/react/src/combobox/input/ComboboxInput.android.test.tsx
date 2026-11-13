@@ -20,7 +20,7 @@ vi.mock('@base-ui/utils/platform', async (importOriginal) => {
 describe('<Combobox.Input /> on Android', () => {
   const { render } = createRenderer();
 
-  it('propagates changes during Android composition', async () => {
+  it('propagates changes and the final Android composition commit', async () => {
     const onInputValueChange = vi.fn();
     await render(
       <Combobox.Root onInputValueChange={onInputValueChange}>
@@ -33,5 +33,14 @@ describe('<Combobox.Input /> on Android', () => {
     fireEvent.change(input, { target: { value: 'a' } });
 
     expect(onInputValueChange).toHaveBeenCalledWith('a', expect.anything());
+
+    onInputValueChange.mockClear();
+    fireEvent.compositionEnd(input, { data: 'a' });
+
+    expect(onInputValueChange).toHaveBeenCalledTimes(1);
+    expect(onInputValueChange).toHaveBeenCalledWith(
+      'a',
+      expect.objectContaining({ event: expect.objectContaining({ type: 'compositionend' }) }),
+    );
   });
 });
