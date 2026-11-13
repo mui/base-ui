@@ -1,6 +1,6 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -52,6 +52,7 @@ describe('<PasswordField.Input />', () => {
   it('does not let a consumer-supplied type override the visibility-driven type', async () => {
     await render(
       <PasswordField.Root defaultVisible>
+        {/* @ts-expect-error `type` follows the visibility */}
         <PasswordField.Input type="email" />
         <PasswordField.Toggle />
       </PasswordField.Root>,
@@ -83,61 +84,17 @@ describe('<PasswordField.Input />', () => {
     expect(screen.getByTestId('input')).toBeDisabled();
   });
 
-  it('uses the provided id', async () => {
+  it('ignores an id passed to the input, which the root owns', async () => {
     await render(
-      <PasswordField.Root>
-        <PasswordField.Input id="my-password" />
+      <PasswordField.Root id="root-id">
+        {/* @ts-expect-error `id` is set on the root */}
+        <PasswordField.Input id="input-id" />
         <PasswordField.Toggle />
       </PasswordField.Root>,
     );
 
-    expect(document.querySelector('input')).toHaveAttribute('id', 'my-password');
-    expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'my-password');
-  });
-
-  it("keeps the toggle's aria-controls in sync when the input id changes", async () => {
-    function App(props: { id: string }) {
-      return (
-        <PasswordField.Root>
-          <PasswordField.Input id={props.id} />
-          <PasswordField.Toggle />
-        </PasswordField.Root>
-      );
-    }
-
-    const { setProps } = await render(<App id="first" />);
-    expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'first');
-
-    await setProps({ id: 'second' });
-    expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'second');
-  });
-
-  it('hides on reset when a form is wrapped around the input after it mounts', async () => {
-    function App(props: { withForm: boolean }) {
-      const field = (
-        <PasswordField.Root defaultVisible>
-          <PasswordField.Input />
-          <PasswordField.Toggle />
-        </PasswordField.Root>
-      );
-      return props.withForm ? <form>{field}</form> : <div>{field}</div>;
-    }
-
-    const { setProps } = await render(<App withForm={false} />);
-
-    expect(document.querySelector('input')).toHaveAttribute('type', 'text');
-    expect(document.querySelector('input')!.form).toBe(null);
-
-    await setProps({ withForm: true });
-
-    const input = document.querySelector('input')!;
-    expect(input.form).not.toBe(null);
-
-    fireEvent.reset(input.form!);
-
-    await waitFor(() =>
-      expect(document.querySelector('input')).toHaveAttribute('type', 'password'),
-    );
+    expect(document.querySelector('input')).toHaveAttribute('id', 'root-id');
+    expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'root-id');
   });
 
   describe('Field integration', () => {

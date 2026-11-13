@@ -1,13 +1,13 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 describe('<PasswordField.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<PasswordField.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -23,7 +23,7 @@ describe('<PasswordField.Root />', () => {
         </PasswordField.Root>,
       );
 
-      expect(screen.getByRole('button')).toBeInTheDocument();
+      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
       expect(document.querySelector('input')).toHaveAttribute('type', 'password');
     });
 
@@ -137,7 +137,7 @@ describe('<PasswordField.Root />', () => {
     it('disables the input and the toggle', async () => {
       const onVisibleChange = vi.fn();
       await render(
-        <PasswordField.Root disabled onVisibleChange={onVisibleChange}>
+        <PasswordField.Root disabled onVisibleChange={onVisibleChange} data-testid="root">
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
@@ -148,6 +148,8 @@ describe('<PasswordField.Root />', () => {
 
       expect(input).toBeDisabled();
       expect(button).toBeDisabled();
+      expect(screen.getByTestId('root')).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('data-disabled');
 
       await act(async () => {
         button.click();
@@ -159,7 +161,7 @@ describe('<PasswordField.Root />', () => {
     it('is disabled by a surrounding Field.Root', async () => {
       await render(
         <Field.Root disabled>
-          <PasswordField.Root>
+          <PasswordField.Root data-testid="root">
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -168,19 +170,122 @@ describe('<PasswordField.Root />', () => {
 
       expect(document.querySelector('input')).toBeDisabled();
       expect(screen.getByRole('button')).toBeDisabled();
+      expect(screen.getByTestId('root')).toHaveAttribute('data-disabled');
+    });
+  });
+
+  describe('prop: id', () => {
+    it('sets the id of the input and points aria-controls at it', async () => {
+      function App(props: { id: string }) {
+        return (
+          <PasswordField.Root id={props.id} data-testid="root">
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        );
+      }
+
+      const { setProps } = await render(<App id="first" />);
+
+      expect(document.querySelector('input')).toHaveAttribute('id', 'first');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'first');
+      expect(screen.getByTestId('root')).not.toHaveAttribute('id');
+
+      await setProps({ id: 'second' });
+
+      expect(document.querySelector('input')).toHaveAttribute('id', 'second');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'second');
+    });
+
+    it('generates an id that is present in server-rendered markup', async () => {
+      renderToString(
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
+      );
+
+      const input = document.querySelector('input')!;
+      expect(input.id).not.toBe('');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', input.id);
+    });
+  });
+
+  describe('Field integration', () => {
+    it('uses the id from Field.Root in server-rendered markup and keeps it after mount', async () => {
+      const { hydrate } = renderToString(
+        <Field.Root>
+          <Field.Label>Password</Field.Label>
+          <PasswordField.Root>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </Field.Root>,
+      );
+
+      const serverId = document.querySelector('input')!.id;
+      expect(serverId).not.toBe('');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', serverId);
+      expect(screen.getByText('Password')).toHaveAttribute('for', serverId);
+
+      hydrate();
+      await flushMicrotasks();
+
+      expect(document.querySelector('input')).toHaveAttribute('id', serverId);
+      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', serverId);
+      expect(screen.getByText('Password')).toHaveAttribute('for', serverId);
+    });
+
+    it('registers an explicit id with Field.Root', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label>Password</Field.Label>
+          <PasswordField.Root id="password">
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </Field.Root>,
+      );
+
+      expect(document.querySelector('input')).toHaveAttribute('id', 'password');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'password');
+      expect(screen.getByText('Password')).toHaveAttribute('for', 'password');
+    });
+
+    it('reflects the Field state on the root', async () => {
+      await render(
+        <Field.Root invalid>
+          <PasswordField.Root data-testid="root">
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-invalid');
+      expect(root).not.toHaveAttribute('data-focused');
+
+      await act(async () => {
+        document.querySelector('input')!.focus();
+      });
+
+      expect(root).toHaveAttribute('data-focused');
     });
   });
 
   describe('form integration', () => {
-    const { render: renderForm, clock } = createRenderer();
+    function reveal() {
+      return act(async () => {
+        screen.getByRole('button').click();
+      });
+    }
 
-    clock.withFakeTimers();
-
-    it('hides the password and fires onVisibleChange when the form is reset', async () => {
+    it('restores the initial visibility when the form is reset', async () => {
       const onVisibleChange = vi.fn();
-      await renderForm(
+      await render(
         <form>
-          <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
+          <PasswordField.Root onVisibleChange={onVisibleChange}>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -188,23 +293,21 @@ describe('<PasswordField.Root />', () => {
       );
 
       const input = document.querySelector('input')!;
+      await reveal();
       expect(input).toHaveAttribute('type', 'text');
 
       fireEvent.reset(input.form!);
-      await act(async () => {
-        clock.tick(0);
-      });
 
       expect(input).toHaveAttribute('type', 'password');
-      expect(onVisibleChange.mock.calls[0][0]).toBe(false);
-      expect(onVisibleChange.mock.calls[0][1].reason).toBe(REASONS.none);
+      expect(onVisibleChange.mock.calls.length).toBe(2);
+      expect(onVisibleChange.mock.lastCall?.[0]).toBe(false);
+      expect(onVisibleChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
     });
 
-    it('does not hide when the reset is canceled', async () => {
-      const onVisibleChange = vi.fn();
-      await renderForm(
-        <form onReset={(event) => event.preventDefault()}>
-          <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
+    it('reveals the password again on reset when it was initially visible', async () => {
+      await render(
+        <form>
+          <PasswordField.Root defaultVisible>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -212,19 +315,38 @@ describe('<PasswordField.Root />', () => {
       );
 
       const input = document.querySelector('input')!;
+      await reveal();
+      expect(input).toHaveAttribute('type', 'password');
 
       fireEvent.reset(input.form!);
-      await act(async () => {
-        clock.tick(0);
-      });
 
       expect(input).toHaveAttribute('type', 'text');
-      expect(onVisibleChange).not.toHaveBeenCalled();
+    });
+
+    it('does not restore the visibility when the reset is canceled', async () => {
+      const onVisibleChange = vi.fn();
+      await render(
+        <form onReset={(event) => event.preventDefault()}>
+          <PasswordField.Root onVisibleChange={onVisibleChange}>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </form>,
+      );
+
+      const input = document.querySelector('input')!;
+      await reveal();
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.reset(input.form!);
+
+      expect(input).toHaveAttribute('type', 'text');
+      expect(onVisibleChange.mock.calls.length).toBe(1);
     });
 
     it('hides the password when the form is submitted, even if the submit is prevented', async () => {
       const onVisibleChange = vi.fn();
-      await renderForm(
+      await render(
         <form onSubmit={(event) => event.preventDefault()}>
           <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
             <PasswordField.Input />
@@ -236,13 +358,81 @@ describe('<PasswordField.Root />', () => {
       const input = document.querySelector('input')!;
       expect(input).toHaveAttribute('type', 'text');
 
-      // A revealed password must never persist after a submission attempt.
-      input.form!.addEventListener('submit', (event) => event.preventDefault(), { capture: true });
-
       fireEvent.submit(input.form!);
 
       expect(input).toHaveAttribute('type', 'password');
+      expect(onVisibleChange.mock.calls.length).toBe(1);
       expect(onVisibleChange.mock.calls[0][0]).toBe(false);
+      expect(onVisibleChange.mock.calls[0][1].reason).toBe(REASONS.formSubmit);
+    });
+
+    it('keeps the password visible on submit when the change is canceled', async () => {
+      await render(
+        <form onSubmit={(event) => event.preventDefault()}>
+          <PasswordField.Root
+            defaultVisible
+            onVisibleChange={(_visible, eventDetails) => {
+              if (eventDetails.reason === REASONS.formSubmit) {
+                eventDetails.cancel();
+              }
+            }}
+          >
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </form>,
+      );
+
+      const input = document.querySelector('input')!;
+
+      fireEvent.submit(input.form!);
+
+      expect(input).toHaveAttribute('type', 'text');
+    });
+
+    it('does not call onVisibleChange on submit or reset when the visibility would not change', async () => {
+      const onVisibleChange = vi.fn();
+      await render(
+        <form onSubmit={(event) => event.preventDefault()}>
+          <PasswordField.Root onVisibleChange={onVisibleChange}>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </form>,
+      );
+
+      const form = document.querySelector('form')!;
+
+      fireEvent.submit(form);
+      fireEvent.reset(form);
+
+      expect(onVisibleChange.mock.calls.length).toBe(0);
+    });
+
+    it('follows the form owner set through the `form` attribute', async () => {
+      function App(props: { form: string }) {
+        return (
+          <React.Fragment>
+            <form id="a" />
+            <form id="b" />
+            <PasswordField.Root defaultVisible>
+              <PasswordField.Input form={props.form} />
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<App form="a" />);
+      const input = document.querySelector('input')!;
+
+      await setProps({ form: 'b' });
+
+      fireEvent.submit(document.querySelector('#a')!);
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.submit(document.querySelector('#b')!);
+      expect(input).toHaveAttribute('type', 'password');
     });
   });
 });

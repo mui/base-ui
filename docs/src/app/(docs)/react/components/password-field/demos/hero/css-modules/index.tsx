@@ -10,8 +10,8 @@ export default function ExamplePasswordField() {
       <label htmlFor={id} className={styles.Label}>
         Password
       </label>
-      <PasswordField.Root className={styles.Root}>
-        <PasswordField.Input id={id} className={styles.Input} placeholder="Enter your password" />
+      <PasswordField.Root id={id} className={styles.Root}>
+        <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
         <PasswordField.Toggle
           className={styles.Toggle}
           aria-label="Show password"
