@@ -52,6 +52,8 @@ export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}
     const domReference = store.select('anchorElement');
 
     if (!enabled) {
+      blockFocusRef.current = false;
+      blockedReferenceRef.current = null;
       return undefined;
     }
 
