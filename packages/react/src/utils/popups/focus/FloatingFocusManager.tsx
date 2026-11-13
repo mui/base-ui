@@ -1024,50 +1024,50 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const shouldRenderGuards =
     !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
 
+  const handleBeforeGuardFocus = useStableCallback((event: React.FocusEvent<HTMLSpanElement>) => {
+    if (modal) {
+      const els = getTabbableContent();
+      els[els.length - 1]?.focus();
+    } else if (portalContext?.portalNode) {
+      preventReturnFocusRef.current = false;
+      if (isOutsideEvent(event, portalContext.portalNode)) {
+        const nextTabbable = getNextTabbable(domReference);
+        nextTabbable?.focus();
+      } else {
+        resolveRef(previousFocusableElement ?? portalContext.beforeOutsideRef)?.focus();
+      }
+    }
+  });
+
+  const handleAfterGuardFocus = useStableCallback((event: React.FocusEvent<HTMLSpanElement>) => {
+    if (modal) {
+      getTabbableContent()[0]?.focus();
+    } else if (portalContext?.portalNode) {
+      if (closeOnFocusOut) {
+        preventReturnFocusRef.current = true;
+      }
+
+      if (isOutsideEvent(event, portalContext.portalNode)) {
+        const prevTabbable = getPreviousTabbable(domReference);
+        prevTabbable?.focus();
+      } else {
+        resolveRef(nextFocusableElement ?? portalContext.afterOutsideRef)?.focus();
+      }
+    }
+  });
+
   return (
     <React.Fragment>
       {shouldRenderGuards && (
         <FocusGuard
           data-type="inside"
           ref={mergedBeforeGuardRef}
-          onFocus={(event) => {
-            if (modal) {
-              const els = getTabbableContent();
-              els[els.length - 1]?.focus();
-            } else if (portalContext?.portalNode) {
-              preventReturnFocusRef.current = false;
-              if (isOutsideEvent(event, portalContext.portalNode)) {
-                const nextTabbable = getNextTabbable(domReference);
-                nextTabbable?.focus();
-              } else {
-                resolveRef(previousFocusableElement ?? portalContext.beforeOutsideRef)?.focus();
-              }
-            }
-          }}
+          onFocus={handleBeforeGuardFocus}
         />
       )}
       {children}
       {shouldRenderGuards && (
-        <FocusGuard
-          data-type="inside"
-          ref={mergedAfterGuardRef}
-          onFocus={(event) => {
-            if (modal) {
-              getTabbableContent()[0]?.focus();
-            } else if (portalContext?.portalNode) {
-              if (closeOnFocusOut) {
-                preventReturnFocusRef.current = true;
-              }
-
-              if (isOutsideEvent(event, portalContext.portalNode)) {
-                const prevTabbable = getPreviousTabbable(domReference);
-                prevTabbable?.focus();
-              } else {
-                resolveRef(nextFocusableElement ?? portalContext.afterOutsideRef)?.focus();
-              }
-            }
-          }}
-        />
+        <FocusGuard data-type="inside" ref={mergedAfterGuardRef} onFocus={handleAfterGuardFocus} />
       )}
     </React.Fragment>
   );
