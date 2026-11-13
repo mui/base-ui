@@ -48,11 +48,10 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const {
     mounted: popupMounted,
-    viewportElement,
+    portalContainer,
     value,
     activationDirection,
     currentContentRef,
-    viewportTargetElement,
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -130,7 +129,6 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         }
       : commonProps;
 
-  const portalContainer = viewportTargetElement || viewportElement;
   const hidden = keepMounted && !mounted;
   const shouldRenderInline = keepMounted && !portalContainer && !hasMountedInPortal;
 

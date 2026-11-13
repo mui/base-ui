@@ -23,9 +23,10 @@ export interface NavigationMenuRootContext<Value = any> {
   positionerElement: HTMLElement | null;
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportElement: HTMLElement | null;
-  setViewportElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  setViewportElement: (element: HTMLElement | null) => void;
   viewportTargetElement: HTMLElement | null;
-  setViewportTargetElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  setViewportTargetElement: (element: HTMLElement | null) => void;
+  portalContainer: HTMLElement | null;
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
   setActivationDirection: React.Dispatch<
     React.SetStateAction<'left' | 'right' | 'up' | 'down' | null>
