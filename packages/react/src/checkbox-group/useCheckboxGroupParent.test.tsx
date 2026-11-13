@@ -1,5 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
@@ -448,11 +449,9 @@ describe('useCheckboxGroupParent', () => {
 
     const parent = screen.getByTestId('parent');
 
-    // From a mixed state the parent attempts to check all. The group cancels, so
-    // the internal status must not advance to 'on'.
+    // From a mixed state the parent proposes checking all, which the group cancels.
     fireEvent.click(parent);
-    // A second click must retry the same 'mixed -> on' transition instead of
-    // skipping ahead to 'on -> off' and proposing an empty value.
+    // A second click must propose checking all again rather than move on to none.
     fireEvent.click(parent);
 
     expect(handleValueChange).toHaveBeenCalledTimes(2);
@@ -460,7 +459,7 @@ describe('useCheckboxGroupParent', () => {
     expect(handleValueChange.mock.calls[1][0]).toEqual(allValues);
   });
 
-  it('does not pollute the parent snapshot when the group cancels a child change', async () => {
+  it('does not remember a child change the group cancels', async () => {
     const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
       eventDetails.cancel();
     });
@@ -474,11 +473,10 @@ describe('useCheckboxGroupParent', () => {
       </CheckboxGroup>,
     );
 
-    // Unchecking a child is canceled, so the parent's snapshot of checked
-    // children must stay intact.
+    // Unchecking a child is canceled, so the parent must not remember it.
     fireEvent.click(screen.getByTestId('checkboxA'));
-    // The parent still sees an all-checked group and toggles to none. A polluted
-    // snapshot would make it propose checking everything again.
+    // The parent still sees an all-checked group and toggles to none rather than proposing
+    // to check everything again.
     fireEvent.click(screen.getByTestId('parent'));
 
     expect(handleValueChange).toHaveBeenCalledTimes(2);
@@ -534,5 +532,724 @@ describe('useCheckboxGroupParent', () => {
     fireEvent.click(parent);
     expect(checkboxA).toHaveAttribute('aria-checked', 'true');
     expect(checkboxB).toHaveAttribute('aria-checked', 'false');
+
+    // Only the disabled checkbox is checked, which is as unchecked as the group gets.
+    fireEvent.click(parent);
+    expect(checkboxA).toHaveAttribute('aria-checked', 'true');
+    expect(checkboxB).toHaveAttribute('aria-checked', 'true');
+  });
+
+  function getCheckedValues(values = allValues) {
+    return values.filter(
+      (value) => screen.getByTestId(value).getAttribute('aria-checked') === 'true',
+    );
+  }
+
+  it('checks every child once a child is enabled after checking all from an empty group', async () => {
+    function App() {
+      const [value, setValue] = React.useState<string[]>([]);
+      const [enabled, setEnabled] = React.useState(false);
+      return (
+        <div>
+          <button onClick={() => setEnabled(true)}>enable</button>
+          <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="a" data-testid="a" />
+            <Checkbox.Root value="b" data-testid="b" />
+            <Checkbox.Root value="c" data-testid="c" disabled={!enabled} />
+          </CheckboxGroup>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const parent = screen.getByTestId('parent');
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(['a', 'b']);
+
+    await user.click(screen.getByRole('button', { name: 'enable' }));
+    expect(screen.getByTestId('c')).not.toHaveAttribute('data-disabled');
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(allValues);
+  });
+
+  it('checks every remaining child after unchecking all and the list shrinks', async () => {
+    function App() {
+      const [value, setValue] = React.useState<string[]>(allValues);
+      const [values, setValues] = React.useState(allValues);
+      return (
+        <div>
+          <button onClick={() => setValues(['a', 'b'])}>shrink</button>
+          <CheckboxGroup value={value} onValueChange={setValue} allValues={values}>
+            <Checkbox.Root parent data-testid="parent" />
+            {values.map((v) => (
+              <Checkbox.Root key={v} value={v} data-testid={v} />
+            ))}
+          </CheckboxGroup>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const parent = screen.getByTestId('parent');
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(screen.getByRole('button', { name: 'shrink' }));
+    expect(screen.queryByTestId('c')).toBe(null);
+
+    await user.click(parent);
+    expect(parent).toHaveAttribute('aria-checked', 'true');
+    expect(getCheckedValues(['a', 'b'])).toEqual(['a', 'b']);
+  });
+
+  it('unchecks every child once a disabled checked child is enabled after checking all', async () => {
+    function App() {
+      const [enabled, setEnabled] = React.useState(false);
+      return (
+        <div>
+          <button onClick={() => setEnabled(true)}>enable</button>
+          <CheckboxGroup defaultValue={['c']} allValues={allValues}>
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="a" data-testid="a" />
+            <Checkbox.Root value="b" data-testid="b" />
+            <Checkbox.Root value="c" data-testid="c" disabled={!enabled} />
+          </CheckboxGroup>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const parent = screen.getByTestId('parent');
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(allValues);
+
+    await user.click(screen.getByRole('button', { name: 'enable' }));
+    expect(screen.getByTestId('c')).not.toHaveAttribute('data-disabled');
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(['c']);
+  });
+
+  it('cycles an uncontrolled group through all, none and the mixed value', async () => {
+    const { user } = await render(
+      <CheckboxGroup defaultValue={['a']} allValues={allValues}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="a" />
+        <Checkbox.Root value="b" data-testid="b" />
+        <Checkbox.Root value="c" data-testid="c" />
+      </CheckboxGroup>,
+    );
+
+    const parent = screen.getByTestId('parent');
+    expect(parent).toHaveAttribute('aria-checked', 'mixed');
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(allValues);
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(['a']);
+  });
+
+  it('checks every child after a child is checked and unchecked following a full cycle', async () => {
+    const { user } = await render(
+      <CheckboxGroup defaultValue={['a']} allValues={allValues}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="a" />
+        <Checkbox.Root value="b" data-testid="b" />
+        <Checkbox.Root value="c" data-testid="c" />
+      </CheckboxGroup>,
+    );
+
+    const parent = screen.getByTestId('parent');
+
+    await user.click(parent);
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(screen.getByTestId('b'));
+    await user.click(screen.getByTestId('b'));
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(allValues);
+  });
+
+  it('returns to the mixed value after a child change is canceled', async () => {
+    function App() {
+      const [value, setValue] = React.useState(['a']);
+      const [canceling, setCanceling] = React.useState(false);
+      return (
+        <div>
+          <button onClick={() => setCanceling((prev) => !prev)}>toggle canceling</button>
+          <CheckboxGroup
+            value={value}
+            onValueChange={(nextValue, eventDetails) => {
+              if (canceling) {
+                eventDetails.cancel();
+              } else {
+                setValue(nextValue);
+              }
+            }}
+            allValues={allValues}
+          >
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="a" data-testid="a" />
+            <Checkbox.Root value="b" data-testid="b" />
+            <Checkbox.Root value="c" data-testid="c" />
+          </CheckboxGroup>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const parent = screen.getByTestId('parent');
+
+    await user.click(parent);
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+    await user.click(screen.getByTestId('b'));
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(['a']);
+  });
+
+  describe('value changed from outside', () => {
+    function App(props: {
+      outsideValue?: string[];
+      otherOutsideValue?: string[];
+      disabledValues?: string[];
+      keepDisabled?: string;
+    }) {
+      const [value, setValue] = React.useState<string[]>([]);
+      const [canceling, setCanceling] = React.useState(false);
+      // A ref, so toggling it doesn't rerender the group.
+      const ignoringRef = React.useRef(false);
+      const [enabled, setEnabled] = React.useState(false);
+      const [indeterminate, setIndeterminate] = React.useState(false);
+      return (
+        <div>
+          <button
+            onClick={() => {
+              ignoringRef.current = !ignoringRef.current;
+            }}
+          >
+            toggle ignoring
+          </button>
+          <button onClick={() => setValue(props.outsideValue ?? [])}>set outside</button>
+          <button onClick={() => setIndeterminate((prev) => !prev)}>toggle indeterminate</button>
+          <button onClick={() => setValue(props.otherOutsideValue ?? [])}>set other outside</button>
+          <button onClick={() => setValue([])}>clear outside</button>
+          <button onClick={() => setCanceling((prev) => !prev)}>toggle canceling</button>
+          <button onClick={() => setEnabled(true)}>enable all</button>
+          <CheckboxGroup
+            value={value}
+            onValueChange={(nextValue, eventDetails) => {
+              if (canceling) {
+                eventDetails.cancel();
+              } else if (!ignoringRef.current) {
+                setValue(nextValue);
+              }
+            }}
+            allValues={allValues}
+          >
+            <Checkbox.Root parent indeterminate={indeterminate} data-testid="parent" />
+            {allValues.map((v) => (
+              <Checkbox.Root
+                key={v}
+                value={v}
+                disabled={
+                  props.disabledValues?.includes(v) && (!enabled || v === props.keepDisabled)
+                }
+                data-testid={v}
+              />
+            ))}
+          </CheckboxGroup>
+        </div>
+      );
+    }
+
+    it.each([
+      { name: 'with nothing clicked', clicked: [], before: [], outsideValue: ['a'] },
+      {
+        name: 'after another child was clicked',
+        clicked: ['a'],
+        before: ['a'],
+        outsideValue: ['b'],
+      },
+      {
+        name: 'after the parent checked all',
+        clicked: ['a', 'parent'],
+        before: allValues,
+        outsideValue: ['b'],
+      },
+      {
+        name: 'after the parent unchecked all',
+        clicked: ['a', 'parent', 'parent'],
+        before: [],
+        outsideValue: ['b'],
+      },
+    ])('returns to a mixed value set $name', async ({ clicked, before, outsideValue }) => {
+      const { user } = await render(<App outsideValue={outsideValue} />);
+
+      const parent = screen.getByTestId('parent');
+
+      for (const id of clicked) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(screen.getByTestId(id));
+      }
+      expect(getCheckedValues()).toEqual(before);
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+      expect(getCheckedValues()).toEqual(outsideValue);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+      expect(getCheckedValues()).toEqual(outsideValue);
+    });
+
+    it('unchecks every child after all of them were checked from outside', async () => {
+      const { user } = await render(<App outsideValue={allValues} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByTestId('a'));
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(parent).toHaveAttribute('aria-checked', 'true');
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(parent).toHaveAttribute('aria-checked', 'false');
+      expect(getCheckedValues()).toEqual([]);
+    });
+
+    it('keeps the cycle when the same values are set from outside in another order', async () => {
+      const { user } = await render(<App outsideValue={['c', 'b', 'a']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByTestId('a'));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(parent).toHaveAttribute('aria-checked', 'true');
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a']);
+    });
+
+    it('returns to the second of two mixed values set from outside', async () => {
+      const { user } = await render(<App outsideValue={['b']} otherOutsideValue={['c']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByTestId('a'));
+      await user.click(parent);
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(screen.getByRole('button', { name: 'set other outside' }));
+      expect(getCheckedValues()).toEqual(['c']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['c']);
+    });
+
+    it('keeps a disabled child checked from outside while toggling the others', async () => {
+      const { user } = await render(<App outsideValue={['c']} disabledValues={['b', 'c']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(getCheckedValues()).toEqual(['c']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a', 'c']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['c']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a', 'c']);
+    });
+
+    it('checks every child once a child is enabled after checking all around a disabled checked one', async () => {
+      const { user } = await render(
+        <App outsideValue={['a']} disabledValues={['a', 'c']} keepDisabled="a" />,
+      );
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a', 'b']);
+
+      await user.click(screen.getByRole('button', { name: 'enable all' }));
+      expect(screen.getByTestId('c')).not.toHaveAttribute('data-disabled');
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+    });
+
+    it('does not return to a mixed value that was cleared from outside', async () => {
+      const { user } = await render(<App />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByTestId('a'));
+      expect(getCheckedValues()).toEqual(['a']);
+
+      await user.click(screen.getByRole('button', { name: 'clear outside' }));
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+    });
+
+    it('treats an outside value after a canceled change as a new mixed value', async () => {
+      const { user } = await render(<App outsideValue={['b']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByTestId('a'));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(getCheckedValues()).toEqual(['b']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['b']);
+    });
+
+    it('treats an outside value after an ignored change as a new mixed value', async () => {
+      const { user } = await render(<App outsideValue={['b']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByRole('button', { name: 'toggle ignoring' }));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(screen.getByRole('button', { name: 'toggle ignoring' }));
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(getCheckedValues()).toEqual(['b']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['b']);
+    });
+
+    it('keeps the mixed value when a forced indeterminate change is canceled', async () => {
+      const { user } = await render(<App />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByTestId('a'));
+      await user.click(parent);
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(screen.getByRole('button', { name: 'toggle indeterminate' }));
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+      await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+      await user.click(screen.getByRole('button', { name: 'toggle indeterminate' }));
+      expect(parent).toHaveAttribute('aria-checked', 'false');
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a']);
+    });
+  });
+
+  describe('value stored by onValueChange', () => {
+    function App(props: {
+      defaultValue?: string[];
+      sync?: boolean;
+      deferred?: boolean;
+      derived?: boolean;
+      exclude?: string;
+    }) {
+      const [value, setValue] = React.useState<string[]>(props.defaultValue ?? []);
+      const [, rerender] = React.useReducer((count: number) => count + 1, 0);
+      const deferredRef = React.useRef<string[][]>([]);
+      return (
+        <div>
+          <button onClick={() => setValue(deferredRef.current.shift()!)}>land</button>
+          <button onClick={() => setValue(['b'])}>set outside</button>
+          <button onClick={rerender}>rerender</button>
+          <CheckboxGroup
+            value={props.derived ? [...value] : value}
+            onValueChange={(nextValue) => {
+              if (props.deferred) {
+                deferredRef.current.push(nextValue);
+              } else if (props.sync) {
+                ReactDOM.flushSync(() => setValue(nextValue));
+              } else {
+                setValue(nextValue.filter((v) => v !== props.exclude));
+              }
+            }}
+            allValues={allValues}
+          >
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="a" data-testid="a" />
+            <Checkbox.Root value="b" data-testid="b" />
+            <Checkbox.Root value="c" data-testid="c" />
+          </CheckboxGroup>
+        </div>
+      );
+    }
+
+    it('keeps the cycle when a change is landed synchronously', async () => {
+      const { user } = await render(<App sync defaultValue={['a']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a']);
+    });
+
+    it('keeps the cycle when the handler filters the value', async () => {
+      const { user } = await render(<App exclude="c" defaultValue={['a']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a', 'b']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a']);
+    });
+
+    it('keeps a child change that lands after the parent was clicked', async () => {
+      const { user } = await render(<App deferred />);
+
+      const parent = screen.getByTestId('parent');
+      const land = screen.getByRole('button', { name: 'land' });
+
+      await user.click(screen.getByTestId('a'));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(land);
+      await user.click(land);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      await user.click(land);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      await user.click(land);
+      expect(getCheckedValues()).toEqual(['a']);
+    });
+
+    it('returns to a mixed value set from outside while changes are deferred', async () => {
+      const { user } = await render(<App deferred />);
+
+      const parent = screen.getByTestId('parent');
+      const land = screen.getByRole('button', { name: 'land' });
+
+      await user.click(parent);
+      await user.click(land);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(getCheckedValues()).toEqual(['b']);
+
+      for (const checkedValues of [allValues, [], ['b']]) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(parent);
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(land);
+        expect(getCheckedValues()).toEqual(checkedValues);
+      }
+    });
+
+    it('keeps the cycle when a derived value rerenders before a deferred change lands', async () => {
+      const { user } = await render(<App deferred derived />);
+
+      const parent = screen.getByTestId('parent');
+      const land = screen.getByRole('button', { name: 'land' });
+      const rerender = screen.getByRole('button', { name: 'rerender' });
+
+      await user.click(screen.getByTestId('a'));
+      await user.click(land);
+      expect(getCheckedValues()).toEqual(['a']);
+
+      for (const checkedValues of [allValues, [], ['a']]) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(parent);
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(rerender);
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(land);
+        expect(getCheckedValues()).toEqual(checkedValues);
+      }
+    });
+  });
+
+  describe('nested group', () => {
+    const nestedValues = ['n1', 'n2'];
+    const leaves = ['x', 'y', 'n1', 'n2'];
+
+    // The nested group's parent stands for the outer group's `nested` value, as in the docs demo.
+    function App() {
+      const [outerValue, setOuterValue] = React.useState<string[]>([]);
+      const [nestedValue, setNestedValue] = React.useState<string[]>([]);
+      return (
+        <CheckboxGroup
+          value={outerValue}
+          onValueChange={(value) => {
+            if (value.includes('nested')) {
+              setNestedValue(nestedValues);
+            } else if (nestedValue.length === nestedValues.length) {
+              setNestedValue([]);
+            }
+            setOuterValue(value);
+          }}
+          allValues={['x', 'nested', 'y']}
+        >
+          <Checkbox.Root
+            parent
+            indeterminate={nestedValue.length > 0 && nestedValue.length !== nestedValues.length}
+            data-testid="outer-parent"
+          />
+          <Checkbox.Root value="x" data-testid="x" />
+          <Checkbox.Root value="y" data-testid="y" />
+          <CheckboxGroup
+            value={nestedValue}
+            onValueChange={(value) => {
+              if (value.length === nestedValues.length) {
+                setOuterValue((prev) => Array.from(new Set([...prev, 'nested'])));
+              } else {
+                setOuterValue((prev) => prev.filter((v) => v !== 'nested'));
+              }
+              setNestedValue(value);
+            }}
+            allValues={nestedValues}
+          >
+            <Checkbox.Root parent data-testid="nested-parent" />
+            <Checkbox.Root value="n1" data-testid="n1" />
+            <Checkbox.Root value="n2" data-testid="n2" />
+          </CheckboxGroup>
+        </CheckboxGroup>
+      );
+    }
+
+    it.each([
+      {
+        name: 'outer parent returns to the value set by the nested parent',
+        clicked: ['nested-parent'],
+        before: ['n1', 'n2'],
+        expected: [leaves, [], ['n1', 'n2']],
+      },
+      {
+        // Checking all lands on the value the outer parent last produced.
+        name: 'outer parent checks all after a nested child is unchecked twice',
+        clicked: ['outer-parent', 'n1', 'outer-parent', 'n1'],
+        before: ['x', 'y', 'n2'],
+        expected: [leaves],
+      },
+      {
+        // The nested group appends its value, so the outer value comes back in another order.
+        name: 'outer parent returns to its mixed value after a nested child is unchecked and checked',
+        clicked: ['x', 'outer-parent', 'n1', 'n1'],
+        before: leaves,
+        expected: [[], ['x']],
+      },
+      {
+        name: 'outer parent checks all after a nested child is checked following a full cycle',
+        clicked: ['x', 'outer-parent', 'outer-parent', 'n1'],
+        before: ['n1'],
+        expected: [leaves, [], leaves],
+      },
+    ])('$name', async ({ clicked, before, expected }) => {
+      const { user } = await render(<App />);
+
+      for (const id of clicked) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(screen.getByTestId(id));
+      }
+      expect(getCheckedValues(leaves)).toEqual(before);
+
+      for (const checkedLeaves of expected) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(screen.getByTestId('outer-parent'));
+        expect(getCheckedValues(leaves)).toEqual(checkedLeaves);
+      }
+    });
   });
 });
