@@ -475,13 +475,13 @@ export function createGridCellMap(sizes: Dimensions[], cols: number, dense: bool
   return [...cellMap];
 }
 
-/** Gets cell index of an item's corner or -1 when index is -1. */
+/** Gets the cell index of an item's corner, or -1 when the index is -1. */
 export function getGridCellIndexOfCorner(
   index: number,
   sizes: Dimensions[],
   cellMap: (number | undefined)[],
   cols: number,
-  corner: 'tl' | 'tr' | 'bl' | 'br',
+  corner: 'tl' | 'tr' | 'bl',
 ) {
   if (index === -1) {
     return -1;
@@ -491,8 +491,6 @@ export function getGridCellIndexOfCorner(
   const sizeItem = sizes[index];
 
   switch (corner) {
-    case 'tl':
-      return firstCellIndex;
     case 'tr':
       if (!sizeItem) {
         return firstCellIndex;
@@ -503,10 +501,8 @@ export function getGridCellIndexOfCorner(
         return firstCellIndex;
       }
       return firstCellIndex + (sizeItem.height - 1) * cols;
-    case 'br':
-      return cellMap.lastIndexOf(index);
     default:
-      return -1;
+      return firstCellIndex;
   }
 }
 
