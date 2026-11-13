@@ -1342,6 +1342,27 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
+    test('an outside click stopped before its target does not close on a later click inside', async () => {
+      render(<App outsidePressEvent="intentional" />);
+      const input = screen.getByRole('textbox');
+
+      // Another document capture listener, like a drag library's after a drop, stops the click
+      // after useDismiss has seen it but before it reaches its target.
+      const stopClick = (event: MouseEvent) => event.stopPropagation();
+      document.addEventListener('click', stopClick, { capture: true, once: true });
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // This click bubbles to the body, where the stopped click was headed.
+      fireEvent.pointerDown(input, { pointerType: 'mouse' });
+      fireEvent.mouseDown(input);
+      fireEvent.mouseUp(input);
+      fireEvent.click(input, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    });
+
     test('mouse click whose press started before open does not close', async () => {
       render(<App outsidePressEvent="intentional" />);
 
