@@ -34,4 +34,22 @@ describe('<Combobox.Input /> on Android', () => {
 
     expect(onInputValueChange).toHaveBeenCalledWith('a', expect.anything());
   });
+
+  it('does not commit the value again when the composition ends', async () => {
+    const onInputValueChange = vi.fn();
+    await render(
+      <Combobox.Root onInputValueChange={onInputValueChange}>
+        <Combobox.Input />
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.compositionStart(input);
+    fireEvent.change(input, { target: { value: 'a' } });
+    expect(onInputValueChange).toHaveBeenCalledTimes(1);
+
+    fireEvent.compositionEnd(input);
+
+    expect(onInputValueChange).toHaveBeenCalledTimes(1);
+  });
 });
