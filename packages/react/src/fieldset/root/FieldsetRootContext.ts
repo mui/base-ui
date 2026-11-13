@@ -4,6 +4,7 @@ import * as React from 'react';
 export interface FieldsetRootContext {
   legendId: string | undefined;
   setLegendId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setDescriptionIds: React.Dispatch<React.SetStateAction<string[]>>;
   disabled: boolean;
 }
 
