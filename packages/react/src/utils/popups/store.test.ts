@@ -946,6 +946,41 @@ describe('createPopupOpenState', () => {
     expect(nextState.preventUnmountingOnClose).toBe(true);
   });
 
+  it('makes the trigger of an open request the owner, identified by its DOM id', () => {
+    const state = createInitialPopupStoreState();
+    const trigger = document.createElement('button');
+    trigger.id = 'dom-id';
+
+    const nextState = createPopupOpenState(state, true, trigger, false);
+
+    expect(nextState.activeTriggerId).toBe('dom-id');
+    expect(nextState.activeTriggerElement).toBe(trigger);
+  });
+
+  it('leaves a popup opened without a trigger unowned', () => {
+    const state = createInitialPopupStoreState();
+    state.activeTriggerId = 'owner';
+    state.activeTriggerElement = document.createElement('button');
+
+    const nextState = createPopupOpenState(state, true, undefined, false);
+
+    expect(nextState.activeTriggerId).toBe(null);
+    expect(nextState.activeTriggerElement).toBe(null);
+  });
+
+  it('moves ownership to the trigger a close request names', () => {
+    const state = createInitialPopupStoreState();
+    const other = document.createElement('button');
+    other.id = 'other';
+    state.activeTriggerId = 'owner';
+    state.activeTriggerElement = document.createElement('button');
+
+    const nextState = createPopupOpenState(state, false, other, false);
+
+    expect(nextState.activeTriggerId).toBe('other');
+    expect(nextState.activeTriggerElement).toBe(other);
+  });
+
   it('preserves the active trigger when closing without a trigger', () => {
     const state = createInitialPopupStoreState();
     const trigger = document.createElement('button');

@@ -12,10 +12,7 @@ import type {
   PopupStoreSelectors,
   PopupStoreState,
 } from '../src/utils/popups/store';
-import {
-  useTriggerDataForwarding,
-  useTriggerRegistration,
-} from '../src/utils/popups/popupStoreUtils';
+import { useTriggerOwnership, useTriggerRegistration } from '../src/utils/popups/popupStoreUtils';
 import type { BaseUIChangeEventDetails } from '../src/types';
 
 export type TestPopupStore = ReactStore<
@@ -61,17 +58,20 @@ export function TestTrigger({
   element: HTMLElement;
   repeat?: number;
 }) {
-  const register = useTriggerRegistration(id, store);
+  const elementRef = React.useRef<Element | null>(null);
+  const register = useTriggerRegistration(id, elementRef, store);
 
-  // `register` is stable, so the caller owns migration by keying this effect on `[store, id]`.
+  // The hook migrates the element in `elementRef` when the store or id changes.
   useIsoLayoutEffect(() => {
+    elementRef.current = element;
     for (let i = 0; i < repeat; i += 1) {
       register(element);
     }
     return () => {
       register(null);
+      elementRef.current = null;
     };
-  }, [register, repeat, element, store, id]);
+  }, [register, repeat, element]);
 
   return null;
 }
@@ -91,7 +91,9 @@ export function TestForwardedTrigger({
   payload?: unknown;
 }) {
   const elementRef = React.useRef<Element | null>(null);
-  const { registerTrigger } = useTriggerDataForwarding(id, elementRef, store, { payload });
+  const { registerTrigger } = useTriggerOwnership(id, elementRef, store, {
+    payload,
+  });
 
   useIsoLayoutEffect(() => {
     elementRef.current = element;
