@@ -129,20 +129,17 @@ export const TabsTab = React.forwardRef(function TabsTab(
     );
   }
 
-  function onClick(event: React.MouseEvent<HTMLButtonElement>) {
-    if (active || disabled) {
-      return;
-    }
+  const isInactive = !active && !disabled;
 
-    activate(event);
+  function onClick(event: React.MouseEvent<HTMLButtonElement>) {
+    if (isInactive) {
+      activate(event);
+    }
   }
 
   function onFocus(event: React.FocusEvent<HTMLButtonElement>) {
-    if (active || disabled) {
-      return;
-    }
-
     if (
+      isInactive &&
       activateOnFocus &&
       (!isPressingRef.current || // keyboard or touch focus
         isMainButtonRef.current) // main mouse button focus
@@ -152,7 +149,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   }
 
   function onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
-    if (active || disabled) {
+    if (!isInactive) {
       return;
     }
 

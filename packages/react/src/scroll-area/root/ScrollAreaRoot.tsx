@@ -7,7 +7,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { SCROLL_TIMEOUT } from '../constants';
-import { getOffset } from '../utils/getOffset';
+import { getTrackMetrics } from '../utils/getOffset';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
@@ -118,19 +118,21 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   });
 
+  function getActiveThumb() {
+    return currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
+  }
+
   const handlePointerDown = useStableCallback((event: React.PointerEvent) => {
     if (event.button !== 0) {
       return;
     }
 
     if (activePointerIdRef.current !== null) {
-      const activeThumb =
-        currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
       // A live drag holds capture for the active pointer — ignore other pointers.
       // No capture means the release went missing entirely (silent capture drop
       // with an id that never reappears, e.g. a lost touch contact), so let the
       // new pointer take over the latch instead of leaving dragging dead.
-      if (activeThumb?.hasPointerCapture(activePointerIdRef.current)) {
+      if (getActiveThumb()?.hasPointerCapture(activePointerIdRef.current)) {
         return;
       }
     }
@@ -149,9 +151,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       disableViewportSnap();
     }
 
-    const thumb =
-      currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
-    thumb?.setPointerCapture(event.pointerId);
+    getActiveThumb()?.setPointerCapture(event.pointerId);
   });
 
   const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
@@ -172,8 +172,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       savedSnapTypeRef.current = null;
     }
 
-    const thumb =
-      currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
+    const thumb = getActiveThumb();
     // `pointercancel` releases capture implicitly, so guard against releasing a
     // capture we no longer hold (which would throw).
     if (thumb?.hasPointerCapture(event.pointerId)) {
@@ -197,33 +196,26 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
 
     const viewportEl = viewportRef.current;
-    if (!viewportEl) {
-      return;
-    }
-
     const vertical = currentOrientationRef.current === 'vertical';
-    const thumbEl = vertical ? thumbYRef.current : thumbXRef.current;
+    const thumbEl = getActiveThumb();
     const scrollbarEl = vertical ? scrollbarYRef.current : scrollbarXRef.current;
-    if (!thumbEl || !scrollbarEl) {
+    if (!viewportEl || !thumbEl || !scrollbarEl) {
       return;
     }
 
-    const axis = vertical ? 'y' : 'x';
-    const scrollbarOffset = getOffset(scrollbarEl, 'padding', axis);
-    const thumbOffset = getOffset(thumbEl, 'margin', axis);
-    const thumbSizePx = vertical ? thumbEl.offsetHeight : thumbEl.offsetWidth;
-    const trackSize = vertical ? scrollbarEl.offsetHeight : scrollbarEl.offsetWidth;
-    const maxThumbOffset = trackSize - thumbSizePx - scrollbarOffset - thumbOffset;
+    const { maxThumbOffset, maxScrollDistance } = getTrackMetrics(
+      viewportEl,
+      scrollbarEl,
+      thumbEl,
+      vertical,
+    );
     // A short or heavily padded track can drive `maxThumbOffset` to zero or
     // negative once the thumb hits its `MIN_THUMB_SIZE` floor. Dividing by it
     // would yield a non-finite (`Infinity`/`NaN`) or inverted scroll position.
     const delta = vertical ? event.clientY - startYRef.current : event.clientX - startXRef.current;
     const scrollRatio = maxThumbOffset <= 0 ? 0 : delta / maxThumbOffset;
-
-    const scrollableSize = vertical ? viewportEl.scrollHeight : viewportEl.scrollWidth;
-    const viewportSize = vertical ? viewportEl.clientHeight : viewportEl.clientWidth;
     const startScroll = vertical ? startScrollTopRef.current : startScrollLeftRef.current;
-    const nextScroll = startScroll + scrollRatio * (scrollableSize - viewportSize);
+    const nextScroll = startScroll + scrollRatio * maxScrollDistance;
 
     if (vertical) {
       viewportEl.scrollTop = nextScroll;
@@ -408,15 +400,13 @@ export namespace ScrollAreaRoot {
 function normalizeOverflowEdgeThreshold(
   threshold: ScrollAreaRoot.Props['overflowEdgeThreshold'] | undefined,
 ) {
-  const thresholds =
-    typeof threshold === 'number'
-      ? { xStart: threshold, xEnd: threshold, yStart: threshold, yEnd: threshold }
-      : threshold;
+  const getEdge = (key: 'xStart' | 'xEnd' | 'yStart' | 'yEnd') =>
+    Math.max(0, (typeof threshold === 'number' ? threshold : threshold?.[key]) || 0);
 
   return {
-    xStart: Math.max(0, thresholds?.xStart || 0),
-    xEnd: Math.max(0, thresholds?.xEnd || 0),
-    yStart: Math.max(0, thresholds?.yStart || 0),
-    yEnd: Math.max(0, thresholds?.yEnd || 0),
+    xStart: getEdge('xStart'),
+    xEnd: getEdge('xEnd'),
+    yStart: getEdge('yStart'),
+    yEnd: getEdge('yEnd'),
   };
 }

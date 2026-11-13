@@ -168,14 +168,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
   const getTabIdByPanelValue = React.useCallback(
-    (tabPanelValue: TabsTab.Value) => {
-      for (const tabMetadata of tabMap.values()) {
-        if (tabPanelValue === tabMetadata.value) {
-          return tabMetadata.id;
-        }
-      }
-      return undefined;
-    },
+    (tabPanelValue: TabsTab.Value) => findTabMetadata(tabMap, tabPanelValue)?.id,
     [tabMap],
   );
 
@@ -204,25 +197,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     ],
   );
 
-  const selectedTabMetadata = React.useMemo(() => {
-    for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata.value === value) {
-        return tabMetadata;
-      }
-    }
-    return undefined;
-  }, [tabMap, value]);
-
-  // Find the first non-disabled tab value.
-  // Used as a fallback when the current selection is disabled or missing.
-  const firstEnabledTabValue = React.useMemo(() => {
-    for (const tabMetadata of tabMap.values()) {
-      if (!tabMetadata.disabled) {
-        return tabMetadata.value;
-      }
-    }
-    return undefined;
-  }, [tabMap]);
+  const selectedTabMetadata = findTabMetadata(tabMap, value);
 
   // Implicit uncontrolled selections are still automatic changes, so notify
   // once when the tabs first register. Explicit defaults are treated as user-owned.
@@ -294,7 +269,13 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     const shouldNotifyInitialValueChange = shouldNotifyInitialValueChangeRef.current;
 
     if (selectionIsDisabled || selectionIsMissing) {
-      const fallbackValue = firstEnabledTabValue ?? null;
+      let fallbackValue: TabsTab.Value = null;
+      for (const tabMetadata of tabMap.values()) {
+        if (!tabMetadata.disabled) {
+          fallbackValue = tabMetadata.value;
+          break;
+        }
+      }
 
       if (value === fallbackValue) {
         // Already at the fallback value; no commit or notification needed,
@@ -319,15 +300,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       notifyAutomaticValueChange(value, REASONS.initial);
       shouldNotifyInitialValueChangeRef.current = false;
     }
-  }, [
-    firstEnabledTabValue,
-    isControlled,
-    notifyAutomaticValueChange,
-    selectedTabMetadata,
-    setValue,
-    tabMap,
-    value,
-  ]);
+  }, [isControlled, notifyAutomaticValueChange, selectedTabMetadata, setValue, tabMap, value]);
 
   const state: TabsRootState = {
     orientation,
@@ -347,6 +320,18 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     </TabsRootContext.Provider>
   );
 });
+
+function findTabMetadata(
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
+  value: TabsTab.Value,
+) {
+  for (const tabMetadata of tabMap.values()) {
+    if (tabMetadata.value === value) {
+      return tabMetadata;
+    }
+  }
+  return undefined;
+}
 
 function findTabElement(
   tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,

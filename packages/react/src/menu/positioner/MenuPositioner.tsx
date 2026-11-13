@@ -47,7 +47,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
-  const domReference = store.useState('anchorElement');
 
   const { side } = componentProps;
   let anchor = componentProps.anchor;
@@ -208,12 +207,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  useTriggerSwitchTransition({
-    store,
-    domReference,
-    positionerElement,
-    open,
-  });
+  useTriggerSwitchTransition(store, positionerElement, open);
 
   const menubarModal = parent.type === 'menubar' && parent.context.modal;
   const popupModal = modal && lastOpenChangeReason !== REASONS.triggerHover;
@@ -228,8 +222,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const shouldRenderBackdrop =
     mounted &&
     parent.type !== 'menu' &&
-    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== REASONS.triggerHover) ||
-      (parent.type === 'menubar' && parent.context.modal));
+    ((parent.type !== 'menubar' && popupModal) || menubarModal);
 
   // cuts a hole in the backdrop to allow pointer interaction with the menubar or dropdown menu trigger element
   let backdropCutout: HTMLElement | null = null;

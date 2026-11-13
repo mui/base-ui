@@ -3,11 +3,7 @@ import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useRenderElement } from '../../internals/useRenderElement';
-import {
-  popupViewportStateMapping,
-  usePopupViewport,
-} from '../../utils/popups/viewport/usePopupViewport';
+import { usePopupViewport } from '../../utils/popups/viewport/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -21,30 +17,14 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   componentProps: MenuViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, ...elementProps } = componentProps;
-
   const { store } = useMenuRootContext();
   const { side } = useMenuPositionerContext();
 
-  const instantType = store.useState('instantType');
-
-  const { children: childrenToRender, state: viewportState } = usePopupViewport({
+  return usePopupViewport({
+    componentProps,
+    forwardedRef,
     store,
     side,
-    children,
-  });
-
-  const state: MenuViewportState = {
-    activationDirection: viewportState.activationDirection,
-    transitioning: viewportState.transitioning,
-    instant: instantType,
-  };
-
-  return useRenderElement('div', componentProps, {
-    state,
-    ref: forwardedRef,
-    props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping: popupViewportStateMapping,
   });
 });
 

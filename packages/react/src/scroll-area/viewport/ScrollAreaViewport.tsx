@@ -152,28 +152,21 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const nextHiddenState = getHiddenState(viewportEl);
     const scrollbarYHidden = nextHiddenState.y;
     const scrollbarXHidden = nextHiddenState.x;
-    const ratioX = viewportWidth / scrollableContentWidth;
-    const ratioY = viewportHeight / scrollableContentHeight;
     const maxScrollLeft = Math.max(0, scrollableContentWidth - viewportWidth);
     const maxScrollTop = Math.max(0, scrollableContentHeight - viewportHeight);
 
-    let scrollLeftFromStart = 0;
-    let scrollLeftFromEnd = 0;
-    if (!scrollbarXHidden) {
-      // `normalizeScrollOffset` clamps internally.
-      scrollLeftFromStart = normalizeScrollOffset(
-        direction === 'rtl' ? -scrollLeft : scrollLeft,
-        maxScrollLeft,
-      );
-      scrollLeftFromEnd = maxScrollLeft - scrollLeftFromStart;
-    }
-
+    // RTL scrolls from 0 down to `-maxScrollLeft`; measure from the inline start edge so the
+    // overscroll math is direction-agnostic, then flip the resulting offset back below.
+    const scrollXFromStart = direction === 'rtl' ? -scrollLeft : scrollLeft;
+    // `normalizeScrollOffset` clamps internally.
+    const scrollLeftFromStart = scrollbarXHidden
+      ? 0
+      : normalizeScrollOffset(scrollXFromStart, maxScrollLeft);
+    const scrollLeftFromEnd = scrollbarXHidden ? 0 : maxScrollLeft - scrollLeftFromStart;
     const scrollTopFromStart = scrollbarYHidden
       ? 0
       : normalizeScrollOffset(scrollTop, maxScrollTop);
     const scrollTopFromEnd = scrollbarYHidden ? 0 : maxScrollTop - scrollTopFromStart;
-    const nextWidth = scrollbarXHidden ? 0 : viewportWidth;
-    const nextHeight = scrollbarYHidden ? 0 : viewportHeight;
 
     let nextCornerWidth = 0;
     let nextCornerHeight = 0;
@@ -185,26 +178,25 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     // Only subtract corner size from scrollbar dimensions if the corner hasn't been sized yet.
     // Once sized, the layout will already account for it.
     const cornerNotYetSized = cornerSize.width === 0 && cornerSize.height === 0;
-    const cornerWidthOffset = cornerNotYetSized ? nextCornerWidth : 0;
-    const cornerHeightOffset = cornerNotYetSized ? nextCornerHeight : 0;
+    const totalOffsetX =
+      getOffset(scrollbarXEl, 'padding', 'x') + getOffset(thumbXEl, 'margin', 'x');
+    const totalOffsetY =
+      getOffset(scrollbarYEl, 'padding', 'y') + getOffset(thumbYEl, 'margin', 'y');
 
-    const scrollbarXOffset = getOffset(scrollbarXEl, 'padding', 'x');
-    const scrollbarYOffset = getOffset(scrollbarYEl, 'padding', 'y');
-    const thumbXOffset = getOffset(thumbXEl, 'margin', 'x');
-    const thumbYOffset = getOffset(thumbYEl, 'margin', 'y');
-
-    const idealNextWidth = nextWidth - scrollbarXOffset - thumbXOffset;
-    const idealNextHeight = nextHeight - scrollbarYOffset - thumbYOffset;
-
-    const maxNextWidth = scrollbarXEl
-      ? Math.min(scrollbarXEl.offsetWidth - cornerWidthOffset, idealNextWidth)
-      : idealNextWidth;
-    const maxNextHeight = scrollbarYEl
-      ? Math.min(scrollbarYEl.offsetHeight - cornerHeightOffset, idealNextHeight)
-      : idealNextHeight;
-
-    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, maxNextWidth * ratioX);
-    const clampedNextHeight = Math.max(MIN_THUMB_SIZE, maxNextHeight * ratioY);
+    const clampedNextWidth = getClampedThumbSize(
+      scrollbarXEl?.offsetWidth,
+      scrollbarXHidden ? 0 : viewportWidth,
+      cornerNotYetSized ? nextCornerWidth : 0,
+      totalOffsetX,
+      viewportWidth / scrollableContentWidth,
+    );
+    const clampedNextHeight = getClampedThumbSize(
+      scrollbarYEl?.offsetHeight,
+      scrollbarYHidden ? 0 : viewportHeight,
+      cornerNotYetSized ? nextCornerHeight : 0,
+      totalOffsetY,
+      viewportHeight / scrollableContentHeight,
+    );
 
     setThumbSize((prevSize) =>
       pickState(prevSize, { width: clampedNextWidth, height: clampedNextHeight }),
@@ -212,9 +204,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
     // Handle Y (vertical) scroll
     if (scrollbarYEl && thumbYEl) {
-      const maxThumbOffsetY =
-        scrollbarYEl.offsetHeight - clampedNextHeight - scrollbarYOffset - thumbYOffset;
-
       const thumbOffsetY = applyOverscrollThumb(
         thumbYEl,
         ScrollAreaScrollbarCssVars.scrollAreaThumbHeight,
@@ -222,27 +211,21 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         maxScrollTop,
         scrollableContentHeight,
         clampedNextHeight,
-        maxThumbOffsetY,
+        scrollbarYEl.offsetHeight - clampedNextHeight - totalOffsetY,
       );
       thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
     }
 
     // Handle X (horizontal) scroll
     if (scrollbarXEl && thumbXEl) {
-      const maxThumbOffsetX =
-        scrollbarXEl.offsetWidth - clampedNextWidth - scrollbarXOffset - thumbXOffset;
-      // RTL scrolls from 0 down to `-maxScrollLeft`; measure from the inline start edge so the
-      // overscroll math is direction-agnostic, then flip the resulting offset back below.
-      const scrollFromStart = direction === 'rtl' ? -scrollLeft : scrollLeft;
-
       const offsetX = applyOverscrollThumb(
         thumbXEl,
         ScrollAreaScrollbarCssVars.scrollAreaThumbWidth,
-        scrollFromStart,
+        scrollXFromStart,
         maxScrollLeft,
         scrollableContentWidth,
         clampedNextWidth,
-        maxThumbOffsetX,
+        scrollbarXEl.offsetWidth - clampedNextWidth - totalOffsetX,
       );
       thumbXEl.style.transform = `translate3d(${direction === 'rtl' ? -offsetX : offsetX}px,0,0)`;
     }
@@ -448,6 +431,19 @@ function getHiddenState(viewport: HTMLElement): HiddenState {
     x,
     corner: y || x,
   };
+}
+
+function getClampedThumbSize(
+  scrollbarSize: number | undefined,
+  viewportSize: number,
+  cornerOffset: number,
+  totalOffset: number,
+  ratio: number,
+): number {
+  const idealSize = viewportSize - totalOffset;
+  const maxSize =
+    scrollbarSize === undefined ? idealSize : Math.min(scrollbarSize - cornerOffset, idealSize);
+  return Math.max(MIN_THUMB_SIZE, maxSize * ratio);
 }
 
 /**
