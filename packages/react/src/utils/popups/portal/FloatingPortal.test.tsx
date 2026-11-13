@@ -661,3 +661,38 @@ describe.each([
     },
   );
 });
+
+describe.each([
+  { name: 'FloatingPortal', Portal: FloatingPortal },
+  { name: 'FloatingPortalLite', Portal: FloatingPortalLite },
+])('$name event propagation', ({ Portal }) => {
+  const { render: renderPortal } = createRenderer();
+
+  test('dispatches a bubbling event from the portal to React ancestors once', async () => {
+    const handleClick = vi.fn();
+    const { user } = await renderPortal(
+      <div onClick={handleClick}>
+        <Portal>
+          <button data-testid="inside" />
+        </Portal>
+      </div>,
+    );
+
+    await user.click(screen.getByTestId('inside'));
+
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('dispatches a bubbling event from the portal to the portal element once', async () => {
+    const handleClick = vi.fn();
+    const { user } = await renderPortal(
+      <Portal onClick={handleClick}>
+        <button data-testid="inside" />
+      </Portal>,
+    );
+
+    await user.click(screen.getByTestId('inside'));
+
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});

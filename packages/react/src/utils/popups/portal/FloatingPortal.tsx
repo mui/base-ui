@@ -58,6 +58,7 @@ export interface UseFloatingPortalNodeProps {
     HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null> | undefined;
   componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
+  children?: React.ReactNode;
 }
 
 export interface UseFloatingPortalNodeResult {
@@ -73,7 +74,13 @@ export interface UseFloatingPortalNodeResult {
 export function useFloatingPortalNode(
   props: UseFloatingPortalNodeProps = {},
 ): UseFloatingPortalNodeResult {
-  const { ref, container: containerProp, componentProps = EMPTY_OBJECT, elementProps } = props;
+  const {
+    ref,
+    container: containerProp,
+    componentProps = EMPTY_OBJECT,
+    elementProps,
+    children,
+  } = props;
 
   const uniqueId = useId();
   const portalContext = usePortalContext();
@@ -170,11 +177,14 @@ export function useFloatingPortalNode(
         [attr]: '',
       },
       elementProps,
+      {
+        // As a sibling of `portalElement`, React would dispatch bubbling events twice.
+        children: portalNode ? ReactDOM.createPortal(children, portalNode) : null,
+      },
     ],
   });
 
   // This `createPortal` call injects `portalElement` into the `container`.
-  // Another call inside `FloatingPortal`/`FloatingPortalLite` then injects the children into `portalElement`.
   const portalSubtree =
     containerElement && portalElement
       ? ReactDOM.createPortal(portalElement, containerElement)
@@ -216,6 +226,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     ref: forwardedRef,
     componentProps,
     elementProps,
+    children,
   });
 
   const beforeOutsideRef = React.useRef<HTMLSpanElement>(null);
@@ -286,52 +297,49 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   );
 
   return (
-    <React.Fragment>
+    <PortalContext.Provider value={portalContextValue}>
       {portalSubtree}
-      <PortalContext.Provider value={portalContextValue}>
-        {shouldRenderGuards && portalNode && (
-          <FocusGuard
-            data-type="outside"
-            ref={beforeOutsideRef}
-            onFocus={(event) => {
-              if (isOutsideEvent(event, portalNode)) {
-                beforeInsideRef.current?.focus();
-              } else {
-                const domReference = focusManagerState ? focusManagerState.domReference : null;
-                const prevTabbable = getPreviousTabbable(domReference);
-                prevTabbable?.focus();
-              }
-            }}
-          />
-        )}
-        {shouldRenderGuards && portalNode && (
-          <span role={portalOwnerRole} aria-owns={portalNodeId} style={ownerVisuallyHidden} />
-        )}
-        {portalNode && ReactDOM.createPortal(children, portalNode)}
-        {shouldRenderGuards && portalNode && (
-          <FocusGuard
-            data-type="outside"
-            ref={afterOutsideRef}
-            onFocus={(event) => {
-              if (isOutsideEvent(event, portalNode)) {
-                afterInsideRef.current?.focus();
-              } else {
-                const domReference = focusManagerState ? focusManagerState.domReference : null;
-                const nextTabbable = getNextTabbable(domReference);
-                nextTabbable?.focus();
+      {shouldRenderGuards && portalNode && (
+        <FocusGuard
+          data-type="outside"
+          ref={beforeOutsideRef}
+          onFocus={(event) => {
+            if (isOutsideEvent(event, portalNode)) {
+              beforeInsideRef.current?.focus();
+            } else {
+              const domReference = focusManagerState ? focusManagerState.domReference : null;
+              const prevTabbable = getPreviousTabbable(domReference);
+              prevTabbable?.focus();
+            }
+          }}
+        />
+      )}
+      {shouldRenderGuards && portalNode && (
+        <span role={portalOwnerRole} aria-owns={portalNodeId} style={ownerVisuallyHidden} />
+      )}
+      {shouldRenderGuards && portalNode && (
+        <FocusGuard
+          data-type="outside"
+          ref={afterOutsideRef}
+          onFocus={(event) => {
+            if (isOutsideEvent(event, portalNode)) {
+              afterInsideRef.current?.focus();
+            } else {
+              const domReference = focusManagerState ? focusManagerState.domReference : null;
+              const nextTabbable = getNextTabbable(domReference);
+              nextTabbable?.focus();
 
-                if (focusManagerState?.closeOnFocusOut) {
-                  focusManagerState?.onOpenChange(
-                    false,
-                    createChangeEventDetails(REASONS.focusOut, event.nativeEvent),
-                  );
-                }
+              if (focusManagerState?.closeOnFocusOut) {
+                focusManagerState?.onOpenChange(
+                  false,
+                  createChangeEventDetails(REASONS.focusOut, event.nativeEvent),
+                );
               }
-            }}
-          />
-        )}
-      </PortalContext.Provider>
-    </React.Fragment>
+            }
+          }}
+        />
+      )}
+    </PortalContext.Provider>
   );
 });
 
