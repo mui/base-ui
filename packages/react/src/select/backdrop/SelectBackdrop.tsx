@@ -2,9 +2,8 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { usePopupBackdrop } from '../../utils/popups/popupParts';
 
 /**
  * An overlay displayed beneath the select popup.
@@ -16,37 +15,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   componentProps: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
-  const store = useSelectRootContext();
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const transitionStatus = store.useState('transitionStatus');
-
-  const state: SelectBackdropState = {
-    open,
-    transitionStatus,
-  };
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: forwardedRef,
-    props: [
-      {
-        role: 'presentation',
-        hidden: !mounted,
-        style: {
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-        },
-      },
-      elementProps,
-    ],
-    stateAttributesMapping: popupTransitionStateMapping,
-  });
-
-  return element;
+  return usePopupBackdrop(componentProps, forwardedRef, useSelectRootContext());
 });
 
 export interface SelectBackdropState {

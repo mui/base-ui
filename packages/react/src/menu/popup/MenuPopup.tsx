@@ -12,7 +12,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { usePopupOpenChangeComplete } from '../../utils/popups/popupParts';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
@@ -91,15 +91,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
     };
   }
 
-  useOpenChangeComplete({
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (open) {
-        store.context.onOpenChangeComplete?.(true);
-      }
-    },
-  });
+  usePopupOpenChangeComplete(store, open);
 
   React.useEffect(() => {
     function handleClose(event: {

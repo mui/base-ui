@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { REASONS } from '../../internals/reasons';
+import { usePopupBackdrop } from '../../utils/popups/popupParts';
 
 /**
  * An overlay displayed beneath the menu popup.
@@ -18,39 +17,15 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   componentProps: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
   const { store } = useMenuRootContext();
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const transitionStatus = store.useState('transitionStatus');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-
   const contextMenuContext = useContextMenuRootContext();
 
-  const state: MenuBackdropState = {
-    open,
-    transitionStatus,
-  };
-
-  return useRenderElement('div', componentProps, {
-    ref: contextMenuContext?.backdropRef
-      ? [forwardedRef, contextMenuContext.backdropRef]
-      : forwardedRef,
-    state,
-    stateAttributesMapping: popupTransitionStateMapping,
-    props: [
-      {
-        role: 'presentation',
-        hidden: !mounted,
-        style: {
-          pointerEvents: lastOpenChangeReason === REASONS.triggerHover ? 'none' : undefined,
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-        },
-      },
-      elementProps,
-    ],
+  return usePopupBackdrop(componentProps, forwardedRef, store, {
+    ref: contextMenuContext?.backdropRef,
+    style: {
+      pointerEvents: lastOpenChangeReason === REASONS.triggerHover ? 'none' : undefined,
+    },
   });
 });
 
