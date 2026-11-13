@@ -34,7 +34,7 @@
     color: white;
   }
 
-  &:focus-within {
+  &:has(.Input:focus-visible) {
     outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
@@ -75,6 +75,16 @@
 
   &:focus {
     outline: none;
+  }
+
+  /* Hides the browser's autofill tint, which would stop short of the toggle. */
+  &:autofill {
+    background-clip: text;
+  }
+
+  /* Hides the reveal button that Edge adds to password inputs. */
+  &::-ms-reveal {
+    display: none;
   }
 }
 
