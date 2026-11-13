@@ -36,6 +36,14 @@ export function getOTPValidationConfig(validationType: OTPValidationType) {
   return OTP_VALIDATION_CONFIG[validationType];
 }
 
+/**
+ * Splits an OTP value into its slot characters. Each Unicode code point fills one slot, so
+ * characters outside the Basic Multilingual Plane (such as emoji) are not split in half.
+ */
+export function getOTPCharacters(value: string) {
+  return Array.from(value);
+}
+
 export function stripOTPWhitespace(value: string | null | undefined) {
   return (value ?? '').replace(/\s/g, '');
 }
@@ -68,7 +76,7 @@ export function normalizeOTPValueWithDetails(
 
   // Slice by Unicode code points so multi-byte characters do not split across OTP slots.
   const maxLength = length < 0 ? 0 : length;
-  const normalizedCharacters = Array.from(normalizedValue);
+  const normalizedCharacters = getOTPCharacters(normalizedValue);
 
   return [
     normalizedCharacters.slice(0, maxLength).join(''),
@@ -98,8 +106,9 @@ export function replaceOTPValue(
   normalizeValue?: ((value: string) => string) | undefined,
 ) {
   const normalizedValue = normalizeOTPValue(nextValue, length, validationType, normalizeValue);
-  const prefix = currentValue.slice(0, index);
-  const suffix = currentValue.slice(index + normalizedValue.length);
+  const currentCharacters = getOTPCharacters(currentValue);
+  const prefix = currentCharacters.slice(0, index).join('');
+  const suffix = currentCharacters.slice(index + getOTPCharacters(normalizedValue).length).join('');
 
   return normalizeOTPValue(
     `${prefix}${normalizedValue}${suffix}`,
@@ -110,9 +119,12 @@ export function replaceOTPValue(
 }
 
 export function removeOTPCharacter(currentValue: string, index: number) {
-  if (index < 0 || index >= currentValue.length) {
+  const characters = getOTPCharacters(currentValue);
+
+  if (index < 0 || index >= characters.length) {
     return currentValue;
   }
 
-  return `${currentValue.slice(0, index)}${currentValue.slice(index + 1)}`;
+  characters.splice(index, 1);
+  return characters.join('');
 }

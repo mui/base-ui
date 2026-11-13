@@ -35,6 +35,7 @@ import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInval
 import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
+  getOTPCharacters,
   getOTPValidationConfig,
   normalizeOTPValue,
   normalizeOTPValueWithDetails,
@@ -141,15 +142,16 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const value = normalizeOTPValue(valueUnwrapped, length, validationType, normalizeValue);
   const valueRef = useValueAsRef(value);
+  const valueLength = getOTPCharacters(value).length;
   const filled = value !== '';
 
   const [inputCount, setInputCount] = React.useState(0);
-  const [focusedIndex, setFocusedIndex] = React.useState(() => Math.min(value.length, length - 1));
+  const [focusedIndex, setFocusedIndex] = React.useState(() => Math.min(valueLength, length - 1));
   const [focused, setFocusedState] = React.useState(false);
 
   const activeIndex = focused
     ? Math.min(focusedIndex, Math.max(length - 1, 0))
-    : Math.min(value.length, length - 1);
+    : Math.min(valueLength, length - 1);
 
   useIsoLayoutEffect(() => {
     setFilled(filled);
@@ -225,12 +227,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
     if (
       focusedElement &&
-      inputRefs.current.indexOf(focusedElement as HTMLInputElement) > value.length
+      inputRefs.current.indexOf(focusedElement as HTMLInputElement) > valueLength
     ) {
-      focusInput(value.length);
+      focusInput(valueLength);
       // Slots may not have their updated indexes yet when leading slots unmount, so sync the
       // tab stop with the redirect target directly.
-      setFocusedIndex(value.length);
+      setFocusedIndex(valueLength);
     }
 
     const pendingCompleteValue = pendingCompleteValueRef.current;
@@ -247,12 +249,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
       const normalizedValue = normalizeOTPValue(nextValue, length, validationType, normalizeValue);
+      const isComplete = getOTPCharacters(normalizedValue).length === length;
       const canComplete =
         details.reason === REASONS.inputChange || details.reason === REASONS.inputPaste;
       const completeEventDetails =
         canComplete &&
-        normalizedValue.length === length &&
-        (valueRef.current.length !== length || details.reason === REASONS.inputPaste)
+        isComplete &&
+        (getOTPCharacters(valueRef.current).length !== length ||
+          details.reason === REASONS.inputPaste)
           ? createGenericEventDetails(details.reason, details.event)
           : null;
 
@@ -276,7 +280,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
           value: normalizedValue,
           eventDetails: completeEventDetails,
         };
-      } else if (normalizedValue.length !== length) {
+      } else if (!isComplete) {
         pendingCompleteValueRef.current = null;
       }
 
@@ -292,8 +296,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const handleInputFocus = useStableCallback(
     (index: number, event: React.FocusEvent<HTMLInputElement>) => {
-      if (index > valueRef.current.length) {
-        focusInput(Math.min(valueRef.current.length, length - 1));
+      const currentLength = getOTPCharacters(valueRef.current).length;
+
+      if (index > currentLength) {
+        focusInput(Math.min(currentLength, length - 1));
         return;
       }
 
@@ -330,7 +336,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const state: OTPFieldRootState = React.useMemo(
     () => ({
       ...fieldState,
-      complete: value.length === length,
+      complete: valueLength === length,
       disabled,
       filled,
       focused,
@@ -339,7 +345,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       value,
     }),
-    [disabled, fieldState, filled, focused, length, readOnly, required, value],
+    [disabled, fieldState, filled, focused, length, readOnly, required, value, valueLength],
   );
 
   const contextValue: OTPFieldRootContext = React.useMemo(
@@ -454,7 +460,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
                 );
 
                 if (committedValue != null && committedValue !== '') {
-                  queueFocusInput(committedValue.length - 1, committedValue);
+                  queueFocusInput(getOTPCharacters(committedValue).length - 1, committedValue);
                 }
               },
             })}
