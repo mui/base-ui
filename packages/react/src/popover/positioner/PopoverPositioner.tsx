@@ -31,12 +31,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
-    forwardedRef,
-    keepMounted,
-    positioning: { nodeId },
-  });
-
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
@@ -44,14 +38,20 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const positionerElement = store.useState('positionerElement');
   const domReference = store.useState('anchorElement');
 
+  const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
+
+  const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
+    forwardedRef,
+    keepMounted,
+    positioning: { nodeId, cutout: trueModalNonHover ? triggerElement : null },
+  });
+
   useTriggerSwitchTransition({
     store,
     domReference,
     positionerElement,
     open,
   });
-
-  const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
 
   useAnchoredPopupScrollLock(
     open && trueModalNonHover,
@@ -63,7 +63,10 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   return (
     <PopoverPositionerContext.Provider value={positioning}>
       {mounted && trueModalNonHover && (
-        <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
+        <InternalBackdrop
+          inert={inertValue(!open)}
+          cutout={triggerElement ? positioning.cutoutRect : undefined}
+        />
       )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>

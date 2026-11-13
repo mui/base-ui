@@ -1,6 +1,7 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useAnchorPositioning, useFloatingRootStore } from './useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
@@ -20,7 +21,11 @@ vi.mock('@floating-ui/react-dom', async () => {
   };
 });
 
-function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameters['shift'] }) {
+function TestUseAnchorPositioning(props: {
+  shift?: UseAnchorPositioningParameters['shift'];
+  onPositioned?: () => void;
+}) {
+  const { onPositioned } = props;
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
   const rootStore = useFloatingRootStore({});
@@ -42,6 +47,13 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
     shift: props.shift,
     interactionStore: rootStore,
   });
+
+  // Runs in the commit that the positioning pass triggers, before any later task.
+  useIsoLayoutEffect(() => {
+    if (positioning.isPositioned) {
+      onPositioned?.();
+    }
+  }, [positioning.isPositioned, onPositioned]);
 
   return (
     <React.Fragment>
@@ -252,6 +264,43 @@ describe('useAnchorPositioning', () => {
 
     expect(shiftSpy.mock.calls[0]?.[0].rootBoundary).toBe('layoutViewport');
     expect(shiftSpy.mock.calls[0]?.[0].crossAxis).toBe(crossAxis);
+  });
+
+  describe('layout reads and writes', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('does not read the layout after writing the transform origin in a positioning pass', async () => {
+      const getComputedStyle = vi.spyOn(window, 'getComputedStyle');
+      const getBoundingClientRect = vi.spyOn(Element.prototype, 'getBoundingClientRect');
+      const setProperty = vi.spyOn(CSSStyleDeclaration.prototype, 'setProperty');
+      let readOrders: number[] = [];
+      let transformOriginWriteOrders: number[] = [];
+
+      await render(
+        <TestUseAnchorPositioning
+          onPositioned={() => {
+            readOrders = [
+              ...getComputedStyle.mock.invocationCallOrder,
+              ...getBoundingClientRect.mock.invocationCallOrder,
+            ];
+            transformOriginWriteOrders = setProperty.mock.calls.flatMap(([property], index) =>
+              property === '--transform-origin'
+                ? [setProperty.mock.invocationCallOrder[index]]
+                : [],
+            );
+          }}
+        />,
+      );
+
+      expect(readOrders.length).toBeGreaterThan(0);
+      expect(transformOriginWriteOrders.length).toBeGreaterThan(0);
+      // Until the positioned commit, everything runs in the same task, so a read after the write
+      // forces a synchronous style recalculation.
+      const firstWrite = Math.min(...transformOriginWriteOrders);
+      expect(readOrders.filter((order) => order > firstWrite)).toEqual([]);
+    });
   });
 
   it.skipIf(isJSDOM)('locks a flipped alignment after the popup shrinks', async () => {

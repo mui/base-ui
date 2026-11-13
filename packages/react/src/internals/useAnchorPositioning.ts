@@ -160,6 +160,7 @@ export function useAnchorPositioning(
     adaptiveOrigin,
     lazyFlip = false,
     externalTree,
+    cutout,
   } = params;
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
@@ -242,6 +243,8 @@ export function useAnchorPositioning(
   } as const;
 
   const arrowElementRef = React.useRef<Element | null>(null);
+  const cutoutRef = useValueAsRef(cutout);
+  const measuredCutoutRef = React.useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
   const sideOffsetRef = useValueAsRef(sideOffset);
@@ -446,16 +449,43 @@ export function useAnchorPositioning(
           sideOrigin = `${rects.reference.y + rects.reference.height / 2 - y}px`;
         }
 
-        floating.style.setProperty(
-          CommonPositionerCssVars.transformOrigin,
-          isVertical ? `${crossOrigin} ${sideOrigin}` : `${sideOrigin} ${crossOrigin}`,
-        );
-
-        return {};
+        // Written by `applyTransformOrigin` once every middleware has read the layout.
+        return {
+          data: {
+            value: isVertical ? `${crossOrigin} ${sideOrigin}` : `${sideOrigin} ${crossOrigin}`,
+          },
+        };
       },
     },
     hide,
+    cutout
+      ? {
+          name: 'cutout',
+          fn() {
+            const element = cutoutRef.current;
+            measuredCutoutRef.current = element ?? null;
+            if (!element) {
+              return {};
+            }
+            // Copied into a plain object so a changed rect re-renders the backdrop.
+            const { top, right, bottom, left } = element.getBoundingClientRect();
+            return { data: { rect: { top, right, bottom, left } } };
+          },
+        }
+      : null,
     adaptiveOrigin,
+    {
+      // Writes last: a style write between two middleware makes the next layout read force a
+      // synchronous style recalculation.
+      name: 'applyTransformOrigin',
+      fn({ elements: { floating }, middlewareData }) {
+        floating.style.setProperty(
+          CommonPositionerCssVars.transformOrigin,
+          middlewareData.transformOrigin.value,
+        );
+        return {};
+      },
+    },
   );
 
   useIsoLayoutEffect(() => {
@@ -633,6 +663,17 @@ export function useAnchorPositioning(
 
   const arrowUncentered = middlewareData.arrow?.centerOffset !== 0;
 
+  // The cutout is measured during positioning. A cutout that changes without the anchor (another
+  // trigger with a custom anchor) needs its own pass.
+  useIsoLayoutEffect(() => {
+    if (cutout && isPositioned && measuredCutoutRef.current !== cutout) {
+      update();
+    }
+  }, [cutout, isPositioned, update]);
+
+  // A rect retained from a previous open is ignored until this open is positioned.
+  const cutoutRect: CutoutRect | null = (isPositioned && middlewareData.cutout?.rect) || null;
+
   return React.useMemo(
     () => ({
       positionerStyles: floatingStyles,
@@ -643,6 +684,7 @@ export function useAnchorPositioning(
       align: renderedAlign,
       physicalSide: renderedSide,
       anchorHidden,
+      cutoutRect,
       refs,
       context,
       isPositioned,
@@ -657,6 +699,7 @@ export function useAnchorPositioning(
       renderedAlign,
       renderedSide,
       anchorHidden,
+      cutoutRect,
       refs,
       context,
       isPositioned,
@@ -847,7 +890,17 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    * middleware run. Used by Preview Card to position against a specific inline line box.
    */
   inline?: Middleware | undefined;
+  /**
+   * An element that stays interactive through the popup's backdrop. Its viewport rect is measured
+   * along with the rest of the layout in each positioning pass and returned as `cutoutRect`.
+   */
+  cutout?: Element | null | undefined;
 }
+
+/**
+ * The viewport rect of a backdrop cutout.
+ */
+export type CutoutRect = Pick<DOMRectReadOnly, 'top' | 'right' | 'bottom' | 'left'>;
 
 export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
@@ -858,6 +911,10 @@ export interface UseAnchorPositioningReturnValue {
   align: Align;
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
+  /**
+   * The `cutout` element's viewport rect, or `null` until the popup is positioned for this open.
+   */
+  cutoutRect: CutoutRect | null;
   refs: UseFloatingReturn['refs'];
   context: PopupPositioningContext;
   isPositioned: boolean;
