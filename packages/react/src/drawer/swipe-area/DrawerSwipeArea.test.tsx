@@ -1463,6 +1463,134 @@ describe('<Drawer.SwipeArea />', () => {
     },
   );
 
+  // Matches the documented transition styles, where the starting style's transform would
+  // override the swipe movement.
+  const swipeOpenStyle = `
+    .swipe-open-popup {
+      height: 200px;
+      transform: translateY(var(--drawer-swipe-movement-y));
+    }
+
+    .swipe-open-popup[data-starting-style] {
+      transform: translateY(100%);
+    }
+  `;
+
+  function renderSwipeOpenDrawer() {
+    return render(
+      <div>
+        {/* eslint-disable-next-line react/no-danger */}
+        <style dangerouslySetInnerHTML={{ __html: swipeOpenStyle }} />
+        <Drawer.Root>
+          <Drawer.SwipeArea data-testid="swipe-area" />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup className="swipe-open-popup" data-testid="popup">
+                <Drawer.Close>Close</Drawer.Close>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </div>,
+    );
+  }
+
+  it.skipIf(isJSDOM)(
+    'places a swipe-opened popup under the pointer in the commit that mounts it',
+    async () => {
+      await renderSwipeOpenDrawer();
+
+      const swipeArea = screen.getByTestId('swipe-area');
+
+      // The second open matters: the first one also re-renders the swipe area once the popup's
+      // height is first measured, which hides a missed commit.
+      for (let openCount = 0; openCount < 2; openCount += 1) {
+        expect(screen.queryByTestId('popup')).toBe(null);
+
+        firePointer.down(swipeArea, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 10,
+          clientY: 120,
+          pointerType: 'mouse',
+          timeStamp: 1,
+        });
+        // A single move opens the drawer; no later move re-applies the movement. Assert before
+        // yielding, while the popup is in the state of its first painted frame.
+        firePointer.move(swipeArea, {
+          pointerId: 1,
+          clientX: 10,
+          clientY: 90,
+          buttons: 1,
+          pointerType: 'mouse',
+          timeStamp: 17,
+        });
+
+        const popup = screen.getByTestId('popup');
+        expect(popup).toHaveAttribute('data-swiping');
+        expect(getComputedStyle(popup).transform).toBe('matrix(1, 0, 0, 1, 0, 170)');
+
+        firePointer.move(swipeArea, {
+          pointerId: 1,
+          clientX: 10,
+          clientY: -100,
+          buttons: 1,
+          pointerType: 'mouse',
+          timeStamp: 33,
+        });
+        firePointer.up(swipeArea, {
+          pointerId: 1,
+          clientX: 10,
+          clientY: -100,
+          pointerType: 'mouse',
+          timeStamp: 49,
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await act(async () => {
+          screen.getByRole('button', { name: 'Close' }).click();
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'keeps the starting style when a quick flick opens the drawer on release',
+    async () => {
+      await renderSwipeOpenDrawer();
+
+      const swipeArea = screen.getByTestId('swipe-area');
+
+      firePointer.down(swipeArea, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 10,
+        clientY: 120,
+        pointerType: 'mouse',
+        timeStamp: 1,
+      });
+      // The only move is already released, so the drawer opens without the swipe placing the
+      // popup, and it must transition in from its starting style instead.
+      firePointer.move(swipeArea, {
+        pointerId: 1,
+        clientX: 10,
+        clientY: 40,
+        buttons: 0,
+        pointerType: 'mouse',
+        timeStamp: 16,
+      });
+
+      const popup = screen.getByTestId('popup');
+      expect(popup).toHaveAttribute('data-starting-style');
+      expect(getComputedStyle(popup).transform).toBe('matrix(1, 0, 0, 1, 0, 200)');
+    },
+  );
+
   it('opens on a quick flick whose only move is already released (buttons: 0)', async () => {
     // On a fast flick — especially on a low-refresh-rate display — the pointer can be lifted before
     // the first `pointermove` is sampled, so the single move arrives with `buttons: 0` and no
