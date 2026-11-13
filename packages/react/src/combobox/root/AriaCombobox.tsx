@@ -936,6 +936,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           return;
         }
 
+        // Anchor the highlight to the pressed item before closing. A press that does not move the
+        // highlight to the item first (a touch tap, or `highlightItemOnHover={false}`) otherwise
+        // leaves the highlight on the previously selected item. Reopening during the exit animation
+        // skips both the open-time selected-index sync and the unmount reset that would re-anchor
+        // it, so the stale item stays highlighted and Enter recommits it.
+        const pressedIndex = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+        if (pressedIndex !== -1 && pressedIndex !== store.state.activeIndex) {
+          setIndices({ activeIndex: pressedIndex });
+        }
+
         store.setOpen(false, eventDetails);
       }
     },
