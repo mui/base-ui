@@ -1,0 +1,173 @@
+.ScrollWrapper {
+  /* `--bg` is concrete so the pinned rows hide the rows they cover.
+     A single dark block flips the whole palette. */
+
+  position: relative;
+  width: 16rem;
+  height: 24rem;
+  border: 1px solid oklch(92.2% 0 0deg);
+  background: white;
+  color: oklch(14.5% 0 0deg);
+  font-size: 0.875rem;
+  overflow: hidden;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid oklch(37.1% 0 0deg);
+    background: oklch(14.5% 0 0deg);
+    color: white;
+  }
+}
+
+.Sticky {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  z-index: 1;
+  background: white;
+  /* A hairline under the deepest pinned row reads as a boundary. */
+  box-shadow: 0 1px 0 oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background: oklch(14.5% 0 0deg);
+    box-shadow: 0 1px 0 oklch(37.1% 0 0deg);
+  }
+}
+
+.Tree {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.Item {
+  --indent: 1.25rem;
+  --trigger-width: 1.25rem;
+  --leaf-offset: 0rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 28px;
+  padding-inline-start: 0.5rem;
+  padding-inline-end: 0.5rem;
+  border-inline-start: 2px solid transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+  line-height: 1.5;
+  box-sizing: border-box;
+
+  &:not([data-expandable]) {
+    --leaf-offset: calc(var(--trigger-width) + 1.5rem);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+
+  &[data-selected] {
+    background: oklch(92.2% 0 0deg);
+    border-inline-start-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background: oklch(37.1% 0 0deg);
+      border-inline-start-color: white;
+    }
+  }
+
+  @media (forced-colors: active) {
+    border-inline-start-color: Canvas;
+
+    &[data-selected] {
+      border-inline-start-color: Highlight;
+    }
+  }
+}
+
+.ExpansionTrigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: oklch(55.6% 0 0deg);
+  flex-shrink: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    transition: transform 150ms ease;
+  }
+
+  &[data-expanded] svg {
+    transform: rotate(90deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    & svg {
+      transition: none;
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.125rem;
+  }
+}
+
+.Icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ItemContent {
+  width: 100%;
+  display: flex;
+  align-items: inherit;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+  margin-inline-start: calc(var(--indent) * (var(--tree-item-level) - 1));
+  padding-inline-start: var(--leaf-offset);
+}

@@ -14,6 +14,9 @@ type BrowserModeConfig = (UserWorkspaceConfig['test'] & {})['browser'];
 const supportedBrowsers = new Set(['chromium', 'webkit', 'firefox'] as const);
 type SupportedBrowser = typeof supportedBrowsers extends Set<infer U> ? U : never;
 
+// Tree-shaking tests invoke Vite's Node-only build API.
+const nodeOnlyTestFiles = ['**/test/tree-shaking/**'];
+
 function isSupportedBrowser(env: string | undefined): env is SupportedBrowser {
   return !!env && (supportedBrowsers as Set<string>).has(env);
 }
@@ -51,7 +54,14 @@ const config: UserWorkspaceConfig = {
     sequence: {
       hooks: 'list',
     },
-    exclude: ['node_modules', 'build', '**/*.spec.*'],
+    exclude: [
+      'node_modules',
+      'build',
+      '**/*.spec.*',
+      ...(environment === 'all-browsers' || isSupportedBrowser(environment)
+        ? nodeOnlyTestFiles
+        : []),
+    ],
     globals: true,
     setupFiles: [resolve(WORKSPACE_ROOT, './test/setupVitest.ts')],
     environment: 'jsdom',

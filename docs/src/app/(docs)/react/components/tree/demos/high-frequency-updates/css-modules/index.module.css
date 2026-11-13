@@ -1,0 +1,233 @@
+.Container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.Requests {
+  flex-shrink: 0;
+  color: oklch(55.6% 0 0deg);
+  font-variant-numeric: tabular-nums;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:active:not([data-disabled]) {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &[data-disabled] {
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Tree {
+  width: 17rem;
+  padding: 0.25rem;
+  color: oklch(14.5% 0 0deg);
+  background: white;
+  border: 1px solid oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+    border: 1px solid oklch(37.1% 0 0deg);
+    background: oklch(14.5% 0 0deg);
+  }
+}
+
+.Item {
+  --indent: 1.5rem;
+  --trigger-width: 1.75rem;
+  --leaf-offset: 0rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-inline-start: 2px solid transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  color: oklch(14.5% 0 0deg);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  outline: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  &:not([data-expandable]) {
+    --leaf-offset: calc(var(--trigger-width) + 1.5rem);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &[data-selected] {
+    background: oklch(92.2% 0 0deg);
+    border-inline-start-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background: oklch(37.1% 0 0deg);
+      border-inline-start-color: white;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+
+  @media (forced-colors: active) {
+    border-inline-start-color: Canvas;
+
+    &[data-selected] {
+      border-inline-start-color: Highlight;
+    }
+  }
+}
+
+.ItemContent {
+  width: 100%;
+  display: flex;
+  align-items: inherit;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+  margin-inline-start: calc(var(--indent) * (var(--tree-item-level) - 1));
+  padding-inline-start: var(--leaf-offset);
+}
+
+.ExpansionTrigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  color: oklch(55.6% 0 0deg);
+  background: transparent;
+  border: 0;
+  flex-shrink: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.125rem;
+  }
+}
+
+.ExpansionTrigger[data-expanded] svg {
+  transform: rotate(90deg);
+}
+
+.GroupIndicator {
+  display: inline-flex;
+  color: oklch(55.6% 0 0deg);
+  flex-shrink: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  & svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.Label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}

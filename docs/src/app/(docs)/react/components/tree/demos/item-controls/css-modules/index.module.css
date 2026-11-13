@@ -1,0 +1,295 @@
+.Tree {
+  box-sizing: border-box;
+  width: 24rem;
+  max-width: 100%;
+  padding: 0.25rem;
+  color: oklch(14.5% 0 0deg);
+  background: white;
+  border: 1px solid oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+    border: 1px solid oklch(37.1% 0 0deg);
+    background: oklch(14.5% 0 0deg);
+  }
+}
+
+.Item {
+  --indent: 1.5rem;
+  --trigger-width: 1.75rem;
+  --leaf-offset: 0rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-inline-start: 2px solid transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  color: oklch(14.5% 0 0deg);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  outline: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  &:not([data-expandable]) {
+    --leaf-offset: var(--trigger-width);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &[data-selected] {
+    background: oklch(92.2% 0 0deg);
+    border-inline-start-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background: oklch(37.1% 0 0deg);
+      border-inline-start-color: white;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+
+  @media (forced-colors: active) {
+    border-inline-start-color: Canvas;
+
+    &[data-selected] {
+      border-inline-start-color: Highlight;
+    }
+  }
+}
+
+.ItemContent {
+  width: 100%;
+  display: flex;
+  align-items: inherit;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+  margin-inline-start: calc(var(--indent) * (var(--tree-item-level) - 1));
+  padding-inline-start: var(--leaf-offset);
+}
+
+.ExpansionTrigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  color: oklch(55.6% 0 0deg);
+  background: transparent;
+  border: 0;
+  flex-shrink: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.125rem;
+  }
+}
+
+.ExpansionTrigger[data-expanded] svg {
+  transform: rotate(90deg);
+}
+
+.Label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.Link {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: oklch(55.6% 0 0deg);
+  text-underline-offset: 2px;
+
+  @media (prefers-color-scheme: dark) {
+    text-decoration-color: oklch(70.8% 0 0deg);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+}
+
+.Input {
+  box-sizing: border-box;
+  width: 2.5rem;
+  height: 1.5rem;
+  padding: 0 0.375rem;
+  margin: 0;
+  border-radius: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-align: end;
+  background-color: transparent;
+  color: oklch(14.5% 0 0deg);
+  flex-shrink: 0;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    color: white;
+  }
+
+  &:focus {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+}
+
+.Switch {
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  padding: 0.125rem;
+  width: 2.25rem;
+  height: 1.25rem;
+  background-color: transparent;
+  transition: background-color 150ms ease;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+  }
+
+  &[data-checked] {
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+}
+
+.Thumb {
+  width: 0.875rem;
+  height: 0.875rem;
+  background-color: oklch(14.5% 0 0deg);
+  transition:
+    translate 150ms ease,
+    background-color 150ms ease;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+  &[data-checked] {
+    translate: 1rem 0;
+    background-color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(14.5% 0 0deg);
+    }
+  }
+}
+
+.RemoveButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  color: oklch(55.6% 0 0deg);
+  background: transparent;
+  border: 0;
+  flex-shrink: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  & svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      color: oklch(14.5% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        color: white;
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+}
