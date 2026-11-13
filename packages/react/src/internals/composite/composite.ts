@@ -25,20 +25,16 @@ export const SHIFT = 'Shift' as const;
 export const MODIFIER_KEYS = [SHIFT, 'Control', 'Alt', 'Meta'] as const;
 export type ModifierKey = (typeof MODIFIER_KEYS)[number];
 
-function isInputElement(element: EventTarget): element is HTMLInputElement {
-  return isHTMLElement(element) && element.tagName === 'INPUT';
-}
-
 export function isNativeInput(
   element: EventTarget,
 ): element is HTMLElement & (HTMLInputElement | HTMLTextAreaElement) {
-  if (isInputElement(element) && element.selectionStart != null) {
-    return true;
+  if (!isHTMLElement(element)) {
+    return false;
   }
-  if (isHTMLElement(element) && element.tagName === 'TEXTAREA') {
-    return true;
-  }
-  return false;
+  return (
+    (element.tagName === 'INPUT' && (element as HTMLInputElement).selectionStart != null) ||
+    element.tagName === 'TEXTAREA'
+  );
 }
 
 export function scrollIntoViewIfNeeded(
@@ -54,85 +50,65 @@ export function scrollIntoViewIfNeeded(
   let targetX = scrollContainer.scrollLeft;
   let targetY = scrollContainer.scrollTop;
 
-  const isOverflowingX = scrollContainer.clientWidth < scrollContainer.scrollWidth;
-  const isOverflowingY = scrollContainer.clientHeight < scrollContainer.scrollHeight;
+  const isOverflowingX =
+    orientation !== 'vertical' && scrollContainer.clientWidth < scrollContainer.scrollWidth;
+  const isOverflowingY =
+    orientation !== 'horizontal' && scrollContainer.clientHeight < scrollContainer.scrollHeight;
 
-  if (isOverflowingX && orientation !== 'vertical') {
-    const elementOffsetLeft = getOffset(scrollContainer, element, 'left');
-    const containerStyles = getStyles(scrollContainer);
-    const elementStyles = getStyles(element);
+  if (isOverflowingX || isOverflowingY) {
+    const containerStyles = getComputedStyle(scrollContainer);
+    const elementStyles = getComputedStyle(element);
 
-    if (direction === 'ltr') {
-      if (
-        elementOffsetLeft + element.offsetWidth + elementStyles.scrollMarginRight >
-        scrollContainer.scrollLeft +
-          scrollContainer.clientWidth -
-          containerStyles.scrollPaddingRight
-      ) {
-        // overflow to the right, scroll to align right edges
-        targetX =
-          elementOffsetLeft +
-          element.offsetWidth +
-          elementStyles.scrollMarginRight -
-          scrollContainer.clientWidth +
-          containerStyles.scrollPaddingRight;
-      } else if (
-        elementOffsetLeft - elementStyles.scrollMarginLeft <
-        scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft
-      ) {
+    if (isOverflowingX) {
+      const elementOffsetLeft = getOffset(scrollContainer, element, 'left');
+      const minX =
+        elementOffsetLeft -
+        parseScrollProp(elementStyles.scrollMarginLeft) -
+        parseScrollProp(containerStyles.scrollPaddingLeft);
+      const maxX =
+        elementOffsetLeft +
+        element.offsetWidth +
+        parseScrollProp(elementStyles.scrollMarginRight) -
+        scrollContainer.clientWidth +
+        parseScrollProp(containerStyles.scrollPaddingRight);
+
+      if (direction === 'ltr') {
+        if (maxX > targetX) {
+          // overflow to the right, scroll to align right edges
+          targetX = maxX;
+        } else if (minX < targetX) {
+          // overflow to the left, scroll to align left edges
+          targetX = minX;
+        }
+      } else if (minX < targetX) {
         // overflow to the left, scroll to align left edges
-        targetX =
-          elementOffsetLeft - elementStyles.scrollMarginLeft - containerStyles.scrollPaddingLeft;
+        targetX = minX;
+      } else if (maxX > targetX) {
+        // overflow to the right, scroll to align right edges
+        targetX = maxX;
       }
     }
 
-    if (direction === 'rtl') {
-      if (
-        elementOffsetLeft - elementStyles.scrollMarginLeft <
-        scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft
-      ) {
-        // overflow to the left, scroll to align left edges
-        targetX =
-          elementOffsetLeft - elementStyles.scrollMarginLeft - containerStyles.scrollPaddingLeft;
-      } else if (
-        elementOffsetLeft + element.offsetWidth + elementStyles.scrollMarginRight >
-        scrollContainer.scrollLeft +
-          scrollContainer.clientWidth -
-          containerStyles.scrollPaddingRight
-      ) {
-        // overflow to the right, scroll to align right edges
-        targetX =
-          elementOffsetLeft +
-          element.offsetWidth +
-          elementStyles.scrollMarginRight -
-          scrollContainer.clientWidth +
-          containerStyles.scrollPaddingRight;
-      }
-    }
-  }
-
-  if (isOverflowingY && orientation !== 'horizontal') {
-    const elementOffsetTop = getOffset(scrollContainer, element, 'top');
-    const containerStyles = getStyles(scrollContainer);
-    const elementStyles = getStyles(element);
-
-    if (
-      elementOffsetTop - elementStyles.scrollMarginTop <
-      scrollContainer.scrollTop + containerStyles.scrollPaddingTop
-    ) {
-      // overflow upwards, align top edges
-      targetY = elementOffsetTop - elementStyles.scrollMarginTop - containerStyles.scrollPaddingTop;
-    } else if (
-      elementOffsetTop + element.offsetHeight + elementStyles.scrollMarginBottom >
-      scrollContainer.scrollTop + scrollContainer.clientHeight - containerStyles.scrollPaddingBottom
-    ) {
-      // overflow downwards, align bottom edges
-      targetY =
+    if (isOverflowingY) {
+      const elementOffsetTop = getOffset(scrollContainer, element, 'top');
+      const minY =
+        elementOffsetTop -
+        parseScrollProp(elementStyles.scrollMarginTop) -
+        parseScrollProp(containerStyles.scrollPaddingTop);
+      const maxY =
         elementOffsetTop +
         element.offsetHeight +
-        elementStyles.scrollMarginBottom -
+        parseScrollProp(elementStyles.scrollMarginBottom) -
         scrollContainer.clientHeight +
-        containerStyles.scrollPaddingBottom;
+        parseScrollProp(containerStyles.scrollPaddingBottom);
+
+      if (minY < targetY) {
+        // overflow upwards, align top edges
+        targetY = minY;
+      } else if (maxY > targetY) {
+        // overflow downwards, align bottom edges
+        targetY = maxY;
+      }
     }
   }
 
@@ -159,16 +135,6 @@ function getOffset(ancestor: HTMLElement, element: HTMLElement, side: 'left' | '
   return result;
 }
 
-function getStyles(element: HTMLElement) {
-  const styles = getComputedStyle(element);
-  return {
-    scrollMarginTop: parseFloat(styles.scrollMarginTop) || 0,
-    scrollMarginRight: parseFloat(styles.scrollMarginRight) || 0,
-    scrollMarginBottom: parseFloat(styles.scrollMarginBottom) || 0,
-    scrollMarginLeft: parseFloat(styles.scrollMarginLeft) || 0,
-    scrollPaddingTop: parseFloat(styles.scrollPaddingTop) || 0,
-    scrollPaddingRight: parseFloat(styles.scrollPaddingRight) || 0,
-    scrollPaddingBottom: parseFloat(styles.scrollPaddingBottom) || 0,
-    scrollPaddingLeft: parseFloat(styles.scrollPaddingLeft) || 0,
-  };
+function parseScrollProp(value: string) {
+  return parseFloat(value) || 0;
 }

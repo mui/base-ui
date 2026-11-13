@@ -10,7 +10,7 @@ import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../../utils/popup
 export type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
 
 export function isDifferentGridRow(index: number, cols: number, prevRow: number) {
-  return Math.floor(index / cols) !== prevRow;
+  return floor(index / cols) !== prevRow;
 }
 
 export function isIndexOutOfListBounds(list: ReadonlyArray<HTMLElement | null>, index: number) {
@@ -140,14 +140,8 @@ export function getGridNavigatedIndex(
 ) {
   let nextIndex = prevIndex;
 
-  let verticalDirection: 'up' | 'down' | undefined;
-  if (event.key === ARROW_UP) {
-    verticalDirection = 'up';
-  } else if (event.key === ARROW_DOWN) {
-    verticalDirection = 'down';
-  }
-
-  if (verticalDirection) {
+  if (event.key === ARROW_UP || event.key === ARROW_DOWN) {
+    const isUp = event.key === ARROW_UP;
     // -------------------------------------------------------------------------
     // Detect row structure only when handling vertical navigation. This keeps
     // the non-vertical key paths free from row inference work.
@@ -202,7 +196,7 @@ export function getGridNavigatedIndex(
     const hasVirtualizedGaps = hasDomRows && visibleItemCount < list.length;
     const verticalCols = inferredDomCols || cols;
 
-    const navigateVertically = (direction: 'up' | 'down') => {
+    const navigateVertically = () => {
       if (!hasDomRows || prevIndex === -1) {
         return undefined;
       }
@@ -213,7 +207,7 @@ export function getGridNavigatedIndex(
       }
 
       const colInRow = rows[currentRow].indexOf(prevIndex);
-      const step = direction === 'up' ? -1 : 1;
+      const step = isUp ? -1 : 1;
 
       for (let nextRow = currentRow + step, i = 0; i < rows.length; i += 1, nextRow += step) {
         if (nextRow < 0 || nextRow >= rows.length) {
@@ -241,13 +235,13 @@ export function getGridNavigatedIndex(
       return undefined;
     };
 
-    const navigateVerticallyWithInferredRows = (direction: 'up' | 'down') => {
+    const navigateVerticallyWithInferredRows = () => {
       if (!hasVirtualizedGaps || prevIndex === -1) {
         return undefined;
       }
 
       const colInRow = prevIndex % verticalCols;
-      const rowStep = direction === 'up' ? -verticalCols : verticalCols;
+      const rowStep = isUp ? -verticalCols : verticalCols;
       const lastRowStart = maxIndex - (maxIndex % verticalCols);
       const rowCount = floor(maxIndex / verticalCols) + 1;
 
@@ -282,39 +276,31 @@ export function getGridNavigatedIndex(
       stopEvent(event);
     }
 
-    const verticalCandidate =
-      navigateVertically(verticalDirection) ??
-      navigateVerticallyWithInferredRows(verticalDirection);
+    const verticalCandidate = navigateVertically() ?? navigateVerticallyWithInferredRows();
 
     if (verticalCandidate !== undefined) {
       nextIndex = verticalCandidate;
     } else if (prevIndex === -1) {
-      nextIndex = verticalDirection === 'up' ? maxIndex : minIndex;
+      nextIndex = isUp ? maxIndex : minIndex;
     } else {
       nextIndex = findNonDisabledListIndex(list, {
         startingIndex: prevIndex,
         amount: verticalCols,
-        decrement: verticalDirection === 'up',
+        decrement: isUp,
         disabledIndices,
       });
 
       if (loopFocus) {
-        if (verticalDirection === 'up' && (prevIndex - verticalCols < minIndex || nextIndex < 0)) {
+        if (isUp && (prevIndex - verticalCols < minIndex || nextIndex < 0)) {
           const col = prevIndex % verticalCols;
           const maxCol = maxIndex % verticalCols;
           const offset = maxIndex - (maxCol - col);
 
-          if (maxCol === col) {
-            nextIndex = maxIndex;
-          } else {
-            nextIndex = maxCol > col ? offset : offset - verticalCols;
-          }
+          nextIndex = maxCol >= col ? offset : offset - verticalCols;
           if (onLoop) {
             nextIndex = onLoop(event, prevIndex, nextIndex);
           }
-        }
-
-        if (verticalDirection === 'down' && prevIndex + verticalCols > maxIndex) {
+        } else if (!isUp && prevIndex + verticalCols > maxIndex) {
           nextIndex = findNonDisabledListIndex(list, {
             startingIndex: (prevIndex % verticalCols) - verticalCols,
             amount: verticalCols,
@@ -335,68 +321,30 @@ export function getGridNavigatedIndex(
   // Remains on the same row/column.
   if (orientation === 'both') {
     const prevRow = floor(prevIndex / cols);
+    const col = prevIndex % cols;
+    const forwardKey = rtl ? ARROW_LEFT : ARROW_RIGHT;
+    const backwardKey = rtl ? ARROW_RIGHT : ARROW_LEFT;
 
-    if (event.key === (rtl ? ARROW_LEFT : ARROW_RIGHT)) {
+    if (event.key === forwardKey || event.key === backwardKey) {
       if (stop) {
         stopEvent(event);
       }
 
-      if (prevIndex % cols !== cols - 1) {
+      const decrement = event.key === backwardKey;
+      const isAtRowBoundary = decrement ? col === 0 : col === cols - 1;
+
+      if (!isAtRowBoundary) {
         nextIndex = findNonDisabledListIndex(list, {
           startingIndex: prevIndex,
+          decrement,
           disabledIndices,
         });
-
-        if (loopFocus && isDifferentGridRow(nextIndex, cols, prevRow)) {
-          nextIndex = findNonDisabledListIndex(list, {
-            startingIndex: prevIndex - (prevIndex % cols) - 1,
-            disabledIndices,
-          });
-          if (onLoop) {
-            nextIndex = onLoop(event, prevIndex, nextIndex);
-          }
-        }
-      } else if (loopFocus) {
-        nextIndex = findNonDisabledListIndex(list, {
-          startingIndex: prevIndex - (prevIndex % cols) - 1,
-          disabledIndices,
-        });
-        if (onLoop) {
-          nextIndex = onLoop(event, prevIndex, nextIndex);
-        }
       }
 
-      if (isDifferentGridRow(nextIndex, cols, prevRow)) {
-        nextIndex = prevIndex;
-      }
-    }
-
-    if (event.key === (rtl ? ARROW_RIGHT : ARROW_LEFT)) {
-      if (stop) {
-        stopEvent(event);
-      }
-
-      if (prevIndex % cols !== 0) {
+      if (loopFocus && (isAtRowBoundary || isDifferentGridRow(nextIndex, cols, prevRow))) {
         nextIndex = findNonDisabledListIndex(list, {
-          startingIndex: prevIndex,
-          decrement: true,
-          disabledIndices,
-        });
-
-        if (loopFocus && isDifferentGridRow(nextIndex, cols, prevRow)) {
-          nextIndex = findNonDisabledListIndex(list, {
-            startingIndex: prevIndex + (cols - (prevIndex % cols)),
-            decrement: true,
-            disabledIndices,
-          });
-          if (onLoop) {
-            nextIndex = onLoop(event, prevIndex, nextIndex);
-          }
-        }
-      } else if (loopFocus) {
-        nextIndex = findNonDisabledListIndex(list, {
-          startingIndex: prevIndex + (cols - (prevIndex % cols)),
-          decrement: true,
+          startingIndex: decrement ? prevIndex + (cols - col) : prevIndex - col - 1,
+          decrement,
           disabledIndices,
         });
         if (onLoop) {
@@ -414,10 +362,10 @@ export function getGridNavigatedIndex(
     if (isIndexOutOfListBounds(list, nextIndex)) {
       if (loopFocus && lastRow) {
         nextIndex =
-          event.key === (rtl ? ARROW_RIGHT : ARROW_LEFT)
+          event.key === backwardKey
             ? maxIndex
             : findNonDisabledListIndex(list, {
-                startingIndex: prevIndex - (prevIndex % cols) - 1,
+                startingIndex: prevIndex - col - 1,
                 disabledIndices,
               });
         if (onLoop) {
