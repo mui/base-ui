@@ -71,6 +71,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
         props={[defaultProps, elementProps]}
         disabledIndices={disabledIndices}
         loopFocus={loopFocus}
+        enableHomeAndEndKeys
         onMapChange={setItemMap}
         orientation={orientation}
       />
