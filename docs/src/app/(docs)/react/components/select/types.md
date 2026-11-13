@@ -83,6 +83,7 @@ type SelectRootChangeEventReason =
   | 'list-navigation'
   | 'cancel-open'
   | 'imperative-action'
+  | 'form-reset'
   | 'none';
 ```
 
@@ -99,6 +100,7 @@ type SelectRootChangeEventDetails = (
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
   | { reason: 'imperative-action'; event: Event }
+  | { reason: 'form-reset'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -132,6 +134,7 @@ type SelectRootOpenChangeEventDetails = (
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
   | { reason: 'imperative-action'; event: Event }
+  | { reason: 'form-reset'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */

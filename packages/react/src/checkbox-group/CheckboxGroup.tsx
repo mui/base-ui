@@ -21,6 +21,7 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import type { REASONS } from '../internals/reasons';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useValueChanged } from '../internals/useValueChanged';
+import { useFormReset } from '../internals/useFormReset';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -126,6 +127,32 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     setFilled(value.length > 0);
   }, [value, setFilled]);
 
+  const [initialValue] = React.useState(value);
+
+  const resetRef = useFormReset((eventDetails, inputs) => {
+    const form = eventDetails.event.target;
+    // Checkboxes associated with another form keep their state.
+    const kept = inputs.filter((input) => input.form !== form).map((input) => input.value);
+    const nextValue = kept.length
+      ? initialValue
+          .filter((item) => !kept.includes(item))
+          .concat(value.filter((item) => kept.includes(item)))
+      : initialValue;
+    if (!areArraysEqual(value, nextValue)) {
+      setValue(nextValue, eventDetails);
+    }
+    if (eventDetails.isCanceled) {
+      return;
+    }
+    parent.setCycleValue(nextValue);
+    if (externalValue === undefined) {
+      for (const input of inputs) {
+        // Lets reads right after `form.reset()` see the restored state before React commits.
+        input.defaultChecked = nextValue.includes(input.value);
+      }
+    }
+  });
+
   useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
@@ -154,8 +181,9 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       disabled,
       validation,
       registerControlId,
+      resetRef,
     }),
-    [allValues, value, setValue, parent, disabled, validation, registerControlId],
+    [allValues, value, setValue, parent, disabled, validation, registerControlId, resetRef],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -215,7 +243,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
   disabled?: boolean | undefined;
 }
 
-export type CheckboxGroupChangeEventReason = typeof REASONS.none;
+export type CheckboxGroupChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 export type CheckboxGroupChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxGroup.ChangeEventReason>;
 

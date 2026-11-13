@@ -22,6 +22,7 @@ import {
   popupConformanceTests,
   popupListConformanceTests,
   pressWithTouch,
+  resetForm,
   wait,
   waitSingleFrame,
 } from '#test-utils';
@@ -7618,6 +7619,136 @@ describe('<Select.Root />', () => {
       // See the matching assertion in MenuRoot.test.tsx: the shared list-navigation hook must not
       // rebuild trigger props when the highlight moves.
       expect(triggerRenders).toBe(0);
+    });
+  });
+
+  describe('form reset', () => {
+    it('restores the default value, reports form-reset and clears field state', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <Select.Root
+              name="s"
+              defaultValue="a"
+              onValueChange={(v, d) => onValueChange(v, d.reason)}
+            >
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+        </form>,
+      );
+
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="s"]')!;
+      await user.click(screen.getByTestId('trigger'));
+      await user.click(await screen.findByRole('option', { name: 'b' }));
+      expect(hiddenInput.value).toBe('b');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith('a', 'form-reset');
+      expect(hiddenInput.value).toBe('a');
+      expect(screen.getByTestId('trigger')).toHaveTextContent('a');
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
+    });
+
+    it('calls onValueChange with the initial value when controlled', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState('a');
+        return (
+          <form data-testid="form">
+            <Select.Root
+              name="s"
+              value={value}
+              onValueChange={(v, d) => {
+                onValueChange(v, d.reason);
+                setValue(v as string);
+              }}
+            >
+              <Select.Trigger />
+            </Select.Root>
+            <button type="button" onClick={() => setValue('b')}>
+              Change
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="s"]')!;
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+      expect(hiddenInput.value).toBe('b');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith('a', 'form-reset');
+      expect(hiddenInput.value).toBe('a');
+    });
+
+    it('restores the initial values when multiple', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState(['a']);
+        return (
+          <form data-testid="form">
+            <Select.Root multiple value={value} onValueChange={onValueChange}>
+              <Select.Trigger />
+            </Select.Root>
+            <button type="button" onClick={() => setValue(['a', 'b'])}>
+              Change
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual(['a']);
+      expect(onValueChange.mock.calls[0][1].reason).toBe('form-reset');
+    });
+
+    it('does not report a reset when the value is unchanged', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState(['a']);
+        return (
+          <form data-testid="form">
+            <Select.Root multiple value={value} onValueChange={onValueChange}>
+              <Select.Trigger />
+            </Select.Root>
+            <button type="button" onClick={() => setValue(['a'])}>
+              Change
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      // A new array with the same items.
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+
+      await resetForm();
+
+      expect(onValueChange).not.toHaveBeenCalled();
     });
   });
 });

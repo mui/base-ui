@@ -8,7 +8,13 @@ import { Fieldset } from '@base-ui/react/fieldset';
 import { Form } from '@base-ui/react/form';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { TextDirection } from '@base-ui/react/direction-provider';
-import { isJSDOM, createRenderer, describeConformance } from '#test-utils';
+import {
+  clickResetButton,
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  resetForm,
+} from '#test-utils';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 
 describe('<RadioGroup />', () => {
@@ -2427,6 +2433,147 @@ describe('<RadioGroup />', () => {
       const description = screen.getByText('description');
       expect(radio.getAttribute('aria-describedby')).toContain(error.getAttribute('id'));
       expect(radio.getAttribute('aria-describedby')).toContain(description.getAttribute('id'));
+    });
+  });
+
+  describe('form reset', () => {
+    it('submits the restored state right after form.reset()', async () => {
+      await render(
+        <form data-testid="form">
+          <RadioGroup name="size" defaultValue="s">
+            <Radio.Root value="s" data-testid="s" />
+            <Radio.Root value="m" data-testid="m" />
+          </RadioGroup>
+        </form>,
+      );
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      fireEvent.click(screen.getByTestId('m'));
+      expect(new FormData(form).get('size')).toBe('m');
+
+      let submitted: FormDataEntryValue | null = 'not read';
+      await act(async () => {
+        form.reset();
+        submitted = new FormData(form).get('size');
+      });
+
+      expect(submitted).toBe('s');
+      expect(screen.getByTestId('s')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('restores the initial value, reports form-reset and clears field state', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <RadioGroup
+              name="r"
+              defaultValue="a"
+              onValueChange={(v, d) => onValueChange(v, d.reason)}
+            >
+              <Radio.Root value="a" data-testid="a" />
+              <Radio.Root value="b" data-testid="b" />
+            </RadioGroup>
+          </Field.Root>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('b'));
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+
+      await resetForm();
+
+      const [inputA, inputB] = Array.from(
+        document.querySelectorAll<HTMLInputElement>('input[name="r"]'),
+      );
+      expect(onValueChange).toHaveBeenLastCalledWith('a', 'form-reset');
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'true');
+      expect(inputA.checked).toBe(true);
+      expect(inputB.checked).toBe(false);
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
+    });
+
+    it('unchecks every radio without calling onValueChange when there is no initial value', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <RadioGroup name="r" onValueChange={onValueChange}>
+            <Radio.Root value="a" />
+            <Radio.Root value="b" data-testid="b" />
+          </RadioGroup>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('b'));
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+
+      await resetForm();
+
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
+      const inputs = document.querySelectorAll<HTMLInputElement>('input[name="r"]');
+      expect(Array.from(inputs).some((input) => input.checked)).toBe(false);
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+    });
+
+    it.skipIf(isJSDOM)(
+      'keeps the hidden inputs in sync when a reset button click is canceled',
+      async () => {
+        await render(
+          <form>
+            <RadioGroup
+              name="r"
+              defaultValue="a"
+              onValueChange={(_, details) => {
+                if (details.reason === 'form-reset') {
+                  details.cancel();
+                }
+              }}
+            >
+              <Radio.Root value="a" />
+              <Radio.Root value="b" data-testid="b" />
+            </RadioGroup>
+            <button type="reset">Reset</button>
+          </form>,
+        );
+
+        fireEvent.click(screen.getByTestId('b'));
+        expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+
+        await clickResetButton();
+
+        const [inputA, inputB] = Array.from(
+          document.querySelectorAll<HTMLInputElement>('input[name="r"]'),
+        );
+        expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+        expect(inputA.checked).toBe(false);
+        expect(inputB.checked).toBe(true);
+      },
+    );
+
+    it('resets radios rendered outside the group', async () => {
+      await render(
+        <div>
+          <form id="external-form" data-testid="form" />
+          <RadioGroup name="r" form="external-form" defaultValue="a">
+            {ReactDOM.createPortal(
+              <React.Fragment>
+                <Radio.Root value="a" data-testid="a" />
+                <Radio.Root value="b" data-testid="b" />
+              </React.Fragment>,
+              document.body,
+            )}
+          </RadioGroup>
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('b'));
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+
+      await resetForm();
+
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'true');
     });
   });
 });

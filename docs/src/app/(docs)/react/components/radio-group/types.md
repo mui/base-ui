@@ -189,15 +189,13 @@ type RadioGroupState = {
 ### RadioGroup.ChangeEventReason
 
 ```typescript
-type RadioGroupChangeEventReason = 'none';
+type RadioGroupChangeEventReason = 'none' | 'form-reset';
 ```
 
 ### RadioGroup.ChangeEventDetails
 
 ```typescript
-type RadioGroupChangeEventDetails = {
-  /** The reason for the event. */
-  reason: 'none';
+type RadioGroupChangeEventDetails = ({ reason: 'none' } | { reason: 'form-reset' }) & {
   /** The native event associated with the custom event. */
   event: Event;
   /** Cancels Base UI from handling the event. */

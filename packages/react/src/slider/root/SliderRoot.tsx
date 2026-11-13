@@ -35,6 +35,7 @@ import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 import { REASONS } from '../../internals/reasons';
+import { useFormReset } from '../../internals/useFormReset';
 
 function areValuesEqual(
   newValue: number | readonly number[],
@@ -298,6 +299,16 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
+  const [initialValue] = React.useState(valueUnwrapped);
+
+  const resetRef = useFormReset((eventDetails) => {
+    // No thumb is active during a form reset.
+    setValue(
+      initialValue as number | number[],
+      Object.assign(eventDetails, { activeThumbIndex: -1 }),
+    );
+  });
+
   const contextValue: SliderRootContext = React.useMemo(
     () => ({
       active,
@@ -328,6 +339,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedValuesRef,
       registerFieldControlRef,
       renderBeforeHydration: thumbAlignment === 'edge',
+      resetRef,
       setActive,
       setDragging,
       setIndicatorPosition,
@@ -362,6 +374,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       orientation,
       range,
       registerFieldControlRef,
+      resetRef,
       setActive,
       setValue,
       state,
@@ -588,6 +601,7 @@ export type SliderRootChangeEventReason =
   | typeof REASONS.trackPress
   | typeof REASONS.drag
   | typeof REASONS.keyboard
+  | typeof REASONS.formReset
   | typeof REASONS.none;
 export type SliderRootChangeEventDetails = BaseUIChangeEventDetails<
   SliderRoot.ChangeEventReason,

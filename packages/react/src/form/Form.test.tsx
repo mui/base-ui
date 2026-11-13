@@ -8,7 +8,7 @@ import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
 import { Switch } from '@base-ui/react/switch';
 import { fireEvent, flushMicrotasks, screen, waitFor, within } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, resetForm } from '#test-utils';
 
 describe('<Form />', () => {
   const { render } = createRenderer();
@@ -1171,6 +1171,76 @@ describe('<Form />', () => {
       await user.click(screen.getByRole('button', { name: 'Validate current' }));
 
       expect(replacementValidate).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe('native reset', () => {
+    it('keeps revalidating on change after an ancestor cancels the reset', async () => {
+      await render(
+        <div onReset={(event) => event.preventDefault()}>
+          <Form data-testid="form">
+            <Field.Root validate={(value) => (value === 'ok' ? null : 'error')}>
+              <Field.Control defaultValue="ok" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        </div>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      fireEvent.change(input, { target: { value: 'bad' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      expect(input).toHaveAttribute('data-invalid');
+
+      await resetForm();
+      fireEvent.change(input, { target: { value: 'ok' } });
+      expect(input).not.toHaveAttribute('data-invalid');
+
+      fireEvent.change(input, { target: { value: 'still bad' } });
+      expect(input).toHaveAttribute('data-invalid');
+    });
+
+    it('stops revalidating on change after a submitted form is reset', async () => {
+      await render(
+        <Form data-testid="form">
+          <Field.Root validate={() => 'error'}>
+            <Field.Control defaultValue="a" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      expect(input).toHaveAttribute('data-invalid');
+
+      await resetForm();
+      expect(input).not.toHaveAttribute('data-invalid');
+
+      fireEvent.change(input, { target: { value: 'b' } });
+      expect(input).not.toHaveAttribute('data-invalid');
+    });
+
+    it('keeps revalidating on change after a prevented reset', async () => {
+      await render(
+        <Form data-testid="form" onReset={(event) => event.preventDefault()}>
+          <Field.Root validate={(value) => (value === 'ok' ? null : 'error')}>
+            <Field.Control defaultValue="ok" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      fireEvent.change(input, { target: { value: 'bad' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      expect(input).toHaveAttribute('data-invalid');
+
+      await resetForm();
+      fireEvent.change(input, { target: { value: 'ok' } });
+      expect(input).not.toHaveAttribute('data-invalid');
+
+      fireEvent.change(input, { target: { value: 'still bad' } });
+      expect(input).toHaveAttribute('data-invalid');
     });
   });
 });

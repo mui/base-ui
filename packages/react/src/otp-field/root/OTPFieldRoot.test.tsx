@@ -7,7 +7,13 @@ import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
-import { createRenderer, describeConformance, hiddenInputSizeTests, pasteText } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  hiddenInputSizeTests,
+  pasteText,
+  resetForm,
+} from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 describe('<OTPField.Root />', () => {
@@ -1926,4 +1932,79 @@ describe('<OTPField.Root />', () => {
       }
     },
   );
+
+  describe('form reset', () => {
+    it('restores the default value, reports form-reset and clears field state', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <OTPField
+              name="otp"
+              defaultValue="12"
+              onValueChange={(v, d) => onValueChange(v, d.reason)}
+            />
+          </Field.Root>
+        </form>,
+      );
+
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]')!;
+      fireEvent.change(screen.getAllByRole('textbox')[2], { target: { value: '3' } });
+      expect(hiddenInput.value).toBe('123');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith('12', 'form-reset');
+      expect(hiddenInput.value).toBe('12');
+      expect(getValues()).toBe('12');
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
+    });
+
+    it('calls onValueChange with the initial value when controlled', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState('12');
+        return (
+          <form data-testid="form">
+            <OTPField
+              name="otp"
+              value={value}
+              onValueChange={(v, d) => {
+                onValueChange(v, d.reason);
+                setValue(v);
+              }}
+            />
+            <button type="button" onClick={() => setValue('1234')}>
+              Change
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]')!;
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+      expect(hiddenInput.value).toBe('1234');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith('12', 'form-reset');
+      expect(hiddenInput.value).toBe('12');
+    });
+
+    it('does not report a reset when the value is unchanged', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <OTPField defaultValue="12" onValueChange={onValueChange} />
+        </form>,
+      );
+
+      await resetForm();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+  });
 });

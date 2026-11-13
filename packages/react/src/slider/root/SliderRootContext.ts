@@ -18,6 +18,10 @@ export interface SliderRootContext {
   controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
+  /**
+   * Restores the value when the form is reset. Attached to each thumb's input.
+   */
+  resetRef: (input: HTMLInputElement) => () => void;
   validation: UseFieldValidationReturnValue;
   /**
    * Options to format the value.

@@ -2,12 +2,18 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { screen, fireEvent, waitFor } from '@mui/internal-test-utils';
+import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  clickResetButton,
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  resetForm,
+} from '#test-utils';
 
 describe('<CheckboxGroup />', () => {
   const { render, renderToString } = createRenderer();
@@ -2205,6 +2211,222 @@ describe('<CheckboxGroup />', () => {
       expect(checkbox1.getAttribute('aria-describedby')).toContain(
         screen.getByText('Description').getAttribute('id'),
       );
+    });
+  });
+
+  describe('form reset', () => {
+    it('submits the restored state right after form.reset()', async () => {
+      await render(
+        <form data-testid="form">
+          <CheckboxGroup defaultValue={['a']}>
+            <Checkbox.Root value="a" name="a" data-testid="a" />
+            <Checkbox.Root value="b" name="b" data-testid="b" />
+          </CheckboxGroup>
+        </form>,
+      );
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      fireEvent.click(screen.getByTestId('a'));
+      fireEvent.click(screen.getByTestId('b'));
+      expect([...new FormData(form).entries()]).toEqual([['b', 'b']]);
+
+      let submitted: [string, FormDataEntryValue][] = [];
+      await act(async () => {
+        form.reset();
+        submitted = [...new FormData(form).entries()];
+      });
+
+      expect(submitted).toEqual([['a', 'a']]);
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('keeps the state of checkboxes associated with another form', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <div>
+          <form id="form-a" data-testid="form" />
+          <form id="form-b" />
+          <CheckboxGroup defaultValue={['b']} onValueChange={onValueChange}>
+            <Checkbox.Root value="a" form="form-a" data-testid="a" />
+            <Checkbox.Root value="b" form="form-b" data-testid="b" />
+          </CheckboxGroup>
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('a'));
+      fireEvent.click(screen.getByTestId('b'));
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
+
+      await resetForm();
+
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([]);
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'false');
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('restarts the parent checkbox cycle when the value is already at its initial value', async () => {
+      function App() {
+        const [value, setValue] = React.useState(['a']);
+        return (
+          <form data-testid="form">
+            <CheckboxGroup allValues={['a', 'b', 'c']} value={value} onValueChange={setValue}>
+              <Checkbox.Root parent data-testid="parent" />
+              <Checkbox.Root value="a" />
+              <Checkbox.Root value="b" />
+              <Checkbox.Root value="c" />
+            </CheckboxGroup>
+            <button type="button" onClick={() => setValue(['a'])}>
+              Restore
+            </button>
+          </form>
+        );
+      }
+      await render(<App />);
+
+      const parent = screen.getByTestId('parent');
+      fireEvent.click(parent);
+      expect(parent).toHaveAttribute('aria-checked', 'true');
+      fireEvent.click(screen.getByRole('button', { name: 'Restore' }));
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+
+      await resetForm();
+      fireEvent.click(parent);
+
+      expect(parent).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('restores the initial value, reports form-reset and clears field state', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <CheckboxGroup
+              defaultValue={['a']}
+              onValueChange={(v, d) => onValueChange(v, d.reason)}
+            >
+              <Checkbox.Root value="a" name="a" />
+              <Checkbox.Root value="b" name="b" data-testid="b" />
+            </CheckboxGroup>
+          </Field.Root>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('b'));
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith(['a'], 'form-reset');
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
+      expect(document.querySelector<HTMLInputElement>('input[name="a"]')!.checked).toBe(true);
+      expect(document.querySelector<HTMLInputElement>('input[name="b"]')!.checked).toBe(false);
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
+    });
+
+    it('resets when its checkboxes belong to the form through the form attribute', async () => {
+      await render(
+        <div>
+          <form id="external-form" data-testid="form" />
+          <CheckboxGroup allValues={['a', 'b']} defaultValue={[]}>
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="a" name="a" form="external-form" data-testid="a" />
+            <Checkbox.Root value="b" name="b" form="external-form" />
+          </CheckboxGroup>
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('a'));
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'true');
+
+      await resetForm();
+
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('restarts the parent checkbox cycle from the restored value', async () => {
+      await render(
+        <form data-testid="form">
+          <CheckboxGroup allValues={['a', 'b', 'c']} defaultValue={[]}>
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="a" data-testid="a" />
+            <Checkbox.Root value="b" />
+            <Checkbox.Root value="c" />
+          </CheckboxGroup>
+        </form>,
+      );
+
+      const parent = screen.getByTestId('parent');
+      fireEvent.click(screen.getByTestId('a'));
+      fireEvent.click(parent);
+      expect(parent).toHaveAttribute('aria-checked', 'true');
+
+      await resetForm();
+      expect(parent).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(parent);
+
+      expect(parent).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it.skipIf(isJSDOM)(
+      'keeps the hidden inputs in sync when a reset button click is canceled',
+      async () => {
+        await render(
+          <form>
+            <CheckboxGroup
+              defaultValue={['a']}
+              onValueChange={(_, details) => {
+                if (details.reason === 'form-reset') {
+                  details.cancel();
+                }
+              }}
+            >
+              <Checkbox.Root value="a" name="a" />
+              <Checkbox.Root value="b" name="b" data-testid="b" />
+            </CheckboxGroup>
+            <button type="reset">Reset</button>
+          </form>,
+        );
+
+        fireEvent.click(screen.getByTestId('b'));
+        expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+
+        await clickResetButton();
+
+        expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+        expect(document.querySelector<HTMLInputElement>('input[name="b"]')!.checked).toBe(true);
+      },
+    );
+
+    it('resets checkboxes rendered outside the group once', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <div>
+          <form id="external-form" data-testid="form" />
+          <CheckboxGroup defaultValue={[]} onValueChange={onValueChange}>
+            {ReactDOM.createPortal(
+              <React.Fragment>
+                <Checkbox.Root value="a" name="a" form="external-form" data-testid="a" />
+                <Checkbox.Root value="b" name="b" form="external-form" data-testid="b" />
+              </React.Fragment>,
+              document.body,
+            )}
+          </CheckboxGroup>
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('a'));
+      fireEvent.click(screen.getByTestId('b'));
+      onValueChange.mockClear();
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual([]);
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'false');
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
     });
   });
 });

@@ -49,6 +49,7 @@ import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenI
 import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { useFormReset } from '../../internals/useFormReset';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { mergeProps } from '../../merge-props';
@@ -1534,7 +1535,40 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, ...Object.values(syncedValues)]);
 
-  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, hiddenInputElementRef);
+  const [initialSelectedValue] = React.useState(selectedValue);
+  const [initialInputValue] = React.useState(inputValue);
+
+  const resetRef = useFormReset((eventDetails) => {
+    // Without its own input value, an input outside the popup shows the label of a single selection.
+    const showsLabel = single && !inputInsidePopup && !hasInputValue;
+    if (
+      selectionMode !== 'none' &&
+      isSelectedValueDirty(selectedValue, initialSelectedValue, isItemEqualToValue)
+    ) {
+      setSelectedValue(initialSelectedValue, eventDetails);
+      // Restoring the selection already restores its label.
+      if (showsLabel || eventDetails.isCanceled) {
+        return;
+      }
+    }
+    // Labels can resolve after mount, so read the current one instead of the initial input value.
+    const nextInputValue = showsLabel ? selectedLabelString : String(initialInputValue);
+    if (inputValue !== nextInputValue) {
+      setInputValue(
+        nextInputValue,
+        // Unless the input holds the value, canceling the query reset keeps the field resetting.
+        selectionMode === 'none'
+          ? eventDetails
+          : createChangeEventDetails(REASONS.formReset, eventDetails.event),
+      );
+    }
+  });
+  const hiddenInputRef = useMergedRefs(
+    inputRefProp,
+    validation.inputRef,
+    hiddenInputElementRef,
+    resetRef,
+  );
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
@@ -2004,6 +2038,7 @@ export namespace AriaCombobox {
     | typeof REASONS.chipRemovePress
     | typeof REASONS.cancelOpen
     | typeof REASONS.imperativeAction
+    | typeof REASONS.formReset
     | typeof REASONS.none;
   export type OpenChangeEventDetails = ChangeEventDetails & {
     /** Prevents the popup from unmounting until the `unmount` action is called. */

@@ -58,15 +58,13 @@ type InputState = {
 ### Input.ChangeEventReason
 
 ```typescript
-type InputChangeEventReason = 'none';
+type InputChangeEventReason = 'none' | 'form-reset';
 ```
 
 ### Input.ChangeEventDetails
 
 ```typescript
-type InputChangeEventDetails = {
-  /** The reason for the event. */
-  reason: 'none';
+type InputChangeEventDetails = ({ reason: 'none' } | { reason: 'form-reset' }) & {
   /** The native event associated with the custom event. */
   event: Event;
   /** Cancels Base UI from handling the event. */
