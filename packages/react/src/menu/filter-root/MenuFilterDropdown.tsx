@@ -2,12 +2,11 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { isVirtualPointerEvent } from '../../utils/popups/event';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
+import { useKeyboardOpenReset } from '../../filter-dropdown/root/useKeyboardOpenReset';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -83,26 +82,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   });
   store.useSyncedValue('filterTriggerProps', filterTriggerProps);
 
-  // A keyboard open is recorded with the open request, so a controlled close that bypasses it, or
-  // a controlled `open` that ignores it, must not leave the next programmatic open looking like
-  // one. An ignored request is cleared a task later, once a controlled `open` prop could have
-  // caught up with it.
-  const keyboardOpenTimeout = useTimeout();
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      store.set('keyboardOpen', false);
-    }
-  }, [open, store]);
-  useIsoLayoutEffect(() => {
-    if (open || !keyboardOpen) {
-      return;
-    }
-    keyboardOpenTimeout.start(0, () => {
-      if (!store.select('open')) {
-        store.set('keyboardOpen', false);
-      }
-    });
-  }, [open, keyboardOpen, store, keyboardOpenTimeout]);
+  useKeyboardOpenReset(store, open, keyboardOpen);
 
   // Trust the rendered element's id once it exists: an explicitly empty id must not fall back to a
   // registered id that no element carries.

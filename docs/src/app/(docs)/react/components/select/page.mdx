@@ -353,6 +353,8 @@ Its `index` is the item's position among the items that currently match, not in 
 Opening the select with a click or the keyboard focuses the input. Opening it with touch or a pen does not, so the on-screen keyboard stays hidden.
 Typing on the closed trigger selects the first item whose label starts with the typed text, as in a plain select, without opening it.
 The arrow keys move the highlight while the input keeps focus. <kbd>Tab</kbd> closes the select, and <kbd>Shift</kbd>+<kbd>Tab</kbd> returns focus to the trigger.
+Pressing <kbd>Enter</kbd> selects the highlighted item, and does nothing while no item is highlighted.
+Pressing <kbd>Space</kbd> selects the highlighted item while the input is empty, so a query can't start with a space. Once the input has text, it types a space.
 The trigger keeps its `combobox` role and opens a `dialog` that holds the `searchbox` input and the `listbox` list.
 `alignItemWithTrigger` has no effect in a filterable select.
 

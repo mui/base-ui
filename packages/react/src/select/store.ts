@@ -81,7 +81,10 @@ export type SelectStoreContext = ValuePopupContext<SelectRoot.OpenChangeEventDet
   /** Called with the item a multiple select's press toggled, once the change is accepted. */
   onItemToggle: (itemValue: unknown, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
-  /** Reports the highlighted item through `onItemHighlighted` if it changed. */
+  /**
+   * Publishes the highlighted element for a filterable select, and reports the highlighted item
+   * through `onItemHighlighted` if it changed.
+   */
   syncHighlight: () => void;
 };
 

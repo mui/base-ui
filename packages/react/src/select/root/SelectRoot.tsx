@@ -371,15 +371,10 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     const value = index === null ? undefined : valuesRef.current[index];
     const reported = reportedHighlightRef.current;
     // A hole is an index whose item hasn't registered its value yet; it syncs once it does.
-    if (index !== null && value === undefined) {
-      return;
-    }
     if (
-      index === reported.index &&
-      compareItemEquality(value, reported.value, isItemEqualToValue)
+      (index !== null && value === undefined) ||
+      (index === reported.index && compareItemEquality(value, reported.value, isItemEqualToValue))
     ) {
-      // A navigation that left the highlight unchanged must not label a later change.
-      highlightEventRef.current = undefined;
       return;
     }
     const event = highlightEventRef.current;
