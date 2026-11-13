@@ -56,6 +56,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
       positionerProps,
       withViewport = false,
       triggerProps: fixtureTriggerProps,
+      triggerKey = 0,
     } = props;
     const detached = mode === 'detached';
 
@@ -63,7 +64,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
       const number = index + 1;
       return (
         <Trigger
-          key={number}
+          key={`${triggerKey}-${number}`}
           {...triggerProps}
           {...fixtureTriggerProps}
           {...(detached ? { handle } : {})}
@@ -756,6 +757,53 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
         });
       });
 
+      // Click-opened popups move focus into the popup, so they have focus to return.
+      if (primaryInteraction === 'click') {
+        describe('return focus', () => {
+          async function openAndFocusPopup(user: UserEvent) {
+            await openWith(primaryInteraction, user, getTrigger(1));
+            await waitFor(() => {
+              expect(screen.getByTestId('popup')).toContainElement(
+                document.activeElement as HTMLElement,
+              );
+            });
+          }
+
+          it('returns focus to the detached trigger when the root unmounts while open', async () => {
+            const { user, setProps } = await render(
+              <Fixture mode="detached" handle={createHandle()} triggerCount={1} />,
+            );
+            await openAndFocusPopup(user);
+
+            await setProps({ rootMounted: false });
+
+            await waitFor(() => {
+              expect(getTrigger(1)).toHaveFocus();
+            });
+          });
+
+          it('returns focus to the owning trigger after it remounts while open', async () => {
+            const { user, setProps } = await render(
+              <Fixture mode="detached" handle={createHandle()} triggerCount={1} triggerKey={1} />,
+            );
+            const firstTrigger = getTrigger(1);
+            await openAndFocusPopup(user);
+
+            await setProps({ triggerKey: 2 });
+            const remountedTrigger = getTrigger(1);
+            expect(remountedTrigger).not.toBe(firstTrigger);
+            expect(screen.getByTestId('popup')).toBeVisible();
+
+            await user.keyboard('{Escape}');
+
+            await waitForPopupClosed();
+            await waitFor(() => {
+              expect(remountedTrigger).toHaveFocus();
+            });
+          });
+        });
+      }
+
       describe.skipIf(isJSDOM)('reparenting', () => {
         async function expectOpensAndCloses(user: UserEvent) {
           await openWith(primaryInteraction, user, getTrigger(1));
@@ -895,4 +943,8 @@ interface FixtureProps {
    * Props applied to every trigger, over the config's `triggerProps`.
    */
   triggerProps?: Record<string, unknown>;
+  /**
+   * Changing it remounts the triggers.
+   */
+  triggerKey?: number;
 }
