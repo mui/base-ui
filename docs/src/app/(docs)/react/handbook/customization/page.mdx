@@ -90,7 +90,7 @@ To prevent Base UI from handling a React event like `onClick`, you can use the 
 This lets your handler take over the interaction, and pairs well with [controlled state](#controlling-components-with-state) to tailor a component's behavior to your app.
 If the interaction triggers a change event, [canceling it](#canceling-a-base-ui-event) for a specific `reason` is more explicit.
 
-In various cases, native events are used instead of React events, so this method has no effect.
+In various cases, native events are used instead of React events, so `preventBaseUIHandler()` has no effect.
 
 ## Controlling components with state
 
