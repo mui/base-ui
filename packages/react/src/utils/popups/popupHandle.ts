@@ -42,11 +42,12 @@ export interface PopupHandleStoreWithTriggers {
 }
 
 /**
- * Store shape required by `BasePopupHandle.openByTrigger`/`closePopup` to drive open/close state.
+ * Store shape required by `BasePopupHandle.open`/`close` to drive open/close state.
  * Only the root-owned `Store` needs this — the `HandleStore` view exposed to detached triggers may
  * omit `setOpen` entirely (as Dialog and PreviewCard's do) since it is never called while detached.
  */
 export interface PopupHandleStoreWithOpen extends PopupHandleStoreWithTriggers {
+  select?(key: 'open'): boolean;
   setOpen(
     open: boolean,
     eventDetails: BaseUIChangeEventDetails<typeof REASONS.imperativeAction>,
@@ -62,10 +63,12 @@ export interface PopupHandleStoreWithOpen extends PopupHandleStoreWithTriggers {
  *
  * @template HandleStore Store shape exposed to detached triggers.
  * @template Store Root-owned store attached by the component root.
+ * @template TriggerId Trigger ID type accepted by `open()`.
  */
 export class BasePopupHandle<
   HandleStore extends PopupHandleStoreWithTriggers,
   Store extends HandleStore & PopupHandleStoreWithOpen,
+  TriggerId extends string | null | undefined = string,
 > {
   /**
    * Stores of every root currently using this handle, in attach order. A handle is meant to be used
@@ -199,8 +202,7 @@ export class BasePopupHandle<
 
   /**
    * Opens the attached root's store and associates it with the trigger with the given id, or a
-   * no-op (with a dev warning) while no root is attached. Shared by every concrete handle's public
-   * `open()` method, which only narrows the parameter type.
+   * no-op (with a dev warning) while no root is attached.
    *
    * When a trigger id is given but no matching trigger is registered, anchored popups throw (see
    * `throwOnMissingTrigger`); Dialog opens unassociated with a dev warning instead.
@@ -210,7 +212,7 @@ export class BasePopupHandle<
    * @param triggerId ID of the trigger to associate with the popup, or `null`/`undefined` to open
    * without associating any trigger.
    */
-  protected openByTrigger(triggerId: string | null | undefined) {
+  open(triggerId: TriggerId) {
     const attachedStore = this.attachedStore;
 
     if (attachedStore === null) {
@@ -264,11 +266,11 @@ export class BasePopupHandle<
 
   /**
    * Closes the popup by setting the attached root's store to closed, or a no-op (with a dev warning)
-   * while no root is attached. Shared by every concrete handle's public `close()` method.
+   * while no root is attached.
    *
    * This method should only be called in an event handler or an effect (not during rendering).
    */
-  protected closePopup() {
+  close() {
     const attachedStore = this.attachedStore;
 
     if (attachedStore === null) {
@@ -282,5 +284,12 @@ export class BasePopupHandle<
     }
 
     attachedStore.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+  }
+
+  /**
+   * Whether the popup is currently open. Returns `false` while no root is attached to the handle.
+   */
+  get isOpen() {
+    return this.attachedStore?.select?.('open') ?? false;
   }
 }

@@ -1,3 +1,4 @@
+import { NOOP } from '@base-ui/utils/empty';
 import { ReactStore } from '@base-ui/utils/store';
 
 type SelectorFunction<State> = (state: State, ...args: any[]) => any;
@@ -13,6 +14,16 @@ export class NullStore<
   Context = Record<string, never>,
   Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
 > extends ReactStore<State, Context, Selectors> {
+  constructor(state: State, context?: Context, selectors?: Selectors) {
+    super(
+      Object.freeze(state),
+      context !== undefined ? Object.freeze(context) : undefined,
+      selectors,
+    );
+  }
+
+  setOpen = NOOP;
+
   // `update`/`set`/`notifyAll` funnel through `setState` in the base `Store`, so overriding
   // `setState` alone would neutralize them today. They are overridden explicitly so the store stays
   // inert even if a future base-class change stops routing a mutator through `setState`.

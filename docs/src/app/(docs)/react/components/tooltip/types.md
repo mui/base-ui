@@ -440,9 +440,9 @@ before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                                                                     |
-| :------- | :-------- | :-------- | :---------------------------------------------------------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Whether the tooltip is currently open. Returns `false` while no root is attached to the handle. |
+| Property | Type      | Modifiers | Description                                                                                   |
+| :------- | :-------- | :-------- | :-------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the popup is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -450,7 +450,11 @@ before a root attaches (or after it unmounts) are ignored.
 function open(triggerId: string): void;
 ```
 
-Opens the tooltip and associates it with the trigger with the given id.
+Opens the attached root's store and associates it with the trigger with the given id, or a
+no-op (with a dev warning) while no root is attached.
+
+When a trigger id is given but no matching trigger is registered, anchored popups throw (see
+`throwOnMissingTrigger`); Dialog opens unassociated with a dev warning instead.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
@@ -458,7 +462,8 @@ This method should only be called in an event handler or an effect (not during r
 function close(): void;
 ```
 
-Closes the tooltip.
+Closes the popup by setting the attached root's store to closed, or a no-op (with a dev warning)
+while no root is attached.
 
 This method should only be called in an event handler or an effect (not during rendering).
 

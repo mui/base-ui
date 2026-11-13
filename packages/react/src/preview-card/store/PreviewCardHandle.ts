@@ -17,34 +17,6 @@ export class PreviewCardHandle<Payload> extends BasePopupHandle<
   constructor() {
     super(createNullPreviewCardStore<Payload>(), 'PreviewCard');
   }
-
-  /**
-   * Opens the preview card and associates it with the trigger with the given id.
-   *
-   * This method should only be called in an event handler or an effect (not during rendering).
-   *
-   * @param triggerId ID of the trigger to associate with the preview card. The trigger must be a
-   * matching `PreviewCard.Trigger` with this handle passed as a prop.
-   */
-  open(triggerId: string) {
-    this.openByTrigger(triggerId);
-  }
-
-  /**
-   * Closes the preview card.
-   *
-   * This method should only be called in an event handler or an effect (not during rendering).
-   */
-  close() {
-    this.closePopup();
-  }
-
-  /**
-   * Whether the preview card is currently open. Returns `false` while no root is attached to the handle.
-   */
-  get isOpen() {
-    return this.attachedStore?.select('open') ?? false;
-  }
 }
 
 /**

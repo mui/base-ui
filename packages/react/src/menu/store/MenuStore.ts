@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -372,12 +372,11 @@ export class MenuStore<Payload> extends BasePopupStore<
  * `setOpen` without it ever taking effect while detached.
  */
 export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
-  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>()),
-    Object.freeze(createInitialContext()),
+  return new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    createInitialState<Payload>(),
+    createInitialContext(),
     selectors,
   );
-  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialContext(): Context {

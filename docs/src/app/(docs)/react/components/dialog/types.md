@@ -383,19 +383,11 @@ before a root attaches (or after it unmounts) are ignored.
 
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                                                                    |
-| :------- | :-------- | :-------- | :--------------------------------------------------------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Whether the dialog is currently open. Returns `false` while no root is attached to the handle. |
+| Property | Type      | Modifiers | Description                                                                                   |
+| :------- | :-------- | :-------- | :-------------------------------------------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Whether the popup is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
-
-```typescript
-function open(triggerId: string | null): void;
-```
-
-Opens the dialog, optionally associating it with a trigger.
-
-This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
 function openWithPayload(payload: Payload): void;
@@ -406,10 +398,23 @@ Opens the dialog with the given payload, without associating it with any trigger
 This method should only be called in an event handler or an effect (not during rendering).
 
 ```typescript
+function open(triggerId: string | null): void;
+```
+
+Opens the attached root's store and associates it with the trigger with the given id, or a
+no-op (with a dev warning) while no root is attached.
+
+When a trigger id is given but no matching trigger is registered, anchored popups throw (see
+`throwOnMissingTrigger`); Dialog opens unassociated with a dev warning instead.
+
+This method should only be called in an event handler or an effect (not during rendering).
+
+```typescript
 function close(): void;
 ```
 
-Closes the dialog.
+Closes the popup by setting the attached root's store to closed, or a no-op (with a dev warning)
+while no root is attached.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
