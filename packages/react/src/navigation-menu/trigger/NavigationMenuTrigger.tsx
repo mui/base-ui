@@ -422,6 +422,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     transitionStatus,
   ]);
 
+  function startPatientClickThreshold() {
+    // Only allow "patient" clicks to close the popup if it's open.
+    // If they clicked within 500ms of the popup opening, keep it open.
+    setStickIfOpen(true);
+    stickIfOpenTimeout.clear();
+    stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+      setStickIfOpen(false);
+    });
+  }
+
   function handleOpenChange(
     nextOpen: boolean,
     eventDetails: Omit<NavigationMenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
@@ -442,13 +452,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
     function changeState() {
       if (isHover) {
-        // Only allow "patient" clicks to close the popup if it's open.
-        // If they clicked within 500ms of the popup opening, keep it open.
-        setStickIfOpen(true);
-        stickIfOpenTimeout.clear();
-        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-          setStickIfOpen(false);
-        });
+        startPatientClickThreshold();
       }
 
       if (nextOpen) {
@@ -576,6 +580,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // Keyboard open events reach this activation path after `onKeyDown` has already set
       // the value with the `listNavigation` reason.
       if (value != null && event.type !== 'keydown') {
+        const isHoverSwitch = event.type === 'mouseenter' && value !== itemValue;
+
+        // A hover switch opens this item without going through `handleOpenChange`, so record it
+        // as a hover open. Otherwise, a click right after the switch toggles the item closed.
+        if (isHoverSwitch) {
+          floatingRootStore.context.openEvent = event.nativeEvent;
+          startPatientClickThreshold();
+        }
+
         setValue(
           itemValue,
           createChangeEventDetails(
