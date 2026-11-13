@@ -23,7 +23,7 @@ import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/us
 import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
-import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
+import { usePopupTypeahead } from '../../src/utils/popups/interactions/usePopupTypeahead';
 import { useFocus } from '../../src/utils/popups/interactions/useFocus';
 import { useFloating } from './useFloating';
 import { gridNavigation } from '../../src/utils/popups/interactions/gridNavigation';
@@ -133,7 +133,7 @@ export const MenuComponent = React.forwardRef<
     orientation,
     grid: grid ? gridNavigation : undefined,
   });
-  const typeahead = useTypeahead(context.rootStore, {
+  const typeahead = usePopupTypeahead(context.rootStore, {
     listRef: labelsRef,
     onMatch: isOpen ? setActiveIndex : undefined,
     activeIndex,

@@ -1,0 +1,168 @@
+# Listbox
+
+<Subtitle>An always-visible list for selecting one or more options.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React listbox component for selecting options from an always-visible list."
+/>
+
+import { DemoListboxHero } from './demos/hero';
+
+<DemoListboxHero />
+
+## Usage guidelines
+
+- **Prefer Select for forms**: Use [Select](/react/components/select) instead of Listbox for selection in forms.
+- **Multi-select support**: Set `multiple` to allow selecting more than one item. The value is then an array.
+- **Provide an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Listbox } from '@base-ui/react/listbox';
+
+<Listbox.Root>
+  <Listbox.Label />
+  <Listbox.List>
+    <Listbox.Item>
+      <Listbox.ItemIndicator />
+    </Listbox.Item>
+    <Listbox.Group>
+      <Listbox.GroupLabel />
+      <Listbox.Item />
+    </Listbox.Group>
+  </Listbox.List>
+</Listbox.Root>;
+```
+
+## Examples
+
+### Multiple selection
+
+Add the `multiple` prop to let users select more than one item. The value is an array of the selected items.
+
+import { DemoListboxMultiSelection } from './demos/multi-selection';
+
+<DemoListboxMultiSelection />
+
+### Opt-in multiple selection
+
+Use `multiple="opt-in"` when users opt in to selecting more than one item by holding a modifier key. Without one, a click or an arrow key moves the selection to a single item.
+
+- <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+click adds or removes an item.
+- <kbd>Shift</kbd>+click or <kbd>Shift</kbd>+arrow keys select a range.
+- <kbd>Ctrl</kbd>+arrow keys move focus without changing the selection, and <kbd>Ctrl</kbd>+
+  <kbd>Space</kbd> adds or removes the focused item. On macOS, use <kbd>Option</kbd> instead of
+  <kbd>Ctrl</kbd>.
+
+On touch devices, which have no modifier keys, a tap adds or removes an item, the same as `multiple`.
+
+import { DemoListboxOptInSelection } from './demos/opt-in-selection';
+
+<DemoListboxOptInSelection />
+
+### Grouped
+
+Use `Listbox.Group` and `Listbox.GroupLabel` to group related items.
+
+import { DemoListboxGrouped } from './demos/grouped';
+
+<DemoListboxGrouped />
+
+### Object data
+
+To describe items that are objects, create a collection with `Listbox.createItems()` and pass it to the `items` prop. Make sure `getValue` returns a unique primitive for each item, such as its ID, and give each `Listbox.Item` that value. The selection holds the same values, and `items.get()` returns the object for one.
+
+```jsx title="Object data"
+function UserList({ users }) {
+  const [value, setValue] = React.useState(users[0].id);
+  const items = React.useMemo(
+    () =>
+      Listbox.createItems(users, {
+        getValue: (user) => user.id,
+        getLabel: (user) => user.name,
+      }),
+    [users],
+  );
+  const selectedUser = items.get(value);
+
+  return (
+    <Listbox.Root items={items} value={value} onValueChange={setValue}>
+      <Listbox.List>
+        {users.map((user) => (
+          <Listbox.Item key={user.id} value={user.id}>
+            {user.name}
+          </Listbox.Item>
+        ))}
+      </Listbox.List>
+    </Listbox.Root>
+  );
+}
+```
+
+When `items` is set, disabled items and the labels used for keyboard text navigation come from the `getDisabled` and `getLabel` options. The `disabled` and `label` props of `Listbox.Item` are ignored.
+
+### Virtualized
+
+Render large lists with a virtualization library such as `@tanstack/react-virtual`. Because only some of the items are rendered, a virtualized listbox needs the following:
+
+- **Pass every item to `items`**: The listbox can then reach items that aren't rendered with keyboard navigation, typeahead, and selection. Without it, arrow keys stop at the last rendered item.
+- **Scroll the highlighted item into view**: In `onItemHighlighted`, scroll to `eventDetails.index` unless the reason is `'pointer'`. The item receives focus once it renders.
+- **Set `aria-setsize` and `aria-posinset` on each item**: Assistive technology then announces an item's position in the whole list, not among the rendered items.
+- **Keep a focus indicator on the list**: `<Listbox.List>` holds focus while the highlighted item isn't rendered, so don't remove its focus style without showing one elsewhere.
+
+import { DemoListboxVirtualized } from './demos/virtualized';
+
+<DemoListboxVirtualized />
+
+## API reference
+
+import { TypesListbox } from './types';
+
+### Root
+
+<TypesListbox.Root />
+
+### Label
+
+<TypesListbox.Label />
+
+### List
+
+<TypesListbox.List />
+
+### Item
+
+<TypesListbox.Item />
+
+### ItemIndicator
+
+<TypesListbox.ItemIndicator />
+
+### Group
+
+<TypesListbox.Group />
+
+### GroupLabel
+
+<TypesListbox.GroupLabel />
+
+## createItems
+
+Creates a collection for the `items` prop of `<Listbox.Root>` from data that isn't strings or numbers.
+
+<TypesListbox.createItems hideDescription />
+
+export const metadata = {
+  keywords: [
+    'React Listbox Component',
+    'Listbox',
+    'Option List',
+    'Multi Select',
+    'Accessible Listbox',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

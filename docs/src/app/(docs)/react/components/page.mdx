@@ -18,6 +18,7 @@
 - Fieldset - ([Outline](#fieldset), [Contents](./fieldset/page.mdx))
 - Form - ([Outline](#form), [Contents](./form/page.mdx))
 - Input - ([Outline](#input), [Contents](./input/page.mdx))
+- Listbox [New] - ([Outline](#listbox), [Contents](./listbox/page.mdx))
 - Menu - ([Outline](#menu), [Contents](./menu/page.mdx))
 - Menubar - ([Outline](#menubar), [Contents](./menubar/page.mdx))
 - Meter - ([Outline](#meter), [Contents](./meter/page.mdx))
@@ -908,6 +909,60 @@ A native input element that automatically works with [Field](/react/components/f
 </details>
 
 [Read more](./input/page.mdx)
+
+## Listbox
+
+An always-visible list for selecting one or more options.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Listbox Component, Listbox, Option List, Multi Select, Accessible Listbox, Headless React Components, Base UI
+- Sections:
+  - Usage guidelines
+  - Anatomy
+  - Examples
+    - Multiple selection
+    - Opt-in multiple selection
+    - Grouped
+    - Object data
+    - Virtualized
+  - API reference
+    - Root
+    - Label
+    - List
+    - Item
+    - ItemIndicator
+    - Group
+    - GroupLabel
+  - createItems
+- Exports:
+  - Listbox - Root
+    - Props: children, defaultValue, disabled, highlightItemOnHover, items, multiple, onItemHighlighted, onValueChange, orientation, value
+  - Listbox - List
+    - Props: className, render, style
+    - Data Attributes: data-disabled, data-orientation
+  - Listbox - Item
+    - Props: children, className, disabled, label, nativeButton, render, style, value
+    - Data Attributes: data-disabled, data-highlighted, data-selected
+  - Listbox - Group
+    - Props: className, render, style
+  - Listbox - GroupLabel
+    - Props: className, render, style
+  - Listbox - Label
+    - Props: className, render, style
+  - Listbox - ItemIndicator
+    - Props: children, className, keepMounted, render, style
+    - Data Attributes: data-ending-style, data-starting-style
+  - Listbox - createItems
+    - Parameters: data, options
+  - ListboxItemCollection
+- Types: Listbox.Group.Props, Listbox.Group.State, Listbox.GroupLabel.Props, Listbox.GroupLabel.State, Listbox.Item.Props, Listbox.Item.State, Listbox.ItemIndicator.Props, Listbox.ItemIndicator.State, Listbox.Label.Props, Listbox.Label.State, Listbox.List.Props, Listbox.List.State, Listbox.Root.ChangeEventDetails, Listbox.Root.ChangeEventReason, Listbox.Root.HighlightEventDetails, Listbox.Root.HighlightEventReason, Listbox.Root.Props, Listbox.Root.State
+
+</details>
+
+[Read more](./listbox/page.mdx)
 
 ## Menu
 
