@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement } from '@base-ui/utils/shadowDom';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -27,7 +29,13 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
     ...elementProps
   } = componentProps;
 
-  const { visible, setVisible, disabled: rootDisabled, inputId } = usePasswordFieldRootContext();
+  const {
+    visible,
+    setVisible,
+    disabled: rootDisabled,
+    inputId,
+    inputRef,
+  } = usePasswordFieldRootContext();
 
   const disabled = rootDisabled || disabledProp;
 
@@ -44,11 +52,13 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
         // `aria-label` (which VoiceOver in particular often fails to re-announce).
         'aria-pressed': visible,
         'aria-controls': inputId,
-        // Keep focus (and the caret) on the input when the toggle is clicked with a pointer
-        // instead of moving it to the button, so the user can keep typing. Keyboard activation
-        // has no `mousedown`, so it still focuses the toggle.
+        // A pointer press on the toggle keeps focus (and the caret) on a focused input, so the
+        // user can keep typing. Keyboard activation has no `mousedown` and focuses the toggle.
         onMouseDown(event) {
-          event.preventDefault();
+          const input = inputRef.current;
+          if (event.button === 0 && input && activeElement(ownerDocument(input)) === input) {
+            event.preventDefault();
+          }
         },
         onClick(event) {
           setVisible(
@@ -77,7 +87,14 @@ export interface PasswordFieldToggleState {
 }
 
 export interface PasswordFieldToggleProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', PasswordFieldToggleState> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', PasswordFieldToggleState> {
+  /**
+   * Whether the toggle should ignore user interaction.
+   * Use the `disabled` prop on `PasswordField.Root` to disable the input as well.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+}
 
 export namespace PasswordFieldToggle {
   export type State = PasswordFieldToggleState;

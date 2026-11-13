@@ -15,8 +15,10 @@ import { DemoPasswordFieldHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: Associate the input with a `<label>` (or the [Field](/react/components/field) component) so it is announced by assistive technology.
+- **Form controls must have an accessible name**: Associate the input with a `<label>` (or the [Field](/react/components/field) component) so it is announced by assistive technology. The `id` prop on `<PasswordField.Root>` sets the input's `id`.
 - **Label the toggle**: The toggle is usually icon-only, so provide a localized `aria-label`. Keep it constant — the toggle's `aria-pressed` state (not a changing label) communicates whether the password is currently revealed.
+- **Set `autoComplete` for new passwords**: The input defaults to `autoComplete="current-password"`. On signup or change-password forms, pass `autoComplete="new-password"` so browsers and password managers offer to generate one.
+- **Use one input per root**: The toggle controls a single `<PasswordField.Input>`. Give a "confirm password" input its own `<PasswordField.Root>`.
 
 ## Anatomy
 
@@ -30,6 +32,10 @@ import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-f
   <PasswordField.Toggle />
 </PasswordField.Root>;
 ```
+
+`<PasswordField.Input>` accepts the same props as [Input](/react/components/input), such as `value`,
+`defaultValue`, `onValueChange`, and `name`. `<PasswordField.Root>` owns what the input and the
+toggle share: the visibility, `disabled`, and the input's `id`.
 
 ## Examples
 
@@ -49,20 +55,36 @@ The toggle button's `aria-pressed` state reflects whether the password is reveal
 />
 ```
 
+Alternatively, render both icons as children and show one of them in CSS with the toggle's
+`[data-pressed]` attribute.
+
 ### Form integration
 
-Use [Field](/react/components/field) for labeling and validation. The password is hidden again when
-the owning form is reset or submitted.
+Use [Field](/react/components/field) for labeling and validation. `<PasswordField.Root>` reflects
+the field's state, such as `data-invalid` and `data-focused`, so it can be styled as the visual
+control.
 
-The input defaults to `autoComplete="current-password"`. On signup or change-password forms, pass
-`autoComplete="new-password"` to override it.
+Submitting the owning form hides the password, and resetting it restores the initial visibility.
+Both call `onVisibleChange` with the `'form-submit'` or `'form-reset'` reason, which can be canceled:
+
+```tsx title="Keeping the password visible after a submit"
+<PasswordField.Root
+  onVisibleChange={(visible, eventDetails) => {
+    if (eventDetails.reason === 'form-submit') {
+      eventDetails.cancel();
+    }
+  }}
+>
+```
 
 ```tsx title="Using Password Field with Field"
 <Field.Root name="password">
   <Field.Label>Password</Field.Label>
   <PasswordField.Root>
     <PasswordField.Input required />
-    <PasswordField.Toggle aria-label="Show password" />
+    <PasswordField.Toggle aria-label="Show password">
+      <EyeIcon />
+    </PasswordField.Toggle>
   </PasswordField.Root>
   <Field.Error />
 </Field.Root>

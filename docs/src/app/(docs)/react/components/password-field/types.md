@@ -14,18 +14,25 @@ Renders a `<div>` element.
 | Prop            | Type                                                                                           | Default | Description                                                                                                                                                                                   |
 | :-------------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | defaultVisible  | `boolean`                                                                                      | `false` | Whether the password is initially revealed as plain text. To render a controlled password field, use the `visible` prop instead.                                                              |
-| onVisibleChange | `((visible: boolean, eventDetails: PasswordFieldPreview.Root.ChangeEventDetails) => void)`     | -       | Callback fired when the password visibility changes.                                                                                                                                          |
+| onVisibleChange | `((visible: boolean, eventDetails: PasswordFieldPreview.Root.ChangeEventDetails) => void)`     | -       | Callback fired when the password visibility changes.&#xA;Besides the toggle, resetting the owning form restores the initial visibility, and&#xA;submitting it hides the password.             |
 | visible         | `boolean`                                                                                      | -       | Whether the password is currently revealed as plain text. To render an uncontrolled password field, use the `defaultVisible` prop instead.                                                    |
 | disabled        | `boolean`                                                                                      | `false` | Whether the component should ignore user interaction.&#xA;Applies to both the input and the toggle.                                                                                           |
+| id              | `string`                                                                                       | -       | The id of the input element.                                                                                                                                                                  |
 | className       | `string \| ((state: PasswordFieldRootState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style           | `React.CSSProperties \| ((state: PasswordFieldRootState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render          | `ReactElement \| ((props: HTMLProps, state: PasswordFieldRootState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
-| Attribute     | Type | Description                         |
-| :------------ | :--- | :---------------------------------- |
-| data-disabled | -    | Present when the field is disabled. |
+| Attribute     | Type | Description                                                                 |
+| :------------ | :--- | :-------------------------------------------------------------------------- |
+| data-disabled | -    | Present when the field is disabled.                                         |
+| data-valid    | -    | Present when the field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid  | -    | Present when the field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty    | -    | Present when the field's value has changed (when wrapped in Field.Root).    |
+| data-touched  | -    | Present when the field has been touched (when wrapped in Field.Root).       |
+| data-filled   | -    | Present when the field is filled (when wrapped in Field.Root).              |
+| data-focused  | -    | Present when the field is focused (when wrapped in Field.Root).             |
 
 ### Root.Props
 
@@ -35,17 +42,27 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type PasswordFieldPreviewRootState = {
-  /** Whether the field should ignore user interaction. */
-  disabled: boolean;
   /** Whether the password is currently revealed as plain text. */
   visible: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
 };
 ```
 
 ### Root.ChangeEventReason
 
 ```typescript
-type PasswordFieldPreviewRootChangeEventReason = 'trigger-press' | 'none';
+type PasswordFieldPreviewRootChangeEventReason = 'trigger-press' | 'form-reset' | 'form-submit';
 ```
 
 ### Root.ChangeEventDetails
@@ -53,7 +70,8 @@ type PasswordFieldPreviewRootChangeEventReason = 'trigger-press' | 'none';
 ```typescript
 type PasswordFieldPreviewRootChangeEventDetails = (
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
-  | { reason: 'none'; event: Event }
+  | { reason: 'form-reset'; event: Event }
+  | { reason: 'form-submit'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
@@ -63,7 +81,12 @@ type PasswordFieldPreviewRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -80,7 +103,8 @@ Renders an `<input>` element.
 | :------------ | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | defaultValue  | `string \| number \| string[]`                                                                  | -       | The default value of the input. Use when uncontrolled.                                                                                                                                        |
 | value         | `string \| string[] \| number`                                                                  | -       | The value of the input. Use when controlled.                                                                                                                                                  |
-| onValueChange | `((value: string, eventDetails: PasswordFieldPreview.Input.ChangeEventDetails) => void)`        | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
+| onValueChange | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`                             | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
+| disabled      | `boolean`                                                                                       | `false` | Whether the input should ignore user interaction.&#xA;Use the `disabled` prop on `PasswordField.Root` to disable the toggle as well.                                                          |
 | className     | `string \| ((state: PasswordFieldInputState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style         | `React.CSSProperties \| ((state: PasswordFieldInputState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render        | `ReactElement \| ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -89,7 +113,7 @@ Renders an `<input>` element.
 
 | Attribute     | Type | Description                                                                 |
 | :------------ | :--- | :-------------------------------------------------------------------------- |
-| data-disabled | -    | Present when the field is disabled.                                         |
+| data-disabled | -    | Present when the input is disabled.                                         |
 | data-valid    | -    | Present when the input is in a valid state (when wrapped in Field.Root).    |
 | data-invalid  | -    | Present when the input is in an invalid state (when wrapped in Field.Root). |
 | data-dirty    | -    | Present when the input's value has changed (when wrapped in Field.Root).    |
@@ -142,7 +166,12 @@ type PasswordFieldPreviewInputChangeEventDetails = {
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -157,6 +186,7 @@ Renders a `<button>` element.
 | Prop         | Type                                                                                             | Default | Description                                                                                                                                                                                   |
 | :----------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nativeButton | `boolean`                                                                                        | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                        | `false` | Whether the toggle should ignore user interaction.&#xA;Use the `disabled` prop on `PasswordField.Root` to disable the input as well.                                                          |
 | className    | `string \| ((state: PasswordFieldToggleState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: PasswordFieldToggleState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: PasswordFieldToggleState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -185,6 +215,32 @@ type PasswordFieldPreviewToggleState = {
 
 ## Additional Types
 
+### PasswordFieldInputChangeEventDetails
+
+```typescript
+type PasswordFieldInputChangeEventDetails = {
+  /** The reason for the event. */
+  reason: 'none';
+  /** The native event associated with the custom event. */
+  event: Event;
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
+  trigger: Element | undefined;
+};
+```
+
 ### PasswordFieldInputChangeEventReason
 
 ```typescript
@@ -195,31 +251,35 @@ type PasswordFieldInputChangeEventReason = 'none';
 
 ```typescript
 type PasswordFieldInputProps = {
-  /** Callback fired when the `value` changes. Use when controlled. */
-  onValueChange?: (value: string, eventDetails: PasswordFieldInput.ChangeEventDetails) => void;
-  /** The default value of the input. Use when uncontrolled. */
-  defaultValue?: string | number | string[];
-  /** The value of the input. Use when controlled. */
-  value?: string | string[] | number;
+  /**
+   * Whether the input should ignore user interaction.
+   * Use the `disabled` prop on `PasswordField.Root` to disable the toggle as well.
+   * @default false
+   */
+  disabled?: boolean;
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.
    */
-  className?: string | ((state: PasswordFieldInputState) => string | undefined);
+  className?: string | ((state: InputState) => string | undefined);
+  /** The default value of the input. Use when uncontrolled. */
+  defaultValue?: string | number | string[];
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?: React.CSSProperties | ((state: InputState) => React.CSSProperties | undefined);
   /**
    * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?: ReactElement | ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement);
-  /**
-   * Style applied to the element, or a function that
-   * returns a style object based on the component's state.
-   */
-  style?:
-    | React.CSSProperties
-    | ((state: PasswordFieldInputState) => React.CSSProperties | undefined);
+  render?: ReactElement | ((props: HTMLProps, state: InputState) => ReactElement);
+  /** The value of the input. Use when controlled. */
+  value?: string | string[] | number;
+  /** Callback fired when the `value` changes. Use when controlled. */
+  onValueChange?: (value: string, eventDetails: Input.ChangeEventDetails) => void;
 };
 ```
 
@@ -242,16 +302,77 @@ type PasswordFieldInputState = {
 };
 ```
 
+### PasswordFieldPreviewInputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace PasswordFieldPreviewInputDataAttributes {
+  /** Present when the input is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the input is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the input is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the input has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the input's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the input is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the input is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### PasswordFieldPreviewRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace PasswordFieldPreviewRootDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### PasswordFieldPreviewToggleDataAttributes
+
+Data attributes of [Toggle](#toggle).
+
+```typescript
+declare namespace PasswordFieldPreviewToggleDataAttributes {
+  /** Present when the toggle is pressed (the password is revealed as plain text). */
+  const pressed: 'data-pressed';
+  /** Present when the toggle is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
 ### PasswordFieldRootChangeEventReason
 
 ```typescript
-type PasswordFieldRootChangeEventReason = 'trigger-press' | 'none';
+type PasswordFieldRootChangeEventReason = 'trigger-press' | 'form-reset' | 'form-submit';
 ```
 
 ### PasswordFieldRootProps
 
 ```typescript
 type PasswordFieldRootProps = {
+  /** The id of the input element. */
+  id?: string;
   /**
    * Whether the password is currently revealed as plain text.
    *
@@ -265,7 +386,11 @@ type PasswordFieldRootProps = {
    * @default false
    */
   defaultVisible?: boolean;
-  /** Callback fired when the password visibility changes. */
+  /**
+   * Callback fired when the password visibility changes.
+   * Besides the toggle, resetting the owning form restores the initial visibility, and
+   * submitting it hides the password.
+   */
   onVisibleChange?: (visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void;
   /**
    * Whether the component should ignore user interaction.
@@ -290,8 +415,7 @@ type PasswordFieldRootProps = {
    * returns a style object based on the component's state.
    */
   style?:
-    | React.CSSProperties
-    | ((state: PasswordFieldRootState) => React.CSSProperties | undefined);
+    React.CSSProperties | ((state: PasswordFieldRootState) => React.CSSProperties | undefined);
 };
 ```
 
@@ -299,10 +423,20 @@ type PasswordFieldRootProps = {
 
 ```typescript
 type PasswordFieldRootState = {
-  /** Whether the field should ignore user interaction. */
-  disabled: boolean;
   /** Whether the password is currently revealed as plain text. */
   visible: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
 };
 ```
 
@@ -310,6 +444,12 @@ type PasswordFieldRootState = {
 
 ```typescript
 type PasswordFieldToggleProps = {
+  /**
+   * Whether the toggle should ignore user interaction.
+   * Use the `disabled` prop on `PasswordField.Root` to disable the input as well.
+   * @default false
+   */
+  disabled?: boolean;
   /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
@@ -334,8 +474,7 @@ type PasswordFieldToggleProps = {
    * returns a style object based on the component's state.
    */
   style?:
-    | React.CSSProperties
-    | ((state: PasswordFieldToggleState) => React.CSSProperties | undefined);
+    React.CSSProperties | ((state: PasswordFieldToggleState) => React.CSSProperties | undefined);
 };
 ```
 
@@ -355,11 +494,21 @@ type PasswordFieldToggleState = {
 - `PasswordFieldPreview.Root`: `PasswordFieldPreview.Root`, `PasswordFieldPreview.Root.State`, `PasswordFieldPreview.Root.Props`, `PasswordFieldPreview.Root.ChangeEventReason`, `PasswordFieldPreview.Root.ChangeEventDetails`
 - `PasswordFieldPreview.Input`: `PasswordFieldPreview.Input`, `PasswordFieldPreview.Input.State`, `PasswordFieldPreview.Input.Props`, `PasswordFieldPreview.Input.ChangeEventReason`, `PasswordFieldPreview.Input.ChangeEventDetails`
 - `PasswordFieldPreview.Toggle`: `PasswordFieldPreview.Toggle`, `PasswordFieldPreview.Toggle.State`, `PasswordFieldPreview.Toggle.Props`
-- `Default`: `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`
+- `Default`: `PasswordFieldPreviewRootDataAttributes`, `PasswordFieldPreviewInputDataAttributes`, `PasswordFieldPreviewToggleDataAttributes`, `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`
 
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `PasswordFieldRoot.ChangeEventDetails`: `PasswordFieldRootChangeEventDetails`
-- `PasswordFieldInput.ChangeEventDetails`: `PasswordFieldInputChangeEventDetails`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

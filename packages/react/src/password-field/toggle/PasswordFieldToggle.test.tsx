@@ -1,7 +1,7 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -71,27 +71,6 @@ describe('<PasswordField.Toggle />', () => {
   });
 
   describe('aria-controls', () => {
-    it('omits aria-controls until an input is registered', async () => {
-      await render(
-        <PasswordField.Root>
-          <PasswordField.Toggle />
-        </PasswordField.Root>,
-      );
-
-      expect(screen.getByRole('button')).not.toHaveAttribute('aria-controls');
-    });
-
-    it('points aria-controls at the input', async () => {
-      await render(
-        <PasswordField.Root>
-          <PasswordField.Input id="pwd" />
-          <PasswordField.Toggle />
-        </PasswordField.Root>,
-      );
-
-      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'pwd');
-    });
-
     it('points aria-controls at the generated input id', async () => {
       await render(
         <PasswordField.Root>
@@ -258,7 +237,59 @@ describe('<PasswordField.Toggle />', () => {
     expect(input.selectionEnd).toBe(4);
   });
 
-  it('forwards the click handler', async () => {
+  describe('mousedown', () => {
+    it('prevents the default of a primary press while the input is focused', async () => {
+      await render(
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
+      );
+
+      const input = document.querySelector('input')!;
+      const button = screen.getByRole('button');
+
+      expect(fireEvent.mouseDown(button)).toBe(true);
+
+      await act(async () => {
+        input.focus();
+      });
+
+      expect(fireEvent.mouseDown(button)).toBe(false);
+    });
+
+    it('does not prevent the default of a secondary press', async () => {
+      await render(
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
+      );
+
+      await act(async () => {
+        document.querySelector('input')!.focus();
+      });
+
+      expect(fireEvent.mouseDown(screen.getByRole('button'), { button: 2 })).toBe(true);
+    });
+  });
+
+  it('does not toggle when a consumer click handler calls preventBaseUIHandler', async () => {
+    await render(
+      <PasswordField.Root>
+        <PasswordField.Input />
+        <PasswordField.Toggle onClick={(event) => event.preventBaseUIHandler()} />
+      </PasswordField.Root>,
+    );
+
+    await act(async () => {
+      screen.getByRole('button').click();
+    });
+
+    expect(document.querySelector('input')).toHaveAttribute('type', 'password');
+  });
+
+  it('calls a consumer click handler and still toggles', async () => {
     const onClick = vi.fn();
     await render(
       <PasswordField.Root>
@@ -272,5 +303,6 @@ describe('<PasswordField.Toggle />', () => {
     });
 
     expect(onClick.mock.calls.length).toBe(1);
+    expect(document.querySelector('input')).toHaveAttribute('type', 'text');
   });
 });

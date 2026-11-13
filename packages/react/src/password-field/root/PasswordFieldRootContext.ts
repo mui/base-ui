@@ -16,13 +16,14 @@ export interface PasswordFieldRootContext {
    */
   disabled: boolean;
   /**
-   * The resolved id of the input, used by the toggle's `aria-controls`.
+   * The id the input renders with, used by the toggle's `aria-controls`.
    */
   inputId: string | undefined;
   /**
-   * Reports the input's id so the toggle can reference it.
+   * The id to pass to the input's `Field.Control`, which resolves it against a surrounding Field.
    */
-  setInputId: (id: string | undefined) => void;
+  inputIdProp: string | undefined;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export const PasswordFieldRootContext = React.createContext<PasswordFieldRootContext | undefined>(
@@ -34,7 +35,8 @@ export function usePasswordFieldRootContext() {
 
   if (context === undefined) {
     throw new Error(
-      'Base UI: PasswordFieldRootContext is missing. PasswordField parts must be placed within <PasswordField.Root>.',
+      'Base UI: PasswordFieldRootContext is missing, so the part cannot read or change the password visibility. ' +
+        'PasswordField parts must be placed within <PasswordField.Root>.',
     );
   }
 

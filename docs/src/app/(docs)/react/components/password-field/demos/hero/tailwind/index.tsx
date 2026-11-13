@@ -9,9 +9,11 @@ export default function ExamplePasswordField() {
       <label htmlFor={id} className="text-sm font-bold text-neutral-950 dark:text-white">
         Password
       </label>
-      <PasswordField.Root className="box-border flex h-8 w-full items-center border border-neutral-950 bg-white text-neutral-950 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:focus-within:outline-white">
+      <PasswordField.Root
+        id={id}
+        className="box-border flex h-8 w-full items-center border border-neutral-950 bg-white text-neutral-950 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:focus-within:outline-white"
+      >
         <PasswordField.Input
-          id={id}
           placeholder="Enter your password"
           className="box-border h-full min-w-0 flex-1 rounded-none border-none bg-transparent px-2 py-0 text-sm font-normal any-pointer-coarse:text-base text-inherit placeholder:text-neutral-500 focus:outline-none dark:placeholder:text-neutral-400"
         />
