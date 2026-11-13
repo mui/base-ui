@@ -212,6 +212,68 @@ describe('<Popover.Root />', () => {
 
       expect(screen.queryByRole('dialog')).toBe(null);
     });
+
+    describe('with multiple triggers', () => {
+      function MultipleTriggersApp() {
+        return (
+          <Popover.Root<string>>
+            {({ payload }) => (
+              <React.Fragment>
+                <Popover.Trigger payload="A" openOnHover delay={0} closeDelay={0}>
+                  A
+                </Popover.Trigger>
+                <Popover.Trigger payload="B" openOnHover delay={0} closeDelay={0}>
+                  B
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup>Details for {payload}</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </React.Fragment>
+            )}
+          </Popover.Root>
+        );
+      }
+
+      it('keeps a click-opened popup open when the pointer leaves its trigger', async () => {
+        await render(<MultipleTriggersApp />);
+        const triggerA = screen.getByRole('button', { name: 'A' });
+
+        fireEvent.pointerEnter(triggerA, { pointerType: 'mouse' });
+        fireEvent.click(triggerA);
+        await flushMicrotasks();
+        expect(screen.queryByRole('dialog')).toHaveTextContent('Details for A');
+
+        leave(triggerA);
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('dialog')).toHaveTextContent('Details for A');
+      });
+
+      it('closes on leave when hovering another trigger takes over a click-opened popup', async () => {
+        await render(<MultipleTriggersApp />);
+        const triggerA = screen.getByRole('button', { name: 'A' });
+        const triggerB = screen.getByRole('button', { name: 'B' });
+
+        fireEvent.pointerEnter(triggerA, { pointerType: 'mouse' });
+        fireEvent.click(triggerA);
+        await flushMicrotasks();
+        expect(screen.queryByRole('dialog')).toHaveTextContent('Details for A');
+
+        leave(triggerA);
+        hoverOpen(triggerB);
+        await flushMicrotasks();
+        expect(screen.queryByRole('dialog')).toHaveTextContent('Details for B');
+
+        leave(triggerB);
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+    });
   });
 
   popupConformanceTests({
