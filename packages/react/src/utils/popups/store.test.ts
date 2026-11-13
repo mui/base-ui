@@ -5,6 +5,7 @@ import {
   createPopupOpenState,
   createPopupStoreContext,
   getHoverPopupInstantType,
+  getPressPopupInstantType,
   popupStoreSelectors,
 } from './store';
 import type { PopupOpenChangeEventDetails, PopupStoreContext, PopupStoreState } from './store';
@@ -924,6 +925,79 @@ describe('getHoverPopupInstantType', () => {
     { name: 'any other change', open: true, reason: REASONS.none, expected: {} },
   ])('maps $name', ({ open, reason, expected }) => {
     expect(getHoverPopupInstantType(open, reason)).toStrictEqual(expected);
+  });
+});
+
+describe('getPressPopupInstantType', () => {
+  const keyboardClick = () => new MouseEvent('click', { detail: 0 });
+  const mouseClick = () => new MouseEvent('click', { detail: 1 });
+
+  it.each([
+    {
+      name: 'a keyboard trigger press open',
+      open: true,
+      reason: REASONS.triggerPress,
+      event: keyboardClick(),
+      expected: 'click',
+    },
+    {
+      name: 'a keyboard item press close',
+      open: false,
+      reason: REASONS.itemPress,
+      event: keyboardClick(),
+      expected: 'click',
+    },
+    {
+      name: 'a mouse trigger press open',
+      open: true,
+      reason: REASONS.triggerPress,
+      event: mouseClick(),
+      expected: undefined,
+    },
+    {
+      name: 'a mouse item press close',
+      open: false,
+      reason: REASONS.itemPress,
+      event: mouseClick(),
+      expected: undefined,
+    },
+    {
+      name: 'a trigger press without an event',
+      open: true,
+      reason: REASONS.triggerPress,
+      event: undefined,
+      expected: undefined,
+    },
+    {
+      name: 'an Escape close',
+      open: false,
+      reason: REASONS.escapeKey,
+      event: new KeyboardEvent('keydown'),
+      expected: 'dismiss',
+    },
+    {
+      name: 'an Escape open',
+      open: true,
+      reason: REASONS.escapeKey,
+      event: new KeyboardEvent('keydown'),
+      expected: undefined,
+    },
+    {
+      name: 'a close without a reason',
+      open: false,
+      reason: null,
+      event: undefined,
+      expected: 'dismiss',
+    },
+    {
+      name: 'an outside press close',
+      open: false,
+      reason: REASONS.outsidePress,
+      event: new PointerEvent('pointerdown'),
+      expected: undefined,
+    },
+  ])('maps $name', ({ open, reason, event, expected }) => {
+    expect(getPressPopupInstantType(open, reason, event)).toBe(expected);
   });
 });
 
