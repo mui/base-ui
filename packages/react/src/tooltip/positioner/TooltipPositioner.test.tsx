@@ -69,6 +69,13 @@ describe('<Tooltip.Positioner />', () => {
   });
 
   positionerConformanceTests({
+    triggerSwitch: {
+      ...Tooltip,
+      // `pointerEvents` keeps the real pointer off the triggers, and `closeDelay` keeps the
+      // popup open while the pointer moves to the other trigger.
+      triggerProps: { delay: 0, closeDelay: 100, style: { pointerEvents: 'none' } },
+      interaction: 'hover',
+    },
     render,
     viewport: true,
     defaultSide: 'top',

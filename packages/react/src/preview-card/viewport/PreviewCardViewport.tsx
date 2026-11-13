@@ -42,7 +42,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [forwardedRef, store.useStateSetter('viewportElement')],
     props: [elementProps, { children: childrenToRender }],
     stateAttributesMapping: popupViewportStateMapping,
   });

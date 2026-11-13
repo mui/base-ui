@@ -10,6 +10,7 @@ export interface PopoverPositionerContext {
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
   context: PopupPositioningContext;
+  instant: string | undefined;
 }
 
 export const PopoverPositionerContext = React.createContext<PopoverPositionerContext | undefined>(

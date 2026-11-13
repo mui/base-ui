@@ -12,6 +12,7 @@ export {
   pressWithScreenReader,
   pressWithTouch,
 } from './pointer';
+export { recordTransitions } from './recordTransitions';
 export { resetBrowserPointer } from './resetBrowserPointer';
 export { isScrollLocked } from './scrollLock';
 export { useTestInteractions } from './useTestInteractions';

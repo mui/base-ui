@@ -91,6 +91,10 @@ export type PopupStoreState<Payload> = {
    */
   positionerElement: HTMLElement | null;
   /**
+   * The viewport DOM element, if the popup renders one.
+   */
+  viewportElement: HTMLElement | null;
+  /**
    * A virtual anchor that overrides the active trigger, such as the cursor position of a tooltip
    * that follows it.
    */
@@ -130,6 +134,7 @@ export function createInitialPopupStoreState<Payload>(
     triggerIdProp: undefined,
     popupElement: null,
     positionerElement: null,
+    viewportElement: null,
     anchorOverride: null,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
@@ -256,6 +261,7 @@ export const popupStoreSelectors = {
   // it shows.
   positionerElement: (state: S) =>
     openSelector(state) && !state.mounted ? null : state.positionerElement,
+  viewportElement: (state: S) => state.viewportElement,
 
   // Reads of the interaction hooks' store (`PopupInteractionStore`).
   defaultPopupId: (state: S) => state.defaultPopupId,
