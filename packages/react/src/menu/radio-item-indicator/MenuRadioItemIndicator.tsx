@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
-import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { ARIA_HIDDEN_PROPS, useSelectionIndicator } from '../../utils/ItemIndicator';
 
 /**
  * Indicates whether the radio item is selected.
@@ -18,45 +16,16 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
   componentProps: MenuRadioItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, style, keepMounted = false, ...elementProps } = componentProps;
-
   const item = useMenuRadioItemContext();
 
-  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-
-  const { transitionStatus, mounted, setMounted } = useTransitionStatus(item.checked);
-
-  useOpenChangeComplete({
-    batch: true,
-    enabled: !item.checked,
-    open: item.checked,
-    ref: indicatorRef,
-    onComplete() {
-      if (!item.checked) {
-        setMounted(false);
-      }
-    },
-  });
-
-  const state: MenuRadioItemIndicatorState = {
-    checked: item.checked,
-    disabled: item.disabled,
-    highlighted: item.highlighted,
-    transitionStatus,
-  };
-
-  const element = useRenderElement('span', componentProps, {
-    state,
-    stateAttributesMapping: itemMapping,
-    ref: [forwardedRef, indicatorRef],
-    props: {
-      'aria-hidden': true,
-      ...elementProps,
-    },
-    enabled: keepMounted || mounted,
-  });
-
-  return element;
+  return useSelectionIndicator(
+    componentProps,
+    forwardedRef,
+    item.checked,
+    item,
+    itemMapping,
+    ARIA_HIDDEN_PROPS,
+  );
 });
 
 export interface MenuRadioItemIndicatorProps extends BaseUIComponentProps<

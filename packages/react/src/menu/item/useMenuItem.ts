@@ -1,10 +1,18 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '@base-ui/utils/empty';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useButton } from '../../internals/use-button';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../internals/types';
+import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuItemCommonProps } from './useMenuItemCommonProps';
 
 export const REGULAR_ITEM = {
@@ -73,6 +81,108 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     }),
     [getItemProps, mergedRef],
   );
+}
+
+export function useRegularMenuItem(
+  label: string | undefined,
+  idProp: string | undefined,
+  disabledProp: boolean,
+  closeOnClick: boolean,
+  nativeButton: boolean,
+  extraDisabled = false,
+) {
+  const { store } = useMenuRootContext();
+
+  const listItem = useCompositeListItem({ guess: true, label });
+  const id = useBaseUiId(idProp);
+
+  const rootDisabled = store.useState('disabled');
+  const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
+  const itemProps = store.useState('itemProps');
+
+  const disabled = disabledProp || extraDisabled || rootDisabled;
+
+  const { getItemProps, itemRef } = useMenuItem({
+    closeOnClick,
+    disabled,
+    highlighted,
+    id,
+    store,
+    nativeButton,
+    nodeId,
+    itemMetadata: REGULAR_ITEM,
+  });
+
+  return {
+    disabled,
+    highlighted,
+    itemProps: itemProps as HTMLProps,
+    getItemProps,
+    itemRef: itemRef as React.Ref<HTMLElement>,
+    listItemRef: listItem.ref as React.Ref<HTMLElement>,
+  };
+}
+
+export function useSelectableMenuItem(
+  componentProps: Record<string, any>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+  checked: boolean,
+  role: 'menuitemcheckbox' | 'menuitemradio',
+  Context: React.Context<any>,
+  onPress: (details: any) => void,
+  extraDisabled = false,
+) {
+  const {
+    render,
+    className,
+    id: idProp,
+    label,
+    nativeButton = false,
+    disabled: disabledProp = false,
+    closeOnClick = false,
+    checked: checkedProp,
+    onCheckedChange,
+    value,
+    style,
+    ...elementProps
+  } = componentProps;
+
+  const { disabled, highlighted, itemProps, getItemProps, itemRef, listItemRef } =
+    useRegularMenuItem(label, idProp, disabledProp, closeOnClick, nativeButton, extraDisabled);
+
+  const state = React.useMemo(
+    () => ({
+      disabled,
+      highlighted,
+      checked,
+    }),
+    [disabled, highlighted, checked],
+  );
+
+  const element = useRenderElement('div', componentProps, {
+    state,
+    stateAttributesMapping: itemMapping,
+    props: [
+      itemProps,
+      {
+        role,
+        'aria-checked': checked,
+        onClick(event: React.MouseEvent) {
+          onPress(
+            createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
+              preventUnmountOnClose: NOOP,
+            }),
+          );
+        },
+      },
+      elementProps,
+      getItemProps,
+    ],
+    ref: [itemRef, forwardedRef, listItemRef],
+  });
+
+  return React.createElement(Context.Provider, { value: state }, element);
 }
 
 export interface UseMenuItemParameters {
