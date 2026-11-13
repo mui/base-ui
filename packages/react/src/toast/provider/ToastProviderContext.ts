@@ -13,3 +13,8 @@ export function useToastProviderContext() {
   }
   return context;
 }
+
+export const ToastAnnouncerContext = React.createContext<{
+  polite: HTMLDivElement | null;
+  assertive: HTMLDivElement | null;
+}>({ polite: null, assertive: null });
