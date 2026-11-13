@@ -110,6 +110,10 @@ export const selectors = {
 
   scrollUpArrowVisible: (state: State) => state.scrollUpArrowVisible,
   scrollDownArrowVisible: (state: State) => state.scrollDownArrowVisible,
+  // Scroll arrows are disabled for touch modality as they are a hover-only element.
+  scrollUpArrowShown: (state: State) => state.scrollUpArrowVisible && state.openMethod !== 'touch',
+  scrollDownArrowShown: (state: State) =>
+    state.scrollDownArrowVisible && state.openMethod !== 'touch',
 
   hasScrollArrows: (state: State) => state.hasScrollArrows,
 };
