@@ -116,6 +116,45 @@ describe('useRender', () => {
       await setProps({ defaultTagName: 'a' });
       expect(container.firstElementChild).toHaveProperty('tagName', 'SPAN');
     });
+
+    it('defaults a button to type="button", which props override', async () => {
+      function TestComponent({ type }: { type?: 'submit' }) {
+        return useRender({ defaultTagName: 'button', props: type ? { type } : {} });
+      }
+
+      const { container, setProps } = await render(<TestComponent />);
+      expect(container.firstElementChild).toHaveAttribute('type', 'button');
+
+      await setProps({ type: 'submit' });
+      expect(container.firstElementChild).toHaveAttribute('type', 'submit');
+    });
+
+    it('defaults an img to an empty alt, which props override', async () => {
+      function TestComponent({ alt }: { alt?: string }) {
+        return useRender({ defaultTagName: 'img', props: alt ? { alt } : {} });
+      }
+
+      const { container, setProps } = await render(<TestComponent />);
+      expect(container.firstElementChild).toHaveAttribute('alt', '');
+
+      await setProps({ alt: 'Avatar' });
+      expect(container.firstElementChild).toHaveAttribute('alt', 'Avatar');
+    });
+
+    it('uses a key passed through props as the element key', async () => {
+      function TestComponent({ itemKey }: { itemKey: string }) {
+        return useRender({ defaultTagName: 'span', props: { key: itemKey } });
+      }
+
+      const { container, setProps } = await render(<TestComponent itemKey="a" />);
+      const first = container.firstElementChild;
+
+      await setProps({ itemKey: 'a' });
+      expect(container.firstElementChild).toBe(first);
+
+      await setProps({ itemKey: 'b' });
+      expect(container.firstElementChild).not.toBe(first);
+    });
   });
 
   describe('state to data attributes', () => {

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { jsx } from 'react/jsx-runtime';
 import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
@@ -222,14 +223,18 @@ function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
   );
 }
 
-function renderTag(Tag: string, props: Record<string, any>) {
+function renderTag(Tag: IntrinsicTagName, props: Record<string, any>) {
+  let tagProps = props;
   if (Tag === 'button') {
-    return <button type="button" {...props} key={props.key} />;
+    tagProps = { type: 'button', ...props };
+  } else if (Tag === 'img') {
+    tagProps = { alt: '', ...props };
   }
-  if (Tag === 'img') {
-    return <img alt="" {...props} key={props.key} />;
-  }
-  return React.createElement(Tag, props);
+  // `jsx()` adopts the props object as the element's props, while `React.createElement()` copies
+  // it on every element. The object is created for this render and not used afterwards, so it can
+  // be handed over as is. `jsx()` warns in development when the props carry a `key`, which only
+  // happens when one is passed through `useRender()`, so that case keeps `createElement()`.
+  return 'key' in tagProps ? React.createElement(Tag, tagProps) : jsx(Tag, tagProps);
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
