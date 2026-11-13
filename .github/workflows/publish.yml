@@ -40,7 +40,7 @@ jobs:
           ref: ${{ inputs.sha }}
           fetch-depth: 0 # Fetch full history for proper git operations
       - name: Prepare for publishing
-        uses: mui/mui-public/.github/actions/publish-prepare@0f50034a14d0ff077c330caead249eb3ea0f758a # master
+        uses: mui/mui-public/.github/actions/publish-prepare@66349fd377283e3c89adb448f0827d7d4ef35362 # master
         with:
           node-version: '22.23.4'
       - name: Publish packages
