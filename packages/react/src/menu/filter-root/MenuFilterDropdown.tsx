@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { isVirtualPointerEvent } from '../../utils/popups/event';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
+import { useKeyboardOpenReset } from '../../filter-dropdown/root/useKeyboardOpenReset';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -16,6 +16,7 @@ import type { MenuFilterProvider } from '../filter-provider/MenuFilterProvider';
 import { MenuFilterImplContext } from './MenuFilterContext';
 import { MENU_FILTER_IMPL } from './MenuFilterImpl';
 import { useMenuFilterKeyDown } from './useMenuFilterKeyDown';
+import { isTypingKey } from '../../filter-dropdown/utils/isTypingKey';
 
 export interface MenuFilterDropdownProps {
   value: string | undefined;
@@ -81,13 +82,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   });
   store.useSyncedValue('filterTriggerProps', filterTriggerProps);
 
-  // Only `setOpen` records a keyboard open, so a controlled close that bypasses it must not leave
-  // the next programmatic open looking like one.
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      store.set('keyboardOpen', false);
-    }
-  }, [open, store]);
+  useKeyboardOpenReset(store, open, keyboardOpen);
 
   // Trust the rendered element's id once it exists: an explicitly empty id must not fall back to a
   // registered id that no element carries.
@@ -144,17 +139,11 @@ function useFilterTriggerProps(hasValue: boolean) {
         } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
           // Cross-axis keys drive submenu open/close, which the trigger must not relay.
           event.preventBaseUIHandler();
-        } else if (isTypeaheadKey(event)) {
+        } else if (isTypingKey(event)) {
           focusOwner.focus({ preventScroll: true });
         }
       },
     }),
     [store, isInMenubar, handleInputKeyDown],
-  );
-}
-
-function isTypeaheadKey(event: React.KeyboardEvent) {
-  return (
-    event.key.length === 1 && event.key !== ' ' && !event.ctrlKey && !event.metaKey && !event.altKey
   );
 }

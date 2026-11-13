@@ -16,9 +16,12 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   // `id` is resolved by `useRenderedId`, which also honors an id on the `render` element.
-  const { render, className, style, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, internalProps, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
+
+  // Set from a press until the focus it causes, which on touch arrives after the touch ends.
+  const pointerPressRef = React.useRef(false);
 
   const [id, registerIdRef] = useRenderedId(
     componentProps,
@@ -32,9 +35,13 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     id,
     onFocus(event) {
       // A press on the list's own content, such as its background, a group, or a group label,
-      // focuses the list.
+      // focuses the list. A screen reader moving its cursor onto the list focuses it too, and
+      // keeps it so its options stay reachable.
       const owner = context.focusOwnerRef.current;
+      const pressed = pointerPressRef.current;
+      pointerPressRef.current = false;
       if (
+        pressed &&
         owner &&
         event.relatedTarget === owner &&
         getTarget(event.nativeEvent) === event.currentTarget
@@ -47,6 +54,13 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     },
     onPointerDown() {
       context.setKeyboardModality(false);
+      pointerPressRef.current = true;
+    },
+    onClick() {
+      pointerPressRef.current = false;
+    },
+    onPointerCancel() {
+      pointerPressRef.current = false;
     },
   };
 
@@ -54,6 +68,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     ref: [forwardedRef, registerIdRef],
     props: [
       defaultProps,
+      internalProps,
       elementProps,
       {
         // The list's groups and items belong to this root's query. A nested root's list renders
@@ -75,6 +90,11 @@ export interface FilterDropdownListProps extends BaseUIComponentProps<
   FilterDropdownListState
 > {
   id?: string | undefined;
+  /**
+   * The host's own props, kept apart from the consumer's so that `className` and `style`
+   * functions are resolved rather than merged as strings.
+   */
+  internalProps?: HTMLProps | undefined;
 }
 
 export namespace FilterDropdownList {
