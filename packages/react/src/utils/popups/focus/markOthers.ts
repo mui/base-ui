@@ -12,10 +12,31 @@ interface MarkOthersOptions {
 
 const markerName = 'data-base-ui-inert';
 
-let ariaHiddenCounterMap = new WeakMap<Element, number>();
-let uncontrolledElementsSet = new WeakSet<Element>();
-let markerCounterMap = new WeakMap<Element, number>();
-let lockCount = 0;
+interface MarkOthersState {
+  ariaHiddenCounterMap: WeakMap<Element, number>;
+  uncontrolledElementsSet: WeakSet<Element>;
+  markerCounterMap: WeakMap<Element, number>;
+  lockCount: number;
+}
+
+// Stored on the document so separate copies of Base UI on one page share the same counters.
+const STATE_KEY: unique symbol = Symbol.for('@base-ui/markOthers/v1');
+
+type DocumentWithState = Document & { [STATE_KEY]?: MarkOthersState | undefined };
+
+function getState(doc: DocumentWithState): MarkOthersState {
+  let state = doc[STATE_KEY];
+  if (!state) {
+    state = {
+      ariaHiddenCounterMap: new WeakMap(),
+      uncontrolledElementsSet: new WeakSet(),
+      markerCounterMap: new WeakMap(),
+      lockCount: 0,
+    };
+    doc[STATE_KEY] = state;
+  }
+  return state;
+}
 
 function unwrapHost(node: Node | null): Element | null {
   if (!node) {
@@ -92,6 +113,7 @@ function applyAttributeToOthers(
   ariaHidden: boolean,
   { mark = true }: MarkOthersOptions,
 ): Undo {
+  const state = getState(ownerDocument(body));
   const avoidElements = correctElements(body, uncorrectedAvoidElements);
   const markerTargets = mark
     ? collectOutsideElements(body, buildKeepSet(avoidElements), new Set<Node>(avoidElements))
@@ -114,13 +136,13 @@ function applyAttributeToOthers(
     controlTargets.forEach((node) => {
       const attr = node.getAttribute('aria-hidden');
       const alreadyHidden = attr !== null && attr !== 'false';
-      const counterValue = (ariaHiddenCounterMap.get(node) || 0) + 1;
+      const counterValue = (state.ariaHiddenCounterMap.get(node) || 0) + 1;
 
-      ariaHiddenCounterMap.set(node, counterValue);
+      state.ariaHiddenCounterMap.set(node, counterValue);
       hiddenElements.push(node);
 
       if (counterValue === 1 && alreadyHidden) {
-        uncontrolledElementsSet.add(node);
+        state.uncontrolledElementsSet.add(node);
       }
 
       if (!alreadyHidden) {
@@ -131,9 +153,9 @@ function applyAttributeToOthers(
 
   if (mark) {
     markerTargets.forEach((node) => {
-      const markerValue = (markerCounterMap.get(node) || 0) + 1;
+      const markerValue = (state.markerCounterMap.get(node) || 0) + 1;
 
-      markerCounterMap.set(node, markerValue);
+      state.markerCounterMap.set(node, markerValue);
       markedElements.push(node);
 
       if (markerValue === 1) {
@@ -142,27 +164,27 @@ function applyAttributeToOthers(
     });
   }
 
-  lockCount += 1;
+  state.lockCount += 1;
 
   return () => {
     hiddenElements.forEach((element) => {
-      const counterValue = (ariaHiddenCounterMap.get(element) || 0) - 1;
-      ariaHiddenCounterMap.set(element, counterValue);
+      const counterValue = (state.ariaHiddenCounterMap.get(element) || 0) - 1;
+      state.ariaHiddenCounterMap.set(element, counterValue);
 
       if (!counterValue) {
-        if (!uncontrolledElementsSet.has(element)) {
+        if (!state.uncontrolledElementsSet.has(element)) {
           element.removeAttribute('aria-hidden');
         }
 
-        uncontrolledElementsSet.delete(element);
+        state.uncontrolledElementsSet.delete(element);
       }
     });
 
     if (mark) {
       markedElements.forEach((element) => {
-        const markerValue = (markerCounterMap.get(element) || 0) - 1;
+        const markerValue = (state.markerCounterMap.get(element) || 0) - 1;
 
-        markerCounterMap.set(element, markerValue);
+        state.markerCounterMap.set(element, markerValue);
 
         if (!markerValue) {
           element.removeAttribute(markerName);
@@ -170,12 +192,12 @@ function applyAttributeToOthers(
       });
     }
 
-    lockCount -= 1;
+    state.lockCount -= 1;
 
-    if (!lockCount) {
-      ariaHiddenCounterMap = new WeakMap();
-      uncontrolledElementsSet = new WeakSet();
-      markerCounterMap = new WeakMap();
+    if (!state.lockCount) {
+      state.ariaHiddenCounterMap = new WeakMap();
+      state.uncontrolledElementsSet = new WeakSet();
+      state.markerCounterMap = new WeakMap();
     }
   };
 }

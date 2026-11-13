@@ -1,4 +1,5 @@
-import { expect, afterEach, test } from 'vitest';
+import { expect, afterEach, test, vi } from 'vitest';
+import { isJSDOM } from '#test-utils';
 import { markOthers } from './markOthers';
 
 afterEach(() => {
@@ -327,3 +328,40 @@ test('uses shadow root host as avoid element when parent chain includes anchor',
 
   expect(outside.getAttribute('aria-hidden')).toBe(null);
 });
+
+test.skipIf(!isJSDOM).each([
+  { name: 'first copy releases first', firstRelease: 'a' },
+  { name: 'second copy releases first', firstRelease: 'b' },
+] as const)(
+  'shares locks across separate module copies when the $name',
+  async ({ firstRelease }) => {
+    vi.resetModules();
+    const { markOthers: markOthersCopy } = await import('./markOthers');
+    expect(markOthersCopy).not.toBe(markOthers);
+
+    const other = document.createElement('div');
+    document.body.appendChild(other);
+    const targetA = document.createElement('div');
+    document.body.appendChild(targetA);
+    const targetB = document.createElement('div');
+    document.body.appendChild(targetB);
+
+    const cleanupA = markOthers([targetA, targetB], { ariaHidden: true });
+    const cleanupB = markOthersCopy([targetA, targetB], { ariaHidden: true });
+
+    expect(other).toHaveAttribute('aria-hidden', 'true');
+    expect(other).toHaveAttribute('data-base-ui-inert');
+
+    const [first, second] = firstRelease === 'a' ? [cleanupA, cleanupB] : [cleanupB, cleanupA];
+
+    first();
+
+    expect(other).toHaveAttribute('aria-hidden', 'true');
+    expect(other).toHaveAttribute('data-base-ui-inert');
+
+    second();
+
+    expect(other).not.toHaveAttribute('aria-hidden');
+    expect(other).not.toHaveAttribute('data-base-ui-inert');
+  },
+);
