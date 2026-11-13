@@ -3,10 +3,8 @@ import * as React from 'react';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
-import { useButton } from '../../internals/use-button';
-import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
+import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 
 const stateAttributesMapping: StateAttributesMapping<CollapsibleRootState> = {
@@ -24,46 +22,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   componentProps: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const {
-    panelId,
-    open,
-    handleTrigger,
-    state,
-    disabled: contextDisabled,
-  } = useCollapsibleRootContext();
-
-  const {
-    className,
-    disabled: disabledProp,
-    render,
-    nativeButton = true,
-    style,
-    ...elementProps
-  } = componentProps;
-
-  const disabled = disabledProp || contextDisabled;
-
-  const { getButtonProps, buttonRef } = useButton({
-    disabled,
-    native: nativeButton,
-  });
-
-  const element = useRenderElement('button', componentProps, {
-    state: { ...state, disabled },
-    ref: [forwardedRef, buttonRef],
-    props: [
-      {
-        'aria-controls': open ? panelId : undefined,
-        'aria-expanded': open,
-        onClick: handleTrigger,
-      },
-      elementProps,
-      getButtonProps,
-    ],
-    stateAttributesMapping,
-  });
-
-  return element;
+  return useCollapsibleTrigger(componentProps, forwardedRef, stateAttributesMapping);
 });
 
 export interface CollapsibleTriggerState extends CollapsibleRootState {}

@@ -133,6 +133,71 @@ describe('<Accordion.Panel />', () => {
     expect(screen.queryByText('Overridden panel')).toBe(null);
   });
 
+  it('passes item and transition state to className and style callbacks', async () => {
+    const classNameSpy = vi.fn((state: Accordion.Panel.State) => `panel-${state.index}`);
+    const styleSpy = vi.fn((state: Accordion.Panel.State) => ({
+      opacity: state.open ? 1 : 0.5,
+    }));
+
+    await render(
+      <Accordion.Root defaultValue={['b']}>
+        <Accordion.Item value="a" disabled>
+          <Accordion.Header>
+            <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel
+            keepMounted
+            data-testid="panel-0"
+            className={classNameSpy}
+            style={styleSpy}
+          >
+            First panel
+          </Accordion.Panel>
+        </Accordion.Item>
+        <Accordion.Item value="b">
+          <Accordion.Header>
+            <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel
+            keepMounted
+            data-testid="panel-1"
+            className={classNameSpy}
+            style={styleSpy}
+          >
+            Second panel
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    const panel0 = screen.getByTestId('panel-0');
+    const panel1 = screen.getByTestId('panel-1');
+
+    expect(panel0).toHaveClass('panel-0');
+    expect(panel0).toHaveStyle({ opacity: '0.5' });
+    expect(panel0.style.getPropertyValue('--accordion-panel-height')).toBe('auto');
+    expect(panel0.style.getPropertyValue('--accordion-panel-width')).toBe('auto');
+    expect(panel1).toHaveClass('panel-1');
+    expect(panel1).toHaveStyle({ opacity: '1' });
+
+    expect(classNameSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        index: 0,
+        open: false,
+        disabled: true,
+        transitionStatus: undefined,
+      }),
+    );
+    expect(styleSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        index: 1,
+        open: true,
+        disabled: false,
+        transitionStatus: 'idle',
+      }),
+    );
+  });
+
   describe.skipIf(isJSDOM)('CSS transitions', () => {
     it('keeps the closing panel visible until its exit transition completes when switching items', async () => {
       const { user } = await render(

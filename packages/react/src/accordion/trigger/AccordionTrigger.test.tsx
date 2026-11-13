@@ -1,4 +1,4 @@
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi } from 'vitest';
 import { Accordion } from '@base-ui/react/accordion';
 import { screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
@@ -149,5 +149,57 @@ describe('<Accordion.Trigger />', () => {
     const trigger = screen.getByRole('button', { name: 'header a' });
     expect(trigger).toHaveAttribute('data-panel-open');
     expect(trigger).not.toHaveAttribute('data-open');
+  });
+
+  it('passes item and merged disabled state to className and style callbacks', async () => {
+    const classNameSpy = vi.fn(
+      (state: Accordion.Trigger.State) =>
+        `trigger-${state.index}-${state.disabled ? 'disabled' : 'enabled'}`,
+    );
+    const styleSpy = vi.fn((state: Accordion.Trigger.State) => ({
+      opacity: state.open ? 1 : 0.5,
+    }));
+
+    await render(
+      <Accordion.Root value={['a']}>
+        <Accordion.Item value="a" disabled>
+          <Accordion.Header>
+            <Accordion.Trigger className={classNameSpy} style={styleSpy}>
+              header a
+            </Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>panel a</Accordion.Panel>
+        </Accordion.Item>
+        <Accordion.Item value="b">
+          <Accordion.Header>
+            <Accordion.Trigger disabled className={classNameSpy} style={styleSpy}>
+              header b
+            </Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>panel b</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    const triggers = screen.getAllByRole('button');
+    expect(triggers[0]).toHaveClass('trigger-0-disabled');
+    expect(triggers[0]).toHaveStyle({ opacity: '1' });
+    expect(triggers[1]).toHaveClass('trigger-1-disabled');
+    expect(triggers[1]).toHaveStyle({ opacity: '0.5' });
+
+    expect(classNameSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        index: 0,
+        open: true,
+        disabled: true,
+      }),
+    );
+    expect(styleSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        index: 1,
+        open: false,
+        disabled: true,
+      }),
+    );
   });
 });
