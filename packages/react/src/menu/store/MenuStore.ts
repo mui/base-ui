@@ -47,7 +47,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   /** The element at `activeIndex` once the item list settles. Only virtual focus publishes it. */
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
-  instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+  instantType: 'dismiss' | 'click' | 'group' | 'navigation' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;
@@ -317,6 +317,9 @@ export class MenuStore<Payload> extends BasePopupStore<
       instantType = 'group';
     } else if (isKeyboardClick(reason, nativeEvent)) {
       instantType = 'click';
+    } else if (reason === REASONS.listNavigation) {
+      // Arrow-key navigation does not dispatch a click carrying the `detail === 0` marker.
+      instantType = 'navigation';
     } else if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
       instantType = 'dismiss';
     }
