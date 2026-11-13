@@ -438,8 +438,8 @@ importers:
         specifier: ^11.1.2
         version: 11.1.2
       remark-typography:
-        specifier: 0.8.10
-        version: 0.8.10
+        specifier: 0.8.11
+        version: 0.8.11
       scroll-into-view-if-needed:
         specifier: 3.1.0
         version: 3.1.0
@@ -8369,10 +8369,6 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
-  remark-typography@0.8.10:
-    resolution: {integrity: sha512-a8C9hpTUniedzTv4ICnzZh8ejppqJEe7+yTgL3dDwd4Rv6+nFbNVtHkWIa1jm3Lg/ejcYEOLerk3a0e8njjoLw==}
-    engines: {node: '>=18.20.8'}
-
   remark-typography@0.8.11:
     resolution: {integrity: sha512-zJ2c11YMIqCZE04pSyxrM99ajNQt/rXT4vWtuC3qi4fgg9V5uAjpJNtmeFxlPRUlFYP+vcCXbawVQmpmwW7lmg==}
     engines: {node: '>=18.20.8'}
@@ -8956,6 +8952,7 @@ packages:
 
   tldts-core@7.4.20:
     resolution: {integrity: sha512-C630TWXZCZmLq0F2bW4QqwnaaxCQ/svpAqvJwnC4JvgEM5ohhBnGsEzTLSOXcN+xjz+kEaHS5uoWIw2klnqd0A==}
+    deprecated: Partial release, see https://github.com/remusao/tldts/issues/2735. Use >=7.4.22.
 
   tldts@7.4.19:
     resolution: {integrity: sha512-48dH6aSpQnpbzDUc4vIQZ1VjB8tkK+e8c1yx05/SZK+rkssgjEOlxDd/yU8/a4vGYQ9vRgJr9dwMq9TJ0b3X2Q==}
@@ -18282,16 +18279,6 @@ snapshots:
       '@types/mdast': 4.0.4
       mdast-util-to-markdown: 2.2.2
       unified: 11.0.5
-
-  remark-typography@0.8.10:
-    dependencies:
-      '@types/mdast': 4.0.4
-      codsen-utils: 1.10.3
-      string-apostrophes: 4.2.7
-      string-dashes: 1.4.7
-      string-remove-widows: 4.2.11
-      unified: 11.0.5
-      vfile: 6.0.3
 
   remark-typography@0.8.11:
     dependencies:
