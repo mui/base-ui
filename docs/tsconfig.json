@@ -42,6 +42,9 @@
   "references": [
     {
       "path": "../packages/react/tsconfig.typecheck.json"
+    },
+    {
+      "path": "../packages/react/tsconfig.test.json"
     }
   ]
 }

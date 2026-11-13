@@ -1,0 +1,41 @@
+export { DraggableRoot as Root } from './root/DraggableRoot';
+export { DraggableTrigger as Trigger } from './trigger/DraggableTrigger';
+export { DraggableHandle as Handle } from './handle/DraggableHandle';
+export { DraggablePortal as Portal } from './portal/DraggablePortal';
+export { DraggablePositioner as Positioner } from './positioner/DraggablePositioner';
+export { DraggablePreview as Preview } from './preview/DraggablePreview';
+export { DraggableProvider as Provider } from './DraggableProvider';
+export { DraggableTarget as Target } from './target/DraggableTarget';
+export { DraggableViewport as Viewport } from './viewport/DraggableViewport';
+export { DraggableCollisionProvider as CollisionProvider } from './collision-provider/DraggableCollisionProvider';
+
+export { useActiveDrag } from './use-active-drag/useActiveDrag';
+export { useMonitor } from './use-monitor/useMonitor';
+export { useManager } from './use-manager/useManager';
+
+export {
+  createKind,
+  createGlobalKind,
+  anyDragKind as anyKind,
+} from '../utils/drag-and-drop/dragKind';
+
+export {
+  restrictToVerticalAxis,
+  restrictToHorizontalAxis,
+  restrictToWindowEdges,
+  restrictToParentElement,
+  restrictToElement,
+  snapToGrid,
+} from '../utils/drag-and-drop/dragModifiers';
+
+// Shared types. Part-specific ones live on the part's namespace, such as `Draggable.Root.Record`.
+export type {
+  DraggableAccept as Accept,
+  DraggableAcceptedKind as AcceptedKind,
+  DraggableInput as Input,
+  DraggableKind as Kind,
+  DraggableLocation as Location,
+  DraggableLocationHistory as LocationHistory,
+  DraggablePointerType as PointerType,
+  DraggablePosition as Position,
+} from './DraggableProvider';
