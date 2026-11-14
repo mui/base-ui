@@ -1,5 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Menu } from '@base-ui/react/menu';
@@ -99,6 +100,47 @@ describe('<Dialog.Popup />', () => {
       ),
     });
   });
+
+  it.skipIf(isJSDOM || !React.Activity)(
+    'focuses the open dialog directly when its Activity becomes visible again',
+    async () => {
+      const handleTriggerFocus = vi.fn();
+      const handleOpenChange = vi.fn();
+      let setMode: (mode: 'visible' | 'hidden') => void;
+
+      function Test() {
+        const [mode, setActivityMode] = React.useState<'visible' | 'hidden'>('visible');
+        setMode = setActivityMode;
+        return (
+          <React.Activity mode={mode}>
+            <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+              <Dialog.Trigger onFocus={handleTriggerFocus}>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup aria-label="Details" />
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Activity>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      await waitFor(() => expect(screen.getByRole('dialog')).toHaveFocus());
+
+      handleTriggerFocus.mockClear();
+      // Commit both updates before the return-focus microtask runs.
+      await act(async () => {
+        ReactDOM.flushSync(() => setMode('hidden'));
+        ReactDOM.flushSync(() => setMode('visible'));
+      });
+
+      expect(handleTriggerFocus).not.toHaveBeenCalled();
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      await waitFor(() => expect(screen.getByRole('dialog')).toHaveFocus());
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus());
+    },
+  );
 
   describe('prop: initialFocus', () => {
     it('focuses the popup itself rather than inner content when opened by touch', async () => {

@@ -782,8 +782,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   // Track return focus targets and restore focus on unmount/close.
   useIsoLayoutEffect(() => {
-    if (disabled || !floatingFocusElement) {
+    if (disabled) {
       pendingReturnFocusRef.current = null;
+      return undefined;
+    }
+
+    // The popup ref can still be detached when React reveals an open Activity.
+    // Keep the pending job available for the effect to cancel once the ref is restored.
+    if (!floatingFocusElement) {
       return undefined;
     }
 
