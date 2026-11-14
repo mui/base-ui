@@ -72,9 +72,31 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
         return;
       }
 
+      // Focus moving into a frame on the page also blurs the window, but the page keeps focus.
+      if (doc.hasFocus()) {
+        return;
+      }
+
       windowFocusTimeout.clear();
       store.set('isWindowFocused', false);
       store.pauseTimers();
+    }
+
+    // While focus is inside a frame, the window gets no `blur` when the tab is hidden.
+    function handleVisibilityChange() {
+      if (doc.visibilityState === 'hidden') {
+        windowFocusTimeout.clear();
+        store.set('isWindowFocused', false);
+        store.pauseTimers();
+        return;
+      }
+
+      if (doc.hasFocus()) {
+        store.set('isWindowFocused', true);
+        if (!store.select('expanded')) {
+          store.resumeTimers();
+        }
+      }
     }
 
     function handleWindowFocus(event: FocusEvent) {
@@ -96,6 +118,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     return mergeCleanups(
       addEventListener(win, 'blur', handleWindowBlur, true),
       addEventListener(win, 'focus', handleWindowFocus, true),
+      addEventListener(doc, 'visibilitychange', handleVisibilityChange),
       !isEmpty && addEventListener(win, 'keydown', handleGlobalKeyDown),
       !isEmpty && addEventListener(doc, 'pointerdown', store.handleDocumentPointerDown, true),
     );

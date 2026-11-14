@@ -1,4 +1,5 @@
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, beforeEach, afterEach } from 'vitest';
+import type { MockInstance } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import type { UserEvent } from '@testing-library/user-event';
@@ -827,12 +828,93 @@ describe('<Toast.Viewport />', () => {
 
     clock.withFakeTimers();
 
+    let hasFocus: MockInstance<Document['hasFocus']>;
+
+    beforeEach(() => {
+      // A window `blur` here stands for leaving the page, after which the document has no focus.
+      // jsdom's `hasFocus()` only tracks element focus, so set it explicitly.
+      hasFocus = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+    });
+
+    afterEach(() => {
+      hasFocus.mockRestore();
+    });
+
     function dispatchWindowEvent(type: 'blur' | 'focus') {
       const event = new FocusEvent(type);
       // jsdom reports an empty `composedPath()` for events dispatched on the window.
       Object.defineProperty(event, 'composedPath', { value: () => [window] });
       window.dispatchEvent(event);
     }
+
+    function setVisibility(state: DocumentVisibilityState) {
+      vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(state);
+      document.dispatchEvent(new Event('visibilitychange'));
+    }
+
+    it('keeps timers running when focus moves into a frame on the page', async () => {
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      // Focus went into an iframe: the window blurs, but the document still has focus.
+      hasFocus.mockReturnValue(true);
+      await act(async () => {
+        dispatchWindowEvent('blur');
+      });
+
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('pauses timers while the tab is hidden with focus inside a frame', async () => {
+      const visibilityState = vi.spyOn(document, 'visibilityState', 'get');
+
+      try {
+        await renderFakeTimers(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+            <Button />
+          </Toast.Provider>,
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+        hasFocus.mockReturnValue(true);
+        await act(async () => {
+          dispatchWindowEvent('blur');
+        });
+
+        // The window gets no further `blur` when the tab is hidden while a frame has focus.
+        hasFocus.mockReturnValue(false);
+        await act(async () => {
+          setVisibility('hidden');
+        });
+
+        clock.tick(5001);
+        expect(screen.queryByTestId('root')).not.toBe(null);
+
+        hasFocus.mockReturnValue(true);
+        await act(async () => {
+          setVisibility('visible');
+        });
+
+        clock.tick(5001);
+        expect(screen.queryByTestId('root')).toBe(null);
+      } finally {
+        visibilityState.mockRestore();
+      }
+    });
 
     it('pauses timers when hovering', async () => {
       await renderFakeTimers(
