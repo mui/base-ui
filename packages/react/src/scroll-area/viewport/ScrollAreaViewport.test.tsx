@@ -57,6 +57,48 @@ describe('<ScrollArea.Viewport />', () => {
     expect(screen.queryByTestId('viewport')).toBe(null);
   });
 
+  describe('first measure', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+      vi.unstubAllGlobals();
+    });
+
+    it('reads no layout at mount and measures on the ResizeObserver first callback', async () => {
+      const callbacks: Array<() => void> = [];
+      class StubResizeObserver {
+        constructor(callback: () => void) {
+          callbacks.push(callback);
+        }
+
+        observe() {}
+
+        unobserve() {}
+
+        disconnect() {}
+      }
+      vi.stubGlobal('ResizeObserver', StubResizeObserver);
+      const scrollHeight = vi.spyOn(Element.prototype, 'scrollHeight', 'get').mockReturnValue(400);
+
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" />
+          <ScrollArea.Scrollbar orientation="vertical" data-testid="scrollbar">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+      await flushMicrotasks();
+
+      expect(scrollHeight).not.toHaveBeenCalled();
+
+      await act(async () => {
+        callbacks.forEach((callback) => callback());
+      });
+
+      expect(scrollHeight).toHaveBeenCalled();
+    });
+  });
+
   describe.skipIf(isJSDOM)('subtree animations', () => {
     afterEach(() => vi.restoreAllMocks());
 

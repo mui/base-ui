@@ -115,6 +115,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const scrollEndTimeout = useTimeout();
   const waitForAnimationsTimeout = useTimeout();
 
+  const hasMountedRef = React.useRef(false);
   const computeThumbPosition = useStableCallback(() => {
     const viewportEl = viewportRef.current;
     const scrollbarYEl = scrollbarYRef.current;
@@ -287,6 +288,14 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   useIsoLayoutEffect(() => {
     // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
     // flips, and re-evaluate overflow edges when the threshold changes.
+    // On mount, a ResizeObserver is about to deliver its first callback after layout, which
+    // measures without forcing a synchronous layout, so skip the mount-time read there.
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      if (typeof ResizeObserver !== 'undefined') {
+        return;
+      }
+    }
     queueMicrotask(computeThumbPosition);
   }, [
     computeThumbPosition,
