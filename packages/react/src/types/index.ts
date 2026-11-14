@@ -24,3 +24,5 @@ export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
   readonly baseUIHandlerPrevented?: boolean | undefined;
 };
+
+export type { PayloadChildRenderFunction } from '../utils/popups/popupRoot';
