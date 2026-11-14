@@ -348,8 +348,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.3.0)(react@19.3.1)
       '@mui/internal-docs-infra':
-        specifier: 0.13.1-canary.30
-        version: 0.13.1-canary.30(@types/react@19.3.0)(next@16.4.5(@babel/core@8.1.0)(@playwright/test@1.65.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)
+        specifier: 0.13.1-canary.33
+        version: 0.13.1-canary.33(@types/react@19.3.0)(next@16.4.5(@babel/core@8.1.0)(@playwright/test@1.65.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)
       '@next/mdx':
         specifier: ^16.4.5
         version: 16.4.5(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.32)(sharp@0.35.5(@types/node@22.20.5))(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.3.0)(react@19.3.1))
@@ -2403,8 +2403,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.13.1-canary.30':
-    resolution: {integrity: sha512-6KBxp4RjVQ6GKulPTbAT5jO9LhM1xNnTfkI9wk9ZaAxV3X5o3DPUeFE38EGYSqFh/TiV1OuKQCBJdkKktd7M8g==}
+  '@mui/internal-docs-infra@0.13.1-canary.33':
+    resolution: {integrity: sha512-GD9JPJ1uQ0sehcoUkunrfgYGfTv7AeZuSjWwkt/Fxg7O0ZbW/QBMsNk4SdRRD3URKDO7IJwzkOBcTvmQbxGwJg==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -8956,6 +8956,7 @@ packages:
 
   tldts-core@7.4.20:
     resolution: {integrity: sha512-C630TWXZCZmLq0F2bW4QqwnaaxCQ/svpAqvJwnC4JvgEM5ohhBnGsEzTLSOXcN+xjz+kEaHS5uoWIw2klnqd0A==}
+    deprecated: Partial release, see https://github.com/remusao/tldts/issues/2735. Use >=7.4.22.
 
   tldts@7.4.19:
     resolution: {integrity: sha512-48dH6aSpQnpbzDUc4vIQZ1VjB8tkK+e8c1yx05/SZK+rkssgjEOlxDd/yU8/a4vGYQ9vRgJr9dwMq9TJ0b3X2Q==}
@@ -11426,7 +11427,7 @@ snapshots:
       - ts-declaration-location
       - vitest
 
-  '@mui/internal-docs-infra@0.13.1-canary.30(@types/react@19.3.0)(next@16.4.5(@babel/core@8.1.0)(@playwright/test@1.65.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)':
+  '@mui/internal-docs-infra@0.13.1-canary.33(@types/react@19.3.0)(next@16.4.5(@babel/core@8.1.0)(@playwright/test@1.65.0)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)':
     dependencies:
       '@babel/runtime': 8.1.0
       '@csstools/postcss-light-dark-function': 3.0.8(postcss@8.5.32)
@@ -11462,6 +11463,7 @@ snapshots:
       remark-gfm: 4.0.1(supports-color@10.2.2)
       remark-mdx: 3.1.1(supports-color@10.2.2)
       remark-parse: 11.0.0(supports-color@10.2.2)
+      remark-rehype: 11.1.2
       remark-stringify: 11.0.0
       remark-typography: 0.8.11
       sucrase: 3.35.1
