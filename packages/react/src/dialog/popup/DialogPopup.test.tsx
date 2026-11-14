@@ -1,6 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { flushSync } from 'react-dom';
+import * as ReactDOM from 'react-dom';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Menu } from '@base-ui/react/menu';
@@ -129,8 +129,8 @@ describe('<Dialog.Popup />', () => {
       handleTriggerFocus.mockClear();
       // Commit both updates before the return-focus microtask runs.
       await act(async () => {
-        flushSync(() => setMode('hidden'));
-        flushSync(() => setMode('visible'));
+        ReactDOM.flushSync(() => setMode('hidden'));
+        ReactDOM.flushSync(() => setMode('visible'));
       });
 
       expect(handleTriggerFocus).not.toHaveBeenCalled();
