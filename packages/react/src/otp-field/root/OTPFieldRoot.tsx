@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
+import { clamp } from '@base-ui/utils/clamp';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
@@ -30,6 +31,7 @@ import type {
   BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
@@ -165,7 +167,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   useRegisterFieldControl(firstInputRef, id, value, undefined, !disabled, nameProp);
 
   const focusInput = useStableCallback((index: number) => {
-    const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
+    const targetIndex = clamp(index, 0, Math.max(inputRefs.current.length - 1, 0));
     const target = inputRefs.current[targetIndex];
     target?.focus();
     target?.select();
@@ -472,7 +474,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
             required={required}
             aria-hidden
             tabIndex={-1}
-            style={name ? visuallyHiddenInput : visuallyHidden}
+            style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+            onInvalid={handleHiddenInputInvalid}
           />
         )}
       </OTPFieldRootContext.Provider>

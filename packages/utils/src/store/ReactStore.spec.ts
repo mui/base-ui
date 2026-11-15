@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { expectType } from '../testUtils';
 import { createSelector } from './createSelector';
 import type { Store } from './Store';

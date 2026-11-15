@@ -92,16 +92,6 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   });
 }
 
-export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClose(): void }) {
-  let preventUnmountOnClose = false;
-
-  eventDetails.preventUnmountOnClose = () => {
-    preventUnmountOnClose = true;
-  };
-
-  return () => preventUnmountOnClose;
-}
-
 /**
  * Sets up trigger data forwarding to the store.
  *

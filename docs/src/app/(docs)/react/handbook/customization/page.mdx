@@ -55,6 +55,7 @@ An event can be canceled with the `cancel()` method on `eventDetails`:
 
 This lets you leave the component uncontrolled as its internal state is prevented from updating.
 This is an alternative to controlling the component with external state and guarding the state updates conditionally.
+When the component is controlled, `cancel()` is still the way to decline a change: a request that is ignored instead stays pending until the `open` prop changes, so a later close is still reported.
 
 ### Allowing propagation of the DOM event
 
@@ -86,7 +87,9 @@ To prevent Base UI from handling a React event like `onClick`, you can use the 
 />
 ```
 
-This should be used as an escape hatch in cases where there isn't a prop yet to customize the behavior.
+This lets your handler take over the interaction, and pairs well with [controlled state](#controlling-components-with-state) to tailor a component's behavior to your app.
+If the interaction triggers a change event, [canceling it](#canceling-a-base-ui-event) for a specific `reason` is more explicit.
+
 In various cases, native events are used instead of React events, so this method has no effect.
 
 ## Controlling components with state

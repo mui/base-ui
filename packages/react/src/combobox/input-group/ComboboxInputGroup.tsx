@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { contains } from '@base-ui/utils/shadowDom';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -48,9 +47,7 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
     placeholder,
   };
 
-  const setInputGroupElement = useStableCallback((element: HTMLDivElement | null) => {
-    store.set('inputGroupElement', element);
-  });
+  const setInputGroupElement = store.useStateSetter('inputGroupElement');
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setInputGroupElement],

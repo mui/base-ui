@@ -2,6 +2,7 @@ import { floor } from '@floating-ui/utils';
 import { getComputedStyle } from '@floating-ui/utils/dom';
 
 import { closest } from '@base-ui/utils/shadowDom';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import type { Dimensions } from '@floating-ui/react-dom';
 import { stopEvent } from '../../utils/popups/event';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../../utils/popups/constants';
@@ -547,10 +548,7 @@ export function isListIndexDisabled(
     return true;
   }
 
-  return (
-    !disabledIndices &&
-    (element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true')
-  );
+  return !disabledIndices && isElementDisabled(element);
 }
 
 export function isHiddenByStyles(styles: CSSStyleDeclaration) {

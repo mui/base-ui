@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { benchmark, ElementTiming } from '@mui/internal-benchmark';
+import { ElementTiming, reactBenchmark } from '@mui/internal-benchmark/page';
 import { createRows } from './shared';
 
 const largeItems = createRows(500, 'Row');
@@ -65,7 +65,7 @@ function LargeCombobox() {
 
 // Initial mount with the popup open: measures the open/registration cost of a large list in
 // isolation, without any keystroke work.
-benchmark(
+reactBenchmark(
   'Combobox open — 500 items',
   () => <LargeCombobox />,
   async ({ waitForElementTiming }) => {
@@ -76,7 +76,7 @@ benchmark(
 // Typing a common prefix keeps every item in the filtered set, so all 500 stay mounted across
 // keystrokes. This isolates the per-keystroke re-render cost of the already-rendered items
 // (no mount/unmount churn): the exact work the derived-items-context split removes.
-benchmark(
+reactBenchmark(
   'Combobox type — 500 items, all stay mounted (type "Row ")',
   () => <LargeCombobox />,
   async ({ waitForElementTiming }) => {
@@ -87,7 +87,7 @@ benchmark(
 
 // Typing a specific query narrows the list from 500 down to ~11 items. This mixes unmount cost
 // (paid on both master and the fix) with re-renders of the surviving items.
-benchmark(
+reactBenchmark(
   'Combobox type — 500 items, narrows to ~11 (type "Row 25")',
   () => <LargeCombobox />,
   async ({ waitForElementTiming }) => {

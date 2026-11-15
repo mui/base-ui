@@ -17,7 +17,7 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
 ) {
   const store = useSelectRootContext();
   const mounted = store.useState('mounted');
-  const forceMount = store.useState('forceMount');
+  const forceMount = store.useState('forceMounted');
 
   const shouldRender = mounted || forceMount;
   if (!shouldRender) {
