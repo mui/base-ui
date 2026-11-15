@@ -4,6 +4,7 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import type { TextDirection } from '../../direction-context/DirectionContext';
@@ -20,6 +21,7 @@ import {
   getMaxListIndex,
   getMinListIndex,
   isListIndexDisabled,
+  isListIndexDisabledByAttributes,
   isIndexOutOfListBounds,
   isNativeInput,
   scrollIntoViewIfNeeded,
@@ -107,6 +109,22 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
+  const tabStopVisibilityFrame = useAnimationFrame();
+
+  const moveTabStopToFirstEnabled = useStableCallback((elements: Array<HTMLElement | null>) => {
+    const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
+    if (!isIndexOutOfListBounds(elements, firstEnabledIndex)) {
+      onHighlightedIndexChange(firstEnabledIndex);
+    }
+  });
+
+  const moveTabStopFromHiddenItem = useStableCallback(() => {
+    const elements = elementsRef.current;
+    if (isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+      moveTabStopToFirstEnabled(elements);
+    }
+  });
+
   const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0) {
       return;
@@ -148,16 +166,18 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
-    } else if (isListIndexDisabled(sortedElements, highlightedIndex, disabledIndices)) {
+    } else if (isListIndexDisabledByAttributes(sortedElements, highlightedIndex, disabledIndices)) {
       // The default highlighted item is disabled, so it should not hold the single
       // roving tab stop: a natively disabled element is removed from the tab order,
       // and an aria-disabled one should not be the entry point. Move the tab stop
       // to the first enabled item. If every item is disabled, keep the current
       // highlighted index.
-      const firstEnabledIndex = findNonDisabledListIndex(sortedElements, { disabledIndices });
-      if (!isIndexOutOfListBounds(sortedElements, firstEnabledIndex)) {
-        onHighlightedIndexChange(firstEnabledIndex);
-      }
+      moveTabStopToFirstEnabled(sortedElements);
+    } else {
+      // Whether the item is hidden by styles needs its computed style. Reading it here, in the
+      // commit that mounts the composite, forces the browser to recalculate style and layout
+      // before the first paint, so check it in the next frame instead.
+      tabStopVisibilityFrame.request(moveTabStopFromHiddenItem);
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
@@ -178,18 +198,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       return;
     }
     const elements = elementsRef.current;
-    if (isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
-      const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
-      if (!isIndexOutOfListBounds(elements, firstEnabledIndex)) {
-        onHighlightedIndexChange(firstEnabledIndex);
-      }
+    if (isListIndexDisabledByAttributes(elements, highlightedIndex, disabledIndices)) {
+      moveTabStopToFirstEnabled(elements);
+    } else {
+      tabStopVisibilityFrame.request(moveTabStopFromHiddenItem);
     }
   }, [
     disabledIndices,
     externalHighlightedIndex,
     highlightedIndex,
     elementsRef,
-    onHighlightedIndexChange,
+    moveTabStopToFirstEnabled,
+    moveTabStopFromHiddenItem,
+    tabStopVisibilityFrame,
   ]);
 
   const wrappedOnLoop = useStableCallback(

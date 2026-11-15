@@ -5,6 +5,7 @@ export { stopEvent } from '../../utils/popups/event';
 export {
   isIndexOutOfListBounds,
   isListIndexDisabled,
+  isListIndexDisabledByAttributes,
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
