@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useTransitionStatus } from './useTransitionStatus';
 import { useOpenChangeComplete } from './useOpenChangeComplete';
 
@@ -25,6 +24,12 @@ export interface UseUnmountAfterCloseParameters {
    * whenever `open` becomes `true`.
    */
   setPreventUnmountOnClose: (preventUnmountOnClose: boolean) => void;
+  /**
+   * Subscribes to updates that can attach the element behind `ref`, and returns the unsubscribe
+   * function. A popup that closes before its element attaches waits for it, then for its closing
+   * animations.
+   */
+  subscribeToAttach?: ((listener: () => void) => () => void) | undefined;
   /**
    * Runs once per unmount, whether it completed automatically or through `forceUnmount`.
    */
@@ -53,6 +58,7 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
     setPreventUnmountOnClose: setPreventUnmountOnCloseParam,
     onUnmount,
     animateInitialOpen,
+    subscribeToAttach,
   } = parameters;
   const setPreventUnmountOnClose = useStableCallback(setPreventUnmountOnCloseParam);
 
@@ -80,8 +86,12 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   // render without changing the committed `mounted`, so a `[mounted]` dependency would leave the
   // mirror stale and block every later unmount.
   const mountedRef = React.useRef(mounted);
-  const pendingUnmountRef = React.useRef(false);
-  const rerender = useForcedRerendering();
+  // A `forceUnmount()` call while open is decided in the commit that renders its request. Other
+  // renders in the same batch can commit first, such as a store update React 18 flushes
+  // synchronously, before the batch's own state (a controlled `open` prop) has landed.
+  const [unmountRequest, setUnmountRequest] = React.useState(0);
+  const unmountRequestRef = React.useRef(0);
+  const pendingUnmountRef = React.useRef<number | null>(null);
 
   const unmount = () => {
     mountedRef.current = false;
@@ -91,8 +101,8 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
 
   useIsoLayoutEffect(() => {
     mountedRef.current = mounted;
-    if (pendingUnmountRef.current) {
-      pendingUnmountRef.current = false;
+    if (pendingUnmountRef.current !== null && pendingUnmountRef.current <= unmountRequest) {
+      pendingUnmountRef.current = null;
       if (!open && mounted) {
         unmount();
       }
@@ -108,17 +118,37 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
       // close batched with this call (`close(); unmount()`). Decide once the batch commits: unmount
       // if the popup closed, otherwise drop the call rather than run the host's unmount cleanup and
       // the close completion against a live popup.
-      pendingUnmountRef.current = true;
-      rerender();
+      unmountRequestRef.current += 1;
+      pendingUnmountRef.current = unmountRequestRef.current;
+      setUnmountRequest(unmountRequestRef.current);
       return;
     }
     unmount();
   });
 
+  const waitsForClose = mounted && !open && !preventUnmountingOnClose;
+
+  // The portal renders the popup a few commits after it mounts. A close within that window starts
+  // waiting before the element exists, so the wait restarts once it attaches.
+  const [attachCount, setAttachCount] = React.useState(0);
+  React.useEffect(() => {
+    if (!waitsForClose || ref.current != null || !subscribeToAttach) {
+      return undefined;
+    }
+    const unsubscribe = subscribeToAttach(() => {
+      if (ref.current != null) {
+        unsubscribe();
+        setAttachCount((count) => count + 1);
+      }
+    });
+    return unsubscribe;
+  }, [waitsForClose, ref, subscribeToAttach]);
+
   useOpenChangeComplete({
-    enabled: mounted && !open && !preventUnmountingOnClose,
+    enabled: waitsForClose,
     open,
     ref,
+    restartKey: attachCount,
     onComplete() {
       if (!open) {
         forceUnmount();

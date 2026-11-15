@@ -1,9 +1,3 @@
-import videoDarkFilterableMenu from './video-dark-filterable-menu.mp4';
-import videoLightFilterableMenu from './video-light-filterable-menu.mp4';
-import videoDarkKeyboardInteraction from './video-dark-keyboard-interaction.mp4';
-import videoLightKeyboardInteraction from './video-light-keyboard-interaction.mp4';
-import videoDarkHoverInteraction from './video-dark-hover-interaction.mp4';
-import videoLightHoverInteraction from './video-light-hover-interaction.mp4';
 import DemoKeyControl from './DemoKeyControl';
 import DiagramAccessibility from './DiagramAccessibility';
 
@@ -17,8 +11,8 @@ import DiagramAccessibility from './DiagramAccessibility';
 <Figure>
   <FigureFrame>
     <Video
-      src={videoLightFilterableMenu}
-      darkSrc={videoDarkFilterableMenu}
+      src="/blog/building-a-filterable-menu/video-light-filterable-menu.mp4"
+      darkSrc="/blog/building-a-filterable-menu/video-dark-filterable-menu.mp4"
       autoPlay
       label="Filterable menu interaction"
       width={800}
@@ -133,13 +127,15 @@ Sighted keyboard users never leave the field, but that arrow-key behavior of loo
 
 ### Same key, different meaning
 
-Another thing to consider is that the same key can mean different things depending on the context you're in. When screen reader users interact with the menu, <kbd>Home</kbd> and <kbd>End</kbd> follow the familiar [menu keyboard conventions](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/#keyboardinteraction) of moving to the first or last item. When editing the input, those keys move to the beginning or end of the text.
+Another thing to consider is that the same key can mean different things depending on the context you're in. In an ordinary menu, <kbd>Home</kbd> and <kbd>End</kbd> follow the familiar [menu keyboard conventions](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/#keyboardinteraction) of moving to the first or last item. In a text field, they move the caret to the beginning or end of the text.
 
-Browser focus doesn't leave the input though, so if we relied on focus alone, <kbd>Home</kbd> and <kbd>End</kbd> would always move the caret in the input, even when the user is navigating the menu.
+Browser focus stays in our input while users navigate the menu though, so focus alone can't tell us which behavior to use.
 
-To solve it, we use the highlight to distinguish intent. With a menu item highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item, just as they would when interacting with the menu itself. When navigation returns to the input and no menu item is highlighted, the keys move the input caret. Browser focus hasn't moved, but the user's context has, and `data-highlighted` communicates that context.
+When the input is empty and a menu item is highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item. When the highlight returns to the input, they move the caret, and `data-highlighted` shows the user is editing the field.
 
-Try it below. This is a small sketch of the behavior rather than Base UI itself, so you can watch the context change as you press keys.
+When the input has a value, those keys move the caret regardless of whether a menu item is highlighted, because entering a query signals the user's intent to search.
+
+Try it below. This is a small sketch of the behavior rather than Base UI itself.
 
 <Figure>
   <FigureFrame>
@@ -160,8 +156,8 @@ With the keyboard, the intent is clear. Pressing <kbd>→</kbd> on a highlighted
 <Figure>
   <FigureFrame>
     <Video
-      src={videoLightKeyboardInteraction}
-      darkSrc={videoDarkKeyboardInteraction}
+      src="/blog/building-a-filterable-menu/video-light-keyboard-interaction.mp4"
+      darkSrc="/blog/building-a-filterable-menu/video-dark-keyboard-interaction.mp4"
       autoPlay
       label="Filterable menu keyboard demonstration"
       width={800}
@@ -179,8 +175,8 @@ Hovering over a trigger isn't as clear-cut. The pointer might simply pass over i
 <Figure>
   <FigureFrame>
     <Video
-      src={videoLightHoverInteraction}
-      darkSrc={videoDarkHoverInteraction}
+      src="/blog/building-a-filterable-menu/video-light-hover-interaction.mp4"
+      darkSrc="/blog/building-a-filterable-menu/video-dark-hover-interaction.mp4"
       autoPlay
       label="Filterable menu hover demonstration"
       width={800}
@@ -199,7 +195,7 @@ In an ordinary menu, arrow keys move through the actions, while <kbd>Tab</kbd> m
 
 We could have added a hidden dismiss button for touch screen reader users, but it would need a label in the application's language. Asking developers to provide that label through a prop or hidden part would make the exit depend on configuration that's easy to skip because the hidden button's purpose isn't obvious. Letting users navigate past the menu instead keeps the exit available without extra setup.
 
-Why does this matter for filterable menus? Our first version put Clear in the tab order, which seemed fine until we tried leaving the menu and had to press <kbd>Tab</kbd> twice. So, we removed that extra stop. Clear remains available to pointer users, and keyboard and screen reader users can delete the input text directly. This keeps the learned way to leave a menu consistent across filterable and non-filterable menus.
+Why does this matter for filterable menus? Our first version put `Menu.Clear` in the tab order, which seemed fine until we tried leaving the menu and had to press <kbd>Tab</kbd> twice. So, we removed that extra stop. Clear remains available to pointer users, and keyboard and screen reader users can delete the input text directly. This keeps the learned way to leave a menu consistent across filterable and non-filterable menus.
 
 ## Why not a search input?
 

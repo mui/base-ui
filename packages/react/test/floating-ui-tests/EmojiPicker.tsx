@@ -3,18 +3,13 @@ import * as React from 'react';
 import c from 'clsx';
 import { useId } from '@base-ui/utils/useId';
 import { useTestInteractions } from '#test-utils';
-import type { Placement } from '../../src/floating-ui-react/types';
-import {
-  arrow,
-  autoUpdate,
-  flip,
-  FloatingFocusManager,
-  FloatingPortal,
-  offset,
-  useClick,
-  useDismiss,
-  useListNavigation,
-} from '../../src/floating-ui-react';
+import type { Placement } from '@floating-ui/react-dom';
+import { arrow, autoUpdate, flip, offset } from '@floating-ui/react-dom';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
 import { useFloating } from './useFloating';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';
@@ -139,14 +134,14 @@ export function Main() {
       reference: {
         'aria-haspopup': 'menu' as const,
         'aria-expanded': open,
-        'aria-controls': open ? context.floatingId : undefined,
+        'aria-controls': open ? context.defaultPopupId : undefined,
       },
       floating: {
-        id: context.floatingId,
+        id: context.defaultPopupId,
         role: 'menu' as const,
       },
     }),
-    [context.floatingId, open],
+    [context.defaultPopupId, open],
   );
 
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
@@ -237,7 +232,7 @@ export function Main() {
           )}
           <FloatingPortal>
             {open && (
-              <FloatingFocusManager context={context.rootStore} modal={false}>
+              <FloatingFocusManager store={context.rootStore} modal={false}>
                 <div
                   ref={refs.setFloating}
                   className={styles.Floating}

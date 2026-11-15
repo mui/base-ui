@@ -4,8 +4,8 @@
 
 The repository declares its supported toolchain in the `engines` field of `package.json` and enables pnpm's `engineStrict`, so installing with an unsupported version fails early:
 
-- [Node.js](https://nodejs.org/) 22.22.3 or newer.
-- [pnpm](https://pnpm.io/installation) 11.17.0 exactly. yarn and npm aren't supported.
+- [Node.js](https://nodejs.org/) 22.23.4 or newer.
+- [pnpm](https://pnpm.io/installation) 12.11.2 exactly. yarn and npm aren't supported.
 
 The pnpm version is also pinned in the `packageManager` field, and pnpm 10 and newer honors that pin, so a recent pnpm switches to the required version on its own when run inside the repository.
 Alternatively, enable [Corepack](https://nodejs.org/api/corepack.html) so that Node.js installs the pinned version for you:

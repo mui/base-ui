@@ -7,7 +7,14 @@ import { useAnimationsFinished } from './useAnimationsFinished';
  * Calls the provided function when the CSS open/close animation or transition completes.
  */
 export function useOpenChangeComplete(parameters: UseOpenChangeCompleteParameters) {
-  const { enabled = true, open, ref, batch = false, onComplete: onCompleteParam } = parameters;
+  const {
+    enabled = true,
+    open,
+    ref,
+    batch = false,
+    restartKey,
+    onComplete: onCompleteParam,
+  } = parameters;
 
   const onComplete = useStableCallback(onCompleteParam);
   const runOnceAnimationsFinish = useAnimationsFinished(ref, open, batch);
@@ -24,7 +31,7 @@ export function useOpenChangeComplete(parameters: UseOpenChangeCompleteParameter
     return () => {
       abortController.abort();
     };
-  }, [enabled, open, onComplete, runOnceAnimationsFinish]);
+  }, [enabled, open, onComplete, runOnceAnimationsFinish, restartKey]);
 }
 
 export interface UseOpenChangeCompleteParameters {
@@ -47,6 +54,10 @@ export interface UseOpenChangeCompleteParameters {
    * @default false
    */
   batch?: boolean | undefined;
+  /**
+   * Restarts the wait when it changes, such as when the element attaches after the wait started.
+   */
+  restartKey?: unknown;
   /**
    * Function to call when the animation completes (or there is no animation).
    */

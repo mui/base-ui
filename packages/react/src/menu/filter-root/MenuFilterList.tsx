@@ -1,15 +1,14 @@
 'use client';
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains } from '@base-ui/utils/shadowDom';
+import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { activeElement, getTarget } from '../../floating-ui-react/utils';
 import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
 import { mergeProps } from '../../merge-props';
 import { useMenuFilterKeyDown } from './useMenuFilterKeyDown';
-import { isMainOrientationKey } from '../../floating-ui-react/hooks/useListNavigation';
+import { isMainOrientationKey } from '../../utils/popups/interactions/useListNavigation';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuList } from '../list/MenuList';
 import { useCompositeListContext } from '../../internals/composite/list/CompositeListContext';

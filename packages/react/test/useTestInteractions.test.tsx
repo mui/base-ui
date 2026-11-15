@@ -2,7 +2,7 @@ import { vi, expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { useTestInteractions } from './useTestInteractions';
-import { FOCUSABLE_ATTRIBUTE } from '../src/floating-ui-react/utils/constants';
+import { FOCUSABLE_ATTRIBUTE } from '../src/utils/popups/constants';
 
 describe('useTestInteractions', () => {
   it('correctly merges functions', () => {

@@ -2,21 +2,19 @@ import { beforeEach, expect, vi, describe, it } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
 
-const useNavigationMenuAnchorPositioningSpy = vi.hoisted(() => vi.fn());
+const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 
-vi.mock('../utils/useNavigationMenuAnchorPositioning', async () => {
-  const actual = await vi.importActual<
-    typeof import('../utils/useNavigationMenuAnchorPositioning')
-  >('../utils/useNavigationMenuAnchorPositioning');
+vi.mock('../../internals/useAnchorPositioning', async () => {
+  const actual = await vi.importActual<typeof import('../../internals/useAnchorPositioning')>(
+    '../../internals/useAnchorPositioning',
+  );
 
   return {
     ...actual,
-    useNavigationMenuAnchorPositioning: ((
-      ...args: Parameters<typeof actual.useNavigationMenuAnchorPositioning>
-    ) => {
-      useNavigationMenuAnchorPositioningSpy(...args);
-      return actual.useNavigationMenuAnchorPositioning(...args);
-    }) satisfies typeof actual.useNavigationMenuAnchorPositioning,
+    useAnchorPositioning: ((...args: Parameters<typeof actual.useAnchorPositioning>) => {
+      useAnchorPositioningSpy(...args);
+      return actual.useAnchorPositioning(...args);
+    }) satisfies typeof actual.useAnchorPositioning,
   };
 });
 
@@ -24,7 +22,7 @@ describe('<NavigationMenu.Positioner />', () => {
   const { render } = createRenderer();
 
   beforeEach(() => {
-    useNavigationMenuAnchorPositioningSpy.mockClear();
+    useAnchorPositioningSpy.mockClear();
   });
 
   describeConformance(<NavigationMenu.Positioner />, () => ({
@@ -47,7 +45,7 @@ describe('<NavigationMenu.Positioner />', () => {
       </NavigationMenu.Root>,
     );
 
-    expect(useNavigationMenuAnchorPositioningSpy.mock.lastCall?.[0].shift).toEqual({
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].shift).toEqual({
       rootBoundary: 'layoutViewport',
     });
   });

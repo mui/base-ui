@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { FloatingPortal } from '../../floating-ui-react';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.

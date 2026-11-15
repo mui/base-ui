@@ -66,7 +66,6 @@
   --backdrop-opacity: 0.2;
   --bleed: 3rem;
   position: fixed;
-  min-height: 100dvh;
   inset: 0;
   background-color: black;
   opacity: calc(var(--backdrop-opacity) * (1 - var(--drawer-swipe-progress)));
@@ -77,6 +76,7 @@
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {
     position: absolute;
+    min-height: 100dvh;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -114,7 +114,7 @@
   --bleed: 3rem;
   box-sizing: border-box;
   width: calc(20rem + var(--bleed));
-  max-width: calc(100vw - 3rem + var(--bleed));
+  max-width: calc(100% - 3rem + var(--bleed));
   height: 100%;
   padding: 1.5rem;
   padding-right: calc(1.5rem + var(--bleed));
@@ -149,6 +149,7 @@
 
   @supports (-webkit-touch-callout: none) {
     --bleed: 0px;
+    max-width: calc(100vw - 3rem);
     margin-right: 0;
     border: 1px solid oklch(14.5% 0 0deg);
 
