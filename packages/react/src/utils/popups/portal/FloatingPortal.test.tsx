@@ -660,4 +660,34 @@ describe.each([
       );
     },
   );
+
+  test.each([{ container: 'body' }, { container: 'element' }])(
+    'renders into a container it can already resolve without waiting a commit for it on a client-only mount (container=$container)',
+    async ({ container }) => {
+      let commitCount = 0;
+      const element = container === 'element' ? document.createElement('div') : undefined;
+      if (element) {
+        document.body.appendChild(element);
+      }
+
+      await renderPortal(
+        <React.Profiler
+          id="portal"
+          onRender={() => {
+            commitCount += 1;
+          }}
+        >
+          <Portal container={element}>
+            <div data-testid="content" />
+          </Portal>
+        </React.Profiler>,
+        { strict: false },
+      );
+
+      expect(element ?? document.body).toContainElement(screen.getByTestId('content'));
+      // One commit mounts the portal element into the container, the next renders its content.
+      expect(commitCount).toBe(2);
+      element?.remove();
+    },
+  );
 });
