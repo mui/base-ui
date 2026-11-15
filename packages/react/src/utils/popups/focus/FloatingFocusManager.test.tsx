@@ -269,6 +269,24 @@ describe('FloatingFocusManager', () => {
 
         expect(screen.getByTestId('one')).not.toHaveFocus();
       });
+
+      test('yields to a newer focus inside the popup before the queued initial focus runs', async () => {
+        const frames: FrameRequestCallback[] = [];
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+          frames.push(callback);
+          return frames.length;
+        });
+        render(<App initialFocus="two" />);
+
+        fireEvent.click(screen.getByTestId('reference'));
+        act(() => screen.getByTestId('one').focus());
+        await flushMicrotasks();
+
+        act(() => screen.getByTestId('three').focus());
+        act(() => frames.splice(0).forEach((callback) => callback(performance.now())));
+
+        expect(screen.getByTestId('three')).toHaveFocus();
+      });
     });
 
     describe('prop: returnFocus', () => {
