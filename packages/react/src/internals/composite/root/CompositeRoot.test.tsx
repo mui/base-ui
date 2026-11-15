@@ -1200,6 +1200,7 @@ describe('Composite', () => {
       const getComputedStyle = vi.spyOn(window, 'getComputedStyle');
 
       try {
+        // eslint-disable-next-line testing-library/no-unnecessary-act
         React.act(() => {
           root.render(
             <CompositeRoot>

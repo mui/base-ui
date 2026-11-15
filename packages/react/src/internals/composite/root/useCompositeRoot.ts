@@ -20,6 +20,7 @@ import {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
+  isElementVisible,
   isListIndexDisabled,
   isListIndexDisabledByAttributes,
   isIndexOutOfListBounds,
@@ -109,10 +110,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
-  // Set when the tab stop's visibility needs checking. The check reads computed style, which in
-  // the commit that mounts the composite would force the browser to recalculate style and layout
-  // before the first paint, so it runs in the next animation frame instead.
-  const tabStopVisibilityPendingRef = React.useRef(false);
+  // The item holding the tab stop whose visibility still needs checking. The check reads computed
+  // style, which in the commit that mounts the composite would force the browser to recalculate
+  // style and layout before the first paint, so it runs in the next animation frame instead.
+  const pendingVisibilityCheckRef = React.useRef<HTMLElement | null>(null);
 
   const moveTabStopToFirstEnabled = useStableCallback((elements: Array<HTMLElement | null>) => {
     const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
@@ -122,8 +123,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   });
 
   const moveTabStopFromHiddenItem = useStableCallback(() => {
+    const element = pendingVisibilityCheckRef.current;
+    pendingVisibilityCheckRef.current = null;
     const elements = elementsRef.current;
-    if (isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+    // Only the item checked in the commit is checked here, and only while it still holds the tab
+    // stop: anything that moved the tab stop since has already chosen an item that can hold it.
+    if (element && elements[highlightedIndex] === element && !isElementVisible(element)) {
       moveTabStopToFirstEnabled(elements);
     }
   });
@@ -131,13 +136,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   // Runs after every commit, so a frame cancelled by an effect cleanup (as in Strict Mode) is
   // requested again while the check is still pending.
   React.useEffect(() => {
-    if (!tabStopVisibilityPendingRef.current) {
+    if (!pendingVisibilityCheckRef.current) {
       return undefined;
     }
-    const frame = AnimationFrame.request(() => {
-      tabStopVisibilityPendingRef.current = false;
-      moveTabStopFromHiddenItem();
-    });
+    const frame = AnimationFrame.request(moveTabStopFromHiddenItem);
     return () => AnimationFrame.cancel(frame);
   });
 
@@ -190,7 +192,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       // highlighted index.
       moveTabStopToFirstEnabled(sortedElements);
     } else {
-      tabStopVisibilityPendingRef.current = true;
+      pendingVisibilityCheckRef.current = sortedElements[highlightedIndex] ?? null;
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
@@ -214,7 +216,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     if (isListIndexDisabledByAttributes(elements, highlightedIndex, disabledIndices)) {
       moveTabStopToFirstEnabled(elements);
     } else {
-      tabStopVisibilityPendingRef.current = true;
+      pendingVisibilityCheckRef.current = elements[highlightedIndex] ?? null;
     }
   }, [
     disabledIndices,
