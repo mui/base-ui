@@ -4,7 +4,7 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import type { TextDirection } from '../../direction-context/DirectionContext';
@@ -109,7 +109,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
-  const tabStopVisibilityFrame = useAnimationFrame();
+  // Set when the tab stop's visibility needs checking. The check reads computed style, which in
+  // the commit that mounts the composite would force the browser to recalculate style and layout
+  // before the first paint, so it runs in the next animation frame instead.
+  const tabStopVisibilityPendingRef = React.useRef(false);
 
   const moveTabStopToFirstEnabled = useStableCallback((elements: Array<HTMLElement | null>) => {
     const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
@@ -123,6 +126,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     if (isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
       moveTabStopToFirstEnabled(elements);
     }
+  });
+
+  // Runs after every commit, so a frame cancelled by an effect cleanup (as in Strict Mode) is
+  // requested again while the check is still pending.
+  React.useEffect(() => {
+    if (!tabStopVisibilityPendingRef.current) {
+      return undefined;
+    }
+    const frame = AnimationFrame.request(() => {
+      tabStopVisibilityPendingRef.current = false;
+      moveTabStopFromHiddenItem();
+    });
+    return () => AnimationFrame.cancel(frame);
   });
 
   const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
@@ -174,10 +190,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       // highlighted index.
       moveTabStopToFirstEnabled(sortedElements);
     } else {
-      // Whether the item is hidden by styles needs its computed style. Reading it here, in the
-      // commit that mounts the composite, forces the browser to recalculate style and layout
-      // before the first paint, so check it in the next frame instead.
-      tabStopVisibilityFrame.request(moveTabStopFromHiddenItem);
+      tabStopVisibilityPendingRef.current = true;
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
@@ -201,7 +214,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     if (isListIndexDisabledByAttributes(elements, highlightedIndex, disabledIndices)) {
       moveTabStopToFirstEnabled(elements);
     } else {
-      tabStopVisibilityFrame.request(moveTabStopFromHiddenItem);
+      tabStopVisibilityPendingRef.current = true;
     }
   }, [
     disabledIndices,
@@ -209,8 +222,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     highlightedIndex,
     elementsRef,
     moveTabStopToFirstEnabled,
-    moveTabStopFromHiddenItem,
-    tabStopVisibilityFrame,
   ]);
 
   const wrappedOnLoop = useStableCallback(

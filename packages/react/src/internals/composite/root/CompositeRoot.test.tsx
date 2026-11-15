@@ -1194,13 +1194,13 @@ describe('Composite', () => {
 
     it('reads no computed style while it mounts', () => {
       // Rendered synchronously, so no animation frame can run before the check.
-      const container = document.createElement('div');
-      document.body.appendChild(container);
-      const root = ReactDOMClient.createRoot(container);
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const root = ReactDOMClient.createRoot(host);
       const getComputedStyle = vi.spyOn(window, 'getComputedStyle');
 
       try {
-        act(() => {
+        React.act(() => {
           root.render(
             <CompositeRoot>
               <CompositeItem data-testid="1" />
@@ -1214,8 +1214,8 @@ describe('Composite', () => {
         expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
       } finally {
         getComputedStyle.mockRestore();
-        act(() => root.unmount());
-        container.remove();
+        React.act(() => root.unmount());
+        document.body.removeChild(host);
       }
     });
 
