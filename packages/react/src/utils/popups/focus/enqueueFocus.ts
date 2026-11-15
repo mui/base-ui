@@ -10,7 +10,7 @@ interface Options {
 
 // Pending focus frames are keyed per element so concurrent callers targeting
 // different elements can't cancel each other's queued focus.
-const rafIds = new WeakMap<FocusableElement, number>();
+const pendingFocus = new WeakMap<FocusableElement, { rafId: number }>();
 
 export function enqueueFocus(el: FocusableElement | null, options: Options = {}) {
   const { preventScroll = false, sync = false, shouldFocus } = options;
@@ -19,14 +19,13 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
     return NOOP;
   }
 
-  const pendingRafId = rafIds.get(el);
-  if (pendingRafId !== undefined) {
-    cancelAnimationFrame(pendingRafId);
-    rafIds.delete(el);
+  const pending = pendingFocus.get(el);
+  if (pending) {
+    cancelAnimationFrame(pending.rafId);
+    pendingFocus.delete(el);
   }
 
   const exec = () => {
-    rafIds.delete(el);
     if (shouldFocus && !shouldFocus()) {
       return;
     }
@@ -38,12 +37,22 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
     return NOOP;
   }
 
-  const currentRafId = requestAnimationFrame(exec);
-  rafIds.set(el, currentRafId);
+  const request = { rafId: 0 };
+  pendingFocus.set(el, request);
+  request.rafId = requestAnimationFrame(() => {
+    // A cancelled frame can still run where cancelAnimationFrame is a no-op (e.g. the
+    // jsdom rAF stub), so only the latest request for this element may focus.
+    if (pendingFocus.get(el) !== request) {
+      return;
+    }
+    pendingFocus.delete(el);
+    exec();
+  });
+
   return () => {
-    if (rafIds.get(el) === currentRafId) {
-      cancelAnimationFrame(currentRafId);
-      rafIds.delete(el);
+    if (pendingFocus.get(el) === request) {
+      cancelAnimationFrame(request.rafId);
+      pendingFocus.delete(el);
     }
   };
 }
