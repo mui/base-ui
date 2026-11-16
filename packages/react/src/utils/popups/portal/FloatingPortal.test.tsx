@@ -168,6 +168,39 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
     expect(document.querySelector('[aria-owns]')).toHaveAttribute('aria-owns', 'custom-portal');
   });
 
+  test('restores the tab order of portal content when a non-modal focus manager unmounts', async () => {
+    function Test({ managed }: { managed: boolean }) {
+      const { context, refs } = useFloating({ open: true });
+
+      return (
+        <React.Fragment>
+          <button data-testid="outside" />
+          <FloatingPortal>
+            <button data-testid="inside" />
+            {managed && (
+              <FloatingFocusManager store={context.rootStore} modal={false} closeOnFocusOut={false}>
+                <div ref={refs.setFloating} />
+              </FloatingFocusManager>
+            )}
+          </FloatingPortal>
+        </React.Fragment>
+      );
+    }
+
+    const { rerender } = render(<Test managed />);
+    await flushMicrotasks();
+
+    const inside = screen.getByTestId('inside');
+    fireEvent.focusOut(inside, { relatedTarget: screen.getByTestId('outside') });
+    expect(inside).toHaveAttribute('tabindex', '-1');
+
+    rerender(<Test managed={false} />);
+    await flushMicrotasks();
+
+    expect(inside).not.toHaveAttribute('tabindex');
+    expect(inside).not.toHaveAttribute('data-tabindex');
+  });
+
   test('FloatingPortalLite forwards HTML props to the portal element', async () => {
     render(
       <FloatingPortalLite data-testid="lite-portal">
