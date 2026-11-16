@@ -9,6 +9,10 @@ export const checked = 'data-checked';
  */
 export const unchecked = 'data-unchecked';
 /**
+ * Present when the menu checkbox item is highlighted.
+ */
+export const highlighted = 'data-highlighted';
+/**
  * Present when the menu checkbox item is disabled.
  */
 export const disabled = 'data-disabled';
