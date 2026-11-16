@@ -10,6 +10,7 @@ import {
   waitFor,
   ignoreActWarnings,
   reactMajor,
+  within,
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
@@ -1365,7 +1366,7 @@ describe('<Combobox.Root />', () => {
     expect(screen.queryByRole('button', { name: 'Dismiss' })).toBe(null);
   });
 
-  it('renders internal dismiss buttons before the input and after the popup', async () => {
+  it('renders internal dismiss buttons before and after the popup when the input is inside it', async () => {
     const { user } = await render(
       <div>
         <button data-testid="outside">Outside</button>
@@ -1390,13 +1391,12 @@ describe('<Combobox.Root />', () => {
     );
 
     const popup = screen.getByTestId('popup');
-    const input = screen.getByRole('combobox', { name: 'Combobox input' });
     const [startDismissButton, endDismissButton] = screen.getAllByRole('button', {
       name: 'Dismiss',
     });
     const outside = screen.getByTestId('outside');
 
-    expect(input.previousElementSibling).toBe(startDismissButton);
+    expect(popup.previousElementSibling).toBe(startDismissButton);
     expect(popup.nextElementSibling).toBe(endDismissButton);
     expect(startDismissButton).not.toHaveAttribute('tabindex');
     expect(endDismissButton).not.toHaveAttribute('tabindex');
@@ -1435,12 +1435,11 @@ describe('<Combobox.Root />', () => {
     await user.click(screen.getByTestId('input'));
 
     const popup = await screen.findByTestId('popup');
-    const input = screen.getByTestId('input');
     const [startDismissButton, endDismissButton] = screen.getAllByRole('button', {
       name: 'Dismiss',
     });
 
-    expect(input.previousElementSibling).toBe(startDismissButton);
+    expect(popup.previousElementSibling).toBe(startDismissButton);
     expect(popup.nextElementSibling).toBe(endDismissButton);
     expect(startDismissButton).not.toHaveAttribute('tabindex');
     expect(endDismissButton).not.toHaveAttribute('tabindex');
@@ -1450,6 +1449,36 @@ describe('<Combobox.Root />', () => {
     await waitFor(() => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
+  });
+
+  it('keeps internal dismiss buttons out of a label that wraps the input', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['Apple', 'Banana']}>
+        <label data-testid="label">
+          Fruit
+          <Combobox.Input />
+        </label>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('combobox'));
+    await screen.findByRole('listbox');
+
+    expect(screen.getAllByRole('button', { name: 'Dismiss' })).toHaveLength(2);
+    expect(within(screen.getByTestId('label')).queryByRole('button')).toBe(null);
   });
 
   describe('selection behavior', () => {

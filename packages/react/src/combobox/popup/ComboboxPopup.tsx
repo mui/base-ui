@@ -130,6 +130,11 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       ]}
     >
       <React.Fragment>
+        {/* Rendered here rather than next to the input, so a label wrapping the input
+        never includes "Dismiss" in the input's accessible name. */}
+        {open && focusManagerModal && (
+          <ComboboxInternalDismissButton ref={store.context.startDismissRef} />
+        )}
         {element}
         {focusManagerModal && <ComboboxInternalDismissButton ref={store.context.endDismissRef} />}
       </React.Fragment>
