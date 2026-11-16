@@ -1,9 +1,11 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
-import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import * as ReactDOM from 'react-dom';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { useAnchorPositioning, useFloatingRootStore } from './useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
+import { adaptiveOrigin } from '../utils/popups/positioning/adaptiveOriginMiddleware';
 
 const shiftSpy = vi.hoisted(() => vi.fn());
 
@@ -103,6 +105,58 @@ function TestLazyFlip(props: {
         Shrink
       </button>
     </React.Fragment>
+  );
+}
+
+function TestAdaptiveOrigin({
+  side,
+  positionMethod = 'absolute',
+  containerStyle,
+  scrollable = false,
+}: {
+  side: 'top' | 'left';
+  positionMethod?: 'absolute' | 'fixed';
+  containerStyle?: React.CSSProperties;
+  scrollable?: boolean;
+}) {
+  const anchorRef = React.useRef<HTMLDivElement>(null);
+  const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
+  const rootStore = useFloatingRootStore({});
+  const positioning = useAnchorPositioning({
+    anchor: anchorRef,
+    mounted: true,
+    positionMethod,
+    side,
+    align: 'start',
+    collisionAvoidance: { side: 'none', align: 'none', fallbackAxisSide: 'none' },
+    interactionStore: rootStore,
+    adaptiveOrigin,
+  });
+
+  return (
+    <div
+      ref={setContainer}
+      data-testid="container"
+      style={{ position: 'relative', width: 360, height: 300, margin: 32, ...containerStyle }}
+    >
+      <div
+        ref={anchorRef}
+        data-testid="anchor"
+        style={{ position: 'absolute', left: 160, top: 140, width: 40, height: 30 }}
+      />
+      {scrollable && <div style={{ width: 600, height: 600 }} />}
+      {container &&
+        ReactDOM.createPortal(
+          <div
+            ref={positioning.refs.setFloating}
+            data-testid="floating"
+            style={positioning.positionerStyles}
+          >
+            <div style={{ width: 80, height: 32 }} />
+          </div>,
+          container,
+        )}
+    </div>
   );
 }
 
@@ -253,6 +307,127 @@ describe('useAnchorPositioning', () => {
     expect(shiftSpy.mock.calls[0]?.[0].rootBoundary).toBe('layoutViewport');
     expect(shiftSpy.mock.calls[0]?.[0].crossAxis).toBe(crossAxis);
   });
+
+  describe.skipIf(isJSDOM).each([
+    { side: 'top', anchorEdge: 'top', floatingEdge: 'bottom', crossEdge: 'left', size: 'height' },
+    { side: 'left', anchorEdge: 'left', floatingEdge: 'right', crossEdge: 'top', size: 'width' },
+  ] as const)(
+    'adaptive origin with side=$side',
+    ({ side, anchorEdge, floatingEdge, crossEdge, size }) => {
+      it('stays anchored without transitions when the containing block grows', async () => {
+        await render(<TestAdaptiveOrigin side={side} />);
+        const anchor = screen.getByTestId('anchor');
+        const floating = screen.getByTestId('floating');
+        const container = screen.getByTestId('container');
+        const anchorBefore = anchor.getBoundingClientRect();
+        const containerSizeBefore = container.getBoundingClientRect()[size];
+
+        await waitFor(() =>
+          expect(floating.getBoundingClientRect()[floatingEdge]).toBeCloseTo(
+            anchorBefore[anchorEdge],
+            0,
+          ),
+        );
+        expect(floating.getBoundingClientRect()).toMatchObject({ width: 80, height: 32 });
+
+        container.style[size] = '480px';
+
+        // Check before any positioning update can mask a jump caused by the new containing block.
+        expect(container.getBoundingClientRect()[size]).toBeGreaterThan(containerSizeBefore);
+        expect(anchor.getBoundingClientRect()[anchorEdge]).toBe(anchorBefore[anchorEdge]);
+        expect(floating.getBoundingClientRect()[floatingEdge]).toBeCloseTo(
+          anchorBefore[anchorEdge],
+          0,
+        );
+        expect(floating.getBoundingClientRect()).toMatchObject({ width: 80, height: 32 });
+      });
+
+      it('keeps the anchor-facing edge in place when the popup grows', async () => {
+        await render(<TestAdaptiveOrigin side={side} />);
+        const anchor = screen.getByTestId('anchor');
+        const floating = screen.getByTestId('floating');
+        const content = floating.firstElementChild as HTMLElement;
+        const anchorBefore = anchor.getBoundingClientRect();
+
+        await waitFor(() =>
+          expect(floating.getBoundingClientRect()[floatingEdge]).toBeCloseTo(
+            anchorBefore[anchorEdge],
+            0,
+          ),
+        );
+
+        content.style[size] = '120px';
+
+        // Check before a positioning update can move the popup back against its anchor.
+        expect(floating.getBoundingClientRect()[size]).toBe(120);
+        expect(floating.getBoundingClientRect()[floatingEdge]).toBeCloseTo(
+          anchorBefore[anchorEdge],
+          0,
+        );
+      });
+
+      it.each([
+        { name: 'a positioned parent', positionMethod: 'absolute', transform: undefined },
+        {
+          name: 'a transformed parent',
+          positionMethod: 'fixed',
+          transform: 'translate(20px, 10px)',
+        },
+      ] as const)(
+        'accounts for borders, padding, and scrolling in $name',
+        async ({ positionMethod, transform }) => {
+          await render(
+            <TestAdaptiveOrigin
+              side={side}
+              positionMethod={positionMethod}
+              scrollable
+              containerStyle={{
+                border: '8px solid transparent',
+                padding: 12,
+                overflow: 'auto',
+                transform,
+              }}
+            />,
+          );
+          const anchor = screen.getByTestId('anchor');
+          const floating = screen.getByTestId('floating');
+
+          await waitFor(() =>
+            expect(floating.getBoundingClientRect()[floatingEdge]).toBeCloseTo(
+              anchor.getBoundingClientRect()[anchorEdge],
+              0,
+            ),
+          );
+          expect(floating.getBoundingClientRect()[crossEdge]).toBeCloseTo(
+            anchor.getBoundingClientRect()[crossEdge],
+            0,
+          );
+
+          const scroller = screen.getByTestId('container');
+          await act(async () => {
+            scroller.scrollTop = 20;
+            scroller.scrollLeft = 20;
+            await waitSingleFrame();
+            await waitSingleFrame();
+          });
+
+          expect(screen.getByTestId('container').scrollTop).toBe(20);
+          expect(screen.getByTestId('container').scrollLeft).toBe(20);
+          await waitFor(() =>
+            expect(floating.getBoundingClientRect()[floatingEdge]).toBeCloseTo(
+              anchor.getBoundingClientRect()[anchorEdge],
+              0,
+            ),
+          );
+          expect(floating.getBoundingClientRect()[crossEdge]).toBeCloseTo(
+            anchor.getBoundingClientRect()[crossEdge],
+            0,
+          );
+          expect(floating.getBoundingClientRect()).toMatchObject({ width: 80, height: 32 });
+        },
+      );
+    },
+  );
 
   it.skipIf(isJSDOM)('locks a flipped alignment after the popup shrinks', async () => {
     // Only `'placement'` locks the align axis. Plain `true` stays side-only so Combobox keeps

@@ -21,13 +21,15 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
 
   const store = usePopoverRootContext();
   const open = store.useState('open');
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles, instant } =
+    usePopoverPositionerContext();
 
   const state: PopoverArrowState = {
     open,
     side,
     align,
     uncentered: arrowUncentered,
+    instant,
   };
 
   const element = useRenderElement('div', componentProps, {
@@ -57,6 +59,10 @@ export interface PopoverArrowState {
    * Whether the arrow cannot be centered on the anchor.
    */
   uncentered: boolean;
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: string | undefined;
 }
 
 export interface PopoverArrowProps extends BaseUIComponentProps<'div', PopoverArrowState> {}

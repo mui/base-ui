@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { ReactStore } from '@base-ui/utils/store';
+import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
+import type { TriggerChangeStore } from '../../internals/useTriggerSwitchTransition';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import type {
@@ -45,6 +47,10 @@ type PopupPositionerStore = ReactStore<
 
 export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
   forwardedRef: React.ForwardedRef<HTMLDivElement>;
+  /** Menu and Popover also suppress Popup transitions after switching triggers. */
+  instantTypeStore?: TriggerChangeStore | undefined;
+  /** Overrides the instant reason, for example when Tooltip tracks the cursor. */
+  instant?: string | undefined;
   /**
    * Whether the popup stays mounted while closed.
    */
@@ -56,14 +62,14 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
     | Partial<
         Omit<
           UseAnchorPositioningParameters,
-          'interactionStore' | 'mounted' | 'keepMounted' | 'adaptiveOrigin'
+          'interactionStore' | 'mounted' | 'keepMounted' | 'adaptiveOrigin' | 'onAnchorTracking'
         >
       >
     | undefined;
   /**
-   * State that the part adds to or changes in the shared state.
+   * State that the part adds to the shared state.
    */
-  state?: (Omit<State, keyof PopupPositionerState> & Partial<PopupPositionerState>) | undefined;
+  state?: Omit<State, keyof PopupPositionerState> | undefined;
   /**
    * Whether the positioner ignores pointer events.
    * @default !open
@@ -71,9 +77,19 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
   inert?: boolean | undefined;
 }
 
+/**
+ * The positioning that a Positioner provides to its parts, such as the Arrow.
+ */
+export interface PopupPositioning extends UseAnchorPositioningReturnValue {
+  /**
+   * The reason to skip position transitions, or `undefined` when they can run.
+   */
+  instant: string | undefined;
+}
+
 export interface UsePopupPositionerReturnValue {
   element: React.ReactElement;
-  positioning: UseAnchorPositioningReturnValue;
+  positioning: PopupPositioning;
   open: boolean;
   mounted: boolean;
 }
@@ -114,6 +130,11 @@ export function usePopupPositioner<State extends PopupPositionerState>(
   const transitionStatus = store.useState('transitionStatus');
   const instantType = store.useState('instantType');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
+  const positionerElement = store.useState('positionerElement');
+  const popupElement = store.useState('popupElement');
+  const viewportElement = store.useState('viewportElement');
+  const domReference = store.useState('anchorElement');
+  const onAnchorTracking = React.useRef<(() => void) | null>(null);
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -132,8 +153,24 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     keepMounted,
     collisionAvoidance: collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
     adaptiveOrigin,
+    onAnchorTracking,
     ...positioningOverrides,
   });
+
+  const instantPosition = useTriggerSwitchTransition({
+    store,
+    instantTypeStore: options.instantTypeStore,
+    domReference,
+    positionerElement,
+    popupElement,
+    arrowElementRef: positioning.arrowElementRef,
+    viewportElement,
+    onAnchorTracking,
+    open,
+  });
+  // Keep this fallback local: sharing it with Popup would suppress enter and exit transitions.
+  const instant =
+    options.instant ?? instantType ?? (mounted && instantPosition ? 'trigger-change' : undefined);
 
   const partState = options.state;
   const partStateValues = partState ? Object.values(partState) : EMPTY_ARRAY;
@@ -144,7 +181,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
         side: positioning.side,
         align: positioning.align,
         anchorHidden: positioning.anchorHidden,
-        instant: instantType,
+        instant,
         ...partState,
       }) as State,
     // The part's state is a new object on every render, so it's compared by its values. A part
@@ -155,7 +192,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
       positioning.side,
       positioning.align,
       positioning.anchorHidden,
-      instantType,
+      instant,
       // eslint-disable-next-line react-hooks/exhaustive-deps
       ...partStateValues,
     ],
@@ -170,5 +207,10 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     inert: options.inert ?? !open,
   });
 
-  return { element, positioning, open, mounted };
+  const popupPositioning = React.useMemo(
+    () => ({ ...positioning, instant }),
+    [positioning, instant],
+  );
+
+  return { element, positioning: popupPositioning, open, mounted };
 }
