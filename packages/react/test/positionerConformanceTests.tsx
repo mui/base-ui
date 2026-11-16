@@ -283,6 +283,26 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
       });
     });
 
+    it('aligns with the anchor when an ancestor sets CSS zoom', async ({ onTestFinished }) => {
+      // A zoomed static `<body>` keeps the window as the offset parent.
+      const zoom = 2;
+      document.body.style.zoom = String(zoom);
+      onTestFinished(() => {
+        document.body.style.zoom = '';
+      });
+
+      await render(prepareComponent({}));
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner.style.transform).toBe(`translate(${baselineX}px, ${baselineY}px)`);
+      });
+      expect(positioner.getBoundingClientRect()).toMatchObject({
+        x: baselineX * zoom,
+        y: baselineY * zoom,
+      });
+    });
+
     if (hasViewport) {
       it('uses top/left positioning with Viewport', async () => {
         await render(prepareComponent({ viewport: true }));
