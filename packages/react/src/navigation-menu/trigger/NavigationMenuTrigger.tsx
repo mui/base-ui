@@ -504,12 +504,24 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return closest(triggerElementRef.current, 'ul');
   }
 
+  function getAdditionalPointerTargets(scope: HTMLElement | SVGSVGElement) {
+    if (nested || scope.localName !== 'ul') {
+      return [];
+    }
+
+    // Users can move directly between triggers while the rest of the list is shielded.
+    return Array.from(
+      scope.querySelectorAll<HTMLElement>(`[${NAVIGATION_MENU_TRIGGER_IDENTIFIER}]`),
+    ).filter((trigger) => closest(trigger, 'ul') === scope);
+  }
+
   const hoverProps = useHoverTriggerInteraction(floatingRootStore, {
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({
       blockPointerEvents: shouldBlockSafePolygonPointerEvents,
       getScope,
+      getAdditionalPointerTargets,
     }),
     restMs: mounted && positionerElement ? 0 : delay,
     delay: { close: closeDelay },
@@ -594,11 +606,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         const applyPointerEventsMutation = () => {
           const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
 
-          hoverIntent.blockOutsidePointerEvents({
-            scopeElement,
-            triggerElement: currentTarget,
-            positionerElement: hoverPopupElement,
-          });
+          hoverIntent.blockOutsidePointerEvents(
+            {
+              scopeElement,
+              triggerElement: currentTarget,
+              positionerElement: hoverPopupElement,
+            },
+            getAdditionalPointerTargets,
+          );
         };
 
         if (value != null && value !== itemValue) {
