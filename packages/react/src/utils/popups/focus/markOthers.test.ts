@@ -329,6 +329,42 @@ test('uses shadow root host as avoid element when parent chain includes anchor',
   expect(outside.getAttribute('aria-hidden')).toBe(null);
 });
 
+test('keeps a marker that was already present before the first lock', () => {
+  const other = document.createElement('div');
+  document.body.appendChild(other);
+  const target = document.createElement('div');
+  document.body.appendChild(target);
+
+  // Simulates a copy of Base UI that does not share lock state marking the element.
+  other.setAttribute('data-base-ui-inert', '');
+
+  const cleanup = markOthers([target]);
+  expect(other).toHaveAttribute('data-base-ui-inert');
+
+  cleanup();
+
+  expect(other).toHaveAttribute('data-base-ui-inert');
+});
+
+test('removes a marker it added once all locks are released', () => {
+  const other = document.createElement('div');
+  document.body.appendChild(other);
+  const target = document.createElement('div');
+  document.body.appendChild(target);
+
+  expect(other).not.toHaveAttribute('data-base-ui-inert');
+
+  const cleanupA = markOthers([target]);
+  const cleanupB = markOthers([target]);
+  expect(other).toHaveAttribute('data-base-ui-inert');
+
+  cleanupA();
+  expect(other).toHaveAttribute('data-base-ui-inert');
+
+  cleanupB();
+  expect(other).not.toHaveAttribute('data-base-ui-inert');
+});
+
 test.skipIf(!isJSDOM).each([
   { name: 'first copy releases first', firstRelease: 'a' },
   { name: 'second copy releases first', firstRelease: 'b' },

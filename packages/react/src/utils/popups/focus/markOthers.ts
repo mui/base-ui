@@ -16,6 +16,7 @@ interface MarkOthersState {
   ariaHiddenCounterMap: WeakMap<Element, number>;
   uncontrolledElementsSet: WeakSet<Element>;
   markerCounterMap: WeakMap<Element, number>;
+  uncontrolledMarkerSet: WeakSet<Element>;
   lockCount: number;
 }
 
@@ -31,6 +32,7 @@ function getState(doc: DocumentWithState): MarkOthersState {
       ariaHiddenCounterMap: new WeakMap(),
       uncontrolledElementsSet: new WeakSet(),
       markerCounterMap: new WeakMap(),
+      uncontrolledMarkerSet: new WeakSet(),
       lockCount: 0,
     };
     doc[STATE_KEY] = state;
@@ -159,7 +161,13 @@ function applyAttributeToOthers(
       markedElements.push(node);
 
       if (markerValue === 1) {
-        node.setAttribute(markerName, '');
+        // A marker present before any shared count was set by something outside this shared
+        // state (for example, an older copy of Base UI), so leave it in place on release.
+        if (node.hasAttribute(markerName)) {
+          state.uncontrolledMarkerSet.add(node);
+        } else {
+          node.setAttribute(markerName, '');
+        }
       }
     });
   }
@@ -187,7 +195,11 @@ function applyAttributeToOthers(
         state.markerCounterMap.set(element, markerValue);
 
         if (!markerValue) {
-          element.removeAttribute(markerName);
+          if (!state.uncontrolledMarkerSet.has(element)) {
+            element.removeAttribute(markerName);
+          }
+
+          state.uncontrolledMarkerSet.delete(element);
         }
       });
     }
@@ -198,6 +210,7 @@ function applyAttributeToOthers(
       state.ariaHiddenCounterMap = new WeakMap();
       state.uncontrolledElementsSet = new WeakSet();
       state.markerCounterMap = new WeakMap();
+      state.uncontrolledMarkerSet = new WeakSet();
     }
   };
 }
