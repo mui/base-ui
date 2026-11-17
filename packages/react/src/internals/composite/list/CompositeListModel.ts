@@ -48,23 +48,23 @@ export class CompositeListModel<Metadata> {
   /** Starts dirty so the mount commit flushes the registrations collected while mounting. */
   dirty = true;
 
-  private contextValue: CompositeListContextValue<Metadata> | null = null;
+  #contextValue: CompositeListContextValue<Metadata> | null = null;
 
-  private registrations: Map<Element, CompositeListRegistration<Metadata>> | null = null;
+  #registrations: Map<Element, CompositeListRegistration<Metadata>> | null = null;
 
   /** Allocated by the first subscription. */
-  private listeners: Set<(map: Map<Element, CompositeMetadata<Metadata>>) => void> | null = null;
+  #listeners: Set<(map: Map<Element, CompositeMetadata<Metadata>>) => void> | null = null;
 
   /** The last flushed snapshot, or `null` before the first flush. */
-  private items: readonly CompositeListItem<Metadata>[] | null = null;
+  #items: readonly CompositeListItem<Metadata>[] | null = null;
 
   /** The render-order index reserved for the next item that guesses. */
-  private nextIndex = 0;
+  #nextIndex = 0;
 
-  private observer: MutationObserver | null = null;
+  #observer: MutationObserver | null = null;
 
-  /** The automatically indexed nodes, in order, that `observer` watches for reorders. */
-  private observedNodes: readonly HTMLElement[] = EMPTY_ARRAY;
+  /** The automatically indexed nodes, in order, that `#observer` watches for reorders. */
+  #observedNodes: readonly HTMLElement[] = EMPTY_ARRAY;
 
   constructor(params: CompositeListModelParameters<Metadata>) {
     this.elementsRef = params.elementsRef;
@@ -75,38 +75,38 @@ export class CompositeListModel<Metadata> {
 
   /** The value items register through. Created on first access, as many lists never hold one. */
   get context(): CompositeListContextValue<Metadata> {
-    this.contextValue ??= {
+    this.#contextValue ??= {
       register: (node, registration) => {
-        this.registrations ??= new Map();
-        const shadowed = this.registrations.get(node);
-        this.registrations.set(
+        this.#registrations ??= new Map();
+        const shadowed = this.#registrations.get(node);
+        this.#registrations.set(
           node,
           shadowed && shadowed.setIndex !== registration.setIndex
             ? shareIndex(shadowed, registration)
             : registration,
         );
-        this.markDirty();
+        this.#markDirty();
       },
       unregister: (node) => {
-        if (this.registrations?.delete(node)) {
-          this.markDirty();
+        if (this.#registrations?.delete(node)) {
+          this.#markDirty();
         }
       },
       subscribeMapChange: (fn) => {
-        this.listeners ??= new Set();
-        const listeners = this.listeners;
+        this.#listeners ??= new Set();
+        const listeners = this.#listeners;
         listeners.add(fn);
         return () => {
           listeners.delete(fn);
         };
       },
       guessIndex: () => {
-        const index = this.nextIndex;
-        this.nextIndex += 1;
+        const index = this.#nextIndex;
+        this.#nextIndex += 1;
         return index;
       },
     };
-    return this.contextValue;
+    return this.#contextValue;
   }
 
   /** Moves the items to new refs on the next flush, emptying the previous ones. */
@@ -118,7 +118,7 @@ export class CompositeListModel<Metadata> {
       return;
     }
 
-    this.clearRefs();
+    this.#clearRefs();
     this.elementsRef = elementsRef;
     this.labelsRef = labelsRef;
     // The next flush skips an empty list, so it would not empty refs that arrive with content.
@@ -133,21 +133,21 @@ export class CompositeListModel<Metadata> {
   flush() {
     this.dirty = false;
 
-    if (!this.registrations?.size) {
-      this.flushEmpty();
+    if (!this.#registrations?.size) {
+      this.#flushEmpty();
       return;
     }
 
-    const previousItems = this.items;
-    const [items, automaticNodes] = getCompositeListSnapshot(this.registrations);
-    this.items = items;
+    const previousItems = this.#items;
+    const [items, automaticNodes] = getCompositeListSnapshot(this.#registrations);
+    this.#items = items;
 
-    this.syncRefs(items);
+    this.#syncRefs(items);
 
     // The observer's roots follow from the nodes' ancestry, which React only changes by
     // remounting them as new nodes, so an unchanged node order keeps the observer.
-    if (!isSameNodeOrder(this.observedNodes, automaticNodes)) {
-      this.observe(automaticNodes);
+    if (!isSameNodeOrder(this.#observedNodes, automaticNodes)) {
+      this.#observe(automaticNodes);
     }
 
     if (previousItems && publishesSameMap(previousItems, items)) {
@@ -160,7 +160,7 @@ export class CompositeListModel<Metadata> {
       }
     });
 
-    this.publish(items);
+    this.#publish(items);
   }
 
   /**
@@ -169,41 +169,41 @@ export class CompositeListModel<Metadata> {
    * mount rebuilds the refs and observation from them.
    */
   dispose() {
-    this.disconnectObserver();
-    this.clearRefs();
+    this.#disconnectObserver();
+    this.#clearRefs();
     this.dirty = true;
   }
 
   // Many lists, such as data grid cells, hold no item most of the time. Settling an empty list
   // without sorting or observing keeps them nearly free.
-  private flushEmpty() {
-    this.nextIndex = 0;
+  #flushEmpty() {
+    this.#nextIndex = 0;
 
-    if (this.items?.length === 0) {
+    if (this.#items?.length === 0) {
       return;
     }
 
-    this.items = EMPTY_ARRAY;
-    this.disconnectObserver();
+    this.#items = EMPTY_ARRAY;
+    this.#disconnectObserver();
     this.elementsRef.current.length = 0;
     if (this.labelsRef) {
       this.labelsRef.current.length = 0;
     }
-    this.publish(EMPTY_ARRAY);
+    this.#publish(EMPTY_ARRAY);
   }
 
-  private publish(items: readonly CompositeListItem<Metadata>[]) {
-    if (!this.listeners?.size && !this.onMapChange) {
+  #publish(items: readonly CompositeListItem<Metadata>[]) {
+    if (!this.#listeners?.size && !this.onMapChange) {
       return;
     }
 
     const map = createMetadataMap(items);
-    this.listeners?.forEach((listener) => listener(map));
+    this.#listeners?.forEach((listener) => listener(map));
     this.onMapChange?.(map);
   }
 
   // Item refs can attach without the owner rendering. Request one commit for the whole batch.
-  private markDirty() {
+  #markDirty() {
     if (this.dirty) {
       return;
     }
@@ -212,7 +212,7 @@ export class CompositeListModel<Metadata> {
     this.requestFlush();
   }
 
-  private syncRefs(items: readonly CompositeListItem<Metadata>[]) {
+  #syncRefs(items: readonly CompositeListItem<Metadata>[]) {
     const elements = this.elementsRef.current;
     const labels = this.labelsRef?.current;
 
@@ -229,19 +229,19 @@ export class CompositeListModel<Metadata> {
       }
     });
 
-    this.nextIndex = elements.length;
+    this.#nextIndex = elements.length;
   }
 
-  private clearRefs() {
+  #clearRefs() {
     this.elementsRef.current = [];
     if (this.labelsRef) {
       this.labelsRef.current = [];
     }
   }
 
-  private observe(sortedNodes: readonly HTMLElement[]) {
-    this.disconnectObserver();
-    this.observedNodes = sortedNodes;
+  #observe(sortedNodes: readonly HTMLElement[]) {
+    this.#disconnectObserver();
+    this.#observedNodes = sortedNodes;
 
     // A single item can't reorder.
     if (typeof MutationObserver !== 'function' || sortedNodes.length < 2) {
@@ -254,12 +254,12 @@ export class CompositeListModel<Metadata> {
       // change the relative order of the remaining items, and items that mount
       // or unmount re-sort through `register`/`unregister`.
       if (hasMovedNode(entries) && !isInDocumentOrder(sortedNodes)) {
-        this.disconnectObserver();
-        this.markDirty();
+        this.#disconnectObserver();
+        this.#markDirty();
       }
     });
 
-    this.observer = observer;
+    this.#observer = observer;
 
     // A reorder that changes item indexes must invert at least one adjacent pair
     // from the previous sorted order. Observing each pair's common parent catches
@@ -275,10 +275,10 @@ export class CompositeListModel<Metadata> {
     roots.forEach((root) => observer.observe(root, { childList: true }));
   }
 
-  private disconnectObserver() {
-    this.observer?.disconnect();
-    this.observer = null;
-    this.observedNodes = EMPTY_ARRAY;
+  #disconnectObserver() {
+    this.#observer?.disconnect();
+    this.#observer = null;
+    this.#observedNodes = EMPTY_ARRAY;
   }
 }
 
