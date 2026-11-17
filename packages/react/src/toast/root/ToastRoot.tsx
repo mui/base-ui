@@ -13,6 +13,7 @@ import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
+import { selectors } from '../store';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
@@ -131,6 +132,17 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const height = element.offsetHeight;
 
     element.style.height = previousHeight;
+
+    // Observers re-measure toasts whose height hasn't changed. Writing anyway would re-render,
+    // and under `flushSync` commit unrelated pending app updates inside the observer callback.
+    const current = selectors.toast(store.state, toast.id);
+    if (
+      current?.height === height &&
+      current.ref === rootRef &&
+      current.transitionStatus !== 'starting'
+    ) {
+      return;
+    }
 
     function update() {
       store.updateToastInternal(toast.id, {
