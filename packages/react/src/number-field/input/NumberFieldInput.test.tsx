@@ -500,6 +500,40 @@ describe('<NumberField.Input />', () => {
     },
   );
 
+  it.each([
+    { name: 'lowercase exponent', text: '1e-7', value: 0.0000001, min: 0 },
+    { name: 'uppercase exponent', text: '1E+7', value: 10000000, min: 0 },
+    { name: 'signed mantissa and exponent', text: '-1e-7', value: -0.0000001, min: -1 },
+    { name: 'positive mantissa and exponent', text: '+1e+7', value: 10000000, min: 0 },
+  ])(
+    'accepts a typed $name without scientific display formatting',
+    async ({ text, value, min }) => {
+      const format = { maximumSignificantDigits: 21 };
+      const formatter = new Intl.NumberFormat('en-US', format);
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      const { user } = await render(
+        <NumberField.Root
+          locale="en-US"
+          min={min}
+          format={format}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        >
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      expect(input).toHaveValue('');
+      await user.type(input, text);
+      expect(input).toHaveValue(text);
+      expect(onValueChange.mock.lastCall?.[0]).toBe(value);
+      await user.tab();
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(value);
+      expect(input).toHaveValue(formatter.format(value));
+    },
+  );
+
   it('accepts a typed negative exponent when negatives are not allowed', async () => {
     const format = { notation: 'scientific' } as const;
     const formatter = new Intl.NumberFormat('en-US', format);
