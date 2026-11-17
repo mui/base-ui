@@ -95,13 +95,14 @@ describe('<Toast.Content />', () => {
       }
       window.addEventListener('error', handleError);
 
+      let panelObserver: ResizeObserver | undefined;
       function observeSelf(node: HTMLElement | null) {
+        panelObserver?.disconnect();
         if (!node) {
-          return undefined;
+          return;
         }
-        const observer = new ResizeObserver(() => {});
-        observer.observe(node);
-        return () => observer.disconnect();
+        panelObserver = new ResizeObserver(() => {});
+        panelObserver.observe(node);
       }
 
       function ObservedPanelApp() {
@@ -157,6 +158,7 @@ describe('<Toast.Content />', () => {
 
         expect(errors).toEqual([]);
       } finally {
+        panelObserver?.disconnect();
         window.removeEventListener('error', handleError);
       }
     },
