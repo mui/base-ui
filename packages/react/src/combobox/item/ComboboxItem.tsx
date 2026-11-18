@@ -13,6 +13,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
+import { clickHighlightedItem } from '../utils/parts';
 import {
   compareItemEquality,
   findItemIndex,
@@ -147,19 +148,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     highlighted,
   };
 
-  function commitSelection(nativeEvent: MouseEvent) {
-    function selectItem() {
-      store.context.handleSelection(nativeEvent, itemValue);
-    }
-
-    if (store.state.submitOnItemClick) {
-      ReactDOM.flushSync(selectItem);
-      store.context.requestSubmit();
-    } else {
-      selectItem();
-    }
-  }
-
   const defaultProps: HTMLProps = {
     id,
     role: isRow ? 'gridcell' : 'option',
@@ -187,7 +175,16 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
         return;
       }
 
-      commitSelection(event.nativeEvent);
+      function selectItem() {
+        store.context.handleSelection(event.nativeEvent, itemValue);
+      }
+
+      if (store.state.submitOnItemClick) {
+        ReactDOM.flushSync(selectItem);
+        store.context.requestSubmit();
+      } else {
+        selectItem();
+      }
     },
     onMouseUp(event) {
       const pointerStartedOnItem = store.context.pointerDownItemRef.current === event.currentTarget;
@@ -197,7 +194,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
         return;
       }
 
-      commitSelection(event.nativeEvent);
+      // A press that started elsewhere fires no `click` on the item, so click it here, like the
+      // Enter key does. This runs the item's `onClick` and lets `preventBaseUIHandler()` cancel it.
+      clickHighlightedItem(store, index, event.nativeEvent);
     },
   };
 

@@ -46,7 +46,7 @@ export function getIndexAfterChipRemoval(index: number, chipCount: number) {
 export function clickHighlightedItem(
   store: ComboboxStore,
   activeIndex: number,
-  nativeEvent: KeyboardEvent,
+  nativeEvent: MouseEvent | KeyboardEvent,
 ) {
   const listItem = store.context.listRef.current[activeIndex];
 

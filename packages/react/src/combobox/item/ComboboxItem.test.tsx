@@ -131,6 +131,78 @@ describe('<Combobox.Item />', () => {
       expect(input).toHaveValue('');
       expect(screen.queryByRole('listbox')).not.toBe(null);
     });
+
+    it('calls onClick before selecting when the pointer is released over an item after pressing elsewhere', async () => {
+      const calls: string[] = [];
+      const handleClick = vi.fn(() => calls.push('click'));
+      const handleValueChange = vi.fn(
+        (value: string | null, eventDetails: Combobox.Root.ChangeEventDetails) =>
+          calls.push(`value: ${value} (${eventDetails.reason}, ${eventDetails.event.type})`),
+      );
+      await render(
+        <Combobox.Root items={['apple', 'banana']} defaultOpen onValueChange={handleValueChange}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} onClick={handleClick}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const option = screen.getByRole('option', { name: 'banana' });
+      fireEvent.mouseMove(option, { pointerType: 'mouse' });
+      await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+
+      // The press started on the input, so only the release reaches the item.
+      fireEvent.mouseUp(option, { button: 0 });
+      await flushMicrotasks();
+
+      expect(calls).toEqual(['click', 'value: banana (item-press, mouseup)']);
+    });
+
+    it('does not select the item on a drag-release when onClick prevents Base UI handler', async () => {
+      const handleClick = vi.fn((event) => event.preventBaseUIHandler());
+      const handleValueChange = vi.fn();
+      await render(
+        <Combobox.Root items={['apple', 'banana']} defaultOpen onValueChange={handleValueChange}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} onClick={handleClick}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const option = screen.getByRole('option', { name: 'banana' });
+      fireEvent.mouseMove(option, { pointerType: 'mouse' });
+      await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+
+      fireEvent.mouseUp(option, { button: 0 });
+      await flushMicrotasks();
+
+      expect(handleClick.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('input')).toHaveValue('');
+      expect(screen.queryByRole('listbox')).not.toBe(null);
+    });
   });
 
   it('does not select disabled item', async () => {
