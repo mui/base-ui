@@ -1,4 +1,4 @@
-.Root {
+.Field {
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -18,53 +18,7 @@
   }
 }
 
-.Character {
-  display: block;
-  align-self: center;
-  margin-bottom: 0.5rem;
-  color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
-}
-
-.CharacterSvg {
-  display: block;
-}
-
-.Head {
-  fill: white;
-  stroke: currentcolor;
-
-  @media (prefers-color-scheme: dark) {
-    fill: oklch(14.5% 0 0deg);
-  }
-}
-
-.Fingers {
-  stroke: white;
-
-  @media (prefers-color-scheme: dark) {
-    stroke: oklch(14.5% 0 0deg);
-  }
-}
-
-/* The hands cover the eyes while the password is masked, and drop to the bottom of the box when revealed. */
-.Hand {
-  transform: translateY(-26px);
-  transition: transform 200ms steps(3);
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
-
-  .Character[data-visible] & {
-    transform: translateY(0);
-  }
-}
-
-.Control {
+.Root {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -179,6 +133,6 @@
 }
 
 /* Stacks the two indicators so they share one spot while one replaces the other. */
-.Icon {
+.Indicator {
   grid-area: 1 / 1;
 }

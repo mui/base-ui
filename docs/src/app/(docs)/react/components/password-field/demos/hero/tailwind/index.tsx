@@ -19,55 +19,27 @@ export default function ExamplePasswordField() {
         />
         <PasswordField.Toggle
           aria-label="Show password"
-          className="grid h-full aspect-square shrink-0 place-items-center rounded-none *:[grid-area:1/1] border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
+          className="grid h-full aspect-square shrink-0 place-items-center rounded-none border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
         >
-          <PasswordField.Indicator match="hidden">
-            <EyeOffIcon />
-          </PasswordField.Indicator>
-          <PasswordField.Indicator match="visible">
-            <EyeIcon />
-          </PasswordField.Indicator>
+          <PasswordField.ToggleIndicator keepMounted className="group">
+            <PadlockIcon className="block" />
+          </PasswordField.ToggleIndicator>
         </PasswordField.Toggle>
       </PasswordField.Root>
     </div>
   );
 }
 
-function EyeIcon(props: React.ComponentProps<'svg'>) {
+function PadlockIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
       <path
-        d="M1.333 8s2.334-4.667 6.667-4.667S14.667 8 14.667 8 12.333 12.667 8 12.667 1.333 8 1.333 8Z"
+        d="M5.5 10V5.5a2.5 2.5 0 0 1 5 0V7"
         stroke="currentColor"
         strokeWidth="1"
+        className="transition-transform duration-150 group-data-visible:-translate-y-0.5 motion-reduce:transition-none"
       />
-      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1" />
-    </svg>
-  );
-}
-
-function EyeOffIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path
-        d="M2 2l12 12M7.067 7.067a2 2 0 0 0 2.8 2.8M6.267 3.467A6.467 6.467 0 0 1 8 3.333c4.333 0 6.667 4.667 6.667 4.667a11.333 11.333 0 0 1-1.6 2.2M4.133 4.133A11.333 11.333 0 0 0 1.333 8s2.334 4.667 6.667 4.667a6.467 6.467 0 0 0 2-.334"
-        stroke="currentColor"
-        strokeWidth="1"
-      />
+      <rect x="3" y="7" width="10" height="7" fill="currentColor" />
     </svg>
   );
 }

@@ -15,9 +15,8 @@ import { DemoPasswordFieldHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: Associate the input with a `<label>` (or the [Field](/react/components/field) component) so it is announced by assistive technology. The `id` prop on `<PasswordField.Root>` sets the input's `id`.
-- **Label the toggle**: The toggle is usually icon-only, so provide a localized `aria-label`. Keep it constant — the toggle's `aria-pressed` state (not a changing label) communicates whether the password is currently revealed.
-- **Set `autoComplete` for new passwords**: The input defaults to `autoComplete="current-password"`. On signup or change-password forms, pass `autoComplete="new-password"` so browsers and password managers offer to generate one.
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Set `autoComplete` for new passwords**: The input defaults to `autoComplete="current-password"`. On sign-up or change-password forms, pass `autoComplete="new-password"` so browsers and password managers offer to generate one.
 - **Use one input per root**: The toggle controls a single `<PasswordField.Input>`. Give a "confirm password" input its own `<PasswordField.Root>`.
 
 ## Anatomy
@@ -30,54 +29,23 @@ import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-f
 <PasswordField.Root>
   <PasswordField.Input />
   <PasswordField.Toggle>
-    <PasswordField.Indicator />
+    <PasswordField.ToggleIndicator />
   </PasswordField.Toggle>
 </PasswordField.Root>;
 ```
-
-`<PasswordField.Input>` accepts the same props as [Input](/react/components/input), such as `value`,
-`defaultValue`, `onValueChange`, and `name`. `<PasswordField.Root>` owns what the input and the
-toggle share: the visibility, `disabled`, and the input's `id`.
 
 ## Examples
 
 ### Toggle icon
 
-The toggle button's `aria-pressed` state reflects whether the password is revealed, so keep the
-`aria-label` constant and swap the icon with `<PasswordField.Indicator>`. Its `match` prop sets the
-visibility it renders for: `'visible'` (the default) while the password is revealed, or `'hidden'`
-while it is masked.
+Swap the icon with `<PasswordField.ToggleIndicator>`. Its `match` prop sets the mode it renders in:
+`'visible'` (the default) or `'masked'`.
 
-```tsx title="Swapping the icon based on state"
-<PasswordField.Toggle aria-label="Show password">
-  <PasswordField.Indicator match="hidden">
-    <EyeOffIcon />
-  </PasswordField.Indicator>
-  <PasswordField.Indicator match="visible">
-    <EyeIcon />
-  </PasswordField.Indicator>
-</PasswordField.Toggle>
-```
+import { DemoPasswordFieldToggleIcon } from './demos/toggle-icon';
 
-Indicators unmount while they don't apply, and support `[data-starting-style]` and
-`[data-ending-style]` for animations. Use `keepMounted` to keep both in the DOM and style them with
-the `[data-visible]` attribute instead.
+<DemoPasswordFieldToggleIcon />
 
-### Styled indicator
-
-An indicator can sit anywhere inside `<PasswordField.Root>`, not just in the toggle. With
-`keepMounted`, it stays in the DOM in both states, so its `[data-visible]` attribute can drive a
-richer animation. Here, a character covers its eyes while the password is masked.
-
-import { DemoPasswordFieldCharacter } from './demos/character';
-
-<DemoPasswordFieldCharacter />
-
-### Form integration
-
-Use [Field](/react/components/field) for labeling and validation. `<PasswordField.Root>` reflects
-the field's state, such as `data-invalid` and `data-focused`, so it can be styled as the visual
-control.
+### Submitting and resetting forms
 
 Submitting the owning form hides the password, and resetting it restores the initial visibility.
 Both call `onVisibleChange` with the `'form-submit'` or `'form-reset'` reason, which can be canceled:
@@ -90,24 +58,6 @@ Both call `onVisibleChange` with the `'form-submit'` or `'form-reset'` reason, w
     }
   }}
 >
-```
-
-```tsx title="Using Password Field with Field"
-<Field.Root name="password">
-  <Field.Label>Password</Field.Label>
-  <PasswordField.Root>
-    <PasswordField.Input required />
-    <PasswordField.Toggle aria-label="Show password">
-      <PasswordField.Indicator match="hidden">
-        <EyeOffIcon />
-      </PasswordField.Indicator>
-      <PasswordField.Indicator match="visible">
-        <EyeIcon />
-      </PasswordField.Indicator>
-    </PasswordField.Toggle>
-  </PasswordField.Root>
-  <Field.Error />
-</Field.Root>
 ```
 
 ## API reference
@@ -126,9 +76,9 @@ import { TypesPasswordField } from './types';
 
 <TypesPasswordField.Toggle />
 
-### Indicator
+### ToggleIndicator
 
-<TypesPasswordField.Indicator />
+<TypesPasswordField.ToggleIndicator />
 
 export const metadata = {
   keywords: [

@@ -2,7 +2,7 @@ import { createDemoWithVariants } from 'docs/src/utils/createDemo';
 import CssModules from './css-modules';
 import Tailwind from './tailwind';
 
-export const DemoPasswordFieldCharacter = createDemoWithVariants(import.meta.url, {
+export const DemoPasswordFieldToggleIcon = createDemoWithVariants(import.meta.url, {
   CssModules,
   Tailwind,
 });

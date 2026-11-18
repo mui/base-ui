@@ -3,55 +3,25 @@ import * as React from 'react';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import styles from './index.module.css';
 
-export default function ExamplePasswordFieldCharacter() {
+export default function ExamplePasswordFieldToggleIcon() {
   const id = React.useId();
   return (
-    <PasswordField.Root id={id} className={styles.Root}>
-      <PasswordField.Indicator keepMounted className={styles.Character}>
-        <Character />
-      </PasswordField.Indicator>
+    <div className={styles.Field}>
       <label htmlFor={id} className={styles.Label}>
         Password
       </label>
-      <div className={styles.Control}>
+      <PasswordField.Root id={id} className={styles.Root}>
         <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
         <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
-          <PasswordField.Indicator className={styles.Icon} match="hidden">
+          <PasswordField.ToggleIndicator className={styles.Indicator} match="masked">
             <EyeOffIcon />
-          </PasswordField.Indicator>
-          <PasswordField.Indicator className={styles.Icon} match="visible">
+          </PasswordField.ToggleIndicator>
+          <PasswordField.ToggleIndicator className={styles.Indicator} match="visible">
             <EyeIcon />
-          </PasswordField.Indicator>
+          </PasswordField.ToggleIndicator>
         </PasswordField.Toggle>
-      </div>
-    </PasswordField.Root>
-  );
-}
-
-// Covers its eyes while the password is masked.
-function Character() {
-  return (
-    <svg width="72" height="56" viewBox="0 0 72 56" fill="none" className={styles.CharacterSvg}>
-      <rect x="15" y="5" width="42" height="50" className={styles.Head} strokeWidth="2" />
-      <rect x="24" y="21" width="7" height="7" fill="currentColor" />
-      <rect x="41" y="21" width="7" height="7" fill="currentColor" />
-      <rect x="31" y="38" width="10" height="2" fill="currentColor" />
-      <Hand x={10} />
-      <Hand x={40} />
-    </svg>
-  );
-}
-
-function Hand({ x }: { x: number }) {
-  return (
-    <g className={styles.Hand}>
-      <rect x={x} y="44" width="22" height="12" fill="currentColor" />
-      <path
-        d={`M${x + 5.5} 44v6M${x + 11} 44v6M${x + 16.5} 44v6`}
-        className={styles.Fingers}
-        strokeWidth="1"
-      />
-    </g>
+      </PasswordField.Root>
+    </div>
   );
 }
 
