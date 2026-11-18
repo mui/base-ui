@@ -78,10 +78,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       stopEvent(event);
       // The input may mount when opening.
       ReactDOM.flushSync(() => {
-        store.context.setOpen(
-          true,
-          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-        );
+        store.setOpen(true, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
       });
       nextIndex = undefined;
     } else if (

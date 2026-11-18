@@ -55,6 +55,32 @@ export function dialogRootSharedTests(config: DialogRootSharedTestsConfig) {
           expect.objectContaining({ reason: REASONS.closePress, trigger }),
         );
       });
+
+      it('reports the trigger the popup was opened from for an Escape close', async () => {
+        const handleOpenChange = vi.fn();
+
+        const { user } = await render(
+          <Root onOpenChange={handleOpenChange}>
+            <Trigger>Open A</Trigger>
+            <Trigger>Open B</Trigger>
+            <Portal>
+              <Popup />
+            </Portal>
+          </Root>,
+        );
+
+        const triggerB = screen.getByRole('button', { name: 'Open B' });
+        await user.click(triggerB);
+        expect(queryPopup()).not.toBe(null);
+        await user.keyboard('[Escape]');
+
+        expect(handleOpenChange).toHaveBeenCalledTimes(2);
+        expect(handleOpenChange).toHaveBeenNthCalledWith(
+          2,
+          false,
+          expect.objectContaining({ reason: REASONS.escapeKey, trigger: triggerB }),
+        );
+      });
     });
 
     describe('prop: actionsRef', () => {

@@ -2038,6 +2038,60 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('last')).toHaveFocus();
       });
 
+      test.each([
+        { name: 'nextFocusableElement', shift: false, expected: 'last' },
+        { name: 'previousFocusableElement', shift: true, expected: 'reference' },
+      ])(
+        'falls back to the outside focus guard when $name is an empty ref',
+        async ({ name, shift, expected }) => {
+          const emptyRef = { current: null };
+
+          function App() {
+            const [open, setOpen] = React.useState(false);
+            const { refs, context } = useFloating({
+              open,
+              onOpenChange: setOpen,
+            });
+
+            return (
+              <>
+                <span tabIndex={0} data-testid="first" />
+                <button
+                  data-testid="reference"
+                  ref={refs.setReference}
+                  onClick={() => setOpen(true)}
+                />
+                <FloatingPortal>
+                  {open && (
+                    <FloatingFocusManager
+                      store={context.rootStore}
+                      modal={false}
+                      {...{ [name]: emptyRef }}
+                    >
+                      <div data-testid="floating" ref={refs.setFloating}>
+                        <span tabIndex={0} data-testid="inside" />
+                      </div>
+                    </FloatingFocusManager>
+                  )}
+                </FloatingPortal>
+                <span tabIndex={0} data-testid="last" />
+              </>
+            );
+          }
+
+          render(<App />);
+
+          await userEvent.click(screen.getByTestId('reference'));
+          await flushMicrotasks();
+
+          expect(screen.getByTestId('inside')).toHaveFocus();
+
+          await userEvent.tab({ shift });
+
+          expect(screen.getByTestId(expected)).toHaveFocus();
+        },
+      );
+
       test('does not mark reference siblings due to outside focus guards', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -2253,6 +2307,72 @@ describe('FloatingFocusManager', () => {
         await userEvent.unhover(screen.getByText('Product'));
         expect(screen.queryByTestId('subnavigation')).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe('prop: closeOnFocusOut', () => {
+    // The floating element stays mounted after it closes, as a popup does during its exit
+    // animation or after `preventUnmountOnClose()`.
+    function KeptMountedApp(props: { onOpenChange: (open: boolean, reason: string) => void }) {
+      const [open, setOpen] = React.useState(true);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange(nextOpen, eventDetails) {
+          props.onOpenChange(nextOpen, eventDetails.reason);
+          setOpen(nextOpen);
+        },
+      });
+
+      return (
+        <>
+          <FloatingFocusManager
+            store={context.rootStore}
+            modal={false}
+            initialFocus={false}
+            closeOnFocusOut
+          >
+            <div
+              role="dialog"
+              ref={refs.setFloating}
+              data-testid="floating"
+              data-open={String(open)}
+            />
+          </FloatingFocusManager>
+          <button data-testid="close" onClick={() => setOpen(false)}>
+            close
+          </button>
+          <button data-testid="reference" ref={refs.setReference} />
+          <button data-testid="last" />
+        </>
+      );
+    }
+
+    test.each([
+      {
+        name: 'closes the floating element while it is open',
+        closeFirst: false,
+        expectedCalls: [[false, 'focus-out']],
+      },
+      {
+        name: 'does not close again a floating element that already closed',
+        closeFirst: true,
+        expectedCalls: [],
+      },
+    ])('focus leaving the reference $name', async ({ closeFirst, expectedCalls }) => {
+      const handleOpenChange = vi.fn();
+      render(<KeptMountedApp onOpenChange={handleOpenChange} />);
+
+      if (closeFirst) {
+        fireEvent.click(screen.getByTestId('close'));
+      }
+      expect(screen.getByTestId('floating')).toHaveAttribute('data-open', String(!closeFirst));
+
+      act(() => screen.getByTestId('reference').focus());
+      await userEvent.tab();
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('last')).toHaveFocus();
+      expect(handleOpenChange.mock.calls).toEqual(expectedCalls);
     });
   });
 

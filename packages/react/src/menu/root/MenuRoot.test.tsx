@@ -46,6 +46,71 @@ describe('<Menu.Root />', () => {
 
   const { render } = createRenderer();
 
+  describe('closing before the popup attaches', () => {
+    it('unmounts the popup when a layout effect closes it on mount', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        useIsoLayoutEffect(() => {
+          setOpen(false);
+        }, []);
+        return (
+          <Menu.Root open={open} onOpenChange={setOpen} onOpenChangeComplete={onOpenChangeComplete}>
+            <Menu.Trigger data-testid="trigger">Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Apple</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      await render(<App />);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('menu', { hidden: true })).toBe(null);
+    });
+
+    it('unmounts the popup when a layout effect closes it right after a press opens it', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        useIsoLayoutEffect(() => {
+          if (open) {
+            setOpen(false);
+          }
+        }, [open]);
+        return (
+          <Menu.Root open={open} onOpenChange={setOpen} onOpenChangeComplete={onOpenChangeComplete}>
+            <Menu.Trigger data-testid="trigger">Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Apple</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('menu', { hidden: true })).toBe(null);
+    });
+  });
+
   it('returns focus on Escape after a controlled root ignores a Shift+Tab close', async () => {
     function TestMenu() {
       const [open, setOpen] = React.useState(false);
@@ -2425,6 +2490,26 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('cancels a pending hover open when the `close` action is called', async () => {
+        const handleOpenChange = vi.fn();
+        const actionsRef = React.createRef<Menu.Root.Actions>();
+        await render(
+          <TestMenu
+            rootProps={{ actionsRef, onOpenChange: handleOpenChange }}
+            triggerProps={{ openOnHover: true, delay: 100 }}
+          />,
+        );
+
+        enterWithMouse(screen.getByRole('button', { name: 'Toggle' }));
+        await act(async () => {
+          actionsRef.current!.close();
+          await wait(200);
+        });
+
+        expect(handleOpenChange).not.toHaveBeenCalled();
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
       it('opens the submenu on hover with zero delay', async () => {
         await render(
           <ContainedTriggerMenu
@@ -4091,7 +4176,162 @@ describe('<Menu.Root />', () => {
     });
   });
 
+  describe('sibling submenus', () => {
+    it('keeps a pending hover open on a closed, kept-mounted submenu when a sibling opens', async () => {
+      const handleSecondOpenChange = vi.fn();
+      const openFirstRef: { current: (() => void) | null } = { current: null };
+
+      function App() {
+        const [firstOpen, setFirstOpen] = React.useState(false);
+        openFirstRef.current = () => setFirstOpen(true);
+        return (
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.SubmenuRoot open={firstOpen} onOpenChange={setFirstOpen}>
+                    <Menu.SubmenuTrigger>First</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="first-popup">
+                          <Menu.Item>First item</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                  <Menu.SubmenuRoot onOpenChange={handleSecondOpenChange}>
+                    <Menu.SubmenuTrigger delay={100}>Second</Menu.SubmenuTrigger>
+                    <Menu.Portal keepMounted>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="second-popup">
+                          <Menu.Item>Second item</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      await render(<App />);
+      expect(screen.getByTestId('second-popup')).not.toHaveAttribute('data-open');
+      expect(screen.queryByTestId('first-popup')).toBe(null);
+
+      // Fake timers keep the second submenu's open delay from ending before the first one opens.
+      vi.useFakeTimers();
+      try {
+        enterWithMouse(screen.getByRole('menuitem', { name: 'Second' }));
+        await act(async () => {
+          openFirstRef.current!();
+        });
+        expect(screen.getByTestId('first-popup')).not.toBe(null);
+        expect(handleSecondOpenChange).not.toHaveBeenCalled();
+
+        await act(async () => {
+          vi.advanceTimersByTime(200);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+
+      expect(handleSecondOpenChange).toHaveBeenCalledWith(true, expect.anything());
+      expect(screen.getByTestId('second-popup')).toHaveAttribute('data-open');
+    });
+  });
+
   describe('open change requests', () => {
+    it('reports a close after the parent declined a hover open without canceling it', async () => {
+      const handleOpenChange = vi.fn();
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <Menu.Root
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              handleOpenChange(nextOpen, eventDetails.reason);
+              if (eventDetails.reason !== REASONS.triggerHover) {
+                setOpen(nextOpen);
+              }
+            }}
+          >
+            <Menu.Trigger openOnHover delay={0}>
+              Toggle
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+      await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      enterWithMouse(trigger);
+      await waitFor(() => {
+        expect(handleOpenChange).toHaveBeenCalledWith(true, REASONS.triggerHover);
+      });
+      expect(screen.queryByRole('menu')).toBe(null);
+      moveMouse(trigger, document.body);
+
+      // The store can't tell a declined open from one the parent applies later, so the close is
+      // reported.
+      await waitFor(() => {
+        expect(handleOpenChange).toHaveBeenLastCalledWith(false, REASONS.triggerHover);
+      });
+    });
+
+    it('does not report a close after the parent canceled a hover open', async () => {
+      const handleOpenChange = vi.fn();
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <Menu.Root
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              handleOpenChange(nextOpen, eventDetails.reason);
+              if (eventDetails.reason === REASONS.triggerHover) {
+                eventDetails.cancel();
+              } else {
+                setOpen(nextOpen);
+              }
+            }}
+          >
+            <Menu.Trigger openOnHover delay={0}>
+              Toggle
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+      await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      enterWithMouse(trigger);
+      await waitFor(() => {
+        expect(handleOpenChange).toHaveBeenCalledWith(true, REASONS.triggerHover);
+      });
+      moveMouse(trigger, document.body);
+      await act(async () => {
+        await wait(100);
+      });
+
+      expect(handleOpenChange.mock.calls).toEqual([[true, REASONS.triggerHover]]);
+    });
+
     it('reports two identical requests made in one tick twice', async () => {
       const handle = Menu.createHandle();
       const onOpenChange = vi.fn();

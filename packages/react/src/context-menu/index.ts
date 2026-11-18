@@ -75,6 +75,7 @@ export * as ContextMenuItemDataAttributes from '../menu/item/MenuItemDataAttribu
 export * as ContextMenuCheckboxItemDataAttributes from '../menu/checkbox-item/MenuCheckboxItemDataAttributes';
 export * as ContextMenuCheckboxItemIndicatorDataAttributes from '../menu/checkbox-item-indicator/MenuCheckboxItemIndicatorDataAttributes';
 export * as ContextMenuLinkItemDataAttributes from '../menu/link-item/MenuLinkItemDataAttributes';
+export * as ContextMenuRadioGroupDataAttributes from '../menu/radio-group/MenuRadioGroupDataAttributes';
 export * as ContextMenuRadioItemDataAttributes from '../menu/radio-item/MenuRadioItemDataAttributes';
 export * as ContextMenuRadioItemIndicatorDataAttributes from '../menu/radio-item-indicator/MenuRadioItemIndicatorDataAttributes';
 export * as ContextMenuSubmenuTriggerDataAttributes from '../menu/submenu-trigger/MenuSubmenuTriggerDataAttributes';

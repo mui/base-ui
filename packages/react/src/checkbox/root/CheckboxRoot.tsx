@@ -4,7 +4,7 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
 import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
@@ -34,6 +34,7 @@ import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -205,7 +206,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       id: nativeButton ? undefined : controlId,
       required,
       ref: mergedInputRef,
-      style: name ? visuallyHiddenInput : visuallyHidden,
+      style: name ? visuallyHiddenInput : visuallyHiddenInputPinned,
+      onInvalid: handleHiddenInputInvalid,
       tabIndex: -1,
       type: 'checkbox',
       'aria-hidden': true,

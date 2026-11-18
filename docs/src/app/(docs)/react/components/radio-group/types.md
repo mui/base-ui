@@ -208,7 +208,12 @@ type RadioGroupChangeEventDetails = {
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -427,3 +432,11 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `RadioGroup.Props` (`RadioGroup`): `RadioGroupProps`
 - `RadioGroup.ChangeEventReason` (`RadioGroup`): `RadioGroupChangeEventReason`
 - `RadioGroup.ChangeEventDetails` (`RadioGroup`): `RadioGroupChangeEventDetails`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>
