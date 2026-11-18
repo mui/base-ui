@@ -1593,90 +1593,66 @@ describe('<NavigationMenu.Root />', () => {
   });
 
   describe('patient click threshold', () => {
-    it('stays open if hovered then clicked within the patient threshold', async () => {
+    it.each([
+      { name: 'initial hover, immediate click', switchItem: false, elapsed: 0, staysOpen: true },
+      {
+        name: 'initial hover, expired threshold',
+        switchItem: false,
+        elapsed: PATIENT_CLICK_THRESHOLD,
+        staysOpen: false,
+      },
+      { name: 'hover switch, immediate click', switchItem: true, elapsed: 0, staysOpen: true },
+      {
+        name: 'hover switch, expired threshold',
+        switchItem: true,
+        elapsed: PATIENT_CLICK_THRESHOLD,
+        staysOpen: false,
+      },
+    ])('$name', async ({ switchItem, elapsed, staysOpen }) => {
+      const timer: Readonly<typeof clock> = clock;
       await render(<TestNavigationMenu />);
-      const trigger = screen.getByTestId('trigger-1');
+      const initialTrigger = screen.getByTestId('trigger-1');
+      const trigger = screen.getByTestId(switchItem ? 'trigger-2' : 'trigger-1');
+      const popupId = switchItem ? 'popup-2' : 'popup-1';
 
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-      clock.tick(OPEN_DELAY);
+      if (switchItem) {
+        fireEvent.click(initialTrigger);
+        await flushMicrotasks();
+      } else {
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        timer.tick(OPEN_DELAY);
+      }
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      const initialPopup = screen.queryByTestId('popup-1');
+      expect(initialPopup).not.toBe(null);
+      expect(initialTrigger).toHaveAttribute('aria-expanded', 'true');
+      if (switchItem) {
+        fireEvent.mouseEnter(trigger);
+        await flushMicrotasks();
+      }
+
+      const openedPopup = screen.queryByTestId(popupId);
+      expect(openedPopup).not.toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      timer.tick(elapsed);
 
       fireEvent.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    });
+      const remainsOpen = screen.queryByTestId(popupId) !== null;
+      const expanded = String(staysOpen);
+      expect(remainsOpen).toBe(staysOpen);
+      expect(trigger).toHaveAttribute('aria-expanded', expanded);
 
-    it('closes if hovered then clicked after the patient threshold', async () => {
-      await render(<TestNavigationMenu />);
-      const trigger = screen.getByTestId('trigger-1');
-
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-      clock.tick(OPEN_DELAY);
-      await flushMicrotasks();
-
-      expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
-      clock.tick(PATIENT_CLICK_THRESHOLD);
-
-      fireEvent.click(trigger);
-      await flushMicrotasks();
-
-      expect(screen.queryByTestId('popup-1')).toBe(null);
+      if (staysOpen) {
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+      }
+      const closedPopup = screen.queryByTestId(popupId);
+      expect(closedPopup).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    });
-
-    it('stays open if clicked within the patient threshold after a hover switch', async () => {
-      await render(<TestNavigationMenu />);
-      const trigger1 = screen.getByTestId('trigger-1');
-      const trigger2 = screen.getByTestId('trigger-2');
-
-      fireEvent.click(trigger1);
-      await flushMicrotasks();
-
-      expect(screen.queryByTestId('popup-1')).not.toBe(null);
-
-      fireEvent.mouseEnter(trigger2);
-      await flushMicrotasks();
-
-      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
-
-      fireEvent.click(trigger2);
-      await flushMicrotasks();
-
-      expect(screen.queryByTestId('popup-2')).not.toBe(null);
-      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
-    });
-
-    it('closes if clicked after the patient threshold after a hover switch', async () => {
-      await render(<TestNavigationMenu />);
-      const trigger1 = screen.getByTestId('trigger-1');
-      const trigger2 = screen.getByTestId('trigger-2');
-
-      fireEvent.click(trigger1);
-      await flushMicrotasks();
-
-      expect(screen.queryByTestId('popup-1')).not.toBe(null);
-
-      fireEvent.mouseEnter(trigger2);
-      await flushMicrotasks();
-
-      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
-
-      clock.tick(PATIENT_CLICK_THRESHOLD);
-
-      fireEvent.click(trigger2);
-      await flushMicrotasks();
-
-      expect(screen.queryByTestId('popup-2')).toBe(null);
-      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
   });
 
