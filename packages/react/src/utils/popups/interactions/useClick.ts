@@ -17,6 +17,8 @@ export interface UseClickProps {
    * @default true
    */
   enabled?: boolean | undefined;
+  /** Complete a deferred mousedown press on click, without waiting for the next frame. */
+  flushPendingOnClick?: boolean | undefined;
   /**
    * The type of event to use to determine a “click” with mouse input.
    * Keyboard clicks work as normal.
@@ -60,6 +62,7 @@ export interface UseClickProps {
 export function useClick(store: PopupInteractionStore, props: UseClickProps = {}): ElementProps {
   const {
     enabled = true,
+    flushPendingOnClick = false,
     event: eventOption = 'click',
     toggle = true,
     ignoreMouse = false,
@@ -72,6 +75,7 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch' | 'virtual'>(undefined);
   const frame = useAnimationFrame();
+  const pendingPressRef = React.useRef<(() => void) | null>(null);
   const touchOpenTimeout = useTimeout();
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
@@ -185,9 +189,12 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
 
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
-        frame.request(() => {
+        const applyPress = () => {
+          pendingPressRef.current = null;
           setOpenWithTouchDelay(nextOpen, nativeEvent, eventCurrentTarget, pointerType);
-        });
+        };
+        pendingPressRef.current = applyPress;
+        frame.request(applyPress);
       },
       onClick(event) {
         if (eventOption === 'mousedown-only') {
@@ -198,6 +205,12 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
 
         if (eventOption === 'mousedown' && pointerType) {
           pointerTypeRef.current = undefined;
+          // The mousedown default action has focused the trigger by the time click fires.
+          // Do not leave a completed press waiting for a frame while keyboard input arrives.
+          if (flushPendingOnClick && pendingPressRef.current) {
+            frame.cancel();
+            pendingPressRef.current();
+          }
           return;
         }
 
@@ -228,6 +241,7 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
     };
   }, [
     storeContext,
+    flushPendingOnClick,
     eventOption,
     ignoreMouse,
     reason,
