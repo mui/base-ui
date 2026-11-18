@@ -10,6 +10,7 @@ import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/v
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { getOverflowAncestors } from '@floating-ui/react-dom';
 import type { ElementProps } from '../../utils/popups/types';
@@ -247,6 +248,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const focusInsidePopupOnCloseRef = React.useRef(false);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const hiddenInputElementRef = React.useRef<HTMLInputElement | null>(null);
   const startDismissRef = React.useRef<HTMLSpanElement | null>(null);
@@ -416,6 +418,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           popupRef,
           emptyRef,
           inputRef,
+          focusInsidePopupOnCloseRef,
           startDismissRef,
           endDismissRef,
           chipsContainerRef,
@@ -428,6 +431,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       ),
     animatedPopupRef,
   );
+
+  // Read in the commit that closes the popup: its content is still mounted, so focus inside it
+  // hasn't been lost yet. The popup's own `open` comes from the store, which can receive a
+  // controlled `open` prop after the content has already unmounted.
+  useIsoLayoutEffect(() => {
+    const popupElement = popupRef.current;
+    focusInsidePopupOnCloseRef.current =
+      !open && contains(popupElement, activeElement(ownerDocument(popupElement)));
+  }, [open]);
 
   const isGrouped = isGroupedItems(items);
   const query = !open && closeQuery !== null ? closeQuery : String(inputValue).trim();

@@ -111,7 +111,12 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   if (finalFocus != null) {
     resolvedFinalFocus = finalFocus;
   } else {
-    resolvedFinalFocus = inputInsidePopup ? undefined : false;
+    // With the input outside the popup, focus normally stays on the input while the popup is open.
+    // Return it only when it moved inside the popup (for example, by tabbing to a button there),
+    // so it doesn't fall to <body> when the popup content unmounts.
+    resolvedFinalFocus = inputInsidePopup
+      ? undefined
+      : () => (store.context.focusInsidePopupOnCloseRef.current ? inputElement : false);
   }
 
   const focusManagerModal = !inputInsidePopup || modal;
@@ -124,6 +129,8 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
+      // The internal default must not pull back focus that has since moved outside the popup.
+      explicitReturnFocus={finalFocus == null ? false : undefined}
       getInsideElements={() => [
         store.context.startDismissRef.current,
         store.context.endDismissRef.current,
