@@ -29,7 +29,9 @@ import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-f
 
 <PasswordField.Root>
   <PasswordField.Input />
-  <PasswordField.Toggle />
+  <PasswordField.Toggle>
+    <PasswordField.Indicator />
+  </PasswordField.Toggle>
 </PasswordField.Root>;
 ```
 
@@ -42,21 +44,34 @@ toggle share: the visibility, `disabled`, and the input's `id`.
 ### Toggle icon
 
 The toggle button's `aria-pressed` state reflects whether the password is revealed, so keep the
-`aria-label` constant and read the `pressed` state to swap the icon.
+`aria-label` constant and swap the icon with `<PasswordField.Indicator>`. Its `match` prop sets the
+visibility it renders for: `'visible'` (the default) while the password is revealed, or `'hidden'`
+while it is masked.
 
 ```tsx title="Swapping the icon based on state"
-<PasswordField.Toggle
-  aria-label="Show password"
-  render={(props, state) => (
-    <button type="button" {...props}>
-      {state.pressed ? <EyeOffIcon /> : <EyeIcon />}
-    </button>
-  )}
-/>
+<PasswordField.Toggle aria-label="Show password">
+  <PasswordField.Indicator match="hidden">
+    <EyeOffIcon />
+  </PasswordField.Indicator>
+  <PasswordField.Indicator match="visible">
+    <EyeIcon />
+  </PasswordField.Indicator>
+</PasswordField.Toggle>
 ```
 
-Alternatively, render both icons as children and show one of them in CSS with the toggle's
-`[data-pressed]` attribute.
+Indicators unmount while they don't apply, and support `[data-starting-style]` and
+`[data-ending-style]` for animations. Use `keepMounted` to keep both in the DOM and style them with
+the `[data-visible]` attribute instead.
+
+### Styled indicator
+
+An indicator can sit anywhere inside `<PasswordField.Root>`, not just in the toggle. With
+`keepMounted`, it stays in the DOM in both states, so its `[data-visible]` attribute can drive a
+richer animation. Here, a character covers its eyes while the password is masked.
+
+import { DemoPasswordFieldCharacter } from './demos/character';
+
+<DemoPasswordFieldCharacter />
 
 ### Form integration
 
@@ -83,7 +98,12 @@ Both call `onVisibleChange` with the `'form-submit'` or `'form-reset'` reason, w
   <PasswordField.Root>
     <PasswordField.Input required />
     <PasswordField.Toggle aria-label="Show password">
-      <EyeIcon />
+      <PasswordField.Indicator match="hidden">
+        <EyeOffIcon />
+      </PasswordField.Indicator>
+      <PasswordField.Indicator match="visible">
+        <EyeIcon />
+      </PasswordField.Indicator>
     </PasswordField.Toggle>
   </PasswordField.Root>
   <Field.Error />
@@ -105,6 +125,10 @@ import { TypesPasswordField } from './types';
 ### Toggle
 
 <TypesPasswordField.Toggle />
+
+### Indicator
+
+<TypesPasswordField.Indicator />
 
 export const metadata = {
   keywords: [

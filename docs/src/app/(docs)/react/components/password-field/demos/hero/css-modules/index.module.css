@@ -90,10 +90,9 @@
 
 .Toggle {
   box-sizing: border-box;
-  display: flex;
+  display: grid;
   flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
+  place-items: center;
   height: 100%;
   aspect-ratio: 1;
   padding: 0;
@@ -131,4 +130,9 @@
       outline-color: white;
     }
   }
+}
+
+/* Stacks the two indicators so they share one spot while one replaces the other. */
+.Indicator {
+  grid-area: 1 / 1;
 }
