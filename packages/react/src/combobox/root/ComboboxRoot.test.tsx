@@ -1095,13 +1095,9 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'highlights the new selection when a press reopens single-select during the close animation',
-      async ({ onTestFinished }) => {
+      'highlights the new selection when an inline picker reopens during the Dialog close animation',
+      async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        onTestFinished(() => {
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-        });
 
         // Long enough that a slow run still reopens before the close finishes.
         const style = `
@@ -1118,21 +1114,26 @@ describe('<Combobox.Root />', () => {
 
         const onValueChange = vi.fn();
 
-        const { user } = await render(
-          <React.Fragment>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            {/* `highlightItemOnHover={false}` reproduces a touch tap: a press selects an item
-                without the highlight ever moving onto it. */}
+        function Picker() {
+          const [open, setOpen] = React.useState(false);
+          return (
             <Combobox.Root
               items={['Apple', 'Banana']}
+              defaultValue="Apple"
+              inline
+              open={open}
+              onOpenChange={setOpen}
               highlightItemOnHover={false}
               onValueChange={onValueChange}
             >
-              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-              <Combobox.Portal>
-                <Combobox.Positioner>
-                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
+              <Dialog.Root open={open} onOpenChange={setOpen}>
+                <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Popup
+                    data-testid="popup"
+                    className="animation-test-popup"
+                    aria-label="Fruit"
+                  >
                     <Combobox.Input data-testid="input" />
                     <Combobox.List>
                       {(item: string) => (
@@ -1141,24 +1142,32 @@ describe('<Combobox.Root />', () => {
                         </Combobox.Item>
                       )}
                     </Combobox.List>
-                  </Combobox.Popup>
-                </Combobox.Positioner>
-              </Combobox.Portal>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
             </Combobox.Root>
+          );
+        }
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Picker />
           </React.Fragment>,
         );
 
         const trigger = screen.getByTestId('trigger');
 
-        // Select Apple so it is the current value and the open-time highlight anchor.
         await user.click(trigger);
         const input = await screen.findByTestId('input');
-        await user.click(await screen.findByRole('option', { name: 'Apple' }));
+        const apple = screen.getByRole('option', { name: 'Apple' });
+        await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
 
-        // Reopen and select Banana; the drawer/popup starts its close animation.
-        await user.click(trigger);
-        await user.click(await screen.findByRole('option', { name: 'Banana' }));
-        expect(onValueChange).toHaveBeenLastCalledWith('Banana', expect.anything());
+        const pressedBanana = screen.getByRole('option', { name: 'Banana' });
+        await user.click(pressedBanana);
+        const selectionEvent: unknown = expect.anything();
+        expect(onValueChange).toHaveBeenLastCalledWith('Banana', selectionEvent);
 
         const popup = screen.getByTestId('popup');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
@@ -1171,13 +1180,15 @@ describe('<Combobox.Root />', () => {
         // Enter cannot silently recommit the item the user just replaced.
         const banana = screen.getByRole('option', { name: 'Banana' });
         await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
-        expect(screen.getByRole('option', { name: 'Apple' })).not.toHaveAttribute(
-          'data-highlighted',
-        );
+        const reopenedApple = screen.getByRole('option', { name: 'Apple' });
+        expect(reopenedApple).not.toHaveAttribute('data-highlighted');
         expect(input).toHaveAttribute('aria-activedescendant', banana.id);
 
+        expect(input).toHaveFocus();
+        onValueChange.mockClear();
         await user.keyboard('{Enter}');
-        expect(onValueChange).toHaveBeenLastCalledWith('Banana', expect.anything());
+        expect(onValueChange).toHaveBeenCalledTimes(1);
+        expect(onValueChange).toHaveBeenLastCalledWith('Banana', selectionEvent);
       },
     );
   });
