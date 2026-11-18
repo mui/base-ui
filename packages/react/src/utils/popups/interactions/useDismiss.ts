@@ -162,7 +162,8 @@ export function useDismiss(
   // gesture (e.g. the drag-release that opened it), not a new outside press.
   const sawPressWhileOpenRef = React.useRef(false);
   const compositionEndPendingRef = React.useRef(false);
-  const trailingEscapeRef = React.useRef<'composing' | 'expected' | KeyboardEvent | null>(null);
+  // A composing Escape keydown not yet followed by `compositionend`.
+  const composingEscapeRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   const touchStateRef = React.useRef<{
@@ -226,21 +227,14 @@ export function useDismiss(
       const isImeKey = native.keyCode === 229;
 
       if (native.isComposing) {
-        trailingEscapeRef.current = 'composing';
-      } else if (trailingEscapeRef.current === 'expected') {
-        trailingEscapeRef.current = native;
+        composingEscapeRef.current = true;
       }
 
       // Wait until IME is settled. Pressing `Escape` while composing should
-      // close the compose menu, but not the floating element. The refs cover Safari, which fires
-      // `compositionend` before `keydown`, and the non-composing Escape that Chrome and Firefox on
-      // macOS send after `compositionend`; the native event identifies an active composition.
-      if (
-        compositionEndPendingRef.current ||
-        trailingEscapeRef.current === native ||
-        native.isComposing ||
-        isImeKey
-      ) {
+      // close the compose menu, but not the floating element. The pending ref covers the keydown
+      // that follows `compositionend` (see `handleCompositionEnd`); the native event identifies an
+      // active composition.
+      if (compositionEndPendingRef.current || native.isComposing || isImeKey) {
         return;
       }
 
@@ -341,7 +335,7 @@ export function useDismiss(
       if (!open) {
         sawPressWhileOpenRef.current = false;
         compositionEndPendingRef.current = false;
-        trailingEscapeRef.current = null;
+        composingEscapeRef.current = false;
         currentPointerTypeRef.current = '';
         touchStateRef.current = null;
       }
@@ -355,18 +349,18 @@ export function useDismiss(
     const doc = ownerDocument(positionerElement);
 
     function handleCompositionEnd() {
-      if (!platform.engine.webkit) {
-        if (trailingEscapeRef.current === 'composing') {
-          trailingEscapeRef.current = 'expected';
-        }
+      // Safari fires `compositionend` before the `keydown` that ends the composition, so open
+      // this bounded window even when the composition began while the popup was closed.
+      // https://bugs.webkit.org/show_bug.cgi?id=165004
+      // Elsewhere, only after a composing Escape: Chrome and Firefox on macOS send that Escape
+      // again as a non-composing keydown (Chrome after a fake `keyup`) right after `compositionend`.
+      if (!platform.engine.webkit && !composingEscapeRef.current) {
         return;
       }
-      // Safari fires `compositionend` before `keydown`, so we need to wait
-      // until the next tick before dismissing. Open this bounded window on compositionend
-      // even when the composition began while the popup was closed.
-      // https://bugs.webkit.org/show_bug.cgi?id=165004
+      composingEscapeRef.current = false;
       compositionEndPendingRef.current = true;
-      // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
+      // 0ms or 1ms don't work in Safari. 5ms appears to consistently work, and leaves room for
+      // Chrome's queued keyup and keydown.
       compositionTimeout.start(5, () => {
         compositionEndPendingRef.current = false;
       });
@@ -769,11 +763,6 @@ export function useDismiss(
           addEventListener(doc, 'keydown', (event) => {
             if (layer >= (escapeLayers.get(event) ?? 0)) {
               closeOnEscapeKeyDown(event);
-            }
-          }),
-          addEventListener(doc, 'keyup', (event) => {
-            if (event.key === 'Escape') {
-              trailingEscapeRef.current = null;
             }
           }),
           addEventListener(doc, 'compositionend', handleCompositionEnd),

@@ -1,6 +1,6 @@
 import { vi, expect, describe, test } from 'vitest';
 import * as React from 'react';
-import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useDismiss } from './useDismiss';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
@@ -48,5 +48,22 @@ describe.skipIf(!isJSDOM)('useDismiss in WebKit', () => {
     fireEvent.keyDown(document.body, { key: 'Escape' });
     await flushMicrotasks();
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
+  });
+
+  test('dismisses with escape key once the compositionend window ends', async () => {
+    render(<PersistentDismiss />);
+
+    fireEvent.compositionEnd(document.body);
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 5);
+      });
+    });
+
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 });

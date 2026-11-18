@@ -168,7 +168,11 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.compositionStart(textbox);
       fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true });
       fireEvent.compositionEnd(textbox);
-      fireEvent.keyUp(textbox, { key: 'Escape' });
+
+      // Wait for the window that `compositionend` opens after a composing Escape
+      await new Promise((resolve) => {
+        setTimeout(resolve, 5);
+      });
 
       expect(onClose).toHaveBeenCalledTimes(0);
 
@@ -177,7 +181,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    test('does not dismiss with the escape key sent after the composing one on macOS', async () => {
+    test('does not dismiss with the escape key re-sent after compositionend on macOS', async () => {
       const onClose = vi.fn();
 
       render(<App onClose={onClose} escapeKey />);
@@ -188,10 +192,12 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         textbox.focus();
       });
 
+      // Chrome's order when Escape ends a dead-key composition; the keyup balances the 229 keydown.
       fireEvent.compositionStart(textbox);
-      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true });
+      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true, keyCode: 229 });
       fireEvent.compositionEnd(textbox);
-      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: false });
+      fireEvent.keyUp(textbox, { key: 'Escape', keyCode: 27 });
+      fireEvent.keyDown(textbox, { key: 'Escape', keyCode: 27 });
 
       expect(onClose).toHaveBeenCalledTimes(0);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
