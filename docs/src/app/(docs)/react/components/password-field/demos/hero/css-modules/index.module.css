@@ -132,7 +132,23 @@
   }
 }
 
-/* Stacks the two indicators so they share one spot while one replaces the other. */
 .Indicator {
-  grid-area: 1 / 1;
+  display: block;
+}
+
+.Icon {
+  display: block;
+}
+
+/* Lifts the shackle out of the lock body while the password is visible. */
+.Shackle {
+  transition: transform 150ms;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  .Indicator[data-visible] & {
+    transform: translateY(-2px);
+  }
 }

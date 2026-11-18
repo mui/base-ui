@@ -9,7 +9,7 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
 
-const stateAttributesMapping: StateAttributesMapping<PasswordFieldIndicatorState> = {
+const stateAttributesMapping: StateAttributesMapping<PasswordFieldToggleIndicatorState> = {
   ...transitionStatusMapping,
 };
 
@@ -19,8 +19,8 @@ const stateAttributesMapping: StateAttributesMapping<PasswordFieldIndicatorState
  *
  * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)
  */
-export const PasswordFieldIndicator = React.forwardRef(function PasswordFieldIndicator(
-  componentProps: PasswordFieldIndicator.Props,
+export const PasswordFieldToggleIndicator = React.forwardRef(function PasswordFieldToggleIndicator(
+  componentProps: PasswordFieldToggleIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
@@ -52,7 +52,7 @@ export const PasswordFieldIndicator = React.forwardRef(function PasswordFieldInd
     },
   });
 
-  const state: PasswordFieldIndicator.State = { visible, disabled, transitionStatus };
+  const state: PasswordFieldToggleIndicator.State = { visible, disabled, transitionStatus };
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, indicatorRef],
@@ -68,7 +68,7 @@ export const PasswordFieldIndicator = React.forwardRef(function PasswordFieldInd
   return element;
 });
 
-export interface PasswordFieldIndicatorState {
+export interface PasswordFieldToggleIndicatorState {
   /**
    * Whether the password is currently revealed as plain text.
    */
@@ -83,17 +83,17 @@ export interface PasswordFieldIndicatorState {
   transitionStatus: TransitionStatus;
 }
 
-export interface PasswordFieldIndicatorProps extends BaseUIComponentProps<
+export interface PasswordFieldToggleIndicatorProps extends BaseUIComponentProps<
   'span',
-  PasswordFieldIndicatorState
+  PasswordFieldToggleIndicatorState
 > {
   /**
-   * The visibility the indicator renders for.
-   * Use `'visible'` for the icon shown while the password is revealed, and `'hidden'` for the
+   * The mode the indicator renders in.
+   * Use `'visible'` for the icon shown while the password is revealed, and `'masked'` for the
    * icon shown while it is masked.
    * @default 'visible'
    */
-  match?: 'visible' | 'hidden' | undefined;
+  match?: 'visible' | 'masked' | undefined;
   /**
    * Whether to keep the element in the DOM while it doesn't apply.
    * @default false
@@ -101,7 +101,7 @@ export interface PasswordFieldIndicatorProps extends BaseUIComponentProps<
   keepMounted?: boolean | undefined;
 }
 
-export namespace PasswordFieldIndicator {
-  export type State = PasswordFieldIndicatorState;
-  export type Props = PasswordFieldIndicatorProps;
+export namespace PasswordFieldToggleIndicator {
+  export type State = PasswordFieldToggleIndicatorState;
+  export type Props = PasswordFieldToggleIndicatorProps;
 }

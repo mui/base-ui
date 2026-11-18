@@ -4,10 +4,10 @@ import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
-describe('<PasswordField.Indicator />', () => {
+describe('<PasswordField.ToggleIndicator />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<PasswordField.Indicator keepMounted />, () => ({
+  describeConformance(<PasswordField.ToggleIndicator keepMounted />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<PasswordField.Root>{node}</PasswordField.Root>);
@@ -17,7 +17,7 @@ describe('<PasswordField.Indicator />', () => {
   it('is hidden from assistive technology', async () => {
     await render(
       <PasswordField.Root defaultVisible>
-        <PasswordField.Indicator data-testid="indicator" />
+        <PasswordField.ToggleIndicator data-testid="indicator" />
       </PasswordField.Root>,
     );
 
@@ -28,7 +28,7 @@ describe('<PasswordField.Indicator />', () => {
     const { user } = await render(
       <PasswordField.Root>
         <PasswordField.Toggle />
-        <PasswordField.Indicator data-testid="indicator" keepMounted />
+        <PasswordField.ToggleIndicator data-testid="indicator" keepMounted />
       </PasswordField.Root>,
     );
 
@@ -43,12 +43,12 @@ describe('<PasswordField.Indicator />', () => {
     it.each([
       { name: 'visible (default)', match: undefined, initiallyRendered: false },
       { name: 'visible', match: 'visible' as const, initiallyRendered: false },
-      { name: 'hidden', match: 'hidden' as const, initiallyRendered: true },
+      { name: 'masked', match: 'masked' as const, initiallyRendered: true },
     ])('renders only while the password is $name', async ({ match, initiallyRendered }) => {
       const { user } = await render(
         <PasswordField.Root>
           <PasswordField.Toggle />
-          <PasswordField.Indicator data-testid="indicator" match={match} />
+          <PasswordField.ToggleIndicator data-testid="indicator" match={match} />
         </PasswordField.Root>,
       );
 
@@ -65,8 +65,8 @@ describe('<PasswordField.Indicator />', () => {
       const { user } = await render(
         <PasswordField.Root>
           <PasswordField.Toggle>
-            <PasswordField.Indicator match="hidden">show</PasswordField.Indicator>
-            <PasswordField.Indicator match="visible">hide</PasswordField.Indicator>
+            <PasswordField.ToggleIndicator match="masked">show</PasswordField.ToggleIndicator>
+            <PasswordField.ToggleIndicator match="visible">hide</PasswordField.ToggleIndicator>
           </PasswordField.Toggle>
         </PasswordField.Root>,
       );
@@ -83,7 +83,7 @@ describe('<PasswordField.Indicator />', () => {
     it('keeps the element in the DOM while it does not apply', async () => {
       await render(
         <PasswordField.Root>
-          <PasswordField.Indicator data-testid="indicator" keepMounted />
+          <PasswordField.ToggleIndicator data-testid="indicator" keepMounted />
         </PasswordField.Root>,
       );
 
@@ -117,7 +117,10 @@ describe('<PasswordField.Indicator />', () => {
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <PasswordField.Root defaultVisible>
             <PasswordField.Toggle />
-            <PasswordField.Indicator className="animation-test-indicator" data-testid="indicator" />
+            <PasswordField.ToggleIndicator
+              className="animation-test-indicator"
+              data-testid="indicator"
+            />
           </PasswordField.Root>
         </div>,
       );
