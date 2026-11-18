@@ -19,13 +19,15 @@ export default function ExamplePasswordField() {
         />
         <PasswordField.Toggle
           aria-label="Show password"
-          className="flex h-full aspect-square shrink-0 items-center justify-center rounded-none border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
-          render={(props, state) => (
-            <button type="button" {...props}>
-              {state.pressed ? <EyeOffIcon /> : <EyeIcon />}
-            </button>
-          )}
-        />
+          className="grid h-full aspect-square shrink-0 place-items-center rounded-none *:[grid-area:1/1] border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
+        >
+          <PasswordField.Indicator match="hidden">
+            <EyeOffIcon />
+          </PasswordField.Indicator>
+          <PasswordField.Indicator match="visible">
+            <EyeIcon />
+          </PasswordField.Indicator>
+        </PasswordField.Toggle>
       </PasswordField.Root>
     </div>
   );

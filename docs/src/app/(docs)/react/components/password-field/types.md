@@ -176,6 +176,47 @@ type PasswordFieldPreviewInputChangeEventDetails = {
 };
 ```
 
+### Indicator
+
+Indicates whether the password is revealed or hidden.
+Renders a `<span>` element.
+
+**Indicator Props:**
+
+| Prop        | Type                                                                                                | Default     | Description                                                                                                                                                                                   |
+| :---------- | :-------------------------------------------------------------------------------------------------- | :---------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| match       | `'visible' \| 'hidden'`                                                                             | `'visible'` | The visibility the indicator renders for.&#xA;Use `'visible'` for the icon shown while the password is revealed, and `'hidden'` for the&#xA;icon shown while it is masked.                    |
+| className   | `string \| ((state: PasswordFieldIndicatorState) => string \| undefined)`                           | -           | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: PasswordFieldIndicatorState) => React.CSSProperties \| undefined)` | -           | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| keepMounted | `boolean`                                                                                           | `false`     | Whether to keep the element in the DOM while it doesn't apply.                                                                                                                                |
+| render      | `ReactElement \| ((props: HTMLProps, state: PasswordFieldIndicatorState) => ReactElement)`          | -           | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Indicator Data Attributes:**
+
+| Attribute           | Type | Description                                          |
+| :------------------ | :--- | :--------------------------------------------------- |
+| data-disabled       | -    | Present when the field is disabled.                  |
+| data-visible        | -    | Present when the password is revealed as plain text. |
+| data-starting-style | -    | Present when the indicator is animating in.          |
+| data-ending-style   | -    | Present when the indicator is animating out.         |
+
+### Indicator.Props
+
+Re-export of [Indicator](#indicator) props.
+
+### Indicator.State
+
+```typescript
+type PasswordFieldPreviewIndicatorState = {
+  /** Whether the password is currently revealed as plain text. */
+  visible: boolean;
+  /** Whether the field should ignore user interaction. */
+  disabled: boolean;
+  /** The transition status of the component. */
+  transitionStatus: TransitionStatus;
+};
+```
+
 ### Toggle
 
 A button that toggles the password's visibility.
@@ -214,6 +255,56 @@ type PasswordFieldPreviewToggleState = {
 ```
 
 ## Additional Types
+
+### PasswordFieldIndicatorProps
+
+```typescript
+type PasswordFieldIndicatorProps = {
+  /**
+   * The visibility the indicator renders for.
+   * Use `'visible'` for the icon shown while the password is revealed, and `'hidden'` for the
+   * icon shown while it is masked.
+   * @default 'visible'
+   */
+  match?: 'visible' | 'hidden';
+  /**
+   * Whether to keep the element in the DOM while it doesn't apply.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: PasswordFieldIndicatorState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: PasswordFieldIndicatorState) => ReactElement);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?:
+    React.CSSProperties | ((state: PasswordFieldIndicatorState) => React.CSSProperties | undefined);
+};
+```
+
+### PasswordFieldIndicatorState
+
+```typescript
+type PasswordFieldIndicatorState = {
+  /** Whether the password is currently revealed as plain text. */
+  visible: boolean;
+  /** Whether the field should ignore user interaction. */
+  disabled: boolean;
+  /** The transition status of the component. */
+  transitionStatus: TransitionStatus;
+};
+```
 
 ### PasswordFieldInputChangeEventDetails
 
@@ -300,6 +391,23 @@ type PasswordFieldInputState = {
   /** Whether the field is focused. */
   focused: boolean;
 };
+```
+
+### PasswordFieldPreviewIndicatorDataAttributes
+
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace PasswordFieldPreviewIndicatorDataAttributes {
+  /** Present when the password is revealed as plain text. */
+  const visible: 'data-visible';
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the indicator is animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
 ### PasswordFieldPreviewInputDataAttributes
@@ -494,7 +602,8 @@ type PasswordFieldToggleState = {
 - `PasswordFieldPreview.Root`: `PasswordFieldPreview.Root`, `PasswordFieldPreview.Root.State`, `PasswordFieldPreview.Root.Props`, `PasswordFieldPreview.Root.ChangeEventReason`, `PasswordFieldPreview.Root.ChangeEventDetails`
 - `PasswordFieldPreview.Input`: `PasswordFieldPreview.Input`, `PasswordFieldPreview.Input.State`, `PasswordFieldPreview.Input.Props`, `PasswordFieldPreview.Input.ChangeEventReason`, `PasswordFieldPreview.Input.ChangeEventDetails`
 - `PasswordFieldPreview.Toggle`: `PasswordFieldPreview.Toggle`, `PasswordFieldPreview.Toggle.State`, `PasswordFieldPreview.Toggle.Props`
-- `Default`: `PasswordFieldPreviewRootDataAttributes`, `PasswordFieldPreviewInputDataAttributes`, `PasswordFieldPreviewToggleDataAttributes`, `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`
+- `PasswordFieldPreview.Indicator`: `PasswordFieldPreview.Indicator`, `PasswordFieldPreview.Indicator.State`, `PasswordFieldPreview.Indicator.Props`
+- `Default`: `PasswordFieldPreviewRootDataAttributes`, `PasswordFieldPreviewInputDataAttributes`, `PasswordFieldPreviewToggleDataAttributes`, `PasswordFieldPreviewIndicatorDataAttributes`, `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`, `PasswordFieldIndicatorState`, `PasswordFieldIndicatorProps`
 
 ## Canonical Types
 

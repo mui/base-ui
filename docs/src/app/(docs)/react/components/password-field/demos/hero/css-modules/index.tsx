@@ -12,15 +12,14 @@ export default function ExamplePasswordField() {
       </label>
       <PasswordField.Root id={id} className={styles.Root}>
         <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
-        <PasswordField.Toggle
-          className={styles.Toggle}
-          aria-label="Show password"
-          render={(props, state) => (
-            <button type="button" {...props}>
-              {state.pressed ? <EyeOffIcon /> : <EyeIcon />}
-            </button>
-          )}
-        />
+        <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
+          <PasswordField.Indicator className={styles.Indicator} match="hidden">
+            <EyeOffIcon />
+          </PasswordField.Indicator>
+          <PasswordField.Indicator className={styles.Indicator} match="visible">
+            <EyeIcon />
+          </PasswordField.Indicator>
+        </PasswordField.Toggle>
       </PasswordField.Root>
     </div>
   );
