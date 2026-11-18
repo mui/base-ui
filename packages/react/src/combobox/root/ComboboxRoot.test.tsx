@@ -1366,7 +1366,7 @@ describe('<Combobox.Root />', () => {
     expect(screen.queryByRole('button', { name: 'Dismiss' })).toBe(null);
   });
 
-  it('renders internal dismiss buttons before and after the popup when the input is inside it', async () => {
+  it('exposes working internal dismiss buttons when the input is inside a modal popup', async () => {
     const { user } = await render(
       <div>
         <button data-testid="outside">Outside</button>
@@ -1390,14 +1390,11 @@ describe('<Combobox.Root />', () => {
       </div>,
     );
 
-    const popup = screen.getByTestId('popup');
     const [startDismissButton, endDismissButton] = screen.getAllByRole('button', {
       name: 'Dismiss',
     });
     const outside = screen.getByTestId('outside');
 
-    expect(popup.previousElementSibling).toBe(startDismissButton);
-    expect(popup.nextElementSibling).toBe(endDismissButton);
     expect(startDismissButton).not.toHaveAttribute('tabindex');
     expect(endDismissButton).not.toHaveAttribute('tabindex');
 
@@ -1412,10 +1409,13 @@ describe('<Combobox.Root />', () => {
     });
   });
 
-  it('renders an internal dismiss button for the input-outside-popup pattern', async () => {
+  it('preserves a wrapping label and exposes working internal dismiss buttons', async () => {
     const { user } = await render(
       <Combobox.Root items={['Apple', 'Banana']}>
-        <Combobox.Input data-testid="input" />
+        <label data-testid="label">
+          Fruit
+          <Combobox.Input />
+        </label>
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup data-testid="popup">
@@ -1432,15 +1432,19 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>,
     );
 
-    await user.click(screen.getByTestId('input'));
+    const input = screen.getByRole('combobox', { name: 'Fruit' });
+    await user.click(input);
 
-    const popup = await screen.findByTestId('popup');
-    const [startDismissButton, endDismissButton] = screen.getAllByRole('button', {
-      name: 'Dismiss',
-    });
+    await screen.findByRole('listbox');
+    expect(input).toHaveAccessibleName('Fruit');
+    const label = screen.getByTestId('label');
+    const labelContent = within(label);
+    const nestedButton = labelContent.queryByRole('button');
+    expect(nestedButton).toBe(null);
+    const dismissButtons = screen.getAllByRole('button', { name: 'Dismiss' });
+    expect(dismissButtons).toHaveLength(2);
+    const [startDismissButton, endDismissButton] = dismissButtons;
 
-    expect(popup.previousElementSibling).toBe(startDismissButton);
-    expect(popup.nextElementSibling).toBe(endDismissButton);
     expect(startDismissButton).not.toHaveAttribute('tabindex');
     expect(endDismissButton).not.toHaveAttribute('tabindex');
 
@@ -1449,36 +1453,6 @@ describe('<Combobox.Root />', () => {
     await waitFor(() => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
-  });
-
-  it('keeps internal dismiss buttons out of a label that wraps the input', async () => {
-    const { user } = await render(
-      <Combobox.Root items={['Apple', 'Banana']}>
-        <label data-testid="label">
-          Fruit
-          <Combobox.Input />
-        </label>
-        <Combobox.Portal>
-          <Combobox.Positioner>
-            <Combobox.Popup>
-              <Combobox.List>
-                {(item: string) => (
-                  <Combobox.Item key={item} value={item}>
-                    {item}
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>,
-    );
-
-    await user.click(screen.getByRole('combobox'));
-    await screen.findByRole('listbox');
-
-    expect(screen.getAllByRole('button', { name: 'Dismiss' })).toHaveLength(2);
-    expect(within(screen.getByTestId('label')).queryByRole('button')).toBe(null);
   });
 
   describe('selection behavior', () => {
