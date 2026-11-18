@@ -69,6 +69,98 @@ describe('<NavigationMenu.Positioner />', () => {
   });
 });
 
+describe.skipIf(isJSDOM)('containing block coordinates', () => {
+  const { render } = createRenderer();
+
+  describe.each([
+    { name: 'bordered container', positionMethod: 'absolute', transform: undefined },
+    { name: 'transformed container', positionMethod: 'fixed', transform: 'translateZ(0)' },
+  ] as const)('$name', ({ positionMethod, transform }) => {
+    it.each([{ side: 'top' }, { side: 'left' }] as const)(
+      'keeps a non-animated $side popup attached to its trigger',
+      async ({ side }) => {
+        function Test() {
+          const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
+
+          return (
+            <div
+              ref={setContainer}
+              style={{
+                position: 'relative',
+                width: 400,
+                height: 400,
+                border: '10px solid',
+                padding: 16,
+                margin: 40,
+                boxSizing: 'border-box',
+                transform,
+              }}
+            >
+              <NavigationMenu.Root defaultValue="test">
+                <NavigationMenu.List style={{ margin: 0, padding: 0 }}>
+                  <NavigationMenu.Item value="test">
+                    <NavigationMenu.Trigger
+                      style={{ position: 'absolute', top: 180, left: 180, width: 80, height: 40 }}
+                    >
+                      Products
+                    </NavigationMenu.Trigger>
+                    <NavigationMenu.Content style={{ width: 100, height: 60 }}>
+                      Content
+                    </NavigationMenu.Content>
+                  </NavigationMenu.Item>
+                </NavigationMenu.List>
+                {container && (
+                  <NavigationMenu.Portal container={container}>
+                    <NavigationMenu.Positioner
+                      data-testid="positioner"
+                      side={side}
+                      align="start"
+                      positionMethod={positionMethod}
+                      collisionAvoidance={{ side: 'none', align: 'none' }}
+                      style={{
+                        width: 'var(--positioner-width)',
+                        height: 'var(--positioner-height)',
+                      }}
+                    >
+                      <NavigationMenu.Popup
+                        style={{ width: 'var(--popup-width)', height: 'var(--popup-height)' }}
+                      >
+                        <NavigationMenu.Viewport />
+                      </NavigationMenu.Popup>
+                    </NavigationMenu.Positioner>
+                  </NavigationMenu.Portal>
+                )}
+              </NavigationMenu.Root>
+            </div>
+          );
+        }
+
+        await render(<Test />);
+        const positioner = screen.getByTestId('positioner');
+        const trigger = screen.getByRole('button', { name: 'Products' });
+        await waitForPositioned(positioner);
+        expect(positioner).toHaveAttribute('data-side', side);
+        const edge = side === 'top' ? 'bottom' : 'right';
+        const anchorEdge = side === 'top' ? 'top' : 'left';
+        await waitFor(() => {
+          expect(positioner.getBoundingClientRect()[edge]).toBeCloseTo(
+            trigger.getBoundingClientRect()[anchorEdge],
+            0,
+          );
+        });
+        const actual = positioner.getBoundingClientRect();
+        const anchor = trigger.getBoundingClientRect();
+        expect(actual.width).toBeGreaterThan(0);
+        expect(actual.height).toBeGreaterThan(0);
+        expect(actual[side === 'top' ? 'left' : 'top']).toBeCloseTo(
+          anchor[side === 'top' ? 'left' : 'top'],
+          0,
+        );
+      },
+    );
+  });
+});
+
 const trackingStyles = `
   .tracking-positioner {
     width: var(--positioner-width);
