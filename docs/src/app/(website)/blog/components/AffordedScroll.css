@@ -1,0 +1,52 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
+@layer components {
+  .AffordedScroll {
+    position: relative;
+    overflow: hidden;
+
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+    &:has(> .AffordedScrollViewport:focus-visible) {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: 2px;
+    }
+
+    & > .AffordedScrollViewport:focus-visible {
+      outline: none;
+    }
+
+    &[data-overflow-x-start]::before,
+    &[data-overflow-x-end]::after {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      inset-block: 0;
+      width: 1rem;
+      z-index: 1;
+    }
+
+    &[data-overflow-x-start]::before {
+      inset-inline-start: 0;
+      background-image: linear-gradient(to left, transparent, var(--gray-s1));
+    }
+
+    &[data-overflow-x-end]::after {
+      inset-inline-end: 0;
+      background-image: linear-gradient(to right, transparent, var(--gray-s1));
+    }
+
+    &:dir(rtl)::before {
+      background-image: linear-gradient(to right, transparent, var(--gray-s1));
+    }
+
+    &:dir(rtl)::after {
+      background-image: linear-gradient(to left, transparent, var(--gray-s1));
+    }
+
+    &[data-has-overflow-x] .AffordedScrollViewport {
+      /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally. */
+      overscroll-behavior-x: contain;
+    }
+  }
+}

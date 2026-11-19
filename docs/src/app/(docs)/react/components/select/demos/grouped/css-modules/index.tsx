@@ -1,15 +1,12 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 export default function ExampleSelectGrouped() {
   return (
-    <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Produce
-      </Field.Label>
+    <div className={styles.Field}>
       <Select.Root items={groupedProduce}>
+        <Select.Label className={styles.Label}>Produce</Select.Label>
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value} placeholder="Select produce" />
           <Select.Icon>
@@ -53,7 +50,7 @@ export default function ExampleSelectGrouped() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 

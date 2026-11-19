@@ -3,6 +3,7 @@ import * as React from 'react';
 import { formatNumber } from '@base-ui/utils/formatNumber';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
@@ -27,6 +28,8 @@ export const SliderValue = React.forwardRef(function SliderValue(
   } = componentProps;
 
   const { thumbMap, state, values, format, locale } = useSliderRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
 
   const outputFor =
     Array.from(thumbMap.values(), ({ inputId }) => inputId)
@@ -34,8 +37,8 @@ export const SliderValue = React.forwardRef(function SliderValue(
       .trim() || undefined;
 
   const formattedValues = React.useMemo(
-    () => values.map((v) => formatNumber(v, locale, format)),
-    [format, locale, values],
+    () => values.map((v) => formatNumber(v, formatLocale, format)),
+    [format, formatLocale, values],
   );
 
   const defaultDisplayValue = formattedValues.join(' – ');

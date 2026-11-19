@@ -4,7 +4,7 @@ import { usePopoverPositionerContext } from '../positioner/PopoverPositionerCont
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**

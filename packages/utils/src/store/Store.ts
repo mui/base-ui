@@ -120,7 +120,6 @@ export class Store<State> {
   use<F extends (...args: any) => any>(selector: F, ...args: SelectorArgs<F>): ReturnType<F>;
 
   use(selector: any, a1?: unknown, a2?: unknown, a3?: unknown) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useStore(this, selector, a1, a2, a3);
   }
 }

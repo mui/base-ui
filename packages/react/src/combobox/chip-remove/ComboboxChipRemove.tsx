@@ -5,7 +5,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../internals/use-button';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { getHighlightReason } from '../../utils/getHighlightReason';

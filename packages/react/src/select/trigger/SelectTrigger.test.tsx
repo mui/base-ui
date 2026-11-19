@@ -102,19 +102,19 @@ describe('<Select.Trigger />', () => {
   });
 
   describe('releasing the opening press', () => {
-    async function pressTrigger({
-      releaseImmediately = false,
-      onOpenChange,
-    }: {
-      releaseImmediately?: boolean;
-      onOpenChange?: Select.Root.Props<string>['onOpenChange'];
-    } = {}) {
+    async function pressTrigger(
+      options: {
+        container?: ShadowRoot;
+        onOpenChange?: Select.Root.Props<string>['onOpenChange'];
+        release?: boolean;
+      } = {},
+    ) {
       const view = await render(
-        <Select.Root onOpenChange={onOpenChange}>
+        <Select.Root onOpenChange={options.onOpenChange}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Portal>
+          <Select.Portal container={options.container}>
             <Select.Positioner alignItemWithTrigger={false}>
               <Select.Popup>
                 <Select.Item value="a">a</Select.Item>
@@ -130,19 +130,33 @@ describe('<Select.Trigger />', () => {
 
       fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
       fireEvent.mouseDown(trigger, { button: 0 });
-      if (releaseImmediately) {
-        // Released in the same task, like the compatibility mouse events of a touch tap.
+      if (options.release) {
         fireEvent.mouseUp(trigger, { button: 0, clientX: 150, clientY: 120 });
       }
       await waitFor(() => {
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
       });
-      // Long enough for the trigger to start watching the release.
+      return { ...view, trigger };
+    }
+
+    it('ignores a later release when the opening press was released immediately', async () => {
+      const onOpenChange = vi.fn();
+      const { trigger } = await pressTrigger({ onOpenChange, release: true });
       await act(async () => {
         await wait(20);
       });
-      return { ...view, trigger };
-    }
+      onOpenChange.mockClear();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      // e.g. a press that started inside the popup and was dragged off it
+      fireEvent.mouseUp(document.body, { button: 0, clientX: 10, clientY: 10 });
+      await act(async () => {
+        await wait(20);
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
 
     it('keeps the popup open when the press slips up to 5px off the trigger', async () => {
       const { trigger } = await pressTrigger();
@@ -165,30 +179,55 @@ describe('<Select.Trigger />', () => {
       });
     });
 
-    it('ignores a mouseup off the trigger after Escape closes a tap-opened popup', async () => {
-      const onOpenChange = vi.fn();
-      const { user, trigger } = await pressTrigger({ releaseImmediately: true, onOpenChange });
+    it('keeps the popup open when the press is released inside a popup in a shadow root', async () => {
+      const host = document.createElement('div');
+      document.body.append(host);
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+
+      try {
+        const { trigger } = await pressTrigger({ container: shadowRoot });
+        const popup = shadowRoot.querySelector('[role="listbox"]');
+        expect(popup).not.toBe(null);
+
+        fireEvent.mouseUp(popup!, { button: 0, clientX: 500, clientY: 500 });
+        await act(async () => {
+          await wait(20);
+        });
+
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      } finally {
+        host.remove();
+      }
+    });
+
+    it('ignores a held press released after the popup closed and reopened', async () => {
+      const { user, trigger } = await pressTrigger();
 
       await user.keyboard('[Escape]');
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
-      onOpenChange.mockClear();
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[ArrowDown]');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       fireEvent.mouseUp(document.body, { button: 0, clientX: 10, clientY: 10 });
       await act(async () => {
         await wait(20);
       });
 
-      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('removes its document mouseup listeners when unmounted after a released press', async () => {
+    it('removes its document mouseup listener when unmounted during the opening press', async () => {
       const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
       const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
       const getCapture = (options: boolean | EventListenerOptions | undefined) =>
         typeof options === 'boolean' ? options : Boolean(options?.capture);
 
       try {
-        const { unmount, trigger } = await pressTrigger({ releaseImmediately: true });
+        const { unmount, trigger } = await pressTrigger();
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
         const added = addEventListenerSpy.mock.calls.filter(([type]) => type === 'mouseup');

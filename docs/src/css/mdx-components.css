@@ -104,6 +104,12 @@
     margin-bottom: var(--space-24);
   }
 
+  .MdHr {
+    margin-block: var(--space-32);
+    border: none;
+    border-top: 1px solid var(--color-border);
+  }
+
   .MdEm {
     font-family: var(--font-serif);
     /* Adjust to visually match the sans-serif font */

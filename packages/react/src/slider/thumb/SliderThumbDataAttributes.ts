@@ -12,7 +12,7 @@ export const dragging = 'data-dragging';
  */
 export const orientation = 'data-orientation';
 /**
- * Present when the slider is disabled.
+ * Present when the thumb or the slider is disabled.
  */
 export const disabled = 'data-disabled';
 /**
