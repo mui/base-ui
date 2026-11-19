@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/1528dd11a9b88caecbdf6eb74002cbee8b601b3a/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/403aa0af96509c1caa250d62814d30a1dc32839c/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -35,7 +35,7 @@ default-job: &default-job
   working_directory: /tmp/base-ui
   executor:
     name: code-infra/mui-node
-    node-version: '22.23.4'
+    node-version: '22.23.5'
 
 default-context: &default-context
   context:
