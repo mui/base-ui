@@ -1,4 +1,5 @@
-import { expect, vi, type MockInstance } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
+import type { MockInstance } from 'vitest';
 import * as React from 'react';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { ReactStore } from './ReactStore';
@@ -14,6 +15,15 @@ function useStableStore<State extends object>(initial: State) {
 
 describe('ReactStore', () => {
   const { render } = createRenderer();
+
+  it('create() constructs a fully wired ReactStore instance', () => {
+    const store = ReactStore.create({ value: 1, label: 'a' });
+
+    expect(store).toBeInstanceOf(ReactStore);
+    expect(store.state.value).toBe(1);
+    // The static type degrades to `Store` on the generic class (see Store.create).
+    expect((store as ReactStore<TestState>).context).toEqual({});
+  });
 
   it('syncs internal state from controlled prop', () => {
     let store!: ReactStore<TestState>;
@@ -69,8 +79,8 @@ describe('ReactStore', () => {
     expect(() => {
       act(() => setProps({ controlled: 1 }));
     }).toErrorDev([
-      'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
-      'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+      'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+      'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
     ]);
   });
 
@@ -86,8 +96,8 @@ describe('ReactStore', () => {
     expect(() => {
       act(() => setProps({ controlled: undefined }));
     }).toErrorDev([
-      'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
-      'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+      'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+      'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
     ]);
   });
 

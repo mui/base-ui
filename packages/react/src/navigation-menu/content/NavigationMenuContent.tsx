@@ -5,30 +5,30 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingNode } from '../../floating-ui-react';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
-import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
+import * as NavigationMenuContentDataAttributes from './NavigationMenuContentDataAttributes';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState> = {
-  ...popupStateMapping,
-  ...transitionStatusMapping,
+  ...popupTransitionStateMapping,
   activationDirection(value) {
     if (!value) {
       return null;
     }
     return {
-      'data-activation-direction': value,
+      [NavigationMenuContentDataAttributes.activationDirection]: value,
     };
   },
 };

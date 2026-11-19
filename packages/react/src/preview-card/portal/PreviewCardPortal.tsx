@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPortalContext } from './PreviewCardPortalContext';
-import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
-import { type BaseUIComponentProps } from '../../internals/types';
+import { FloatingPortalLite } from '../../utils/popups/portal/FloatingPortalLite';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.

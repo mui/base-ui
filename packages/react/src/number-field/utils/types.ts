@@ -1,4 +1,4 @@
-import { REASONS } from '../../internals/reasons';
+import type { REASONS } from '../../internals/reasons';
 
 export type Direction = -1 | 1;
 

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -17,6 +17,30 @@ describe('<Select.GroupLabel />', () => {
       );
     },
   }));
+
+  it('is hidden from the accessibility tree by default', async () => {
+    await render(
+      <Select.Root open>
+        <Select.Group>
+          <Select.GroupLabel>Fruits</Select.GroupLabel>
+        </Select.Group>
+      </Select.Root>,
+    );
+
+    expect(screen.getByText('Fruits')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('allows overriding aria-hidden', async () => {
+    await render(
+      <Select.Root open>
+        <Select.Group>
+          <Select.GroupLabel aria-hidden={undefined}>Fruits</Select.GroupLabel>
+        </Select.Group>
+      </Select.Root>,
+    );
+
+    expect(screen.getByText('Fruits')).not.toHaveAttribute('aria-hidden');
+  });
 
   it('throws a descriptive error when rendered outside <Select.Group>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

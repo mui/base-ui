@@ -1,6 +1,7 @@
 import {
   getComputedStyle,
   getParentNode,
+  isElement,
   isHTMLElement,
   isLastTraversableNode,
 } from '@floating-ui/utils/dom';
@@ -38,23 +39,23 @@ export function isScrollable(
     : isScrollableX(element, allowOverflowIntent);
 }
 
-export function hasScrollableAncestor(
-  target: HTMLElement,
+export function findScrollableAncestor(
+  target: EventTarget | null,
   root: HTMLElement,
-  axes: ScrollAxis[],
-): boolean {
+  axis: ScrollAxis,
+  allowOverflowIntent = false,
+): HTMLElement | null {
   // `getParentNode` crosses shadow boundaries (and slots), so a target inside a shadow root
-  // still walks up to scrollable ancestors in the light DOM.
-  let node: Node | null = target;
-  while (isHTMLElement(node) && node !== root && !isLastTraversableNode(node)) {
-    for (const axis of axes) {
-      if (isScrollable(node, axis)) {
-        return true;
-      }
+  // still walks up to scrollable ancestors in the light DOM. Non-HTML targets (SVG, MathML)
+  // can't scroll, but their HTML ancestors can.
+  let node: EventTarget | null = target;
+  while (isElement(node) && node !== root && !isLastTraversableNode(node)) {
+    if (isHTMLElement(node) && isScrollable(node, axis, allowOverflowIntent)) {
+      return node;
     }
     node = getParentNode(node);
   }
-  return false;
+  return null;
 }
 
 export function findScrollableTouchTarget(
@@ -63,15 +64,8 @@ export function findScrollableTouchTarget(
   axis: ScrollAxis = 'vertical',
   allowOverflowIntent = false,
 ): HTMLElement | null {
-  // `getParentNode` crosses shadow boundaries (and slots), so a target inside a shadow root
-  // still reaches a scrollable ancestor in the light DOM.
-  let node: Node | null = isHTMLElement(target) ? target : null;
-  while (isHTMLElement(node) && node !== root && !isLastTraversableNode(node)) {
-    if (isScrollable(node, axis, allowOverflowIntent)) {
-      return node;
-    }
-    node = getParentNode(node);
-  }
-
-  return isScrollable(root, axis, allowOverflowIntent) ? root : null;
+  return (
+    findScrollableAncestor(target, root, axis, allowOverflowIntent) ??
+    (isScrollable(root, axis, allowOverflowIntent) ? root : null)
+  );
 }

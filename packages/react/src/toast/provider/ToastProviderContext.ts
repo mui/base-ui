@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ToastStore } from '../store';
+import type { ToastStore } from '../store';
 
 export type ToastContext = ToastStore;
 

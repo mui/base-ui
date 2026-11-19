@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { resolveStyle } from '../../utils/resolveStyle';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
-import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
+import * as CollapsiblePanelCssVars from './CollapsiblePanelCssVars';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 /**

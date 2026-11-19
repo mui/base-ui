@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { toValidatedNumber as toValidatedNumberImpl, removeFloatingPointErrors } from './validate';
 
 const min = Number.MIN_SAFE_INTEGER;

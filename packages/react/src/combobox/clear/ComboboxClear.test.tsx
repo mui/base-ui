@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -244,8 +244,8 @@ describe('<Combobox.Clear />', () => {
 
     await waitFor(() => {
       expect(clear).toHaveClass('hidden');
-      expect(clear).not.toHaveAttribute('data-visible');
     });
+    expect(clear).not.toHaveAttribute('data-visible');
     expect(screen.getByRole('dialog')).not.toBe(null);
     expect(screen.getByTestId('input')).toHaveFocus();
     expect(screen.getByTestId('trigger')).toHaveTextContent('None');

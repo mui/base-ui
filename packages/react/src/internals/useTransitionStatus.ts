@@ -56,7 +56,8 @@ export function useTransitionStatus(
   }, [open, mounted, transitionStatus, deferEndingState]);
 
   useIsoLayoutEffect(() => {
-    if (!open || enableIdleState) {
+    // Nothing to clear when the element mounted open or reopened after its exit settled.
+    if (!open || enableIdleState || transitionStatus === undefined) {
       return undefined;
     }
 
@@ -69,7 +70,7 @@ export function useTransitionStatus(
     return () => {
       AnimationFrame.cancel(frame);
     };
-  }, [enableIdleState, open]);
+  }, [enableIdleState, open, transitionStatus]);
 
   useIsoLayoutEffect(() => {
     if (!open || !enableIdleState) {

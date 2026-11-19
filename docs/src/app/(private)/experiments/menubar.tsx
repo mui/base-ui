@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
-import { SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
+import type { SettingsMetadata } from './_components/SettingsPanel';
+import { useExperimentSettings } from './_components/SettingsPanel';
 import '../../../demo-data/theme/css-modules/theme.css';
 import menuClasses from './menu/menu.module.css';
 import classes from './menubar.module.css';

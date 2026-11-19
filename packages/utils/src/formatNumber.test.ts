@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { formatNumber, getFormatter } from './formatNumber';
 
 const getOptions = (): Intl.NumberFormatOptions => ({

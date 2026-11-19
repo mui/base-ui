@@ -1,19 +1,19 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
-import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { getHighlightReason } from '../../utils/getHighlightReason';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {
   ...transitionStatusMapping,
@@ -43,12 +43,12 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const { disabled: fieldDisabled } = useFieldRootContext();
   const store = useComboboxRootContext();
 
-  const selectionMode = useStore(store, selectors.selectionMode);
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const open = useStore(store, selectors.open);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
+  const selectionMode = store.useState('selectionMode');
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const open = store.useState('open');
+  const selectedValue = store.useState('selectedValue');
+  const hasSelectionChips = store.useState('hasSelectionChips');
 
   const inputValue = useComboboxInputValueContext();
 
@@ -79,7 +79,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   useOpenChangeComplete({
     open: visible,
-    ref: store.state.clearRef,
+    ref: store.context.clearRef,
     onComplete() {
       if (!visible) {
         setMounted(false);
@@ -89,7 +89,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, store.state.clearRef],
+    ref: [forwardedRef, buttonRef, store.context.clearRef],
     props: [
       {
         tabIndex: -1,
@@ -103,26 +103,31 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
 
-          const type = store.state.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
+          const type = getHighlightReason(event);
 
-          store.state.setInputValue(
+          store.context.setInputValue(
             '',
             createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
           );
 
           if (selectionMode !== 'none') {
-            store.state.setSelectedValue(
+            store.context.setSelectedValue(
               Array.isArray(selectedValue) ? [] : null,
               createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
             );
             // A distinct object shape: `Store.update` iterates own keys, so passing an explicit
             // `selectedIndex: undefined` would overwrite the state instead of leaving it alone.
-            store.state.setIndices({ activeIndex: null, selectedIndex: null, type });
+            store.context.setIndices({
+              activeIndex: null,
+              selectedIndex: null,
+              type,
+              event: event.nativeEvent,
+            });
           } else {
-            store.state.setIndices({ activeIndex: null, type });
+            store.context.setIndices({ activeIndex: null, type, event: event.nativeEvent });
           }
 
-          store.state.inputRef.current?.focus();
+          store.context.inputRef.current?.focus();
         },
       },
       elementProps,

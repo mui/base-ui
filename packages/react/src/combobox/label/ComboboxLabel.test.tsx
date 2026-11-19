@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';

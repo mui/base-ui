@@ -11,7 +11,7 @@ import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext'
 import type { Form } from '../../form';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { LabelableProvider } from '../../internals/labelable-provider';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
 import { useFieldControlRegistration } from '../../internals/field-register-control/useFieldControlRegistration';
@@ -23,7 +23,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { errors, validationMode: formValidationMode, submitAttemptedRef } = useFormContext();
+  const { errors, validationMode: formValidationMode, submitCountRef } = useFormContext();
 
   const {
     render,
@@ -51,6 +51,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const [dirtyState, setDirtyUnwrapped] = React.useState(false);
   const [filled, setFilled] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
+  const focusOwnerRef = React.useRef<unknown>(undefined);
 
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
@@ -87,7 +88,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const shouldValidateOnChange = useStableCallback(
     () =>
       validationMode === 'onChange' ||
-      (validationMode === 'onSubmit' && submitAttemptedRef.current),
+      (validationMode === 'onSubmit' && submitCountRef.current > 0),
   );
 
   const formError =
@@ -160,6 +161,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       setDirty,
       setFilled,
       setFocused,
+      focusOwnerRef,
       validationMode,
       shouldValidateOnChange,
       state,

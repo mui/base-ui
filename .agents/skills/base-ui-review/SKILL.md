@@ -107,7 +107,7 @@ Core regression + correctness pass. Cover all sub-angles:
   forwarding/merging, context registration cleanup, nested component coordination,
   portals, focus management, keyboard navigation, ARIA attributes, disabled/read-only
   states, form integration, SSR/hydration safety, Strict Mode behavior, shadow
-  DOM-safe DOM access (`contains`, `getTarget`, `activeElement`, `ownerDocument`,
+  DOM-safe DOM access (`closest`, `contains`, `getTarget`, `activeElement`, `ownerDocument`,
   `ownerWindow`).
 - **Removed-behavior auditor.** For every line diff DELETES or replaces, name
   invariant/behavior it enforced, then search new code for where invariant

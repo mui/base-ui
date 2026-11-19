@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import { DemoFile, DemoVariant } from './types';
+import type { DemoFile, DemoVariant } from './types';
 
 export interface DemoContext {
   selectedFile: DemoFile;
   selectedVariant: DemoVariant;
-  setSelectedFile: (file: DemoFile) => void;
   setSelectedVariant: (variant: DemoVariant) => void;
   variants: DemoVariant[];
 }

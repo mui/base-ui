@@ -1,11 +1,11 @@
 # Preview Card
 
 <Subtitle>
-  A popup that appears when a link is hovered, showing a preview for sighted users.
+  A link that shows a destination preview without interrupting keyboard or screen reader navigation.
 </Subtitle>
 <Meta
   name="description"
-  content="A high-quality, unstyled React preview card component that appears when a link is hovered, showing a preview for sighted users."
+  content="A high-quality, unstyled React preview card component for a link that shows a destination preview without interrupting keyboard or screen reader navigation."
 />
 
 import { DemoPreviewCardHero } from './demos/hero';
@@ -19,7 +19,8 @@ import { DemoPreviewCardHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Popup content should reflect the link destination**: Avoid placing unique or essential information in the popup unless it is also available on the linked page, so all users can access the same information. Preview cards are a visual enhancement for sighted mouse and keyboard users and are not accessible to touch or screen reader users.
+- **Protect screen reader users' current context**: Exposing each preview to screen readers would force users through its contents before they could continue through the page, repeatedly disrupting their current context. Keep the link as the only accessible interface and include all previewed information at its destination.
+- **Keep popup content supplementary**: Avoid placing unique or essential information in the popup unless it is also available on the linked page. For the reason above, preview card content is not touch, keyboard or screen reader navigable. It acts as a visual [progressive enhancement](https://developer.mozilla.org/en-US/docs/Glossary/Progressive_Enhancement) for sighted mouse and keyboard users only.
 
 ## Anatomy
 

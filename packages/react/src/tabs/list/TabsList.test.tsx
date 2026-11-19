@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui/react/tabs';

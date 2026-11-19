@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, beforeAll, afterAll, describe, it } from 'vitest';
 
 type IdleCallbackModule = typeof import('./useIdleCallback');
 

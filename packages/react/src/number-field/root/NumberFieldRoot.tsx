@@ -7,12 +7,13 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
 import { formatNumber } from '@base-ui/utils/formatNumber';
-import { activeElement } from '../../floating-ui-react/utils';
-import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
+import { activeElement } from '@base-ui/utils/shadowDom';
+import type { InputMode } from './NumberFieldRootContext';
+import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -21,7 +22,8 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
-  getFormatParts,
+  getAllFormatParts,
+  getLocaleDigits,
   getNumberLocaleDetails,
   PERMILLE,
   PERCENTAGES,
@@ -31,16 +33,22 @@ import {
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
 import { toValidatedNumber } from '../utils/validate';
-import { EventWithOptionalKeyState } from '../utils/types';
-import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
+import type {
+  EventWithOptionalKeyState,
+  ChangeEventCustomProperties,
+  IncrementValueParameters,
+} from '../utils/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
-  type ReasonToEvent,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
+  ReasonToEvent,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -144,7 +152,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useStableCallback(() => {
-    const parts = getFormatParts(locale, format);
+    const parts = getAllFormatParts(locale, format);
 
     const keys = new Set<string>(BASE_NON_NUMERIC_SYMBOLS);
     const addAll = (chars: readonly string[]) => chars.forEach((char) => keys.add(char));
@@ -176,6 +184,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         keys.add(' ');
       }
     });
+    // Digits follow the locale's numbering system, such as `১২` in bn-BD
+    addAll(getLocaleDigits(locale, format));
 
     const allowPercentSymbols =
       formatStyle === 'percent' || (formatStyle === 'unit' && format?.unit === 'percent');
@@ -192,9 +202,14 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
     // Allow plus sign in all cases; minus sign when negatives are valid, or when out-of-range
     // entry is allowed so native underflow validation can be triggered from the keyboard.
+    // Exponent notations already allow it above for negative exponents (`2E-2`).
     addAll(PLUS_SIGNS_WITH_ASCII);
     if (minWithDefault < 0 || allowOutOfRange) {
       addAll(MINUS_SIGNS_WITH_ASCII);
+      // Accounting formats show negatives in parentheses, such as `($1.00)`
+      if (format?.currencySign === 'accounting') {
+        addAll(['(', ')']);
+      }
     }
 
     return keys;
@@ -338,6 +353,20 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [minWithDefault],
   );
 
+  // Programmatic focus leaves the caret at the start (Chrome/Firefox) or selects the whole value
+  // (Safari). Store the caret at the end before focusing: every engine restores the stored
+  // selection on `focus()`, and a selection the consumer sets in `onFocus` still wins. Keyboard
+  // and pointer focus keep the browser's native selection behavior.
+  const focusInput = useStableCallback(() => {
+    const input = inputRef.current;
+    if (!input) {
+      return;
+    }
+    const length = input.value.length;
+    input.setSelectionRange(length, length);
+    input.focus();
+  });
+
   // React attaches `onWheel` as a passive listener, so calling `preventDefault` there is ignored.
   // Attach a native (non-passive) `wheel` listener to the input instead to prevent page scrolling.
   React.useEffect(
@@ -419,9 +448,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const contextValue: NumberFieldRootContext = React.useMemo(
     () => ({
       inputRef,
+      focusInput,
       minWithDefault,
       maxWithDefault,
       id,
+      form,
       setValue,
       incrementValue,
       getStepAmount,
@@ -444,9 +475,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     }),
     [
       inputRef,
+      focusInput,
       minWithDefault,
       maxWithDefault,
       id,
+      form,
       setValue,
       incrementValue,
       getStepAmount,
@@ -478,7 +511,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
-            inputRef.current?.focus();
+            focusInput();
           },
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/react/react/issues/9023
@@ -513,7 +546,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         required={required}
         aria-hidden
         tabIndex={-1}
-        style={name ? visuallyHiddenInput : visuallyHidden}
+        style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         suppressHydrationWarning
       />
     </NumberFieldRootContext.Provider>

@@ -27,7 +27,7 @@ export interface FormContext {
     >;
   }>;
   validationMode: Form.ValidationMode;
-  submitAttemptedRef: React.RefObject<boolean>;
+  submitCountRef: React.RefObject<number>;
 }
 
 export const FormContext = React.createContext<FormContext>({
@@ -40,8 +40,8 @@ export const FormContext = React.createContext<FormContext>({
   errors: {},
   clearErrors: NOOP,
   validationMode: 'onSubmit',
-  submitAttemptedRef: {
-    current: false,
+  submitCountRef: {
+    current: 0,
   },
 });
 

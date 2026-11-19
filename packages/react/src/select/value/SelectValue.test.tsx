@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
@@ -384,11 +384,12 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
+      expect(screen.getByTestId('value')).toHaveTextContent('Canada');
+
       const hiddenInput = screen.getByRole('textbox', {
         hidden: true,
       });
       expect(hiddenInput).toHaveValue('CA');
-      expect(hiddenInput).toHaveAttribute('name', 'country');
     });
   });
 

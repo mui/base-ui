@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { stringifyLocale } from './stringifyLocale';
 
 describe('stringifyLocale', () => {

@@ -150,7 +150,7 @@ export function useFieldValidation(
     }
 
     function makeValidityData(
-      validityState: Record<keyof ValidityState, boolean>,
+      validityState: FieldValidityData['state'],
       errorMessages: string[],
     ): FieldValidityData {
       // `valueMissing` may be suppressed while the native message remains non-empty.
@@ -182,7 +182,7 @@ export function useFieldValidation(
     }
 
     function publish(
-      validityState: Record<keyof ValidityState, boolean>,
+      validityState: FieldValidityData['state'],
       errorMessages: string[],
       externalInvalid?: boolean,
     ) {
@@ -280,7 +280,7 @@ export function useFieldValidation(
     // Do not read Base UI's previous message back as a native constraint.
     clearCustomValidity();
 
-    let nextState = refreshState();
+    let nextState: FieldValidityData['state'] = refreshState();
     let validationErrors = getNativeErrors(element);
 
     const isValidatingOnChange = shouldValidateOnChange();
@@ -305,8 +305,14 @@ export function useFieldValidation(
         resultOrPromise !== null &&
         'then' in resultOrPromise
       ) {
-        // Retire a previous async result before an onSubmit validation begins.
-        if (validationMode === 'onSubmit') {
+        // Validity is unknown while the validator runs, so go neutral, but keep what must block
+        // submission synchronously: native failures, and a previous custom error outside onSubmit
+        // mode. A previous native error is never kept, since `nextState` already carries the fresh
+        // native verdict.
+        if (nextState.valid === false) {
+          publish(nextState, validationErrors);
+        } else if (validationMode === 'onSubmit' || !validityData.state.customError) {
+          nextState.valid = null;
           publish(nextState, validationErrors);
         }
 

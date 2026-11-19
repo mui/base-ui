@@ -8,6 +8,15 @@ type Listener<T> = (state: T) => void;
  */
 export class Store<State> {
   /**
+   * Creates a store with the given initial state, constructing the class it is called on.
+   * Calling it on a generic base class (e.g. `ReactStore.create(...)`) constructs that
+   * class but degrades the inferred instance type to `Store`; use `new` there instead.
+   */
+  static create<T, This extends Store<T>>(this: new (state: T) => This, state: T): This {
+    return new this(state);
+  }
+
+  /**
    * The current state of the store.
    * This property is updated immediately when the state changes as a result of calling {@link setState}, {@link update}, or {@link set}.
    * To subscribe to state changes, use the {@link useState} method. The value returned by {@link useState} is updated after the component renders (similarly to React's useState).
@@ -15,12 +24,12 @@ export class Store<State> {
    *
    * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
    */
-  state: State;
+  declare state: State;
 
-  private listeners: Set<Listener<State>>;
+  declare private listeners: Set<Listener<State>>;
 
   // Internal state to handle recursive `setState()` calls
-  private updateTick: number;
+  declare private updateTick: number;
 
   constructor(state: State) {
     this.state = state;
@@ -111,7 +120,6 @@ export class Store<State> {
   use<F extends (...args: any) => any>(selector: F, ...args: SelectorArgs<F>): ReturnType<F>;
 
   use(selector: any, a1?: unknown, a2?: unknown, a3?: unknown) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useStore(this, selector, a1, a2, a3);
   }
 }

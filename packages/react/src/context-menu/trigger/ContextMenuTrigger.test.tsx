@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
@@ -276,20 +276,15 @@ describe('<ContextMenu.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
+      // Read `defaultPrevented` after dispatch so React's delegated handler and the
+      // document listener have both had a chance to call `preventDefault()`.
+      const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
 
-      let defaultPrevented = false;
-      trigger.addEventListener(
-        'contextmenu',
-        (event) => {
-          defaultPrevented = event.defaultPrevented;
-        },
-        { capture: false },
-      );
+      await act(async () => {
+        trigger.dispatchEvent(event);
+      });
 
-      fireEvent.contextMenu(trigger);
-      await flushMicrotasks();
-
-      expect(defaultPrevented).toBe(false);
+      expect(event.defaultPrevented).toBe(false);
     });
   });
 
@@ -305,8 +300,6 @@ describe('<ContextMenu.Trigger />', () => {
         </ContextMenu.Portal>
       </ContextMenu.Root>,
     );
-
-    await flushMicrotasks();
 
     const internalBackdrop = document.querySelector(
       '[data-base-ui-portal] > [data-base-ui-inert][role="presentation"]',

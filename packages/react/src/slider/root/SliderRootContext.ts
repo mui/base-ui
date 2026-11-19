@@ -30,6 +30,10 @@ export interface SliderRootContext {
   ) => void;
   indicatorPosition: (number | undefined)[];
   inset: boolean;
+  /**
+   * Whether the slider value is an array, including single-thumb arrays.
+   */
+  isArrayValue: boolean;
   labelId?: string | undefined;
   rootLabelId?: string | undefined;
   /**

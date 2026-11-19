@@ -1,4 +1,5 @@
-import { MenuStore, createNullMenuStore, type MenuHandleStore } from './MenuStore';
+import type { MenuStore, MenuHandleStore } from './MenuStore';
+import { createNullMenuStore } from './MenuStore';
 import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
 /**

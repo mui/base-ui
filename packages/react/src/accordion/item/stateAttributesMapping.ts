@@ -2,7 +2,7 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { collapsibleOpenStateMapping as baseMapping } from '../../utils/collapsibleOpenStateMapping';
 import type { AccordionItemState } from './AccordionItem';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { AccordionItemDataAttributes } from './AccordionItemDataAttributes';
+import * as AccordionItemDataAttributes from './AccordionItemDataAttributes';
 
 export const accordionStateAttributesMapping: StateAttributesMapping<AccordionItemState> = {
   ...baseMapping,

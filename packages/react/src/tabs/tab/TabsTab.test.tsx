@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Link, MemoryRouter } from 'react-router';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
@@ -20,7 +20,7 @@ describe('<Tabs.Tab />', () => {
 
   describeConformance(<Tabs.Tab value="1" />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render: (node) =>
       render(

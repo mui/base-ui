@@ -1,4 +1,5 @@
-import { DialogStore, createNullDialogStore, type DialogHandleStore } from './DialogStore';
+import type { DialogStore, DialogHandleStore } from './DialogStore';
+import { createNullDialogStore } from './DialogStore';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { BasePopupHandle } from '../../utils/popups/popupHandle';

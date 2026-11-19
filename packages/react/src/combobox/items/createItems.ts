@@ -2,7 +2,8 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { error } from '@base-ui/utils/error';
 import { flattenLeafItems, stringifyAsLabel } from '../../internals/resolveValueLabel';
 import type { ItemEqualityComparer } from '../../internals/itemEquality';
-import { findCollectionItem, type ComboboxItemCollection } from './itemCollection';
+import { findCollectionItem } from './itemCollection';
+import type { ComboboxItemCollection } from './itemCollection';
 
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
@@ -57,9 +58,6 @@ export interface CreateComboboxItemsOptions<
    *
    * `null` and `undefined` are reserved for no selection, and each item must derive a unique
    * value. Prefer stable IDs from your application data.
-   *
-   * Nullish entries in the data are holes rather than items: they are never passed to this
-   * accessor.
    */
   getValue: (item: Item) => Value;
   /**
@@ -79,6 +77,9 @@ export interface CreateComboboxItemsOptions<
  * Items cannot have an `items` array property because they would be interpreted as groups.
  * Rename that field or cast the data when the runtime values are known not to contain arrays.
  *
+ * The data must not contain nullish entries: remove them before creating the collection, as for
+ * the root's `items` prop.
+ *
  * Create static collections at module scope. Wrap dynamic collections in `React.useMemo()` keyed
  * by their data.
  *
@@ -89,6 +90,7 @@ export interface CreateComboboxItemsOptions<
  * @returns A collection whose selection value is the `getValue` accessor's return value.
  */
 export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
+  /** @type ComboboxItemsData<Item> | undefined */
   data: (ComboboxItemsData<Item> & RejectGroupShapedItems<Item>) | undefined,
   options: CreateComboboxItemsOptions<Item, Value>,
 ): ComboboxItemCollection<Item, Value> {
@@ -104,7 +106,7 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
       const leafItems = data ? flattenLeafItems<Item>(data) : EMPTY_ARRAY;
 
       for (const item of leafItems) {
-        // Nullish entries are holes in the data, as they are for a plain `items` array.
+        // Skipped defensively: the data is documented as free of nullish entries.
         if (item == null) {
           continue;
         }

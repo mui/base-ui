@@ -1,3 +1,4 @@
+import { describe } from 'vitest';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 

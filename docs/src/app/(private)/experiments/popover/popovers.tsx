@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import demoStyles from 'docs/src/app/(docs)/react/components/popover/demos/detached-triggers-full/css-modules/index.module.css';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './popovers.module.css';
 
 const popover1 = Popover.createHandle<number>();

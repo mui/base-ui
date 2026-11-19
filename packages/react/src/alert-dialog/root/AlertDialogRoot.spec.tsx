@@ -25,7 +25,7 @@ const triggerWithPayload = <AlertDialog.Trigger handle={numberPayloadHandle} pay
 const triggerWithoutPayload = <AlertDialog.Trigger handle={numberPayloadHandle} />;
 
 const triggerWithInvalidPayload = (
-  // @ts-expect-error
+  // @ts-expect-error The handle requires a number payload, not a string.
   <AlertDialog.Trigger handle={numberPayloadHandle} payload={'invalid'} />
 );
 

@@ -2,11 +2,80 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { MenuGroupContext } from '../group/MenuGroupContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { MenuRoot } from '../root/MenuRoot';
+
+/**
+ * @internal
+ */
+export const MenuRadioGroupPlain = React.forwardRef(function MenuRadioGroupPlain(
+  componentProps: MenuRadioGroup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const {
+    render,
+    className,
+    value: valueProp,
+    defaultValue,
+    onValueChange: onValueChangeProp,
+    disabled = false,
+    style,
+    'aria-labelledby': ariaLabelledByProp,
+    ...elementProps
+  } = componentProps;
+
+  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
+
+  const [value, setValueUnwrapped] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
+    name: 'MenuRadioGroup',
+  });
+
+  const setValue = useStableCallback(
+    (newValue: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => {
+      onValueChangeProp?.(newValue, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      setValueUnwrapped(newValue);
+    },
+  );
+
+  const state: MenuRadioGroupState = { disabled };
+
+  const element = useRenderElement('div', componentProps, {
+    state,
+    ref: forwardedRef,
+    props: {
+      role: 'group',
+      'aria-labelledby': ariaLabelledByProp ?? labelId,
+      'aria-disabled': disabled || undefined,
+      ...elementProps,
+    },
+  });
+
+  const context: MenuRadioGroupContext = React.useMemo(
+    () => ({
+      value,
+      setValue,
+      disabled,
+    }),
+    [value, setValue, disabled],
+  );
+
+  return (
+    <MenuGroupContext.Provider value={setLabelId}>
+      <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
+    </MenuGroupContext.Provider>
+  );
+});
 
 /**
  * Groups related radio items.
@@ -15,73 +84,21 @@ import type { MenuRoot } from '../root/MenuRoot';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuRadioGroup = React.memo(
-  React.forwardRef(function MenuRadioGroup(
-    componentProps: MenuRadioGroup.Props,
+  React.forwardRef(function MenuRadioGroup<Value = any>(
+    props: MenuRadioGroup.Props<Value>,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const {
-      render,
-      className,
-      value: valueProp,
-      defaultValue,
-      onValueChange: onValueChangeProp,
-      disabled = false,
-      style,
-      'aria-labelledby': ariaLabelledByProp,
-      ...elementProps
-    } = componentProps;
-
-    const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-
-    const [value, setValueUnwrapped] = useControlled({
-      controlled: valueProp,
-      default: defaultValue,
-      name: 'MenuRadioGroup',
-    });
-
-    const setValue = useStableCallback(
-      (newValue: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => {
-        onValueChangeProp?.(newValue, eventDetails);
-
-        if (eventDetails.isCanceled) {
-          return;
-        }
-
-        setValueUnwrapped(newValue);
-      },
-    );
-
-    const state: MenuRadioGroupState = { disabled };
-
-    const element = useRenderElement('div', componentProps, {
-      state,
-      ref: forwardedRef,
-      props: {
-        role: 'group',
-        'aria-labelledby': ariaLabelledByProp ?? labelId,
-        'aria-disabled': disabled || undefined,
-        ...elementProps,
-      },
-    });
-
-    const context: MenuRadioGroupContext = React.useMemo(
-      () => ({
-        value,
-        setValue,
-        disabled,
-      }),
-      [value, setValue, disabled],
-    );
-
-    return (
-      <MenuGroupContext.Provider value={setLabelId}>
-        <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
-      </MenuGroupContext.Provider>
-    );
+    const RadioGroup = useMenuFilterImpl()?.RadioGroup ?? MenuRadioGroupPlain;
+    return <RadioGroup {...props} ref={forwardedRef} />;
   }),
-);
+) as {
+  <Value = any>(props: MenuRadioGroup.Props<Value>): React.JSX.Element;
+};
 
-export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroupState> {
+export interface MenuRadioGroupProps<Value = any> extends BaseUIComponentProps<
+  'div',
+  MenuRadioGroupState
+> {
   /**
    * The content of the component.
    */
@@ -91,18 +108,18 @@ export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRad
    *
    * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
-  value?: any;
+  value?: Value | undefined;
   /**
    * The uncontrolled value of the radio item that should be initially selected.
    *
    * To render a controlled radio group, use the `value` prop instead.
    */
-  defaultValue?: any;
+  defaultValue?: Value | undefined;
   /**
    * Function called when the selected value changes.
    */
   onValueChange?:
-    ((value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void) | undefined;
+    ((value: Value, eventDetails: MenuRadioGroup.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the component should ignore user interaction.
    *
@@ -122,7 +139,7 @@ export type MenuRadioGroupChangeEventReason = MenuRoot.ChangeEventReason;
 export type MenuRadioGroupChangeEventDetails = MenuRoot.ChangeEventDetails;
 
 export namespace MenuRadioGroup {
-  export type Props = MenuRadioGroupProps;
+  export type Props<Value = any> = MenuRadioGroupProps<Value>;
   export type State = MenuRadioGroupState;
   export type ChangeEventReason = MenuRadioGroupChangeEventReason;
   export type ChangeEventDetails = MenuRadioGroupChangeEventDetails;

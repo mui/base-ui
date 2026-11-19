@@ -26,11 +26,7 @@ function getDevElementIds(map: PopupTriggerMap) {
  * while `hasElement` and `hasMatchingElement` are linear in the number of triggers.
  */
 export class PopupTriggerMap {
-  private idMap: Map<string, Element>;
-
-  constructor() {
-    this.idMap = new Map();
-  }
+  private idMap: Map<string, Element> = new Map();
 
   /**
    * Adds a trigger element with the given ID.

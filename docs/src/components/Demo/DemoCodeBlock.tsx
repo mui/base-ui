@@ -21,7 +21,7 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
       onKeyDown={(event: React.KeyboardEvent) => {
         if (
           (event.ctrlKey || event.metaKey) &&
-          String.fromCharCode(event.keyCode) === 'A' &&
+          event.key.toLowerCase() === 'a' &&
           !event.shiftKey &&
           !event.altKey
         ) {

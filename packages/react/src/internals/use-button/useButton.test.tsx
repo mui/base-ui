@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
@@ -16,8 +16,9 @@ describe('useButton', () => {
 
   describe('non-native button', () => {
     describe('keyboard interactions', () => {
-      ['Enter', 'Space'].forEach((key) => {
-        it(`can be activated with ${key} key`, async () => {
+      it.each([{ key: 'Enter' }, { key: 'Space' }])(
+        'can be activated with $key key',
+        async ({ key }) => {
           const clickSpy = vi.fn();
 
           function Button(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
@@ -37,8 +38,8 @@ describe('useButton', () => {
 
           await user.keyboard(`[${key}]`);
           expect(clickSpy).toHaveBeenCalledTimes(1);
-        });
-      });
+        },
+      );
 
       it('does not set a type prop', async () => {
         let buttonProps: Record<string, unknown> | undefined = undefined;

@@ -6,7 +6,8 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
@@ -14,6 +15,7 @@ import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRootState } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
+import * as TabsPanelDataAttributes from './TabsPanelDataAttributes';
 
 const stateAttributesMapping: StateAttributesMapping<TabsPanelState> = {
   ...tabsStateAttributesMapping,
@@ -71,7 +73,7 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
         tabIndex: open ? 0 : -1,
         inert: inertValue(!open),
         // Computed key: a plain literal key fails the DOM-props excess property check.
-        ['data-index' as string]: index,
+        [TabsPanelDataAttributes.index as string]: index,
       },
       elementProps,
     ],

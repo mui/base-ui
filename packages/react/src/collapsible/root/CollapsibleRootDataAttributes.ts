@@ -1,20 +1,18 @@
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
-export enum CollapsibleRootDataAttributes {
-  /**
-   * Present when the collapsible is open.
-   */
-  open = 'data-open',
-  /**
-   * Present when the collapsible is closed.
-   */
-  closed = 'data-closed',
-  /**
-   * Present when the collapsible begins animating in.
-   */
-  startingStyle = TransitionStatusDataAttributes.startingStyle,
-  /**
-   * Present when the collapsible is animating out.
-   */
-  endingStyle = TransitionStatusDataAttributes.endingStyle,
-}
+/**
+ * Present when the collapsible is open.
+ */
+export const open = 'data-open';
+/**
+ * Present when the collapsible is closed.
+ */
+export const closed = 'data-closed';
+/**
+ * Present when the collapsible begins animating in.
+ */
+export const startingStyle = TransitionStatusDataAttributes.startingStyle;
+/**
+ * Present when the collapsible is animating out.
+ */
+export const endingStyle = TransitionStatusDataAttributes.endingStyle;

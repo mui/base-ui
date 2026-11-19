@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { expectType } from '../testUtils';
 import { createSelector } from './createSelector';
+import type { Store } from './Store';
 import { ReactStore } from './ReactStore';
 
 interface TestState {
@@ -78,26 +80,26 @@ expectType<boolean, typeof isTextLengthBetween2And8Reactive>(isTextLengthBetween
 
 // incorrect calls:
 
-// @ts-expect-error
+// @ts-expect-error select requires a selector name.
 store.select();
-// @ts-expect-error
+// @ts-expect-error The count selector accepts no additional arguments.
 store.select('count', 1);
-// @ts-expect-error
+// @ts-expect-error The textLongerThan selector requires a length argument.
 store.select('textLongerThan');
-// @ts-expect-error
+// @ts-expect-error The textLengthBetween selector requires both minimum and maximum lengths.
 store.select('textLengthBetween', 1);
-// @ts-expect-error
+// @ts-expect-error The textLongerThan selector accepts only one length argument.
 store.select('textLongerThan', 2, 3);
 
-// @ts-expect-error
+// @ts-expect-error useState requires a selector name.
 store.useState();
-// @ts-expect-error
+// @ts-expect-error The count selector accepts no additional arguments.
 store.useState('count', 1);
-// @ts-expect-error
+// @ts-expect-error The textLongerThan selector requires a length argument.
 store.useState('textLongerThan');
-// @ts-expect-error
+// @ts-expect-error The textLengthBetween selector requires both minimum and maximum lengths.
 store.useState('textLengthBetween', 1);
-// @ts-expect-error
+// @ts-expect-error The textLongerThan selector accepts only one length argument.
 store.useState('textLongerThan', 2, 3);
 
 const unsubscribeFromCount = store.observe('count', (newValue, oldValue) => {
@@ -120,3 +122,10 @@ const mismatchedListener = (newValue: string) => {
 };
 // @ts-expect-error listener must match selector return type
 store.observe((state) => state.text.length, mismatchedListener);
+
+// Calling create() on the generic class constructs a ReactStore at runtime, but the
+// inferred instance type degrades to the base Store — a known limitation (see Store.create).
+{
+  const degraded = ReactStore.create({ count: 0 });
+  expectType<Store<{ count: number }>, typeof degraded>(degraded);
+}

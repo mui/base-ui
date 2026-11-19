@@ -1,0 +1,139 @@
+# v1.8.0
+
+<Subtitle>Sep 4, 2026</Subtitle>
+<Meta name="description" content="v1.8.0 release notes. Sep 4, 2026." />
+
+## General changes
+
+- Fix label association when a control unregisters ([#5456](https://github.com/mui/base-ui/pull/5456))
+- Reduce animation completion work ([#5535](https://github.com/mui/base-ui/pull/5535))
+- Fix prop and ref merging for lazy render elements ([#5562](https://github.com/mui/base-ui/pull/5562))
+- Fix roving focus when items are added or removed ([#5447](https://github.com/mui/base-ui/pull/5447))
+- Fix hover and focus interaction issues ([#5037](https://github.com/mui/base-ui/pull/5037))
+- Improve trigger mount performance ([#5426](https://github.com/mui/base-ui/pull/5426))
+- Fix disabled anchor tracking on scroll ([#5478](https://github.com/mui/base-ui/pull/5478))
+- Fix transform origin for start/end alignment ([#5015](https://github.com/mui/base-ui/pull/5015))
+- Remove duplicate options key from arrow middleware ([#5606](https://github.com/mui/base-ui/pull/5606))
+- Register passive touch listeners ([#5572](https://github.com/mui/base-ui/pull/5572))
+
+## Alert Dialog
+
+- Ignore outside clicks from presses that began before open ([#5378](https://github.com/mui/base-ui/pull/5378))
+
+## Autocomplete
+
+- Render groups with the rowgroup role in grid mode ([#5564](https://github.com/mui/base-ui/pull/5564))
+- Allow opening and browsing the popup while `readOnly` ([#5541](https://github.com/mui/base-ui/pull/5541))
+- Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
+- Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
+
+## Avatar
+
+- Add `keepMounted` prop to `<Avatar.Image>` ([#5536](https://github.com/mui/base-ui/pull/5536))
+
+## Checkbox
+
+- Fix stale and duplicated control IDs ([#5457](https://github.com/mui/base-ui/pull/5457))
+- Fix controlled blur validation and stale filled state ([#5563](https://github.com/mui/base-ui/pull/5563))
+
+## Checkbox Group
+
+- Fix stale and duplicated control IDs ([#5457](https://github.com/mui/base-ui/pull/5457))
+
+## Combobox
+
+- Fix applying `data-readonly` to `<Combobox.Trigger>` ([#5418](https://github.com/mui/base-ui/pull/5418))
+- Add `createItems` collection API ([#5326](https://github.com/mui/base-ui/pull/5326))
+- Fix cancellation when preserving the filter after selection ([#5362](https://github.com/mui/base-ui/pull/5362))
+- Render groups with the rowgroup role in grid mode ([#5564](https://github.com/mui/base-ui/pull/5564))
+- Allow opening and browsing the popup while `readOnly` ([#5541](https://github.com/mui/base-ui/pull/5541))
+- Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
+- Fix record item label lookup reading from `Object.prototype` ([#5518](https://github.com/mui/base-ui/pull/5518))
+- Anchor multiple selection to the first selected item with a linear lookup ([#5573](https://github.com/mui/base-ui/pull/5573), [#5613](https://github.com/mui/base-ui/pull/5613))
+- Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
+
+## Dialog
+
+- Ignore outside clicks from presses that began before open ([#5378](https://github.com/mui/base-ui/pull/5378))
+
+## Drawer
+
+- Ignore swipes without an attributed direction when using snap points ([#5477](https://github.com/mui/base-ui/pull/5477))
+- Respect canceled snap point dismissal ([#5571](https://github.com/mui/base-ui/pull/5571))
+- Ignore the page scroller when starting a swipe ([#5567](https://github.com/mui/base-ui/pull/5567))
+
+## Field
+
+- Fix custom validity ownership and validation lifecycle ([#5449](https://github.com/mui/base-ui/pull/5449))
+- Sync controlled value changes with field state ([#5460](https://github.com/mui/base-ui/pull/5460))
+- Fix stale and duplicated control IDs ([#5457](https://github.com/mui/base-ui/pull/5457))
+- Validate once on Enter inside a Form ([#5459](https://github.com/mui/base-ui/pull/5459))
+- Publish neutral validity while async validation is in flight ([#5600](https://github.com/mui/base-ui/pull/5600))
+- Fix controlled blur validation and stale filled state ([#5563](https://github.com/mui/base-ui/pull/5563))
+
+## Form
+
+- Fix `clearErrors` dropping updates when multiple fields change at once ([#5446](https://github.com/mui/base-ui/pull/5446))
+
+## Menu
+
+- Play the enter transition for an initially open submenu ([#4383](https://github.com/mui/base-ui/pull/4383))
+- Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
+- Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
+
+## Menubar
+
+- Fix menubar accessibility tree to satisfy `aria-required-children` ([#5058](https://github.com/mui/base-ui/pull/5058))
+
+## Navigation Menu
+
+- Fix pointer-events lock when sweeping quickly across a trigger ([#5454](https://github.com/mui/base-ui/pull/5454))
+- Keep focus on trigger when opening ([#5479](https://github.com/mui/base-ui/pull/5479))
+- Add disabled data attribute to `<NavigationMenu.Trigger>` ([#5521](https://github.com/mui/base-ui/pull/5521))
+
+## Number Field
+
+- Stop incrementing when disabled during press-and-hold ([#5435](https://github.com/mui/base-ui/pull/5435))
+- Prevent scrubbing on horizontal wheel events ([#5463](https://github.com/mui/base-ui/pull/5463))
+- Preserve native and consumer-controlled selection when focusing the input ([#5578](https://github.com/mui/base-ui/pull/5578), [#5619](https://github.com/mui/base-ui/pull/5619))
+
+## Popover
+
+- Ignore outside clicks from presses that began before open ([#5378](https://github.com/mui/base-ui/pull/5378))
+- Fix detached trigger store migration ([#5442](https://github.com/mui/base-ui/pull/5442))
+
+## Scroll Area
+
+- Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
+- Prevent scrollbars from stealing focus ([#5430](https://github.com/mui/base-ui/pull/5430))
+
+## Select
+
+- Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
+- Anchor multiple selection to the first selected item with a linear lookup ([#5573](https://github.com/mui/base-ui/pull/5573), [#5613](https://github.com/mui/base-ui/pull/5613))
+- Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
+- Fix the root ID being ignored inside a Field ([#5461](https://github.com/mui/base-ui/pull/5461))
+- Remove redundant size check in `<Select.Positioner>` ([#5469](https://github.com/mui/base-ui/pull/5469))
+- Allow opening and browsing the popup while `readOnly` ([#5531](https://github.com/mui/base-ui/pull/5531))
+- Fix record item label lookup reading from `Object.prototype` ([#5518](https://github.com/mui/base-ui/pull/5518))
+
+## Slider
+
+- Prevent update loops from unstable refs ([#5441](https://github.com/mui/base-ui/pull/5441))
+
+## Switch
+
+- Fix controlled blur validation and stale filled state ([#5563](https://github.com/mui/base-ui/pull/5563))
+
+## Tabs
+
+- Prevent update loops from unstable refs ([#5441](https://github.com/mui/base-ui/pull/5441))
+- Consider 3D transforms when positioning the indicator ([#4852](https://github.com/mui/base-ui/pull/4852))
+
+## Toast
+
+- Allow functional toast updates derived from the current toast ([#5464](https://github.com/mui/base-ui/pull/5464), [#5611](https://github.com/mui/base-ui/pull/5611), [#5629](https://github.com/mui/base-ui/pull/5629))
+
+## Tooltip
+
+- Respect trigger delay with zero provider delay ([#5444](https://github.com/mui/base-ui/pull/5444))

@@ -7,21 +7,21 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { clamp } from '@base-ui/utils/clamp';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { activeElement, contains } from '../../floating-ui-react/utils';
-import {
-  CompositeList,
-  type CompositeMetadata,
-} from '../../internals/composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -309,6 +309,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       handleInputChange,
       indicatorPosition,
       inset: thumbAlignment !== 'center',
+      isArrayValue: range,
       labelId: ariaLabelledby,
       rootLabelId: defaultLabelId,
       largeStep,
@@ -359,6 +360,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
+      range,
       registerFieldControlRef,
       setActive,
       setValue,
@@ -464,6 +466,7 @@ export interface SliderRootProps<
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**

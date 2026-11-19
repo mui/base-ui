@@ -1,18 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useStore } from '@base-ui/utils/store';
+import { contains } from '@base-ui/utils/shadowDom';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { selectors } from '../store';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { handleInputPress } from '../utils/handleInputPress';
 import { useListEmpty, usePopupSide } from '../utils/parts';
-import { contains } from '../../floating-ui-react/utils/element';
 
 /**
  * A wrapper for the input and its associated controls.
@@ -29,11 +26,11 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   const { state: fieldState } = useFieldRootContext();
   const store = useComboboxRootContext();
 
-  const open = useStore(store, selectors.open);
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
-  const selectionMode = useStore(store, selectors.selectionMode);
+  const open = store.useState('open');
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const hasSelectedValue = store.useState('hasSelectedValue');
+  const selectionMode = store.useState('selectionMode');
 
   const popupSide = usePopupSide(store);
   const disabled = comboboxDisabled;
@@ -50,9 +47,7 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
     placeholder,
   };
 
-  const setInputGroupElement = useStableCallback((element: HTMLDivElement | null) => {
-    store.set('inputGroupElement', element);
-  });
+  const setInputGroupElement = store.useStateSetter('inputGroupElement');
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setInputGroupElement],
@@ -60,8 +55,8 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
       {
         role: 'group',
         onMouseDown(event) {
-          handleInputPress(event, store, disabled, readOnly, (target) => {
-            return contains(store.state.chipsContainerRef.current, target);
+          handleInputPress(event, store, disabled, (target) => {
+            return contains(store.context.chipsContainerRef.current, target);
           });
         },
       },

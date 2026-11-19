@@ -1,23 +1,22 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { type FieldRootState } from '../root/FieldRoot';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { activeElement } from '../../floating-ui-react/utils';
 
 /**
  * The form control to label and validate.
@@ -38,7 +37,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     className,
     id: idProp,
     name: nameProp,
-    value: valueProp,
+    value,
     disabled: disabledProp = false,
     onValueChange,
     defaultValue,
@@ -54,12 +53,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
     setTouched,
     setDirty,
     validityData,
-    setFocused,
     setFilled,
     validationMode,
     validation,
   } = useFieldRootContext();
-  const { clearErrors } = useFormContext();
+  const { clearErrors, elementRef: formElementRef, submitCountRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -73,15 +71,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const id = useLabelableId({ id: idProp });
 
-  const [valueUnwrapped] = useControlled({
-    controlled: valueProp,
-    default: defaultValue,
-    name: 'FieldControl',
-    state: 'value',
-  });
-
-  const isControlled = valueProp !== undefined;
-  const value = isControlled ? valueUnwrapped : undefined;
+  const isControlled = value !== undefined;
   // The DOM value is always a string, so dirty comparisons must serialize the controlled value.
   const serializedValue = value == null ? undefined : String(value);
 
@@ -97,10 +87,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
   );
 
   useIsoLayoutEffect(() => {
-    if (validation.inputRef.current?.value) {
-      setFilled(true);
+    const currentValue = serializedValue ?? validation.inputRef.current?.value;
+    if (currentValue !== undefined) {
+      setFilled(currentValue !== '');
     }
-  }, [validation.inputRef, setFilled]);
+  }, [serializedValue, defaultValue, validation.inputRef, setFilled]);
 
   useValueChanged(serializedValue, () => {
     if (serializedValue === undefined) {
@@ -109,18 +100,13 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
     clearErrors(name);
     setDirty(serializedValue !== (validityData.initialValue ?? ''));
-    setFilled(serializedValue !== '');
 
     validation.change(serializedValue);
   });
 
   const inputRef = React.useRef<HTMLElement>(null);
-
-  useIsoLayoutEffect(() => {
-    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
-      setFocused(true);
-    }
-  }, [autoFocus, setFocused]);
+  const setFocused = useSetFieldFocused(disabled, inputRef);
+  const enterValidationTimeout = useTimeout();
 
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
@@ -163,13 +149,44 @@ export const FieldControl = React.forwardRef(function FieldControl(
           setFocused(false);
 
           if (validationMode === 'onBlur') {
-            validation.commit(event.currentTarget.value);
+            const inputValue = event.currentTarget.value;
+            validation.commit(inputValue);
+
+            if (isControlled) {
+              // Controlled blur handlers can normalize the value before this microtask runs.
+              // A rewrite back to the initial value is a programmatic reset: the field looks
+              // pristine, so committing it would only surface `valueMissing` noise.
+              queueMicrotask(() => {
+                const nextValue = validation.inputRef.current?.value;
+                if (
+                  nextValue !== undefined &&
+                  nextValue !== inputValue &&
+                  nextValue !== (validityData.initialValue ?? '')
+                ) {
+                  validation.commit(nextValue);
+                }
+              });
+            }
           }
         },
         onKeyDown(event) {
           if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
             setTouched(true);
-            validation.commit(event.currentTarget.value);
+            const value = event.currentTarget.value;
+            const form = event.currentTarget.form;
+            if (form && form === formElementRef.current && !event.defaultPrevented) {
+              const input = event.currentTarget;
+              const submitCount = submitCountRef.current;
+
+              // Implicit submission runs after keydown. Fall back unless Form handles it first.
+              enterValidationTimeout.start(0, () => {
+                if (submitCountRef.current === submitCount) {
+                  validation.commit(input.value);
+                }
+              });
+            } else {
+              validation.commit(value);
+            }
           }
         },
       },

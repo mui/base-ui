@@ -1,5 +1,6 @@
 import * as jsxRuntime from 'react/jsx-runtime';
-import { evaluate, EvaluateOptions } from '@mdx-js/mdx';
+import type { EvaluateOptions } from '@mdx-js/mdx';
+import { evaluate } from '@mdx-js/mdx';
 
 export async function createMdxComponent(
   markdown = '',

@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
@@ -221,12 +221,8 @@ describe('useRender', () => {
 
       expect(span).toHaveAttribute('class', 'test-class');
 
-      const attributes = span?.attributes;
-      if (attributes) {
-        for (let i = 0; i < attributes.length; i += 1) {
-          expect(attributes[i].name).not.toMatch(/^data-/);
-        }
-      }
+      const attributeNames = Array.from(span?.attributes ?? [], (attr) => attr.name);
+      expect(attributeNames.filter((name) => name.startsWith('data-'))).toEqual([]);
     });
 
     it('handles undefined state', async () => {

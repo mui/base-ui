@@ -1,26 +1,28 @@
-import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
+import { CommonPopupDataAttributes } from '../../utils/popups/popupStateMapping';
 
-export enum MenuPositionerDataAttributes {
-  /**
-   * Present when the menu popup is open.
-   */
-  open = CommonPopupDataAttributes.open,
-  /**
-   * Present when the menu popup is closed.
-   */
-  closed = CommonPopupDataAttributes.closed,
-  /**
-   * Present when the anchor is hidden.
-   */
-  anchorHidden = CommonPopupDataAttributes.anchorHidden,
-  /**
-   * Indicates which side the popup is positioned relative to the trigger.
-   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
-   */
-  side = CommonPopupDataAttributes.side,
-  /**
-   * Indicates how the popup is aligned relative to specified side.
-   * @type {'start' | 'center' | 'end'}
-   */
-  align = CommonPopupDataAttributes.align,
-}
+/**
+ * Present when the menu popup is open.
+ */
+export const open = CommonPopupDataAttributes.open;
+/**
+ * Present when the menu popup is closed.
+ */
+export const closed = CommonPopupDataAttributes.closed;
+/**
+ * Present when the menu is a submenu.
+ */
+export const nested = 'data-nested';
+/**
+ * Present when the anchor is hidden.
+ */
+export const anchorHidden = CommonPopupDataAttributes.anchorHidden;
+/**
+ * Indicates which side the popup is positioned relative to the anchor.
+ * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
+ */
+export const side = CommonPopupDataAttributes.side;
+/**
+ * Indicates how the popup is aligned relative to the specified side.
+ * @type {'start' | 'center' | 'end'}
+ */
+export const align = CommonPopupDataAttributes.align;

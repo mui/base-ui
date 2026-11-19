@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, it } from 'vitest';
 import * as React from 'react';
 import { screen, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';

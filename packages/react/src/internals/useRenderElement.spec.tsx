@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import * as React from 'react';
+import type * as React from 'react';
 import { expectType } from '#test-utils';
 import { useRenderElement } from './useRenderElement';
 

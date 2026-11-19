@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -47,6 +47,7 @@ export function useNumberFieldStepperButton(
     id,
     incrementValue,
     inputRef,
+    focusInput,
     maxWithDefault,
     minWithDefault,
     setValue,
@@ -162,7 +163,7 @@ export function useNumberFieldStepperButton(
 
       if (!isTouchLikePointerType(event.pointerType)) {
         // Focus the input so the user can continue with keyboard interactions.
-        inputRef.current?.focus();
+        focusInput();
       }
 
       pointerHandlers.onPointerDown(event);

@@ -1,8 +1,8 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { screen, act, fireEvent, reactMajor } from '@mui/internal-test-utils';
+import { screen, act, fireEvent, ignoreActWarnings, reactMajor } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, wait, pasteText } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 
 const isWebKit = platform.engine.webkit;
@@ -37,28 +37,6 @@ function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
 
 describe('<NumberField.ScrubArea />', () => {
   const { render } = createRenderer();
-
-  function createClipboardData(text: string) {
-    return {
-      getData: (type: string) => (type === 'text/plain' ? text : ''),
-    };
-  }
-
-  function pasteText(target: HTMLElement, value: string) {
-    if (isJSDOM) {
-      fireEvent.paste(target, {
-        clipboardData: createClipboardData(value),
-      });
-      return;
-    }
-
-    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
-    Object.defineProperty(pasteEvent, 'clipboardData', {
-      value: createClipboardData(value),
-    });
-
-    fireEvent(target, pasteEvent);
-  }
 
   describeConformance(<NumberField.ScrubArea />, () => ({
     refInstanceof: window.HTMLSpanElement,
@@ -145,6 +123,27 @@ describe('<NumberField.ScrubArea />', () => {
       });
 
       expect(root).not.toHaveAttribute('data-scrubbing');
+    });
+
+    it('keeps a selection the consumer sets in onFocus when a mouse press focuses the input', async () => {
+      await render(
+        <NumberField.Root defaultValue={100}>
+          <NumberField.Input onFocus={(event) => event.currentTarget.select()} />
+          <NumberField.ScrubArea data-testid="scrub-area" />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        screen
+          .getByTestId('scrub-area')
+          .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'mouse' }));
+      });
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
     });
   });
 
@@ -639,20 +638,30 @@ describe('<NumberField.ScrubArea />', () => {
     });
   });
 
-  it('should fire onClick when clicked without scrubbing', async () => {
+  it('should fire onClick once when clicked without scrubbing', async () => {
     const handleClick = vi.fn();
 
-    const { user } = await render(
+    await render(
       <NumberField.Root defaultValue={0}>
-        <NumberField.ScrubArea data-testid="scrub-area" onClick={handleClick}>
+        <NumberField.ScrubArea
+          data-testid="scrub-area"
+          onClick={handleClick}
+          style={{ display: 'inline-block', width: 100, height: 40 }}
+        >
           <NumberField.ScrubAreaCursor />
         </NumberField.ScrubArea>
+        <NumberField.Input />
       </NumberField.Root>,
     );
 
-    await user.click(screen.getByTestId('scrub-area'));
+    // Real browser input, so the native click and the synthesized one can both happen.
+    ignoreActWarnings();
+    const { userEvent } = await import('vitest/browser');
+    await userEvent.click(screen.getByTestId('scrub-area'));
+    // The synthesized click is deferred by one task (20ms in Firefox).
+    await wait(50);
 
-    expect(handleClick.mock.calls.length).toBe(1);
+    expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
   it('should fire onClick on child elements', async () => {

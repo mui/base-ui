@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { act, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -14,7 +14,7 @@ describe('<Toast.Close />', () => {
 
   describeConformance(<Toast.Close />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render(node) {
       return render(

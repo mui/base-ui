@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
-import {
-  useCompositeListItem,
-  type UseCompositeListItemParameters,
-} from '../list/useCompositeListItem';
-import { HTMLProps } from '../../types';
+import { useCompositeListItem } from '../list/useCompositeListItem';
+import type { UseCompositeListItemParameters } from '../list/useCompositeListItem';
+import type { HTMLProps } from '../../types';
 
 export interface UseCompositeItemParameters<Metadata> extends Pick<
   UseCompositeListItemParameters<Metadata>,
@@ -34,8 +33,7 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
         return;
       }
 
-      const disabled = item.hasAttribute('disabled') || item.ariaDisabled === 'true';
-      if (!isHighlighted && !disabled) {
+      if (!isHighlighted && !isElementDisabled(item)) {
         item.focus();
       }
     },
