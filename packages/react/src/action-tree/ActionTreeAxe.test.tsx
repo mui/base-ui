@@ -31,7 +31,7 @@ async function expectNoAxeViolations(container: HTMLElement) {
 describe.skipIf(isJSDOM)('ActionTree axe checks', () => {
   const { render } = createRenderer();
 
-  it('item controls', async () => {
+  it('item controls that show text', async () => {
     const { container } = await render(
       <ActionTree.Root items={items} selectionMode="multiple" defaultExpandedItems={['documents']}>
         <ActionTree.List aria-label="Files">
@@ -47,7 +47,9 @@ describe.skipIf(isJSDOM)('ActionTree axe checks', () => {
                   aria-label={`Rename ${item.label}`}
                   defaultValue={item.label}
                 />
-                <ActionTree.ItemButton aria-label={`Delete ${item.label}`}>×</ActionTree.ItemButton>
+                <ActionTree.ItemButton aria-label={`Delete ${item.label}`}>
+                  Delete
+                </ActionTree.ItemButton>
               </ActionTree.ItemContent>
             </ActionTree.Item>
           )}
@@ -55,7 +57,7 @@ describe.skipIf(isJSDOM)('ActionTree axe checks', () => {
       </ActionTree.Root>,
     );
     expect(screen.getByRole('treegrid', { name: 'Files' })).toBeVisible();
-    expect(screen.getByRole('gridcell', { name: 'Resume.pdf' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Delete Resume.pdf' })).toHaveTextContent('Delete');
 
     await expectNoAxeViolations(container);
   });

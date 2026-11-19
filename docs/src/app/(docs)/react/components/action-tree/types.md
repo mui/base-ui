@@ -881,7 +881,7 @@ Pass it directly to the root component; it has no public members.
 
 Contains the interactive content of a tree item.
 Requires `ActionTree.Root`.
-Renders a `<div>` element with `role="gridcell"`, named after its item.
+Renders a `<div>` element with `role="gridcell"`.
 
 **ItemContent Props:**
 

@@ -1716,7 +1716,7 @@ describe('ActionTree roles', () => {
     { id: 'music', label: 'Music' },
   ];
 
-  it('renders a treegrid whose rows have a cell named after their item', async () => {
+  it('renders a treegrid whose rows have a cell named from its content', async () => {
     await render(
       <ActionTree.Root items={items} selectionMode="multiple">
         <ActionTree.List aria-label="Files">
@@ -1737,8 +1737,8 @@ describe('ActionTree roles', () => {
     expect(screen.getAllByRole('row')).toHaveLength(2);
     expect(screen.getByRole('row', { name: 'Documents' })).toBeInTheDocument();
     expect(screen.getAllByRole('gridcell')).toHaveLength(2);
-    // Named after the item, not after every control label inside it.
-    expect(screen.getAllByRole('gridcell')[0]).toHaveAccessibleName('Documents');
+    // Keeps the visible text of its controls in its name (label in name).
+    expect(screen.getByRole('gridcell', { name: /Documents.*Info/ })).toBeInTheDocument();
     // A single column that is always rendered needs no column metadata.
     expect(screen.getAllByRole('gridcell')[0]).not.toHaveAttribute('aria-colindex');
     expect(screen.queryByRole('treeitem')).toBeNull();
