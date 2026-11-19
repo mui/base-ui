@@ -3,8 +3,7 @@
   "extends": ["github>mui/mui-public//renovate/experimental"],
   "schedule": "* 2-6 * * 5",
   "lockFileMaintenance": {
-    "description": "Match the schedule above, so the lockfile refresh lands in the weekly npm non-major group PR.",
-    "schedule": "* 2-6 * * 5"
+    "schedule": "* 0-4 4 * *"
   },
   "packageRules": [
     {
