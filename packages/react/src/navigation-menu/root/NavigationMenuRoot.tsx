@@ -118,13 +118,21 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     }
   });
 
-  // Attach immediately, but only clear the portal container after a visible Root commit.
-  // Suspense disconnects refs without running this setup, so pending content stays mounted.
+  // Attach immediately, but only clear the portal container after a visible Root commit, and
+  // only once the viewport has left the document. Suspense and Activity detach refs but keep the
+  // hidden viewport in place, so pending content stays mounted in it.
   // Read refs because descendant refs can reattach after this render during a reveal.
   useIsoLayoutEffect(() => {
     const elements = viewportElementsRef.current;
-    setPortalContainer(elements.target || elements.viewport);
-  }, [viewportElement, viewportTargetElement]);
+    const element = elements.target || elements.viewport;
+    if (element || !portalContainer?.isConnected) {
+      setPortalContainer(element);
+    }
+  }, [viewportElement, viewportTargetElement, portalContainer]);
+
+  // Content still portals into a viewport that Suspense or Activity has hidden.
+  const viewportHidden =
+    portalContainer != null && viewportElement == null && viewportTargetElement == null;
   const [activationDirection, setActivationDirection] =
     React.useState<NavigationMenuRootContext['activationDirection']>(null);
   const [floatingRootStore, setFloatingRootStore] = React.useState<FloatingRootStore | undefined>(
@@ -296,9 +304,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       setPopupElement,
       viewportElement,
       setViewportElement,
-      viewportTargetElement,
       setViewportTargetElement,
       portalContainer,
+      viewportHidden,
       activationDirection: contextActivationDirection,
       setActivationDirection,
       floatingRootStore,
@@ -328,9 +336,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       popupElement,
       viewportElement,
       setViewportElement,
-      viewportTargetElement,
       setViewportTargetElement,
       portalContainer,
+      viewportHidden,
       contextActivationDirection,
       floatingRootStore,
       nested,

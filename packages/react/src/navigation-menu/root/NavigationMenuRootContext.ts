@@ -24,9 +24,12 @@ export interface NavigationMenuRootContext<Value = any> {
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportElement: HTMLElement | null;
   setViewportElement: (element: HTMLElement | null) => void;
-  viewportTargetElement: HTMLElement | null;
   setViewportTargetElement: (element: HTMLElement | null) => void;
   portalContainer: HTMLElement | null;
+  /**
+   * Whether `portalContainer` is a viewport that Suspense or Activity has hidden.
+   */
+  viewportHidden: boolean;
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
   setActivationDirection: React.Dispatch<
     React.SetStateAction<'left' | 'right' | 'up' | 'down' | null>
