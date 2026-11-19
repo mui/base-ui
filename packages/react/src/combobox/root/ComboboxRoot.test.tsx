@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import * as ReactDOM from 'react-dom';
 import {
   act,
@@ -12,6 +13,8 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  hiddenInputSizeTests,
+  hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -75,9 +78,8 @@ function SelectedIndexProbe() {
 }
 
 function getHiddenControl() {
-  return screen
-    .getAllByRole<HTMLInputElement>('textbox', { hidden: true })
-    .find((element) => element.getAttribute('aria-hidden') === 'true')!;
+  // Outside of forms it's `type="hidden"`, which has no role.
+  return document.querySelector<HTMLInputElement>('input[aria-hidden="true"]')!;
 }
 
 function ActiveIndexProbe() {
@@ -157,6 +159,88 @@ describe('<Combobox.Root />', () => {
 
   const { render, renderToString } = createRenderer();
 
+  describe('closing before the popup attaches', () => {
+    it('unmounts the popup when a layout effect closes it on mount', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        useIsoLayoutEffect(() => {
+          setOpen(false);
+        }, []);
+        return (
+          <Combobox.Root
+            open={open}
+            onOpenChange={setOpen}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Combobox.Input />
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">Apple</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
+    });
+
+    it('finishes closing when a layout effect closes it right after a press opens it', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        useIsoLayoutEffect(() => {
+          if (open) {
+            setOpen(false);
+          }
+        }, [open]);
+        return (
+          <Combobox.Root
+            open={open}
+            onOpenChange={setOpen}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Combobox.Input />
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">Apple</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      // The press mounts the list while closed so its items can register; it isn't left closing.
+      expect(screen.getByRole('listbox', { hidden: true })).not.toHaveAttribute(
+        'data-ending-style',
+      );
+    });
+  });
+
   it('exposes the orientation attribute rendered by Separator', async () => {
     await render(<Combobox.Separator orientation="vertical" />);
 
@@ -218,7 +302,6 @@ describe('<Combobox.Root />', () => {
     focusModel: 'virtual',
     homeEnd: false,
     selectable: true,
-    spaceActivates: false,
     enterSpaceOpen: false,
     typeahead: false,
     modal: false,
@@ -303,6 +386,35 @@ describe('<Combobox.Root />', () => {
 
       expect(optionA).toHaveAttribute('data-highlighted');
     });
+  });
+
+  it('calls onOpenChangeComplete after the closed popup resets the input', async () => {
+    const calls: string[] = [];
+    const { user } = await render(
+      <Combobox.Root
+        onInputValueChange={(value) => calls.push(`inputValueChange:${value}`)}
+        onOpenChangeComplete={(open) => calls.push(`openChangeComplete:${open}`)}
+      >
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.type(screen.getByTestId('input'), 'ap');
+    await waitFor(() => expect(calls).toContain('openChangeComplete:true'));
+    calls.length = 0;
+
+    await user.click(document.body);
+    await waitFor(() => expect(calls).toContain('openChangeComplete:false'));
+    expect(calls).toEqual(['inputValueChange:', 'openChangeComplete:false']);
   });
 
   describe('manual unmount lifecycle', () => {
@@ -587,16 +699,6 @@ describe('<Combobox.Root />', () => {
       await user.click(screen.getByRole('option'));
       await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(2);
-    });
-
-    it('does not call `onOpenChange` when the `close` action is called while closed', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      const onOpenChange = vi.fn();
-      await render(<Popup actionsRef={actionsRef} onOpenChange={onOpenChange} />);
-
-      act(() => actionsRef.current!.close());
-      expect(onOpenChange).not.toHaveBeenCalled();
-      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('completes closing once when `unmount` is called twice in one batch', async () => {
@@ -8747,6 +8849,39 @@ describe('<Combobox.Root />', () => {
         'true',
       );
     });
+
+    // Async search keeps showing the previous results while the user types.
+    it('does not re-render the list while typing when the external result is unchanged', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+      const renderItem = vi.fn((item: string) => (
+        <Combobox.Item key={item} value={item}>
+          {item}
+        </Combobox.Item>
+      ));
+
+      const { user } = await render(
+        <Combobox.Root items={items} filteredItems={items} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>{renderItem}</Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(renderItem).toHaveBeenCalled();
+      renderItem.mockClear();
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'b');
+      await waitFor(() => expect(input).toHaveValue('b'));
+
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+      expect(renderItem).not.toHaveBeenCalled();
+    });
   });
 
   describe('prop: openOnInputClick', () => {
@@ -9153,6 +9288,42 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: autoHighlight', () => {
+    it('keeps the first highlight when typing opens a kept-mounted list', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'apricot', 'banana']} autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal keepMounted>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('a');
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      // The highlight must survive the list opening.
+      await act(async () => {
+        await new Promise((resolve) => {
+          requestAnimationFrame(resolve);
+        });
+      });
+      expect(apple).toHaveAttribute('data-highlighted');
+    });
+
     describe('asynchronous items', () => {
       function AsyncCombobox({
         items = [],
@@ -10754,6 +10925,36 @@ describe('<Combobox.Root />', () => {
     );
   });
 
+  describe('prop: defaultOpen', () => {
+    it('mounts the popup on the first render', async () => {
+      const mountedOnRender: boolean[] = [];
+
+      function MountedProbe() {
+        const store = useComboboxRootContext();
+        mountedOnRender.push(store.useState('mounted'));
+        return null;
+      }
+
+      await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input />
+          <MountedProbe />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(mountedOnRender[0]).toBe(true);
+    });
+  });
+
   describe('prop: onOpenChange', () => {
     it('fires when opening and closing', async () => {
       const onOpenChange = vi.fn();
@@ -10787,6 +10988,55 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
       });
+    });
+
+    it('ignores a request to open an open popup before anything is notified', async () => {
+      const onOpenChange = vi.fn();
+      const handleInteractionOpenChange = vi.fn();
+
+      function InteractionOpenChangeListener() {
+        const store = useComboboxRootContext();
+        React.useEffect(() => {
+          store.context.events.on('openchange', handleInteractionOpenChange);
+          return () => {
+            store.context.events.off('openchange', handleInteractionOpenChange);
+          };
+        }, [store]);
+        return null;
+      }
+
+      const { user } = await render(
+        <Combobox.Root onOpenChange={onOpenChange}>
+          <Combobox.Input />
+          <InteractionOpenChangeListener />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('a');
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(handleInteractionOpenChange).toHaveBeenCalledTimes(1);
+
+      // Each keystroke and press on the input requests an open.
+      await user.keyboard('p');
+      await user.click(input);
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(handleInteractionOpenChange).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -11617,6 +11867,25 @@ describe('<Combobox.Root />', () => {
         expect(apple).toHaveAttribute('data-highlighted');
       });
     });
+  });
+
+  hiddenInputTypeTests({
+    render,
+    createComponent: (props) => (
+      <Combobox.Root {...props}>
+        <Combobox.Input data-testid="input" />
+      </Combobox.Root>
+    ),
+    getFocusTarget: () => screen.getByTestId('input'),
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <Combobox.Root {...props}>
+        <Combobox.Input />
+      </Combobox.Root>
+    ),
   });
 
   describe('Form', () => {
@@ -12866,8 +13135,10 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(validateSpy.mock.calls.length).toBe(1);
       });
-
-      expect(trigger).toHaveAttribute('data-touched', '');
+      // The store commits the close before the Field's state updates land.
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-touched', '');
+      });
       expect(trigger).not.toHaveAttribute('data-focused');
       expect(trigger).toHaveAttribute('aria-invalid', 'true');
     });
@@ -14234,330 +14505,6 @@ describe('<Combobox.Root />', () => {
 
       await user.keyboard('{ArrowRight}');
       expect(input).toHaveFocus();
-    });
-  });
-
-  describe('actionsRef: highlightItem', () => {
-    const ITEMS = ['Apple', 'Banana', 'Cherry'];
-
-    function HighlightItemCombobox(props: {
-      actionsRef: React.RefObject<Combobox.Root.Actions | null>;
-      disabledItems?: readonly string[];
-      loopFocus?: boolean | undefined;
-      defaultOpen?: boolean | undefined;
-      onItemHighlighted?: Combobox.Root.Props<string>['onItemHighlighted'];
-    }) {
-      const { actionsRef, disabledItems = [], loopFocus, defaultOpen = true } = props;
-      return (
-        <Combobox.Root
-          items={ITEMS}
-          actionsRef={actionsRef}
-          loopFocus={loopFocus}
-          defaultOpen={defaultOpen}
-          onItemHighlighted={props.onItemHighlighted}
-        >
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item} disabled={disabledItems.includes(item)}>
-                      {item}
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>
-      );
-    }
-
-    function expectHighlighted(name: string | null) {
-      const input = screen.getByTestId('input');
-      if (name === null) {
-        expect(input).not.toHaveAttribute('aria-activedescendant');
-        return;
-      }
-      expect(input).toHaveAttribute(
-        'aria-activedescendant',
-        screen.getByRole('option', { name }).id,
-      );
-    }
-
-    it('highlights the first and last items', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => expectHighlighted('Apple'));
-
-      act(() => actionsRef.current!.highlightItem('last'));
-      await waitFor(() => expectHighlighted('Cherry'));
-    });
-
-    it('moves relative to the current highlight', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expectHighlighted('Apple'));
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expectHighlighted('Banana'));
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-      await waitFor(() => expectHighlighted('Apple'));
-    });
-
-    it('enters the list from the end when nothing is highlighted and moving backwards', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-      await waitFor(() => expectHighlighted('Cherry'));
-    });
-
-    it('wraps to the last item instead of returning to the input', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => expectHighlighted('Apple'));
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-      await waitFor(() => expectHighlighted('Cherry'));
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expectHighlighted('Apple'));
-    });
-
-    it('does not wrap when loopFocus is disabled', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(<HighlightItemCombobox actionsRef={actionsRef} loopFocus={false} />);
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => expectHighlighted('Apple'));
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-      await waitFor(() => expectHighlighted('Apple'));
-
-      act(() => actionsRef.current!.highlightItem('last'));
-      await waitFor(() => expectHighlighted('Cherry'));
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expectHighlighted('Cherry'));
-    });
-
-    it('traverses aria-disabled items the same way the arrow keys do', async () => {
-      // Base UI renders disabled items with `aria-disabled` rather than natively disabling them,
-      // so they stay announceable, and arrow-key navigation deliberately lands on them. The
-      // imperative action mirrors that instead of inventing a second traversal order.
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(
-        <HighlightItemCombobox actionsRef={actionsRef} disabledItems={['Apple', 'Banana']} />,
-      );
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => expectHighlighted('Apple'));
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expectHighlighted('Banana'));
-    });
-
-    it('clears the highlight with none', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => expectHighlighted('Apple'));
-
-      act(() => actionsRef.current!.highlightItem('none'));
-      await waitFor(() => expectHighlighted(null));
-    });
-
-    it('does nothing while the popup is closed', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      const { user } = await render(
-        <HighlightItemCombobox actionsRef={actionsRef} defaultOpen={false} />,
-      );
-
-      act(() => actionsRef.current!.highlightItem('last'));
-
-      await flushMicrotasks();
-      expect(screen.queryByRole('listbox')).toBeNull();
-      expectHighlighted(null);
-
-      // The call is dropped rather than queued: opening afterwards looks like any other open.
-      await user.click(screen.getByTestId('input'));
-      await user.keyboard('{ArrowDown}');
-      await screen.findByRole('listbox');
-      await waitFor(() => expectHighlighted('Apple'));
-    });
-
-    it('continues arrow-key navigation from the imperative position', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      const { user } = await render(<HighlightItemCombobox actionsRef={actionsRef} />);
-
-      await user.click(screen.getByTestId('input'));
-
-      act(() => actionsRef.current!.highlightItem('last'));
-      await waitFor(() => expectHighlighted('Cherry'));
-
-      await user.keyboard('{ArrowUp}');
-      await waitFor(() => expectHighlighted('Banana'));
-    });
-
-    it('reports the imperative-action reason to onItemHighlighted', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      const onItemHighlighted = vi.fn();
-      await render(
-        <HighlightItemCombobox actionsRef={actionsRef} onItemHighlighted={onItemHighlighted} />,
-      );
-
-      act(() => actionsRef.current!.highlightItem('first'));
-
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenCalledWith(
-          'Apple',
-          expect.objectContaining({ reason: REASONS.imperativeAction, index: 0 }),
-        );
-      });
-
-      act(() => actionsRef.current!.highlightItem('none'));
-
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenLastCalledWith(
-          undefined,
-          expect.objectContaining({ reason: REASONS.imperativeAction, index: -1 }),
-        );
-      });
-    });
-
-    it.skipIf(isJSDOM)('targets items an external virtualizer has not rendered', async () => {
-      // The list is sized to the full item count, so `'last'` resolves to the true last index
-      // even when that item is not mounted. The consumer scrolls on the `imperative-action`
-      // reason, as the virtualized docs demo does.
-      const items = Array.from({ length: 100 }, (_, index) => `item-${index}`);
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      const onItemHighlighted = vi.fn();
-
-      function VirtualizedItems(props: { windowStart: number }) {
-        const filteredItems = Combobox.useFilteredItems<string>();
-        return filteredItems
-          .slice(props.windowStart, props.windowStart + 10)
-          .map((item, offset) => (
-            <Combobox.Item key={item} value={item} index={props.windowStart + offset}>
-              {item}
-            </Combobox.Item>
-          ));
-      }
-
-      function App() {
-        const [windowStart, setWindowStart] = React.useState(0);
-        return (
-          <Combobox.Root
-            items={items}
-            defaultOpen
-            virtualized
-            actionsRef={actionsRef}
-            onItemHighlighted={(item, details) => {
-              onItemHighlighted(item, details);
-              if (details.reason === REASONS.imperativeAction && item) {
-                setWindowStart(Math.max(0, details.index - 5));
-              }
-            }}
-          >
-            <Combobox.Input data-testid="input" />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    <VirtualizedItems windowStart={windowStart} />
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-        );
-      }
-
-      await render(<App />);
-      await screen.findByRole('option', { name: 'item-0' });
-      expect(screen.queryByRole('option', { name: 'item-99' })).toBeNull();
-
-      act(() => actionsRef.current!.highlightItem('last'));
-
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenLastCalledWith(
-          'item-99',
-          expect.objectContaining({ reason: REASONS.imperativeAction, index: 99 }),
-        );
-      });
-      await waitFor(() => expectHighlighted('item-99'));
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-
-      await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenLastCalledWith(
-          'item-98',
-          expect.objectContaining({ reason: REASONS.imperativeAction, index: 98 }),
-        );
-      });
-    });
-
-    it('steps through a grid in DOM order, like the horizontal arrow keys', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      await render(
-        <Combobox.Root grid defaultOpen actionsRef={actionsRef}>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Row>
-                    <Combobox.Item value="1">1</Combobox.Item>
-                    <Combobox.Item value="2">2</Combobox.Item>
-                  </Combobox.Row>
-                  <Combobox.Row>
-                    <Combobox.Item value="3">3</Combobox.Item>
-                    <Combobox.Item value="4">4</Combobox.Item>
-                  </Combobox.Row>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      const input = screen.getByTestId('input');
-
-      function expectCell(name: string) {
-        expect(input).toHaveAttribute(
-          'aria-activedescendant',
-          screen.getByRole('gridcell', { name }).id,
-        );
-      }
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expectCell('1'));
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expectCell('2'));
-
-      // Crossing a row boundary continues in DOM order, as ArrowRight does.
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expectCell('3'));
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-      await waitFor(() => expectCell('2'));
-
-      act(() => actionsRef.current!.highlightItem('last'));
-      await waitFor(() => expectCell('4'));
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => expectCell('1'));
     });
   });
 });

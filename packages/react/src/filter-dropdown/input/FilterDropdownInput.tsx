@@ -43,6 +43,11 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const isComposingRef = React.useRef(false);
 
   function commitValue(nextValue: string, nativeEvent: Event) {
+    // The input keeps focus until the popup unmounts. The query is held in place while it
+    // animates out, so an edit made then would change the committed value behind it.
+    if (!context.open) {
+      return;
+    }
     const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
     context.onValueChange(nextValue, createChangeEventDetails(reason, nativeEvent));
   }

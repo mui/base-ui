@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { ScrollArea } from '@base-ui/react/scroll-area';
 import styles from './index.module.css';
 
 export default function OutsideScrollDialog() {
@@ -12,49 +11,42 @@ export default function OutsideScrollDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
-          <ScrollArea.Root style={{ position: undefined }} className={styles.ScrollViewport}>
-            <ScrollArea.Viewport className={styles.ScrollViewport}>
-              <ScrollArea.Content className={styles.ScrollContent}>
-                <Dialog.Popup ref={popupRef} className={styles.Popup} initialFocus={popupRef}>
-                  <div className={styles.PopupHeader}>
-                    <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
-                    <Dialog.Description className={styles.Description}>
-                      This layout keeps an outer container scrollable while the dialog can extend
-                      past the bottom edge.
-                    </Dialog.Description>
-                    <Dialog.Close className={styles.Close} aria-label="Close">
-                      <XIcon />
-                    </Dialog.Close>
-                  </div>
+          <div className={styles.ScrollContent}>
+            <Dialog.Popup ref={popupRef} className={styles.Popup} initialFocus={popupRef}>
+              <div className={styles.PopupHeader}>
+                <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
+                <Dialog.Description className={styles.Description}>
+                  This layout keeps an outer container scrollable while the dialog can extend past
+                  the bottom edge.
+                </Dialog.Description>
+                <Dialog.Close className={styles.Close} aria-label="Close">
+                  <XIcon />
+                </Dialog.Close>
+              </div>
 
-                  <div className={styles.Body}>
-                    {CONTENT_SECTIONS.map((item) => (
-                      <section className={styles.Section} key={item.title}>
-                        <h3 className={styles.SectionTitle}>{item.title}</h3>
-                        <p className={styles.SectionBody}>{item.body}</p>
-                      </section>
-                    ))}
-                  </div>
+              <div className={styles.Body}>
+                {CONTENT_SECTIONS.map((item) => (
+                  <section className={styles.Section} key={item.title}>
+                    <h3 className={styles.SectionTitle}>{item.title}</h3>
+                    <p className={styles.SectionBody}>{item.body}</p>
+                  </section>
+                ))}
+              </div>
 
-                  <p className={styles.FooterNote}>
-                    Related docs:{' '}
-                    {RELATED_LINKS.map((item, index) => (
-                      <React.Fragment key={item.href}>
-                        {index > 0 ? ', ' : null}
-                        <a className={styles.FooterLink} href={item.href}>
-                          {item.label}
-                        </a>
-                      </React.Fragment>
-                    ))}
-                    .
-                  </p>
-                </Dialog.Popup>
-              </ScrollArea.Content>
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar className={styles.Scrollbar}>
-              <ScrollArea.Thumb className={styles.ScrollbarThumb} />
-            </ScrollArea.Scrollbar>
-          </ScrollArea.Root>
+              <p className={styles.FooterNote}>
+                Related docs:{' '}
+                {RELATED_LINKS.map((item, index) => (
+                  <React.Fragment key={item.href}>
+                    {index > 0 ? ', ' : null}
+                    <a className={styles.FooterLink} href={item.href}>
+                      {item.label}
+                    </a>
+                  </React.Fragment>
+                ))}
+                .
+              </p>
+            </Dialog.Popup>
+          </div>
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>

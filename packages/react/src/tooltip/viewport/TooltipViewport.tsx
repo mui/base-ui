@@ -4,7 +4,10 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
+import {
+  popupViewportStateMapping,
+  usePopupViewport,
+} from '../../utils/popups/viewport/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.

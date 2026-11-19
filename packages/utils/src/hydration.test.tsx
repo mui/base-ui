@@ -46,23 +46,20 @@ describe('hydration', () => {
   });
 
   // The React 17 paths cannot be reached by the majors under test, so force the
-  // version branch and re-import. The shim's own fallback takes only two
-  // arguments and drops the server snapshot, which is what each path works
-  // around — differently, because the safe degradation differs per hook.
-  // Module mocking only takes effect in the jsdom environment; in the browser
-  // these would silently exercise the modern path instead.
+  // version branch, remove `useSyncExternalStore` as React 17 lacks it, and
+  // re-import. Module mocking only takes effect in the jsdom environment; in the
+  // browser these would silently exercise the modern path instead.
   describe.skipIf(!isJSDOM)('React 17 paths', () => {
     afterEach(() => {
       vi.doUnmock('./reactVersion');
-      vi.doUnmock('use-sync-external-store/shim');
+      vi.doUnmock('./safeReact');
       vi.resetModules();
     });
 
     async function loadLegacy() {
       vi.doMock('./reactVersion', () => ({ isReactVersionAtLeast: () => false }));
-      vi.doMock('use-sync-external-store/shim', () => ({
-        useSyncExternalStore: (_subscribe: unknown, getClientSnapshot: () => boolean) =>
-          getClientSnapshot(),
+      vi.doMock('./safeReact', () => ({
+        SafeReact: { ...React, useSyncExternalStore: undefined },
       }));
       vi.resetModules();
       return import('./hydration');

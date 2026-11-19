@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { describe, it, expect } from 'vitest';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import { screen, within } from '@mui/internal-test-utils';
+import { act, screen, within } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Slider.Label />', () => {
@@ -82,6 +82,72 @@ describe('<Slider.Label />', () => {
       }
     } finally {
       host.remove();
+    }
+  });
+
+  it('focuses a thumb in the light DOM from a label in a shadow root', async () => {
+    const host = document.createElement('div');
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = document.createElement('div');
+    shadowRoot.appendChild(container);
+    document.body.appendChild(host);
+
+    try {
+      const { user, unmount } = await render(
+        <Field.Root>
+          <Slider.Root defaultValue={50}>
+            {ReactDOM.createPortal(<Slider.Label>Volume</Slider.Label>, container)}
+            <Slider.Control>
+              <input aria-label="Unrelated range" type="range" />
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      try {
+        await user.click(within(container).getByText('Volume'));
+
+        expect(screen.getAllByRole('slider')[1]).toHaveFocus();
+      } finally {
+        unmount();
+      }
+    } finally {
+      host.remove();
+    }
+  });
+
+  it('does not throw when the label is clicked in a detached React root', async () => {
+    const container = document.createElement('div');
+
+    const { unmount } = await render(
+      <Field.Root>
+        <Slider.Root defaultValue={50}>
+          <Slider.Label>Volume</Slider.Label>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>
+      </Field.Root>,
+      { container },
+    );
+
+    const errors: ErrorEvent[] = [];
+    function handleError(event: ErrorEvent) {
+      event.preventDefault();
+      errors.push(event);
+    }
+    window.addEventListener('error', handleError);
+
+    try {
+      await act(async () => {
+        within(container).getByText('Volume').click();
+      });
+
+      expect(errors).toHaveLength(0);
+    } finally {
+      window.removeEventListener('error', handleError);
+      unmount();
     }
   });
 

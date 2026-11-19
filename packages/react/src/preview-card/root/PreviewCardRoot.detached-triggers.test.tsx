@@ -8,7 +8,14 @@ import {
   resetBrowserPointer,
 } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  screen,
+  waitFor,
+  randomStringValue,
+  act,
+  fireEvent,
+  flushMicrotasks,
+} from '@mui/internal-test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 const CLOSE_TRANSITION_MS = 50;
@@ -39,6 +46,123 @@ describe('<PreviewCard.Root />', () => {
     openInteractions: ['hover', 'focus'],
     ariaExpanded: false,
     throwOnMissingTrigger: true,
+  });
+
+  describe('does not re-render inactive triggers', () => {
+    async function renderPreviewCard() {
+      const handle = PreviewCard.createHandle();
+      const bystander = { renders: 0 };
+
+      await render(
+        <div>
+          <PreviewCard.Trigger handle={handle} id="trigger-1" href="#" delay={0} closeDelay={0}>
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger handle={handle} id="trigger-2" href="#" delay={0} closeDelay={0}>
+            Trigger 2
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger
+            handle={handle}
+            id="trigger-3"
+            render={(props) => {
+              bystander.renders += 1;
+              return <a {...props} />;
+            }}
+          >
+            Trigger 3
+          </PreviewCard.Trigger>
+          <PreviewCard.Root handle={handle}>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup data-testid="popup">Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      bystander.renders = 0;
+      return {
+        handle,
+        bystander,
+        trigger1: screen.getByText('Trigger 1'),
+        trigger2: screen.getByText('Trigger 2'),
+      };
+    }
+
+    async function expectOpenedBy(trigger: HTMLElement) {
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+    }
+
+    async function expectClosed(trigger: HTMLElement) {
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+    }
+
+    it('when opened and closed imperatively', async () => {
+      const { handle, bystander, trigger1 } = await renderPreviewCard();
+
+      async function openAndClose() {
+        await act(() => handle.open('trigger-1'));
+        await expectOpenedBy(trigger1);
+        await act(() => handle.close());
+        await expectClosed(trigger1);
+      }
+
+      await openAndClose();
+      await openAndClose();
+      expect(bystander.renders).toBe(0);
+    });
+
+    it('when the popup moves to another trigger', async () => {
+      const { handle, bystander, trigger1, trigger2 } = await renderPreviewCard();
+
+      await act(() => handle.open('trigger-1'));
+      await expectOpenedBy(trigger1);
+      await act(() => handle.open('trigger-2'));
+      await expectOpenedBy(trigger2);
+      expect(trigger1).not.toHaveAttribute('data-popup-open');
+      await act(() => handle.close());
+      await expectClosed(trigger2);
+
+      expect(bystander.renders).toBe(0);
+    });
+
+    it('when focus opens and closes the popup', async () => {
+      const { bystander, trigger1 } = await renderPreviewCard();
+
+      async function openAndClose() {
+        await act(async () => trigger1.focus());
+        await expectOpenedBy(trigger1);
+        await act(async () => trigger1.blur());
+        await expectClosed(trigger1);
+      }
+
+      await openAndClose();
+      await openAndClose();
+      expect(bystander.renders).toBe(0);
+    });
+
+    it('when hover opens and closes the popup', async () => {
+      const { bystander, trigger1, trigger2 } = await renderPreviewCard();
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await expectOpenedBy(trigger1);
+      fireEvent.mouseLeave(trigger1);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await expectOpenedBy(trigger2);
+      fireEvent.mouseLeave(trigger2);
+      await expectClosed(trigger2);
+
+      expect(bystander.renders).toBe(0);
+    });
   });
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {

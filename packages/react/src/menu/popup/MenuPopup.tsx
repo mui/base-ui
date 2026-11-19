@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
-import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
+import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
+import type { FloatingFocusManagerProps } from '../../utils/popups/focus/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -10,7 +11,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -28,6 +29,9 @@ interface MenuPopupPlainProps extends MenuPopup.Props {
   initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
 }
 
+/**
+ * @internal
+ */
 export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   componentProps: MenuPopupPlainProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -42,7 +46,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
     ...elementProps
   } = componentProps;
 
-  const { store, defaultFloatingId, setRenderedFloatingId, virtualFocus, orientation } =
+  const { store, generatedPopupId, setRenderedPopupId, virtualFocus, orientation } =
     useMenuRootContext();
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
@@ -57,7 +61,6 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -66,11 +69,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const activeTriggerId = store.useState('activeTriggerId');
   const listElement = store.useState('listElement');
 
-  const [id, registerIdRef] = useRenderedId(
-    componentProps,
-    defaultFloatingId,
-    setRenderedFloatingId,
-  );
+  const [id, registerIdRef] = useRenderedId(componentProps, generatedPopupId, setRenderedPopupId);
 
   const ariaLabelledBy = resolvePopupLabel(componentProps, activeTriggerElement, activeTriggerId);
 
@@ -117,7 +116,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
     };
   }, [floatingTreeRoot.events, store]);
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverPopupInteraction(store, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
@@ -189,7 +188,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
 
   return (
     <FloatingFocusManager
-      context={floatingContext}
+      store={store}
       openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}

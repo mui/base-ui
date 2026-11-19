@@ -1,8 +1,9 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
-import { screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Combobox } from '@base-ui/react/combobox';
 import { useComboboxRootContext } from './root/ComboboxRootContext';
 import type { ComboboxStore } from './store';
 
@@ -239,5 +240,64 @@ describe('combobox store synchronization', () => {
     expect(screen.getByTestId('input')).toHaveAttribute('role', 'combobox');
     expect(namedControls('search')).toHaveLength(1);
     expect(namedControls('search')[0]).toBe(screen.getByTestId('input'));
+  });
+
+  describe('interaction anchor', () => {
+    it('follows the input, and returns to it after a trigger press or a change of open state', async () => {
+      let store!: ComboboxStore;
+
+      function Probe() {
+        store = useComboboxRootContext();
+        return null;
+      }
+
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']}>
+          <Probe />
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(store.select('anchorElement')).toBe(input);
+
+      // A trigger press opens the popup, and the anchor stays on the input.
+      fireEvent.mouseDown(trigger);
+      await screen.findByRole('listbox');
+      await waitFor(() => {
+        expect(store.select('anchorElement')).toBe(input);
+      });
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      expect(store.select('anchorElement')).toBe(input);
+
+      // Positioning clears the anchor while a closed popup stays mounted; reopening restores it.
+      act(() => {
+        store.clearPositioning();
+      });
+      expect(store.select('anchorElement')).toBe(null);
+      await user.click(input);
+      await screen.findByRole('listbox');
+      expect(store.select('anchorElement')).toBe(input);
+    });
   });
 });

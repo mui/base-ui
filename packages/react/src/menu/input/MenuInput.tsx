@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { activeElement } from '@base-ui/utils/shadowDom';
 import { FilterDropdownInput } from '../../filter-dropdown/input/FilterDropdownInput';
 import type {
   FilterDropdownInputProps,
@@ -9,7 +10,6 @@ import type {
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import { useFilterDropdownValueContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';
-import { activeElement } from '../../floating-ui-react/utils';
 import { useMenuFilterKeyDown } from '../filter-root/useMenuFilterKeyDown';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';

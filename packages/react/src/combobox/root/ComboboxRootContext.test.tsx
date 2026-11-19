@@ -1,10 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import { createRenderer } from '#test-utils';
-import {
-  useComboboxDerivedItemsContext,
-  useComboboxFloatingContext,
-  useComboboxRootContext,
-} from './ComboboxRootContext';
+import { useComboboxDerivedItemsContext, useComboboxRootContext } from './ComboboxRootContext';
 
 describe('ComboboxRootContext', () => {
   const { render } = createRenderer();
@@ -15,12 +11,6 @@ describe('ComboboxRootContext', () => {
       useContext: useComboboxRootContext,
       message:
         'Base UI: ComboboxRootContext is missing. Combobox parts must be placed within <Combobox.Root>.',
-    },
-    {
-      name: 'useComboboxFloatingContext',
-      useContext: useComboboxFloatingContext,
-      message:
-        'Base UI: ComboboxFloatingContext is missing. Combobox parts must be placed within <Combobox.Root>.',
     },
     {
       name: 'useComboboxDerivedItemsContext',

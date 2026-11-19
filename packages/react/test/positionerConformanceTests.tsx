@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { createRenderer } from '#test-utils';
@@ -84,7 +84,14 @@ const callbackDataCases: Array<{
  * `useAnchorPositioning`. All cases need real layout, so they run in the browser only.
  */
 export function positionerConformanceTests(config: PositionerTestConfig) {
-  const { render, createComponent, viewport: hasViewport = false } = config;
+  const {
+    render,
+    createComponent,
+    viewport: hasViewport = false,
+    defaultSide = 'bottom',
+    defaultCollisionAvoidance = 'dropdown',
+    stableState = true,
+  } = config;
 
   function prepareComponent(options: {
     positioner?: Partial<PositionerTestProps>;
@@ -191,6 +198,82 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
       });
     });
 
+    it('places the popup on the default side when it fits', async () => {
+      await render(
+        <div style={{ position: 'fixed', top: 200, left: 200 }}>{prepareComponent({})}</div>,
+      );
+
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', defaultSide);
+    });
+
+    describe('prop: collisionAvoidance', () => {
+      // The popup fits neither above nor below the anchor, but fits beside it, so only a fallback to
+      // the perpendicular axis moves it to the side.
+      function prepareTallPopup(collisionAvoidance?: CollisionAvoidance) {
+        return (
+          <div style={{ position: 'fixed', top: '50%', left: 16 }}>
+            {prepareComponent({
+              positioner: { side: 'bottom', collisionAvoidance },
+              popup: { style: { width: popupWidth, height: '75vh' } },
+            })}
+          </div>
+        );
+      }
+
+      const collisionDefaults = {
+        popup: { collisionAvoidance: { fallbackAxisSide: 'end' }, side: /^right$/ },
+        dropdown: { collisionAvoidance: { fallbackAxisSide: 'none' }, side: /^(top|bottom)$/ },
+      } as const;
+
+      it(`uses the ${defaultCollisionAvoidance} default when the prop is not set`, async () => {
+        await render(prepareTallPopup());
+
+        const positioner = screen.getByTestId('positioner');
+        await waitForPositioned(positioner);
+        expect(positioner.getAttribute('data-side')).toMatch(
+          collisionDefaults[defaultCollisionAvoidance].side,
+        );
+      });
+
+      it('uses the prop over the default', async () => {
+        const other =
+          collisionDefaults[defaultCollisionAvoidance === 'popup' ? 'dropdown' : 'popup'];
+        await render(prepareTallPopup(other.collisionAvoidance));
+
+        const positioner = screen.getByTestId('positioner');
+        await waitForPositioned(positioner);
+        expect(positioner.getAttribute('data-side')).toMatch(other.side);
+      });
+    });
+
+    it.skipIf(!stableState)(
+      'passes the same state object while nothing it holds changes',
+      async () => {
+        const states: unknown[] = [];
+
+        function App({ color }: { color: string }) {
+          return prepareComponent({
+            positioner: {
+              render: (props, state) => {
+                states.push(state);
+                return <div {...props} />;
+              },
+            },
+            popup: { style: { ...popupStyle, color } },
+          });
+        }
+
+        const { setProps } = await render(<App color="red" />);
+        const stateBefore = states.at(-1);
+        const renderCountBefore = states.length;
+
+        await setProps({ color: 'blue' });
+
+        expect(states.length).toBeGreaterThan(renderCountBefore);
+        expect(states.at(-1)).toBe(stateBefore);
+      },
+    );
+
     it('uses transform positioning without Viewport', async () => {
       await render(prepareComponent({}));
 
@@ -261,7 +344,8 @@ export interface PositionerTestProps {
   sideOffset?: number | OffsetFunction;
   alignOffset?: number | OffsetFunction;
   collisionPadding?: number;
-  collisionAvoidance?: CollisionAvoidance;
+  collisionAvoidance?: CollisionAvoidance | undefined;
+  render?: (props: React.HTMLAttributes<HTMLDivElement>, state: unknown) => React.ReactElement;
 }
 
 export interface PositionerTestComponentProps {
@@ -303,4 +387,20 @@ export interface PositionerTestConfig {
    * @default false
    */
   viewport?: boolean;
+  /**
+   * The side the Positioner places the popup on when `side` isn't set.
+   * @default 'bottom'
+   */
+  defaultSide?: Side;
+  /**
+   * The `collisionAvoidance` default the Positioner uses: `'popup'` falls back to the
+   * perpendicular axis when neither side fits, `'dropdown'` doesn't.
+   * @default 'dropdown'
+   */
+  defaultCollisionAvoidance?: 'popup' | 'dropdown';
+  /**
+   * Whether the Positioner passes the same state object to `render` while nothing in it changes.
+   * @default true
+   */
+  stableState?: boolean;
 }
