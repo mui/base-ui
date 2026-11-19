@@ -13,6 +13,23 @@ import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import * as ScrollAreaRootCssVars from '../root/ScrollAreaRootCssVars';
 import * as ScrollAreaScrollbarCssVars from './ScrollAreaScrollbarCssVars';
 
+// Pixels scrolled per line when a wheel event reports its delta in lines.
+const WHEEL_LINE_HEIGHT = 16;
+
+/**
+ * Converts a wheel delta to pixels. Firefox reports mouse wheel deltas in lines
+ * (`deltaMode` 1), and some devices report them in pages (`deltaMode` 2).
+ */
+function getWheelDeltaInPixels(delta: number, deltaMode: number, pageSize: number) {
+  if (deltaMode === 1) {
+    return delta * WHEEL_LINE_HEIGHT;
+  }
+  if (deltaMode === 2) {
+    return delta * pageSize;
+  }
+  return delta;
+}
+
 /**
  * A vertical or horizontal scrollbar for the scroll area.
  * Renders a `<div>` element.
@@ -85,7 +102,11 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
       const horizontal = !vertical;
       const scrollProperty = horizontal ? 'scrollLeft' : 'scrollTop';
-      const delta = horizontal ? event.deltaX : event.deltaY;
+      const delta = getWheelDeltaInPixels(
+        horizontal ? event.deltaX : event.deltaY,
+        event.deltaMode,
+        horizontal ? viewportEl.clientWidth : viewportEl.clientHeight,
+      );
       if (delta === 0) {
         return;
       }

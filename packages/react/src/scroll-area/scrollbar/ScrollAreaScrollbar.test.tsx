@@ -836,6 +836,24 @@ describe('<ScrollArea.Scrollbar />', () => {
       expect(viewport.scrollTop).toBe(800);
     });
 
+    it('converts line-based wheel deltas to pixels', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({ orientation: 'vertical' });
+
+      // Firefox reports mouse wheel deltas in lines (`deltaMode` 1).
+      fireEvent.wheel(scrollbar, { deltaY: 3, deltaMode: 1 });
+      expect(viewport.scrollTop).toBe(48);
+
+      fireEvent.wheel(scrollbar, { deltaY: -1, deltaMode: 1 });
+      expect(viewport.scrollTop).toBe(32);
+    });
+
+    it('converts page-based wheel deltas to pixels using the viewport size', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({ orientation: 'horizontal' });
+
+      fireEvent.wheel(scrollbar, { deltaX: 1, deltaMode: 2 });
+      expect(viewport.scrollLeft).toBe(200);
+    });
+
     it('preventDefaults only when it consumes the scroll, allowing chaining at edges', async () => {
       const { viewport, scrollbar } = await renderWheelTest({ orientation: 'vertical' });
 
