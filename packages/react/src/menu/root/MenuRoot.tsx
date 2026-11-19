@@ -27,8 +27,10 @@ import type {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { getHighlightReason } from '../../utils/getHighlightReason';
-import type { ContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import {
+  ContextMenuRootContext,
+  useContextMenuRootContext,
+} from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { MenuStore } from '../store/MenuStore';
@@ -595,6 +597,13 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
     content = <FloatingTree externalTree={floatingTreeRoot}>{content}</FloatingTree>;
+  }
+
+  // A menu nested in a context menu (e.g. in its trigger) isn't part of it.
+  if (contextMenuContext && enclosingMenuStore && !isSubmenu) {
+    content = (
+      <ContextMenuRootContext.Provider value={undefined}>{content}</ContextMenuRootContext.Provider>
+    );
   }
 
   return content;

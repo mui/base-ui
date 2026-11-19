@@ -185,6 +185,25 @@ describe('<Menu.Positioner />', () => {
     expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(false);
   });
 
+  it('respects positionMethod for a menu inside ContextMenu.Trigger', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner positionMethod="absolute">
+                <Menu.Popup />
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </ContextMenu.Trigger>
+      </ContextMenu.Root>,
+    );
+
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].positionMethod).toBe('absolute');
+  });
+
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
       return render(
