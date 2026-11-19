@@ -169,7 +169,8 @@ jobs:
           command: pnpm release:build
       - run:
           name: Validate type declarations
-          command: pnpm code-infra validate-built-types
+          # The luxon adapter's source opts out of type checking, so its declarations don't match TemporalAdapter.
+          command: pnpm code-infra validate-built-types --expect-error @base-ui/react/internals/temporal-adapter-luxon
       - run:
           name: Check stripped public types
           command: pnpm --filter @base-ui/react types:check
