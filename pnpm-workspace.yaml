@@ -61,9 +61,7 @@ autoDedupe: true
 # Record resolution settings like autoDedupe in the lockfile, so installs can trust it and skip resolution.
 lockfile:
   includeResolutionSettings: true
-# Temporarily off: the code-infra pkg.pr.new preview depends on pkg.pr.new URLs.
-# Restore when switching to the published canary.
-blockExoticSubdeps: false
+blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
