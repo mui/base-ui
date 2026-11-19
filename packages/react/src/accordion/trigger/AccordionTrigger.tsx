@@ -65,7 +65,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   };
 
   const element = useRenderElement('button', componentProps, {
-    state,
+    state: { ...state, disabled },
     ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
     stateAttributesMapping,

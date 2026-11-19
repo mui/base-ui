@@ -106,7 +106,12 @@ type OTPFieldRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -350,3 +355,15 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `OTPField.Root.CompleteEventDetails`: `OTPFieldRootCompleteEventDetails`
 - `OTPField.Input.State`: `OTPFieldInputState`
 - `OTPField.Input.Props`: `OTPFieldInputProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `ClipboardEvent`: <https://developer.mozilla.org/docs/Web/API/ClipboardEvent>
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>
+- `InputEvent`: <https://developer.mozilla.org/docs/Web/API/InputEvent>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>

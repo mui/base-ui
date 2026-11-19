@@ -4,6 +4,7 @@ import { vi, expect, beforeEach, test, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { FloatingDelayGroup, useDelayGroup } from './FloatingDelayGroup';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
@@ -24,7 +25,11 @@ function Tooltip({ children, label }: Props) {
     onOpenChange: setOpen,
   });
 
-  const { delayRef, isInstantPhase } = useDelayGroup(context.rootStore, { open });
+  const closeForSibling = useStableCallback(() => setOpen(false));
+  const { delayRef, isInstantPhase } = useDelayGroup(
+    Object.assign(context.rootStore, { closeForSibling }),
+    { open },
+  );
   const hoverReferenceProps = useHoverTriggerInteraction(context.rootStore, {
     delay: () => delayRef.current,
     triggerElementRef: refs.domReference,
