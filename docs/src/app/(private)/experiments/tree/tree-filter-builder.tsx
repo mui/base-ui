@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { Select } from '@base-ui/react/select';
-import { Tree } from '@base-ui/react/tree';
+import { ActionTree } from '@base-ui/react/action-tree';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
@@ -66,7 +66,7 @@ const JOIN_ITEMS: { value: FilterJoin; label: string }[] = [
 
 const COLUMN_ITEMS = COLUMNS.map((column) => ({ value: column.id, label: column.label }));
 
-const ITEM_OPTIONS: Tree.CreateItemsOptions<FilterNode> = {
+const ITEM_OPTIONS: ActionTree.CreateItemsOptions<FilterNode> = {
   getId: (node) => node.id,
   getLabel: getNodeLabel,
   getChildren: (node) => (node.kind === 'group' ? node.children : undefined),
@@ -102,13 +102,13 @@ type FilterEditor = ReturnType<typeof createFilterEditor>;
 const FilterEditorContext = React.createContext<FilterEditor | null>(null);
 
 function createFilterEditor(
-  actionsRef: React.RefObject<Tree.Root.Actions<FilterNode> | null>,
+  actionsRef: React.RefObject<ActionTree.Root.Actions<FilterNode> | null>,
   announce: (message: string) => void,
   openShortcuts: (returnFocusElement: HTMLElement) => void,
 ) {
   let pendingFocusId: string | null = null;
 
-  const transact = (callback: (transaction: Tree.ItemTransaction<FilterNode>) => void) => {
+  const transact = (callback: (transaction: ActionTree.ItemTransaction<FilterNode>) => void) => {
     void actionsRef.current?.applyTransaction(callback);
   };
 
@@ -192,7 +192,7 @@ export default function TreeFilterBuilder() {
   const [announcement, setAnnouncement] = React.useState({ message: '', id: 0 });
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
   const shortcutsReturnFocusRef = React.useRef<HTMLElement | null>(null);
-  const actionsRef = React.useRef<Tree.Root.Actions<FilterNode>>(null);
+  const actionsRef = React.useRef<ActionTree.Root.Actions<FilterNode>>(null);
 
   const [editor] = React.useState(() =>
     createFilterEditor(
@@ -205,7 +205,10 @@ export default function TreeFilterBuilder() {
     ),
   );
 
-  const items = React.useMemo(() => Tree.createItems<FilterNode>([draft], ITEM_OPTIONS), [draft]);
+  const items = React.useMemo(
+    () => ActionTree.createItems<FilterNode>([draft], ITEM_OPTIONS),
+    [draft],
+  );
   // A new array would make the Tree re-apply the expansion on every keystroke.
   const groupIds = getGroupIds(draft).join(' ');
   const expandedItems = React.useMemo(() => groupIds.split(' '), [groupIds]);
@@ -270,25 +273,23 @@ export default function TreeFilterBuilder() {
           </Popover.Root>
         </header>
         <FilterEditorContext.Provider value={editor}>
-          <Tree.GridProvider>
-            <Tree.Root
-              items={items}
-              onItemsChange={(nextItems) => {
-                const [root] = nextItems;
-                if (root?.kind === 'group') {
-                  setDraft(root);
-                }
-              }}
-              actionsRef={actionsRef}
-              expandedItems={expandedItems}
-              selectionMode="none"
-            >
-              <FilterList />
-              <Tree.Status className={styles.VisuallyHidden}>
-                <span key={announcement.id}>{announcement.message}</span>
-              </Tree.Status>
-            </Tree.Root>
-          </Tree.GridProvider>
+          <ActionTree.Root
+            items={items}
+            onItemsChange={(nextItems) => {
+              const [root] = nextItems;
+              if (root?.kind === 'group') {
+                setDraft(root);
+              }
+            }}
+            actionsRef={actionsRef}
+            expandedItems={expandedItems}
+            selectionMode="none"
+          >
+            <FilterList />
+            <ActionTree.Status className={styles.VisuallyHidden}>
+              <span key={announcement.id}>{announcement.message}</span>
+            </ActionTree.Status>
+          </ActionTree.Root>
           <AddMenu editor={editor} />
         </FilterEditorContext.Provider>
         <footer className={styles.Footer}>
@@ -313,13 +314,13 @@ export default function TreeFilterBuilder() {
 // Keeps the rows out of the builder's renders, which every keystroke triggers.
 const FilterList = React.memo(function FilterList() {
   return (
-    <Tree.List
+    <ActionTree.List
       aria-label="Filter conditions"
       aria-description="Press Right Arrow to edit a condition, or question mark for keyboard shortcuts"
       className={styles.Builder}
     >
       {(node: FilterNode) => <FilterRow node={node} />}
-    </Tree.List>
+    </ActionTree.List>
   );
 });
 
@@ -332,7 +333,7 @@ function FilterRow({ node }: { node: FilterNode }) {
   const firstControlRef = React.useMemo(() => editor.focusIfAdded(node.id), [editor, node.id]);
 
   return (
-    <Tree.Item
+    <ActionTree.Item
       itemId={node.id}
       render={(props) => (
         <div
@@ -353,8 +354,8 @@ function FilterRow({ node }: { node: FilterNode }) {
         }
       }}
     >
-      <Tree.ItemContent className={styles.RowContent}>
-        <Tree.ItemIndentGuide className={styles.Guides} />
+      <ActionTree.ItemContent className={styles.RowContent}>
+        <ActionTree.ItemIndentGuide className={styles.Guides} />
         {/* The guide lines connect to the middle of this slot. */}
         <span className={styles.Handle} />
         {node.kind === 'group' ? (
@@ -379,26 +380,26 @@ function FilterRow({ node }: { node: FilterNode }) {
           />
         )}
         <span className={styles.RowActions}>
-          <Tree.ItemButton
+          <ActionTree.ItemButton
             render={<Menu.Trigger handle={addMenu} payload={node.id} />}
             className={styles.IconButton}
             aria-label={node.kind === 'group' ? `Add to ${label}` : `Add after ${label}`}
           >
             <PlusIcon />
-          </Tree.ItemButton>
+          </ActionTree.ItemButton>
           {!isRoot && (
-            <Tree.ItemButton
+            <ActionTree.ItemButton
               className={styles.IconButton}
               aria-label={`Remove ${label}`}
               aria-keyshortcuts="Delete"
               onClick={() => editor.remove(node.id)}
             >
               <RemoveIcon />
-            </Tree.ItemButton>
+            </ActionTree.ItemButton>
           )}
         </span>
-      </Tree.ItemContent>
-    </Tree.Item>
+      </ActionTree.ItemContent>
+    </ActionTree.Item>
   );
 }
 
@@ -509,7 +510,7 @@ function FieldSelect<Value extends string>(props: {
         }
       }}
     >
-      <Tree.ItemButton
+      <ActionTree.ItemButton
         ref={triggerRef}
         render={<Select.Trigger />}
         aria-label={label}
@@ -520,7 +521,7 @@ function FieldSelect<Value extends string>(props: {
         <Select.Icon className={styles.FieldIcon}>
           <CaretIcon />
         </Select.Icon>
-      </Tree.ItemButton>
+      </ActionTree.ItemButton>
       <SelectPopup items={items} />
     </Select.Root>
   );
@@ -536,7 +537,7 @@ function SetValueSelect(props: {
 
   return (
     <Select.Root multiple value={value} onValueChange={onChange}>
-      <Tree.ItemButton
+      <ActionTree.ItemButton
         render={<Select.Trigger />}
         aria-label="Values"
         className={`${styles.Field} ${styles.Value}`}
@@ -549,7 +550,7 @@ function SetValueSelect(props: {
         <Select.Icon className={styles.FieldIcon}>
           <CaretIcon />
         </Select.Icon>
-      </Tree.ItemButton>
+      </ActionTree.ItemButton>
       <SelectPopup items={options.map((option) => ({ value: option, label: option }))} />
     </Select.Root>
   );
@@ -597,7 +598,7 @@ function ValueInput(
   }, [value]);
 
   return (
-    <Tree.ItemInput
+    <ActionTree.ItemInput
       ref={inputRef}
       type={type}
       aria-label={label}

@@ -380,15 +380,6 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }
   };
 
-  /**
-   * Keeps the focus of a press on a part that isn't a tab stop, such as the
-   * expansion trigger, on its row, which owns the roving tab stop.
-   */
-  public focusItemOnPress = (itemId: TreeItemId, event: React.MouseEvent) => {
-    event.preventDefault();
-    this.focusItem(itemId, REASONS.itemPress, event.nativeEvent);
-  };
-
   public actions = {
     focusItem: (itemId: TreeItemId) => this.focusItem(itemId, REASONS.imperativeAction),
     getFocusedItemId: (): TreeItemId | null => selectors.focusedItemId(this.store.state),
@@ -480,7 +471,9 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
           );
         }
       }
-    } else if (key === 'Enter') {
+    } else if (key === 'Enter' && this.store.items.getItemKind(itemId) !== 'link') {
+      // A link item follows its link on Enter like any focused link, and the
+      // click that follows selects it.
       if (this.store.expansion.toggleItemExpansion(itemId, REASONS.itemPress, event.nativeEvent)) {
         event.preventDefault();
       } else if (selectors.canItemBeSelected(this.store.state, itemId)) {
@@ -714,6 +707,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (itemId == null || this.isEventFromOutsideItem(event)) {
       return;
     }
+    const kind = this.store.items.getItemKind(itemId);
     const itemDisabled = selectors.isItemDisabled(this.store.state, itemId);
 
     // `mousedown` fires before the native focus event, so record the press
@@ -734,7 +728,8 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       return;
     }
 
-    const hasModifier = event.shiftKey || event.ctrlKey || event.metaKey;
+    // On a link, modifier keys open it in a new tab or window instead.
+    const hasModifier = kind !== 'link' && (event.shiftKey || event.ctrlKey || event.metaKey);
 
     // Prevent text selection when using modifier keys for multi-select.
     // Also prevent default for disabled items to avoid browser focus.
@@ -827,6 +822,11 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (itemId == null) {
       return;
     }
+    const kind = this.store.items.getItemKind(itemId);
+    if (kind === 'link' && (event.shiftKey || event.ctrlKey || event.metaKey)) {
+      // The link opens in a new tab or window, so the tree stays as it is.
+      return;
+    }
     // Disabled items are never focused by mouse click, even when
     // itemFocusableWhenDisabled is true (that only affects keyboard focus).
     if (!selectors.isItemDisabled(this.store.state, itemId)) {
@@ -835,7 +835,8 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
 
     if (selectors.canItemBeSelected(this.store.state, itemId)) {
       const isMulti = this.store.state.selectionMode === 'multiple';
-      if (isMulti && (event.ctrlKey || event.metaKey)) {
+      // A checkbox item toggles on any other click, so Ctrl or Cmd changes nothing.
+      if (isMulti && (event.ctrlKey || event.metaKey) && kind !== 'checkbox') {
         this.store.selection.setItemSelection({
           itemId,
           keepExistingSelection: true,
@@ -848,16 +849,27 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         this.store.selection.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);
         return;
       }
-      this.store.selection.setItemSelection({
-        itemId,
-        shouldBeSelected: true,
-        reason: REASONS.itemPress,
-        event: event.nativeEvent,
-      });
+      if (kind === 'checkbox') {
+        // Like a click on `ActionTree.ItemCheckbox`.
+        this.store.selection.setItemChecked(
+          itemId,
+          undefined,
+          REASONS.itemPress,
+          event.nativeEvent,
+        );
+      } else {
+        this.store.selection.setItemSelection({
+          itemId,
+          shouldBeSelected: true,
+          reason: REASONS.itemPress,
+          event: event.nativeEvent,
+        });
+      }
     }
 
     // The second click of a double-click must not toggle the row straight back.
-    if (this.store.state.expandOnClick && event.detail <= 1) {
+    // A link item's click navigates instead.
+    if (this.store.state.expandOnClick && kind !== 'link' && event.detail <= 1) {
       this.store.expansion.toggleItemExpansion(itemId, REASONS.itemPress, event.nativeEvent);
     }
   };

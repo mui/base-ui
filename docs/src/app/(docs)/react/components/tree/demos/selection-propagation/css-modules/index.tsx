@@ -78,20 +78,18 @@ export default function ExampleTreeSelectionPropagation() {
       >
         <Tree.List aria-label="File system" className={styles.Tree}>
           {(item: Tree.DefaultItem) => (
-            <Tree.Item itemId={item.id} className={styles.Item}>
-              <Tree.ItemCheckbox className={styles.CheckboxIndicator}>
-                <Tree.ItemCheckboxIndicator keepMounted>
-                  <CheckIcon className={styles.CheckIcon} />
-                  <MinusIcon className={styles.MinusIcon} />
-                </Tree.ItemCheckboxIndicator>
-              </Tree.ItemCheckbox>
+            <Tree.CheckboxItem itemId={item.id} className={styles.Item}>
+              <Tree.CheckboxItemIndicator className={styles.CheckboxIndicator} keepMounted>
+                <CheckIcon className={styles.CheckIcon} />
+                <MinusIcon className={styles.MinusIcon} />
+              </Tree.CheckboxItemIndicator>
               <div className={styles.Hierarchy}>
                 <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
                   <ChevronIcon />
                 </Tree.ItemExpansionTrigger>
                 <span className={styles.Label}>{item.label}</span>
               </div>
-            </Tree.Item>
+            </Tree.CheckboxItem>
           )}
         </Tree.List>
       </Tree.Root>

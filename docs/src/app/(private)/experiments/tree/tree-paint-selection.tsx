@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tree } from '@base-ui/react/tree';
+import { ActionTree } from '@base-ui/react/action-tree';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
@@ -8,7 +8,7 @@ import { contains, getTarget } from '@base-ui/utils/shadowDom';
 
 import styles from './tree-paint-selection.module.css';
 
-type Actions = Tree.Root.Actions;
+type Actions = ActionTree.Root.Actions;
 
 /**
  * Paint selection built on the public Tree API: press a checkbox with a mouse or
@@ -26,16 +26,20 @@ export default function TreePaintSelection() {
 
   return (
     <div className={styles.Page}>
-      <Tree.Root
+      <ActionTree.Root
         items={ITEMS}
         selectionMode="multiple"
         actionsRef={actionsRef}
         onSelectedItemsChange={() => setChangeCount((count) => count + 1)}
       >
-        <Tree.List aria-label="Files" className={styles.Tree} onPointerDown={handlePointerDown}>
+        <ActionTree.List
+          aria-label="Files"
+          className={styles.Tree}
+          onPointerDown={handlePointerDown}
+        >
           {renderItem}
-        </Tree.List>
-      </Tree.Root>
+        </ActionTree.List>
+      </ActionTree.Root>
       <p className={styles.Log}>
         <code>onSelectedItemsChange</code> calls: {changeCount}
       </p>
@@ -44,7 +48,7 @@ export default function TreePaintSelection() {
 }
 
 /**
- * Returns the `onPointerDown` handler of a `Tree.List` that paints the checkboxes
+ * Returns the `onPointerDown` handler of a `ActionTree.List` that paints the checkboxes
  * of its rows. Each painted checkbox goes through `actionsRef.setItemSelection()`,
  * so it calls `onSelectedItemsChange` on its own.
  */
@@ -80,12 +84,12 @@ function usePaintSelection(actionsRef: React.RefObject<Actions | null>) {
     // Retraced checkboxes return to their state from before the gesture.
     const original = actions.getSelectedItemIds();
     // The painted items, in the order the pointer crossed them.
-    const trail: Tree.ItemId[] = [];
+    const trail: ActionTree.ItemId[] = [];
     const origin = { x: event.clientX, y: event.clientY };
     let previous = origin;
     let painting = false;
 
-    const paint = (itemId: Tree.ItemId) => {
+    const paint = (itemId: ActionTree.ItemId) => {
       const index = trail.indexOf(itemId);
       if (index === -1) {
         trail.push(itemId);
@@ -181,7 +185,7 @@ function usePaintSelection(actionsRef: React.RefObject<Actions | null>) {
 /** The enabled checkbox of a row of `list` that contains `target`. */
 function findCheckbox(list: HTMLElement, target: Element | null) {
   const checkbox = target?.closest<HTMLElement>('[role="checkbox"]');
-  const row = checkbox?.closest<HTMLElement>('[role="treeitem"]');
+  const row = checkbox?.closest<HTMLElement>('[role="row"]');
   const itemId = row?.dataset.itemId;
   if (
     checkbox == null ||
@@ -194,22 +198,22 @@ function findCheckbox(list: HTMLElement, target: Element | null) {
   return { checkbox, itemId };
 }
 
-function renderItem(item: Tree.DefaultItem) {
+function renderItem(item: ActionTree.DefaultItem) {
   return (
-    <Tree.Item itemId={item.id} className={styles.Item}>
-      <div className={styles.ItemContent}>
-        <Tree.ItemCheckbox className={styles.Checkbox}>
-          <Tree.ItemCheckboxIndicator className={styles.CheckboxIndicator} keepMounted>
+    <ActionTree.Item itemId={item.id} className={styles.Item}>
+      <ActionTree.ItemContent className={styles.ItemContent}>
+        <ActionTree.ItemCheckbox className={styles.Checkbox}>
+          <ActionTree.ItemCheckboxIndicator className={styles.CheckboxIndicator} keepMounted>
             <CheckIcon className={styles.CheckIcon} />
-          </Tree.ItemCheckboxIndicator>
-        </Tree.ItemCheckbox>
+          </ActionTree.ItemCheckboxIndicator>
+        </ActionTree.ItemCheckbox>
         <span className={styles.Label}>{item.label}</span>
-      </div>
-    </Tree.Item>
+      </ActionTree.ItemContent>
+    </ActionTree.Item>
   );
 }
 
-const ITEMS: Tree.DefaultItem[] = [
+const ITEMS: ActionTree.DefaultItem[] = [
   { id: 'sunset', label: 'Sunset.jpg' },
   { id: 'mountains', label: 'Mountains.png' },
   { id: 'beach', label: 'Beach.jpg' },

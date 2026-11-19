@@ -148,18 +148,3 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.ItemContent {
-  display: flex;
-  align-items: inherit;
-  gap: inherit;
-  min-width: 0;
-  width: 100%;
-}
-
-.Link {
-  min-width: 0;
-  flex: 1;
-  color: inherit;
-  text-decoration: none;
-}

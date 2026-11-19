@@ -15,11 +15,11 @@ import { DemoTreeHero } from './demos/hero';
 
 ## Usage guidelines
 
+- **Avoid when items contain controls**: A tree item is one focusable element that screen readers read as a whole, so it can't hold buttons, inputs, or links that keyboard users need to reach. Use [Action Tree](/react/components/action-tree) for those items instead.
 - **Avoid trees for site navigation**: Prefer links grouped under disclosure buttons, such as [Collapsible](/react/components/collapsible). The [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) caution against trees for site navigation. If you use one, follow the [links](#links) example.
-- **Keep items to a single element**: A tree item is one focusable element that screen readers read as a whole. Add [`<Tree.GridProvider>`](#controls-inside-items) only when items contain buttons, inputs, or links that keyboard users need to reach.
 - **Give the tree an accessible name**: Prefer `<Tree.Label>`, or provide an `aria-label` on `<Tree.List>` when no visible label is rendered.
-- **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`, and give icon-only custom controls an `aria-label`. The built-in checkbox, expansion trigger, and clear button have English names that include the item label, such as "Expand Documents": pass your own `aria-label` to translate them.
-- **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<Tree.ItemExpansionTrigger>`, and `<Tree.ItemCheckbox>` with checkbox selection, so they can expand and select items by tapping.
+- **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`. The expansion trigger and the clear button have English names, such as "Expand Documents" and "Clear filter": pass your own `aria-label` to translate them.
+- **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<Tree.ItemExpansionTrigger>` so they can expand items by tapping. With multiple selection, render `<Tree.CheckboxItem>` so that tapping an item toggles it without clearing the others.
 
 ## Anatomy
 
@@ -42,9 +42,6 @@ import { Tree } from '@base-ui/react/tree';
           <Tree.Item itemId={item.id}>
             <Tree.ItemIndentGuide />
             <Tree.ItemExpansionTrigger />
-            <Tree.ItemCheckbox>
-              <Tree.ItemCheckboxIndicator />
-            </Tree.ItemCheckbox>
             <Tree.ItemGroupIndicator />
           </Tree.Item>
           <Tree.GroupTransition />
@@ -54,6 +51,8 @@ import { Tree } from '@base-ui/react/tree';
   </Tree.Root>
 </Tree.FilterProvider>;
 ```
+
+`<Tree.CheckboxItem>` and `<Tree.LinkItem>` replace `<Tree.Item>` for items that toggle like a checkbox or link to another page. They take the same children, and `<Tree.CheckboxItemIndicator>` goes inside `<Tree.CheckboxItem>`.
 
 `<Tree.FilterProvider>` wraps `<Tree.Root>` to add filtering, so trees without it don't bundle the filter. Adding or removing it remounts the tree, so keep it rendered and pass an empty `value` to turn filtering off.
 
@@ -85,68 +84,13 @@ const items = Tree.createItems(nodes, {
 
 The root infers the item type from `items`. Parts outside the root's props, such as `<Tree.List>` and the providers, can't see it, so they type items as `any` unless you pass the type, as `<Tree.List<Node>>` does.
 
-## Controls inside items
-
-By default, the tree follows the [tree view pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/), whose items can't contain controls. To add buttons, inputs, or links to the items, wrap `<Tree.Root>` in `<Tree.GridProvider>`. The tree then follows the [treegrid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/):
-
-- Render the content of each item inside `<Tree.ItemContent>`, its cell.
-- Render the controls with `<Tree.ItemButton>`, `<Tree.ItemInput>`, `<Tree.ItemLink>`, or `<Tree.ItemControl>`. <kbd>Arrow Right</kbd> and <kbd>Tab</kbd> move from an item to its controls. `<Tree.ItemCheckbox>` joins them automatically.
-
-Trees without the provider don't bundle the grid navigation, and like `<Tree.FilterProvider>`, adding or removing it remounts the tree. See the [item controls example](#item-controls).
-
-```tsx title="Controls inside an item"
-<Tree.GridProvider>
-  <Tree.Root items={tasks}>
-    <Tree.List>
-      {(task) => (
-        <Tree.Item itemId={task.id} aria-description="Press Tab to reach the task controls">
-          <Tree.ItemContent>
-            <Tree.ItemLink href={task.url}>{task.label}</Tree.ItemLink>
-            <Tree.ItemInput aria-label={`Estimate for ${task.label}`} />
-            <Tree.ItemButton aria-label={`Remove ${task.label}`}>
-              <RemoveIcon />
-            </Tree.ItemButton>
-          </Tree.ItemContent>
-        </Tree.Item>
-      )}
-    </Tree.List>
-  </Tree.Root>
-</Tree.GridProvider>
-```
-
-A focused row announces its label, not its controls or the rest of its content.
-
-- Describe how to reach the controls with `aria-description` on the items that have them, or once on `<Tree.List>` when most items do.
-- Pass secondary content, such as a count or a status, to `aria-describedby` on `<Tree.Item>`.
-
-Base UI doesn't ship these strings, so translate them with the rest of your interface.
-
-To use a popup trigger as a control, pass it to the `render` prop of `<Tree.ItemButton>`:
-
-```tsx title="Using popups with item controls"
-<Menu.Root>
-  {/* @highlight */}
-  <Tree.ItemButton render={<Menu.Trigger />} aria-label={`Actions for ${item.label}`} />
-  <Menu.Portal>{/* Compose the rest of the menu */}</Menu.Portal>
-</Menu.Root>
-```
-
-Controls keep the keys they use, such as the caret keys of a text input or the up and down arrows of a popup trigger. Typeahead characters, <kbd>Space</kbd>, and <kbd>Enter</kbd> always belong to the control. Use the `controlKeys` prop to change which keys a control keeps. `<Tree.ItemControl>` keeps every key by default, so assign the key groups the tree should handle. For example, a custom rating widget that only uses the left and right arrows:
-
-```tsx title="Custom control"
-<Tree.ItemControl
-  render={<RatingInput />}
-  controlKeys={{ vertical: 'tree', homeEnd: 'tree', escape: 'tree' }}
-/>
-```
-
-The part must render the element that receives focus. Other focusable elements inside an item keep all of their keys, stay out of the item's navigation, and add a tab stop to every item.
-
 ## Examples
 
 ### Checkbox selection
 
-Use `<Tree.ItemCheckbox>` to select an item with a checkbox. Set `selectionMode="multiple"` on `<Tree.Root>` to allow more than one item to be selected.
+Render `<Tree.CheckboxItem>` in place of `<Tree.Item>` to select items like checkboxes, and `<Tree.CheckboxItemIndicator>` inside it to show the state. Set `selectionMode="multiple"` on `<Tree.Root>` to allow more than one item to be selected.
+
+A click toggles the item and keeps the other items selected. <kbd>Shift</kbd>+click selects a range. The item reports `aria-checked` instead of `aria-selected`, and `mixed` when only some of its descendants are selected.
 
 import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 
@@ -172,19 +116,13 @@ In multiple-selection mode, use `Tree.SELECTION_ALL` to select every selectable 
 
 ### Links
 
-Render `<Tree.ItemLink>` inside `<Tree.ItemContent>` to link an item to another page, and set `active` on the current page's link. Links are controls, so the tree needs `<Tree.GridProvider>`. With `selectionMode="none"`, <kbd>Enter</kbd> follows the link instead of selecting the item. Tabbing into the tree focuses the current page's item, unless an item is selected or another item had focus before.
+Render `<Tree.LinkItem>` in place of `<Tree.Item>` to link an item to another page, and set `active` on the current page's item. The item renders an `<a>` element, as in the [navigation tree example](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) of the WAI-ARIA Authoring Practices.
+
+Clicks and <kbd>Enter</kbd> follow the link. A click with <kbd>Ctrl</kbd>, <kbd>Cmd</kbd>, or <kbd>Shift</kbd> opens it in a new tab or window and leaves the selection as it is. Tabbing into the tree focuses the current page's item, unless an item is selected or another item had focus before.
 
 import { DemoTreeLinkItems } from './demos/link-items';
 
 <DemoTreeLinkItems />
-
-### Item controls
-
-Each task combines a link, an estimate input, a switch, and a remove button, so the tree is wrapped in `<Tree.GridProvider>`. Press <kbd>Tab</kbd> or <kbd>Arrow Right</kbd> from a task to reach them.
-
-import { DemoTreeItemControls } from './demos/item-controls';
-
-<DemoTreeItemControls />
 
 ### Animated expansion
 
@@ -293,10 +231,6 @@ import { TypesTree, TypesTreeAdditional } from './types';
 
 <TypesTree.FilterProvider />
 
-### GridProvider
-
-<TypesTree.GridProvider />
-
 ### Root
 
 <TypesTree.Root />
@@ -313,17 +247,17 @@ import { TypesTree, TypesTreeAdditional } from './types';
 
 <TypesTree.Item />
 
-### ItemContent
+### CheckboxItem
 
-<TypesTree.ItemContent />
+<TypesTree.CheckboxItem />
 
-### ItemCheckbox
+### CheckboxItemIndicator
 
-<TypesTree.ItemCheckbox />
+<TypesTree.CheckboxItemIndicator />
 
-### ItemCheckboxIndicator
+### LinkItem
 
-<TypesTree.ItemCheckboxIndicator />
+<TypesTree.LinkItem />
 
 ### ItemGroupIndicator
 
@@ -336,22 +270,6 @@ import { TypesTree, TypesTreeAdditional } from './types';
 ### ItemExpansionTrigger
 
 <TypesTree.ItemExpansionTrigger />
-
-### ItemButton
-
-<TypesTree.ItemButton />
-
-### ItemInput
-
-<TypesTree.ItemInput />
-
-### ItemLink
-
-<TypesTree.ItemLink />
-
-### ItemControl
-
-<TypesTree.ItemControl />
 
 ### Input
 
@@ -393,5 +311,5 @@ Call its methods inside the `filter` prop of `<Tree.FilterProvider>`.
 <TypesTreeAdditional />
 
 export const metadata = {
-  keywords: ['React Tree', 'Accessible Tree', 'Hierarchical Grid', 'Base UI'],
+  keywords: ['React Tree', 'Accessible Tree', 'Tree View', 'Base UI'],
 };

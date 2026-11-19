@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { describe, it, expect } from 'vitest';
-import { act, fireEvent, screen, within } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../../internals/useInitialLiveRegionTextMutation';
 import { Tree } from '..';
@@ -87,19 +87,18 @@ describe('<Tree.Status />', () => {
   });
 
   describe('selection', () => {
-    function renderCheckboxRow(item: Item) {
+    function renderCheckboxItem(item: Item) {
       return (
-        <Tree.Item itemId={item.id} data-testid={item.id}>
-          <Tree.ItemCheckbox data-testid={`${item.id}-checkbox`} />
+        <Tree.CheckboxItem itemId={item.id} data-testid={item.id}>
           {item.label}
-        </Tree.Item>
+        </Tree.CheckboxItem>
       );
     }
 
     function SelectionTree(props: Omit<Tree.Root.Props<Item, 'multiple'>, 'children'>) {
       return (
         <Tree.Root defaultExpandedItems={['documents']} {...props}>
-          <Tree.List>{renderCheckboxRow}</Tree.List>
+          <Tree.List>{renderCheckboxItem}</Tree.List>
           <Tree.Status data-testid="status" />
         </Tree.Root>
       );
@@ -113,7 +112,7 @@ describe('<Tree.Status />', () => {
     it('names the item a single selection selects or deselects', async () => {
       await render(
         <Tree.Root items={ITEMS} defaultExpandedItems={['documents']}>
-          <Tree.List>{renderCheckboxRow}</Tree.List>
+          <Tree.List>{renderCheckboxItem}</Tree.List>
           <Tree.Status data-testid="status" />
         </Tree.Root>,
       );
@@ -139,18 +138,17 @@ describe('<Tree.Status />', () => {
       );
       const status = screen.getByTestId('status');
 
-      fireEvent.click(screen.getByTestId('notes-checkbox'));
+      fireEvent.click(screen.getByTestId('notes'));
       expect(status.textContent).toBe('Notes selected.');
 
-      fireEvent.click(screen.getByTestId('invoice-q1-checkbox'));
+      fireEvent.click(screen.getByTestId('invoice-q1'));
       expect(status).toHaveTextContent('Invoice Q1 selected. 2 items selected.');
 
-      fireEvent.click(screen.getByTestId('notes-checkbox'));
+      fireEvent.click(screen.getByTestId('notes'));
       expect(status).toHaveTextContent('Notes not selected. 1 item selected.');
 
-      // Pressing a row replaces the selection.
       fireEvent.click(screen.getByTestId('invoice-q2'));
-      expect(status.textContent).toBe('Invoice Q2 selected.');
+      expect(status).toHaveTextContent('Invoice Q2 selected. 2 items selected.');
 
       press('invoice-q2', 'a', { ctrlKey: true });
       expect(status).toHaveTextContent('All items selected.');
@@ -180,7 +178,7 @@ describe('<Tree.Status />', () => {
       await render(<ControlledTree />);
       const status = screen.getByTestId('status');
 
-      fireEvent.click(screen.getByTestId('notes-checkbox'));
+      fireEvent.click(screen.getByTestId('notes'));
       expect(status).toBeEmptyDOMElement();
       await act(async () => applySelection());
       expect(status).toHaveTextContent('Notes selected.');
@@ -190,7 +188,7 @@ describe('<Tree.Status />', () => {
       await act(async () => applySelection());
       expect(status).toHaveTextContent('Notes selected.');
 
-      fireEvent.click(within(screen.getByTestId('invoice-q2')).getByRole('checkbox'));
+      fireEvent.click(screen.getByTestId('invoice-q2'));
       await act(async () => applySelection());
       expect(status).toHaveTextContent('Invoice Q2 selected. 3 items selected.');
     });

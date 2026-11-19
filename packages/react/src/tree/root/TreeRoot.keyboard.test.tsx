@@ -1,11 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { DirectionProvider } from '../../direction-provider';
 import { describeTree } from '../../../test/describeTree';
 import { TREE_SELECTION_ALL } from '../store/types';
-import type { TreeDefaultItem } from '../store/types';
 import { selectors } from '../store/selectors';
 import { Tree } from '..';
 
@@ -2087,54 +2086,4 @@ describe('TreeRoot - Keyboard (RTL)', () => {
     fireEvent.keyDown(getItemRoot('1.1'), { key: 'ArrowRight' });
     expect(getItemRoot('1')).toHaveFocus();
   });
-});
-
-describe('TreeRoot - Keyboard (consumer handlers)', () => {
-  it.each(['row', 'button'] as const)(
-    'does not navigate when a %s keydown handler prevents the Base UI handler',
-    async (part) => {
-      const preventArrowDown = (
-        event: React.KeyboardEvent & { preventBaseUIHandler: () => void },
-      ) => {
-        if (event.key === 'ArrowDown') {
-          event.preventBaseUIHandler();
-        }
-      };
-      await renderElement(
-        <Tree.GridProvider>
-          <Tree.Root
-            items={[
-              { id: 'a', label: 'A' },
-              { id: 'b', label: 'B' },
-            ]}
-          >
-            <Tree.List>
-              {(item: TreeDefaultItem) => (
-                <Tree.Item
-                  itemId={item.id}
-                  onKeyDown={part === 'row' ? preventArrowDown : undefined}
-                >
-                  <Tree.ItemContent>
-                    {item.label}
-                    <Tree.ItemButton onKeyDown={part === 'button' ? preventArrowDown : undefined}>
-                      Open {item.label}
-                    </Tree.ItemButton>
-                  </Tree.ItemContent>
-                </Tree.Item>
-              )}
-            </Tree.List>
-          </Tree.Root>
-        </Tree.GridProvider>,
-      );
-
-      const focused =
-        part === 'row'
-          ? screen.getByRole('row', { name: 'A' })
-          : screen.getByRole('button', { name: 'Open A' });
-      act(() => focused.focus());
-      fireEvent.keyDown(focused, { key: 'ArrowDown' });
-
-      expect(focused).toHaveFocus();
-    },
-  );
 });

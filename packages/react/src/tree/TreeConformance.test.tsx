@@ -9,7 +9,7 @@ import { Tree } from '.';
  * one per part, because almost every part needs the same `Tree.Root` +
  * `Tree.List` + `Tree.Item` scaffolding around it.
  *
- * `Tree.Root`, `Tree.FilterProvider` and `Tree.GridProvider` are absent on purpose:
+ * `Tree.Root` and `Tree.FilterProvider` are absent on purpose:
  * they render no element of their own.
  */
 // A single root row, so a part rendered through the list callback appears
@@ -30,23 +30,6 @@ describe('Tree conformance', () => {
       <Tree.Root items={ITEMS} {...rootProps}>
         <Tree.List>{onlyRootRow(<Tree.Item itemId="a">{node}</Tree.Item>)}</Tree.List>
       </Tree.Root>,
-    );
-  }
-
-  /** Render `node` as the only child of the cell of a grid row. */
-  function renderInGridItem(node: React.ReactNode) {
-    return render(
-      <Tree.GridProvider>
-        <Tree.Root items={ITEMS}>
-          <Tree.List>
-            {onlyRootRow(
-              <Tree.Item itemId="a">
-                <Tree.ItemContent>{node}</Tree.ItemContent>
-              </Tree.Item>,
-            )}
-          </Tree.List>
-        </Tree.Root>
-      </Tree.GridProvider>,
     );
   }
 
@@ -149,45 +132,6 @@ describe('Tree conformance', () => {
     }));
   });
 
-  describe('<Tree.ItemButton />', () => {
-    describeConformance(<Tree.ItemButton />, () => ({
-      refInstanceof: window.HTMLButtonElement,
-      testRenderPropWith: 'button',
-      render(node) {
-        return renderInGridItem(node);
-      },
-    }));
-  });
-
-  describe('<Tree.ItemInput />', () => {
-    describeConformance(<Tree.ItemInput />, () => ({
-      refInstanceof: window.HTMLInputElement,
-      testRenderPropWith: 'input',
-      render(node) {
-        return renderInGridItem(node);
-      },
-    }));
-  });
-
-  describe('<Tree.ItemLink />', () => {
-    describeConformance(<Tree.ItemLink />, () => ({
-      refInstanceof: window.HTMLAnchorElement,
-      testRenderPropWith: 'a',
-      render(node) {
-        return renderInGridItem(node);
-      },
-    }));
-  });
-
-  describe('<Tree.ItemControl />', () => {
-    describeConformance(<Tree.ItemControl />, () => ({
-      refInstanceof: window.HTMLDivElement,
-      render(node) {
-        return renderInGridItem(node);
-      },
-    }));
-  });
-
   describe('<Tree.ItemGroupIndicator />', () => {
     describeConformance(<Tree.ItemGroupIndicator />, () => ({
       refInstanceof: window.HTMLSpanElement,
@@ -218,40 +162,45 @@ describe('Tree conformance', () => {
     }));
   });
 
-  describe('<Tree.ItemContent />', () => {
-    describeConformance(<Tree.ItemContent />, () => ({
+  describe('<Tree.CheckboxItem />', () => {
+    describeConformance(<Tree.CheckboxItem itemId="a" />, () => ({
       refInstanceof: window.HTMLDivElement,
-      testRenderPropWith: 'div',
       render(node) {
         return render(
-          <Tree.GridProvider>
-            <Tree.Root items={ITEMS}>
-              <Tree.List>{onlyRootRow(<Tree.Item itemId="a">{node}</Tree.Item>)}</Tree.List>
-            </Tree.Root>
-          </Tree.GridProvider>,
+          <Tree.Root items={ITEMS} selectionMode="multiple">
+            <Tree.List>{onlyRootRow(node)}</Tree.List>
+          </Tree.Root>,
         );
       },
     }));
   });
 
-  describe('<Tree.ItemCheckbox />', () => {
-    describeConformance(<Tree.ItemCheckbox />, () => ({
+  describe('<Tree.CheckboxItemIndicator />', () => {
+    describeConformance(<Tree.CheckboxItemIndicator keepMounted />, () => ({
       refInstanceof: window.HTMLSpanElement,
       testRenderPropWith: 'span',
       render(node) {
-        return renderInItem(node, { selectionMode: 'multiple' });
+        return render(
+          <Tree.Root items={ITEMS} selectionMode="multiple">
+            <Tree.List>
+              {onlyRootRow(<Tree.CheckboxItem itemId="a">{node}</Tree.CheckboxItem>)}
+            </Tree.List>
+          </Tree.Root>,
+        );
       },
     }));
   });
 
-  describe('<Tree.ItemCheckboxIndicator />', () => {
-    describeConformance(<Tree.ItemCheckboxIndicator keepMounted />, () => ({
-      refInstanceof: window.HTMLSpanElement,
-      testRenderPropWith: 'span',
+  describe('<Tree.LinkItem />', () => {
+    describeConformance(<Tree.LinkItem itemId="a" href="#a" />, () => ({
+      refInstanceof: window.HTMLAnchorElement,
+      testRenderPropWith: 'a',
       render(node) {
-        return renderInItem(<Tree.ItemCheckbox>{node}</Tree.ItemCheckbox>, {
-          selectionMode: 'multiple',
-        });
+        return render(
+          <Tree.Root items={ITEMS}>
+            <Tree.List>{onlyRootRow(node)}</Tree.List>
+          </Tree.Root>,
+        );
       },
     }));
   });

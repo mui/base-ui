@@ -58,7 +58,7 @@
     }
   }
 
-  &[data-selected] {
+  &[data-checked] {
     background: oklch(92.2% 0 0deg);
     border-inline-start-color: oklch(14.5% 0 0deg);
 
@@ -76,7 +76,7 @@
   @media (forced-colors: active) {
     border-inline-start-color: Canvas;
 
-    &[data-selected] {
+    &[data-checked] {
       border-inline-start-color: Highlight;
     }
   }
@@ -189,13 +189,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.Checkbox {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
 }
 
 .VisuallyHidden {

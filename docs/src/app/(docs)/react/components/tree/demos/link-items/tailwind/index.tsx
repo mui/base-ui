@@ -70,83 +70,44 @@ const LABEL_CLASS = 'min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-now
 
 export default function ExampleTreeLinkItems() {
   return (
-    // @highlight-start
-    <Tree.GridProvider>
-      {/* @highlight-end */}
-      <Tree.Root
-        items={items}
-        defaultExpandedItems={['overview']}
-        // @highlight-start
-        selectionMode="none"
-        // @highlight-end
-      >
-        <Tree.List
-          aria-label="Documentation"
-          className="box-content w-56 border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
-        >
-          {(item: LinkItemModel) => {
-            if (item.href) {
-              return (
-                <Link
-                  itemId={item.id}
-                  className={LINK_ITEM_CLASS}
-                  href={item.href}
-                  // @highlight-start
-                  active={item.id === 'quick-start'}
-                  // @highlight-end
-                >
-                  <span className={LABEL_CLASS}>{item.label}</span>
-                </Link>
-              );
-            }
-
-            return (
-              <Tree.Item itemId={item.id} className={ROW_CLASS}>
-                <Tree.ItemContent className="flex w-full min-w-0 items-[inherit] gap-[inherit]">
-                  <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
-                    <ChevronIcon />
-                  </Tree.ItemExpansionTrigger>
-                  <span className={LABEL_CLASS}>{item.label}</span>
-                </Tree.ItemContent>
-              </Tree.Item>
-            );
-          }}
-        </Tree.List>
-      </Tree.Root>
-    </Tree.GridProvider>
-  );
-}
-
-function Link({
-  itemId,
-  active,
-  children,
-  className,
-  ...props
-}: React.ComponentProps<'a'> & { itemId: Tree.ItemId; active?: boolean }) {
-  return (
-    // @focus-start @min 14
-    <Tree.Item
-      itemId={itemId}
-      className={className}
-      data-active={active ? '' : undefined}
+    <Tree.Root
+      items={items}
+      defaultExpandedItems={['overview']}
       // @highlight-start
-      aria-description="Press Tab to reach the link"
+      selectionMode="none"
       // @highlight-end
     >
-      <Tree.ItemContent className="flex w-full min-w-0 items-[inherit] gap-[inherit]">
-        {/* @highlight-start */}
-        <Tree.ItemLink
-          {...props}
-          className="min-w-0 flex-1 text-inherit no-underline"
-          active={active}
-        >
-          {children}
-        </Tree.ItemLink>
-        {/* @highlight-end */}
-        {/* @focus-end */}
-      </Tree.ItemContent>
-    </Tree.Item>
+      <Tree.List
+        aria-label="Documentation"
+        className="box-content w-56 border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
+      >
+        {(item: LinkItemModel) => {
+          if (item.href) {
+            return (
+              // @highlight-start @focus @padding 1
+              <Tree.LinkItem
+                itemId={item.id}
+                href={item.href}
+                active={item.id === 'quick-start'}
+                className={LINK_ITEM_CLASS}
+              >
+                {/* @highlight-end */}
+                <span className={LABEL_CLASS}>{item.label}</span>
+              </Tree.LinkItem>
+            );
+          }
+
+          return (
+            <Tree.Item itemId={item.id} className={ROW_CLASS}>
+              <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <span className={LABEL_CLASS}>{item.label}</span>
+            </Tree.Item>
+          );
+        }}
+      </Tree.List>
+    </Tree.Root>
   );
 }
 

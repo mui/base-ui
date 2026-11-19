@@ -19,7 +19,7 @@ import { TreeSelectionPlugin } from '../plugins/TreeSelectionPlugin';
 import { TreeExpansionPlugin } from '../plugins/TreeExpansionPlugin';
 import { TreeInteractionPlugin } from '../plugins/TreeInteractionPlugin';
 import type { TreeFilteringPlugin } from '../plugins/TreeFilteringPlugin';
-import type { TreeGridPlugin } from '../plugins/TreeGridPlugin';
+import type { TreeGridPlugin } from '../../action-tree/plugins/TreeGridPlugin';
 import type { TreeStatusPlugin } from '../plugins/TreeStatusPlugin';
 import { selectors } from './selectors';
 import { buildItemsState } from './itemIndex';
@@ -48,7 +48,7 @@ export class TreeStore<
   /** Installed by `Tree.FilterProvider`. */
   public filtering: TreeFilteringPlugin<TItem> | undefined;
 
-  /** Installed by `Tree.GridProvider`. */
+  /** Installed by `ActionTree.Root`. */
   public grid: TreeGridPlugin<TItem> | undefined;
 
   /** Installed lazily by `Tree.Status` so Root-only bundles exclude it. */

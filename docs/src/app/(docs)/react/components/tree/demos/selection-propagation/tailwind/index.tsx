@@ -45,9 +45,9 @@ const ITEM_CLASS =
   'flex items-center gap-1 px-2 py-1 text-sm/[1.5] text-neutral-950 select-none dark:text-white ' +
   '[--leaf-offset:0rem] not-data-expandable:[--leaf-offset:1.5rem] ' +
   'hover:bg-neutral-100 dark:hover:bg-neutral-800 ' +
-  'data-selected:bg-neutral-200 dark:data-selected:bg-neutral-700 ' +
-  'border-s-2 border-transparent data-selected:border-neutral-950 dark:data-selected:border-white ' +
-  'forced-colors:border-[color:Canvas] forced-colors:data-selected:border-[color:Highlight] ' +
+  'data-checked:bg-neutral-200 dark:data-checked:bg-neutral-700 ' +
+  'border-s-2 border-transparent data-checked:border-neutral-950 dark:data-checked:border-white ' +
+  'forced-colors:border-[color:Canvas] forced-colors:data-checked:border-[color:Highlight] ' +
   'data-disabled:cursor-default data-disabled:opacity-50 ' +
   'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
@@ -65,8 +65,7 @@ const HIERARCHY_CLASS =
 const INDICATOR_CLASS =
   'group box-content inline-flex size-4 shrink-0 items-center justify-center border border-neutral-950 bg-white text-white ' +
   'data-checked:bg-neutral-950 data-indeterminate:bg-neutral-950 ' +
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 ' +
-  'dark:border-white dark:bg-neutral-950 dark:text-neutral-950 dark:data-checked:bg-white dark:data-indeterminate:bg-white dark:focus-visible:outline-white';
+  'dark:border-white dark:bg-neutral-950 dark:text-neutral-950 dark:data-checked:bg-white dark:data-indeterminate:bg-white';
 
 // Native checkbox restyled to match the base-ui Checkbox: ink-bordered square,
 // ink fill with a background-colored tick when checked, sharp corners.
@@ -121,13 +120,11 @@ export default function ExampleTreeSelectionPropagation() {
           className="box-content w-56 border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
         >
           {(item: Tree.DefaultItem) => (
-            <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-              <Tree.ItemCheckbox className={INDICATOR_CLASS}>
-                <Tree.ItemCheckboxIndicator keepMounted>
-                  <CheckIcon className="hidden size-3 group-data-checked:block" />
-                  <MinusIcon className="hidden size-3 group-data-indeterminate:block" />
-                </Tree.ItemCheckboxIndicator>
-              </Tree.ItemCheckbox>
+            <Tree.CheckboxItem itemId={item.id} className={ITEM_CLASS}>
+              <Tree.CheckboxItemIndicator className={INDICATOR_CLASS} keepMounted>
+                <CheckIcon className="hidden size-3 group-data-checked:block" />
+                <MinusIcon className="hidden size-3 group-data-indeterminate:block" />
+              </Tree.CheckboxItemIndicator>
               <div className={HIERARCHY_CLASS}>
                 <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
                   <ChevronIcon />
@@ -136,7 +133,7 @@ export default function ExampleTreeSelectionPropagation() {
                   {item.label}
                 </span>
               </div>
-            </Tree.Item>
+            </Tree.CheckboxItem>
           )}
         </Tree.List>
       </Tree.Root>

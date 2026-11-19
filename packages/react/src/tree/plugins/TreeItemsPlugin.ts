@@ -1,4 +1,4 @@
-import type { TreeDefaultItem, TreeItemId, TreeSelectionMode } from '../store/types';
+import type { TreeDefaultItem, TreeItemId, TreeItemKind, TreeSelectionMode } from '../store/types';
 import type { TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import { buildItemsState } from '../store/itemIndex';
@@ -9,7 +9,7 @@ import type { TreeViewport } from '../utils/viewport';
 export class TreeItemsPlugin<TItem = TreeDefaultItem> {
   declare private store: TreeStore<TreeSelectionMode | undefined, TItem>;
 
-  private elements = new Map<string, HTMLElement>();
+  private elements = new Map<string, { element: HTMLElement; kind: TreeItemKind }>();
 
   /** The mounted list. */
   private viewport: TreeViewport | null = null;
@@ -19,14 +19,24 @@ export class TreeItemsPlugin<TItem = TreeDefaultItem> {
   }
 
   public getItemDOMElement(itemId: TreeItemId): HTMLElement | null {
-    return this.elements.get(getItemIdKey(itemId)) ?? null;
+    return this.elements.get(getItemIdKey(itemId))?.element ?? null;
   }
 
-  public registerItemDOMElement(itemId: TreeItemId, element: HTMLElement): () => void {
+  /** The part the item renders as. */
+  public getItemKind(itemId: TreeItemId): TreeItemKind {
+    return this.elements.get(getItemIdKey(itemId))?.kind ?? 'item';
+  }
+
+  public registerItemDOMElement(
+    itemId: TreeItemId,
+    element: HTMLElement,
+    kind: TreeItemKind,
+  ): () => void {
     const key = getItemIdKey(itemId);
-    this.elements.set(key, element);
+    const entry = { element, kind };
+    this.elements.set(key, entry);
     return () => {
-      if (this.elements.get(key) === element) {
+      if (this.elements.get(key) === entry) {
         this.elements.delete(key);
       }
     };

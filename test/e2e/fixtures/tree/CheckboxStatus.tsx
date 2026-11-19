@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Tree } from '@base-ui/react/tree';
+import { ActionTree } from '@base-ui/react/action-tree';
 
-const items: Tree.DefaultItem[] = [
+const items: ActionTree.DefaultItem[] = [
   {
     id: 'documents',
     label: 'Documents',
@@ -27,55 +27,48 @@ const visuallyHidden: React.CSSProperties = {
 
 export default function CheckboxStatusTree() {
   return (
-    <Tree.GridProvider>
-      <Tree.Root items={items} defaultExpandedItems={['documents']} selectionMode="multiple">
-        <Tree.List aria-label="Files to share">
-          {(item: Tree.DefaultItem) => (
-            <Tree.Item itemId={item.id}>
-              <Tree.ItemContent
+    <ActionTree.Root items={items} defaultExpandedItems={['documents']} selectionMode="multiple">
+      <ActionTree.List aria-label="Files to share">
+        {(item: ActionTree.DefaultItem) => (
+          <ActionTree.Item itemId={item.id}>
+            <ActionTree.ItemContent
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                paddingInlineStart: 'calc((var(--tree-item-level) - 1) * 1.5rem)',
+              }}
+            >
+              <ActionTree.ItemCheckbox
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                  paddingInlineStart: 'calc((var(--tree-item-level) - 1) * 1.5rem)',
+                  display: 'inline-flex',
+                  width: '0.875rem',
+                  height: '0.875rem',
+                  border: '1px solid',
                 }}
               >
-                <Tree.ItemCheckbox
-                  style={{
-                    display: 'inline-flex',
-                    width: '0.875rem',
-                    height: '0.875rem',
-                    border: '1px solid',
-                  }}
-                >
-                  <Tree.ItemCheckboxIndicator>
-                    <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-                      <path
-                        d="M2.5 6.5 5 9l4.5-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      />
-                    </svg>
-                  </Tree.ItemCheckboxIndicator>
-                </Tree.ItemCheckbox>
-                <Tree.ItemExpansionTrigger>
+                <ActionTree.ItemCheckboxIndicator>
                   <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
                     <path
-                      d="M4.5 2 8.5 6l-4 4"
+                      d="M2.5 6.5 5 9l4.5-6"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="1.5"
                     />
                   </svg>
-                </Tree.ItemExpansionTrigger>
-                {item.label}
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-        <Tree.Status style={visuallyHidden} />
-      </Tree.Root>
-    </Tree.GridProvider>
+                </ActionTree.ItemCheckboxIndicator>
+              </ActionTree.ItemCheckbox>
+              <ActionTree.ItemExpansionTrigger>
+                <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+                  <path d="M4.5 2 8.5 6l-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              </ActionTree.ItemExpansionTrigger>
+              {item.label}
+            </ActionTree.ItemContent>
+          </ActionTree.Item>
+        )}
+      </ActionTree.List>
+      <ActionTree.Status style={visuallyHidden} />
+    </ActionTree.Root>
   );
 }

@@ -6,12 +6,13 @@ import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import type { TreeItemId, TreeState } from '../store/types';
+import type { TreeItemId, TreeItemKind, TreeState } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import { getItemIdKey } from './itemIdKey';
 import * as TreeItemCssVars from '../item/TreeItemCssVars';
+import { assertPlainTree } from './assertTreeKind';
 
 /**
  * State and DOM registration for TreeItem.
@@ -21,7 +22,10 @@ import * as TreeItemCssVars from '../item/TreeItemCssVars';
  * - Computing shared element props (role, aria-expanded, tabIndex, etc.).
  */
 export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemReturnValue {
-  const { store, itemId } = parameters;
+  const { store, itemId, kind = 'item' } = parameters;
+  if (kind !== 'item') {
+    assertPlainTree(store, kind);
+  }
   // Keep one snapshot per row instead of nesting memoized selectors. Store
   // notifications still check the values, but unchanged rows retain their snapshot.
   const selectItemState = React.useMemo(() => {
@@ -76,8 +80,8 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
     if (element == null) {
       return undefined;
     }
-    return store.items.registerItemDOMElement(itemId, element);
-  }, [store, itemId, element]);
+    return store.items.registerItemDOMElement(itemId, element, kind);
+  }, [store, itemId, element, kind]);
 
   const isGrid = store.grid != null;
 
@@ -86,9 +90,9 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
     React.useEffect(() => {
       if (isGrid && element?.querySelector('[role="gridcell"]') === null) {
         warn(
-          'A <Tree.Item> renders no cell.',
+          'An <ActionTree.Item> renders no cell.',
           'Each row of the treegrid needs one for assistive technology to read its content.',
-          'Render the content of the item inside <Tree.ItemContent>.',
+          'Render the content of the item inside <ActionTree.ItemContent>.',
         );
       }
     }, [isGrid, element]);
@@ -131,6 +135,7 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
   };
 
   const props: React.HTMLAttributes<HTMLElement> = {
+    ...store.interaction.itemEventHandlers,
     role: isGrid ? 'row' : 'treeitem',
     // A tree row otherwise derives its name from every descendant,
     // including control labels. Naming it from the item model keeps row
@@ -176,7 +181,7 @@ export interface TreeItemBaseState {
    */
   collapsed: boolean;
   /**
-   * Whether the item is highlighted: it has focus, or one of its controls does.
+   * Whether the item is highlighted: it has focus, or, in an action tree, one of its controls does.
    */
   highlighted: boolean;
   /**
@@ -196,6 +201,8 @@ export interface TreeItemBaseState {
 interface UseTreeItemParameters {
   store: TreeStore<any, any>;
   itemId: TreeItemId;
+  /** The part the item renders as. Parts other than `Tree.Item` throw in an action tree. */
+  kind?: TreeItemKind | undefined;
 }
 
 interface UseTreeItemReturnValue {

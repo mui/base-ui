@@ -215,7 +215,7 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
       onSelectedItemsChange,
     });
 
-    fireEvent.click(view.getItemRoot('parent').querySelector('[role=checkbox]')!);
+    fireEvent.click(view.getItemRoot('parent'));
     expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['parent', 'match', 'hidden']);
   });
 

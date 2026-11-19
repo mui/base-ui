@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Tree } from '@base-ui/react/tree';
+import { ActionTree } from '@base-ui/react/action-tree';
 
-const items: Tree.DefaultItem[] = [
+const items: ActionTree.DefaultItem[] = [
   {
     id: 'redesign',
     label: 'Website redesign',
@@ -15,55 +15,50 @@ const items: Tree.DefaultItem[] = [
 
 export default function ItemControlsTree() {
   return (
-    <Tree.GridProvider>
-      <Tree.Root items={items} defaultExpandedItems={['redesign']}>
-        <Tree.List aria-label="Projects">
-          {(item: Tree.DefaultItem) => (
-            <Tree.Item
-              itemId={item.id}
-              aria-description={item.children ? undefined : 'Press Tab to reach the task controls'}
+    <ActionTree.Root items={items} defaultExpandedItems={['redesign']}>
+      <ActionTree.List aria-label="Projects">
+        {(item: ActionTree.DefaultItem) => (
+          <ActionTree.Item
+            itemId={item.id}
+            aria-description={item.children ? undefined : 'Press Tab to reach the task controls'}
+          >
+            <ActionTree.ItemContent
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                paddingInlineStart: 'calc((var(--tree-item-level) - 1) * 1.5rem)',
+              }}
             >
-              <Tree.ItemContent
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  paddingInlineStart: 'calc((var(--tree-item-level) - 1) * 1.5rem)',
-                }}
-              >
-                <Tree.ItemExpansionTrigger>
-                  <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-                    <path
-                      d="M4.5 2 8.5 6l-4 4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                </Tree.ItemExpansionTrigger>
-                {item.children ? (
-                  item.label
-                ) : (
-                  <React.Fragment>
-                    <Tree.ItemLink
-                      href={`/tasks/${item.id}`}
-                      onClick={(event) => event.preventDefault()}
-                    >
-                      {item.label}
-                    </Tree.ItemLink>
-                    <Tree.ItemInput
-                      aria-label={`Estimate for ${item.label}, in hours`}
-                      defaultValue="2"
-                      style={{ width: '3rem' }}
-                    />
-                    <Tree.ItemButton aria-label={`Remove ${item.label}`}>×</Tree.ItemButton>
-                  </React.Fragment>
-                )}
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>
-    </Tree.GridProvider>
+              <ActionTree.ItemExpansionTrigger>
+                <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+                  <path d="M4.5 2 8.5 6l-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              </ActionTree.ItemExpansionTrigger>
+              {item.children ? (
+                item.label
+              ) : (
+                <React.Fragment>
+                  <ActionTree.ItemLink
+                    href={`/tasks/${item.id}`}
+                    onClick={(event) => event.preventDefault()}
+                  >
+                    {item.label}
+                  </ActionTree.ItemLink>
+                  <ActionTree.ItemInput
+                    aria-label={`Estimate for ${item.label}, in hours`}
+                    defaultValue="2"
+                    style={{ width: '3rem' }}
+                  />
+                  <ActionTree.ItemButton aria-label={`Remove ${item.label}`}>
+                    ×
+                  </ActionTree.ItemButton>
+                </React.Fragment>
+              )}
+            </ActionTree.ItemContent>
+          </ActionTree.Item>
+        )}
+      </ActionTree.List>
+    </ActionTree.Root>
   );
 }

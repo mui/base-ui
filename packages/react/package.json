@@ -28,6 +28,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./accordion": "./src/accordion/index.ts",
+    "./action-tree": "./src/action-tree/index.ts",
     "./alert-dialog": "./src/alert-dialog/index.ts",
     "./autocomplete": "./src/autocomplete/index.ts",
     "./avatar": "./src/avatar/index.ts",

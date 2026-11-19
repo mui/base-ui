@@ -67,23 +67,23 @@ describe('Tree filtering parts', () => {
             {(item) => {
               if (item.id === 'checkbox') {
                 return (
-                  <Tree.Item
+                  <Tree.CheckboxItem
                     itemId={item.id}
                     className={(state) => (state.filterMatch ? 'exact-match' : undefined)}
                   >
-                    <Tree.ItemCheckbox />
                     {item.label}
-                  </Tree.Item>
+                  </Tree.CheckboxItem>
                 );
               }
               if (item.id === 'link') {
                 return (
-                  <Tree.Item
+                  <Tree.LinkItem
                     itemId={item.id}
+                    href="#link"
                     className={(state) => (state.filterMatch ? 'exact-match' : undefined)}
                   >
-                    <a href="#link">{item.label}</a>
-                  </Tree.Item>
+                    {item.label}
+                  </Tree.LinkItem>
                 );
               }
               return (

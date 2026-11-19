@@ -9,13 +9,13 @@ import { useIsTreeEmpty } from './useIsTreeEmpty';
 
 /**
  * Returns the DOM props and ref that should be applied to the element
- * with `role="tree"`, or `role="treegrid"` in a grid.
+ * with `role="tree"`, or `role="treegrid"` in an action tree.
  *
  * @param props The list's `id` and `render` props.
  */
 export function useTreeRootProps(props: { id?: string | undefined; render?: unknown }) {
   const store = useTreeRootContext();
-  useWarnMisplacedTreeRootFeatures();
+  useWarnMisplacedTreeRootFeatures(store);
 
   // A filterable tree needs an id for `Tree.Input` to reference.
   const generatedId = useBaseUiId(props.id);

@@ -46,76 +46,41 @@ const items: LinkItemModel[] = [
 
 export default function ExampleTreeLinkItems() {
   return (
-    // @highlight-start
-    <Tree.GridProvider>
-      {/* @highlight-end */}
-      <Tree.Root
-        items={items}
-        defaultExpandedItems={['overview']}
-        // @highlight-start
-        selectionMode="none"
-        // @highlight-end
-      >
-        <Tree.List aria-label="Documentation" className={styles.Tree}>
-          {(item: LinkItemModel) => {
-            if (item.href) {
-              return (
-                <Link
-                  itemId={item.id}
-                  className={styles.LinkItem}
-                  href={item.href}
-                  // @highlight-start
-                  active={item.id === 'quick-start'}
-                  // @highlight-end
-                >
-                  <span className={styles.Label}>{item.label}</span>
-                </Link>
-              );
-            }
-
-            return (
-              <Tree.Item itemId={item.id} className={styles.Item}>
-                <Tree.ItemContent className={styles.ItemContent}>
-                  <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                    <ChevronIcon />
-                  </Tree.ItemExpansionTrigger>
-                  <span className={styles.Label}>{item.label}</span>
-                </Tree.ItemContent>
-              </Tree.Item>
-            );
-          }}
-        </Tree.List>
-      </Tree.Root>
-    </Tree.GridProvider>
-  );
-}
-
-function Link({
-  itemId,
-  active,
-  children,
-  className,
-  ...props
-}: React.ComponentProps<'a'> & { itemId: Tree.ItemId; active?: boolean }) {
-  return (
-    // @focus-start
-    <Tree.Item
-      itemId={itemId}
-      className={className}
-      data-active={active ? '' : undefined}
+    <Tree.Root
+      items={items}
+      defaultExpandedItems={['overview']}
       // @highlight-start
-      aria-description="Press Tab to reach the link"
+      selectionMode="none"
       // @highlight-end
     >
-      <Tree.ItemContent className={styles.ItemContent}>
-        {/* @highlight-start */}
-        <Tree.ItemLink {...props} className={styles.Link} active={active}>
-          {children}
-        </Tree.ItemLink>
-        {/* @highlight-end */}
-        {/* @focus-end */}
-      </Tree.ItemContent>
-    </Tree.Item>
+      <Tree.List aria-label="Documentation" className={styles.Tree}>
+        {(item: LinkItemModel) => {
+          if (item.href) {
+            return (
+              // @highlight-start @focus @padding 1
+              <Tree.LinkItem
+                itemId={item.id}
+                href={item.href}
+                active={item.id === 'quick-start'}
+                className={styles.LinkItem}
+              >
+                {/* @highlight-end */}
+                <span className={styles.Label}>{item.label}</span>
+              </Tree.LinkItem>
+            );
+          }
+
+          return (
+            <Tree.Item itemId={item.id} className={styles.Item}>
+              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <span className={styles.Label}>{item.label}</span>
+            </Tree.Item>
+          );
+        }}
+      </Tree.List>
+    </Tree.Root>
   );
 }
 

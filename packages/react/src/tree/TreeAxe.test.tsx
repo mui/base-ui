@@ -41,13 +41,11 @@ function renderItem(item: Item) {
 
 function renderCheckboxItem(item: Item) {
   return (
-    <Tree.Item itemId={item.id}>
-      <Tree.ItemCheckbox>
-        <Tree.ItemCheckboxIndicator />
-      </Tree.ItemCheckbox>
+    <Tree.CheckboxItem itemId={item.id}>
+      <Tree.CheckboxItemIndicator />
       <Tree.ItemExpansionTrigger />
       {item.label}
-    </Tree.Item>
+    </Tree.CheckboxItem>
   );
 }
 
@@ -103,7 +101,7 @@ describe.skipIf(isJSDOM)('Tree axe checks', () => {
         <Tree.List aria-label="Files">{renderCheckboxItem}</Tree.List>
       </Tree.Root>,
     );
-    expect(screen.getByRole('checkbox', { name: 'Select Documents' })).toHaveAttribute(
+    expect(screen.getByRole('treeitem', { name: 'Documents' })).toHaveAttribute(
       'aria-checked',
       'mixed',
     );
@@ -141,30 +139,23 @@ describe.skipIf(isJSDOM)('Tree axe checks', () => {
     await expectNoAxeViolations(container);
   });
 
-  it('Tree.GridProvider with item controls', async () => {
+  it('link items', async () => {
     const { container } = await render(
-      <Tree.GridProvider>
-        <Tree.Root items={items} selectionMode="multiple" defaultExpandedItems={['documents']}>
-          <Tree.List aria-label="Files">
-            {(item: Item) => (
-              <Tree.Item itemId={item.id}>
-                <Tree.ItemContent>
-                  <Tree.ItemCheckbox>
-                    <Tree.ItemCheckboxIndicator />
-                  </Tree.ItemCheckbox>
-                  <Tree.ItemExpansionTrigger />
-                  {item.label}
-                  <Tree.ItemInput aria-label={`Rename ${item.label}`} defaultValue={item.label} />
-                  <Tree.ItemButton aria-label={`Delete ${item.label}`}>×</Tree.ItemButton>
-                </Tree.ItemContent>
-              </Tree.Item>
-            )}
-          </Tree.List>
-        </Tree.Root>
-      </Tree.GridProvider>,
+      <Tree.Root items={items} selectionMode="none" defaultExpandedItems={['documents']}>
+        <Tree.List aria-label="Files">
+          {(item: Item) => (
+            <Tree.LinkItem itemId={item.id} href={`#${item.id}`} active={item.id === 'resume'}>
+              <Tree.ItemExpansionTrigger />
+              {item.label}
+            </Tree.LinkItem>
+          )}
+        </Tree.List>
+      </Tree.Root>,
     );
-    expect(screen.getByRole('treegrid', { name: 'Files' })).toBeVisible();
-    expect(screen.getByRole('gridcell', { name: 'Resume.pdf' })).toBeVisible();
+    expect(screen.getByRole('treeitem', { name: 'Resume.pdf' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
 
     await expectNoAxeViolations(container);
   });

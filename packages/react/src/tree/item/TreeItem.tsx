@@ -33,7 +33,6 @@ export const TreeItem = fastComponentRef(function TreeItem(
     state,
     ref: [forwardedRef, sharedItemResponse.ref],
     props: [
-      store.interaction.itemEventHandlers,
       sharedItemResponse.props,
       // Per WAI-ARIA, when selection is supported, all focusable rows must have
       // aria-selected set to true or false — a disabled row included, and a

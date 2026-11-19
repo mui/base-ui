@@ -51,14 +51,12 @@ export default function ExampleTreeCheckboxItems() {
     >
       <Tree.List aria-label="File system" className={styles.Tree}>
         {(item: Tree.DefaultItem) => (
-          <Tree.Item itemId={item.id} className={styles.Item}>
-            {/* @highlight-start @focus @padding 2 */}
-            <Tree.ItemCheckbox className={styles.Checkbox}>
-              <Tree.ItemCheckboxIndicator className={styles.CheckboxIndicator} keepMounted>
-                <CheckIcon className={styles.CheckIcon} />
-                <MinusIcon className={styles.MinusIcon} />
-              </Tree.ItemCheckboxIndicator>
-            </Tree.ItemCheckbox>
+          // @highlight-start @focus @padding 2
+          <Tree.CheckboxItem itemId={item.id} className={styles.Item}>
+            <Tree.CheckboxItemIndicator className={styles.CheckboxIndicator} keepMounted>
+              <CheckIcon className={styles.CheckIcon} />
+              <MinusIcon className={styles.MinusIcon} />
+            </Tree.CheckboxItemIndicator>
             {/* @highlight-end */}
             <div className={styles.Hierarchy}>
               <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
@@ -66,7 +64,7 @@ export default function ExampleTreeCheckboxItems() {
               </Tree.ItemExpansionTrigger>
               <span className={styles.Label}>{item.label}</span>
             </div>
-          </Tree.Item>
+          </Tree.CheckboxItem>
         )}
       </Tree.List>
       {/* @highlight-start */}

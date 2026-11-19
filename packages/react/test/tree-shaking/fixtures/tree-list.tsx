@@ -6,10 +6,10 @@ export function App() {
     <Tree.Root defaultItems={[]}>
       <Tree.List>
         {(item) => (
-          <Tree.Item itemId={item.id}>
-            <Tree.ItemCheckbox />
+          <Tree.CheckboxItem itemId={item.id}>
+            <Tree.CheckboxItemIndicator />
             {item.label}
-          </Tree.Item>
+          </Tree.CheckboxItem>
         )}
       </Tree.List>
       <Tree.Empty />

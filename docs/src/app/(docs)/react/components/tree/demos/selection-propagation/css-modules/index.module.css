@@ -146,7 +146,7 @@
     }
   }
 
-  &[data-selected] {
+  &[data-checked] {
     background: oklch(92.2% 0 0deg);
     border-inline-start-color: oklch(14.5% 0 0deg);
 
@@ -164,7 +164,7 @@
   @media (forced-colors: active) {
     border-inline-start-color: Canvas;
 
-    &[data-selected] {
+    &[data-checked] {
       border-inline-start-color: Highlight;
     }
   }
@@ -245,15 +245,6 @@
 
     @media (prefers-color-scheme: dark) {
       background: white;
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: 2px;
-
-    @media (prefers-color-scheme: dark) {
-      outline: 2px solid white;
     }
   }
 }

@@ -54,8 +54,10 @@ export const TreeItemExpansionTrigger = fastComponentRef(function TreeItemExpans
       getButtonProps({
         'aria-label': ariaLabel,
         tabIndex: -1,
+        // Keep pointer focus on the row that owns the roving tab stop.
         onPointerDown: (event: React.PointerEvent) => {
-          store.interaction.focusItemOnPress(itemId, event);
+          event.preventDefault();
+          store.interaction.focusItem(itemId, REASONS.itemPress, event.nativeEvent);
         },
         onClick: (event: React.MouseEvent) => {
           // Alt-click (Option-click on macOS) also toggles the descendants, as in

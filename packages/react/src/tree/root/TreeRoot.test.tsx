@@ -500,12 +500,10 @@ describeTree('TreeRoot - Items', ({ render }) => {
         checkboxSelection: true,
         selectionMode: 'multiple',
       });
-      const checkbox = view.getItemRoot(0).querySelector('[role=checkbox]')!;
-
-      fireEvent.click(checkbox);
+      fireEvent.click(view.getItemRoot(0));
       expect(view.actionsRef.current!.isItemSelected(0)).toBe(true);
 
-      fireEvent.click(checkbox);
+      fireEvent.click(view.getItemRoot(0));
       expect(view.actionsRef.current!.isItemSelected(0)).toBe(false);
     });
   });

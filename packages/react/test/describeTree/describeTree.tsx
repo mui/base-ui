@@ -95,13 +95,20 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
   const isItemExpanded = (id: TreeItemId) =>
     getItemRoot(id).getAttribute('aria-expanded') === 'true';
 
-  const isItemSelected = (id: TreeItemId) =>
-    getItemRoot(id).getAttribute('aria-selected') === 'true';
+  // A checkbox item reports its selection with `aria-checked`.
+  const isItemSelected = (id: TreeItemId) => {
+    const item = getItemRoot(id);
+    return (
+      item.getAttribute('aria-selected') === 'true' || item.getAttribute('aria-checked') === 'true'
+    );
+  };
 
   const getSelectedTreeItems = () =>
-    Array.from(result.container.querySelectorAll('[role="treeitem"][aria-selected="true"]')).map(
-      (item) => (item as HTMLElement).dataset.itemId!,
-    );
+    Array.from(
+      result.container.querySelectorAll(
+        '[role="treeitem"][aria-selected="true"], [role="treeitem"][aria-checked="true"]',
+      ),
+    ).map((item) => (item as HTMLElement).dataset.itemId!);
 
   return {
     getRoot,
@@ -237,16 +244,13 @@ export function describeTree(
           }
         : undefined;
 
+      const ItemPart = checkboxSelection ? Tree.CheckboxItem : Tree.Item;
       const renderItem = (item: TreeDefaultItem) => (
-        <Tree.Item key={item.id} itemId={item.id}>
-          {checkboxSelection && (
-            <Tree.ItemCheckbox>
-              <Tree.ItemCheckboxIndicator />
-            </Tree.ItemCheckbox>
-          )}
+        <ItemPart key={item.id} itemId={item.id}>
+          {checkboxSelection && <Tree.CheckboxItemIndicator />}
           <Tree.ItemExpansionTrigger />
           <span data-testid="text">{item.label}</span>
-        </Tree.Item>
+        </ItemPart>
       );
 
       const root = (

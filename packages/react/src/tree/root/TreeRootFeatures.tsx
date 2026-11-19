@@ -6,16 +6,17 @@ import type { TreeStore } from '../store/TreeStore';
 import type { TreeState } from '../store/types';
 import { TreeRootContext } from './TreeRootContext';
 
-/** The store state a provider wrapping `Tree.Root` controls. */
+/** The store state a provider wrapping the root controls. */
 export type TreeRootFeatureState = Pick<TreeState, 'filterOptions'>;
 
 /**
- * What a provider wrapping `Tree.Root` adds to the tree, such as filtering. Only the provider imports the feature's implementation, so trees that
+ * What a provider wrapping the root adds to the tree, such as filtering, or what
+ * `ActionTree.Root` adds to the `Tree.Root` it renders. Only the provider imports the feature's implementation, so trees that
  * don't render the provider don't bundle it.
  */
 export interface TreeRootFeature {
-  /** The provider's part name, such as `FilterProvider`, for warnings. */
-  name: string;
+  /** The provider's part name, such as `FilterProvider`, for its misplacement warnings. */
+  name?: string | undefined;
   /**
    * Adds the feature's plugin to the store, such as `store.filtering`, and passes
    * the plugin's actions to `store.registerActions()` so they replace the store's
@@ -37,16 +38,20 @@ export interface TreeRootFeature {
 }
 
 /**
- * The features of the providers wrapping a `Tree.Root`. Each root resets it, so a
+ * The features of the providers wrapping a root. Each root resets it, so a
  * tree nested in another tree's items doesn't inherit them.
  */
 export const TreeRootFeaturesContext = React.createContext<readonly TreeRootFeature[]>(EMPTY_ARRAY);
 
-function warnMisplacedProvider(name: string) {
+function warnMisplacedProvider(store: TreeStore<any, any>, name: string | undefined) {
+  if (name === undefined) {
+    return;
+  }
+  const component = store.grid === undefined ? 'Tree' : 'ActionTree';
   warn(
-    `<Tree.${name}> has no effect inside <Tree.Root>.`,
+    `<${component}.${name}> has no effect inside <${component}.Root>.`,
     'Providers configure the tree they wrap.',
-    `Render <Tree.${name}> around <Tree.Root> instead.`,
+    `Render <${component}.${name}> around <${component}.Root> instead.`,
   );
 }
 
@@ -60,13 +65,13 @@ export function TreeRootFeatureProvider(props: TreeRootFeatureProvider.Props) {
   const features = React.useMemo(() => [...parentFeatures, feature], [parentFeatures, feature]);
 
   // A provider without children can't wrap a root, so inside a root it's misplaced.
-  const insideRoot = React.useContext(TreeRootContext) !== undefined;
-  const childlessInsideRoot = insideRoot && children == null;
+  const rootStore = React.useContext(TreeRootContext);
+  const misplacedIn = children == null ? rootStore : undefined;
   React.useEffect(() => {
-    if (process.env.NODE_ENV !== 'production' && childlessInsideRoot) {
-      warnMisplacedProvider(feature.name);
+    if (process.env.NODE_ENV !== 'production' && misplacedIn !== undefined) {
+      warnMisplacedProvider(misplacedIn, feature.name);
     }
-  }, [childlessInsideRoot, feature.name]);
+  }, [misplacedIn, feature.name]);
 
   return (
     <TreeRootFeaturesContext.Provider value={features}>{children}</TreeRootFeaturesContext.Provider>
@@ -85,13 +90,13 @@ export namespace TreeRootFeatureProvider {
  * features it applies, so any feature a list still sees comes from a provider
  * rendered inside the root, where it configures nothing.
  */
-export function useWarnMisplacedTreeRootFeatures() {
+export function useWarnMisplacedTreeRootFeatures(store: TreeStore<any, any>) {
   const features = React.useContext(TreeRootFeaturesContext);
   React.useEffect(() => {
     if (process.env.NODE_ENV !== 'production') {
       for (const feature of features) {
-        warnMisplacedProvider(feature.name);
+        warnMisplacedProvider(store, feature.name);
       }
     }
-  }, [features]);
+  }, [store, features]);
 }
