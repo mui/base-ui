@@ -1,8 +1,7 @@
 import type * as React from 'react';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { isElement } from '@floating-ui/utils/dom';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
@@ -20,9 +19,7 @@ import type {
 import type { TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import { isWithinInteractiveContent } from '../utils/isWithinInteractiveContent';
-import { isControlFocusable, sortInComposedOrder } from '../utils/focusability';
 import { getItemIdKey, ITEM_KEY_ATTRIBUTE } from '../utils/itemIdKey';
-import type { TreeItemControlKeys } from '../item-control/TreeItemControl';
 import {
   getFirstNavigableChild,
   getFirstNavigableItem,
@@ -33,12 +30,6 @@ import {
 
 /** Where DOM focus sits relative to the tree container. */
 export type FocusLocation = 'lost' | 'inside' | 'outside';
-
-interface RegisteredControl {
-  element: HTMLElement;
-  getKeys: () => Required<TreeItemControlKeys>;
-  isDisabled: () => boolean;
-}
 
 let typeaheadCollator: Intl.Collator | undefined;
 
@@ -56,41 +47,8 @@ function labelStartsWith(label: string, query: string): boolean {
   return typeaheadCollator.compare(label.slice(0, query.length), query) === 0;
 }
 
-const CONTROL_NAVIGATION_KEYS = new Set([
-  'ArrowLeft',
-  'ArrowRight',
-  'ArrowUp',
-  'ArrowDown',
-  'Home',
-  'End',
-  'Escape',
-]);
-
 function isPrintableKey(key: string): boolean {
   return key.length === 1 && !!key.match(/\S/);
-}
-
-/**
- * Whether a horizontal arrow moves the caret of a text field instead of leaving
- * it: the field has a selection, or its caret is away from the edge the arrow
- * moves toward. Inputs without a selection API, such as `email` and `number`,
- * never keep it.
- */
-function keepsHorizontalArrow(element: Element, key: string): boolean {
-  if (element.localName !== 'input' && element.localName !== 'textarea') {
-    return false;
-  }
-  const { selectionStart, selectionEnd, value } = element as HTMLInputElement | HTMLTextAreaElement;
-  if (selectionStart == null) {
-    return false;
-  }
-  if (selectionStart !== selectionEnd) {
-    return true;
-  }
-  // The caret follows the text's direction, which can differ from the tree's.
-  const isRtl = ownerWindow(element).getComputedStyle(element).direction === 'rtl';
-  const forward = key === (isRtl ? 'ArrowLeft' : 'ArrowRight');
-  return forward ? selectionStart < value.length : selectionStart > 0;
 }
 
 export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
@@ -116,9 +74,6 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   private focusRecoveryFrame = AnimationFrame.create();
 
   private controlRecoveryFrame = AnimationFrame.create();
-
-  /** Controls registered by the row parts, keyed by item. */
-  private controls = new Map<string, Set<RegisteredControl>>();
 
   constructor(store: TreeStore<TreeSelectionMode | undefined, TItem>) {
     this.store = store;
@@ -390,59 +345,6 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   };
 
   /**
-   * Registers a control rendered inside an item's row so the row's keyboard
-   * navigation can reach it. Returns the cleanup that unregisters it.
-   */
-  public registerControl = (
-    itemId: TreeItemId,
-    element: HTMLElement,
-    getKeys: () => Required<TreeItemControlKeys>,
-    isDisabled: () => boolean,
-  ): (() => void) => {
-    const key = getItemIdKey(itemId);
-    let itemControls = this.controls.get(key);
-    if (itemControls == null) {
-      itemControls = new Set();
-      this.controls.set(key, itemControls);
-    }
-    const control: RegisteredControl = { element, getKeys, isDisabled };
-    itemControls.add(control);
-
-    return () => {
-      itemControls.delete(control);
-      if (itemControls.size === 0 && this.controls.get(key) === itemControls) {
-        this.controls.delete(key);
-      }
-    };
-  };
-
-  /** The registration of `element` among an item's controls. The last registration wins. */
-  private findControl(itemKey: string | null, element: Element): RegisteredControl | undefined {
-    let control: RegisteredControl | undefined;
-    for (const candidate of (itemKey == null ? null : this.controls.get(itemKey)) ?? EMPTY_ARRAY) {
-      if (candidate.element === element) {
-        control = candidate;
-      }
-    }
-    return control;
-  }
-
-  /** The focusable registered controls of an item, in composed tree order. */
-  private getControls(itemId: TreeItemId): RegisteredControl[] {
-    const itemElement = this.store.items.getItemDOMElement(itemId);
-    const itemControls = this.controls.get(getItemIdKey(itemId));
-    if (itemElement == null || itemControls == null) {
-      return [];
-    }
-    return sortInComposedOrder(
-      itemElement,
-      Array.from(itemControls).filter(
-        (control) => !control.isDisabled() && isControlFocusable(control.element, itemElement),
-      ),
-    );
-  }
-
-  /**
    * Moves focus back to the item once a focused control has left the DOM,
    * unless something else took focus in the meantime.
    */
@@ -478,125 +380,19 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }
   };
 
+  /**
+   * Keeps the focus of a press on a part that isn't a tab stop, such as the
+   * expansion trigger, on its row, which owns the roving tab stop.
+   */
+  public focusItemOnPress = (itemId: TreeItemId, event: React.MouseEvent) => {
+    event.preventDefault();
+    this.focusItem(itemId, REASONS.itemPress, event.nativeEvent);
+  };
+
   public actions = {
     focusItem: (itemId: TreeItemId) => this.focusItem(itemId, REASONS.imperativeAction),
     getFocusedItemId: (): TreeItemId | null => selectors.focusedItemId(this.store.state),
   };
-
-  /**
-   * Focuses a control without the browser's focus scroll, which scrolls every
-   * ancestor. The list only scrolls rows into view vertically, so bring the
-   * control into view horizontally.
-   */
-  private focusControl(control: RegisteredControl) {
-    control.element.focus({ preventScroll: true });
-    this.store.items.revealHorizontally(control.element);
-  }
-
-  /**
-   * Keys pressed on a registered control. The control keeps every key it
-   * declares as its own; the remaining navigation keys move through the row and
-   * the tree. Modified keys always stay with the control and the browser.
-   */
-  private handleControlKeyDown(
-    event: React.KeyboardEvent,
-    itemId: TreeItemId,
-    itemElement: HTMLElement,
-    target: Element,
-  ) {
-    if (!CONTROL_NAVIGATION_KEYS.has(event.key)) {
-      return;
-    }
-    // A disabled control that stays focusable prevents every key to block its
-    // activation. Navigation keys still apply to it.
-    const disabledFocusable = target.getAttribute('aria-disabled') === 'true';
-    if (
-      (event.defaultPrevented && !disabledFocusable) ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey ||
-      event.nativeEvent.isComposing
-    ) {
-      return;
-    }
-
-    const control = this.findControl(getItemIdKey(itemId), target);
-    if (control == null) {
-      return;
-    }
-    // A disabled control can't act on any key, so the navigation keys move
-    // focus away from it, including from one that stays focusable.
-    const unavailable =
-      disabledFocusable ||
-      control.isDisabled() ||
-      !isControlFocusable(control.element, itemElement);
-    const keys: TreeItemControlKeys = unavailable ? {} : control.getKeys();
-    const isRtl = this.store.state.direction === 'rtl';
-    const forwardKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
-    const backwardKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
-
-    switch (event.key) {
-      case forwardKey:
-      case backwardKey: {
-        if (
-          keys.horizontal === 'control' ||
-          (!unavailable && keepsHorizontalArrow(target, event.key))
-        ) {
-          return;
-        }
-        event.preventDefault();
-        const controls = this.getControls(itemId);
-        const index = controls.indexOf(control);
-        // Bounded: backward from the first control returns to the row, forward
-        // from the last one stays put.
-        if (event.key === backwardKey) {
-          if (index > 0) {
-            this.focusControl(controls[index - 1]);
-          } else {
-            itemElement.focus({ preventScroll: true });
-          }
-        } else if (index < controls.length - 1) {
-          this.focusControl(controls[index + 1]);
-        }
-        return;
-      }
-      case 'ArrowDown':
-      case 'ArrowUp': {
-        // The row's own handling, as no modifier is held.
-        if (keys.vertical !== 'control') {
-          this.handleKeyDown(event, itemId);
-        }
-        return;
-      }
-      case 'Home':
-      case 'End': {
-        if (keys.homeEnd === 'control') {
-          return;
-        }
-        event.preventDefault();
-        const controls = this.getControls(itemId);
-        if (controls.length === 0) {
-          itemElement.focus({ preventScroll: true });
-          return;
-        }
-        this.focusControl(event.key === 'Home' ? controls[0] : controls[controls.length - 1]);
-        return;
-      }
-      case 'Escape': {
-        if (keys.escape === 'control') {
-          return;
-        }
-        // Consumed so an enclosing dialog stays open; Escape on the row itself
-        // is left to the containing UI.
-        event.preventDefault();
-        event.stopPropagation();
-        itemElement.focus({ preventScroll: true });
-        return;
-      }
-      default:
-    }
-  }
 
   private getFirstItemMatchingTypeaheadQuery(
     itemId: TreeItemId,
@@ -707,12 +503,10 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       } else if (!selectors.isItemDisabled(this.store.state, itemId)) {
         // Without another action, Enter follows the item's link, as on a link
         // that has focus itself. A disabled item doesn't forward it.
-        const link = this.getControls(itemId).find(
-          (control) => control.element.localName === 'a' && control.element.hasAttribute('href'),
-        );
+        const link = this.store.grid?.getLink(itemId);
         if (link != null) {
           event.preventDefault();
-          (link.element as HTMLElement).click();
+          link.click();
         }
       }
     } else if (key === 'ArrowDown' || key === 'ArrowUp') {
@@ -739,15 +533,10 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       const expanded = selectors.isItemExpanded(this.store.state, itemId);
       if (!expanded && this.store.expansion.canToggleItemExpansion(itemId)) {
         this.store.expansion.setItemExpansion(itemId, true, REASONS.keyboard, event.nativeEvent);
-      } else {
-        const controls = this.getControls(itemId);
-        if (controls.length > 0) {
-          this.focusControl(controls[0]);
-        } else if (expanded) {
-          const firstFocusableChild = getFirstNavigableChild(this.store.state, itemId);
-          if (firstFocusableChild != null) {
-            this.focusItem(firstFocusableChild, REASONS.keyboard, event.nativeEvent);
-          }
+      } else if (!this.store.grid?.focusFirstControl(itemId) && expanded) {
+        const firstFocusableChild = getFirstNavigableChild(this.store.state, itemId);
+        if (firstFocusableChild != null) {
+          this.focusItem(firstFocusableChild, REASONS.keyboard, event.nativeEvent);
         }
       }
       event.preventDefault();
@@ -855,24 +644,16 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
    */
   private isEventFromInteractiveDescendant(event: React.SyntheticEvent): boolean {
     const target = getTarget(event.nativeEvent);
-    const itemKey = (event.currentTarget as Element).getAttribute(ITEM_KEY_ATTRIBUTE);
-    return isElement(target) && this.isWithinControl(itemKey, target, event.currentTarget);
-  }
-
-  private isWithinControl(itemKey: string | null, target: Element, container: Element): boolean {
-    return isWithinInteractiveContent(
-      target,
-      container,
-      (node) => this.findControl(itemKey, node) != null,
+    const row = event.currentTarget as Element;
+    const itemKey = row.getAttribute(ITEM_KEY_ATTRIBUTE);
+    return (
+      isElement(target) &&
+      isWithinInteractiveContent(
+        target,
+        row,
+        (node) => this.store.grid?.findControl(itemKey, node) != null,
+      )
     );
-  }
-
-  /**
-   * Whether a press on `target` belongs to interactive content of the item below
-   * `container`, such as a registered control, rather than to the item.
-   */
-  public isPressOnItemControl(itemId: TreeItemId, target: Element, container: Element): boolean {
-    return this.isWithinControl(getItemIdKey(itemId), target, container);
   }
 
   /**
@@ -1025,11 +806,15 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         this.handleKeyDown(event, focusedId);
         return;
       }
-      // Registered controls share the row's navigation keys. Anything else, such
-      // as popups rendered from the row or unregistered elements, keeps all of
-      // its keys.
-      if (itemElement != null && contains(itemElement, target)) {
-        this.handleControlKeyDown(event, focusedId, itemElement, target);
+      // In a grid, registered controls share the row's navigation keys. Anything
+      // else, such as popups rendered from the row or unregistered elements, keeps
+      // all of its keys.
+      if (
+        itemElement != null &&
+        contains(itemElement, target) &&
+        this.store.grid?.handleControlKeyDown(event, focusedId, itemElement, target)
+      ) {
+        this.handleKeyDown(event, focusedId);
       }
     },
   };

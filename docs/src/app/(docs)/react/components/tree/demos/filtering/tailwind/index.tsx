@@ -42,7 +42,8 @@ const items: Tree.DefaultItem[] = [
 // A leaf has no expansion trigger, so it takes the trigger's width to line up
 // with its expandable siblings.
 const ITEM_CLASS =
-  'flex items-center gap-1 px-2 py-1 text-sm/[1.5] text-neutral-950 select-none dark:text-white ' +
+  'flex items-center gap-1 py-1 pe-2 text-sm/[1.5] text-neutral-950 select-none dark:text-white ' +
+  'ps-[calc(0.5rem+1.5rem*(var(--tree-item-level)-1)+var(--leaf-offset))] ' +
   '[--leaf-offset:0rem] not-data-expandable:[--leaf-offset:1.5rem] ' +
   'hover:bg-neutral-100 dark:hover:bg-neutral-800 ' +
   'data-selected:bg-neutral-200 dark:data-selected:bg-neutral-700 ' +
@@ -57,10 +58,6 @@ const TRIGGER_CLASS =
   'inline-flex size-5 shrink-0 items-center justify-center border-none bg-transparent p-0 text-neutral-500 ' +
   'hover:bg-neutral-200 hover:text-neutral-950 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-white ' +
   '[&_svg]:size-3 [&_svg]:transition-transform [&_svg]:duration-150 [&_svg]:ease-[ease] data-expanded:[&_svg]:rotate-90';
-
-const HIERARCHY_CLASS =
-  'ms-[calc(1.5rem*(var(--tree-item-level)-1))] flex min-w-0 flex-1 items-center gap-1 ' +
-  'ps-[var(--leaf-offset)]';
 
 const MODE_SELECT_CLASS =
   'box-border w-full min-w-0 border border-neutral-950 bg-white px-3 py-2 text-sm/[normal] text-neutral-950 ' +
@@ -114,14 +111,12 @@ export default function ExampleTreeFiltering() {
             <Tree.List aria-label="File system" className="box-border w-full p-1">
               {(item: Tree.DefaultItem) => (
                 <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-                  <Tree.ItemContent className={HIERARCHY_CLASS}>
-                    <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
-                      <ChevronIcon />
-                    </Tree.ItemExpansionTrigger>
-                    <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                      {item.label}
-                    </span>
-                  </Tree.ItemContent>
+                  <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
+                    <ChevronIcon />
+                  </Tree.ItemExpansionTrigger>
+                  <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {item.label}
+                  </span>
                 </Tree.Item>
               )}
             </Tree.List>

@@ -697,6 +697,29 @@ type TreeFilterProviderChangeEventDetails = (
 };
 ```
 
+### GridProvider
+
+Lets the items of the tree it wraps contain controls that the keyboard reaches, such as
+buttons, inputs, and links.
+The tree then renders a `treegrid`, and each item renders its content in `Tree.ItemContent`.
+Doesn't render its own HTML element.
+
+**GridProvider Props:**
+
+| Prop     | Type              | Default | Description                                     |
+| :------- | :---------------- | :------ | :---------------------------------------------- |
+| children | `React.ReactNode` | -       | The `<Tree.Root>` whose items contain controls. |
+
+### GridProvider.Props
+
+Re-export of [GridProvider](#gridprovider) props.
+
+### GridProvider.State
+
+```typescript
+type TreeGridProviderState = {};
+```
+
 ### GroupTransition
 
 A wrapper that animates a group of tree items while it expands or collapses.
@@ -746,6 +769,7 @@ type TreeGroupTransitionState = {
 ### ItemButton
 
 A button inside a tree item that takes part in the item's keyboard navigation.
+Requires the tree to be wrapped in `Tree.GridProvider`.
 Renders a `<button>` element.
 
 **ItemButton Props:**
@@ -878,6 +902,7 @@ Pass it directly to the root component; it has no public members.
 ### ItemContent
 
 Contains the interactive content of a tree item.
+Requires the tree to be wrapped in `Tree.GridProvider`.
 Renders a `<div>` element with `role="gridcell"`, named after its item.
 
 **ItemContent Props:**
@@ -901,6 +926,7 @@ type TreeItemContentState = {};
 ### ItemControl
 
 Adds any focusable element inside a tree item to the item's keyboard navigation.
+Requires the tree to be wrapped in `Tree.GridProvider`.
 Renders a `<div>` element.
 
 **ItemControl Props:**
@@ -1056,6 +1082,7 @@ type TreeItemIndentGuideState = {
 ### ItemInput
 
 An input inside a tree item that takes part in the item's keyboard navigation.
+Requires the tree to be wrapped in `Tree.GridProvider`.
 Renders an `<input>` element.
 
 **ItemInput Props:**
@@ -1095,6 +1122,7 @@ type TreeItemInputState = {
 ### ItemLink
 
 A link inside a tree item that takes part in the item's keyboard navigation.
+Requires the tree to be wrapped in `Tree.GridProvider`.
 Renders an `<a>` element.
 
 **ItemLink Props:**
@@ -1631,25 +1659,26 @@ declare namespace TreeListDataAttributes {
 - `Tree.Root`: `Tree.Root`, `Tree.Root.State`, `Tree.Root.Props`, `Tree.Root.Actions`, `Tree.Root.ExpansionChangeEventReason`, `Tree.Root.ExpansionChangeEventDetails`, `Tree.Root.SelectionChangeEventReason`, `Tree.Root.SelectionChangeEventDetails`, `Tree.Root.ItemExpansionToggleEventDetails`, `Tree.Root.ItemExpansionToggleValue`, `Tree.Root.ItemSelectionToggleEventDetails`, `Tree.Root.ItemSelectionToggleValue`, `Tree.Root.HighlightEventReason`, `Tree.Root.HighlightEventDetails`, `Tree.Root.ItemsChangeEventReason`, `Tree.Root.ItemsChangeEventDetails`, `Tree.Root.Items`
 - `Tree.Label`: `Tree.Label`, `Tree.Label.State`, `Tree.Label.Props`
 - `Tree.Item`: `Tree.Item`, `Tree.Item.State`, `Tree.Item.Props`
-- `Tree.ItemContent`: `Tree.ItemContent`, `Tree.ItemContent.State`, `Tree.ItemContent.Props`
 - `Tree.ItemCheckbox`: `Tree.ItemCheckbox`, `Tree.ItemCheckbox.State`, `Tree.ItemCheckbox.Props`
 - `Tree.ItemCheckboxIndicator`: `Tree.ItemCheckboxIndicator`, `Tree.ItemCheckboxIndicator.State`, `Tree.ItemCheckboxIndicator.Props`
 - `Tree.ItemExpansionTrigger`: `Tree.ItemExpansionTrigger`, `Tree.ItemExpansionTrigger.State`, `Tree.ItemExpansionTrigger.Props`
-- `Tree.ItemButton`: `Tree.ItemButton`, `Tree.ItemButton.State`, `Tree.ItemButton.Props`
-- `Tree.ItemInput`: `Tree.ItemInput`, `Tree.ItemInput.State`, `Tree.ItemInput.Props`
-- `Tree.ItemLink`: `Tree.ItemLink`, `Tree.ItemLink.State`, `Tree.ItemLink.Props`
-- `Tree.ItemControl`: `Tree.ItemControl`, `Tree.ItemControl.State`, `Tree.ItemControl.Props`, `Tree.ItemControl.Keys`
 - `Tree.ItemGroupIndicator`: `Tree.ItemGroupIndicator`, `Tree.ItemGroupIndicator.State`, `Tree.ItemGroupIndicator.Props`
 - `Tree.List`: `Tree.List`, `Tree.List.Props`, `Tree.List.State`
 - `Tree.GroupTransition`: `Tree.GroupTransition`, `Tree.GroupTransition.State`, `Tree.GroupTransition.Props`
 - `Tree.Empty`: `Tree.Empty`, `Tree.Empty.State`, `Tree.Empty.Props`
 - `Tree.Status`: `Tree.Status`, `Tree.Status.State`, `Tree.Status.Props`, `Tree.Status.Change`, `Tree.Status.FilterChange`, `Tree.Status.SelectionChange`
 - `Tree.ItemIndentGuide`: `Tree.ItemIndentGuide`, `Tree.ItemIndentGuide.State`, `Tree.ItemIndentGuide.Props`
+- `Tree.GridProvider`: `Tree.GridProvider`, `Tree.GridProvider.State`, `Tree.GridProvider.Props`
+- `Tree.ItemContent`: `Tree.ItemContent`, `Tree.ItemContent.State`, `Tree.ItemContent.Props`
+- `Tree.ItemButton`: `Tree.ItemButton`, `Tree.ItemButton.State`, `Tree.ItemButton.Props`
+- `Tree.ItemInput`: `Tree.ItemInput`, `Tree.ItemInput.State`, `Tree.ItemInput.Props`
+- `Tree.ItemLink`: `Tree.ItemLink`, `Tree.ItemLink.State`, `Tree.ItemLink.Props`
+- `Tree.ItemControl`: `Tree.ItemControl`, `Tree.ItemControl.State`, `Tree.ItemControl.Props`, `Tree.ItemControl.Keys`
 - `Tree.FilterProvider`: `Tree.FilterProvider`, `Tree.FilterProvider.State`, `Tree.FilterProvider.Props`, `Tree.FilterProvider.ChangeEventReason`, `Tree.FilterProvider.ChangeEventDetails`
 - `Tree.Input`: `Tree.Input`, `Tree.Input.State`, `Tree.Input.Props`
 - `Tree.Clear`: `Tree.Clear`, `Tree.Clear.State`, `Tree.Clear.Props`
 - `Tree.useFilter`
-- `Default`: `Tree.Filter`, `Tree.FilterOptions`, `Tree.CreateItemsOptions`, `Tree.DefaultItem`, `Tree.ItemId`, `Tree.SelectionMode`, `Tree.CheckboxSelectionPropagation`, `Tree.FilterMode`, `Tree.ItemPosition`, `Tree.ItemDestination`, `Tree.ItemTransaction`, `Tree.ItemChange`, `Tree.SELECTION_ALL`, `TreeItemDataAttributes`, `TreeItemExpansionTriggerDataAttributes`, `TreeItemGroupIndicatorDataAttributes`, `TreeGroupTransitionDataAttributes`, `TreeItemIndentGuideDataAttributes`, `TreeInputDataAttributes`, `TreeClearDataAttributes`, `TreeItemCheckboxDataAttributes`, `TreeItemCheckboxIndicatorDataAttributes`, `TreeItemButtonDataAttributes`, `TreeItemLinkDataAttributes`, `TreeItemInputDataAttributes`, `TreeListDataAttributes`, `TreeItemCssVariables`, `TreeGroupTransitionCssVariables`, `TreeItemIndentGuideCssVariables`, `TreeFilter`, `TreeFilterOptions`, `TreeCreateItemsOptions`, `TreeItemCollection`, `TreeItemId`, `TreeSelectionMode`, `TreeFilterMode`, `TreeFilterFunction`, `TreeDefaultItem`, `TreeCheckboxSelectionPropagation`, `TreeRootActions`, `TreeRootExpansionChangeEventReason`, `TreeRootExpansionChangeEventDetails`, `TreeRootSelectionChangeEventReason`, `TreeRootSelectionChangeEventDetails`, `TreeRootHighlightEventReason`, `TreeRootHighlightEventDetails`, `TreeRootItemExpansionToggleEventDetails`, `TreeRootItemExpansionToggleValue`, `TreeRootItemSelectionToggleEventDetails`, `TreeRootItemSelectionToggleValue`, `TreeRootItemsChangeEventReason`, `TreeRootItemsChangeEventDetails`, `TreeItemChange`, `TreeItemDestination`, `TreeItemPosition`, `TreeItemTransaction`, `TreeRootState`, `TreeRootItems`, `TreeRootProps`, `TreeLabelState`, `TreeLabelProps`, `TreeItemState`, `TreeItemProps`, `TreeItemExpansionTriggerState`, `TreeItemExpansionTriggerProps`, `TreeItemGroupIndicatorState`, `TreeItemGroupIndicatorProps`, `TreeListState`, `TreeListProps`, `TreeGroupTransitionState`, `TreeGroupTransitionProps`, `TreeEmptyState`, `TreeEmptyProps`, `TreeStatusFilterChange`, `TreeStatusSelectionChange`, `TreeStatusChange`, `TreeStatusState`, `TreeStatusProps`, `TreeItemIndentGuideState`, `TreeItemIndentGuideProps`, `TreeFilterProviderProps`, `TreeFilterProviderChangeEventReason`, `TreeFilterProviderChangeEventDetails`, `TreeFilterProviderState`, `TreeInputState`, `TreeInputProps`, `TreeClearState`, `TreeClearProps`, `TreeItemContentState`, `TreeItemContentProps`, `TreeItemCheckboxProps`, `TreeItemCheckboxState`, `TreeItemCheckboxIndicatorState`, `TreeItemCheckboxIndicatorProps`, `TreeItemButtonState`, `TreeItemButtonProps`, `TreeItemInputState`, `TreeItemInputProps`, `TreeItemLinkState`, `TreeItemLinkProps`, `TreeItemControlKeys`, `TreeItemControlState`, `TreeItemControlProps`
+- `Default`: `Tree.Filter`, `Tree.FilterOptions`, `Tree.CreateItemsOptions`, `Tree.DefaultItem`, `Tree.ItemId`, `Tree.SelectionMode`, `Tree.CheckboxSelectionPropagation`, `Tree.FilterMode`, `Tree.ItemPosition`, `Tree.ItemDestination`, `Tree.ItemTransaction`, `Tree.ItemChange`, `Tree.SELECTION_ALL`, `TreeItemDataAttributes`, `TreeItemExpansionTriggerDataAttributes`, `TreeItemGroupIndicatorDataAttributes`, `TreeGroupTransitionDataAttributes`, `TreeItemIndentGuideDataAttributes`, `TreeInputDataAttributes`, `TreeClearDataAttributes`, `TreeItemCheckboxDataAttributes`, `TreeItemCheckboxIndicatorDataAttributes`, `TreeItemButtonDataAttributes`, `TreeItemLinkDataAttributes`, `TreeItemInputDataAttributes`, `TreeListDataAttributes`, `TreeItemCssVariables`, `TreeGroupTransitionCssVariables`, `TreeItemIndentGuideCssVariables`, `TreeFilter`, `TreeFilterOptions`, `TreeCreateItemsOptions`, `TreeItemCollection`, `TreeItemId`, `TreeSelectionMode`, `TreeFilterMode`, `TreeFilterFunction`, `TreeDefaultItem`, `TreeCheckboxSelectionPropagation`, `TreeRootActions`, `TreeRootExpansionChangeEventReason`, `TreeRootExpansionChangeEventDetails`, `TreeRootSelectionChangeEventReason`, `TreeRootSelectionChangeEventDetails`, `TreeRootHighlightEventReason`, `TreeRootHighlightEventDetails`, `TreeRootItemExpansionToggleEventDetails`, `TreeRootItemExpansionToggleValue`, `TreeRootItemSelectionToggleEventDetails`, `TreeRootItemSelectionToggleValue`, `TreeRootItemsChangeEventReason`, `TreeRootItemsChangeEventDetails`, `TreeItemChange`, `TreeItemDestination`, `TreeItemPosition`, `TreeItemTransaction`, `TreeRootState`, `TreeRootItems`, `TreeRootProps`, `TreeLabelState`, `TreeLabelProps`, `TreeItemState`, `TreeItemProps`, `TreeItemExpansionTriggerState`, `TreeItemExpansionTriggerProps`, `TreeItemGroupIndicatorState`, `TreeItemGroupIndicatorProps`, `TreeListState`, `TreeListProps`, `TreeGroupTransitionState`, `TreeGroupTransitionProps`, `TreeEmptyState`, `TreeEmptyProps`, `TreeStatusFilterChange`, `TreeStatusSelectionChange`, `TreeStatusChange`, `TreeStatusState`, `TreeStatusProps`, `TreeItemIndentGuideState`, `TreeItemIndentGuideProps`, `TreeGridProviderState`, `TreeGridProviderProps`, `TreeFilterProviderProps`, `TreeFilterProviderChangeEventReason`, `TreeFilterProviderChangeEventDetails`, `TreeFilterProviderState`, `TreeInputState`, `TreeInputProps`, `TreeClearState`, `TreeClearProps`, `TreeItemContentState`, `TreeItemContentProps`, `TreeItemCheckboxProps`, `TreeItemCheckboxState`, `TreeItemCheckboxIndicatorState`, `TreeItemCheckboxIndicatorProps`, `TreeItemButtonState`, `TreeItemButtonProps`, `TreeItemInputState`, `TreeItemInputProps`, `TreeItemLinkState`, `TreeItemLinkProps`, `TreeItemControlKeys`, `TreeItemControlState`, `TreeItemControlProps`
 - `Tree.createItems`
 - `Tree.ItemCollection`
 - `Tree.FilterFunction`
@@ -1678,23 +1707,12 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Tree.Label.Props`: `TreeLabelProps`
 - `Tree.Item.State`: `TreeItemState`
 - `Tree.Item.Props`: `TreeItemProps`
-- `Tree.ItemContent.State`: `TreeItemContentState`
-- `Tree.ItemContent.Props`: `TreeItemContentProps`
 - `Tree.ItemCheckbox.State`: `TreeItemCheckboxState`
 - `Tree.ItemCheckbox.Props`: `TreeItemCheckboxProps`
 - `Tree.ItemCheckboxIndicator.State`: `TreeItemCheckboxIndicatorState`
 - `Tree.ItemCheckboxIndicator.Props`: `TreeItemCheckboxIndicatorProps`
 - `Tree.ItemExpansionTrigger.State`: `TreeItemExpansionTriggerState`
 - `Tree.ItemExpansionTrigger.Props`: `TreeItemExpansionTriggerProps`
-- `Tree.ItemButton.State`: `TreeItemButtonState`
-- `Tree.ItemButton.Props`: `TreeItemButtonProps`
-- `Tree.ItemInput.State`: `TreeItemInputState`
-- `Tree.ItemInput.Props`: `TreeItemInputProps`
-- `Tree.ItemLink.State`: `TreeItemLinkState`
-- `Tree.ItemLink.Props`: `TreeItemLinkProps`
-- `Tree.ItemControl.State`: `TreeItemControlState`
-- `Tree.ItemControl.Props`: `TreeItemControlProps`
-- `Tree.ItemControl.Keys`: `TreeItemControlKeys`
 - `Tree.ItemGroupIndicator.State`: `TreeItemGroupIndicatorState`
 - `Tree.ItemGroupIndicator.Props`: `TreeItemGroupIndicatorProps`
 - `Tree.List.Props`: `TreeListProps`
@@ -1710,6 +1728,19 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Tree.Status.SelectionChange`: `TreeStatusSelectionChange`
 - `Tree.ItemIndentGuide.State`: `TreeItemIndentGuideState`
 - `Tree.ItemIndentGuide.Props`: `TreeItemIndentGuideProps`
+- `Tree.GridProvider.State`: `TreeGridProviderState`
+- `Tree.GridProvider.Props`: `TreeGridProviderProps`
+- `Tree.ItemContent.State`: `TreeItemContentState`
+- `Tree.ItemContent.Props`: `TreeItemContentProps`
+- `Tree.ItemButton.State`: `TreeItemButtonState`
+- `Tree.ItemButton.Props`: `TreeItemButtonProps`
+- `Tree.ItemInput.State`: `TreeItemInputState`
+- `Tree.ItemInput.Props`: `TreeItemInputProps`
+- `Tree.ItemLink.State`: `TreeItemLinkState`
+- `Tree.ItemLink.Props`: `TreeItemLinkProps`
+- `Tree.ItemControl.State`: `TreeItemControlState`
+- `Tree.ItemControl.Props`: `TreeItemControlProps`
+- `Tree.ItemControl.Keys`: `TreeItemControlKeys`
 - `Tree.FilterProvider.State`: `TreeFilterProviderState`
 - `Tree.FilterProvider.Props`: `TreeFilterProviderProps`
 - `Tree.FilterProvider.ChangeEventReason`: `TreeFilterProviderChangeEventReason`

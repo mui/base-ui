@@ -32,7 +32,7 @@ async function renderTree(viewport: TreeViewport) {
       <Tree.List>
         {(item) => (
           <Tree.Item itemId={item.id} data-testid={item.id}>
-            <Tree.ItemContent>{item.label}</Tree.ItemContent>
+            {item.label}
           </Tree.Item>
         )}
       </Tree.List>

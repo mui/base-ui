@@ -36,7 +36,7 @@ async function mountTree(props?: {
       <Tree.List>
         {(item: Item) => (
           <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-            <Tree.ItemContent>{item.label}</Tree.ItemContent>
+            {item.label}
           </Tree.Item>
         )}
       </Tree.List>
@@ -46,7 +46,7 @@ async function mountTree(props?: {
 }
 
 function renderedItemIds(): string[] {
-  return screen.getAllByRole('row').map((element) => element.dataset.itemId!);
+  return screen.getAllByRole('treeitem').map((element) => element.dataset.itemId!);
 }
 
 describe('Tree actionsRef', () => {
@@ -147,11 +147,7 @@ describe('Tree.Empty', () => {
     return (
       <Tree.Root items={props.items}>
         <Tree.List>
-          {(item: Item) => (
-            <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-              <Tree.ItemContent />
-            </Tree.Item>
-          )}
+          {(item: Item) => <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}></Tree.Item>}
         </Tree.List>
         <Tree.Empty data-testid="empty">Nothing here</Tree.Empty>
       </Tree.Root>
@@ -197,14 +193,12 @@ describe('Tree.ItemCheckboxIndicator', () => {
           <Tree.List>
             {(item: Item) => (
               <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-                <Tree.ItemContent>
-                  <Tree.ItemCheckbox>
-                    <Tree.ItemCheckboxIndicator
-                      keepMounted={props.keepMounted}
-                      data-testid={`indicator-${item.id}`}
-                    />
-                  </Tree.ItemCheckbox>
-                </Tree.ItemContent>
+                <Tree.ItemCheckbox>
+                  <Tree.ItemCheckboxIndicator
+                    keepMounted={props.keepMounted}
+                    data-testid={`indicator-${item.id}`}
+                  />
+                </Tree.ItemCheckbox>
               </Tree.Item>
             )}
           </Tree.List>

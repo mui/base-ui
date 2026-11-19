@@ -28,7 +28,8 @@ const BUTTON_CLASS =
   'flex h-8 items-center justify-center gap-2 rounded-none border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-disabled:border-neutral-500 data-disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400';
 
 const ITEM_CLASS =
-  'flex items-center gap-2 px-2 py-1 select-none text-sm/[1.5] text-neutral-950 ' +
+  'flex items-center gap-2 py-1 pe-2 select-none text-sm/[1.5] text-neutral-950 ' +
+  'ps-[calc(0.5rem+1.5rem*(var(--tree-item-level)-1)+var(--leaf-offset))] ' +
   '[--leaf-offset:0rem] not-data-expandable:[--leaf-offset:3.25rem] ' +
   'hover:bg-neutral-100 ' +
   'data-selected:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 ' +
@@ -42,10 +43,6 @@ const CONTROL_CLASS =
   'inline-flex size-5 shrink-0 items-center justify-center border-0 bg-transparent p-0 ' +
   'text-neutral-500 focus-visible:outline-2 focus-visible:outline-neutral-950 ' +
   'dark:text-neutral-400 dark:focus-visible:outline-white [&_svg]:size-3';
-
-const HIERARCHY_CLASS =
-  'ms-[calc(1.5rem*(var(--tree-item-level)-1))] flex min-w-0 flex-1 items-center gap-2 ' +
-  'ps-[var(--leaf-offset)]';
 
 let fileCount = 0;
 
@@ -186,19 +183,17 @@ export default function ExampleTreeUpdatingItems() {
         >
           {(item: Tree.DefaultItem) => (
             <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-              <Tree.ItemContent className={HIERARCHY_CLASS}>
-                <Tree.ItemExpansionTrigger
-                  className={`${CONTROL_CLASS} data-expanded:[&_svg]:rotate-90`}
-                >
-                  <ChevronIcon />
-                </Tree.ItemExpansionTrigger>
-                <Tree.ItemGroupIndicator className="inline-flex shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-4">
-                  <FolderIcon />
-                </Tree.ItemGroupIndicator>
-                <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                  {item.label}
-                </span>
-              </Tree.ItemContent>
+              <Tree.ItemExpansionTrigger
+                className={`${CONTROL_CLASS} data-expanded:[&_svg]:rotate-90`}
+              >
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <Tree.ItemGroupIndicator className="inline-flex shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-4">
+                <FolderIcon />
+              </Tree.ItemGroupIndicator>
+              <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                {item.label}
+              </span>
             </Tree.Item>
           )}
         </Tree.List>

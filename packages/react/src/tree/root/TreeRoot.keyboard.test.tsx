@@ -2006,10 +2006,8 @@ describe('TreeRoot - Keyboard (RTL)', () => {
           <Tree.List>
             {(item: any) => (
               <Tree.Item key={item.id} itemId={item.id} data-testid={`item-${item.id}`}>
-                <Tree.ItemContent>
-                  <Tree.ItemExpansionTrigger />
-                  {item.label}
-                </Tree.ItemContent>
+                <Tree.ItemExpansionTrigger />
+                {item.label}
               </Tree.Item>
             )}
           </Tree.List>
@@ -2029,7 +2027,7 @@ describe('TreeRoot - Keyboard (RTL)', () => {
   // The direction only drives the arrow keys: the page owns the text direction.
   it('should not set the dir attribute', async () => {
     await renderElement(<RTLTree items={[{ id: '1', label: '1' }]} />);
-    expect(document.querySelector('[role="treegrid"]')).not.toHaveAttribute('dir');
+    expect(document.querySelector('[role="tree"]')).not.toHaveAttribute('dir');
   });
 
   it('should expand a collapsed item on ArrowLeft in RTL', async () => {
@@ -2103,25 +2101,30 @@ describe('TreeRoot - Keyboard (consumer handlers)', () => {
         }
       };
       await renderElement(
-        <Tree.Root
-          items={[
-            { id: 'a', label: 'A' },
-            { id: 'b', label: 'B' },
-          ]}
-        >
-          <Tree.List>
-            {(item: TreeDefaultItem) => (
-              <Tree.Item itemId={item.id} onKeyDown={part === 'row' ? preventArrowDown : undefined}>
-                <Tree.ItemContent>
-                  {item.label}
-                  <Tree.ItemButton onKeyDown={part === 'button' ? preventArrowDown : undefined}>
-                    Open {item.label}
-                  </Tree.ItemButton>
-                </Tree.ItemContent>
-              </Tree.Item>
-            )}
-          </Tree.List>
-        </Tree.Root>,
+        <Tree.GridProvider>
+          <Tree.Root
+            items={[
+              { id: 'a', label: 'A' },
+              { id: 'b', label: 'B' },
+            ]}
+          >
+            <Tree.List>
+              {(item: TreeDefaultItem) => (
+                <Tree.Item
+                  itemId={item.id}
+                  onKeyDown={part === 'row' ? preventArrowDown : undefined}
+                >
+                  <Tree.ItemContent>
+                    {item.label}
+                    <Tree.ItemButton onKeyDown={part === 'button' ? preventArrowDown : undefined}>
+                      Open {item.label}
+                    </Tree.ItemButton>
+                  </Tree.ItemContent>
+                </Tree.Item>
+              )}
+            </Tree.List>
+          </Tree.Root>
+        </Tree.GridProvider>,
       );
 
       const focused =

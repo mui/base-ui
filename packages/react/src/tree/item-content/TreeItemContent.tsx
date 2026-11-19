@@ -5,9 +5,11 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { useTreeItemContext } from '../item/TreeItemContext';
+import { assertTreeGrid } from '../grid-provider/assertTreeGrid';
 
 /**
  * Contains the interactive content of a tree item.
+ * Requires the tree to be wrapped in `Tree.GridProvider`.
  * Renders a `<div>` element with `role="gridcell"`, named after its item.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
@@ -19,6 +21,7 @@ export const TreeItemContent = fastComponentRef(function TreeItemContent(
   const { className, render, style, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
+  assertTreeGrid(store, 'ItemContent');
   const itemId = useTreeItemContext();
   // Otherwise the cell's name joins every label inside it, which screen readers read when
   // focus moves to one of its controls: "Select Documents Collapse Documents Documents".

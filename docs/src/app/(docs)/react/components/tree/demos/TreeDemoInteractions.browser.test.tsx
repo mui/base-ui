@@ -21,59 +21,59 @@ describe.skipIf(isJSDOM)('Tree demo interactions', () => {
     ['tailwind', UpdatingItemsTailwind],
   ])('applies each toolbar action as a transaction in the %s updating demo', async (_, Demo) => {
     await render(<Demo />);
-    const rowNames = () => screen.getAllByRole('row').map((row) => row.textContent);
+    const rowNames = () => screen.getAllByRole('treeitem').map((row) => row.textContent);
 
-    fireEvent.click(screen.getByRole('row', { name: 'Notes.txt' }));
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Notes.txt' }));
     fireEvent.click(screen.getByRole('button', { name: 'New file' }));
     const names = rowNames();
     expect(names[names.indexOf('Notes.txt') + 1]).toMatch(/^Untitled \d+\.txt$/);
 
-    fireEvent.click(screen.getByRole('row', { name: 'Documents' }));
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Documents' }));
     fireEvent.click(screen.getByRole('button', { name: 'Sort' }));
     expect(rowNames().slice(1, 4)).toEqual(['Budget.xlsx', 'Notes.txt', 'Resume.pdf']);
 
-    fireEvent.click(screen.getByRole('row', { name: 'Photos' }));
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Photos' }));
     fireEvent.click(screen.getByRole('button', { name: 'Archive' }));
     await waitFor(() =>
-      expect(screen.getByRole('row', { name: 'Photos' })).toHaveAttribute('aria-level', '2'),
+      expect(screen.getByRole('treeitem', { name: 'Photos' })).toHaveAttribute('aria-level', '2'),
     );
-    expect(screen.getByRole('row', { name: 'Archive' })).toHaveAttribute('aria-level', '1');
+    expect(screen.getByRole('treeitem', { name: 'Archive' })).toHaveAttribute('aria-level', '1');
 
     fireEvent.click(screen.getByRole('button', { name: 'Unarchive' }));
-    await waitFor(() => expect(screen.queryByRole('row', { name: 'Archive' })).toBe(null));
+    await waitFor(() => expect(screen.queryByRole('treeitem', { name: 'Archive' })).toBe(null));
     const rootNames = screen
-      .getAllByRole('row')
+      .getAllByRole('treeitem')
       .filter((row) => row.getAttribute('aria-level') === '1')
       .map((row) => row.textContent);
     expect(rootNames).toEqual(['Documents', 'Photos', 'Todo.md']);
     expect(screen.getByRole('button', { name: 'Archive' })).toBeVisible();
 
     // An item whose folder was archived after it goes back to the root.
-    fireEvent.click(screen.getByRole('row', { name: 'Notes.txt' }));
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Notes.txt' }));
     fireEvent.click(screen.getByRole('button', { name: 'Archive' }));
-    fireEvent.click(screen.getByRole('row', { name: 'Documents' }));
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Documents' }));
     fireEvent.click(screen.getByRole('button', { name: 'Archive' }));
-    fireEvent.click(screen.getByRole('row', { name: 'Notes.txt' }));
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Notes.txt' }));
     fireEvent.click(screen.getByRole('button', { name: 'Unarchive' }));
-    expect(screen.getByRole('row', { name: 'Notes.txt' })).toHaveAttribute('aria-level', '1');
+    expect(screen.getByRole('treeitem', { name: 'Notes.txt' })).toHaveAttribute('aria-level', '1');
     expect(screen.getByRole('button', { name: 'Archive' })).toBeVisible();
 
     // A folder whose files were all deleted still takes new files.
-    fireEvent.click(screen.getByRole('row', { name: 'Photos' }).querySelector('button')!);
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Photos' }).querySelector('button')!);
     for (const name of ['Sunset.jpg', 'Beach.png']) {
-      fireEvent.click(screen.getByRole('row', { name }));
+      fireEvent.click(screen.getByRole('treeitem', { name }));
       fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     }
-    fireEvent.click(screen.getByRole('row', { name: 'Photos' }));
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Photos' }));
     fireEvent.click(screen.getByRole('button', { name: 'New file' }));
     const photosNames = rowNames();
     const newFile = photosNames[photosNames.indexOf('Photos') + 1]!;
     expect(newFile).toMatch(/^Untitled \d+\.txt$/);
-    expect(screen.getByRole('row', { name: newFile })).toHaveAttribute('aria-level', '2');
+    expect(screen.getByRole('treeitem', { name: newFile })).toHaveAttribute('aria-level', '2');
 
-    fireEvent.click(screen.getByRole('row', { name: 'Todo.md' }));
+    fireEvent.click(screen.getByRole('treeitem', { name: 'Todo.md' }));
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    expect(screen.queryByRole('row', { name: 'Todo.md' })).toBe(null);
+    expect(screen.queryByRole('treeitem', { name: 'Todo.md' })).toBe(null);
   });
 
   it.each([
@@ -102,7 +102,7 @@ describe.skipIf(isJSDOM)('Tree demo interactions', () => {
     'keeps the row of a pinned ancestor clear of the pinned rows in the %s sticky demo',
     async (_, Demo) => {
       await render(<Demo />);
-      const list = screen.getByRole('treegrid');
+      const list = screen.getByRole('tree');
       // The pinned copies are aria-hidden, so they have no role to query.
       const overlay = () => list.parentElement!.querySelector('[aria-hidden]');
       const pinnedLabels = () => Array.from(overlay()?.children ?? [], (row) => row.textContent);
@@ -119,7 +119,7 @@ describe.skipIf(isJSDOM)('Tree demo interactions', () => {
       await waitFor(() => expect(pinnedLabels()).toEqual(['Level 1', 'Level 2', 'Level 3']));
 
       fireEvent.click(screen.getByText('Level 2', { selector: '[aria-hidden] span' }));
-      const level2 = await screen.findByRole('row', { name: 'Level 2' });
+      const level2 = await screen.findByRole('treeitem', { name: 'Level 2' });
       await waitFor(() => expect(level2).toHaveFocus());
       await waitFor(() => expect(pinnedLabels()).toEqual(['Level 1']));
       expectClearOfPinnedRows(level2);
@@ -129,14 +129,14 @@ describe.skipIf(isJSDOM)('Tree demo interactions', () => {
         list.scrollTop = 15 * 28 + 10;
       });
       await waitFor(() => expect(pinnedLabels()).toEqual(['Level 1', 'Level 2', 'Level 3']));
-      const rows = screen.getAllByRole('row');
+      const rows = screen.getAllByRole('treeitem');
       const level3Index = rows.findIndex((row) => row.textContent === 'Level 3');
       fireEvent.click(rows[level3Index + 4]);
       await waitFor(() => expect(rows[level3Index + 4]).toHaveFocus());
       for (let i = 4; i > 0; i -= 1) {
         fireEvent.keyDown(rows[level3Index + i], { key: 'ArrowUp' });
       }
-      const level3 = await screen.findByRole('row', { name: 'Level 3' });
+      const level3 = await screen.findByRole('treeitem', { name: 'Level 3' });
       await waitFor(() => expect(level3).toHaveFocus());
       await waitFor(() => expect(pinnedLabels()).toEqual(['Level 1', 'Level 2']));
       expectClearOfPinnedRows(level3);
@@ -145,7 +145,7 @@ describe.skipIf(isJSDOM)('Tree demo interactions', () => {
 
   it('clears the previous context-menu target when opening on whitespace', async () => {
     const { user } = await render(<FileExplorer />);
-    fireEvent.contextMenu(screen.getByRole('row', { name: 'packages' }), {
+    fireEvent.contextMenu(screen.getByRole('treeitem', { name: 'packages' }), {
       clientX: 100,
       clientY: 100,
       button: 2,
@@ -156,13 +156,13 @@ describe.skipIf(isJSDOM)('Tree demo interactions', () => {
     );
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('menu')).toBe(null));
-    fireEvent.contextMenu(screen.getByRole('treegrid'), { clientX: 100, clientY: 400, button: 2 });
+    fireEvent.contextMenu(screen.getByRole('tree'), { clientX: 100, clientY: 400, button: 2 });
     expect(await screen.findByRole('menuitem', { name: /^Delete/ })).toHaveAttribute(
       'aria-disabled',
       'true',
     );
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('menu')).toBe(null));
-    expect(screen.getByRole('row', { name: 'packages' })).toBeVisible();
+    expect(screen.getByRole('treeitem', { name: 'packages' })).toBeVisible();
   });
 });

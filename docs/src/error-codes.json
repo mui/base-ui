@@ -106,5 +106,6 @@
   "107": "Base UI: the `items` or `defaultItems` prop received an object that is not a valid item collection, so its items and accessors cannot be read. Pass a standard item array or the result of `Tree.createItems()`. See https://base-ui.com/react/components/tree#createitems",
   "108": "Base UI: TreeRootContext is missing. Tree parts read their state from <Tree.Root> and cannot render outside it. Place Tree parts within <Tree.Root>.",
   "109": "Base UI: A Tree items transaction was used after its callback returned. The transaction is applied when the callback returns, so this change would be lost. Record every change synchronously within the callback, and apply a new transaction for changes that come later.",
-  "110": "Base UI: %s tried to update a custom item, but the item collection does not define the %s option, so the source model cannot be updated safely. Provide %s to Tree.createItems(). See https://base-ui.com/react/components/tree#createitems"
+  "110": "Base UI: %s tried to update a custom item, but the item collection does not define the %s option, so the source model cannot be updated safely. Provide %s to Tree.createItems(). See https://base-ui.com/react/components/tree#createitems",
+  "111": "Base UI: <Tree.%s> must be placed in a tree wrapped in <Tree.GridProvider>. Without it, the tree follows the tree pattern, whose items cannot contain cells or controls that the keyboard reaches. Wrap the <Tree.Root> it belongs to in <Tree.GridProvider>. See https://base-ui.com/react/components/tree#controls-inside-items"
 }

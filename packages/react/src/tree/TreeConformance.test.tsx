@@ -9,7 +9,7 @@ import { Tree } from '.';
  * one per part, because almost every part needs the same `Tree.Root` +
  * `Tree.List` + `Tree.Item` scaffolding around it.
  *
- * `Tree.Root` and `Tree.FilterProvider` are absent on purpose:
+ * `Tree.Root`, `Tree.FilterProvider` and `Tree.GridProvider` are absent on purpose:
  * they render no element of their own.
  */
 // A single root row, so a part rendered through the list callback appears
@@ -28,14 +28,25 @@ describe('Tree conformance', () => {
   function renderInItem(node: React.ReactNode, rootProps?: object) {
     return render(
       <Tree.Root items={ITEMS} {...rootProps}>
-        <Tree.List>
-          {onlyRootRow(
-            <Tree.Item itemId="a">
-              <Tree.ItemContent>{node}</Tree.ItemContent>
-            </Tree.Item>,
-          )}
-        </Tree.List>
+        <Tree.List>{onlyRootRow(<Tree.Item itemId="a">{node}</Tree.Item>)}</Tree.List>
       </Tree.Root>,
+    );
+  }
+
+  /** Render `node` as the only child of the cell of a grid row. */
+  function renderInGridItem(node: React.ReactNode) {
+    return render(
+      <Tree.GridProvider>
+        <Tree.Root items={ITEMS}>
+          <Tree.List>
+            {onlyRootRow(
+              <Tree.Item itemId="a">
+                <Tree.ItemContent>{node}</Tree.ItemContent>
+              </Tree.Item>,
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
   }
 
@@ -115,21 +126,16 @@ describe('Tree conformance', () => {
   });
 
   describe('<Tree.Item />', () => {
-    describeConformance(
-      <Tree.Item itemId="a">
-        <Tree.ItemContent />
-      </Tree.Item>,
-      () => ({
-        refInstanceof: window.HTMLDivElement,
-        render(node) {
-          return render(
-            <Tree.Root items={ITEMS}>
-              <Tree.List>{onlyRootRow(node)}</Tree.List>
-            </Tree.Root>,
-          );
-        },
-      }),
-    );
+    describeConformance(<Tree.Item itemId="a" />, () => ({
+      refInstanceof: window.HTMLDivElement,
+      render(node) {
+        return render(
+          <Tree.Root items={ITEMS}>
+            <Tree.List>{onlyRootRow(node)}</Tree.List>
+          </Tree.Root>,
+        );
+      },
+    }));
   });
 
   describe('<Tree.ItemExpansionTrigger />', () => {
@@ -148,7 +154,7 @@ describe('Tree conformance', () => {
       refInstanceof: window.HTMLButtonElement,
       testRenderPropWith: 'button',
       render(node) {
-        return renderInItem(node);
+        return renderInGridItem(node);
       },
     }));
   });
@@ -158,7 +164,7 @@ describe('Tree conformance', () => {
       refInstanceof: window.HTMLInputElement,
       testRenderPropWith: 'input',
       render(node) {
-        return renderInItem(node);
+        return renderInGridItem(node);
       },
     }));
   });
@@ -168,7 +174,7 @@ describe('Tree conformance', () => {
       refInstanceof: window.HTMLAnchorElement,
       testRenderPropWith: 'a',
       render(node) {
-        return renderInItem(node);
+        return renderInGridItem(node);
       },
     }));
   });
@@ -177,7 +183,7 @@ describe('Tree conformance', () => {
     describeConformance(<Tree.ItemControl />, () => ({
       refInstanceof: window.HTMLDivElement,
       render(node) {
-        return renderInItem(node);
+        return renderInGridItem(node);
       },
     }));
   });
@@ -203,11 +209,7 @@ describe('Tree conformance', () => {
           <Tree.Root items={ITEMS} defaultExpandedItems={['a']}>
             <Tree.List>
               {(item: { id: string }) =>
-                item.id === 'a1' ? (
-                  <Tree.Item itemId="a1">
-                    <Tree.ItemContent>{node}</Tree.ItemContent>
-                  </Tree.Item>
-                ) : null
+                item.id === 'a1' ? <Tree.Item itemId="a1">{node}</Tree.Item> : null
               }
             </Tree.List>
           </Tree.Root>,
@@ -222,15 +224,11 @@ describe('Tree conformance', () => {
       testRenderPropWith: 'div',
       render(node) {
         return render(
-          <Tree.Root items={ITEMS}>
-            <Tree.List>
-              {() => (
-                <Tree.Item itemId="a">
-                  <Tree.ItemContent>{node}</Tree.ItemContent>
-                </Tree.Item>
-              )}
-            </Tree.List>
-          </Tree.Root>,
+          <Tree.GridProvider>
+            <Tree.Root items={ITEMS}>
+              <Tree.List>{onlyRootRow(<Tree.Item itemId="a">{node}</Tree.Item>)}</Tree.List>
+            </Tree.Root>
+          </Tree.GridProvider>,
         );
       },
     }));

@@ -313,7 +313,7 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
       });
     });
 
-    expect(screen.getByRole('treegrid')).toHaveFocus();
+    expect(screen.getByRole('tree')).toHaveFocus();
   });
 
   describe('expanding and collapsing while filtering', () => {
@@ -519,15 +519,13 @@ it('re-renders only the new rows when a row of a filtered tree expands', async (
         <Tree.List>
           {(item) => (
             <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemIndentGuide
-                  render={(props) => {
-                    renderedGuides.add(item.id);
-                    return <span {...props} />;
-                  }}
-                />
-                {item.label}
-              </Tree.ItemContent>
+              <Tree.ItemIndentGuide
+                render={(props) => {
+                  renderedGuides.add(item.id);
+                  return <span {...props} />;
+                }}
+              />
+              {item.label}
             </Tree.Item>
           )}
         </Tree.List>

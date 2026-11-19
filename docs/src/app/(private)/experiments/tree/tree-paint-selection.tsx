@@ -181,7 +181,7 @@ function usePaintSelection(actionsRef: React.RefObject<Actions | null>) {
 /** The enabled checkbox of a row of `list` that contains `target`. */
 function findCheckbox(list: HTMLElement, target: Element | null) {
   const checkbox = target?.closest<HTMLElement>('[role="checkbox"]');
-  const row = checkbox?.closest<HTMLElement>('[role="row"]');
+  const row = checkbox?.closest<HTMLElement>('[role="treeitem"]');
   const itemId = row?.dataset.itemId;
   if (
     checkbox == null ||
@@ -197,14 +197,14 @@ function findCheckbox(list: HTMLElement, target: Element | null) {
 function renderItem(item: Tree.DefaultItem) {
   return (
     <Tree.Item itemId={item.id} className={styles.Item}>
-      <Tree.ItemContent className={styles.ItemContent}>
+      <div className={styles.ItemContent}>
         <Tree.ItemCheckbox className={styles.Checkbox}>
           <Tree.ItemCheckboxIndicator className={styles.CheckboxIndicator} keepMounted>
             <CheckIcon className={styles.CheckIcon} />
           </Tree.ItemCheckboxIndicator>
         </Tree.ItemCheckbox>
         <span className={styles.Label}>{item.label}</span>
-      </Tree.ItemContent>
+      </div>
     </Tree.Item>
   );
 }

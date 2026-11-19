@@ -17,27 +17,29 @@ function Example(props: {
 }) {
   const { items: treeItems = items, current, onNavigate, root } = props;
   return (
-    <Tree.Root items={treeItems} defaultExpandedItems={['docs']} {...root}>
-      <Tree.List aria-label="Pages">
-        {(item) => (
-          <Tree.Item itemId={item.id} data-testid={item.id}>
-            <Tree.ItemContent>
-              <Tree.ItemLink
-                href={`#${item.id}`}
-                active={item.id === current}
-                onClick={(event) => {
-                  event.preventDefault();
-                  onNavigate?.(item.id);
-                }}
-                onAuxClick={() => onNavigate?.(item.id)}
-              >
-                {item.label}
-              </Tree.ItemLink>
-            </Tree.ItemContent>
-          </Tree.Item>
-        )}
-      </Tree.List>
-    </Tree.Root>
+    <Tree.GridProvider>
+      <Tree.Root items={treeItems} defaultExpandedItems={['docs']} {...root}>
+        <Tree.List aria-label="Pages">
+          {(item) => (
+            <Tree.Item itemId={item.id} data-testid={item.id}>
+              <Tree.ItemContent>
+                <Tree.ItemLink
+                  href={`#${item.id}`}
+                  active={item.id === current}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onNavigate?.(item.id);
+                  }}
+                  onAuxClick={() => onNavigate?.(item.id)}
+                >
+                  {item.label}
+                </Tree.ItemLink>
+              </Tree.ItemContent>
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>
+    </Tree.GridProvider>
   );
 }
 

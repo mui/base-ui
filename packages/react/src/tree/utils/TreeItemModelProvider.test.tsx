@@ -14,9 +14,7 @@ describe('TreeItemModelProvider', () => {
     ];
     const actionsRef = React.createRef<Tree.Root.Actions<Tree.DefaultItem>>();
     const renderItem = vi.fn((item: Tree.DefaultItem) => (
-      <Tree.Item itemId={item.id}>
-        <Tree.ItemContent>{item.label}</Tree.ItemContent>
-      </Tree.Item>
+      <Tree.Item itemId={item.id}>{item.label}</Tree.Item>
     ));
     function App() {
       return (
@@ -39,18 +37,14 @@ describe('TreeItemModelProvider', () => {
       );
     });
     expect(renderItem.mock.calls.map(([item]) => item.id)).toEqual(['b']);
-    expect(screen.getByRole('row', { name: 'Renamed' })).toBeVisible();
+    expect(screen.getByRole('treeitem', { name: 'Renamed' })).toBeVisible();
   });
 
   it('updates rows when the render callback changes', async () => {
     const items = [{ id: 'a', label: 'A' }];
     const item = (label: string) =>
       function RenderItem() {
-        return (
-          <Tree.Item itemId="a">
-            <Tree.ItemContent>{label}</Tree.ItemContent>
-          </Tree.Item>
-        );
+        return <Tree.Item itemId="a">{label}</Tree.Item>;
       };
     const { rerender } = await render(
       <Tree.Root items={items}>

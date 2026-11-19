@@ -5,8 +5,8 @@ import { openFixture, tabToItem, waitForPhrase } from './utils';
 test.skip(process.platform !== 'win32', 'The keys and announcements are checked with NVDA.');
 test.use({ screenReaderStartOptions: { capture: true } });
 
-// NVDA presents a treegrid's rows as tree view items and switches to focus mode for them, so
-// arrow keys reach the tree rather than moving the browse mode cursor.
+// NVDA presents tree items, and the rows of a treegrid, as tree view items and switches to focus
+// mode for them, so arrow keys reach the tree rather than moving the browse mode cursor.
 
 test('announces the tree name and a row by its level and position', async ({
   page,
@@ -28,7 +28,7 @@ test('announces the tree name and a row by its level and position', async ({
 
 test('announces when a row expands and collapses', async ({ page, screenReader }) => {
   await openFixture(page, screenReader, 'tree/Basic');
-  const row = page.getByRole('row', { name: 'Documents' });
+  const row = page.getByRole('treeitem', { name: 'Documents' });
 
   expect(await tabToItem(screenReader, /documents/i)).toMatch(/expanded/i);
 
@@ -49,7 +49,7 @@ test('announces the selection of a row', async ({ page, screenReader }) => {
 
   await screenReader.clearSpokenPhraseLog();
   await screenReader.press('Space');
-  await expect(page.getByRole('row', { name: 'Documents' })).toHaveAttribute(
+  await expect(page.getByRole('treeitem', { name: 'Documents' })).toHaveAttribute(
     'aria-selected',
     'true',
   );

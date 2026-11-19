@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@base-ui/utils/shadowDom';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { useTreeItemContext } from '../item/TreeItemContext';
+import { selectors } from '../store/selectors';
+import { REASONS } from '../../internals/reasons';
 import type { TreeItemControlKeys } from '../item-control/TreeItemControl';
 
 export const ACTION_CONTROL_KEYS: Required<TreeItemControlKeys> = {
@@ -20,6 +22,8 @@ export const WIDGET_CONTROL_KEYS: Required<TreeItemControlKeys> = {
   homeEnd: 'control',
   escape: 'control',
 };
+
+const isNeverTabbable = () => false;
 
 export interface UseTreeItemControlParameters {
   controlKeys: TreeItemControlKeys | undefined;
@@ -39,20 +43,33 @@ export interface UseTreeItemControlParameters {
 export interface UseTreeItemControlReturnValue {
   /** Registers the control. Merge it with the element's other refs. */
   ref: React.RefCallback<HTMLElement>;
-  /** `0` while the item holds the tree's tab stop, so Tab walks its controls. */
+  /** `0` while the item holds the tab stop of a grid, so Tab walks its controls. */
   tabIndex: number;
+  /**
+   * Outside a grid, keeps the focus of a press, or of focus reaching the control another
+   * way, on the item, since the control isn't a tab stop there. On `mousedown`, so a gesture starting on the control,
+   * such as painting a selection, still receives a `pointerdown` that isn't canceled.
+   */
+  props: React.HTMLAttributes<HTMLElement>;
 }
 
 /**
- * Registers a control rendered inside a tree item with the item's keyboard navigation.
+ * Registers a control rendered inside a tree item with the item's keyboard navigation,
+ * when the tree is a grid.
  */
 export function useTreeItemControl(
   parameters: UseTreeItemControlParameters,
 ): UseTreeItemControlReturnValue {
   const { controlKeys, defaultKeys, disabled = false } = parameters;
   const store = useTreeRootContext();
+  // Fixed for the lifetime of the store, as adding or removing the provider remounts the tree.
+  const grid = store.grid;
   const itemId = useTreeItemContext();
-  const tabbable = store.useState('isItemDefaultFocusable', itemId);
+  const tabbable = useStore(
+    store,
+    grid == null ? isNeverTabbable : selectors.isItemDefaultFocusable,
+    itemId,
+  );
 
   const getKeys = useStableCallback((element: HTMLElement): Required<TreeItemControlKeys> => {
     const defaults = typeof defaultKeys === 'function' ? defaultKeys(element) : defaultKeys;
@@ -68,29 +85,32 @@ export function useTreeItemControl(
   );
 
   const ref = React.useCallback(
-    (element: HTMLElement | null) => {
-      if (element == null) {
-        return undefined;
-      }
-      const unregister = store.interaction.registerControl(
-        itemId,
-        element,
-        () => getKeys(element),
-        () => isDisabled(element),
-      );
-      return () => {
-        unregister();
-        // React detaches a ref before it removes the node, so a focused control
-        // that unmounts or swaps its element (a retry button whose error
-        // cleared) is still focused here. Once the node is gone, focus falls to
-        // the document body.
-        if (activeElement(ownerDocument(element)) === element) {
-          store.interaction.recoverFocusFromRemovedControl(itemId);
-        }
-      };
-    },
-    [store, itemId, getKeys, isDisabled],
+    (element: HTMLElement | null) =>
+      element == null || grid == null
+        ? undefined
+        : grid.registerControl(
+            itemId,
+            element,
+            () => getKeys(element),
+            () => isDisabled(element),
+          ),
+    [grid, itemId, getKeys, isDisabled],
   );
 
-  return { ref, tabIndex: tabbable ? 0 : -1 };
+  const props = React.useMemo(
+    () =>
+      grid == null
+        ? {
+            onMouseDown: (event: React.MouseEvent) =>
+              store.interaction.focusItemOnPress(itemId, event),
+            // Focus that bypasses the press, such as a click on an associated label,
+            // would otherwise stay on a control the arrow keys ignore.
+            onFocus: (event: React.FocusEvent) =>
+              store.interaction.focusItem(itemId, REASONS.itemPress, event.nativeEvent),
+          }
+        : EMPTY_OBJECT,
+    [grid, store, itemId],
+  );
+
+  return { ref, tabIndex: tabbable ? 0 : -1, props };
 }

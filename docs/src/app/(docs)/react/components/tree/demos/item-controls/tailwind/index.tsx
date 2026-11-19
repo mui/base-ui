@@ -80,81 +80,85 @@ export default function ExampleTreeItemControls() {
   const actionsRef = React.useRef<Tree.Root.Actions<Task>>(null);
 
   return (
-    <Tree.Root
-      defaultItems={items}
-      defaultExpandedItems={['website', 'mobile-app']}
-      actionsRef={actionsRef}
-    >
-      <Tree.List
-        aria-label="Projects"
-        className="box-border w-96 max-w-full border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
+    // @highlight-start
+    <Tree.GridProvider>
+      {/* @highlight-end */}
+      <Tree.Root
+        defaultItems={items}
+        defaultExpandedItems={['website', 'mobile-app']}
+        actionsRef={actionsRef}
       >
-        {(task: Task) => (
-          <Tree.Item
-            itemId={task.id}
-            className={ITEM_CLASS}
-            aria-description={task.children ? undefined : 'Press Tab to reach the task controls'}
-          >
-            <Tree.ItemContent className={CONTENT_CLASS}>
-              <Tree.ItemExpansionTrigger
-                className={`${ICON_BUTTON_CLASS} relative after:absolute after:-inset-0.5 data-expanded:[&_svg]:rotate-90 [&_svg]:size-3`}
-              >
-                <ChevronIcon />
-              </Tree.ItemExpansionTrigger>
-              {task.children ? (
-                <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                  {task.label}
-                </span>
-              ) : (
-                <React.Fragment>
-                  {/* @highlight-start */}
-                  <Tree.ItemLink
-                    href="#"
-                    onClick={(event) => event.preventDefault()}
-                    className={LINK_CLASS}
-                  >
+        <Tree.List
+          aria-label="Projects"
+          className="box-border w-96 max-w-full border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
+        >
+          {(task: Task) => (
+            <Tree.Item
+              itemId={task.id}
+              className={ITEM_CLASS}
+              aria-description={task.children ? undefined : 'Press Tab to reach the task controls'}
+            >
+              <Tree.ItemContent className={CONTENT_CLASS}>
+                <Tree.ItemExpansionTrigger
+                  className={`${ICON_BUTTON_CLASS} relative after:absolute after:-inset-0.5 data-expanded:[&_svg]:rotate-90 [&_svg]:size-3`}
+                >
+                  <ChevronIcon />
+                </Tree.ItemExpansionTrigger>
+                {task.children ? (
+                  <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                     {task.label}
-                  </Tree.ItemLink>
-                  <Tree.ItemInput
-                    defaultValue={task.estimate}
-                    aria-label={`Estimate for ${task.label}, in hours`}
-                    className={INPUT_CLASS}
-                  />
-                  {/* @highlight-end */}
-                  {/* @highlight-start @focus @padding 1 */}
-                  <Tree.ItemControl
-                    controlKeys={SWITCH_CONTROL_KEYS}
-                    render={
-                      <Switch.Root
-                        defaultChecked={task.done}
-                        aria-label={`Mark ${task.label} as done`}
-                        className={SWITCH_CLASS}
-                      />
-                    }
-                  >
-                    <Switch.Thumb className={THUMB_CLASS} />
-                  </Tree.ItemControl>
-                  {/* @highlight-end */}
-                  {/* @highlight-start */}
-                  <Tree.ItemButton
-                    aria-label={`Remove ${task.label}`}
-                    className={`${ICON_BUTTON_CLASS} [&_svg]:size-3.5`}
-                    onClick={() =>
-                      actionsRef.current?.applyTransaction((transaction) =>
-                        transaction.remove(task.id),
-                      )
-                    }
-                  >
-                    <RemoveIcon />
-                  </Tree.ItemButton>
-                  {/* @highlight-end */}
-                </React.Fragment>
-              )}
-            </Tree.ItemContent>
-          </Tree.Item>
-        )}
-      </Tree.List>
-    </Tree.Root>
+                  </span>
+                ) : (
+                  <React.Fragment>
+                    {/* @highlight-start */}
+                    <Tree.ItemLink
+                      href="#"
+                      onClick={(event) => event.preventDefault()}
+                      className={LINK_CLASS}
+                    >
+                      {task.label}
+                    </Tree.ItemLink>
+                    <Tree.ItemInput
+                      defaultValue={task.estimate}
+                      aria-label={`Estimate for ${task.label}, in hours`}
+                      className={INPUT_CLASS}
+                    />
+                    {/* @highlight-end */}
+                    {/* @highlight-start @focus @padding 1 */}
+                    <Tree.ItemControl
+                      controlKeys={SWITCH_CONTROL_KEYS}
+                      render={
+                        <Switch.Root
+                          defaultChecked={task.done}
+                          aria-label={`Mark ${task.label} as done`}
+                          className={SWITCH_CLASS}
+                        />
+                      }
+                    >
+                      <Switch.Thumb className={THUMB_CLASS} />
+                    </Tree.ItemControl>
+                    {/* @highlight-end */}
+                    {/* @highlight-start */}
+                    <Tree.ItemButton
+                      aria-label={`Remove ${task.label}`}
+                      className={`${ICON_BUTTON_CLASS} [&_svg]:size-3.5`}
+                      onClick={() =>
+                        actionsRef.current?.applyTransaction((transaction) =>
+                          transaction.remove(task.id),
+                        )
+                      }
+                    >
+                      <RemoveIcon />
+                    </Tree.ItemButton>
+                    {/* @highlight-end */}
+                  </React.Fragment>
+                )}
+              </Tree.ItemContent>
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>
+    </Tree.GridProvider>
   );
 }
 

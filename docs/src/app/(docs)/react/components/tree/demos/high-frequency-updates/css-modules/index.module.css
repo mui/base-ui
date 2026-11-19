@@ -102,7 +102,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
+  padding-block: 0.25rem;
+  padding-inline: calc(0.5rem + var(--indent) * (var(--tree-item-level) - 1) + var(--leaf-offset))
+    0.5rem;
   border-inline-start: 2px solid transparent;
   -webkit-user-select: none;
   user-select: none;
@@ -155,17 +157,6 @@
       border-inline-start-color: Highlight;
     }
   }
-}
-
-.ItemContent {
-  width: 100%;
-  display: flex;
-  align-items: inherit;
-  gap: 0.5rem;
-  min-width: 0;
-  flex: 1;
-  margin-inline-start: calc(var(--indent) * (var(--tree-item-level) - 1));
-  padding-inline-start: var(--leaf-offset);
 }
 
 .ExpansionTrigger {

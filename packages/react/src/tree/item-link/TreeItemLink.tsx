@@ -9,9 +9,11 @@ import { ACTION_CONTROL_KEYS, useTreeItemControl } from '../utils/useTreeItemCon
 import type { TreeItemControlKeys } from '../item-control/TreeItemControl';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { useTreeItemContext } from '../item/TreeItemContext';
+import { assertTreeGrid } from '../grid-provider/assertTreeGrid';
 
 /**
  * A link inside a tree item that takes part in the item's keyboard navigation.
+ * Requires the tree to be wrapped in `Tree.GridProvider`.
  * Renders an `<a>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
@@ -31,6 +33,7 @@ export const TreeItemLink = fastComponentRef(function TreeItemLink(
   } = componentProps;
 
   const store = useTreeRootContext();
+  assertTreeGrid(store, 'ItemLink');
   const itemId = useTreeItemContext();
   const disabled = store.useState('isItemDisabled', itemId);
   const control = useTreeItemControl({ controlKeys, defaultKeys: ACTION_CONTROL_KEYS });

@@ -79,17 +79,19 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
     return store.items.registerItemDOMElement(itemId, element);
   }, [store, itemId, element]);
 
+  const isGrid = store.grid != null;
+
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
-      if (element?.querySelector('[role="gridcell"]') === null) {
+      if (isGrid && element?.querySelector('[role="gridcell"]') === null) {
         warn(
           'A <Tree.Item> renders no cell.',
           'Each row of the treegrid needs one for assistive technology to read its content.',
           'Render the content of the item inside <Tree.ItemContent>.',
         );
       }
-    }, [element]);
+    }, [isGrid, element]);
   }
 
   // Restore focus when the focused row remounts. The virtualizer recycling an
@@ -129,7 +131,7 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
   };
 
   const props: React.HTMLAttributes<HTMLElement> = {
-    role: 'row',
+    role: isGrid ? 'row' : 'treeitem',
     // A tree row otherwise derives its name from every descendant,
     // including control labels. Naming it from the item model keeps row
     // focus concise while each control retains its own accessible name.

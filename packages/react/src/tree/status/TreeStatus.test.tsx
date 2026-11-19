@@ -29,7 +29,7 @@ const ITEMS: Item[] = [
 function renderRow(item: Item) {
   return (
     <Tree.Item itemId={item.id} data-testid={item.id}>
-      <Tree.ItemContent>{item.label}</Tree.ItemContent>
+      {item.label}
     </Tree.Item>
   );
 }
@@ -90,10 +90,8 @@ describe('<Tree.Status />', () => {
     function renderCheckboxRow(item: Item) {
       return (
         <Tree.Item itemId={item.id} data-testid={item.id}>
-          <Tree.ItemContent>
-            <Tree.ItemCheckbox data-testid={`${item.id}-checkbox`} />
-            {item.label}
-          </Tree.ItemContent>
+          <Tree.ItemCheckbox data-testid={`${item.id}-checkbox`} />
+          {item.label}
         </Tree.Item>
       );
     }

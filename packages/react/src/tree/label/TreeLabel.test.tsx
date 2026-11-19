@@ -19,11 +19,7 @@ function Example(props: {
     <Tree.Root items={items} defaultSelectedItems="b" onItemHighlighted={onItemHighlighted}>
       {label}
       <Tree.List {...list}>
-        {(item) => (
-          <Tree.Item itemId={item.id}>
-            <Tree.ItemContent>{item.label}</Tree.ItemContent>
-          </Tree.Item>
-        )}
+        {(item) => <Tree.Item itemId={item.id}>{item.label}</Tree.Item>}
       </Tree.List>
     </Tree.Root>
   );
@@ -34,19 +30,19 @@ describe('<Tree.Label />', () => {
 
   it('names the tree', async () => {
     await render(<Example />);
-    expect(screen.getByRole('treegrid', { name: 'Files' })).toBeVisible();
+    expect(screen.getByRole('tree', { name: 'Files' })).toBeVisible();
   });
 
   it('keeps a custom id', async () => {
     await render(<Example label={<Tree.Label id="files-label">Files</Tree.Label>} />);
-    expect(screen.getByRole('treegrid')).toHaveAttribute('aria-labelledby', 'files-label');
+    expect(screen.getByRole('tree')).toHaveAttribute('aria-labelledby', 'files-label');
   });
 
   it('references the id of the render element', async () => {
     await render(
       <Example label={<Tree.Label render={<h2 id="files-heading" />}>Files</Tree.Label>} />,
     );
-    expect(screen.getByRole('treegrid', { name: 'Files' })).toHaveAttribute(
+    expect(screen.getByRole('tree', { name: 'Files' })).toHaveAttribute(
       'aria-labelledby',
       'files-heading',
     );
@@ -54,18 +50,18 @@ describe('<Tree.Label />', () => {
 
   it('drops the reference when the render element clears the id', async () => {
     await render(<Example label={<Tree.Label render={<h2 id="" />}>Files</Tree.Label>} />);
-    expect(screen.getByRole('treegrid')).not.toHaveAttribute('aria-labelledby');
+    expect(screen.getByRole('tree')).not.toHaveAttribute('aria-labelledby');
   });
 
   it('lets the list override the reference', async () => {
     await render(<Example list={{ 'aria-labelledby': 'heading' }} />);
-    expect(screen.getByRole('treegrid')).toHaveAttribute('aria-labelledby', 'heading');
+    expect(screen.getByRole('tree')).toHaveAttribute('aria-labelledby', 'heading');
   });
 
   it('removes the reference when it unmounts', async () => {
     const { setProps } = await render(<Example />);
     await setProps({ label: null });
-    expect(screen.getByRole('treegrid')).not.toHaveAttribute('aria-labelledby');
+    expect(screen.getByRole('tree')).not.toHaveAttribute('aria-labelledby');
   });
 
   it('focuses the tree on click', async () => {
@@ -75,7 +71,7 @@ describe('<Tree.Label />', () => {
     expect(pointerDown).toBe(false);
     fireEvent.click(label);
     // The selected item holds the tab stop.
-    expect(screen.getByRole('row', { name: 'B' })).toHaveFocus();
+    expect(screen.getByRole('treeitem', { name: 'B' })).toHaveFocus();
   });
 
   it('reports the click as the cause of the focus', async () => {

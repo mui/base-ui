@@ -16,6 +16,7 @@ import { DemoTreeHero } from './demos/hero';
 ## Usage guidelines
 
 - **Avoid trees for site navigation**: Prefer links grouped under disclosure buttons, such as [Collapsible](/react/components/collapsible). The [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) caution against trees for site navigation. If you use one, follow the [links](#links) example.
+- **Keep items to a single element**: A tree item is one focusable element that screen readers read as a whole. Add [`<Tree.GridProvider>`](#controls-inside-items) only when items contain buttons, inputs, or links that keyboard users need to reach.
 - **Give the tree an accessible name**: Prefer `<Tree.Label>`, or provide an `aria-label` on `<Tree.List>` when no visible label is rendered.
 - **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`, and give icon-only custom controls an `aria-label`. The built-in checkbox, expansion trigger, and clear button have English names that include the item label, such as "Expand Documents": pass your own `aria-label` to translate them.
 - **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<Tree.ItemExpansionTrigger>`, and `<Tree.ItemCheckbox>` with checkbox selection, so they can expand and select items by tapping.
@@ -39,18 +40,12 @@ import { Tree } from '@base-ui/react/tree';
       {(item) => (
         <>
           <Tree.Item itemId={item.id}>
-            <Tree.ItemContent>
-              <Tree.ItemIndentGuide />
-              <Tree.ItemExpansionTrigger />
-              <Tree.ItemCheckbox>
-                <Tree.ItemCheckboxIndicator />
-              </Tree.ItemCheckbox>
-              <Tree.ItemGroupIndicator />
-              <Tree.ItemButton />
-              <Tree.ItemInput />
-              <Tree.ItemLink />
-              <Tree.ItemControl />
-            </Tree.ItemContent>
+            <Tree.ItemIndentGuide />
+            <Tree.ItemExpansionTrigger />
+            <Tree.ItemCheckbox>
+              <Tree.ItemCheckboxIndicator />
+            </Tree.ItemCheckbox>
+            <Tree.ItemGroupIndicator />
           </Tree.Item>
           <Tree.GroupTransition />
         </>
@@ -92,18 +87,31 @@ The root infers the item type from `items`. Parts outside the root's props, such
 
 ## Controls inside items
 
-Render controls with `<Tree.ItemButton>`, `<Tree.ItemInput>`, `<Tree.ItemLink>`, or `<Tree.ItemControl>` to include them in the item's keyboard navigation. `<Tree.ItemCheckbox>` is included automatically. See the [item controls example](#item-controls).
+By default, the tree follows the [tree view pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/), whose items can't contain controls. To add buttons, inputs, or links to the items, wrap `<Tree.Root>` in `<Tree.GridProvider>`. The tree then follows the [treegrid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/):
+
+- Render the content of each item inside `<Tree.ItemContent>`, its cell.
+- Render the controls with `<Tree.ItemButton>`, `<Tree.ItemInput>`, `<Tree.ItemLink>`, or `<Tree.ItemControl>`. <kbd>Arrow Right</kbd> and <kbd>Tab</kbd> move from an item to its controls. `<Tree.ItemCheckbox>` joins them automatically.
+
+Trees without the provider don't bundle the grid navigation, and like `<Tree.FilterProvider>`, adding or removing it remounts the tree. See the [item controls example](#item-controls).
 
 ```tsx title="Controls inside an item"
-<Tree.Item itemId={task.id} aria-description="Press Tab to reach the task controls">
-  <Tree.ItemContent>
-    <Tree.ItemLink href={task.url}>{task.label}</Tree.ItemLink>
-    <Tree.ItemInput aria-label={`Estimate for ${task.label}`} />
-    <Tree.ItemButton aria-label={`Remove ${task.label}`}>
-      <RemoveIcon />
-    </Tree.ItemButton>
-  </Tree.ItemContent>
-</Tree.Item>
+<Tree.GridProvider>
+  <Tree.Root items={tasks}>
+    <Tree.List>
+      {(task) => (
+        <Tree.Item itemId={task.id} aria-description="Press Tab to reach the task controls">
+          <Tree.ItemContent>
+            <Tree.ItemLink href={task.url}>{task.label}</Tree.ItemLink>
+            <Tree.ItemInput aria-label={`Estimate for ${task.label}`} />
+            <Tree.ItemButton aria-label={`Remove ${task.label}`}>
+              <RemoveIcon />
+            </Tree.ItemButton>
+          </Tree.ItemContent>
+        </Tree.Item>
+      )}
+    </Tree.List>
+  </Tree.Root>
+</Tree.GridProvider>
 ```
 
 A focused row announces its label, not its controls or the rest of its content.
@@ -164,7 +172,7 @@ In multiple-selection mode, use `Tree.SELECTION_ALL` to select every selectable 
 
 ### Links
 
-Render `<Tree.ItemLink>` inside `<Tree.ItemContent>` to link an item to another page, and set `active` on the current page's link. With `selectionMode="none"`, <kbd>Enter</kbd> follows the link instead of selecting the item. Tabbing into the tree focuses the current page's item, unless an item is selected or another item had focus before.
+Render `<Tree.ItemLink>` inside `<Tree.ItemContent>` to link an item to another page, and set `active` on the current page's link. Links are controls, so the tree needs `<Tree.GridProvider>`. With `selectionMode="none"`, <kbd>Enter</kbd> follows the link instead of selecting the item. Tabbing into the tree focuses the current page's item, unless an item is selected or another item had focus before.
 
 import { DemoTreeLinkItems } from './demos/link-items';
 
@@ -172,7 +180,7 @@ import { DemoTreeLinkItems } from './demos/link-items';
 
 ### Item controls
 
-Each task combines a link, an estimate input, a switch, and a remove button. Press <kbd>Tab</kbd> or <kbd>Arrow Right</kbd> from a task to reach them.
+Each task combines a link, an estimate input, a switch, and a remove button, so the tree is wrapped in `<Tree.GridProvider>`. Press <kbd>Tab</kbd> or <kbd>Arrow Right</kbd> from a task to reach them.
 
 import { DemoTreeItemControls } from './demos/item-controls';
 
@@ -284,6 +292,10 @@ import { TypesTree, TypesTreeAdditional } from './types';
 ### FilterProvider
 
 <TypesTree.FilterProvider />
+
+### GridProvider
+
+<TypesTree.GridProvider />
 
 ### Root
 

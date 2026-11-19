@@ -10,6 +10,7 @@ import { ACTION_CONTROL_KEYS, useTreeItemControl } from '../utils/useTreeItemCon
 import type { TreeItemControlKeys } from '../item-control/TreeItemControl';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { useTreeItemContext } from '../item/TreeItemContext';
+import { assertTreeGrid } from '../grid-provider/assertTreeGrid';
 
 const POPUP_TRIGGER_CONTROL_KEYS: Required<TreeItemControlKeys> = {
   ...ACTION_CONTROL_KEYS,
@@ -25,6 +26,7 @@ function getButtonControlKeys(element: HTMLElement): Required<TreeItemControlKey
 
 /**
  * A button inside a tree item that takes part in the item's keyboard navigation.
+ * Requires the tree to be wrapped in `Tree.GridProvider`.
  * Renders a `<button>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
@@ -46,6 +48,7 @@ export const TreeItemButton = fastComponentRef(function TreeItemButton(
   } = componentProps;
 
   const store = useTreeRootContext();
+  assertTreeGrid(store, 'ItemButton');
   const itemId = useTreeItemContext();
   const disabled = store.useState('isItemDisabled', itemId) || disabledProp;
 

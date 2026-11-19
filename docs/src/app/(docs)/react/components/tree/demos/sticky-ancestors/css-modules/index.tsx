@@ -42,15 +42,13 @@ export default function ExampleStickyAncestorsTree() {
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => actionsRef.current?.focusItem(item.id)}
               >
-                <div className={styles.ItemContent}>
-                  <span className={styles.ExpansionTrigger} data-expanded="">
-                    <ChevronIcon />
-                  </span>
-                  <span className={styles.Icon}>
-                    <FolderIcon />
-                  </span>
-                  <span className={styles.Label}>{item.label}</span>
-                </div>
+                <span className={styles.ExpansionTrigger} data-expanded="">
+                  <ChevronIcon />
+                </span>
+                <span className={styles.Icon}>
+                  <FolderIcon />
+                </span>
+                <span className={styles.Label}>{item.label}</span>
               </div>
             ))}
           </div>
@@ -181,15 +179,13 @@ function getRowIds(
 function renderItem(item: Tree.DefaultItem) {
   return (
     <Tree.Item itemId={item.id} className={styles.Item}>
-      <Tree.ItemContent className={styles.ItemContent}>
-        <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-          <ChevronIcon />
-        </Tree.ItemExpansionTrigger>
-        <Tree.ItemGroupIndicator className={styles.Icon}>
-          <FolderIcon />
-        </Tree.ItemGroupIndicator>
-        <span className={styles.Label}>{item.label}</span>
-      </Tree.ItemContent>
+      <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+        <ChevronIcon />
+      </Tree.ItemExpansionTrigger>
+      <Tree.ItemGroupIndicator className={styles.Icon}>
+        <FolderIcon />
+      </Tree.ItemGroupIndicator>
+      <span className={styles.Label}>{item.label}</span>
     </Tree.Item>
   );
 }

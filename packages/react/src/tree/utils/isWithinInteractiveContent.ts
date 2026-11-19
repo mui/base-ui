@@ -19,6 +19,7 @@ const INTERACTIVE_ROLES = new Set([
   'switch',
   'tab',
   'textbox',
+  'tree',
   'treeitem',
   'row',
   'treegrid',

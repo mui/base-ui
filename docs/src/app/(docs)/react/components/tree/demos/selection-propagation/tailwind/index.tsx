@@ -122,22 +122,20 @@ export default function ExampleTreeSelectionPropagation() {
         >
           {(item: Tree.DefaultItem) => (
             <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-              <Tree.ItemContent className="flex min-w-0 w-full [align-items:inherit] [gap:inherit]">
-                <Tree.ItemCheckbox className={INDICATOR_CLASS}>
-                  <Tree.ItemCheckboxIndicator keepMounted>
-                    <CheckIcon className="hidden size-3 group-data-checked:block" />
-                    <MinusIcon className="hidden size-3 group-data-indeterminate:block" />
-                  </Tree.ItemCheckboxIndicator>
-                </Tree.ItemCheckbox>
-                <div className={HIERARCHY_CLASS}>
-                  <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
-                    <ChevronIcon />
-                  </Tree.ItemExpansionTrigger>
-                  <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                    {item.label}
-                  </span>
-                </div>
-              </Tree.ItemContent>
+              <Tree.ItemCheckbox className={INDICATOR_CLASS}>
+                <Tree.ItemCheckboxIndicator keepMounted>
+                  <CheckIcon className="hidden size-3 group-data-checked:block" />
+                  <MinusIcon className="hidden size-3 group-data-indeterminate:block" />
+                </Tree.ItemCheckboxIndicator>
+              </Tree.ItemCheckbox>
+              <div className={HIERARCHY_CLASS}>
+                <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
+                  <ChevronIcon />
+                </Tree.ItemExpansionTrigger>
+                <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                  {item.label}
+                </span>
+              </div>
             </Tree.Item>
           )}
         </Tree.List>

@@ -36,28 +36,30 @@ function TestTree(props: {
   onItemHighlighted?: Tree.Root.Props['onItemHighlighted'];
 }) {
   const grid = (
-    <Tree.Root
-      items={ITEMS}
-      selectionMode="multiple"
-      defaultExpandedItems={props.defaultExpandedItems}
-      onItemHighlighted={props.onItemHighlighted}
-    >
-      <Tree.List aria-label="Files">
-        {(item: Item) => (
-          <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
-            <Tree.ItemContent>
-              <Tree.ItemExpansionTrigger />
-              <Tree.ItemCheckbox data-testid={`checkbox-${item.id}`}>
-                <Tree.ItemCheckboxIndicator />
-              </Tree.ItemCheckbox>
-              {item.label}
-              <Tree.ItemButton style={{ display: 'none' }}>Hidden action</Tree.ItemButton>
-              <Tree.ItemButton data-testid={`action-${item.id}`}>Info</Tree.ItemButton>
-            </Tree.ItemContent>
-          </Tree.Item>
-        )}
-      </Tree.List>
-    </Tree.Root>
+    <Tree.GridProvider>
+      <Tree.Root
+        items={ITEMS}
+        selectionMode="multiple"
+        defaultExpandedItems={props.defaultExpandedItems}
+        onItemHighlighted={props.onItemHighlighted}
+      >
+        <Tree.List aria-label="Files">
+          {(item: Item) => (
+            <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
+              <Tree.ItemContent>
+                <Tree.ItemExpansionTrigger />
+                <Tree.ItemCheckbox data-testid={`checkbox-${item.id}`}>
+                  <Tree.ItemCheckboxIndicator />
+                </Tree.ItemCheckbox>
+                {item.label}
+                <Tree.ItemButton style={{ display: 'none' }}>Hidden action</Tree.ItemButton>
+                <Tree.ItemButton data-testid={`action-${item.id}`}>Info</Tree.ItemButton>
+              </Tree.ItemContent>
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>
+    </Tree.GridProvider>
   );
 
   return props.direction ? (
@@ -79,18 +81,20 @@ function SingleRowTree(props: {
 }) {
   return (
     <DirectionProvider direction={props.direction ?? 'ltr'}>
-      <Tree.Root items={FLAT_ITEMS}>
-        <Tree.List aria-label="Files">
-          {(item: Item) => (
-            <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
-              <Tree.ItemContent>
-                {item.label}
-                {item.id === 'documents' ? props.children : null}
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>
+      <Tree.GridProvider>
+        <Tree.Root items={FLAT_ITEMS}>
+          <Tree.List aria-label="Files">
+            {(item: Item) => (
+              <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
+                <Tree.ItemContent>
+                  {item.label}
+                  {item.id === 'documents' ? props.children : null}
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>
     </DirectionProvider>
   );
 }
@@ -100,20 +104,6 @@ function press(element: HTMLElement, key: string) {
 }
 
 describe('Tree', () => {
-  it('uses treegrid, row, and gridcell roles', async () => {
-    await render(<TestTree />);
-
-    expect(screen.getByRole('treegrid', { name: 'Files' })).toBeInTheDocument();
-    expect(screen.getAllByRole('row')).toHaveLength(2);
-    expect(screen.getByRole('row', { name: 'Documents' })).toBeInTheDocument();
-    expect(screen.getAllByRole('gridcell')).toHaveLength(2);
-    // Named after the item, not after every control label inside it.
-    expect(screen.getAllByRole('gridcell')[0]).toHaveAccessibleName('Documents');
-    // A single column that is always rendered needs no column metadata.
-    expect(screen.getAllByRole('gridcell')[0]).not.toHaveAttribute('aria-colindex');
-    expect(screen.queryByRole('treeitem')).toBeNull();
-  });
-
   it('exposes the expansion trigger without adding it to the controls', async () => {
     await render(<TestTree />);
 
@@ -130,26 +120,28 @@ describe('Tree', () => {
 
   it('lets aria-label replace the built-in control names', async () => {
     await render(
-      <Tree.Root items={ITEMS} selectionMode="multiple">
-        <Tree.List aria-label="Files">
-          {(item) => (
-            <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemCheckbox aria-label={`Sélectionner ${item.label}`} />
-                <Tree.ItemExpansionTrigger
-                  render={(props, state) => (
-                    <button
-                      {...props}
-                      aria-label={`${state.expanded ? 'Réduire' : 'Développer'} ${item.label}`}
-                    />
-                  )}
-                />
-                {item.label}
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
+      <Tree.GridProvider>
+        <Tree.Root items={ITEMS} selectionMode="multiple">
+          <Tree.List aria-label="Files">
+            {(item) => (
+              <Tree.Item itemId={item.id}>
+                <Tree.ItemContent>
+                  <Tree.ItemCheckbox aria-label={`Sélectionner ${item.label}`} />
+                  <Tree.ItemExpansionTrigger
+                    render={(props, state) => (
+                      <button
+                        {...props}
+                        aria-label={`${state.expanded ? 'Réduire' : 'Développer'} ${item.label}`}
+                      />
+                    )}
+                  />
+                  {item.label}
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
 
     const trigger = screen.getByRole('button', { name: 'Développer Documents' });
@@ -327,24 +319,26 @@ describe('Tree', () => {
   it('navigates away from a focused checkbox whose item becomes disabled', async () => {
     function Example({ disabled }: { disabled: boolean }) {
       return (
-        <Tree.Root
-          items={[
-            { id: 'documents', label: 'Documents', disabled },
-            { id: 'music', label: 'Music' },
-          ]}
-          selectionMode="multiple"
-        >
-          <Tree.List>
-            {(item: TreeDefaultItem) => (
-              <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
-                <Tree.ItemContent>
-                  <Tree.ItemCheckbox data-testid={`checkbox-${item.id}`} />
-                  {item.label}
-                </Tree.ItemContent>
-              </Tree.Item>
-            )}
-          </Tree.List>
-        </Tree.Root>
+        <Tree.GridProvider>
+          <Tree.Root
+            items={[
+              { id: 'documents', label: 'Documents', disabled },
+              { id: 'music', label: 'Music' },
+            ]}
+            selectionMode="multiple"
+          >
+            <Tree.List>
+              {(item: TreeDefaultItem) => (
+                <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
+                  <Tree.ItemContent>
+                    <Tree.ItemCheckbox data-testid={`checkbox-${item.id}`} />
+                    {item.label}
+                  </Tree.ItemContent>
+                </Tree.Item>
+              )}
+            </Tree.List>
+          </Tree.Root>
+        </Tree.GridProvider>
       );
     }
 
@@ -528,25 +522,27 @@ describe('Tree', () => {
     async ({ disabled, items }) => {
       const onClick = vi.fn();
       await render(
-        <Tree.Root items={items} disabled={disabled}>
-          <Tree.List>
-            {(item: TreeDefaultItem) => (
-              <Tree.Item itemId={item.id}>
-                <Tree.ItemContent>
-                  {item.label}
-                  {item.id === 'documents' ? (
-                    <React.Fragment>
-                      <Tree.ItemButton onClick={onClick} data-testid="action">
-                        Action
-                      </Tree.ItemButton>
-                      <Tree.ItemInput aria-label="Name" data-testid="input" />
-                    </React.Fragment>
-                  ) : null}
-                </Tree.ItemContent>
-              </Tree.Item>
-            )}
-          </Tree.List>
-        </Tree.Root>,
+        <Tree.GridProvider>
+          <Tree.Root items={items} disabled={disabled}>
+            <Tree.List>
+              {(item: TreeDefaultItem) => (
+                <Tree.Item itemId={item.id}>
+                  <Tree.ItemContent>
+                    {item.label}
+                    {item.id === 'documents' ? (
+                      <React.Fragment>
+                        <Tree.ItemButton onClick={onClick} data-testid="action">
+                          Action
+                        </Tree.ItemButton>
+                        <Tree.ItemInput aria-label="Name" data-testid="input" />
+                      </React.Fragment>
+                    ) : null}
+                  </Tree.ItemContent>
+                </Tree.Item>
+              )}
+            </Tree.List>
+          </Tree.Root>
+        </Tree.GridProvider>,
       );
 
       const action = screen.getByTestId('action');
@@ -561,18 +557,20 @@ describe('Tree', () => {
 
   it('skips a disabled checkbox, with the arrows and with Tab', async () => {
     await render(
-      <Tree.Root items={FLAT_ITEMS} selectionMode="none">
-        <Tree.List>
-          {(item: Item) => (
-            <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
-              <Tree.ItemContent>
-                <Tree.ItemCheckbox data-testid={`checkbox-${item.id}`} />
-                <Tree.ItemButton data-testid={`action-${item.id}`}>Info</Tree.ItemButton>
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
+      <Tree.GridProvider>
+        <Tree.Root items={FLAT_ITEMS} selectionMode="none">
+          <Tree.List>
+            {(item: Item) => (
+              <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
+                <Tree.ItemContent>
+                  <Tree.ItemCheckbox data-testid={`checkbox-${item.id}`} />
+                  <Tree.ItemButton data-testid={`action-${item.id}`}>Info</Tree.ItemButton>
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
 
     const row = screen.getByTestId('row-documents');
@@ -721,11 +719,13 @@ describe('Tree', () => {
       await render(
         <DirectionProvider direction={direction}>
           <div dir={direction}>
-            <Tree.Root items={FLAT_ITEMS}>
-              <div data-testid="scroller" style={{ width: 200, height: 40, overflow: 'auto' }}>
-                <Tree.List aria-label="Files">{renderRow}</Tree.List>
-              </div>
-            </Tree.Root>
+            <Tree.GridProvider>
+              <Tree.Root items={FLAT_ITEMS}>
+                <div data-testid="scroller" style={{ width: 200, height: 40, overflow: 'auto' }}>
+                  <Tree.List aria-label="Files">{renderRow}</Tree.List>
+                </div>
+              </Tree.Root>
+            </Tree.GridProvider>
           </div>
         </DirectionProvider>,
       );
@@ -979,20 +979,22 @@ describe('Tree', () => {
 
     it('keeps clicks away from the item', async () => {
       await render(
-        <Tree.Root items={FLAT_ITEMS}>
-          <Tree.List>
-            {(item: Item) => (
-              <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
-                <Tree.ItemContent>
-                  {item.label}
-                  <Tree.ItemControl data-testid={`control-${item.id}`}>
-                    <span>Widget</span>
-                  </Tree.ItemControl>
-                </Tree.ItemContent>
-              </Tree.Item>
-            )}
-          </Tree.List>
-        </Tree.Root>,
+        <Tree.GridProvider>
+          <Tree.Root items={FLAT_ITEMS}>
+            <Tree.List>
+              {(item: Item) => (
+                <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
+                  <Tree.ItemContent>
+                    {item.label}
+                    <Tree.ItemControl data-testid={`control-${item.id}`}>
+                      <span>Widget</span>
+                    </Tree.ItemControl>
+                  </Tree.ItemContent>
+                </Tree.Item>
+              )}
+            </Tree.List>
+          </Tree.Root>
+        </Tree.GridProvider>,
       );
 
       const control = screen.getByTestId('control-music');
@@ -1028,19 +1030,21 @@ describe('Tree', () => {
       return (
         <React.Fragment>
           <button type="button">Before</button>
-          <Tree.Root items={ITEMS} selectionMode="multiple">
-            <Tree.List aria-label="Files">
-              {(item: Item) => (
-                <Tree.Item itemId={item.id} data-testid={`tab-row-${item.id}`}>
-                  <Tree.ItemContent>
-                    <Tree.ItemCheckbox data-testid={`tab-checkbox-${item.id}`} />
-                    <Tree.ItemButton data-testid={`tab-action-${item.id}`}>Info</Tree.ItemButton>
-                    {props.children}
-                  </Tree.ItemContent>
-                </Tree.Item>
-              )}
-            </Tree.List>
-          </Tree.Root>
+          <Tree.GridProvider>
+            <Tree.Root items={ITEMS} selectionMode="multiple">
+              <Tree.List aria-label="Files">
+                {(item: Item) => (
+                  <Tree.Item itemId={item.id} data-testid={`tab-row-${item.id}`}>
+                    <Tree.ItemContent>
+                      <Tree.ItemCheckbox data-testid={`tab-checkbox-${item.id}`} />
+                      <Tree.ItemButton data-testid={`tab-action-${item.id}`}>Info</Tree.ItemButton>
+                      {props.children}
+                    </Tree.ItemContent>
+                  </Tree.Item>
+                )}
+              </Tree.List>
+            </Tree.Root>
+          </Tree.GridProvider>
           <button type="button">After</button>
         </React.Fragment>
       );
@@ -1120,20 +1124,22 @@ describe('Tree', () => {
             <button type="button" onClick={() => setShowAction(true)}>
               Add action
             </button>
-            <Tree.Root items={ITEMS}>
-              <Tree.List aria-label="Files">
-                {(item: Item) => (
-                  <Tree.Item itemId={item.id} data-testid={`dynamic-row-${item.id}`}>
-                    <Tree.ItemContent>
-                      {item.label}
-                      {showAction && item.id === 'music' ? (
-                        <Tree.ItemButton data-testid="dynamic-action">Info</Tree.ItemButton>
-                      ) : null}
-                    </Tree.ItemContent>
-                  </Tree.Item>
-                )}
-              </Tree.List>
-            </Tree.Root>
+            <Tree.GridProvider>
+              <Tree.Root items={ITEMS}>
+                <Tree.List aria-label="Files">
+                  {(item: Item) => (
+                    <Tree.Item itemId={item.id} data-testid={`dynamic-row-${item.id}`}>
+                      <Tree.ItemContent>
+                        {item.label}
+                        {showAction && item.id === 'music' ? (
+                          <Tree.ItemButton data-testid="dynamic-action">Info</Tree.ItemButton>
+                        ) : null}
+                      </Tree.ItemContent>
+                    </Tree.Item>
+                  )}
+                </Tree.List>
+              </Tree.Root>
+            </Tree.GridProvider>
           </React.Fragment>
         );
       }
@@ -1278,26 +1284,32 @@ describe('Tree', () => {
   it('ignores presses and focus in content a row portals elsewhere', async () => {
     const onItemHighlighted = vi.fn();
     await render(
-      <Tree.Root items={FLAT_ITEMS} selectionMode="multiple" onItemHighlighted={onItemHighlighted}>
-        <Tree.List>
-          {(item: Item) => (
-            <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
-              <Tree.ItemContent>
-                {item.label}
-                {item.id === 'documents'
-                  ? ReactDOM.createPortal(
-                      <div data-testid="popup">
-                        Details
-                        <button type="button">Close</button>
-                      </div>,
-                      document.body,
-                    )
-                  : null}
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
+      <Tree.GridProvider>
+        <Tree.Root
+          items={FLAT_ITEMS}
+          selectionMode="multiple"
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Tree.List>
+            {(item: Item) => (
+              <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
+                <Tree.ItemContent>
+                  {item.label}
+                  {item.id === 'documents'
+                    ? ReactDOM.createPortal(
+                        <div data-testid="popup">
+                          Details
+                          <button type="button">Close</button>
+                        </div>,
+                        document.body,
+                      )
+                    : null}
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
 
     fireEvent.click(screen.getByTestId('popup'));
@@ -1310,26 +1322,28 @@ describe('Tree', () => {
   it('does not select a row when a nested label or disabled control is pressed', async () => {
     const onSelectedItemsChange = vi.fn();
     await render(
-      <Tree.Root
-        items={[{ id: 'music', label: 'Music' }]}
-        selectionMode="multiple"
-        onSelectedItemsChange={onSelectedItemsChange}
-      >
-        <Tree.List>
-          {(item: Item) => (
-            <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <label>
-                  <input type="checkbox" /> Native option
-                </label>
-                <button type="button" disabled>
-                  Disabled action
-                </button>
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
+      <Tree.GridProvider>
+        <Tree.Root
+          items={[{ id: 'music', label: 'Music' }]}
+          selectionMode="multiple"
+          onSelectedItemsChange={onSelectedItemsChange}
+        >
+          <Tree.List>
+            {(item: Item) => (
+              <Tree.Item itemId={item.id}>
+                <Tree.ItemContent>
+                  <label>
+                    <input type="checkbox" /> Native option
+                  </label>
+                  <button type="button" disabled>
+                    Disabled action
+                  </button>
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
 
     fireEvent.click(screen.getByText('Native option'));
@@ -1345,20 +1359,22 @@ describe('Tree', () => {
 
     try {
       await render(
-        <Tree.Root items={ITEMS} onItemHighlighted={onItemHighlighted}>
-          <Tree.List>
-            {(item: Item) => (
-              <Tree.Item itemId={item.id} data-testid={`reason-row-${item.id}`}>
-                <Tree.ItemContent>
-                  {item.label}
-                  <button type="button" disabled data-testid={`disabled-${item.id}`}>
-                    Disabled action
-                  </button>
-                </Tree.ItemContent>
-              </Tree.Item>
-            )}
-          </Tree.List>
-        </Tree.Root>,
+        <Tree.GridProvider>
+          <Tree.Root items={ITEMS} onItemHighlighted={onItemHighlighted}>
+            <Tree.List>
+              {(item: Item) => (
+                <Tree.Item itemId={item.id} data-testid={`reason-row-${item.id}`}>
+                  <Tree.ItemContent>
+                    {item.label}
+                    <button type="button" disabled data-testid={`disabled-${item.id}`}>
+                      Disabled action
+                    </button>
+                  </Tree.ItemContent>
+                </Tree.Item>
+              )}
+            </Tree.List>
+          </Tree.Root>
+        </Tree.GridProvider>,
       );
 
       act(() => screen.getByTestId('reason-row-documents').focus());
@@ -1396,17 +1412,19 @@ describe('Tree', () => {
     const inputRef = React.createRef<HTMLInputElement>();
     await render(
       <form data-testid="file-form">
-        <Tree.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="multiple">
-          <Tree.List>
-            {(item: Item) => (
-              <Tree.Item itemId={item.id}>
-                <Tree.ItemContent>
-                  <Tree.ItemCheckbox inputRef={inputRef} />
-                </Tree.ItemContent>
-              </Tree.Item>
-            )}
-          </Tree.List>
-        </Tree.Root>
+        <Tree.GridProvider>
+          <Tree.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="multiple">
+            <Tree.List>
+              {(item: Item) => (
+                <Tree.Item itemId={item.id}>
+                  <Tree.ItemContent>
+                    <Tree.ItemCheckbox inputRef={inputRef} />
+                  </Tree.ItemContent>
+                </Tree.Item>
+              )}
+            </Tree.List>
+          </Tree.Root>
+        </Tree.GridProvider>
       </form>,
     );
 
@@ -1423,23 +1441,25 @@ describe('Tree', () => {
     await render(
       <form data-testid="file-form">
         <Field.Root name="files">
-          <Tree.Root
-            items={[
-              { id: 'music', label: 'Music' },
-              { id: 'photos', label: 'Photos' },
-            ]}
-            selectionMode="multiple"
-          >
-            <Tree.List>
-              {(item: Item) => (
-                <Tree.Item itemId={item.id}>
-                  <Tree.ItemContent>
-                    <Tree.ItemCheckbox />
-                  </Tree.ItemContent>
-                </Tree.Item>
-              )}
-            </Tree.List>
-          </Tree.Root>
+          <Tree.GridProvider>
+            <Tree.Root
+              items={[
+                { id: 'music', label: 'Music' },
+                { id: 'photos', label: 'Photos' },
+              ]}
+              selectionMode="multiple"
+            >
+              <Tree.List>
+                {(item: Item) => (
+                  <Tree.Item itemId={item.id}>
+                    <Tree.ItemContent>
+                      <Tree.ItemCheckbox />
+                    </Tree.ItemContent>
+                  </Tree.Item>
+                )}
+              </Tree.List>
+            </Tree.Root>
+          </Tree.GridProvider>
         </Field.Root>
       </form>,
     );
@@ -1462,21 +1482,23 @@ describe('Tree', () => {
     });
 
     const { rerender } = await render(
-      <Tree.Root
-        items={selectionLockedItems}
-        selectionMode="multiple"
-        onSelectedItemsChange={onSelectedItemsChange}
-      >
-        <Tree.List>
-          {(item) => (
-            <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemCheckbox />
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
+      <Tree.GridProvider>
+        <Tree.Root
+          items={selectionLockedItems}
+          selectionMode="multiple"
+          onSelectedItemsChange={onSelectedItemsChange}
+        >
+          <Tree.List>
+            {(item) => (
+              <Tree.Item itemId={item.id}>
+                <Tree.ItemContent>
+                  <Tree.ItemCheckbox />
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
 
     expect(screen.getByRole('checkbox', { name: 'Select Locked' })).toHaveAttribute(
@@ -1487,17 +1509,19 @@ describe('Tree', () => {
     expect(onSelectedItemsChange).not.toHaveBeenCalled();
 
     await rerender(
-      <Tree.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="none">
-        <Tree.List>
-          {(item: Item) => (
-            <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemCheckbox />
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
+      <Tree.GridProvider>
+        <Tree.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="none">
+          <Tree.List>
+            {(item: Item) => (
+              <Tree.Item itemId={item.id}>
+                <Tree.ItemContent>
+                  <Tree.ItemCheckbox />
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
     expect(screen.getByRole('checkbox', { name: 'Select Music' })).toHaveAttribute(
       'aria-disabled',
@@ -1505,17 +1529,19 @@ describe('Tree', () => {
     );
 
     await rerender(
-      <Tree.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="multiple" disabled>
-        <Tree.List>
-          {(item: Item) => (
-            <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemCheckbox />
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
+      <Tree.GridProvider>
+        <Tree.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="multiple" disabled>
+          <Tree.List>
+            {(item: Item) => (
+              <Tree.Item itemId={item.id}>
+                <Tree.ItemContent>
+                  <Tree.ItemCheckbox />
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
     expect(screen.getByRole('checkbox', { name: 'Select Music' })).toHaveAttribute(
       'aria-disabled',
@@ -1526,30 +1552,32 @@ describe('Tree', () => {
   it('updates row and control names when an item label changes', async () => {
     function Example({ label }: { label: string }) {
       return (
-        <Tree.Root
-          items={[
-            {
-              id: 'documents',
-              label,
-              children: [{ id: 'child', label: 'Child' }],
-            },
-          ]}
-          selectionMode="multiple"
-        >
-          <Tree.List>
-            {(item: Item) =>
-              item.id === 'documents' ? (
-                <Tree.Item itemId="documents">
-                  <Tree.ItemContent>
-                    <Tree.ItemExpansionTrigger />
-                    <Tree.ItemCheckbox />
-                    {item.label}
-                  </Tree.ItemContent>
-                </Tree.Item>
-              ) : null
-            }
-          </Tree.List>
-        </Tree.Root>
+        <Tree.GridProvider>
+          <Tree.Root
+            items={[
+              {
+                id: 'documents',
+                label,
+                children: [{ id: 'child', label: 'Child' }],
+              },
+            ]}
+            selectionMode="multiple"
+          >
+            <Tree.List>
+              {(item: Item) =>
+                item.id === 'documents' ? (
+                  <Tree.Item itemId="documents">
+                    <Tree.ItemContent>
+                      <Tree.ItemExpansionTrigger />
+                      <Tree.ItemCheckbox />
+                      {item.label}
+                    </Tree.ItemContent>
+                  </Tree.Item>
+                ) : null
+              }
+            </Tree.List>
+          </Tree.Root>
+        </Tree.GridProvider>
       );
     }
 
@@ -1591,14 +1619,16 @@ describe('Tree', () => {
     const onSelectedItemsChange = vi.fn();
     const renderTree = (filterValue: string) => (
       <Tree.FilterProvider value={filterValue}>
-        <Tree.Root
-          items={[root]}
-          selectionMode="multiple"
-          actionsRef={actionsRef}
-          onSelectedItemsChange={onSelectedItemsChange}
-        >
-          {null}
-        </Tree.Root>
+        <Tree.GridProvider>
+          <Tree.Root
+            items={[root]}
+            selectionMode="multiple"
+            actionsRef={actionsRef}
+            onSelectedItemsChange={onSelectedItemsChange}
+          >
+            {null}
+          </Tree.Root>
+        </Tree.GridProvider>
       </Tree.FilterProvider>
     );
     const view = await render(renderTree(''));
@@ -1614,35 +1644,37 @@ describe('Tree', () => {
 
 const renderSimpleItem = (item: TreeDefaultItem) => (
   <Tree.Item itemId={item.id}>
-    <Tree.ItemContent>
-      <Tree.ItemExpansionTrigger />
-      {item.label}
-    </Tree.ItemContent>
+    <Tree.ItemExpansionTrigger />
+    {item.label}
   </Tree.Item>
 );
 
 describe('nested tree ownership', () => {
-  it('isolates a nested tree row click from the enclosing row', async () => {
-    const outerChange = vi.fn();
-    await render(
-      <Tree.Root items={[{ id: 'outer', label: 'outer' }]} onSelectedItemsChange={outerChange}>
-        <Tree.List>
-          {() => (
-            <Tree.Item itemId="outer">
-              <Tree.ItemContent>
+  it.each([
+    { target: 'row', getTarget: () => screen.getByText('inner') },
+    { target: 'list', getTarget: () => screen.getByRole('tree', { name: 'Inner' }) },
+  ])(
+    'isolates a click on the $target of a nested tree from the enclosing row',
+    async ({ getTarget }) => {
+      const outerChange = vi.fn();
+      await render(
+        <Tree.Root items={[{ id: 'outer', label: 'outer' }]} onSelectedItemsChange={outerChange}>
+          <Tree.List>
+            {() => (
+              <Tree.Item itemId="outer">
                 outer
                 <Tree.Root items={[{ id: 'inner', label: 'inner' }]}>
-                  <Tree.List>{renderSimpleItem}</Tree.List>
+                  <Tree.List aria-label="Inner">{renderSimpleItem}</Tree.List>
                 </Tree.Root>
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
-    );
-    fireEvent.click(screen.getByText('inner'));
-    expect(outerChange).not.toHaveBeenCalled();
-  });
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>,
+      );
+      fireEvent.click(getTarget());
+      expect(outerChange).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe('checkbox keyboard selection', () => {
@@ -1663,24 +1695,26 @@ describe('checkbox keyboard selection', () => {
     async ({ role, descendants, initial, first, second }) => {
       const onSelectedItemsChange = vi.fn();
       const { user } = await render(
-        <Tree.Root
-          items={ITEMS}
-          selectionMode="multiple"
-          defaultSelectedItems={initial}
-          checkboxSelectionPropagation={{ parents: true, descendants }}
-          onSelectedItemsChange={onSelectedItemsChange}
-        >
-          <Tree.List>
-            {(item) => (
-              <Tree.Item itemId={item.id}>
-                <Tree.ItemContent>
-                  <Tree.ItemCheckbox />
-                  {item.label}
-                </Tree.ItemContent>
-              </Tree.Item>
-            )}
-          </Tree.List>
-        </Tree.Root>,
+        <Tree.GridProvider>
+          <Tree.Root
+            items={ITEMS}
+            selectionMode="multiple"
+            defaultSelectedItems={initial}
+            checkboxSelectionPropagation={{ parents: true, descendants }}
+            onSelectedItemsChange={onSelectedItemsChange}
+          >
+            <Tree.List>
+              {(item) => (
+                <Tree.Item itemId={item.id}>
+                  <Tree.ItemContent>
+                    <Tree.ItemCheckbox />
+                    {item.label}
+                  </Tree.ItemContent>
+                </Tree.Item>
+              )}
+            </Tree.List>
+          </Tree.Root>
+        </Tree.GridProvider>,
       );
       const target = screen.getByRole(role, {
         name: role === 'row' ? 'Documents' : 'Select Documents',
@@ -1708,21 +1742,19 @@ describe('Tree.ItemCheckbox', () => {
         <Tree.List>
           {(item) => (
             <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemCheckbox
+              <Tree.ItemCheckbox
+                className={(state) => {
+                  checkboxStates.push(state);
+                  return undefined;
+                }}
+              >
+                <Tree.ItemCheckboxIndicator
                   className={(state) => {
-                    checkboxStates.push(state);
+                    indicatorStates.push(state);
                     return undefined;
                   }}
-                >
-                  <Tree.ItemCheckboxIndicator
-                    className={(state) => {
-                      indicatorStates.push(state);
-                      return undefined;
-                    }}
-                  />
-                </Tree.ItemCheckbox>
-              </Tree.ItemContent>
+                />
+              </Tree.ItemCheckbox>
             </Tree.Item>
           )}
         </Tree.List>
@@ -1735,6 +1767,62 @@ describe('Tree.ItemCheckbox', () => {
       indeterminate: false,
       disabled: false,
       transitionStatus: undefined,
+    });
+  });
+
+  describe('outside a grid', () => {
+    function PlainTree() {
+      return (
+        <React.Fragment>
+          <Tree.Root items={ITEMS} selectionMode="multiple">
+            <Tree.List aria-label="Files">
+              {(item) => (
+                <Tree.Item itemId={item.id} data-testid={`row-${item.id}`}>
+                  <Tree.ItemCheckbox id={`select-${item.id}`} data-testid={`checkbox-${item.id}`} />
+                  <label htmlFor={`select-${item.id}`}>{item.label}</label>
+                </Tree.Item>
+              )}
+            </Tree.List>
+          </Tree.Root>
+          <button type="button">After</button>
+        </React.Fragment>
+      );
+    }
+
+    it('leaves the checkbox out of the tab sequence', async () => {
+      const { user } = await render(<PlainTree />);
+
+      act(() => screen.getByTestId('row-documents').focus());
+      await user.keyboard('{Tab}');
+
+      expect(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+    });
+
+    it('keeps focus on the row when the checkbox is pressed', async () => {
+      const { user } = await render(<PlainTree />);
+
+      act(() => screen.getByTestId('row-music').focus());
+      await user.click(screen.getByTestId('checkbox-documents'));
+
+      expect(screen.getByTestId('row-documents')).toHaveFocus();
+      expect(screen.getByTestId('checkbox-documents')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('moves focus to the row when a label activates the checkbox', async () => {
+      const { user } = await render(<PlainTree />);
+
+      act(() => screen.getByTestId('row-music').focus());
+      await user.click(screen.getByText('Documents'));
+
+      expect(screen.getByTestId('checkbox-documents')).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getByTestId('row-documents')).toHaveFocus();
+    });
+
+    // Pointer gestures that start on a checkbox, such as painting a selection, need it.
+    it('leaves the pointerdown on the checkbox uncanceled', async () => {
+      await render(<PlainTree />);
+
+      expect(fireEvent.pointerDown(screen.getByTestId('checkbox-documents'))).toBe(true);
     });
   });
 });
@@ -1751,9 +1839,7 @@ describe('Tree.ItemExpansionTrigger', () => {
         <Tree.List>
           {(item) => (
             <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
-              </Tree.ItemContent>
+              <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
             </Tree.Item>
           )}
         </Tree.List>
@@ -1770,14 +1856,12 @@ describe('Tree.ItemExpansionTrigger', () => {
         <Tree.List>
           {(item) => (
             <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemExpansionTrigger
-                  nativeButton={false}
-                  render={<span />}
-                  data-testid={`trigger-${item.id}`}
-                />
-                {item.label}
-              </Tree.ItemContent>
+              <Tree.ItemExpansionTrigger
+                nativeButton={false}
+                render={<span />}
+                data-testid={`trigger-${item.id}`}
+              />
+              {item.label}
             </Tree.Item>
           )}
         </Tree.List>
@@ -1788,7 +1872,7 @@ describe('Tree.ItemExpansionTrigger', () => {
     expect(trigger).toHaveAttribute('role', 'button');
     expect(trigger).toHaveAccessibleName('Expand A');
     fireEvent.click(trigger);
-    expect(screen.getByRole('row', { name: 'A1' })).toBeVisible();
+    expect(screen.getByRole('treeitem', { name: 'A1' })).toBeVisible();
     expect(trigger).toHaveAccessibleName('Collapse A');
   });
 
@@ -1814,10 +1898,8 @@ describe('Tree.ItemExpansionTrigger', () => {
           <Tree.List>
             {(item: TreeDefaultItem) => (
               <Tree.Item itemId={item.id}>
-                <Tree.ItemContent>
-                  <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
-                  {item.label}
-                </Tree.ItemContent>
+                <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
+                {item.label}
               </Tree.Item>
             )}
           </Tree.List>
@@ -1834,9 +1916,9 @@ describe('Tree.ItemExpansionTrigger', () => {
       expect(onExpandedItemsChange).toHaveBeenCalledTimes(1);
       expect([...onExpandedItemsChange.mock.calls[0][0]].sort()).toEqual(['a', 'a1']);
       expect(onExpandedItemsChange.mock.calls[0][1]).toHaveProperty('reason', 'trigger-press');
-      expect(screen.getByRole('row', { name: 'A1X' })).toBeVisible();
-      expect(screen.queryByRole('row', { name: 'A2X' })).toBeNull();
-      expect(screen.queryByRole('row', { name: 'B1' })).toBeNull();
+      expect(screen.getByRole('treeitem', { name: 'A1X' })).toBeVisible();
+      expect(screen.queryByRole('treeitem', { name: 'A2X' })).toBeNull();
+      expect(screen.queryByRole('treeitem', { name: 'B1' })).toBeNull();
     });
 
     it('collapses the item with its descendants', async () => {
@@ -1852,12 +1934,12 @@ describe('Tree.ItemExpansionTrigger', () => {
 
       expect(onExpandedItemsChange).toHaveBeenCalledTimes(1);
       expect(onExpandedItemsChange.mock.calls[0][0]).toEqual(['b']);
-      expect(screen.queryByRole('row', { name: 'A1' })).toBeNull();
+      expect(screen.queryByRole('treeitem', { name: 'A1' })).toBeNull();
 
       // Expanding it again shows its children collapsed.
       fireEvent.click(screen.getByTestId('trigger-a'));
-      expect(screen.getByRole('row', { name: 'A1' })).toBeVisible();
-      expect(screen.queryByRole('row', { name: 'A1X' })).toBeNull();
+      expect(screen.getByRole('treeitem', { name: 'A1' })).toBeVisible();
+      expect(screen.queryByRole('treeitem', { name: 'A1X' })).toBeNull();
     });
   });
 
@@ -1871,15 +1953,13 @@ describe('Tree.ItemExpansionTrigger', () => {
         <Tree.List>
           {(item) => (
             <Tree.Item itemId={item.id}>
-              <Tree.ItemContent>
-                <Tree.ItemExpansionTrigger
-                  disabled
-                  nativeButton={false}
-                  render={<span />}
-                  data-testid={`trigger-${item.id}`}
-                />
-                {item.label}
-              </Tree.ItemContent>
+              <Tree.ItemExpansionTrigger
+                disabled
+                nativeButton={false}
+                render={<span />}
+                data-testid={`trigger-${item.id}`}
+              />
+              {item.label}
             </Tree.Item>
           )}
         </Tree.List>
@@ -1910,10 +1990,8 @@ describe('Tree.ItemExpansionTrigger', () => {
             <Tree.List>
               {(item) => (
                 <Tree.Item itemId={item.id}>
-                  <Tree.ItemContent>
-                    <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
-                    {item.label}
-                  </Tree.ItemContent>
+                  <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
+                  {item.label}
                 </Tree.Item>
               )}
             </Tree.List>
@@ -1925,7 +2003,7 @@ describe('Tree.ItemExpansionTrigger', () => {
 
       expect(onOuterClick).toHaveBeenCalledTimes(allowPropagation ? 1 : 0);
       // The row ignores the click of its trigger, so it doesn't toggle the item back.
-      expect(screen.getByRole('row', { name: 'A1' })).toBeVisible();
+      expect(screen.getByRole('treeitem', { name: 'A1' })).toBeVisible();
     },
   );
 });

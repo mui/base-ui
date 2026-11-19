@@ -41,22 +41,16 @@ export default function FilteringTree() {
         <Tree.Clear>×</Tree.Clear>
         <Tree.List aria-label="File system">
           {(item: Tree.DefaultItem) => (
-            <Tree.Item itemId={item.id}>
-              <Tree.ItemContent
-                style={{ paddingInlineStart: 'calc((var(--tree-item-level) - 1) * 1.5rem)' }}
-              >
-                <Tree.ItemExpansionTrigger>
-                  <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-                    <path
-                      d="M4.5 2 8.5 6l-4 4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                </Tree.ItemExpansionTrigger>
-                {item.label}
-              </Tree.ItemContent>
+            <Tree.Item
+              itemId={item.id}
+              style={{ paddingInlineStart: 'calc((var(--tree-item-level) - 1) * 1.5rem)' }}
+            >
+              <Tree.ItemExpansionTrigger>
+                <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+                  <path d="M4.5 2 8.5 6l-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              </Tree.ItemExpansionTrigger>
+              {item.label}
             </Tree.Item>
           )}
         </Tree.List>

@@ -24,20 +24,22 @@ function row(itemId: string): HTMLElement {
 describe('Tree — controls nested in item content', () => {
   function TreeWithButtons(props: { onAction?: (() => void) | undefined }) {
     return (
-      <Tree.Root items={ITEMS} selectionMode="multiple">
-        <Tree.List>
-          {(item: Item) => (
-            <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-              <Tree.ItemContent>
-                {item.label}
-                <button type="button" data-testid={`action-${item.id}`} onClick={props.onAction}>
-                  Actions
-                </button>
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>
+      <Tree.GridProvider>
+        <Tree.Root items={ITEMS} selectionMode="multiple">
+          <Tree.List>
+            {(item: Item) => (
+              <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
+                <Tree.ItemContent>
+                  {item.label}
+                  <button type="button" data-testid={`action-${item.id}`} onClick={props.onAction}>
+                    Actions
+                  </button>
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>
     );
   }
 
@@ -70,23 +72,25 @@ describe('Tree — controls nested in item content', () => {
 
   it('does not expand a row when clicking a nested button', async () => {
     await render(
-      <Tree.Root
-        items={[{ id: 'parent', label: 'Parent', children: [{ id: 'child', label: 'Child' }] }]}
-        expandOnClick
-      >
-        <Tree.List>
-          {(item: Item) => (
-            <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-              <Tree.ItemContent>
-                {item.label}
-                <button type="button" data-testid={`action-${item.id}`}>
-                  Actions
-                </button>
-              </Tree.ItemContent>
-            </Tree.Item>
-          )}
-        </Tree.List>
-      </Tree.Root>,
+      <Tree.GridProvider>
+        <Tree.Root
+          items={[{ id: 'parent', label: 'Parent', children: [{ id: 'child', label: 'Child' }] }]}
+          expandOnClick
+        >
+          <Tree.List>
+            {(item: Item) => (
+              <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
+                <Tree.ItemContent>
+                  {item.label}
+                  <button type="button" data-testid={`action-${item.id}`}>
+                    Actions
+                  </button>
+                </Tree.ItemContent>
+              </Tree.Item>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      </Tree.GridProvider>,
     );
 
     fireEvent.click(screen.getByTestId('action-parent'));

@@ -526,19 +526,18 @@ describe('nested Tree item lookup', () => {
         <Tree.List>
           {(item) => (
             <Tree.Item itemId={item.id} data-testid={`outer-${item.id}`}>
-              <Tree.ItemContent>
-                {item.id === 'a' ? (
-                  <Tree.Root items={[{ id: 'shared', label: 'Nested shared' }]}>
-                    <Tree.List>
-                      {(nestedItem) => (
-                        <Tree.Item itemId={nestedItem.id} data-testid={`inner-${nestedItem.id}`}>
-                          <Tree.ItemContent />
-                        </Tree.Item>
-                      )}
-                    </Tree.List>
-                  </Tree.Root>
-                ) : null}
-              </Tree.ItemContent>
+              {item.id === 'a' ? (
+                <Tree.Root items={[{ id: 'shared', label: 'Nested shared' }]}>
+                  <Tree.List>
+                    {(nestedItem) => (
+                      <Tree.Item
+                        itemId={nestedItem.id}
+                        data-testid={`inner-${nestedItem.id}`}
+                      ></Tree.Item>
+                    )}
+                  </Tree.List>
+                </Tree.Root>
+              ) : null}
             </Tree.Item>
           )}
         </Tree.List>
@@ -569,7 +568,7 @@ describe('TreeRoot uncontrolled items', () => {
         <Tree.List<Node>>
           {(item) => (
             <Tree.Item itemId={item.key} data-testid={item.key}>
-              <Tree.ItemContent>{item.name}</Tree.ItemContent>
+              {item.name}
             </Tree.Item>
           )}
         </Tree.List>
@@ -598,11 +597,7 @@ describe('TreeRoot checkboxSelectionPropagation warning', () => {
           checkboxSelectionPropagation={{ descendants: true, parents: false }}
         >
           <Tree.List>
-            {(item: { id: string }) => (
-              <Tree.Item itemId={item.id}>
-                <Tree.ItemContent />
-              </Tree.Item>
-            )}
+            {(item: { id: string }) => <Tree.Item itemId={item.id}></Tree.Item>}
           </Tree.List>
         </Tree.Root>
       );

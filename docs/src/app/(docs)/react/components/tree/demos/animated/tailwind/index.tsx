@@ -14,7 +14,8 @@ const items: Tree.DefaultItem[] = Array.from({ length: 3 }, (_, index) => ({
 // A leaf has no expansion trigger, so it takes the trigger's width to line up
 // with its expandable siblings.
 const ITEM_CLASS =
-  'flex items-center gap-1 px-2 py-1 text-sm/[1.5] text-neutral-950 select-none dark:text-white ' +
+  'flex items-center gap-1 py-1 pe-2 text-sm/[1.5] text-neutral-950 select-none dark:text-white ' +
+  'ps-[calc(0.5rem+1.5rem*(var(--tree-item-level)-1)+var(--leaf-offset))] ' +
   '[--leaf-offset:0rem] not-data-expandable:[--leaf-offset:1.5rem] ' +
   'hover:bg-neutral-100 dark:hover:bg-neutral-800 ' +
   'data-selected:bg-neutral-200 dark:data-selected:bg-neutral-700 ' +
@@ -29,10 +30,6 @@ const TRIGGER_CLASS =
   'hover:bg-neutral-200 hover:text-neutral-950 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-white ' +
   '[&_svg]:size-3 [&_svg]:transition-transform [&_svg]:duration-150 [&_svg]:ease-[ease] motion-reduce:[&_svg]:transition-none data-expanded:[&_svg]:rotate-90';
 
-const HIERARCHY_CLASS =
-  'ms-[calc(1.5rem*(var(--tree-item-level)-1))] flex min-w-0 flex-1 items-center gap-1 ' +
-  'ps-[var(--leaf-offset)]';
-
 export default function ExampleTreeAnimated() {
   return (
     <Tree.Root items={items} defaultExpandedItems={['item-1']}>
@@ -44,14 +41,12 @@ export default function ExampleTreeAnimated() {
         {(item: Tree.DefaultItem) => (
           <React.Fragment>
             <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-              <Tree.ItemContent className={HIERARCHY_CLASS}>
-                <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
-                  <ChevronIcon />
-                </Tree.ItemExpansionTrigger>
-                <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                  {item.label}
-                </span>
-              </Tree.ItemContent>
+              <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                {item.label}
+              </span>
             </Tree.Item>
             {/* The wrapper the tree inserts around a group while it expands or collapses. */}
             {/* @highlight-start */}

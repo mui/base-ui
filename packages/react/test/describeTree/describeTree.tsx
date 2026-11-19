@@ -47,7 +47,7 @@ const FILTER_PROPS = ['filterValue', 'filter', 'filteredItems', 'filterMode'];
 
 function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
   const getRoot = () => {
-    const root = result.container.querySelector('[role="treegrid"]');
+    const root = result.container.querySelector('[role="tree"]');
     if (!root) {
       throw new Error('Could not find tree root');
     }
@@ -55,7 +55,7 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
   };
 
   const getAllTreeItemIds = () =>
-    Array.from(result.container.querySelectorAll('[role="row"]')).map(
+    Array.from(result.container.querySelectorAll('[role="treeitem"]')).map(
       (item) => (item as HTMLElement).dataset.itemId!,
     );
 
@@ -68,7 +68,7 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
    */
   const getFocusedItemId = () => {
     const active = activeElement(ownerDocument(result.container));
-    if (!active || active.getAttribute('role') !== 'row') {
+    if (!active || active.getAttribute('role') !== 'treeitem') {
       return null;
     }
     return (active as HTMLElement).dataset.itemId ?? null;
@@ -99,7 +99,7 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
     getItemRoot(id).getAttribute('aria-selected') === 'true';
 
   const getSelectedTreeItems = () =>
-    Array.from(result.container.querySelectorAll('[role="row"][aria-selected="true"]')).map(
+    Array.from(result.container.querySelectorAll('[role="treeitem"][aria-selected="true"]')).map(
       (item) => (item as HTMLElement).dataset.itemId!,
     );
 
@@ -237,39 +237,30 @@ export function describeTree(
           }
         : undefined;
 
-      const element = (
+      const renderItem = (item: TreeDefaultItem) => (
+        <Tree.Item key={item.id} itemId={item.id}>
+          {checkboxSelection && (
+            <Tree.ItemCheckbox>
+              <Tree.ItemCheckboxIndicator />
+            </Tree.ItemCheckbox>
+          )}
+          <Tree.ItemExpansionTrigger />
+          <span data-testid="text">{item.label}</span>
+        </Tree.Item>
+      );
+
+      const root = (
         <FilterableTreeRoot
           items={treeItems}
           actionsRef={actionsRef}
           collectionOptions={collectionOptions}
           {...other}
         >
-          <Tree.List>
-            {(item: TreeDefaultItem) =>
-              checkboxSelection ? (
-                <Tree.Item key={item.id} itemId={item.id}>
-                  <Tree.ItemContent>
-                    <Tree.ItemCheckbox>
-                      <Tree.ItemCheckboxIndicator />
-                    </Tree.ItemCheckbox>
-                    <Tree.ItemExpansionTrigger />
-                    <span data-testid="text">{item.label}</span>
-                  </Tree.ItemContent>
-                </Tree.Item>
-              ) : (
-                <Tree.Item key={item.id} itemId={item.id}>
-                  <Tree.ItemContent>
-                    <Tree.ItemExpansionTrigger />
-                    <span data-testid="text">{item.label}</span>
-                  </Tree.ItemContent>
-                </Tree.Item>
-              )
-            }
-          </Tree.List>
+          <Tree.List>{renderItem}</Tree.List>
         </FilterableTreeRoot>
       );
 
-      const result = await baseRender(element);
+      const result = await baseRender(root);
 
       return {
         actionsRef,

@@ -269,18 +269,20 @@ const TestTree = React.memo(function TestTree(props: {
   );
 
   return (
-    <Tree.FilterProvider>
-      <Tree.Root
-        items={mode === RESULTS_IN_MODELS ? items : undefined}
-        defaultItems={suite.items}
-        transactionThrottle={toInteger(settings.transactionThrottle, 0, 60_000, 0)}
-        actionsRef={actionsRef}
-        defaultExpandedItems={suite.groupIds}
-        onSelectedItemsChange={onSelectedItemChange}
-      >
-        {children}
-      </Tree.Root>
-    </Tree.FilterProvider>
+    <Tree.GridProvider>
+      <Tree.FilterProvider>
+        <Tree.Root
+          items={mode === RESULTS_IN_MODELS ? items : undefined}
+          defaultItems={suite.items}
+          transactionThrottle={toInteger(settings.transactionThrottle, 0, 60_000, 0)}
+          actionsRef={actionsRef}
+          defaultExpandedItems={suite.groupIds}
+          onSelectedItemsChange={onSelectedItemChange}
+        >
+          {children}
+        </Tree.Root>
+      </Tree.FilterProvider>
+    </Tree.GridProvider>
   );
 });
 

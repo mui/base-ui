@@ -40,7 +40,7 @@ function TestTree(props: {
       <Tree.List<Node>>
         {(item) => (
           <Tree.Item itemId={item.key} data-testid={item.key}>
-            <Tree.ItemContent>{item.name}</Tree.ItemContent>
+            {item.name}
           </Tree.Item>
         )}
       </Tree.List>
@@ -161,7 +161,7 @@ describe('Tree.createItems', () => {
                 kind === 'collection' ? item.name : (item as unknown as { label: string }).label;
               return (
                 <Tree.Item itemId={id} data-testid={id}>
-                  <Tree.ItemContent>{label}</Tree.ItemContent>
+                  {label}
                 </Tree.Item>
               );
             }}
@@ -289,15 +289,11 @@ describe('Tree.createItems', () => {
         defaultItems={createNodeCollection([{ key: 'default', name: 'Default' }])}
       >
         <Tree.List<Node>>
-          {(item) => (
-            <Tree.Item itemId={item.key}>
-              <Tree.ItemContent>{item.name}</Tree.ItemContent>
-            </Tree.Item>
-          )}
+          {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
       </Tree.Root>,
     );
-    expect(screen.queryAllByRole('row')).toHaveLength(0);
+    expect(screen.queryAllByRole('treeitem')).toHaveLength(0);
 
     await view.rerender(
       <Tree.Root
@@ -307,7 +303,7 @@ describe('Tree.createItems', () => {
         <Tree.List<Node>>
           {(item) => (
             <Tree.Item itemId={item.key} data-testid={item.key}>
-              <Tree.ItemContent>{item.name}</Tree.ItemContent>
+              {item.name}
             </Tree.Item>
           )}
         </Tree.List>
@@ -380,7 +376,7 @@ describe('Tree.createItems', () => {
             <Tree.List<Node>>
               {(item) => (
                 <Tree.Item itemId={item.key} data-testid={item.key}>
-                  <Tree.ItemContent>{item.name}</Tree.ItemContent>
+                  {item.name}
                 </Tree.Item>
               )}
             </Tree.List>
@@ -501,11 +497,7 @@ describe('Tree.createItems writers', () => {
     await render(
       <Tree.Root defaultItems={rootItems} actionsRef={actionsRef}>
         <Tree.List<Node>>
-          {(item) => (
-            <Tree.Item itemId={item.key}>
-              <Tree.ItemContent>{item.name}</Tree.ItemContent>
-            </Tree.Item>
-          )}
+          {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
       </Tree.Root>,
     );
@@ -541,16 +533,12 @@ describe('Tree.createItems writers', () => {
     await render(
       <Tree.Root defaultItems={items} actionsRef={actionsRef} selectionMode="multiple">
         <Tree.List<Node>>
-          {(item) => (
-            <Tree.Item itemId={item.key}>
-              <Tree.ItemContent>{item.name}</Tree.ItemContent>
-            </Tree.Item>
-          )}
+          {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
       </Tree.Root>,
     );
 
-    const item = screen.getByRole('row');
+    const item = screen.getByRole('treeitem');
     expect(item).not.toHaveAttribute('aria-selected');
     act(() => {
       actionsRef.current!.applyTransaction((transaction) =>
@@ -579,11 +567,7 @@ describe('Tree.createItems writers', () => {
     await render(
       <Tree.Root defaultItems={items} actionsRef={actionsRef} selectionMode="multiple">
         <Tree.List<Node>>
-          {(item) => (
-            <Tree.Item itemId={item.key}>
-              <Tree.ItemContent>{item.name}</Tree.ItemContent>
-            </Tree.Item>
-          )}
+          {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
       </Tree.Root>,
     );
@@ -594,7 +578,7 @@ describe('Tree.createItems writers', () => {
       );
     });
 
-    expect(screen.getByRole('row')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('treeitem')).toHaveAttribute('aria-disabled', 'true');
     expect(actionsRef.current!.isItemDisabled('item')).toBe(true);
   });
 });

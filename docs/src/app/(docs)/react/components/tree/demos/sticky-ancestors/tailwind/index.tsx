@@ -7,7 +7,8 @@ const ITEM_HEIGHT = 28;
 
 // A fixed row height, matching `ITEM_HEIGHT`.
 const ITEM_CLASS =
-  'box-border flex h-7 items-center gap-2 px-2 leading-[1.5] select-none ' +
+  'box-border flex h-7 items-center gap-2 pe-2 leading-[1.5] select-none ' +
+  'ps-[calc(0.5rem+1.25rem*(var(--tree-item-level)-1)+var(--leaf-offset))] ' +
   '[--leaf-offset:0rem] not-data-expandable:[--leaf-offset:2.5rem] ' +
   'hover:bg-neutral-100 dark:hover:bg-neutral-800 ' +
   'data-selected:bg-neutral-200 dark:data-selected:bg-neutral-700 ' +
@@ -19,10 +20,6 @@ const TRIGGER_CLASS =
   'relative after:absolute after:-inset-0.5 ' +
   'inline-flex size-5 shrink-0 items-center justify-center border-none bg-transparent p-0 text-neutral-500 dark:text-neutral-400 ' +
   '[&_svg]:size-3 [&_svg]:transition-transform [&_svg]:duration-150 [&_svg]:ease-[ease] motion-reduce:[&_svg]:transition-none data-expanded:[&_svg]:rotate-90';
-
-const HIERARCHY_CLASS =
-  'ms-[calc(1.25rem*(var(--tree-item-level)-1))] flex min-w-0 flex-1 items-center gap-2 ' +
-  'ps-[var(--leaf-offset)]';
 
 const ICON_CLASS = 'size-4 shrink-0 text-neutral-500 dark:text-neutral-400';
 
@@ -70,15 +67,13 @@ export default function ExampleStickyAncestorsTree() {
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => actionsRef.current?.focusItem(item.id)}
               >
-                <div className={HIERARCHY_CLASS}>
-                  <span className={TRIGGER_CLASS} data-expanded="">
-                    <ChevronIcon />
-                  </span>
-                  <span className={ICON_CLASS}>
-                    <FolderIcon />
-                  </span>
-                  <span className={LABEL_CLASS}>{item.label}</span>
-                </div>
+                <span className={TRIGGER_CLASS} data-expanded="">
+                  <ChevronIcon />
+                </span>
+                <span className={ICON_CLASS}>
+                  <FolderIcon />
+                </span>
+                <span className={LABEL_CLASS}>{item.label}</span>
               </div>
             ))}
           </div>
@@ -213,15 +208,13 @@ function getRowIds(
 function renderItem(item: Tree.DefaultItem) {
   return (
     <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-      <Tree.ItemContent className={HIERARCHY_CLASS}>
-        <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
-          <ChevronIcon />
-        </Tree.ItemExpansionTrigger>
-        <Tree.ItemGroupIndicator className={ICON_CLASS}>
-          <FolderIcon />
-        </Tree.ItemGroupIndicator>
-        <span className={LABEL_CLASS}>{item.label}</span>
-      </Tree.ItemContent>
+      <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
+        <ChevronIcon />
+      </Tree.ItemExpansionTrigger>
+      <Tree.ItemGroupIndicator className={ICON_CLASS}>
+        <FolderIcon />
+      </Tree.ItemGroupIndicator>
+      <span className={LABEL_CLASS}>{item.label}</span>
     </Tree.Item>
   );
 }

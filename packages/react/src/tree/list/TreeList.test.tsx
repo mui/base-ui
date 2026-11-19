@@ -40,7 +40,7 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
           border: 0,
         }}
       >
-        <Tree.ItemContent>{item.label}</Tree.ItemContent>
+        {item.label}
       </Tree.Item>
     );
   }
@@ -91,7 +91,7 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
     await settle();
 
     await act(async () => {
-      (screen.getByText('Item 0').closest('[role="row"]') as HTMLElement).focus();
+      (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
     });
 
     await press('End');
@@ -110,7 +110,7 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
     await settle();
 
     await act(async () => {
-      (screen.getByText('Item 0').closest('[role="row"]') as HTMLElement).focus();
+      (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
     });
 
     await press('End');
@@ -141,7 +141,7 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
               itemId={item.id}
               style={{ height: ROW_HEIGHT, width: 480, boxSizing: 'border-box', margin: 0 }}
             >
-              <Tree.ItemContent>{item.label}</Tree.ItemContent>
+              {item.label}
             </Tree.Item>
           )}
         </Tree.List>
@@ -150,7 +150,7 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
     const scroller = screen.getByTestId('list');
     await settle();
     await act(async () => {
-      (screen.getByText('Item 0').closest('[role="row"]') as HTMLElement).focus();
+      (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
     });
 
     for (let i = 0; i < 10; i += 1) {
@@ -179,7 +179,7 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
     const scroller = screen.getByTestId('list');
     await settle();
     await act(async () => {
-      (screen.getByText('Item 0').closest('[role="row"]') as HTMLElement).focus();
+      (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
     });
 
     for (let i = 0; i < 10; i += 1) {
@@ -226,7 +226,7 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
       expect(scroller.scrollTop).toBe(0);
 
       await act(async () => {
-        (screen.getByText('Item 0').closest('[role="row"]') as HTMLElement).focus();
+        (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
       });
       await settle();
 
@@ -239,7 +239,7 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
       await settle();
 
       await act(async () => {
-        (screen.getByText('Item 0').closest('[role="row"]') as HTMLElement).focus();
+        (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
       });
       await settle();
       const pageScrollY = window.scrollY;
@@ -263,20 +263,18 @@ it('exposes the row level through aria-level only', async () => {
       <Tree.List>
         {(item) => (
           <Tree.Item itemId={item.id}>
-            <Tree.ItemContent>
-              <Tree.ItemIndentGuide data-testid={`guide-${item.id}`} />
-              {item.label}
-            </Tree.ItemContent>
+            <Tree.ItemIndentGuide data-testid={`guide-${item.id}`} />
+            {item.label}
           </Tree.Item>
         )}
       </Tree.List>
     </Tree.Root>,
   );
 
-  fireEvent.click(screen.getByRole('row', { name: 'A' }));
-  fireEvent.keyDown(screen.getByRole('row', { name: 'A' }), { key: 'ArrowRight' });
+  fireEvent.click(screen.getByRole('treeitem', { name: 'A' }));
+  fireEvent.keyDown(screen.getByRole('treeitem', { name: 'A' }), { key: 'ArrowRight' });
 
-  const child = screen.getByRole('row', { name: 'A1' });
+  const child = screen.getByRole('treeitem', { name: 'A1' });
   expect(child).toHaveAttribute('aria-level', '2');
   expect(child).not.toHaveAttribute('data-level');
   expect(screen.getByTestId('guide-a1')).not.toHaveAttribute('data-level');
@@ -297,10 +295,8 @@ it('gives each indent guide line the level of the ancestor it belongs to', async
       <Tree.List>
         {(item) => (
           <Tree.Item itemId={item.id}>
-            <Tree.ItemContent>
-              <Tree.ItemIndentGuide data-testid={`guide-${item.id}`} />
-              {item.label}
-            </Tree.ItemContent>
+            <Tree.ItemIndentGuide data-testid={`guide-${item.id}`} />
+            {item.label}
           </Tree.Item>
         )}
       </Tree.List>
@@ -322,11 +318,7 @@ describe('<Tree.List /> state', () => {
   }
 
   function List() {
-    const renderItem = (item: Item) => (
-      <Tree.Item itemId={item.id}>
-        <Tree.ItemContent />
-      </Tree.Item>
-    );
+    const renderItem = (item: Item) => <Tree.Item itemId={item.id}></Tree.Item>;
     return <Tree.List data-testid="list">{renderItem}</Tree.List>;
   }
 

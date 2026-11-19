@@ -145,7 +145,7 @@ const selectedItemsSetSelector = createSelectorMemoized(
  * Whether the item *supports* selection at all, disabled or not.
  *
  * Distinct from {@link canItemBeSelectedSelector}, which also answers whether it
- * can be selected right now. WAI-ARIA requires every focusable row in a treegrid
+ * can be selected right now. WAI-ARIA requires every focusable item of a tree
  * that supports selection to carry `aria-selected`, including a disabled row (and
  * every row while the whole tree is disabled) — a selected row that goes disabled
  * must keep announcing that it is selected.

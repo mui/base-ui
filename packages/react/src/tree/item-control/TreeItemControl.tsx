@@ -4,9 +4,12 @@ import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { WIDGET_CONTROL_KEYS, useTreeItemControl } from '../utils/useTreeItemControl';
+import { useTreeRootContext } from '../root/TreeRootContext';
+import { assertTreeGrid } from '../grid-provider/assertTreeGrid';
 
 /**
  * Adds any focusable element inside a tree item to the item's keyboard navigation.
+ * Requires the tree to be wrapped in `Tree.GridProvider`.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
@@ -17,6 +20,7 @@ export const TreeItemControl = fastComponentRef(function TreeItemControl(
 ) {
   const { className, controlKeys, render, style, tabIndex, ...elementProps } = componentProps;
 
+  assertTreeGrid(useTreeRootContext(), 'ItemControl');
   const control = useTreeItemControl({ controlKeys, defaultKeys: WIDGET_CONTROL_KEYS });
 
   return useRenderElement('div', componentProps, {

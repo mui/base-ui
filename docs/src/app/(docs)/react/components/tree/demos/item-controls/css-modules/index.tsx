@@ -40,74 +40,78 @@ export default function ExampleTreeItemControls() {
   const actionsRef = React.useRef<Tree.Root.Actions<Task>>(null);
 
   return (
-    <Tree.Root
-      defaultItems={items}
-      defaultExpandedItems={['website', 'mobile-app']}
-      actionsRef={actionsRef}
-    >
-      <Tree.List aria-label="Projects" className={styles.Tree}>
-        {(task: Task) => (
-          <Tree.Item
-            itemId={task.id}
-            className={styles.Item}
-            aria-description={task.children ? undefined : 'Press Tab to reach the task controls'}
-          >
-            <Tree.ItemContent className={styles.ItemContent}>
-              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                <ChevronIcon />
-              </Tree.ItemExpansionTrigger>
-              {task.children ? (
-                <span className={styles.Label}>{task.label}</span>
-              ) : (
-                <React.Fragment>
-                  {/* @highlight-start */}
-                  <Tree.ItemLink
-                    href="#"
-                    onClick={(event) => event.preventDefault()}
-                    className={styles.Link}
-                  >
-                    {task.label}
-                  </Tree.ItemLink>
-                  <Tree.ItemInput
-                    defaultValue={task.estimate}
-                    aria-label={`Estimate for ${task.label}, in hours`}
-                    className={styles.Input}
-                  />
-                  {/* @highlight-end */}
-                  {/* @highlight-start @focus @padding 1 */}
-                  <Tree.ItemControl
-                    controlKeys={SWITCH_CONTROL_KEYS}
-                    render={
-                      <Switch.Root
-                        defaultChecked={task.done}
-                        aria-label={`Mark ${task.label} as done`}
-                        className={styles.Switch}
-                      />
-                    }
-                  >
-                    <Switch.Thumb className={styles.Thumb} />
-                  </Tree.ItemControl>
-                  {/* @highlight-end */}
-                  {/* @highlight-start */}
-                  <Tree.ItemButton
-                    aria-label={`Remove ${task.label}`}
-                    className={styles.RemoveButton}
-                    onClick={() =>
-                      actionsRef.current?.applyTransaction((transaction) =>
-                        transaction.remove(task.id),
-                      )
-                    }
-                  >
-                    <RemoveIcon />
-                  </Tree.ItemButton>
-                  {/* @highlight-end */}
-                </React.Fragment>
-              )}
-            </Tree.ItemContent>
-          </Tree.Item>
-        )}
-      </Tree.List>
-    </Tree.Root>
+    // @highlight-start
+    <Tree.GridProvider>
+      {/* @highlight-end */}
+      <Tree.Root
+        defaultItems={items}
+        defaultExpandedItems={['website', 'mobile-app']}
+        actionsRef={actionsRef}
+      >
+        <Tree.List aria-label="Projects" className={styles.Tree}>
+          {(task: Task) => (
+            <Tree.Item
+              itemId={task.id}
+              className={styles.Item}
+              aria-description={task.children ? undefined : 'Press Tab to reach the task controls'}
+            >
+              <Tree.ItemContent className={styles.ItemContent}>
+                <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                  <ChevronIcon />
+                </Tree.ItemExpansionTrigger>
+                {task.children ? (
+                  <span className={styles.Label}>{task.label}</span>
+                ) : (
+                  <React.Fragment>
+                    {/* @highlight-start */}
+                    <Tree.ItemLink
+                      href="#"
+                      onClick={(event) => event.preventDefault()}
+                      className={styles.Link}
+                    >
+                      {task.label}
+                    </Tree.ItemLink>
+                    <Tree.ItemInput
+                      defaultValue={task.estimate}
+                      aria-label={`Estimate for ${task.label}, in hours`}
+                      className={styles.Input}
+                    />
+                    {/* @highlight-end */}
+                    {/* @highlight-start @focus @padding 1 */}
+                    <Tree.ItemControl
+                      controlKeys={SWITCH_CONTROL_KEYS}
+                      render={
+                        <Switch.Root
+                          defaultChecked={task.done}
+                          aria-label={`Mark ${task.label} as done`}
+                          className={styles.Switch}
+                        />
+                      }
+                    >
+                      <Switch.Thumb className={styles.Thumb} />
+                    </Tree.ItemControl>
+                    {/* @highlight-end */}
+                    {/* @highlight-start */}
+                    <Tree.ItemButton
+                      aria-label={`Remove ${task.label}`}
+                      className={styles.RemoveButton}
+                      onClick={() =>
+                        actionsRef.current?.applyTransaction((transaction) =>
+                          transaction.remove(task.id),
+                        )
+                      }
+                    >
+                      <RemoveIcon />
+                    </Tree.ItemButton>
+                    {/* @highlight-end */}
+                  </React.Fragment>
+                )}
+              </Tree.ItemContent>
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>
+    </Tree.GridProvider>
   );
 }
 

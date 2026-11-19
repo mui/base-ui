@@ -278,14 +278,6 @@
   white-space: nowrap;
 }
 
-.ItemContent {
-  display: flex;
-  align-items: inherit;
-  gap: inherit;
-  min-width: 0;
-  width: 100%;
-}
-
 .Hierarchy {
   display: flex;
   align-items: inherit;

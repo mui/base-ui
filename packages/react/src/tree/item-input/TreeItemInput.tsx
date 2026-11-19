@@ -7,6 +7,7 @@ import { ACTION_CONTROL_KEYS, useTreeItemControl } from '../utils/useTreeItemCon
 import type { TreeItemControlKeys } from '../item-control/TreeItemControl';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { useTreeItemContext } from '../item/TreeItemContext';
+import { assertTreeGrid } from '../grid-provider/assertTreeGrid';
 
 // Single-line fields don't use the vertical arrows, so those still move between items.
 const SINGLE_LINE_TEXT_TYPES = new Set(['text', 'search', 'email', 'url', 'tel', 'password']);
@@ -36,6 +37,7 @@ function getInputControlKeys(element: HTMLElement): Required<TreeItemControlKeys
 
 /**
  * An input inside a tree item that takes part in the item's keyboard navigation.
+ * Requires the tree to be wrapped in `Tree.GridProvider`.
  * Renders an `<input>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
@@ -57,6 +59,7 @@ export const TreeItemInput = fastComponentRef(function TreeItemInput(
   } = componentProps;
 
   const store = useTreeRootContext();
+  assertTreeGrid(store, 'ItemInput');
   const itemId = useTreeItemContext();
   const disabled = store.useState('isItemDisabled', itemId) || disabledProp;
 

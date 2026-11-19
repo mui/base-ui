@@ -9,7 +9,7 @@ import { useIsTreeEmpty } from './useIsTreeEmpty';
 
 /**
  * Returns the DOM props and ref that should be applied to the element
- * with `role="treegrid"`.
+ * with `role="tree"`, or `role="treegrid"` in a grid.
  *
  * @param props The list's `id` and `render` props.
  */
@@ -46,7 +46,7 @@ export function useTreeRootProps(props: { id?: string | undefined; render?: unkn
 
   const rootProps = {
     id,
-    role: 'treegrid',
+    role: store.grid == null ? 'tree' : 'treegrid',
     'aria-labelledby': labelId,
     'aria-multiselectable': (selectionMode === 'multiple' || undefined) as true | undefined,
     'aria-disabled': disabled || undefined,

@@ -52,22 +52,20 @@ export default function ExampleTreeCheckboxItems() {
       <Tree.List aria-label="File system" className={styles.Tree}>
         {(item: Tree.DefaultItem) => (
           <Tree.Item itemId={item.id} className={styles.Item}>
-            <Tree.ItemContent className={styles.ItemContent}>
-              {/* @highlight-start @focus @padding 2 */}
-              <Tree.ItemCheckbox className={styles.Checkbox}>
-                <Tree.ItemCheckboxIndicator className={styles.CheckboxIndicator} keepMounted>
-                  <CheckIcon className={styles.CheckIcon} />
-                  <MinusIcon className={styles.MinusIcon} />
-                </Tree.ItemCheckboxIndicator>
-              </Tree.ItemCheckbox>
-              {/* @highlight-end */}
-              <div className={styles.Hierarchy}>
-                <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                  <ChevronIcon />
-                </Tree.ItemExpansionTrigger>
-                <span className={styles.Label}>{item.label}</span>
-              </div>
-            </Tree.ItemContent>
+            {/* @highlight-start @focus @padding 2 */}
+            <Tree.ItemCheckbox className={styles.Checkbox}>
+              <Tree.ItemCheckboxIndicator className={styles.CheckboxIndicator} keepMounted>
+                <CheckIcon className={styles.CheckIcon} />
+                <MinusIcon className={styles.MinusIcon} />
+              </Tree.ItemCheckboxIndicator>
+            </Tree.ItemCheckbox>
+            {/* @highlight-end */}
+            <div className={styles.Hierarchy}>
+              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <span className={styles.Label}>{item.label}</span>
+            </div>
           </Tree.Item>
         )}
       </Tree.List>

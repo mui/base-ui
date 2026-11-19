@@ -251,14 +251,14 @@ function FileRow({ item }: { item: FileItem }) {
 
   return (
     <Tree.Item itemId={item.id} className={styles.Item} data-cut={cut ? '' : undefined}>
-      <Tree.ItemContent className={styles.ItemContent}>
+      <div className={styles.ItemContent}>
         <Tree.ItemIndentGuide className={styles.IndentGuide} />
         <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
           <ChevronIcon />
         </Tree.ItemExpansionTrigger>
         {!isFolder(item) && <FileIcon label={item.label} className={styles.FileIcon} />}
         <span className={styles.Label}>{item.label}</span>
-      </Tree.ItemContent>
+      </div>
     </Tree.Item>
   );
 }
@@ -310,7 +310,7 @@ function ExplorerMenu(props: {
   const triggerRef = React.useRef<HTMLDivElement>(null);
 
   const updateTarget = (event: React.SyntheticEvent) => {
-    const row = (getTarget(event.nativeEvent) as Element).closest<HTMLElement>('[role=row]');
+    const row = (getTarget(event.nativeEvent) as Element).closest<HTMLElement>('[role=treeitem]');
     const itemId = row?.dataset.itemId ?? null;
     setTargetId(itemId);
     if (itemId != null) {

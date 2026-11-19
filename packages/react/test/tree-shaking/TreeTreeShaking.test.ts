@@ -54,6 +54,15 @@ describe('Tree tree shaking', () => {
     expect(includes(withFilter, pattern)).toBe(true);
   });
 
+  it('keeps the grid navigation out of a tree without Tree.GridProvider', async () => {
+    const pattern = /\/tree\/plugins\/TreeGridPlugin\.ts$/;
+    // The item list renders `Tree.ItemCheckbox`, which joins the grid navigation when there is one.
+    const itemList = await buildFixture('tree-list.tsx');
+    const withGrid = await buildFixture('tree-with-grid-provider.tsx');
+    expect(includes(itemList, pattern)).toBe(false);
+    expect(includes(withGrid, pattern)).toBe(true);
+  });
+
   it.each([
     {
       name: 'the status plugin',

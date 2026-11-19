@@ -39,13 +39,11 @@ function AnimatedTree(props: {
         {(item: Item) => (
           <React.Fragment>
             <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-              <Tree.ItemContent>
-                <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
-                {item.label}
-                <button type="button" data-testid={`action-${item.id}`}>
-                  Action
-                </button>
-              </Tree.ItemContent>
+              <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
+              {item.label}
+              <button type="button" data-testid={`action-${item.id}`}>
+                Action
+              </button>
             </Tree.Item>
             <Tree.GroupTransition
               ref={props.groupRef}

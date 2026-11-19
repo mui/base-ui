@@ -23,7 +23,8 @@ const items: Tree.DefaultItem[] = [
 ];
 
 const ITEM_CLASS =
-  'flex items-center gap-2 px-2 py-1 select-none text-sm/[1.5] text-neutral-950 ' +
+  'flex items-center gap-2 py-1 pe-2 select-none text-sm/[1.5] text-neutral-950 ' +
+  'ps-[calc(0.5rem+1.5rem*(var(--tree-item-level)-1)+var(--leaf-offset))] ' +
   '[--leaf-offset:0rem] not-data-expandable:[--leaf-offset:3.25rem] ' +
   'hover:bg-neutral-100 ' +
   'data-selected:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 ' +
@@ -38,10 +39,6 @@ const CONTROL_CLASS =
   'text-neutral-500 focus-visible:outline-2 focus-visible:outline-neutral-950 ' +
   'dark:text-neutral-400 dark:focus-visible:outline-white [&_svg]:size-3';
 
-const HIERARCHY_CLASS =
-  'ms-[calc(1.5rem*(var(--tree-item-level)-1))] flex min-w-0 flex-1 items-center gap-2 ' +
-  'ps-[var(--leaf-offset)]';
-
 export default function ExampleTreeHero() {
   return (
     // @focus-start
@@ -52,19 +49,17 @@ export default function ExampleTreeHero() {
       >
         {(item: Tree.DefaultItem) => (
           <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-            <Tree.ItemContent className={HIERARCHY_CLASS}>
-              <Tree.ItemExpansionTrigger
-                className={`${CONTROL_CLASS} data-expanded:[&_svg]:rotate-90`}
-              >
-                <ChevronIcon />
-              </Tree.ItemExpansionTrigger>
-              <Tree.ItemGroupIndicator className="inline-flex shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-4">
-                <FolderIcon />
-              </Tree.ItemGroupIndicator>
-              <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                {item.label}
-              </span>
-            </Tree.ItemContent>
+            <Tree.ItemExpansionTrigger
+              className={`${CONTROL_CLASS} data-expanded:[&_svg]:rotate-90`}
+            >
+              <ChevronIcon />
+            </Tree.ItemExpansionTrigger>
+            <Tree.ItemGroupIndicator className="inline-flex shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-4">
+              <FolderIcon />
+            </Tree.ItemGroupIndicator>
+            <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+              {item.label}
+            </span>
           </Tree.Item>
         )}
       </Tree.List>

@@ -270,23 +270,25 @@ export default function TreeFilterBuilder() {
           </Popover.Root>
         </header>
         <FilterEditorContext.Provider value={editor}>
-          <Tree.Root
-            items={items}
-            onItemsChange={(nextItems) => {
-              const [root] = nextItems;
-              if (root?.kind === 'group') {
-                setDraft(root);
-              }
-            }}
-            actionsRef={actionsRef}
-            expandedItems={expandedItems}
-            selectionMode="none"
-          >
-            <FilterList />
-            <Tree.Status className={styles.VisuallyHidden}>
-              <span key={announcement.id}>{announcement.message}</span>
-            </Tree.Status>
-          </Tree.Root>
+          <Tree.GridProvider>
+            <Tree.Root
+              items={items}
+              onItemsChange={(nextItems) => {
+                const [root] = nextItems;
+                if (root?.kind === 'group') {
+                  setDraft(root);
+                }
+              }}
+              actionsRef={actionsRef}
+              expandedItems={expandedItems}
+              selectionMode="none"
+            >
+              <FilterList />
+              <Tree.Status className={styles.VisuallyHidden}>
+                <span key={announcement.id}>{announcement.message}</span>
+              </Tree.Status>
+            </Tree.Root>
+          </Tree.GridProvider>
           <AddMenu editor={editor} />
         </FilterEditorContext.Provider>
         <footer className={styles.Footer}>

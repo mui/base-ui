@@ -31,6 +31,7 @@ export type * from './group-transition/TreeGroupTransition';
 export type * from './empty/TreeEmpty';
 export type * from './status/TreeStatus';
 export type * from './item-indent-guide/TreeItemIndentGuide';
+export type * from './grid-provider/TreeGridProvider';
 export type * from './filter-provider/TreeFilterProvider';
 export type * from './input/TreeInput';
 export type * from './clear/TreeClear';

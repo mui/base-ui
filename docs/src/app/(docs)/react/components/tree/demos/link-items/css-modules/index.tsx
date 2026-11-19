@@ -46,43 +46,47 @@ const items: LinkItemModel[] = [
 
 export default function ExampleTreeLinkItems() {
   return (
-    <Tree.Root
-      items={items}
-      defaultExpandedItems={['overview']}
-      // @highlight-start
-      selectionMode="none"
-      // @highlight-end
-    >
-      <Tree.List aria-label="Documentation" className={styles.Tree}>
-        {(item: LinkItemModel) => {
-          if (item.href) {
-            return (
-              <Link
-                itemId={item.id}
-                className={styles.LinkItem}
-                href={item.href}
-                // @highlight-start
-                active={item.id === 'quick-start'}
-                // @highlight-end
-              >
-                <span className={styles.Label}>{item.label}</span>
-              </Link>
-            );
-          }
+    // @highlight-start
+    <Tree.GridProvider>
+      {/* @highlight-end */}
+      <Tree.Root
+        items={items}
+        defaultExpandedItems={['overview']}
+        // @highlight-start
+        selectionMode="none"
+        // @highlight-end
+      >
+        <Tree.List aria-label="Documentation" className={styles.Tree}>
+          {(item: LinkItemModel) => {
+            if (item.href) {
+              return (
+                <Link
+                  itemId={item.id}
+                  className={styles.LinkItem}
+                  href={item.href}
+                  // @highlight-start
+                  active={item.id === 'quick-start'}
+                  // @highlight-end
+                >
+                  <span className={styles.Label}>{item.label}</span>
+                </Link>
+              );
+            }
 
-          return (
-            <Tree.Item itemId={item.id} className={styles.Item}>
-              <Tree.ItemContent className={styles.ItemContent}>
-                <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                  <ChevronIcon />
-                </Tree.ItemExpansionTrigger>
-                <span className={styles.Label}>{item.label}</span>
-              </Tree.ItemContent>
-            </Tree.Item>
-          );
-        }}
-      </Tree.List>
-    </Tree.Root>
+            return (
+              <Tree.Item itemId={item.id} className={styles.Item}>
+                <Tree.ItemContent className={styles.ItemContent}>
+                  <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                    <ChevronIcon />
+                  </Tree.ItemExpansionTrigger>
+                  <span className={styles.Label}>{item.label}</span>
+                </Tree.ItemContent>
+              </Tree.Item>
+            );
+          }}
+        </Tree.List>
+      </Tree.Root>
+    </Tree.GridProvider>
   );
 }
 

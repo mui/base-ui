@@ -27,10 +27,8 @@ function AnimatedTree(props: { expandedItems?: readonly string[] | undefined } =
         {(item: any) => (
           <React.Fragment>
             <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-              <Tree.ItemContent>
-                <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
-                {item.label}
-              </Tree.ItemContent>
+              <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
+              {item.label}
             </Tree.Item>
             <Tree.GroupTransition className="TestGroupTransition" data-testid={`gt-${item.id}`} />
           </React.Fragment>
@@ -63,10 +61,8 @@ describe('Tree.List group transitions', () => {
           {(item) => (
             <React.Fragment>
               <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-                <Tree.ItemContent>
-                  <Tree.ItemExpansionTrigger />
-                  {item.label}
-                </Tree.ItemContent>
+                <Tree.ItemExpansionTrigger />
+                {item.label}
               </Tree.Item>
               <Tree.GroupTransition data-testid={`gt-${item.id}`} />
             </React.Fragment>
@@ -115,9 +111,7 @@ describe('Tree.List group transitions', () => {
         <Tree.List>
           {(item) => (
             <React.Fragment>
-              <Tree.Item itemId={item.id}>
-                <Tree.ItemContent>{item.label}</Tree.ItemContent>
-              </Tree.Item>
+              <Tree.Item itemId={item.id}>{item.label}</Tree.Item>
               <Tree.GroupTransition />
             </React.Fragment>
           )}
@@ -149,9 +143,7 @@ describe('Tree.List group transitions', () => {
         <Tree.List aria-label="Files">
           {(item) => (
             <React.Fragment>
-              <Tree.Item itemId={item.id}>
-                <Tree.ItemContent>{item.label}</Tree.ItemContent>
-              </Tree.Item>
+              <Tree.Item itemId={item.id}>{item.label}</Tree.Item>
               <Tree.GroupTransition data-testid={`gt-${item.id}`} />
             </React.Fragment>
           )}
@@ -164,10 +156,10 @@ describe('Tree.List group transitions', () => {
 
     expect(
       within(screen.getByTestId('gt-a'))
-        .getAllByRole('row')
+        .getAllByRole('treeitem')
         .map((row) => row.getAttribute('data-item-id')),
     ).toEqual(['b', 'c']);
-    expect(screen.getAllByRole('row')).toHaveLength(3);
+    expect(screen.getAllByRole('treeitem')).toHaveLength(3);
   });
 
   function PartiallyAnimatedTree(props: { animatedItemIds: readonly string[] }) {
@@ -177,10 +169,8 @@ describe('Tree.List group transitions', () => {
           {(item: any) => (
             <React.Fragment>
               <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-                <Tree.ItemContent>
-                  <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
-                  {item.label}
-                </Tree.ItemContent>
+                <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
+                {item.label}
               </Tree.Item>
               {props.animatedItemIds.includes(item.id) && (
                 <Tree.GroupTransition data-testid={`gt-${item.id}`} />
@@ -199,9 +189,7 @@ describe('Tree.List group transitions', () => {
           {(item) => (
             <React.Fragment>
               <Tree.Item itemId={item.id}>
-                <Tree.ItemContent>
-                  <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
-                </Tree.ItemContent>
+                <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
               </Tree.Item>
               <Tree.GroupTransition
                 className={(state) => `${state.animation}-${state.transitionStatus}`}
@@ -327,7 +315,7 @@ describe.skipIf(isJSDOM)('Tree.List group transition lifecycle', () => {
             {(item) => (
               <React.Fragment>
                 <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
-                  <Tree.ItemContent>{item.label}</Tree.ItemContent>
+                  {item.label}
                 </Tree.Item>
                 <Tree.GroupTransition
                   className="TestGroupTransition"

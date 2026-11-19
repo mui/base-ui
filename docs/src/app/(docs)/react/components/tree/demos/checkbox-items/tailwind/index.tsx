@@ -82,24 +82,22 @@ export default function ExampleTreeCheckboxItems() {
       >
         {(item: Tree.DefaultItem) => (
           <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-            <Tree.ItemContent className="flex w-full min-w-0 items-[inherit] gap-[inherit]">
-              {/* @highlight-start @focus @padding 2 */}
-              <Tree.ItemCheckbox className="inline-flex shrink-0 items-center justify-center">
-                <Tree.ItemCheckboxIndicator className={INDICATOR_CLASS} keepMounted>
-                  <CheckIcon className="hidden size-3 group-data-checked:block" />
-                  <MinusIcon className="hidden size-3 group-data-indeterminate:block" />
-                </Tree.ItemCheckboxIndicator>
-              </Tree.ItemCheckbox>
-              {/* @highlight-end */}
-              <div className={HIERARCHY_CLASS}>
-                <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
-                  <ChevronIcon />
-                </Tree.ItemExpansionTrigger>
-                <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                  {item.label}
-                </span>
-              </div>
-            </Tree.ItemContent>
+            {/* @highlight-start @focus @padding 2 */}
+            <Tree.ItemCheckbox className="inline-flex shrink-0 items-center justify-center">
+              <Tree.ItemCheckboxIndicator className={INDICATOR_CLASS} keepMounted>
+                <CheckIcon className="hidden size-3 group-data-checked:block" />
+                <MinusIcon className="hidden size-3 group-data-indeterminate:block" />
+              </Tree.ItemCheckboxIndicator>
+            </Tree.ItemCheckbox>
+            {/* @highlight-end */}
+            <div className={HIERARCHY_CLASS}>
+              <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                {item.label}
+              </span>
+            </div>
           </Tree.Item>
         )}
       </Tree.List>

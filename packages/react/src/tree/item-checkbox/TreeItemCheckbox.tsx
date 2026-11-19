@@ -4,6 +4,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Checkbox } from '../../checkbox';
+import { mergeProps } from '../../merge-props';
 import { REASONS } from '../../internals/reasons';
 import {
   DEFAULT_FIELD_ROOT_CONTEXT,
@@ -76,7 +77,7 @@ export const TreeItemCheckbox = fastComponentRef(function TreeItemCheckbox(
       <LabelableProvider>
         <Checkbox.Root
           aria-label={`Select ${label}`}
-          {...otherProps}
+          {...mergeProps(control.props, otherProps)}
           {...mapStateProps({ className, style, render }, toItemCheckboxState)}
           ref={mergedRef}
           id={id}

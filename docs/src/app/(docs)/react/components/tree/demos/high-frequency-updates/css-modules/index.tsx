@@ -80,18 +80,16 @@ export default function ExampleTreeHighFrequencyUpdates() {
         <Tree.List aria-label="Service traffic" className={styles.Tree}>
           {(item: Service) => (
             <Tree.Item itemId={item.id} className={styles.Item}>
-              <Tree.ItemContent className={styles.ItemContent}>
-                <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                  <ChevronIcon />
-                </Tree.ItemExpansionTrigger>
-                <Tree.ItemGroupIndicator className={styles.GroupIndicator}>
-                  <FolderIcon />
-                </Tree.ItemGroupIndicator>
-                <span className={styles.Label}>{item.label}</span>
-                {item.requests != null && (
-                  <span className={styles.Requests}>{item.requests} req/s</span>
-                )}
-              </Tree.ItemContent>
+              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <Tree.ItemGroupIndicator className={styles.GroupIndicator}>
+                <FolderIcon />
+              </Tree.ItemGroupIndicator>
+              <span className={styles.Label}>{item.label}</span>
+              {item.requests != null && (
+                <span className={styles.Requests}>{item.requests} req/s</span>
+              )}
             </Tree.Item>
           )}
         </Tree.List>

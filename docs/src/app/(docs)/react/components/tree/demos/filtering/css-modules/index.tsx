@@ -79,12 +79,10 @@ export default function ExampleTreeFiltering() {
             <Tree.List aria-label="File system" className={styles.Tree}>
               {(item: Tree.DefaultItem) => (
                 <Tree.Item itemId={item.id} className={styles.Item}>
-                  <Tree.ItemContent className={styles.ItemContent}>
-                    <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                      <ChevronIcon />
-                    </Tree.ItemExpansionTrigger>
-                    <span className={styles.Label}>{item.label}</span>
-                  </Tree.ItemContent>
+                  <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                    <ChevronIcon />
+                  </Tree.ItemExpansionTrigger>
+                  <span className={styles.Label}>{item.label}</span>
                 </Tree.Item>
               )}
             </Tree.List>

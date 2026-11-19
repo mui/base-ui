@@ -15,7 +15,7 @@ function List() {
     <Tree.List>
       {(item) => (
         <Tree.Item itemId={item.id} data-testid={item.id}>
-          <Tree.ItemContent>{item.label}</Tree.ItemContent>
+          {item.label}
         </Tree.Item>
       )}
     </Tree.List>
@@ -68,13 +68,7 @@ describe('Tree root features', () => {
         </Tree.FilterProvider>
         <Tree.Root defaultItems={items}>
           <Tree.FilterProvider defaultValue="b">
-            <Tree.List>
-              {(item) => (
-                <Tree.Item itemId={item.id}>
-                  <Tree.ItemContent />
-                </Tree.Item>
-              )}
-            </Tree.List>
+            <Tree.List>{(item) => <Tree.Item itemId={item.id}></Tree.Item>}</Tree.List>
           </Tree.FilterProvider>
         </Tree.Root>
       </React.Fragment>,
