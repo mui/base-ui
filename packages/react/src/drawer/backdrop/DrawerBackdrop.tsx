@@ -4,7 +4,7 @@ import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import * as DrawerPopupCssVars from '../popup/DrawerPopupCssVars';
 import * as DrawerBackdropCssVars from './DrawerBackdropCssVars';
 

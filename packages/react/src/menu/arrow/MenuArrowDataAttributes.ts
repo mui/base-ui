@@ -1,4 +1,4 @@
-import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
+import { CommonPopupDataAttributes } from '../../utils/popups/popupStateMapping';
 
 /**
  * Present when the menu popup is open.

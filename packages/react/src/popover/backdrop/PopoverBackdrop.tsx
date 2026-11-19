@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { REASONS } from '../../internals/reasons';

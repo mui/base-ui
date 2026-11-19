@@ -229,6 +229,38 @@ describe('<RadioGroup />', () => {
 
       expect(item).toHaveAttribute('aria-checked', 'false');
     });
+
+    it('is not a tab stop when the whole group is disabled', async () => {
+      const { user } = await render(
+        <div>
+          <button type="button">Before</button>
+          <RadioGroup disabled>
+            <Radio.Root value="a" data-testid="a" />
+            <Radio.Root value="b" data-testid="b" />
+          </RadioGroup>
+          <button type="button">After</button>
+        </div>,
+      );
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
+
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Before' })).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+    });
+
+    it('lets a tabIndex prop override the disabled group tab index', async () => {
+      await render(
+        <RadioGroup disabled>
+          <Radio.Root value="a" tabIndex={0} data-testid="a" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '0');
+    });
   });
 
   describe('prop: readOnly', () => {

@@ -1,6 +1,4 @@
-import NextLink from 'next/link';
-
-import { Logo } from './Logo';
+import { LogoLink } from './LogoLink';
 import { SearchControls } from './SearchControls';
 import { SkipNav } from './SkipNav';
 import './Header.css';
@@ -12,9 +10,7 @@ export function Header() {
     <header className="Header">
       <div className="HeaderInner">
         <SkipNav>Skip to contents</SkipNav>
-        <NextLink href="/" className="HeaderLogoLink" aria-label="Go to the homepage">
-          <Logo aria-label="Base UI" />
-        </NextLink>
+        <LogoLink />
         <div className="HeaderSearch">
           <SearchControls
             desktopTriggerClassName="HeaderSearchDesktopTrigger"

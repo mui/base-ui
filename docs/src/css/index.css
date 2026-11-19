@@ -106,6 +106,7 @@
   [data-base-ui-portal],
   [data-testid='testcase'] {
     font-feature-settings: normal;
+    font-variant-alternates: normal;
   }
 
   [data-demo]:not([data-demo='tailwind']) * {
@@ -439,10 +440,9 @@
     -moz-osx-font-smoothing: grayscale;
     /* Stable scrollbar */
     overflow-y: scroll;
-    /* Die Grotesk OpenType features */
-    font-feature-settings:
-      'ss02' 1,
-      'zero' 1;
+    /* Die Grotesk OpenType features (`alternate-r` is defined in ./fonts/index.css) */
+    font-feature-settings: 'zero' 1;
+    font-variant-alternates: styleset(alternate-r);
   }
 
   ::selection {

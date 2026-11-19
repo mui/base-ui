@@ -5,6 +5,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM, waitSingleFrame } from '#test-utils';
 import type { Side } from '../src/internals/useAnchorPositioning';
+import { resetBrowserPointer } from './resetBrowserPointer';
 
 const morphTransitionStyles = `
   [data-transitioning] [data-current] {
@@ -52,6 +53,10 @@ export function viewportConformanceTests(config: ViewportTestConfig) {
   }
 
   describe('Viewport conformance', () => {
+    // Tooltip and Preview Card triggers open on hover without a delay, so a resting pointer
+    // would reopen a popup whose trigger remounts under it.
+    beforeEach(resetBrowserPointer);
+
     it('renders children in the `current` container by default', async () => {
       setup();
       await render(

@@ -8,18 +8,21 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
-} from '../../utils/popupStateMapping';
+} from '../../utils/popups/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { FocusGuard } from '../../utils/FocusGuard';
-import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
+import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
-import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
+import { useOpenMethodTriggerProps } from '../../utils/popups/interactions/useOpenInteractionType';
 
 /**
  * A button that opens the popover.
@@ -57,7 +60,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
@@ -79,7 +81,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   const isTouchPressOpen = store.useState('isTouchPressOpen', openOnHover);
   const hasFocusGuards = store.useState('hasTriggerFocusGuards', thisTriggerId);
 
-  const hoverProps = useHoverReferenceInteraction(floatingContext, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     enabled: !disabled && openOnHover && !isTouchPressOpen,
     mouseOnly: true,
     move: false,
@@ -90,11 +92,10 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const getStickIfOpen = useStableCallback(() => store.context.stickIfOpen);
-  const click = useClick(floatingContext, { stickIfOpen: getStickIfOpen });
+  const click = useClick(store, { stickIfOpen: getStickIfOpen });
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {
