@@ -77,6 +77,47 @@ type ToggleChangeEventDetails = {
 };
 ```
 
+### ToggleIndicator
+
+Indicates whether the toggle is pressed.
+Renders a `<span>` element.
+
+**ToggleIndicator Props:**
+
+| Prop        | Type                                                                                          | Default     | Description                                                                                                                                                                                   |
+| :---------- | :-------------------------------------------------------------------------------------------- | :---------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| match       | `'pressed' \| 'unpressed'`                                                                    | `'pressed'` | The state the indicator renders in.&#xA;Use `'pressed'` for the icon shown while the toggle is pressed, and `'unpressed'` for the&#xA;icon shown while it is not.                             |
+| className   | `string \| ((state: ToggleIndicator.State) => string \| undefined)`                           | -           | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: ToggleIndicator.State) => React.CSSProperties \| undefined)` | -           | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| keepMounted | `boolean`                                                                                     | `false`     | Whether to keep the element in the DOM while it doesn't apply.                                                                                                                                |
+| render      | `ReactElement \| ((props: HTMLProps, state: ToggleIndicator.State) => ReactElement)`          | -           | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**ToggleIndicator Data Attributes:**
+
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-pressed        | -    | Present when the toggle button is pressed.   |
+| data-disabled       | -    | Present when the toggle button is disabled.  |
+| data-starting-style | -    | Present when the indicator is animating in.  |
+| data-ending-style   | -    | Present when the indicator is animating out. |
+
+### ToggleIndicator.Props
+
+Re-export of [ToggleIndicator](#toggleindicator) props.
+
+### ToggleIndicator.State
+
+```typescript
+type ToggleIndicatorState = {
+  /** Whether the toggle is currently pressed. */
+  pressed: boolean;
+  /** Whether the toggle should ignore user interaction. */
+  disabled: boolean;
+  /** The transition status of the component. */
+  transitionStatus: TransitionStatus;
+};
+```
+
 ## Additional Types
 
 ### ToggleDataAttributes
@@ -92,6 +133,28 @@ declare namespace ToggleDataAttributes {
 }
 ```
 
+### ToggleIndicatorDataAttributes
+
+Data attributes of [ToggleIndicator](#toggleindicator).
+
+```typescript
+declare namespace ToggleIndicatorDataAttributes {
+  /** Present when the toggle button is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the toggle button is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the indicator is animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+## Export Groups
+
+- `Toggle`: `Toggle`, `Toggle.State`, `Toggle.Props`, `Toggle.ChangeEventReason`, `Toggle.ChangeEventDetails`, `ToggleIndicator`, `ToggleIndicator.State`, `ToggleIndicator.Props`, `ToggleDataAttributes`, `ToggleIndicatorDataAttributes`, `ToggleState`, `ToggleProps`, `ToggleChangeEventReason`, `ToggleChangeEventDetails`, `ToggleIndicatorState`, `ToggleIndicatorProps`
+- `ToggleIndicator`: `Toggle`, `Toggle.State`, `Toggle.Props`, `Toggle.ChangeEventReason`, `Toggle.ChangeEventDetails`, `ToggleIndicator`, `ToggleIndicator.State`, `ToggleIndicator.Props`, `ToggleDataAttributes`, `ToggleIndicatorDataAttributes`, `ToggleState`, `ToggleProps`, `ToggleChangeEventReason`, `ToggleChangeEventDetails`, `ToggleIndicatorState`, `ToggleIndicatorProps`
+
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
@@ -100,6 +163,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Toggle.Props`: `ToggleProps`
 - `Toggle.ChangeEventReason`: `ToggleChangeEventReason`
 - `Toggle.ChangeEventDetails`: `ToggleChangeEventDetails`
+- `ToggleIndicator.State`: `ToggleIndicatorState`
+- `ToggleIndicator.Props`: `ToggleIndicatorProps`
 
 ## External Type Links
 

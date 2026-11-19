@@ -12,19 +12,38 @@ import { DemoToggleHero } from './demos/hero';
 
 ## Anatomy
 
-Import the component and use it as a single part:
+Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { Toggle } from '@base-ui/react/toggle';
+import { Toggle, ToggleIndicator } from '@base-ui/react/toggle';
 
-<Toggle />;
+<Toggle>
+  <ToggleIndicator />
+</Toggle>;
 ```
+
+## Examples
+
+### Toggle icon
+
+Use a pair of indicators to swap the icon when the toggle is pressed.
+Set `match="unpressed"` on the icon shown while the toggle is not pressed.
+
+import { DemoToggleIcon } from './demos/toggle-icon';
+
+<DemoToggleIcon />
 
 ## API reference
 
 import { TypesToggle } from './types';
 
-<TypesToggle />
+### Toggle
+
+<TypesToggle.Toggle />
+
+### ToggleIndicator
+
+<TypesToggle.ToggleIndicator />
 
 export const metadata = {
   keywords: [

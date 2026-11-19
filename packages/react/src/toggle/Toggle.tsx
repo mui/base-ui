@@ -12,6 +12,7 @@ import { CompositeItem } from '../internals/composite/item/CompositeItem';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
+import { ToggleContext } from './ToggleContext';
 
 /**
  * A two-state button that can be on or off.
@@ -70,10 +71,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     native: nativeButton,
   });
 
-  const state: ToggleState = {
-    disabled,
-    pressed,
-  };
+  const state: ToggleState = React.useMemo(() => ({ disabled, pressed }), [disabled, pressed]);
 
   const refs = [buttonRef, forwardedRef];
   const props = [
@@ -122,20 +120,22 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
 
   if (groupContext) {
     return (
-      <CompositeItem
-        tag="button"
-        render={render}
-        className={className}
-        style={style}
-        metadata={itemMetadata}
-        state={state}
-        refs={refs}
-        props={props}
-      />
+      <ToggleContext.Provider value={state}>
+        <CompositeItem
+          tag="button"
+          render={render}
+          className={className}
+          style={style}
+          metadata={itemMetadata}
+          state={state}
+          refs={refs}
+          props={props}
+        />
+      </ToggleContext.Provider>
     );
   }
 
-  return element;
+  return <ToggleContext.Provider value={state}>{element}</ToggleContext.Provider>;
 }) as {
   <Value extends string>(
     props: Toggle.Props<Value> & React.RefAttributes<HTMLButtonElement>,

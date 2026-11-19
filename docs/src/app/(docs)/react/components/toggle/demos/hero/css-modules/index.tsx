@@ -1,31 +1,16 @@
 'use client';
 import * as React from 'react';
-import { Toggle } from '@base-ui/react/toggle';
+import { Toggle, ToggleIndicator } from '@base-ui/react/toggle';
 import styles from './index.module.css';
 
 export default function ExampleToggle() {
   return (
-    <div className={styles.Panel}>
-      <Toggle
-        aria-label="Favorite"
-        className={styles.Button}
-        render={(props, state) => {
-          if (state.pressed) {
-            return (
-              <button type="button" {...props}>
-                <HeartFilledIcon />
-              </button>
-            );
-          }
-
-          return (
-            <button type="button" {...props}>
-              <HeartOutlineIcon />
-            </button>
-          );
-        }}
-      />
-    </div>
+    <Toggle aria-label="Favorite" className={styles.Button}>
+      <HeartOutlineIcon />
+      <ToggleIndicator keepMounted className={styles.Indicator}>
+        <HeartFilledIcon />
+      </ToggleIndicator>
+    </Toggle>
   );
 }
 
