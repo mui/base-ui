@@ -568,7 +568,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
           preventReturnFocusRef.current = true;
-          store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          // A popup that stays mounted after it closed (during its exit animation or after
+          // `preventUnmountOnClose()`) already reported that close.
+          if (store.select('open')) {
+            store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          }
         }
       });
     }
@@ -1030,7 +1034,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         const nextTabbable = getNextTabbable(domReference);
         nextTabbable?.focus();
       } else {
-        resolveRef(previousFocusableElement ?? portalContext.beforeOutsideRef)?.focus();
+        (resolveRef(previousFocusableElement) ?? portalContext.beforeOutsideRef.current)?.focus();
       }
     }
   });
@@ -1047,7 +1051,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         const prevTabbable = getPreviousTabbable(domReference);
         prevTabbable?.focus();
       } else {
-        resolveRef(nextFocusableElement ?? portalContext.afterOutsideRef)?.focus();
+        (resolveRef(nextFocusableElement) ?? portalContext.afterOutsideRef.current)?.focus();
       }
     }
   });

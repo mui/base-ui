@@ -71,7 +71,6 @@
 
 .Backdrop {
   position: fixed;
-  min-height: 100dvh;
   inset: 0;
   background-color: black;
   opacity: 0.2;
@@ -80,6 +79,7 @@
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {
     position: absolute;
+    min-height: 100dvh;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -102,7 +102,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 24rem;
-  max-width: calc(100vw - 3rem);
+  max-width: calc(100% - 3rem);
   margin-top: -2rem;
   padding: 1rem;
   border: 1px solid oklch(14.5% 0 0deg);

@@ -20,7 +20,13 @@ import {
   BASE_UI_SWIPE_IGNORE_SELECTOR,
   LEGACY_SWIPE_IGNORE_SELECTOR,
 } from '../../internals/constants';
-import { getDisplacement } from '../../utils/useSwipeDismiss';
+import {
+  applyDirectionalDamping,
+  getDismissDirection,
+  getDisplacement,
+  shouldCancelReverseSwipe,
+  updateSwipeCancelBaseline,
+} from '../../utils/useSwipeDismiss';
 import { getElementTransform } from '../../utils/getElementTransform';
 import * as ToastRootCssVars from './ToastRootCssVars';
 import * as ToastRootDataAttributes from './ToastRootDataAttributes';
@@ -33,8 +39,6 @@ export const toastRootStateAttributesMapping: StateAttributesMapping<ToastRootSt
 };
 
 const SWIPE_THRESHOLD = 40;
-const REVERSE_CANCEL_THRESHOLD = 10;
-const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
 const MIN_DRAG_THRESHOLD = 1;
 const TOAST_SWIPE_IGNORE_SELECTOR = `${BASE_UI_SWIPE_IGNORE_SELECTOR},${LEGACY_SWIPE_IGNORE_SELECTOR}`;
 
@@ -177,25 +181,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     };
   }, []);
 
-  function applyDirectionalDamping(deltaX: number, deltaY: number) {
-    const damp = (delta: number) =>
-      delta > 0
-        ? delta ** OPPOSITE_DIRECTION_DAMPING_FACTOR
-        : -(Math.abs(delta) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
-
-    const dampX =
-      (deltaX > 0 && !swipeDirections.includes('right')) ||
-      (deltaX < 0 && !swipeDirections.includes('left'));
-    const dampY =
-      (deltaY > 0 && !swipeDirections.includes('down')) ||
-      (deltaY < 0 && !swipeDirections.includes('up'));
-
-    return {
-      x: dampX ? damp(deltaX) : deltaX,
-      y: dampY ? damp(deltaY) : deltaY,
-    };
-  }
-
   const handleSwipeEnd = useStableCallback((event: React.PointerEvent | PointerEvent) => {
     if (event.pointerId !== activePointerIdRef.current) {
       return;
@@ -209,24 +194,13 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     setLockedDirection(null);
 
     const resolvedInitialTransform = initialTransformRef.current;
-
-    if (event.type === 'pointercancel' || cancelledSwipeRef.current) {
-      setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
-      setCurrentSwipeDirection(undefined);
-      return;
-    }
-
     const resolvedDragOffset = dragOffsetRef.current;
     const deltaX = resolvedDragOffset.x - resolvedInitialTransform.x;
     const deltaY = resolvedDragOffset.y - resolvedInitialTransform.y;
-    let dismissDirection: 'up' | 'down' | 'left' | 'right' | undefined;
-
-    for (const direction of swipeDirections) {
-      if (getDisplacement(direction, deltaX, deltaY) > SWIPE_THRESHOLD) {
-        dismissDirection = direction;
-        break;
-      }
-    }
+    const dismissDirection =
+      event.type === 'pointercancel' || cancelledSwipeRef.current
+        ? undefined
+        : getDismissDirection(swipeDirections, deltaX, deltaY, SWIPE_THRESHOLD);
 
     if (dismissDirection) {
       setCurrentSwipeDirection(dismissDirection);
@@ -308,58 +282,41 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     const { clientY, clientX, movementX, movementY } = event;
 
-    if (
-      (movementY < 0 && clientY > swipeCancelBaselineRef.current.y) ||
-      (movementY > 0 && clientY < swipeCancelBaselineRef.current.y)
-    ) {
-      swipeCancelBaselineRef.current = { x: swipeCancelBaselineRef.current.x, y: clientY };
-    }
-
-    if (
-      (movementX < 0 && clientX > swipeCancelBaselineRef.current.x) ||
-      (movementX > 0 && clientX < swipeCancelBaselineRef.current.x)
-    ) {
-      swipeCancelBaselineRef.current = { x: clientX, y: swipeCancelBaselineRef.current.y };
-    }
+    swipeCancelBaselineRef.current = updateSwipeCancelBaseline(
+      swipeCancelBaselineRef.current,
+      { x: clientX, y: clientY },
+      { x: movementX, y: movementY },
+    );
 
     const deltaX = clientX - dragStartPosRef.current.x;
     const deltaY = clientY - dragStartPosRef.current.y;
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
+    const hasHorizontal = swipeDirections.includes('left') || swipeDirections.includes('right');
+    const hasVertical = swipeDirections.includes('up') || swipeDirections.includes('down');
     let resolvedLockedDirection = lockedDirection;
 
-    if (!isRealSwipe) {
-      const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      if (movementDistance >= MIN_DRAG_THRESHOLD) {
-        setIsRealSwipe(true);
-        // `lockedDirection` is always reset alongside `isRealSwipe`, so it is
-        // still `null` here. Locking is only meaningful when both axes are
-        // swipeable; otherwise the single axis already constrains the gesture.
-        const hasHorizontal = swipeDirections.includes('left') || swipeDirections.includes('right');
-        const hasVertical = swipeDirections.includes('up') || swipeDirections.includes('down');
-        if (hasHorizontal && hasVertical) {
-          const absX = Math.abs(deltaX);
-          const absY = Math.abs(deltaY);
-          resolvedLockedDirection = absX > absY ? 'horizontal' : 'vertical';
-          setLockedDirection(resolvedLockedDirection);
-        }
+    if (!isRealSwipe && Math.hypot(deltaX, deltaY) >= MIN_DRAG_THRESHOLD) {
+      setIsRealSwipe(true);
+      // `lockedDirection` is always reset alongside `isRealSwipe`, so it is
+      // still `null` here. Locking is only meaningful when both axes are
+      // swipeable; otherwise the single axis already constrains the gesture.
+      if (hasHorizontal && hasVertical) {
+        resolvedLockedDirection = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
+        setLockedDirection(resolvedLockedDirection);
       }
     }
 
-    let candidate: 'up' | 'down' | 'left' | 'right' | undefined;
     if (!intendedSwipeDirectionRef.current) {
+      let candidate: 'up' | 'down' | 'left' | 'right' | undefined;
       if (resolvedLockedDirection === 'vertical') {
-        if (deltaY > 0) {
-          candidate = 'down';
-        } else if (deltaY < 0) {
-          candidate = 'up';
+        if (deltaY !== 0) {
+          candidate = deltaY > 0 ? 'down' : 'up';
         }
       } else if (resolvedLockedDirection === 'horizontal') {
-        if (deltaX > 0) {
-          candidate = 'right';
-        } else if (deltaX < 0) {
-          candidate = 'left';
+        if (deltaX !== 0) {
+          candidate = deltaX > 0 ? 'right' : 'left';
         }
       } else if (Math.abs(deltaX) >= Math.abs(deltaY)) {
         candidate = deltaX > 0 ? 'right' : 'left';
@@ -380,27 +337,26 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
         cancelledSwipeRef.current = false;
         setCurrentSwipeDirection(direction);
       } else if (
-        !(swipeDirections.includes('left') && swipeDirections.includes('right')) &&
-        !(swipeDirections.includes('up') && swipeDirections.includes('down')) &&
-        maxSwipeDisplacementRef.current - currentDisplacement >= REVERSE_CANCEL_THRESHOLD
+        shouldCancelReverseSwipe(
+          swipeDirections,
+          maxSwipeDisplacementRef.current,
+          currentDisplacement,
+        )
       ) {
         // Mark that a change-of-mind has occurred
         cancelledSwipeRef.current = true;
       }
     }
 
-    const dampedDelta = applyDirectionalDamping(deltaX, deltaY);
+    const dampedDelta = applyDirectionalDamping(deltaX, deltaY, swipeDirections);
     let newOffsetX = initialTransformRef.current.x;
     let newOffsetY = initialTransformRef.current.y;
 
-    const hasHorizontalDir = swipeDirections.includes('left') || swipeDirections.includes('right');
-    const hasVerticalDir = swipeDirections.includes('up') || swipeDirections.includes('down');
-
-    if (resolvedLockedDirection !== 'vertical' && hasHorizontalDir) {
+    if (resolvedLockedDirection !== 'vertical' && hasHorizontal) {
       newOffsetX += dampedDelta.x;
     }
 
-    if (resolvedLockedDirection !== 'horizontal' && hasVerticalDir) {
+    if (resolvedLockedDirection !== 'horizontal' && hasVertical) {
       newOffsetY += dampedDelta.y;
     }
 
