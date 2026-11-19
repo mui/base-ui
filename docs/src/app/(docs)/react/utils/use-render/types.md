@@ -197,3 +197,9 @@ type UseRenderReturnValue = ReactElement | null;
 ```typescript
 type UseRenderState = {};
 ```
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>

@@ -45,60 +45,62 @@ describe('<Toolbar.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('keyboard navigation', () => {
-    [
-      ['ltr', 'horizontal', 'ArrowRight', 'ArrowLeft'],
-      ['ltr', 'vertical', 'ArrowDown', 'ArrowUp'],
-      ['rtl', 'horizontal', 'ArrowLeft', 'ArrowRight'],
-      ['rtl', 'vertical', 'ArrowDown', 'ArrowUp'],
-    ].forEach((entry) => {
-      const [direction, orientation, nextKey, prevKey] = entry;
-
-      describe(direction, () => {
-        it(`orientation: ${orientation}`, async () => {
-          const { user } = await render(
-            <DirectionProvider direction={direction as TextDirection}>
-              <Toolbar.Root dir={direction} orientation={orientation as Orientation}>
+    it.each<{
+      direction: TextDirection;
+      orientation: Orientation;
+      nextKey: string;
+      prevKey: string;
+    }>([
+      { direction: 'ltr', orientation: 'horizontal', nextKey: 'ArrowRight', prevKey: 'ArrowLeft' },
+      { direction: 'ltr', orientation: 'vertical', nextKey: 'ArrowDown', prevKey: 'ArrowUp' },
+      { direction: 'rtl', orientation: 'horizontal', nextKey: 'ArrowLeft', prevKey: 'ArrowRight' },
+      { direction: 'rtl', orientation: 'vertical', nextKey: 'ArrowDown', prevKey: 'ArrowUp' },
+    ])(
+      '$direction, orientation: $orientation',
+      async ({ direction, orientation, nextKey, prevKey }) => {
+        const { user } = await render(
+          <DirectionProvider direction={direction}>
+            <Toolbar.Root dir={direction} orientation={orientation}>
+              <Toolbar.Button />
+              <Toolbar.Link href="https://base-ui.com">Link</Toolbar.Link>
+              <Toolbar.Group>
                 <Toolbar.Button />
-                <Toolbar.Link href="https://base-ui.com">Link</Toolbar.Link>
-                <Toolbar.Group>
-                  <Toolbar.Button />
-                  <Toolbar.Button />
-                </Toolbar.Group>
-                <Toolbar.Input defaultValue="" />
-              </Toolbar.Root>
-            </DirectionProvider>,
-          );
-          const [button1, groupedButton1, groupedButton2] = screen.getAllByRole('button');
-          const link = screen.getByText('Link');
-          const input = screen.getByRole('textbox');
+                <Toolbar.Button />
+              </Toolbar.Group>
+              <Toolbar.Input defaultValue="" />
+            </Toolbar.Root>
+          </DirectionProvider>,
+        );
+        const [button1, groupedButton1, groupedButton2] = screen.getAllByRole('button');
+        const link = screen.getByText('Link');
+        const input = screen.getByRole('textbox');
 
-          await user.keyboard('[Tab]');
-          expect(button1).toHaveFocus();
+        await user.keyboard('[Tab]');
+        expect(button1).toHaveFocus();
 
-          await user.keyboard(`[${nextKey}]`);
-          expect(link).toHaveFocus();
+        await user.keyboard(`[${nextKey}]`);
+        expect(link).toHaveFocus();
 
-          await user.keyboard(`[${nextKey}]`);
-          expect(groupedButton1).toHaveFocus();
+        await user.keyboard(`[${nextKey}]`);
+        expect(groupedButton1).toHaveFocus();
 
-          await user.keyboard(`[${nextKey}]`);
-          expect(groupedButton2).toHaveFocus();
+        await user.keyboard(`[${nextKey}]`);
+        expect(groupedButton2).toHaveFocus();
 
-          await user.keyboard(`[${nextKey}]`);
-          expect(input).toHaveFocus();
+        await user.keyboard(`[${nextKey}]`);
+        expect(input).toHaveFocus();
 
-          // loop to the beginning
-          await user.keyboard(`[${nextKey}]`);
-          expect(button1).toHaveFocus();
+        // loop to the beginning
+        await user.keyboard(`[${nextKey}]`);
+        expect(button1).toHaveFocus();
 
-          await user.keyboard(`[${prevKey}]`);
-          expect(input).toHaveFocus();
+        await user.keyboard(`[${prevKey}]`);
+        expect(input).toHaveFocus();
 
-          await user.keyboard(`[${prevKey}]`);
-          expect(groupedButton2).toHaveFocus();
-        });
-      });
-    });
+        await user.keyboard(`[${prevKey}]`);
+        expect(groupedButton2).toHaveFocus();
+      },
+    );
 
     it('does not wrap focus when loopFocus is false', async () => {
       const { user } = await render(

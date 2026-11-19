@@ -1,4 +1,4 @@
-import { expect, describe, it } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -14,7 +14,7 @@ describe('<Toast.Action />', () => {
 
   describeConformance(<Toast.Action>action</Toast.Action>, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render(node) {
       return render(
@@ -28,6 +28,46 @@ describe('<Toast.Action />', () => {
   }));
 
   it('performs an action when clicked', async () => {
+    const onClick = vi.fn();
+
+    function AddButton() {
+      const { add } = Toast.useToastManager();
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            add({
+              title: 'title',
+              actionProps: {
+                children: 'action',
+                onClick,
+              },
+            })
+          }
+        >
+          add
+        </button>
+      );
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <AddButton />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+    expect(onClick).not.toHaveBeenCalled();
+
+    await user.click(screen.getByTestId('action'));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('forwards actionProps to the button', async () => {
     const { user } = await render(
       <Toast.Provider>
         <Toast.Viewport>

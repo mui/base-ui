@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { Avatar } from '@base-ui/react/avatar';
 import baseStyles from '../../_index.module.css';
 import styles from './index.module.css';
 
@@ -10,16 +9,12 @@ const demoPopover = Popover.createHandle<React.ComponentType>();
 export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div className={styles.Container}>
-      <Popover.Trigger
-        className={baseStyles.Button}
-        handle={demoPopover}
-        payload={NotificationsPanel}
-      >
-        Notifications
+      <Popover.Trigger className={baseStyles.Button} handle={demoPopover} payload={ShippingPanel}>
+        Shipping
       </Popover.Trigger>
 
-      <Popover.Trigger className={baseStyles.Button} handle={demoPopover} payload={ActivityPanel}>
-        Activity
+      <Popover.Trigger className={baseStyles.Button} handle={demoPopover} payload={ReturnsPanel}>
+        Returns
       </Popover.Trigger>
 
       <Popover.Trigger className={baseStyles.Button} handle={demoPopover} payload={ProfilePanel}>
@@ -36,6 +31,10 @@ export default function PopoverDetachedTriggersFullDemo() {
                 <Popover.Viewport className={styles.Viewport}>
                   {Payload !== undefined && <Payload />}
                 </Popover.Viewport>
+
+                <Popover.Close aria-label="Close" className={styles.Close}>
+                  <XIcon />
+                </Popover.Close>
               </Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
@@ -45,12 +44,12 @@ export default function PopoverDetachedTriggersFullDemo() {
   );
 }
 
-function NotificationsPanel() {
+function ShippingPanel() {
   return (
     <div className={styles.Stack}>
-      <Popover.Title className={styles.Title}>Notifications</Popover.Title>
+      <Popover.Title className={styles.Title}>Free shipping</Popover.Title>
       <Popover.Description className={styles.Description}>
-        You are all caught up. Good job!
+        Orders over $50 arrive in 3–5 business days at no extra cost.
       </Popover.Description>
     </div>
   );
@@ -60,14 +59,13 @@ function ProfilePanel() {
   return (
     <div className={styles.ProfilePanel}>
       <Popover.Title className={styles.Title}>Jason Eventon</Popover.Title>
-      <Avatar.Root className={styles.Avatar}>
-        <Avatar.Image
-          src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
-          width="48"
-          height="48"
-          className={styles.AvatarImage}
-        />
-      </Avatar.Root>
+      <img
+        src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
+        width="48"
+        height="48"
+        alt=""
+        className={styles.Avatar}
+      />
       <span className={styles.Plan}>Pro plan</span>
       <div className={styles.ProfileActions}>
         <a href="#">Profile settings</a>
@@ -77,13 +75,31 @@ function ProfilePanel() {
   );
 }
 
-function ActivityPanel() {
+function ReturnsPanel() {
   return (
     <div className={styles.Stack}>
-      <Popover.Title className={styles.Title}>Activity</Popover.Title>
+      <Popover.Title className={styles.Title}>Free returns</Popover.Title>
       <Popover.Description className={styles.Description}>
-        Nothing interesting happened recently.
+        Return any item within 30 days for a full refund.
       </Popover.Description>
     </div>
+  );
+}
+
+function XIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m4.5 4.5 7 7m-7 0 7-7" />
+    </svg>
   );
 }

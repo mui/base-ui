@@ -1,12 +1,11 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import userEvent from '@testing-library/user-event';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPField } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, pasteText } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 describe('<OTPField.Input />', () => {
@@ -34,26 +33,6 @@ describe('<OTPField.Input />', () => {
         ))}
       </OTPField.Root>
     );
-  }
-
-  function pasteText(target: HTMLElement, value: string) {
-    if (isJSDOM) {
-      fireEvent.paste(target, {
-        clipboardData: {
-          getData: () => value,
-        },
-      });
-      return;
-    }
-
-    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
-    Object.defineProperty(pasteEvent, 'clipboardData', {
-      value: {
-        getData: () => value,
-      },
-    });
-
-    fireEvent(target, pasteEvent);
   }
 
   function pasteWithError(target: HTMLElement, error: Error) {
@@ -288,8 +267,9 @@ describe('<OTPField.Input />', () => {
     expect(inputs.map((input) => input.value)).toEqual(['1', '2', '', '', '', '']);
   });
 
-  (['disabled', 'readOnly'] as const).forEach((prop) => {
-    it(`does not commit a composition that ends after the field becomes ${prop}`, async () => {
+  it.each([{ prop: 'disabled' as const }, { prop: 'readOnly' as const }])(
+    'does not commit a composition that ends after the field becomes $prop',
+    async ({ prop }) => {
       const onValueChange = vi.fn();
 
       const { setProps } = await render(
@@ -312,8 +292,8 @@ describe('<OTPField.Input />', () => {
 
       expect(onValueChange).not.toHaveBeenCalled();
       expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
-    });
-  });
+    },
+  );
 
   it('selects the slot value on mousedown', async () => {
     await render(<OTPFieldTest defaultValue="1" />);
@@ -398,9 +378,7 @@ describe('<OTPField.Input />', () => {
   });
 
   it('moves focus to the next slot when typing the same character into a filled slot', async () => {
-    const user = userEvent.setup();
-
-    await render(<OTPFieldTest defaultValue="12" />);
+    const { user } = await render(<OTPFieldTest defaultValue="12" />);
 
     const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
 
@@ -692,9 +670,7 @@ describe('<OTPField.Input />', () => {
   });
 
   it('allows tabbing out of the field from the active slot', async () => {
-    const user = userEvent.setup();
-
-    await render(
+    const { user } = await render(
       <React.Fragment>
         <OTPFieldTest />
         <button type="button">Next</button>

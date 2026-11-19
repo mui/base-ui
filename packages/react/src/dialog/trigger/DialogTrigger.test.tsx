@@ -8,7 +8,7 @@ describe('<Dialog.Trigger />', () => {
 
   describeConformance(<Dialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render: (node) => {
       return render(

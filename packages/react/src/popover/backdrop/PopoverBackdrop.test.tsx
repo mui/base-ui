@@ -14,8 +14,9 @@ describe('<Popover.Backdrop />', () => {
     },
   }));
 
-  [false, true].forEach((controlled) => {
-    it(`does not start an entry phase when initially open (controlled=${controlled})`, async () => {
+  it.each([false, true])(
+    'does not start an entry phase when initially open (controlled=%s)',
+    async (controlled) => {
       const statuses = new Set<Popover.Backdrop.State['transitionStatus']>();
 
       function RecordState({ state }: { state: Popover.Backdrop.State }) {
@@ -38,8 +39,8 @@ describe('<Popover.Backdrop />', () => {
       );
 
       expect(statuses).toEqual(new Set([undefined]));
-    });
-  });
+    },
+  );
 
   it('sets `pointer-events: none` style on backdrop if opened by hover', async () => {
     const { user } = await render(

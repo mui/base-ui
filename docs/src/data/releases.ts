@@ -9,6 +9,17 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.9.0',
+    versionSlug: 'v1-9-0',
+    date: '2026-10-09',
+    highlights: [
+      'New menu filtering behavior (preview).',
+      'Improve mount performance of large lists in Combobox, Menu, and Select.',
+      'Improve Drawer swipe gestures and virtual keyboard interactions.',
+      'Many accessibility, focus, and interaction fixes.',
+    ],
+  },
+  {
     version: 'v1.8.0',
     versionSlug: 'v1-8-0',
     date: '2026-09-04',

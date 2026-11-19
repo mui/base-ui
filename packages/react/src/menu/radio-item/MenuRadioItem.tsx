@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
+import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -13,13 +14,7 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
-/**
- * A menu item that works like a radio button in a given group.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
+const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
   componentProps: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -36,21 +31,21 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ guess: true, label });
-  const id = useBaseUiId(idProp);
-
   const { store } = useMenuRootContext();
-  const highlighted = store.useState('isActive', listItem.index);
-  const nodeId = store.useState('floatingNodeId');
-  const itemProps = store.useState('itemProps');
-
   const {
     value: selectedValue,
     setValue: setSelectedValue,
     disabled: groupDisabled,
   } = useMenuRadioGroupContext();
 
+  const listItem = useCompositeListItem({ guess: true, label });
+  const id = useBaseUiId(idProp);
+
+  const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
+  const itemProps = store.useState('itemProps');
   const rootDisabled = store.useState('disabled');
+
   const disabled = disabledProp || groupDisabled || rootDisabled;
   const checked = selectedValue === value;
 
@@ -101,6 +96,25 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   return <MenuRadioItemContext.Provider value={state}>{element}</MenuRadioItemContext.Provider>;
 });
 
+/**
+ * A menu item that works like a radio button in a given group.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
+  props: MenuRadioItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const filterItem = useMenuFilterItem(props, forwardedRef);
+
+  if (!filterItem.visible) {
+    return null;
+  }
+
+  return <MenuRadioItemPlain {...props} ref={filterItem.ref} />;
+});
+
 export interface MenuRadioItemState {
   /**
    * Whether the radio item should ignore user interaction.
@@ -133,7 +147,8 @@ export interface MenuRadioItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
+   * Overrides the text used for keyboard text navigation and filtering.
+   * Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

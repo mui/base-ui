@@ -114,11 +114,9 @@ describe('<Slider.Root />', () => {
   }));
 
   it('warns when max is not greater than min', async () => {
-    // `toWarnDev` requires a callback, so the wrapper is not unneeded.
-    // eslint-disable-next-line vitest/no-unneeded-async-expect-function
-    await expect(async () => {
-      await render(<TestSlider defaultValue={10} min={10} max={10} />);
-    }).toWarnDev('Base UI: Slider `max` must be greater than `min`.');
+    await expect(() => render(<TestSlider defaultValue={10} min={10} max={10} />)).toWarnDev(
+      'Base UI: Slider `max` must be greater than `min`.',
+    );
   });
 
   describe('server-side rendering', () => {
@@ -148,7 +146,10 @@ describe('<Slider.Root />', () => {
   it.skipIf(isJSDOM || isWebKit)(
     'should not break when initial value is out of range',
     async () => {
-      await render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
+      const onValueChange = vi.fn();
+      await render(
+        <TestRangeSlider value={[19, 41]} min={20} max={40} onValueChange={onValueChange} />,
+      );
 
       const sliderControl = screen.getByTestId('control');
 
@@ -165,6 +166,9 @@ describe('<Slider.Root />', () => {
       );
 
       expect(screen.getAllByRole('slider')).toHaveLength(2);
+
+      // Dragging still produces in-range values from the out-of-range starting point.
+      expect(onValueChange).toHaveBeenLastCalledWith([24, 40], expect.anything());
     },
   );
 
@@ -2256,14 +2260,12 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.mock.calls[1][0]).toEqual(22);
     });
 
-    type Values = Array<[string, number[]]>;
-
-    const values = [
-      ['readonly range', Object.freeze([2, 1])],
-      ['range', [2, 1]],
-    ] as Values;
-    values.forEach(([valueLabel, value]) => {
-      it.skipIf(isJSDOM)(`is called even if the ${valueLabel} did not change`, async () => {
+    it.skipIf(isJSDOM).each([
+      { name: 'readonly range', value: Object.freeze([2, 1]) },
+      { name: 'range', value: [2, 1] },
+    ] as Array<{ name: string; value: number[] }>)(
+      'is called even if the $name did not change',
+      async ({ value }) => {
         const handleValueChange = vi.fn();
 
         await render(
@@ -2296,8 +2298,8 @@ describe('<Slider.Root />', () => {
         expect(handleValueChange.mock.calls.length).toBe(1);
         expect(handleValueChange.mock.calls[0][0]).not.toBe(value);
         expect(handleValueChange.mock.calls[0][0]).toEqual(value.slice().sort((a, b) => a - b));
-      });
-    });
+      },
+    );
 
     it('should pass "name" and "value" as part of the event.target for onValueChange', async () => {
       const handleValueChange = vi
@@ -2465,601 +2467,620 @@ describe('<Slider.Root />', () => {
   });
 
   describe('keyboard interactions', () => {
-    [
-      ['ltr', 'horizontal', [ARROW_LEFT, ARROW_DOWN], [ARROW_RIGHT, ARROW_UP]],
-      ['ltr', 'vertical', [ARROW_LEFT, ARROW_DOWN], [ARROW_RIGHT, ARROW_UP]],
-      ['rtl', 'horizontal', [ARROW_RIGHT, ARROW_DOWN], [ARROW_LEFT, ARROW_UP]],
-      ['rtl', 'vertical', [ARROW_RIGHT, ARROW_DOWN], [ARROW_LEFT, ARROW_UP]],
-    ].forEach((entry) => {
-      const [direction, orientation, decrementKeys, incrementKeys] = entry as [
-        direction: TextDirection,
-        orientation: Orientation,
-        decrementKeys: string[],
-        incrementKeys: string[],
-      ];
+    const keyboardCases: Array<{
+      direction: TextDirection;
+      orientation: Orientation;
+      decrementKeys: string[];
+      incrementKeys: string[];
+    }> = [
+      {
+        direction: 'ltr',
+        orientation: 'horizontal',
+        decrementKeys: [ARROW_LEFT, ARROW_DOWN],
+        incrementKeys: [ARROW_RIGHT, ARROW_UP],
+      },
+      {
+        direction: 'ltr',
+        orientation: 'vertical',
+        decrementKeys: [ARROW_LEFT, ARROW_DOWN],
+        incrementKeys: [ARROW_RIGHT, ARROW_UP],
+      },
+      {
+        direction: 'rtl',
+        orientation: 'horizontal',
+        decrementKeys: [ARROW_RIGHT, ARROW_DOWN],
+        incrementKeys: [ARROW_LEFT, ARROW_UP],
+      },
+      {
+        direction: 'rtl',
+        orientation: 'vertical',
+        decrementKeys: [ARROW_RIGHT, ARROW_DOWN],
+        incrementKeys: [ARROW_LEFT, ARROW_UP],
+      },
+    ];
 
-      describe(direction, () => {
-        describe(`orientation: ${orientation}`, () => {
-          decrementKeys.forEach((key) => {
-            it(`key: ${key} decrements the value`, async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
+    describe.each(keyboardCases)(
+      '$direction, orientation: $orientation',
+      ({ direction, orientation, decrementKeys, incrementKeys }) => {
+        describe.each(decrementKeys.map((key) => ({ key })))('key: $key', ({ key }) => {
+          it('decrements the value', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
 
-              const input = screen.getByRole('slider');
+            const input = screen.getByRole('slider');
 
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
 
-              await user.keyboard(`[${key}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(19);
-              expect(input).toHaveAttribute('aria-valuenow', '19');
-            });
-
-            it(`key: ${key} decrements the value by largeStep when Shift is pressed`, async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      largeStep={10}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard(`{Shift>}{${key}}`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(10);
-              expect(input).toHaveAttribute('aria-valuenow', '10');
-            });
-
-            it(`key: ${key} stops at min when decrementing while Shift is pressed`, async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      largeStep={10}
-                      min={15}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard(`{Shift>}{${key}}`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(15);
-              expect(input).toHaveAttribute('aria-valuenow', '15');
-            });
+            await user.keyboard(`[${key}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(19);
+            expect(input).toHaveAttribute('aria-valuenow', '19');
           });
 
-          incrementKeys.forEach((key) => {
-            it(`key: ${key} increments the value`, async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
+          it('decrements the value by largeStep when Shift is pressed', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    largeStep={10}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
 
-              const input = screen.getByRole('slider');
+            const input = screen.getByRole('slider');
 
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
 
-              await user.keyboard(`[${key}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(21);
-              expect(input).toHaveAttribute('aria-valuenow', '21');
-            });
-
-            it(`key: ${key} rounds fractional values to the configured step`, async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={0.2}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard(`[${key}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(0.3);
-              expect(input).toHaveAttribute('aria-valuenow', '0.3');
-            });
-
-            it(`key: ${key} increments the value by largeStep when Shift is pressed`, async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      largeStep={10}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard(`{Shift>}{${key}}`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(30);
-              expect(input).toHaveAttribute('aria-valuenow', '30');
-            });
-
-            it(`key: ${key} stops at max when incrementing while Shift is pressed`, async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      largeStep={10}
-                      max={21}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard(`{Shift>}{${key}}`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(21);
-              expect(input).toHaveAttribute('aria-valuenow', '21');
-            });
+            await user.keyboard(`{Shift>}{${key}}`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(10);
+            expect(input).toHaveAttribute('aria-valuenow', '10');
           });
 
-          describe('key: End', () => {
-            it('sets value to max in a single value slider', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      max={77}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
+          it('stops at min when decrementing while Shift is pressed', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    largeStep={10}
+                    min={15}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
 
-              const input = screen.getByRole('slider');
+            const input = screen.getByRole('slider');
 
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
 
-              await user.keyboard(`[${END}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(77);
-              expect(input).toHaveAttribute('aria-valuenow', '77');
-            });
-
-            it('sets value to the maximum possible value in a range slider', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root defaultValue={[20, 50]} max={77} onValueChange={handleValueChange}>
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb index={0} />
-                          <Slider.Thumb index={1} />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const [input1, input2] = screen.getAllByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input1).toHaveFocus();
-
-              await user.keyboard(`[${END}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual([50, 50]);
-              await user.keyboard(`[${END}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-
-              await user.keyboard('[Tab]');
-              expect(input2).toHaveFocus();
-
-              await user.keyboard(`[${END}]`);
-              expect(handleValueChange.mock.calls.length).toBe(2);
-              expect(handleValueChange.mock.calls[1][0]).toEqual([50, 77]);
-            });
-          });
-
-          describe('key: Home', () => {
-            it('sets value to min in a single value slider', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      min={17}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard(`[${HOME}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(17);
-              expect(input).toHaveAttribute('aria-valuenow', '17');
-            });
-
-            it('sets value to the minimum possible value in a range slider', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root defaultValue={[20, 50]} min={7} onValueChange={handleValueChange}>
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb index={0} />
-                          <Slider.Thumb index={1} />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const [input1, input2] = screen.getAllByRole('slider');
-
-              await user.keyboard('[Tab]');
-              await user.keyboard('[Tab]');
-              expect(input2).toHaveFocus();
-
-              await user.keyboard(`[${HOME}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual([20, 20]);
-              await user.keyboard(`[${HOME}]`);
-              expect(handleValueChange.mock.calls.length).toBe(1);
-
-              await user.keyboard('{Shift>}{Tab}');
-              expect(input1).toHaveFocus();
-
-              await user.keyboard(`[${HOME}]`);
-              expect(handleValueChange.mock.calls.length).toBe(2);
-              expect(handleValueChange.mock.calls[1][0]).toEqual([7, 20]);
-            });
-          });
-
-          describe('key: PageUp', () => {
-            it('increments the value by largeStep', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      largeStep={5}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard('[PageUp]');
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(25);
-              expect(input).toHaveAttribute('aria-valuenow', '25');
-            });
-
-            it('preserves largeStep increments when step uses a different grid', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      step={2}
-                      largeStep={5}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard('[PageUp]');
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(25);
-              expect(input).toHaveAttribute('aria-valuenow', '25');
-            });
-
-            it('does not exceed max', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      largeStep={5}
-                      max={21}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard('[PageUp]');
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(21);
-              expect(input).toHaveAttribute('aria-valuenow', '21');
-            });
-          });
-
-          describe('key: PageDown', () => {
-            it('decrements the value by largeStep', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      largeStep={5}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard('[PageDown]');
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(15);
-              expect(input).toHaveAttribute('aria-valuenow', '15');
-            });
-
-            it('does not go below min', async () => {
-              const handleValueChange = vi.fn();
-              const { user } = await render(
-                <div dir={direction}>
-                  <DirectionProvider direction={direction}>
-                    <Slider.Root
-                      orientation={orientation}
-                      defaultValue={20}
-                      largeStep={5}
-                      min={17}
-                      onValueChange={handleValueChange}
-                    >
-                      <Slider.Control>
-                        <Slider.Track>
-                          <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb" />
-                        </Slider.Track>
-                      </Slider.Control>
-                    </Slider.Root>
-                  </DirectionProvider>
-                </div>,
-              );
-
-              const input = screen.getByRole('slider');
-
-              await user.keyboard('[Tab]');
-              expect(input).toHaveFocus();
-
-              await user.keyboard('[PageDown]');
-              expect(handleValueChange.mock.calls.length).toBe(1);
-              expect(handleValueChange.mock.calls[0][0]).toEqual(17);
-              expect(input).toHaveAttribute('aria-valuenow', '17');
-            });
+            await user.keyboard(`{Shift>}{${key}}`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(15);
+            expect(input).toHaveAttribute('aria-valuenow', '15');
           });
         });
-      });
 
-      it('keypresses should correct invalid values', async () => {
-        function App() {
-          const [val, setVal] = React.useState(5.4698);
-          return (
-            <Slider.Root value={val} onValueChange={setVal} min={0} max={10} step={1}>
-              <Slider.Control>
-                <Slider.Track>
-                  <Slider.Indicator />
-                  <Slider.Thumb data-testid="thumb" />
-                </Slider.Track>
-              </Slider.Control>
-            </Slider.Root>
-          );
-        }
-        const { user } = await render(<App />);
+        describe.each(incrementKeys.map((key) => ({ key })))('key: $key', ({ key }) => {
+          it('increments the value', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
 
-        const input = screen.getByRole('slider');
+            const input = screen.getByRole('slider');
 
-        expect(input).toHaveAttribute('aria-valuenow', '5.4698');
-        await user.keyboard('[Tab]');
-        expect(input).toHaveFocus();
-        await user.keyboard(`[${ARROW_RIGHT}]`);
-        expect(input).toHaveAttribute('aria-valuenow', '6');
-      });
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard(`[${key}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(21);
+            expect(input).toHaveAttribute('aria-valuenow', '21');
+          });
+
+          it('rounds fractional values to the configured step', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={0.2}
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard(`[${key}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(0.3);
+            expect(input).toHaveAttribute('aria-valuenow', '0.3');
+          });
+
+          it('increments the value by largeStep when Shift is pressed', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    largeStep={10}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard(`{Shift>}{${key}}`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(30);
+            expect(input).toHaveAttribute('aria-valuenow', '30');
+          });
+
+          it('stops at max when incrementing while Shift is pressed', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    largeStep={10}
+                    max={21}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard(`{Shift>}{${key}}`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(21);
+            expect(input).toHaveAttribute('aria-valuenow', '21');
+          });
+        });
+
+        describe('key: End', () => {
+          it('sets value to max in a single value slider', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    max={77}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard(`[${END}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(77);
+            expect(input).toHaveAttribute('aria-valuenow', '77');
+          });
+
+          it('sets value to the maximum possible value in a range slider', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root defaultValue={[20, 50]} max={77} onValueChange={handleValueChange}>
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb index={0} />
+                        <Slider.Thumb index={1} />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const [input1, input2] = screen.getAllByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input1).toHaveFocus();
+
+            await user.keyboard(`[${END}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual([50, 50]);
+            await user.keyboard(`[${END}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+
+            await user.keyboard('[Tab]');
+            expect(input2).toHaveFocus();
+
+            await user.keyboard(`[${END}]`);
+            expect(handleValueChange.mock.calls.length).toBe(2);
+            expect(handleValueChange.mock.calls[1][0]).toEqual([50, 77]);
+          });
+        });
+
+        describe('key: Home', () => {
+          it('sets value to min in a single value slider', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    min={17}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard(`[${HOME}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(17);
+            expect(input).toHaveAttribute('aria-valuenow', '17');
+          });
+
+          it('sets value to the minimum possible value in a range slider', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root defaultValue={[20, 50]} min={7} onValueChange={handleValueChange}>
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb index={0} />
+                        <Slider.Thumb index={1} />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const [input1, input2] = screen.getAllByRole('slider');
+
+            await user.keyboard('[Tab]');
+            await user.keyboard('[Tab]');
+            expect(input2).toHaveFocus();
+
+            await user.keyboard(`[${HOME}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual([20, 20]);
+            await user.keyboard(`[${HOME}]`);
+            expect(handleValueChange.mock.calls.length).toBe(1);
+
+            await user.keyboard('{Shift>}{Tab}');
+            expect(input1).toHaveFocus();
+
+            await user.keyboard(`[${HOME}]`);
+            expect(handleValueChange.mock.calls.length).toBe(2);
+            expect(handleValueChange.mock.calls[1][0]).toEqual([7, 20]);
+          });
+        });
+
+        describe('key: PageUp', () => {
+          it('increments the value by largeStep', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    largeStep={5}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard('[PageUp]');
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(25);
+            expect(input).toHaveAttribute('aria-valuenow', '25');
+          });
+
+          it('preserves largeStep increments when step uses a different grid', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    step={2}
+                    largeStep={5}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard('[PageUp]');
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(25);
+            expect(input).toHaveAttribute('aria-valuenow', '25');
+          });
+
+          it('does not exceed max', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    largeStep={5}
+                    max={21}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard('[PageUp]');
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(21);
+            expect(input).toHaveAttribute('aria-valuenow', '21');
+          });
+        });
+
+        describe('key: PageDown', () => {
+          it('decrements the value by largeStep', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    largeStep={5}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard('[PageDown]');
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(15);
+            expect(input).toHaveAttribute('aria-valuenow', '15');
+          });
+
+          it('does not go below min', async () => {
+            const handleValueChange = vi.fn();
+            const { user } = await render(
+              <div dir={direction}>
+                <DirectionProvider direction={direction}>
+                  <Slider.Root
+                    orientation={orientation}
+                    defaultValue={20}
+                    largeStep={5}
+                    min={17}
+                    onValueChange={handleValueChange}
+                  >
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Indicator />
+                        <Slider.Thumb data-testid="thumb" />
+                      </Slider.Track>
+                    </Slider.Control>
+                  </Slider.Root>
+                </DirectionProvider>
+              </div>,
+            );
+
+            const input = screen.getByRole('slider');
+
+            await user.keyboard('[Tab]');
+            expect(input).toHaveFocus();
+
+            await user.keyboard('[PageDown]');
+            expect(handleValueChange.mock.calls.length).toBe(1);
+            expect(handleValueChange.mock.calls[0][0]).toEqual(17);
+            expect(input).toHaveAttribute('aria-valuenow', '17');
+          });
+        });
+      },
+    );
+
+    it('keypresses should correct invalid values', async () => {
+      function App() {
+        const [val, setVal] = React.useState(5.4698);
+        return (
+          <Slider.Root value={val} onValueChange={setVal} min={0} max={10} step={1}>
+            <Slider.Control>
+              <Slider.Track>
+                <Slider.Indicator />
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>
+        );
+      }
+      const { user } = await render(<App />);
+
+      const input = screen.getByRole('slider');
+
+      expect(input).toHaveAttribute('aria-valuenow', '5.4698');
+      await user.keyboard('[Tab]');
+      expect(input).toHaveFocus();
+      await user.keyboard(`[${ARROW_RIGHT}]`);
+      expect(input).toHaveAttribute('aria-valuenow', '6');
     });
   });
 
@@ -3879,9 +3900,7 @@ describe('<Slider.Root />', () => {
         </Slider.Root>,
       );
 
-      await waitFor(() => {
-        expect(screen.getByRole('slider')).not.toHaveAttribute('aria-labelledby');
-      });
+      expect(screen.getByRole('slider')).not.toHaveAttribute('aria-labelledby');
     });
 
     it('updates Slider.Label linkage when root id changes', async () => {
@@ -3898,17 +3917,15 @@ describe('<Slider.Root />', () => {
 
       await setProps({ id: 'second' });
 
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
+      const slider = screen.getByRole('slider');
       await waitFor(() => {
-        const root = screen.getByTestId('root');
-        const label = screen.getByTestId('label');
-        const slider = screen.getByRole('slider');
-        expect(root).toHaveAttribute('id', 'second');
-        expect(label.id).toBe('second-label');
-        expect(root).toHaveAttribute('aria-labelledby', label.id);
-        expect(slider).toHaveAttribute('aria-labelledby', label.id);
+        expect(slider).toHaveAttribute('aria-labelledby', 'second-label');
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('id', 'second');
+      expect(screen.getByTestId('label')).toHaveAttribute('id', 'second-label');
+      expect(root).toHaveAttribute('aria-labelledby', 'second-label');
     });
 
     it('Field.Description', async () => {

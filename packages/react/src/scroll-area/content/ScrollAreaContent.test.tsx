@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { describeConformance } from '../../../test/describeConformance';
 
 describe('<ScrollArea.Content />', () => {
   const { render } = createRenderer();

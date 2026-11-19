@@ -80,6 +80,9 @@ type BaseUIChangeEventDetail<Reason extends string, CustomProperties extends obj
   isPropagationAllowed: boolean;
   /**
    * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
    */
   trigger: Element | undefined;
 } & CustomProperties;
@@ -110,6 +113,14 @@ export type BaseUIGenericEventDetails<
   Reason extends string,
   CustomProperties extends object = {},
 > = Reason extends string ? BaseUIGenericEventDetail<Reason, CustomProperties> & {} : never;
+
+/** Highlight navigation uses mouse events for hover and pointer events for leaving an item. */
+export type BaseUIHighlightEventDetails<
+  Reason extends string,
+  CustomProperties extends object = {},
+> = Reason extends typeof REASONS.pointer
+  ? { reason: Reason; event: MouseEvent | PointerEvent } & CustomProperties
+  : BaseUIGenericEventDetails<Reason, CustomProperties>;
 
 /**
  * Creates a Base UI event details object with the given reason and utilities

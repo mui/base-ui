@@ -384,11 +384,12 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
+      expect(screen.getByTestId('value')).toHaveTextContent('Canada');
+
       const hiddenInput = screen.getByRole('textbox', {
         hidden: true,
       });
       expect(hiddenInput).toHaveValue('CA');
-      expect(hiddenInput).toHaveAttribute('name', 'country');
     });
   });
 

@@ -174,8 +174,9 @@ describe('<Menu.RadioItem />', () => {
       expect(item).toHaveAttribute('data-checked', '');
     });
 
-    ['Space', 'Enter'].forEach((key) => {
-      it(`selects the item when ${key} is pressed`, async () => {
+    it.each([{ key: 'Space' }, { key: 'Enter' }])(
+      'selects the item when $key is pressed',
+      async ({ key }) => {
         const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
@@ -202,8 +203,8 @@ describe('<Menu.RadioItem />', () => {
 
         await user.keyboard(`[${key}]`);
         expect(item).toHaveAttribute('data-checked', '');
-      });
-    });
+      },
+    );
 
     it.skipIf(isJSDOM)(
       'does not select when Space is pressed during an active typeahead session',

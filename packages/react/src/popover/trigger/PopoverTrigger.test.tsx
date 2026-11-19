@@ -25,7 +25,7 @@ describe('<Popover.Trigger />', () => {
 
   describeConformance(<Popover.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render(node) {
       return render(<Popover.Root open>{node}</Popover.Root>);
@@ -295,29 +295,6 @@ describe('<Popover.Trigger />', () => {
 
     clock.withFakeTimers();
 
-    it('does not close the popover if the user clicks too quickly', async () => {
-      await renderFakeTimers(
-        <Popover.Root>
-          <Popover.Trigger delay={0} openOnHover />
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup />
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseMove(trigger);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
-
-      fireEvent.click(trigger);
-
-      expect(trigger).toHaveAttribute('data-popup-open');
-    });
-
     it('closes the popover if the user clicks patiently', async () => {
       await renderFakeTimers(
         <Popover.Root>
@@ -339,6 +316,11 @@ describe('<Popover.Trigger />', () => {
       fireEvent.click(trigger);
 
       expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      // Leaving the trigger afterwards doesn't reopen it.
+      fireEvent.mouseLeave(trigger);
+
+      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks if the user clicks impatiently', async () => {
@@ -357,9 +339,15 @@ describe('<Popover.Trigger />', () => {
 
       fireEvent.mouseEnter(trigger);
 
+      // The hover opened the popover, so the click below lands on an open popover.
+      expect(trigger).toHaveAttribute('data-popup-open');
+
       clock.tick(PATIENT_CLICK_THRESHOLD - 1);
 
       fireEvent.click(trigger);
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+
       fireEvent.mouseLeave(trigger);
 
       expect(trigger).toHaveAttribute('data-popup-open');
@@ -367,30 +355,6 @@ describe('<Popover.Trigger />', () => {
       clock.tick(1);
 
       expect(trigger).toHaveAttribute('data-popup-open');
-    });
-
-    it('does not stick if the user clicks patiently', async () => {
-      await renderFakeTimers(
-        <Popover.Root>
-          <Popover.Trigger delay={0} openOnHover />
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup />
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD);
-
-      fireEvent.click(trigger);
-      fireEvent.mouseLeave(trigger);
-
-      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks when clicked before the hover delay completes', async () => {
@@ -456,6 +420,68 @@ describe('<Popover.Trigger />', () => {
 
       fireEvent.click(trigger);
       expect(screen.getByText('Content')).not.toBe(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('opened by hover', () => {
+    beforeEach(() => {
+      ignoreActWarnings();
+    });
+
+    async function renderOpenedByHover(tabIndex?: number) {
+      const { userEvent: user } = await import('vitest/browser');
+      await render(
+        <div>
+          <button data-testid="before">Before</button>
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0} tabIndex={tabIndex}>
+              Toggle
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <button>Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after">After</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.hover(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      return { trigger, user };
+    }
+
+    it.each([
+      { direction: 'forward', destination: 'after' },
+      { direction: 'backward', destination: 'before' },
+    ])('tabs $direction from the trigger in native order', async ({ direction, destination }) => {
+      const { trigger, user } = await renderOpenedByHover();
+      await act(async () => trigger.focus());
+      expect(trigger).toHaveFocus();
+
+      await user.tab({ shift: direction === 'backward' });
+
+      expect(screen.getByTestId(destination)).toHaveFocus();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it.each([
+      { tabIndex: 0, result: 'onto the trigger' },
+      { tabIndex: -1, result: 'past an untabbable trigger' },
+    ])('tabs $result', async ({ tabIndex }) => {
+      const { trigger, user } = await renderOpenedByHover(tabIndex);
+      await act(async () => screen.getByTestId('before').focus());
+
+      await user.tab();
+
+      expect(tabIndex === 0 ? trigger : screen.getByTestId('after')).toHaveFocus();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
