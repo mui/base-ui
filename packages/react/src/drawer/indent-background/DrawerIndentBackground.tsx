@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 

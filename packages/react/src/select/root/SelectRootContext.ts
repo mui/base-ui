@@ -1,29 +1,15 @@
 'use client';
 import * as React from 'react';
-import { type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
-import type { HTMLProps } from '../../internals/types';
-
-/**
- * Root values consumed during render. Keep these outside `useSyncedValues` so descendant ref
- * callbacks see the current props during the same commit.
- */
-export interface SelectRootPropsContextValue {
-  disabled: boolean;
-  readOnly: boolean;
-  required: boolean;
-  multiple: boolean;
-  highlightItemOnHover: boolean;
-  itemProps: HTMLProps;
-}
 
 export const SelectRootContext = React.createContext<SelectStore | undefined>(undefined);
-export const SelectRootPropsContext = React.createContext<SelectRootPropsContextValue | undefined>(
-  undefined,
-);
-export const SelectFloatingContext = React.createContext<FloatingRootContext | undefined>(
-  undefined,
-);
+// When options and a controlled value change together, item reconciliation can run before
+// the store syncs and clear the new selection using stale inputs. React context provides
+// the current render's value and selection mode. https://github.com/mui/base-ui/issues/5875
+export const SelectSelectionContext = React.createContext<{
+  value: any;
+  multiple: boolean;
+} | null>(null);
 
 export function useSelectRootContext() {
   const store = React.useContext(SelectRootContext);
@@ -35,22 +21,12 @@ export function useSelectRootContext() {
   return store;
 }
 
-export function useSelectRootPropsContext() {
-  const context = React.useContext(SelectRootPropsContext);
-  if (context === undefined) {
+export function useSelectSelectionContext() {
+  const selection = React.useContext(SelectSelectionContext);
+  if (selection === null) {
     throw new Error(
-      'Base UI: SelectRootPropsContext is missing. Select parts must be placed within <Select.Root>.',
+      'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
     );
   }
-  return context;
-}
-
-export function useSelectFloatingContext() {
-  const context = React.useContext(SelectFloatingContext);
-  if (context === undefined) {
-    throw new Error(
-      'Base UI: SelectFloatingContext is missing. Select parts must be placed within <Select.Root>.',
-    );
-  }
-  return context;
+  return selection;
 }

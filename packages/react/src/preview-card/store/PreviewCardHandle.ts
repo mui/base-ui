@@ -1,8 +1,5 @@
-import {
-  PreviewCardStore,
-  createNullPreviewCardStore,
-  type PreviewCardHandleStore,
-} from './PreviewCardStore';
+import type { PreviewCardStore, PreviewCardHandleStore } from './PreviewCardStore';
+import { createNullPreviewCardStore } from './PreviewCardStore';
 import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
 /**

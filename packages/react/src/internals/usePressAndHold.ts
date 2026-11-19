@@ -263,6 +263,8 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
 
       stopAutoChange();
     },
+    // Local fallback for the window `pointerup` listener, which an ancestor can stop from
+    // reaching the window by calling `stopPropagation`.
     onMouseUp() {
       if (isTouchingButtonRef.current) {
         return;

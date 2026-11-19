@@ -49,7 +49,8 @@ function renderPositioner(props: Popover.Positioner.Props, state: Popover.Positi
 
 Types relating to custom Base UI events are also exported on component parts' namespaces.
 
-- `ChangeEventDetails` (such as `Combobox.Root.ChangeEventDetails`) is the object passed to change handlers like `onValueChange` and `onOpenChange`.
+- `ChangeEventDetails` (such as `Combobox.Root.ChangeEventDetails`) is the object passed to change handlers like `onValueChange`.
+- `OpenChangeEventDetails` (such as `Combobox.Root.OpenChangeEventDetails`) is the object passed to `onOpenChange` on components whose `ChangeEventDetails` is shared with other handlers. It extends `ChangeEventDetails` with `preventUnmountOnClose()`.
 - `ChangeEventReason` (such as `Combobox.Root.ChangeEventReason`) is the union of possible reason strings for a change event.
 
 ```tsx title="Change event types"
@@ -57,7 +58,7 @@ function onValueChange(value: string, eventDetails: Combobox.Root.ChangeEventDet
   console.log(value, eventDetails);
 }
 
-function onOpenChange(open: boolean, eventDetails: Combobox.Root.ChangeEventDetails) {
+function onOpenChange(open: boolean, eventDetails: Combobox.Root.OpenChangeEventDetails) {
   console.log(open, eventDetails);
 }
 ```

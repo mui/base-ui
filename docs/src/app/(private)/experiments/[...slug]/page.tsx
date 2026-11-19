@@ -1,4 +1,4 @@
-import { type Metadata } from 'next';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

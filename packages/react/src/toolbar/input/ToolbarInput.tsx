@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';

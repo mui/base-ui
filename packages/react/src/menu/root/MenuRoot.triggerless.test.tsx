@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -125,14 +125,46 @@ describe('<Menu.Root /> without a trigger', () => {
       }
       const { user } = await render(<Demo />);
       const anchor = screen.getByRole('button', { name: 'Open' });
+      // Open the submenu before the parent's deferred focus runs, then honor any frame
+      // cancellations so stale parent work cannot mask a canceled submenu focus request.
+      const frameCallbacks = new Map<number, FrameRequestCallback>();
+      let frameId = 0;
+      const requestFrame = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((callback) => {
+          frameId += 1;
+          frameCallbacks.set(frameId, callback);
+          return frameId;
+        });
+      const cancelFrame = vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => {
+        frameCallbacks.delete(id);
+      });
+      onTestFinished(() => {
+        requestFrame.mockRestore();
+        cancelFrame.mockRestore();
+      });
+
+      async function advanceFrame() {
+        await act(async () => {
+          for (const [id, callback] of Array.from(frameCallbacks)) {
+            if (frameCallbacks.delete(id)) {
+              callback(performance.now());
+            }
+          }
+        });
+      }
+
       async function openAndSelect() {
         await user.click(anchor);
         await focusItem('More');
         await user.keyboard('{ArrowRight}');
         const nested = await screen.findByRole('menuitem', { name: 'Nested' });
+        await advanceFrame();
+        await advanceFrame();
         await waitFor(() => expect(nested).toHaveFocus());
         expect(changed).not.toHaveBeenCalled();
         await user.click(nested);
+        await advanceFrame();
         await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
         expect(changed).toHaveBeenCalledExactlyOnceWith(false, 'item-press');
         await waitFor(() => expect(anchor).toHaveFocus());

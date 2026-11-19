@@ -1,4 +1,5 @@
-import { PopoverStore, createNullPopoverStore, type PopoverHandleStore } from './PopoverStore';
+import type { PopoverStore, PopoverHandleStore } from './PopoverStore';
+import { createNullPopoverStore } from './PopoverStore';
 import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
 /**

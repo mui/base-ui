@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { Orientation } from '../../internals/types';
-import { Separator, type SeparatorState } from '../../separator';
+import { Separator } from '../../separator';
+import type { SeparatorState } from '../../separator';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 
 /**

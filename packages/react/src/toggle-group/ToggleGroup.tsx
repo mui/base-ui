@@ -10,7 +10,7 @@ import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../toolbar/group/ToolbarGroupContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import { REASONS } from '../internals/reasons';
+import type { REASONS } from '../internals/reasons';
 
 /**
  * Provides a shared state to a series of toggle buttons.

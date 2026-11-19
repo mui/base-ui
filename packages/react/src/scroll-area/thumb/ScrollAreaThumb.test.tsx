@@ -1,10 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { expect, vi, describe, it } from 'vitest';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { describeConformance } from '../../../test/describeConformance';
 import { DirectionProvider } from '../../direction-provider/DirectionProvider';
 import { SCROLL_TIMEOUT } from '../constants';
 

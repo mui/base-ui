@@ -1,7 +1,9 @@
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, beforeEach, afterEach } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
+
+const DEFAULT_ITEM_OFFSETS = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360];
 
 /**
  * Installs a mutable `scrollTop` plus fixed `scrollHeight`/`clientHeight` on a scroller so the
@@ -42,8 +44,38 @@ function stubItem(node: HTMLElement | null, offsetTop: number, offsetHeight: num
   Object.defineProperty(node, 'offsetHeight', { value: offsetHeight, configurable: true });
 }
 
+/**
+ * Collapses the arrows so their own height doesn't shift the visible edge the scroll target is
+ * measured against.
+ */
+function collapseArrows() {
+  const downArrow = screen.getByTestId('down');
+  const upArrow = screen.getByTestId('up');
+  Object.defineProperty(downArrow, 'offsetHeight', { value: 0, configurable: true });
+  Object.defineProperty(upArrow, 'offsetHeight', { value: 0, configurable: true });
+  return { downArrow, upArrow };
+}
+
+function hoverArrow(arrow: HTMLElement, direction: 'up' | 'down') {
+  fireEvent.mouseMove(arrow, { movementX: 0, movementY: direction === 'down' ? 1 : -1 });
+}
+
+function advanceTimers(ms: number) {
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
+}
+
 describe('<Select.ScrollArrow />', () => {
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   /**
    * Renders a scrollable select whose list geometry is fully stubbed, and returns a live view of
@@ -60,7 +92,7 @@ describe('<Select.ScrollArrow />', () => {
       initialScrollTop,
       scrollHeight = 400,
       clientHeight = 200,
-      itemOffsets = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360],
+      itemOffsets = DEFAULT_ITEM_OFFSETS,
       itemHeight = 40,
     } = options;
 
@@ -73,7 +105,7 @@ describe('<Select.ScrollArrow />', () => {
         <Select.Portal>
           <Select.Positioner alignItemWithTrigger={false}>
             <Select.Popup>
-              <Select.ScrollUpArrow keepMounted />
+              <Select.ScrollUpArrow keepMounted data-testid="up" />
               <Select.List
                 ref={(node) =>
                   stubScroller(
@@ -97,151 +129,47 @@ describe('<Select.ScrollArrow />', () => {
                   </Select.Item>
                 ))}
               </Select.List>
-              <Select.ScrollDownArrow keepMounted />
+              <Select.ScrollDownArrow keepMounted data-testid="down" />
             </Select.Popup>
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>,
     );
 
-    const downArrow = screen.getByText('▼');
-    const upArrow = screen.getByText('▲');
-    Object.defineProperty(downArrow, 'offsetHeight', { value: 0, configurable: true });
-    Object.defineProperty(upArrow, 'offsetHeight', { value: 0, configurable: true });
-
     return {
-      downArrow,
-      upArrow,
+      ...collapseArrows(),
       getScrollTop: () => scrollTop,
       getScrollWrites: () => scrollWrites,
     };
   }
 
-  it('does not start auto-scrolling for a mouse move that did not move the pointer', async () => {
-    vi.useFakeTimers();
-    try {
-      const { downArrow, getScrollTop } = await renderScrollableSelect({ initialScrollTop: 0 });
+  /**
+   * Renders a select without `Select.List`, so the popup itself is the stubbed scroller.
+   */
+  async function renderPopupScroller(options: { initialScrollTop: number; withItems: boolean }) {
+    const { initialScrollTop, withItems } = options;
+    let scrollTop = initialScrollTop;
 
-      // Browsers dispatch a zero-movement `mousemove` when content scrolls beneath a stationary
-      // cursor; that must not kick off the hover scroll.
-      fireEvent.mouseMove(downArrow, { movementX: 0, movementY: 0 });
-
-      act(() => {
-        vi.advanceTimersByTime(400);
-      });
-
-      expect(getScrollTop()).toBe(0);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('does not let continuous pointer movement postpone the scheduled scroll', async () => {
-    vi.useFakeTimers();
-    try {
-      const { downArrow, getScrollTop } = await renderScrollableSelect({ initialScrollTop: 0 });
-
-      fireEvent.mouseMove(downArrow, { movementX: 0, movementY: 1 });
-
-      act(() => {
-        vi.advanceTimersByTime(30);
-      });
-
-      // A second move arrives before the first scroll fires. Restarting the timer here would
-      // mean a user who keeps jiggling the pointer never scrolls at all.
-      fireEvent.mouseMove(downArrow, { movementX: 1, movementY: 1 });
-
-      act(() => {
-        vi.advanceTimersByTime(15);
-      });
-
-      expect(getScrollTop()).toBeGreaterThan(0);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('stops auto-scrolling once the pointer leaves the arrow', async () => {
-    vi.useFakeTimers();
-    try {
-      const { downArrow, getScrollTop } = await renderScrollableSelect({ initialScrollTop: 0 });
-
-      fireEvent.mouseMove(downArrow, { movementX: 0, movementY: 1 });
-
-      act(() => {
-        vi.advanceTimersByTime(40);
-      });
-
-      const scrollTopAfterFirstStep = getScrollTop();
-      expect(scrollTopAfterFirstStep).toBeGreaterThan(0);
-
-      fireEvent.mouseLeave(downArrow);
-
-      act(() => {
-        vi.advanceTimersByTime(400);
-      });
-
-      expect(getScrollTop()).toBe(scrollTopAfterFirstStep);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('snaps a sub-pixel offset to the exact top edge and then stops scrolling', async () => {
-    vi.useFakeTimers();
-    try {
-      // Within `SCROLL_EDGE_TOLERANCE_PX` of the top, so the offset normalizes to exactly 0.
-      const { upArrow, getScrollTop, getScrollWrites } = await renderScrollableSelect({
-        initialScrollTop: 0.4,
-      });
-
-      fireEvent.mouseMove(upArrow, { movementX: 0, movementY: -1 });
-
-      act(() => {
-        vi.advanceTimersByTime(40);
-      });
-
-      expect(getScrollTop()).toBe(0);
-
-      const writesAtEdge = getScrollWrites();
-
-      // Reaching the edge must cancel the loop rather than spin on no-op scroll writes every
-      // 40ms for as long as the pointer rests on the arrow.
-      act(() => {
-        vi.advanceTimersByTime(400);
-      });
-
-      expect(getScrollTop()).toBe(0);
-      expect(getScrollWrites()).toBe(writesAtEdge);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('scrolls the popup itself when no Select.List is rendered', async () => {
-    vi.useFakeTimers();
-    try {
-      let scrollTop = 0;
-
-      await render(
-        <Select.Root open>
-          <Select.Trigger>Open</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.Popup
-                ref={(node) =>
-                  stubScroller(
-                    node,
-                    { scrollHeight: 400, clientHeight: 200 },
-                    () => scrollTop,
-                    (value) => {
-                      scrollTop = value;
-                    },
-                  )
-                }
-              >
-                <Select.ScrollUpArrow keepMounted />
-                {[0, 40, 80, 120, 160, 200, 240, 280, 320, 360].map((offsetTop, index) => (
+    await render(
+      <Select.Root open>
+        <Select.Trigger>Open</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner alignItemWithTrigger={false}>
+            <Select.Popup
+              ref={(node) =>
+                stubScroller(
+                  node,
+                  { scrollHeight: 400, clientHeight: 200 },
+                  () => scrollTop,
+                  (value) => {
+                    scrollTop = value;
+                  },
+                )
+              }
+            >
+              <Select.ScrollUpArrow keepMounted data-testid="up" />
+              {withItems &&
+                DEFAULT_ITEM_OFFSETS.map((offsetTop, index) => (
                   <Select.Item
                     key={index}
                     value={`item-${index}`}
@@ -250,192 +178,195 @@ describe('<Select.ScrollArrow />', () => {
                     Item {index}
                   </Select.Item>
                 ))}
-                <Select.ScrollDownArrow keepMounted />
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
+              <Select.ScrollDownArrow keepMounted data-testid="down" />
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
 
-      const arrow = screen.getByText('▼');
-      Object.defineProperty(arrow, 'offsetHeight', { value: 0, configurable: true });
+    return { ...collapseArrows(), getScrollTop: () => scrollTop };
+  }
 
-      fireEvent.mouseMove(arrow, { movementX: 0, movementY: 1 });
+  // All of these land on the target computed by the shared `getTargetScrollTop`.
+  it.each([
+    {
+      name: 'down arrow snaps hover scrolling to the true bottom when the remaining space is fractional',
+      direction: 'down' as const,
+      initialScrollTop: 19.5,
+      scrollHeight: 100.5,
+      clientHeight: 60,
+      itemOffsets: [0, 40, 80],
+      itemHeight: 20,
+      expected: 40.5,
+    },
+    {
+      name: 'down arrow keeps advancing when the next item bottom is fractionally within the visible bottom',
+      direction: 'down' as const,
+      initialScrollTop: 71.81818389892578,
+      scrollHeight: 598,
+      clientHeight: 440,
+      itemOffsets: [32, 64, 96, 128, 160, 192, 224, 256, 336, 368, 400, 432, 448, 480, 512, 544],
+      itemHeight: 32,
+      expected: 104,
+    },
+    {
+      // 200px of trailing content (padding, a footer) below the last item.
+      name: 'down arrow scrolls to the bottom when trailing content extends past the last item',
+      direction: 'down' as const,
+      initialScrollTop: 390,
+      scrollHeight: 600,
+      clientHeight: 200,
+      itemOffsets: DEFAULT_ITEM_OFFSETS,
+      itemHeight: 40,
+      expected: 400,
+    },
+    {
+      name: 'up arrow keeps advancing when the previous item top is fractionally within the visible top',
+      direction: 'up' as const,
+      initialScrollTop: 72.18181610107422,
+      scrollHeight: 598,
+      clientHeight: 440,
+      itemOffsets: [32, 71.5, 110, 142],
+      itemHeight: 32,
+      expected: 32,
+    },
+    {
+      // Every item sits below the current viewport top, as it would with a tall group label or
+      // padding above the first item.
+      name: 'up arrow scrolls to the very top when no earlier item remains to land on',
+      direction: 'up' as const,
+      initialScrollTop: 100,
+      scrollHeight: 600,
+      clientHeight: 200,
+      itemOffsets: [300, 340, 380],
+      itemHeight: 40,
+      expected: 0,
+    },
+  ])('$name', async ({ direction, expected, ...geometry }) => {
+    const { downArrow, upArrow, getScrollTop } = await renderScrollableSelect(geometry);
 
-      act(() => {
-        vi.advanceTimersByTime(40);
-      });
+    hoverArrow(direction === 'down' ? downArrow : upArrow, direction);
+    advanceTimers(40);
 
-      expect(scrollTop).toBeGreaterThan(0);
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(getScrollTop()).toBe(expected);
   });
 
-  it('reflects scrollability on the arrows when the popup has no registered items', async () => {
-    vi.useFakeTimers();
-    try {
-      let scrollTop = 100;
+  it('does not start auto-scrolling for a mouse move that did not move the pointer', async () => {
+    const { downArrow, getScrollTop } = await renderScrollableSelect({ initialScrollTop: 0 });
 
-      await render(
-        <Select.Root open>
-          <Select.Trigger>Open</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.Popup
-                ref={(node) =>
-                  stubScroller(
-                    node,
-                    { scrollHeight: 400, clientHeight: 200 },
-                    () => scrollTop,
-                    (value) => {
-                      scrollTop = value;
-                    },
-                  )
-                }
-              >
-                <Select.ScrollUpArrow keepMounted data-testid="up" />
-                <Select.ScrollDownArrow keepMounted data-testid="down" />
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
+    // Browsers dispatch a zero-movement `mousemove` when content scrolls beneath a stationary
+    // cursor; that must not kick off the hover scroll.
+    fireEvent.mouseMove(downArrow, { movementX: 0, movementY: 0 });
+    advanceTimers(400);
 
-      const down = screen.getByTestId('down');
-      Object.defineProperty(down, 'offsetHeight', { value: 0, configurable: true });
-
-      fireEvent.mouseMove(down, { movementX: 0, movementY: 1 });
-
-      act(() => {
-        vi.advanceTimersByTime(40);
-      });
-
-      // Mid-scroller with nothing to step through: the down arrow still reports that more
-      // content lies below rather than silently disappearing.
-      expect(down).toHaveAttribute('data-visible');
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(getScrollTop()).toBe(0);
   });
 
-  it('reflects scrollability on the up arrow when the popup has no registered items', async () => {
-    vi.useFakeTimers();
-    try {
-      let scrollTop = 100;
+  it('does not let continuous pointer movement postpone the scheduled scroll', async () => {
+    const { downArrow, getScrollTop } = await renderScrollableSelect({ initialScrollTop: 0 });
 
-      await render(
-        <Select.Root open>
-          <Select.Trigger>Open</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.Popup
-                ref={(node) =>
-                  stubScroller(
-                    node,
-                    { scrollHeight: 400, clientHeight: 200 },
-                    () => scrollTop,
-                    (value) => {
-                      scrollTop = value;
-                    },
-                  )
-                }
-              >
-                <Select.ScrollUpArrow keepMounted data-testid="up" />
-                <Select.ScrollDownArrow keepMounted data-testid="down" />
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
+    fireEvent.mouseMove(downArrow, { movementX: 0, movementY: 1 });
+    advanceTimers(30);
 
-      const up = screen.getByTestId('up');
-      Object.defineProperty(up, 'offsetHeight', { value: 0, configurable: true });
+    // A second move arrives before the first scroll fires. Restarting the timer here would
+    // mean a user who keeps jiggling the pointer never scrolls at all.
+    fireEvent.mouseMove(downArrow, { movementX: 1, movementY: 1 });
+    advanceTimers(15);
 
-      fireEvent.mouseMove(up, { movementX: 0, movementY: -1 });
-
-      act(() => {
-        vi.advanceTimersByTime(40);
-      });
-
-      expect(up).toHaveAttribute('data-visible');
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(getScrollTop()).toBe(40);
   });
+
+  it('stops auto-scrolling once the pointer leaves the arrow', async () => {
+    const { downArrow, getScrollTop } = await renderScrollableSelect({ initialScrollTop: 0 });
+
+    hoverArrow(downArrow, 'down');
+    advanceTimers(40);
+
+    expect(getScrollTop()).toBe(40);
+
+    fireEvent.mouseLeave(downArrow);
+    advanceTimers(400);
+
+    expect(getScrollTop()).toBe(40);
+  });
+
+  it('snaps a sub-pixel offset to the exact top edge and then stops scrolling', async () => {
+    // Within `SCROLL_EDGE_TOLERANCE_PX` of the top, so the offset normalizes to exactly 0.
+    const { upArrow, getScrollTop, getScrollWrites } = await renderScrollableSelect({
+      initialScrollTop: 0.4,
+    });
+
+    hoverArrow(upArrow, 'up');
+    advanceTimers(40);
+
+    expect(getScrollTop()).toBe(0);
+
+    const writesAtEdge = getScrollWrites();
+
+    // Reaching the edge must cancel the loop rather than spin on no-op scroll writes every
+    // 40ms for as long as the pointer rests on the arrow.
+    advanceTimers(400);
+
+    expect(getScrollTop()).toBe(0);
+    expect(getScrollWrites()).toBe(writesAtEdge);
+  });
+
+  it('scrolls the popup itself when no Select.List is rendered', async () => {
+    const { downArrow, getScrollTop } = await renderPopupScroller({
+      initialScrollTop: 0,
+      withItems: true,
+    });
+
+    hoverArrow(downArrow, 'down');
+    advanceTimers(40);
+
+    expect(getScrollTop()).toBe(40);
+  });
+
+  it.each(['up' as const, 'down' as const])(
+    'reflects scrollability on the %s arrow when the popup has no registered items',
+    async (direction) => {
+      const { downArrow, upArrow } = await renderPopupScroller({
+        initialScrollTop: 100,
+        withItems: false,
+      });
+      const arrow = direction === 'down' ? downArrow : upArrow;
+
+      hoverArrow(arrow, direction);
+      advanceTimers(40);
+
+      // Mid-scroller with nothing to step through: the arrow still reports that more content
+      // lies beyond it rather than silently disappearing.
+      expect(arrow).toHaveAttribute('data-visible');
+    },
+  );
 
   it('hides the arrow when an item-less popup is already scrolled to its edge', async () => {
-    vi.useFakeTimers();
-    try {
-      let scrollTop = 200;
+    const { downArrow } = await renderPopupScroller({ initialScrollTop: 200, withItems: false });
 
-      await render(
-        <Select.Root open>
-          <Select.Trigger>Open</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.Popup
-                ref={(node) =>
-                  stubScroller(
-                    node,
-                    { scrollHeight: 400, clientHeight: 200 },
-                    () => scrollTop,
-                    (value) => {
-                      scrollTop = value;
-                    },
-                  )
-                }
-              >
-                <Select.ScrollUpArrow keepMounted data-testid="up" />
-                <Select.ScrollDownArrow keepMounted data-testid="down" />
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
+    hoverArrow(downArrow, 'down');
+    advanceTimers(40);
 
-      const down = screen.getByTestId('down');
-      Object.defineProperty(down, 'offsetHeight', { value: 0, configurable: true });
-
-      fireEvent.mouseMove(down, { movementX: 0, movementY: 1 });
-
-      act(() => {
-        vi.advanceTimersByTime(40);
-      });
-
-      expect(down).not.toHaveAttribute('data-visible');
-    } finally {
-      vi.useRealTimers();
-    }
+    expect(downArrow).not.toHaveAttribute('data-visible');
   });
 
   it('ignores pointer interaction when the arrow has no scrollable popup', async () => {
-    vi.useFakeTimers();
-    try {
-      await render(
-        <Select.Root open>
-          <Select.Trigger>Open</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.ScrollDownArrow keepMounted data-testid="down" />
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
+    await render(
+      <Select.Root open>
+        <Select.Trigger>Open</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner alignItemWithTrigger={false}>
+            <Select.ScrollDownArrow keepMounted data-testid="down" />
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
 
-      const down = screen.getByTestId('down');
+    hoverArrow(screen.getByTestId('down'), 'down');
 
-      fireEvent.mouseMove(down, { movementX: 0, movementY: 1 });
-
-      // Without a popup there is nothing to scroll; the loop must bail out instead of
-      // dereferencing a missing scroller.
-      expect(() => {
-        act(() => {
-          vi.advanceTimersByTime(400);
-        });
-      }).not.toThrow();
-    } finally {
-      vi.useRealTimers();
-    }
+    // Without a popup there is nothing to scroll; the loop must bail out instead of
+    // dereferencing a missing scroller.
+    expect(() => advanceTimers(400)).not.toThrow();
   });
 });

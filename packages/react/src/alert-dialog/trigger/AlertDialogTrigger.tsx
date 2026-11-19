@@ -1,10 +1,7 @@
 'use client';
 import type * as React from 'react';
-import {
-  DialogTrigger,
-  type DialogTriggerProps,
-  type DialogTriggerState,
-} from '../../dialog/trigger/DialogTrigger';
+import { DialogTrigger } from '../../dialog/trigger/DialogTrigger';
+import type { DialogTriggerProps, DialogTriggerState } from '../../dialog/trigger/DialogTrigger';
 import type { AlertDialogHandle } from '../handle';
 
 /**

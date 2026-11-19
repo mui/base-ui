@@ -16,4 +16,4 @@ export type {
   CompositeGridNavigator,
 } from './root/gridNavigation';
 export { scrollIntoViewIfNeeded } from './composite';
-export { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';
+export { findNonDisabledListIndex, isListIndexDisabled } from './listIndex';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '../../floating-ui-react';
-import { type BaseUIComponentProps } from '../../internals/types';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 
 /**
@@ -17,7 +17,7 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
 ) {
   const store = useSelectRootContext();
   const mounted = store.useState('mounted');
-  const forceMount = store.useState('forceMount');
+  const forceMount = store.useState('forceMounted');
 
   const shouldRender = mounted || forceMount;
   if (!shouldRender) {

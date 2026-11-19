@@ -24,12 +24,12 @@ export class Store<State> {
    *
    * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
    */
-  state: State;
+  declare state: State;
 
-  private listeners: Set<Listener<State>>;
+  declare private listeners: Set<Listener<State>>;
 
   // Internal state to handle recursive `setState()` calls
-  private updateTick: number;
+  declare private updateTick: number;
 
   constructor(state: State) {
     this.state = state;
@@ -120,7 +120,6 @@ export class Store<State> {
   use<F extends (...args: any) => any>(selector: F, ...args: SelectorArgs<F>): ReturnType<F>;
 
   use(selector: any, a1?: unknown, a2?: unknown, a3?: unknown) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useStore(this, selector, a1, a2, a3);
   }
 }

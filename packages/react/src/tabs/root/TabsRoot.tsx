@@ -11,10 +11,8 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -120,7 +118,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         return;
       }
 
-      setValue(newValue);
+      // Tab values can be functions, which React would otherwise call as state updaters.
+      setValue(() => newValue);
     },
   );
 
@@ -247,7 +246,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       fallbackValue: TabsTab.Value,
       fallbackReason: TabsRoot.ChangeEventReason,
     ) {
-      setValue(fallbackValue);
+      setValue(() => fallbackValue);
       // Automatic fallbacks are not directional transitions; reset the direction
       // alongside the value so the batched commit keeps both in sync.
       setActivationDirectionState({

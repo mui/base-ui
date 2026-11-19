@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DemoFile } from 'docs/src/blocks/Demo';
+import type { DemoFile } from 'docs/src/blocks/Demo';
 import { packDemo } from './packDemo';
 
 describe('packDemo', () => {

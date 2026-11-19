@@ -28,11 +28,11 @@ export class RequestQueue<TKey> {
 
   protected queuedRequests = new Map<string, TKey>();
 
-  protected fetchFn: (key: TKey) => Promise<void>;
+  declare protected fetchFn: (key: TKey) => Promise<void>;
 
-  protected maxConcurrentRequests: number;
+  declare protected maxConcurrentRequests: number;
 
-  protected getKeyId: (key: TKey) => string;
+  declare protected getKeyId: (key: TKey) => string;
 
   constructor(options: RequestQueueOptions<TKey>) {
     this.fetchFn = options.fetchFn;
@@ -63,9 +63,6 @@ export class RequestQueue<TKey> {
       this.maxConcurrentRequests - this.pendingRequests.size,
       this.queuedRequests.size,
     );
-    if (loopLength === 0) {
-      return;
-    }
 
     const fetchPromises: Promise<void>[] = [];
 

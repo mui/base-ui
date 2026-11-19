@@ -1,4 +1,4 @@
-import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
+import { CommonPopupDataAttributes } from '../../utils/popups/popupStateMapping';
 
 /**
  * Present when the menu popup is open.
@@ -8,6 +8,10 @@ export const open = CommonPopupDataAttributes.open;
  * Present when the menu popup is closed.
  */
 export const closed = CommonPopupDataAttributes.closed;
+/**
+ * Present when the menu is a submenu.
+ */
+export const nested = 'data-nested';
 /**
  * Present when the anchor is hidden.
  */

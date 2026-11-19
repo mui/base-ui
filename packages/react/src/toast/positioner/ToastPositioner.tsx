@@ -2,20 +2,20 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  useAnchorPositioning,
-  type Side,
-  type Align,
-  type UseAnchorPositioningSharedParameters,
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Side,
+  Align,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
-import { useFloatingRootContext } from '../../floating-ui-react';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
 import * as ToastRootCssVars from '../root/ToastRootCssVars';
 
 /**
@@ -40,16 +40,16 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     render,
     className,
     anchor: anchorProp = positionerProps.anchor,
-    positionMethod = positionerProps.positionMethod ?? 'absolute',
+    positionMethod = positionerProps.positionMethod,
     side = positionerProps.side ?? 'top',
     align = positionerProps.align ?? 'center',
-    sideOffset = positionerProps.sideOffset ?? 0,
-    alignOffset = positionerProps.alignOffset ?? 0,
-    collisionBoundary = positionerProps.collisionBoundary ?? 'clipping-ancestors',
-    collisionPadding = positionerProps.collisionPadding ?? 5,
-    arrowPadding = positionerProps.arrowPadding ?? 5,
-    sticky = positionerProps.sticky ?? false,
-    disableAnchorTracking = positionerProps.disableAnchorTracking ?? false,
+    sideOffset = positionerProps.sideOffset,
+    alignOffset = positionerProps.alignOffset,
+    collisionBoundary = positionerProps.collisionBoundary,
+    collisionPadding = positionerProps.collisionPadding,
+    arrowPadding = positionerProps.arrowPadding,
+    sticky = positionerProps.sticky,
+    disableAnchorTracking = positionerProps.disableAnchorTracking,
     collisionAvoidance = positionerProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
     style,
     ...elementProps
@@ -62,19 +62,19 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 
   const anchor = isElement(anchorProp) ? anchorProp : null;
 
-  const floatingRootContext = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     open: true,
     onOpenChange: NOOP,
     elements: {
-      floating: positionerElement,
-      reference: anchor,
+      positionerElement,
+      anchor,
     },
   });
 
   const positioning = useAnchorPositioning({
     anchor,
     positionMethod,
-    floatingRootContext,
+    interactionStore: floatingRootStore,
     mounted: true,
     side,
     sideOffset,

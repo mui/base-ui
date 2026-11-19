@@ -1,11 +1,12 @@
 import { expect, vi, describe, it } from 'vitest';
 import { act, screen } from '@mui/internal-test-utils';
-import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toggle } from '@base-ui/react/toggle';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { type Orientation } from '../internals/types';
+import type { Orientation } from '../internals/types';
 
 describe('<ToggleGroup />', () => {
   const { render } = createRenderer();
@@ -367,72 +368,106 @@ describe('<ToggleGroup />', () => {
   });
 
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
-    [
-      ['ltr', 'horizontal', 'ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'],
-      ['ltr', 'vertical', 'ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'],
-      ['rtl', 'horizontal', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'],
-      ['rtl', 'vertical', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
-    ].forEach((entry) => {
-      const [direction, orientation, nextKey, prevKey, ignoredNextKey, ignoredPrevKey] = entry;
+    const arrowKeyCases: Array<{
+      direction: TextDirection;
+      orientation: Orientation;
+      nextKey: string;
+      prevKey: string;
+      ignoredNextKey: string;
+      ignoredPrevKey: string;
+    }> = [
+      {
+        direction: 'ltr',
+        orientation: 'horizontal',
+        nextKey: 'ArrowRight',
+        prevKey: 'ArrowLeft',
+        ignoredNextKey: 'ArrowDown',
+        ignoredPrevKey: 'ArrowUp',
+      },
+      {
+        direction: 'ltr',
+        orientation: 'vertical',
+        nextKey: 'ArrowDown',
+        prevKey: 'ArrowUp',
+        ignoredNextKey: 'ArrowRight',
+        ignoredPrevKey: 'ArrowLeft',
+      },
+      {
+        direction: 'rtl',
+        orientation: 'horizontal',
+        nextKey: 'ArrowLeft',
+        prevKey: 'ArrowRight',
+        ignoredNextKey: 'ArrowDown',
+        ignoredPrevKey: 'ArrowUp',
+      },
+      {
+        direction: 'rtl',
+        orientation: 'vertical',
+        nextKey: 'ArrowDown',
+        prevKey: 'ArrowUp',
+        ignoredNextKey: 'ArrowLeft',
+        ignoredPrevKey: 'ArrowRight',
+      },
+    ];
 
-      describe(direction, () => {
-        it(`orientation: ${orientation}`, async () => {
-          const { user } = await render(
-            <DirectionProvider direction={direction as TextDirection}>
-              <ToggleGroup orientation={orientation as Orientation}>
-                <Toggle value="one" />
-                <Toggle value="two" />
-                <Toggle value="three" />
-              </ToggleGroup>
-            </DirectionProvider>,
-          );
+    it.each(arrowKeyCases)(
+      '$direction, orientation: $orientation moves focus with arrow keys',
+      async ({ direction, orientation, nextKey, prevKey, ignoredNextKey, ignoredPrevKey }) => {
+        const { user } = await render(
+          <DirectionProvider direction={direction}>
+            <ToggleGroup orientation={orientation}>
+              <Toggle value="one" />
+              <Toggle value="two" />
+              <Toggle value="three" />
+            </ToggleGroup>
+          </DirectionProvider>,
+        );
 
-          const [button1, button2, button3] = screen.getAllByRole('button');
+        const [button1, button2, button3] = screen.getAllByRole('button');
 
-          await user.keyboard('[Tab]');
+        await user.keyboard('[Tab]');
 
-          expect(button1).toHaveAttribute('tabindex', '0');
-          expect(button1).toHaveFocus();
+        expect(button1).toHaveAttribute('tabindex', '0');
+        expect(button1).toHaveFocus();
 
-          await user.keyboard(`[${nextKey}]`);
+        await user.keyboard(`[${nextKey}]`);
 
-          expect(button2).toHaveAttribute('tabindex', '0');
-          expect(button2).toHaveFocus();
+        expect(button2).toHaveAttribute('tabindex', '0');
+        expect(button2).toHaveFocus();
 
-          await user.keyboard(`[${nextKey}]`);
+        await user.keyboard(`[${nextKey}]`);
 
-          expect(button3).toHaveAttribute('tabindex', '0');
-          expect(button3).toHaveFocus();
+        expect(button3).toHaveAttribute('tabindex', '0');
+        expect(button3).toHaveFocus();
 
-          // loop to the beginning
-          await user.keyboard(`[${nextKey}]`);
+        // loop to the beginning
+        await user.keyboard(`[${nextKey}]`);
 
-          expect(button1).toHaveAttribute('tabindex', '0');
-          expect(button1).toHaveFocus();
+        expect(button1).toHaveAttribute('tabindex', '0');
+        expect(button1).toHaveFocus();
 
-          await user.keyboard(`[${prevKey}]`);
+        await user.keyboard(`[${prevKey}]`);
 
-          expect(button3).toHaveAttribute('tabindex', '0');
-          expect(button3).toHaveFocus();
+        expect(button3).toHaveAttribute('tabindex', '0');
+        expect(button3).toHaveFocus();
 
-          await user.keyboard(`[${prevKey}]`);
+        await user.keyboard(`[${prevKey}]`);
 
-          expect(button2).toHaveAttribute('tabindex', '0');
-          expect(button2).toHaveFocus();
+        expect(button2).toHaveAttribute('tabindex', '0');
+        expect(button2).toHaveFocus();
 
-          // keys from the other axis should not move focus
-          await user.keyboard(`[${ignoredNextKey}]`);
+        // keys from the other axis should not move focus
+        await user.keyboard(`[${ignoredNextKey}]`);
 
-          expect(button2).toHaveAttribute('tabindex', '0');
-          expect(button2).toHaveFocus();
+        expect(button2).toHaveAttribute('tabindex', '0');
+        expect(button2).toHaveFocus();
 
-          await user.keyboard(`[${ignoredPrevKey}]`);
+        await user.keyboard(`[${ignoredPrevKey}]`);
 
-          expect(button2).toHaveAttribute('tabindex', '0');
-          expect(button2).toHaveFocus();
-        });
-      });
-    });
+        expect(button2).toHaveAttribute('tabindex', '0');
+        expect(button2).toHaveFocus();
+      },
+    );
 
     it('Home key moves focus to the first item', async () => {
       const { user } = await render(
@@ -489,8 +524,9 @@ describe('<ToggleGroup />', () => {
       expect(button3).toHaveFocus();
     });
 
-    ['Enter', 'Space'].forEach((key) => {
-      it(`key: ${key} toggles the pressed state`, async () => {
+    it.each([{ key: 'Enter' }, { key: 'Space' }])(
+      'key: $key toggles the pressed state',
+      async ({ key }) => {
         const { user } = await render(
           <ToggleGroup>
             <Toggle value="one" />
@@ -513,8 +549,8 @@ describe('<ToggleGroup />', () => {
         await user.keyboard(`[${key}]`);
 
         expect(button1).toHaveAttribute('aria-pressed', 'false');
-      });
-    });
+      },
+    );
   });
 
   describe('prop: onValueChange', () => {
@@ -563,12 +599,9 @@ describe('<ToggleGroup />', () => {
       expect(button1).toHaveAttribute('aria-pressed', 'false');
     });
 
-    ['Enter', 'Space'].forEach((key) => {
-      it(`fires when the ${key} is pressed`, async ({ skip }) => {
-        if (isJSDOM) {
-          skip();
-        }
-
+    it.skipIf(isJSDOM).each([{ key: 'Enter' }, { key: 'Space' }])(
+      'fires when the $key is pressed',
+      async ({ key }) => {
         const onValueChange = vi.fn();
 
         const { user } = await render(
@@ -599,7 +632,7 @@ describe('<ToggleGroup />', () => {
 
         expect(onValueChange.mock.calls.length).toBe(2);
         expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
-      });
-    });
+      },
+    );
   });
 });

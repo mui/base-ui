@@ -37,6 +37,22 @@ type SeparatorState = {
 };
 ```
 
+## Additional Types
+
+### SeparatorDataAttributes
+
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace SeparatorDataAttributes {
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
 ## External Types
 
 ### Orientation
