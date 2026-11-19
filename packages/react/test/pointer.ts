@@ -68,3 +68,16 @@ export function pressWithTouch(element: HTMLElement) {
   fireEvent.pointerDown(element, { pointerType: 'touch' });
   fireEvent.mouseDown(element);
 }
+
+/**
+ * Presses an element the way Chrome performs a screen reader activation (TalkBack, VoiceOver,
+ * NVDA): a zero-pressure 1x1 mouse press with no buttons, followed by a `detail: 0` click.
+ */
+export function pressWithScreenReader(element: Element) {
+  const pointerInit = { pointerType: 'mouse', width: 1, height: 1, pressure: 0 };
+  fireEvent.pointerDown(element, { ...pointerInit, detail: 0, buttons: 0 });
+  fireEvent.mouseDown(element, { detail: 0 });
+  fireEvent.pointerUp(element, pointerInit);
+  fireEvent.mouseUp(element, { detail: 0 });
+  fireEvent.click(element, { detail: 0 });
+}

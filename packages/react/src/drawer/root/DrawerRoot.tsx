@@ -20,7 +20,7 @@ import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type { DrawerHandle } from '../handle';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 
 /**
  * Groups all parts of the drawer.

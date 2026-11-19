@@ -2,6 +2,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
+import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import type {
   ToastManagerAddOptions,
   ToastManagerPromiseOptions,
@@ -9,7 +10,6 @@ import type {
   ToastObject,
 } from './useToastManager';
 import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
-import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<
@@ -419,7 +419,22 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   restoreFocusToPrevElement() {
-    this.state.prevFocusElement?.focus({ preventScroll: true });
+    const prevFocusElement = this.state.prevFocusElement;
+    const doc = ownerDocument(prevFocusElement);
+    // `body` can't be focused, so return focus to it by blurring whatever has it.
+    if (prevFocusElement === doc.body) {
+      (activeElement(doc) as HTMLElement | null)?.blur();
+    } else {
+      prevFocusElement?.focus({ preventScroll: true });
+    }
+    const restored = !contains(this.state.viewport, activeElement(doc));
+    // Clear the F6 origin so later visits don't restore stale focus. Keep it if focus couldn't
+    // leave: clearing it unmounts the focus guards, and a focused guard would drop focus without
+    // a blur, leaving the viewport `focused`.
+    if (restored) {
+      this.set('prevFocusElement', null);
+    }
+    return restored;
   }
 
   handleDocumentPointerDown = (event: PointerEvent) => {
@@ -519,20 +534,22 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const toasts = selectors.toasts(this.state);
     const currentIndex = selectors.toastIndex(this.state, toastId);
 
+    // A toast that was `limited` stays `inert` until React commits, so it can't take focus yet.
     const scan = (from: number, step: number) => {
       for (let index = from; index >= 0 && index < toasts.length; index += step) {
-        if (toasts[index].transitionStatus !== 'ending') {
-          return toasts[index];
+        const element = toasts[index].ref?.current;
+        if (toasts[index].transitionStatus !== 'ending' && element && !element.inert) {
+          return element;
         }
       }
       return null;
     };
 
-    // Try to find the next toast that isn't animating out, then fall back to the previous one.
-    const nextToast = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
+    // Try to find the next toast that can hold focus, then fall back to the previous one.
+    const nextElement = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
 
-    if (nextToast) {
-      nextToast.ref?.current?.focus();
+    if (nextElement) {
+      nextElement.focus();
     } else {
       this.restoreFocusToPrevElement();
     }

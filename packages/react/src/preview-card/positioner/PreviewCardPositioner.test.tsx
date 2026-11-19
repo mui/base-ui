@@ -108,6 +108,7 @@ describe('<PreviewCard.Positioner />', () => {
   positionerConformanceTests({
     render,
     viewport: true,
+    defaultCollisionAvoidance: 'popup',
     createComponent: ({ root, trigger, positioner, popup, viewport }) => (
       <PreviewCard.Root {...root}>
         <Trigger {...trigger}>Trigger</Trigger>

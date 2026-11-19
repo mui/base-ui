@@ -2,7 +2,10 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
-import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
+import { Menu } from '@base-ui/react/menu';
+import { Popover } from '@base-ui/react/popover';
+import { Select } from '@base-ui/react/select';
+import { act, fireEvent, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM, popupFocusPropsTests } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
@@ -265,6 +268,143 @@ describe('<Dialog.Popup />', () => {
         expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
       });
     });
+  });
+
+  describe('return focus when opened from a popup item', () => {
+    type Source = 'select' | 'keepMounted menu';
+
+    function DialogFromItem({
+      source,
+      preventTriggerFocus,
+      keepMountedDialog,
+    }: {
+      source: Source;
+      preventTriggerFocus?: boolean;
+      keepMountedDialog?: boolean;
+    }) {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <React.Fragment>
+          {source === 'select' ? (
+            <Select.Root>
+              <Select.Trigger data-testid="source-trigger">Select</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="custom" onClick={() => setOpen(true)}>
+                      Custom
+                    </Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          ) : (
+            <Menu.Root>
+              <Menu.Trigger
+                data-testid="source-trigger"
+                onMouseDown={preventTriggerFocus ? (event) => event.preventDefault() : undefined}
+              >
+                Menu
+              </Menu.Trigger>
+              <Menu.Portal keepMounted>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item onClick={() => setOpen(true)}>Custom</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          )}
+          <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Portal keepMounted={keepMountedDialog}>
+              <Dialog.Popup>
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    it.each([
+      { name: 'select', source: 'select' },
+      { name: 'keepMounted menu', source: 'keepMounted menu' },
+      { name: 'select (keepMounted dialog)', source: 'select', keepMountedDialog: true },
+      // Safari and Firefox on macOS don't focus a pressed button.
+      {
+        name: 'keepMounted menu that pressing did not focus',
+        source: 'keepMounted menu',
+        preventTriggerFocus: true,
+      },
+    ] as const)('returns focus to the $name trigger', async ({ source, ...props }) => {
+      const { user } = await render(<DialogFromItem source={source} {...props} />);
+      const sourceTrigger = screen.getByTestId('source-trigger');
+
+      await user.click(sourceTrigger);
+      await user.click(
+        await screen.findByRole(source === 'select' ? 'option' : 'menuitem', { name: 'Custom' }),
+      );
+
+      const close = await screen.findByRole('button', { name: 'Close' });
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(sourceTrigger).toHaveFocus();
+      });
+    });
+  });
+
+  it('does not return focus to the trigger of a popover that opened by default', async () => {
+    let openDialog = () => {};
+    function App() {
+      const [open, setOpen] = React.useState(false);
+      openDialog = () => setOpen(true);
+      return (
+        <React.Fragment>
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Tip</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Close>Got it</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<App />);
+    await user.click(await screen.findByRole('button', { name: 'Got it' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Got it' })).toBe(null);
+    });
+    await act(async () => (document.activeElement as HTMLElement).blur());
+
+    await act(async () => openDialog());
+    const close = await screen.findByRole('button', { name: 'Close' });
+    await waitFor(() => {
+      expect(close).toHaveFocus();
+    });
+    await user.keyboard('[Escape]');
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+    await flushMicrotasks();
+    expect(screen.getByRole('button', { name: 'Tip' })).not.toHaveFocus();
   });
 
   describe.skipIf(isJSDOM)('nested dialog count', () => {

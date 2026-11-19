@@ -41,7 +41,8 @@ export function Link(props: LinkProps) {
     pathname.startsWith('#') ||
     pathname.startsWith('/r/') ||
     pathname.endsWith('.md') ||
-    pathname.endsWith('.txt')
+    pathname.endsWith('.txt') ||
+    pathname.endsWith('.xml')
   ) {
     // Relative URL, but outside the Next.js router
     return (

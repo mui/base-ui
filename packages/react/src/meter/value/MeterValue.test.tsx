@@ -1,10 +1,11 @@
 import { expect, vi, describe, it } from 'vitest';
+import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { Meter } from '@base-ui/react/meter';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, mockRuntimeLocale } from '#test-utils';
 
 describe('<Meter.Value />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Meter.Value />, () => ({
     render: (node) => {
@@ -82,6 +83,35 @@ describe('<Meter.Value />', () => {
         (0.6).toLocaleString(undefined, { style: 'percent' }),
       );
       expect(renderSpy.mock.lastCall?.[1]).toEqual(60);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it.each([
+      { name: 'directly inside Root', suspense: false },
+      { name: 'inside a Suspense boundary', suspense: true },
+    ])('hydrates $name without a mismatch, then uses the runtime locale', async ({ suspense }) => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+      const valueElement = <Meter.Value data-testid="value" />;
+
+      const { hydrate } = await renderToString(
+        <Meter.Root value={1234.5} max={2000} format={format}>
+          {suspense ? (
+            <React.Suspense fallback={null}>{valueElement}</React.Suspense>
+          ) : (
+            valueElement
+          )}
+        </Meter.Root>,
+      );
+      const value = screen.getByTestId('value');
+      expect(value.textContent).toBe((1234.5).toLocaleString('en-US', format));
+
+      await hydrate();
+      // A mismatch makes React discard the server markup and render new nodes.
+      expect(screen.getByTestId('value')).toBe(value);
+      expect(value.textContent).toBe((1234.5).toLocaleString('de-DE', format));
     });
   });
 });

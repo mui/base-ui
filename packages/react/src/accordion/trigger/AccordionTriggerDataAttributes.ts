@@ -8,6 +8,6 @@ export const index = 'data-index';
  */
 export const panelOpen = 'data-panel-open';
 /**
- * Present when the accordion item is disabled.
+ * Present when the trigger or its accordion item is disabled.
  */
 export const disabled = 'data-disabled';
