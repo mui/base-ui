@@ -3,7 +3,7 @@ import { act, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { TextDirection } from '@base-ui/react/direction-provider';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
-import { Toggle } from '@base-ui/react/toggle';
+import * as Toggle from '@base-ui/react/toggle';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { Orientation } from '../internals/types';
@@ -30,8 +30,8 @@ describe('<ToggleGroup />', () => {
 
       const { user } = await render(
         <ToggleGroup>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -56,8 +56,8 @@ describe('<ToggleGroup />', () => {
     it('prop: defaultValue', async () => {
       const { user } = await render(
         <ToggleGroup defaultValue={['two']}>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -77,8 +77,8 @@ describe('<ToggleGroup />', () => {
     it('when Toggles omit value', async () => {
       const { user } = await render(
         <ToggleGroup>
-          <Toggle />
-          <Toggle value="" />
+          <Toggle.Root />
+          <Toggle.Root value="" />
         </ToggleGroup>,
       );
 
@@ -103,13 +103,13 @@ describe('<ToggleGroup />', () => {
 
       await render(
         <ToggleGroup defaultValue={['one']}>
-          <Toggle />
-          <Toggle />
+          <Toggle.Root />
+          <Toggle.Root />
         </ToggleGroup>,
       );
 
       expect(console.error).toHaveBeenCalledExactlyOnceWith(
-        'Base UI: A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop. This will cause issues between the Toggle Group and Toggle values. Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
+        'Base UI: A `<Toggle.Root>` component rendered in a `<ToggleGroup>` has no explicit `value` prop. This will cause issues between the Toggle Group and Toggle values. Provide the `<Toggle.Root>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
       );
     });
   });
@@ -118,8 +118,8 @@ describe('<ToggleGroup />', () => {
     it('pressed state', async () => {
       const { setProps } = await render(
         <ToggleGroup value={['two']}>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -145,8 +145,8 @@ describe('<ToggleGroup />', () => {
     it('prop: value', async () => {
       const { setProps } = await render(
         <ToggleGroup value={['two']}>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -168,8 +168,8 @@ describe('<ToggleGroup />', () => {
     it('can disable the whole group', async () => {
       await render(
         <ToggleGroup disabled>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -184,8 +184,8 @@ describe('<ToggleGroup />', () => {
     it('can disable individual items', async () => {
       await render(
         <ToggleGroup>
-          <Toggle value="one" />
-          <Toggle value="two" disabled />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" disabled />
         </ToggleGroup>,
       );
 
@@ -202,8 +202,8 @@ describe('<ToggleGroup />', () => {
     it('vertical', async () => {
       await render(
         <ToggleGroup orientation="vertical">
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -214,8 +214,8 @@ describe('<ToggleGroup />', () => {
     it('does not render aria-orientation on role="group"', async () => {
       await render(
         <ToggleGroup orientation="horizontal">
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -228,7 +228,7 @@ describe('<ToggleGroup />', () => {
     it('sets data-multiple only when true', async () => {
       const { setProps } = await render(
         <ToggleGroup>
-          <Toggle value="one" />
+          <Toggle.Root value="one" />
         </ToggleGroup>,
       );
 
@@ -245,8 +245,8 @@ describe('<ToggleGroup />', () => {
     it('multiple items can be pressed when true', async () => {
       const { user } = await render(
         <ToggleGroup multiple defaultValue={['one']}>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -264,8 +264,8 @@ describe('<ToggleGroup />', () => {
     it('only one item can be pressed when false', async () => {
       const { user } = await render(
         <ToggleGroup defaultValue={['one']}>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -283,8 +283,8 @@ describe('<ToggleGroup />', () => {
     it('when Toggles omit value', async () => {
       const { user } = await render(
         <ToggleGroup multiple>
-          <Toggle value="" />
-          <Toggle />
+          <Toggle.Root value="" />
+          <Toggle.Root />
         </ToggleGroup>,
       );
 
@@ -315,8 +315,8 @@ describe('<ToggleGroup />', () => {
       function TestToggleGroup({ multiple }: { multiple: boolean }) {
         const group = (
           <ToggleGroup data-testid="toggle-group" defaultValue={['one']} multiple={multiple}>
-            <Toggle value="one">One</Toggle>
-            <Toggle value="two">Two</Toggle>
+            <Toggle.Root value="one">One</Toggle.Root>
+            <Toggle.Root value="two">Two</Toggle.Root>
           </ToggleGroup>
         );
 
@@ -416,9 +416,9 @@ describe('<ToggleGroup />', () => {
         const { user } = await render(
           <DirectionProvider direction={direction}>
             <ToggleGroup orientation={orientation}>
-              <Toggle value="one" />
-              <Toggle value="two" />
-              <Toggle value="three" />
+              <Toggle.Root value="one" />
+              <Toggle.Root value="two" />
+              <Toggle.Root value="three" />
             </ToggleGroup>
           </DirectionProvider>,
         );
@@ -472,9 +472,9 @@ describe('<ToggleGroup />', () => {
     it('Home key moves focus to the first item', async () => {
       const { user } = await render(
         <ToggleGroup>
-          <Toggle value="one" />
-          <Toggle value="two" />
-          <Toggle value="three" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
+          <Toggle.Root value="three" />
         </ToggleGroup>,
       );
 
@@ -501,9 +501,9 @@ describe('<ToggleGroup />', () => {
     it('End key moves focus to the last item', async () => {
       const { user } = await render(
         <ToggleGroup>
-          <Toggle value="one" />
-          <Toggle value="two" />
-          <Toggle value="three" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
+          <Toggle.Root value="three" />
         </ToggleGroup>,
       );
 
@@ -529,8 +529,8 @@ describe('<ToggleGroup />', () => {
       async ({ key }) => {
         const { user } = await render(
           <ToggleGroup>
-            <Toggle value="one" />
-            <Toggle value="two" />
+            <Toggle.Root value="one" />
+            <Toggle.Root value="two" />
           </ToggleGroup>,
         );
 
@@ -559,8 +559,8 @@ describe('<ToggleGroup />', () => {
 
       const { user } = await render(
         <ToggleGroup onValueChange={onValueChange}>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -586,8 +586,8 @@ describe('<ToggleGroup />', () => {
 
       const { user } = await render(
         <ToggleGroup onValueChange={onValueChange}>
-          <Toggle value="one" />
-          <Toggle value="two" />
+          <Toggle.Root value="one" />
+          <Toggle.Root value="two" />
         </ToggleGroup>,
       );
 
@@ -606,8 +606,8 @@ describe('<ToggleGroup />', () => {
 
         const { user } = await render(
           <ToggleGroup onValueChange={onValueChange}>
-            <Toggle value="one" />
-            <Toggle value="two" />
+            <Toggle.Root value="one" />
+            <Toggle.Root value="two" />
           </ToggleGroup>,
         );
 

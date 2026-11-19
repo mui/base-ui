@@ -1,4 +1,4 @@
-import { Toggle } from '@base-ui/react/toggle';
+import * as Toggle from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import styles from './index.module.css';
 
@@ -10,15 +10,15 @@ export default function ExampleToggleGroupMultiple() {
       aria-label="Text formatting options"
       className={styles.Panel}
     >
-      <Toggle aria-label="Bold" value="bold" className={styles.Button}>
+      <Toggle.Root aria-label="Bold" value="bold" className={styles.Button}>
         <BoldIcon />
-      </Toggle>
-      <Toggle aria-label="Italic" value="italic" className={styles.Button}>
+      </Toggle.Root>
+      <Toggle.Root aria-label="Italic" value="italic" className={styles.Button}>
         <ItalicIcon />
-      </Toggle>
-      <Toggle aria-label="Underline" value="underline" className={styles.Button}>
+      </Toggle.Root>
+      <Toggle.Root aria-label="Underline" value="underline" className={styles.Button}>
         <UnderlineIcon />
-      </Toggle>
+      </Toggle.Root>
     </ToggleGroup>
   );
 }

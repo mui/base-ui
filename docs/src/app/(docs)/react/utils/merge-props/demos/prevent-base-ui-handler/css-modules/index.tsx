@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '@base-ui/react/merge-props';
-import { Toggle } from '@base-ui/react/toggle';
+import * as Toggle from '@base-ui/react/toggle';
 import styles from './index.module.css';
 
 export default function ExamplePreventBaseUIHandler() {
@@ -19,7 +19,7 @@ export default function ExamplePreventBaseUIHandler() {
   return (
     <div className={styles.Container}>
       <div className={styles.ToggleRow}>
-        <Toggle
+        <Toggle.Root
           aria-label="Favorite"
           pressed={pressed}
           onPressedChange={setPressed}

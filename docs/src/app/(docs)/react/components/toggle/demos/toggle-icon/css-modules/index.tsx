@@ -1,18 +1,18 @@
 'use client';
 import * as React from 'react';
-import { Toggle, ToggleIndicator } from '@base-ui/react/toggle';
+import * as Toggle from '@base-ui/react/toggle';
 import styles from './index.module.css';
 
 export default function ExampleToggleIcon() {
   return (
-    <Toggle aria-label="Mute" className={styles.Button}>
-      <ToggleIndicator className={styles.Indicator} match="unpressed">
+    <Toggle.Root aria-label="Mute" className={styles.Button}>
+      <Toggle.Indicator className={styles.Indicator} match="unpressed">
         <VolumeIcon />
-      </ToggleIndicator>
-      <ToggleIndicator className={styles.Indicator} match="pressed">
+      </Toggle.Indicator>
+      <Toggle.Indicator className={styles.Indicator} match="pressed">
         <VolumeMutedIcon />
-      </ToggleIndicator>
-    </Toggle>
+      </Toggle.Indicator>
+    </Toggle.Root>
   );
 }
 

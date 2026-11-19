@@ -2,17 +2,17 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { error } from '@base-ui/utils/error';
-import { useBaseUiId } from '../internals/useBaseUiId';
-import { useRenderElement } from '../internals/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../internals/types';
-import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
-import type { ToolbarRoot } from '../toolbar/root/ToolbarRoot';
-import { useButton } from '../internals/use-button/useButton';
-import { CompositeItem } from '../internals/composite/item/CompositeItem';
-import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import { REASONS } from '../internals/reasons';
-import { ToggleContext } from './ToggleContext';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useToggleGroupContext } from '../../toggle-group/ToggleGroupContext';
+import type { ToolbarRoot } from '../../toolbar/root/ToolbarRoot';
+import { useButton } from '../../internals/use-button/useButton';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { ToggleRootContext } from './ToggleRootContext';
 
 /**
  * A two-state button that can be on or off.
@@ -20,8 +20,8 @@ import { ToggleContext } from './ToggleContext';
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-export const Toggle = React.forwardRef(function Toggle<Value extends string>(
-  componentProps: Toggle.Props<Value>,
+export const ToggleRoot = React.forwardRef(function ToggleRoot<Value extends string>(
+  componentProps: ToggleRoot.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -51,9 +51,9 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     React.useEffect(() => {
       if (groupContext && valueProp === undefined && groupContext.isValueInitialized) {
         error(
-          'A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.',
+          'A `<Toggle.Root>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.',
           'This will cause issues between the Toggle Group and Toggle values.',
-          'Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
+          'Provide the `<Toggle.Root>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
         );
       }
     }, [groupContext, valueProp, groupContext?.isValueInitialized]);
@@ -71,7 +71,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     native: nativeButton,
   });
 
-  const state: ToggleState = React.useMemo(() => ({ disabled, pressed }), [disabled, pressed]);
+  const state: ToggleRootState = React.useMemo(() => ({ disabled, pressed }), [disabled, pressed]);
 
   const refs = [buttonRef, forwardedRef];
   const props = [
@@ -120,7 +120,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
 
   if (groupContext) {
     return (
-      <ToggleContext.Provider value={state}>
+      <ToggleRootContext.Provider value={state}>
         <CompositeItem
           tag="button"
           render={render}
@@ -131,18 +131,18 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
           refs={refs}
           props={props}
         />
-      </ToggleContext.Provider>
+      </ToggleRootContext.Provider>
     );
   }
 
-  return <ToggleContext.Provider value={state}>{element}</ToggleContext.Provider>;
+  return <ToggleRootContext.Provider value={state}>{element}</ToggleRootContext.Provider>;
 }) as {
   <Value extends string>(
-    props: Toggle.Props<Value> & React.RefAttributes<HTMLButtonElement>,
+    props: ToggleRoot.Props<Value> & React.RefAttributes<HTMLButtonElement>,
   ): React.JSX.Element;
 };
 
-export interface ToggleState {
+export interface ToggleRootState {
   /**
    * Whether the toggle is currently pressed.
    */
@@ -153,8 +153,8 @@ export interface ToggleState {
   disabled: boolean;
 }
 
-export interface ToggleProps<Value extends string>
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToggleState> {
+export interface ToggleRootProps<Value extends string>
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToggleRootState> {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.
@@ -175,7 +175,7 @@ export interface ToggleProps<Value extends string>
    * Callback fired when the pressed state is changed.
    */
   onPressedChange?:
-    ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void) | undefined;
+    ((pressed: boolean, eventDetails: ToggleRoot.ChangeEventDetails) => void) | undefined;
   /**
    * A unique string that identifies the toggle when used
    * inside a toggle group.
@@ -183,13 +183,30 @@ export interface ToggleProps<Value extends string>
   value?: Value | undefined;
 }
 
-export type ToggleChangeEventReason = typeof REASONS.none;
+export type ToggleRootChangeEventReason = typeof REASONS.none;
 
-export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEventReason>;
+export type ToggleRootChangeEventDetails = BaseUIChangeEventDetails<ToggleRoot.ChangeEventReason>;
 
-export namespace Toggle {
-  export type State = ToggleState;
-  export type Props<TValue extends string = string> = ToggleProps<TValue>;
-  export type ChangeEventReason = ToggleChangeEventReason;
-  export type ChangeEventDetails = ToggleChangeEventDetails;
+export namespace ToggleRoot {
+  export type State = ToggleRootState;
+  export type Props<TValue extends string = string> = ToggleRootProps<TValue>;
+  export type ChangeEventReason = ToggleRootChangeEventReason;
+  export type ChangeEventDetails = ToggleRootChangeEventDetails;
 }
+
+/**
+ * @deprecated Use `Toggle.Root.State` instead.
+ */
+export type ToggleState = ToggleRootState;
+/**
+ * @deprecated Use `Toggle.Root.Props` instead.
+ */
+export type ToggleProps<Value extends string = string> = ToggleRootProps<Value>;
+/**
+ * @deprecated Use `Toggle.Root.ChangeEventReason` instead.
+ */
+export type ToggleChangeEventReason = ToggleRootChangeEventReason;
+/**
+ * @deprecated Use `Toggle.Root.ChangeEventDetails` instead.
+ */
+export type ToggleChangeEventDetails = ToggleRootChangeEventDetails;

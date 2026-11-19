@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../internals/useRenderElement';
-import type { BaseUIComponentProps } from '../internals/types';
-import { useOpenChangeComplete } from '../internals/useOpenChangeComplete';
-import { useTransitionStatus } from '../internals/useTransitionStatus';
-import type { TransitionStatus } from '../internals/useTransitionStatus';
-import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
-import { transitionStatusMapping } from '../internals/stateAttributesMapping';
-import { useToggleContext } from './ToggleContext';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useToggleRootContext } from '../root/ToggleRootContext';
 
 const stateAttributesMapping: StateAttributesMapping<ToggleIndicatorState> = {
   ...transitionStatusMapping,
@@ -32,7 +32,7 @@ export const ToggleIndicator = React.forwardRef(function ToggleIndicator(
     ...elementProps
   } = componentProps;
 
-  const { pressed, disabled } = useToggleContext();
+  const { pressed, disabled } = useToggleRootContext();
 
   const rendered = match === 'pressed' ? pressed : !pressed;
 

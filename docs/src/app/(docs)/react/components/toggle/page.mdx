@@ -15,11 +15,11 @@ import { DemoToggleHero } from './demos/hero';
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { Toggle, ToggleIndicator } from '@base-ui/react/toggle';
+import * as Toggle from '@base-ui/react/toggle';
 
-<Toggle>
-  <ToggleIndicator />
-</Toggle>;
+<Toggle.Root>
+  <Toggle.Indicator />
+</Toggle.Root>;
 ```
 
 ## Examples
@@ -37,13 +37,13 @@ import { DemoToggleIcon } from './demos/toggle-icon';
 
 import { TypesToggle } from './types';
 
-### Toggle
+### Root
 
-<TypesToggle.Toggle />
+<TypesToggle.Root />
 
-### ToggleIndicator
+### Indicator
 
-<TypesToggle.ToggleIndicator />
+<TypesToggle.Indicator />
 
 export const metadata = {
   keywords: [
