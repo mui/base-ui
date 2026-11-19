@@ -338,6 +338,10 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     // Wait for subtree animations to finish, then recompute thumb geometry that
     // may have been affected by transform-based animations.
     waitForAnimationsTimeout.start(0, () => {
+      if (typeof viewport.getAnimations !== 'function') {
+        return;
+      }
+
       const animations = getFiniteAnimations(viewport, { subtree: true });
       if (animations.length === 0) {
         return;
