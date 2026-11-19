@@ -58,9 +58,6 @@ overrides:
 engineStrict: true
 updateNotifier: false
 autoDedupe: true
-# Peer suffixes list only name@version, so a peer's own peers (e.g. the optional yaml of vite)
-# do not split one package into several lockfile entries.
-dedupePeers: true
 # Record resolution settings like autoDedupe in the lockfile, so installs can trust it and skip resolution.
 lockfile:
   includeResolutionSettings: true
