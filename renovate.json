@@ -1,9 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>mui/mui-public//renovate/default"],
+  "extends": ["github>mui/mui-public//renovate/experimental"],
   "schedule": "* 2-6 * * 5",
   "lockFileMaintenance": {
-    "schedule": "* 0-4 4 * *"
+    "description": "Match the schedule above, so the lockfile refresh lands in the weekly npm non-major group PR.",
+    "schedule": "* 2-6 * * 5"
   },
   "packageRules": [
     {
@@ -13,7 +14,6 @@
       "schedule": null
     },
     {
-      "groupName": "jsdom",
       "description": "v28 is causing further performance issues and timeouts in our tests, so we will stay on v27 until the issues are resolved. https://github.com/mui/base-ui/pull/4372",
       "matchPackageNames": ["jsdom"],
       "allowedVersions": "<28"
