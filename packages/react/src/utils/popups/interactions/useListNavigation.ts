@@ -7,7 +7,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { platform } from '@base-ui/utils/platform';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 import type { ElementProps, PopupInteractionStore } from '../types';
@@ -218,6 +218,11 @@ export interface UseListNavigationProps {
    * Computes two-dimensional list navigation for grid-capable consumers.
    */
   grid?: typeof gridNavigation | null | undefined;
+  /**
+   * Whether Tab closes the open list the same way Shift+Tab does.
+   * @default false
+   */
+  closeOnTab?: boolean | undefined;
 }
 
 /**
@@ -251,6 +256,7 @@ export function useListNavigation(
     resetOnPointerLeave = true,
     nestedReturnFocusRef,
     grid: navigateGrid,
+    closeOnTab = false,
   } = props;
 
   const isGrid = navigateGrid != null;
@@ -700,13 +706,12 @@ export function useListNavigation(
 
         forceSyncFocusRef.current = true;
 
-        const relatedTarget = event.relatedTarget as HTMLElement | null;
-
-        if (!focusItemOnHover || listRef.current.includes(relatedTarget)) {
+        if (!resetOnPointerLeaveRef.current) {
           return;
         }
 
-        if (!resetOnPointerLeaveRef.current) {
+        const relatedTarget = isElement(event.relatedTarget) ? event.relatedTarget : null;
+        if (!focusItemOnHover || listRef.current.some((item) => contains(item, relatedTarget))) {
           return;
         }
 
@@ -752,8 +757,8 @@ export function useListNavigation(
     return {
       ...(!typeableComboboxReference ? ariaActiveDescendantProp : {}),
       onKeyDown(event: React.KeyboardEvent) {
-        // Close submenu on Shift+Tab
-        if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
+        // Close on Shift+Tab, and on Tab when `closeOnTab` is set.
+        if (event.key === 'Tab' && (event.shiftKey || closeOnTab) && open && !virtual) {
           // If the event originated from within a nested element (e.g., a Dialog opened from
           // within the menu), don't close the menu. The nested element has its own focus
           // management and should handle the Tab key.
@@ -793,6 +798,7 @@ export function useListNavigation(
     virtual,
     anchorElement,
     nestedReturnFocusRef,
+    closeOnTab,
   ]);
 
   const trigger: ElementProps['trigger'] = React.useMemo(() => {

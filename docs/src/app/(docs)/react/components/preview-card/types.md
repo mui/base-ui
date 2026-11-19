@@ -732,3 +732,18 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `PreviewCard.Backdrop.Props`: `PreviewCardBackdropProps`
 - `PreviewCard.Viewport.Props`: `PreviewCardViewportProps`
 - `PreviewCard.Viewport.State`: `PreviewCardViewportState`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLAnchorElement`: <https://developer.mozilla.org/docs/Web/API/HTMLAnchorElement>
+- `HTMLElement`: <https://developer.mozilla.org/docs/Web/API/HTMLElement>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `ShadowRoot`: <https://developer.mozilla.org/docs/Web/API/ShadowRoot>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

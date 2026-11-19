@@ -121,3 +121,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `ToggleGroup.Props`: `ToggleGroupProps`
 - `ToggleGroup.ChangeEventReason`: `ToggleGroupChangeEventReason`
 - `ToggleGroup.ChangeEventDetails`: `ToggleGroupChangeEventDetails`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>

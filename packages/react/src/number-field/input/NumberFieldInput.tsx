@@ -60,6 +60,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     getAllowedNonNumericKeys,
     getStepAmount,
     id,
+    form,
     incrementValue,
     inputMode,
     max,
@@ -113,6 +114,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const inputProps: React.ComponentProps<'input'> = {
     id,
+    form,
     required,
     disabled,
     readOnly,
