@@ -8,7 +8,8 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { Menu } from '@base-ui/react/menu';
+import { advanceReactClock, createRenderer, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 vi.mock('@base-ui/utils/platform', async () => {
@@ -280,6 +281,154 @@ describe('<ContextMenu.Root />', () => {
 
       expect(screen.queryByTestId('context-popup')).toBe(null);
       expect(onOpenChange.mock.calls.length).toBe(0);
+    });
+
+    describe('Menu nested in the trigger', () => {
+      function NestedMenuFixture(props: {
+        contextOnOpenChange: ContextMenu.Root.Props['onOpenChange'];
+        nestedOnOpenChange?: Menu.Root.Props['onOpenChange'];
+        onContextItemClick?: () => void;
+        onNestedItemClick?: () => void;
+      }) {
+        return (
+          <ContextMenu.Root onOpenChange={props.contextOnOpenChange}>
+            <ContextMenu.Trigger data-testid="context-trigger">
+              Surface
+              <Menu.Root onOpenChange={props.nestedOnOpenChange}>
+                <Menu.Trigger data-testid="nested-trigger">Open menu</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="nested-popup">
+                      <Menu.Item data-testid="nested-item" onClick={props.onNestedItemClick}>
+                        Nested action
+                      </Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </ContextMenu.Trigger>
+            <ContextMenu.Portal>
+              <ContextMenu.Positioner alignOffset={0}>
+                <ContextMenu.Popup data-testid="context-popup">
+                  <ContextMenu.Item data-testid="context-item" onClick={props.onContextItemClick}>
+                    Context action
+                  </ContextMenu.Item>
+                </ContextMenu.Popup>
+              </ContextMenu.Positioner>
+            </ContextMenu.Portal>
+          </ContextMenu.Root>
+        );
+      }
+
+      it('selects a nested menu item on a left-button press, drag and release', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
+        const contextOnOpenChange = vi.fn();
+        const nestedOnOpenChange = vi.fn();
+        const onNestedItemClick = vi.fn();
+
+        await render(
+          <NestedMenuFixture
+            contextOnOpenChange={contextOnOpenChange}
+            nestedOnOpenChange={nestedOnOpenChange}
+            onNestedItemClick={onNestedItemClick}
+          />,
+        );
+
+        fireEvent.mouseDown(screen.getByTestId('nested-trigger'), { button: 0 });
+        await screen.findByTestId('nested-popup');
+
+        // Past the 200 ms guard after which Menu.Trigger allows a release to pick an item.
+        await advanceReactClock(clock, 200);
+
+        fireEvent.mouseUp(screen.getByTestId('nested-item'), { button: 0 });
+        await flushMicrotasks();
+
+        expect(
+          onNestedItemClick.mock.calls.length,
+          'nested item selected on left-button release',
+        ).toBe(1);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('nested-popup')).toBe(null);
+        });
+
+        expect(nestedOnOpenChange.mock.lastCall?.[0]).toBe(false);
+        expect(nestedOnOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+        expect(contextOnOpenChange.mock.calls.length).toBe(0);
+      });
+
+      it('still activates a context menu item on a right-button release', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
+        const contextOnOpenChange = vi.fn();
+        const onContextItemClick = vi.fn();
+
+        await render(
+          <NestedMenuFixture
+            contextOnOpenChange={contextOnOpenChange}
+            onContextItemClick={onContextItemClick}
+          />,
+        );
+
+        fireEvent.contextMenu(screen.getByTestId('context-trigger'), {
+          clientX: 20,
+          clientY: 20,
+          button: 2,
+        });
+
+        await screen.findByTestId('context-popup');
+        const item = screen.getByTestId('context-item');
+
+        fireEvent.pointerMove(document.body, { clientX: 24, clientY: 24 });
+        fireEvent.mouseUp(item, { button: 2, clientX: 24, clientY: 24 });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('context-popup')).toBe(null);
+        });
+
+        expect(onContextItemClick.mock.calls.length).toBe(1);
+        expect(contextOnOpenChange.mock.lastCall?.[0]).toBe(false);
+        expect(contextOnOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+      });
+
+      it('does not activate a context menu item on a left-button release', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
+        const contextOnOpenChange = vi.fn();
+        const onContextItemClick = vi.fn();
+
+        await render(
+          <NestedMenuFixture
+            contextOnOpenChange={contextOnOpenChange}
+            onContextItemClick={onContextItemClick}
+          />,
+        );
+
+        fireEvent.contextMenu(screen.getByTestId('context-trigger'), {
+          clientX: 20,
+          clientY: 20,
+          button: 2,
+        });
+
+        await screen.findByTestId('context-popup');
+        const item = screen.getByTestId('context-item');
+
+        // The first release after opening, so the context menu still allows a release to pick.
+        fireEvent.pointerMove(document.body, { clientX: 24, clientY: 24 });
+        fireEvent.mouseUp(item, { button: 0, clientX: 24, clientY: 24 });
+        await flushMicrotasks();
+
+        expect(onContextItemClick.mock.calls.length).toBe(0);
+        expect(screen.queryByTestId('context-popup')).not.toBe(null);
+        expect(contextOnOpenChange.mock.calls.length).toBe(1);
+      });
     });
   });
 
