@@ -35,7 +35,16 @@ export * from './slider';
 export * from './switch';
 export * from './tabs';
 export * from './toast';
-export * from './toggle';
+// Listed explicitly so the `Root` and `Indicator` parts of `@base-ui/react/toggle`
+// don't leak into this entry point as bare names.
+export {
+  Toggle,
+  RootDataAttributes as ToggleRootDataAttributes,
+  IndicatorDataAttributes as ToggleIndicatorDataAttributes,
+  ToggleDataAttributes,
+} from './toggle';
+export type * from './toggle/root/ToggleRoot';
+export type * from './toggle/indicator/ToggleIndicator';
 export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';

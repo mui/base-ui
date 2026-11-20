@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { Toggle } from '@base-ui/react/toggle';
+import * as Toggle from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
@@ -87,7 +87,7 @@ function renderToggleWithTooltip(args: {
       <Tooltip.Trigger
         render={
           <Toolbar.Button
-            render={<Toggle />}
+            render={<Toggle.Root />}
             aria-label={label}
             value={key}
             className={styles.toolbar.Toggle}

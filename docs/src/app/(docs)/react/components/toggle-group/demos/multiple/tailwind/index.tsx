@@ -1,4 +1,4 @@
-import { Toggle } from '@base-ui/react/toggle';
+import * as Toggle from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 
 export default function ExampleToggleGroupMultiple() {
@@ -9,27 +9,27 @@ export default function ExampleToggleGroupMultiple() {
       aria-label="Text formatting options"
       className="flex gap-px p-px border border-neutral-950 dark:border-white"
     >
-      <Toggle
+      <Toggle.Root
         aria-label="Bold"
         value="bold"
         className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none hover:bg-neutral-100 dark:hover:bg-neutral-800 data-pressed:bg-neutral-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 data-pressed:hover:bg-neutral-950 data-pressed:hover:text-white dark:data-pressed:hover:bg-white dark:data-pressed:hover:text-neutral-950 focus-visible:relative focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
         <BoldIcon />
-      </Toggle>
-      <Toggle
+      </Toggle.Root>
+      <Toggle.Root
         aria-label="Italic"
         value="italic"
         className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none hover:bg-neutral-100 dark:hover:bg-neutral-800 data-pressed:bg-neutral-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 data-pressed:hover:bg-neutral-950 data-pressed:hover:text-white dark:data-pressed:hover:bg-white dark:data-pressed:hover:text-neutral-950 focus-visible:relative focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
         <ItalicIcon />
-      </Toggle>
-      <Toggle
+      </Toggle.Root>
+      <Toggle.Root
         aria-label="Underline"
         value="underline"
         className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none hover:bg-neutral-100 dark:hover:bg-neutral-800 data-pressed:bg-neutral-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 data-pressed:hover:bg-neutral-950 data-pressed:hover:text-white dark:data-pressed:hover:bg-white dark:data-pressed:hover:text-neutral-950 focus-visible:relative focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
         <UnderlineIcon />
-      </Toggle>
+      </Toggle.Root>
     </ToggleGroup>
   );
 }

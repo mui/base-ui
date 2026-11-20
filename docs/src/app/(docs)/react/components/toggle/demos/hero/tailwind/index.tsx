@@ -1,28 +1,21 @@
 'use client';
 import * as React from 'react';
-import { Toggle } from '@base-ui/react/toggle';
+import * as Toggle from '@base-ui/react/toggle';
 
 export default function ExampleToggle() {
   return (
-    <Toggle
+    <Toggle.Root
       aria-label="Favorite"
-      className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-pressed:text-neutral-950 dark:data-pressed:text-white focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
-      render={(props, state) => {
-        if (state.pressed) {
-          return (
-            <button type="button" {...props}>
-              <HeartFilledIcon />
-            </button>
-          );
-        }
-
-        return (
-          <button type="button" {...props}>
-            <HeartOutlineIcon />
-          </button>
-        );
-      }}
-    />
+      className="grid size-8 place-items-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none *:[grid-area:1/1] hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+    >
+      <HeartOutlineIcon />
+      <Toggle.Indicator
+        keepMounted
+        className="block scale-0 transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] data-pressed:scale-100 motion-reduce:transition-none"
+      >
+        <HeartFilledIcon />
+      </Toggle.Indicator>
+    </Toggle.Root>
   );
 }
 

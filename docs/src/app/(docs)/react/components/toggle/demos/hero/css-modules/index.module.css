@@ -1,8 +1,7 @@
 .Button {
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   width: 2rem;
   height: 2rem;
   padding: 0;
@@ -36,14 +35,6 @@
     }
   }
 
-  &[data-pressed] {
-    color: oklch(14.5% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      color: white;
-    }
-  }
-
   &:focus-visible {
     outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
@@ -51,5 +42,25 @@
     @media (prefers-color-scheme: dark) {
       outline-color: white;
     }
+  }
+
+  /* Stacks the filled heart on top of the outline. */
+  & > * {
+    grid-area: 1 / 1;
+  }
+}
+
+/* Stays mounted so the filled heart can grow in and shrink out. */
+.Indicator {
+  display: block;
+  transform: scale(0);
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &[data-pressed] {
+    transform: scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 }

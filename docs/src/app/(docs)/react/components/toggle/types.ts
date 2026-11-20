@@ -1,4 +1,6 @@
-import { Toggle } from '@base-ui/react/toggle';
-import { createTypes } from 'docs/src/utils/createTypes';
+import * as Toggle from '@base-ui/react/toggle';
+import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-export const TypesToggle = createTypes(import.meta.url, Toggle);
+const { types } = createMultipleTypes(import.meta.url, Toggle);
+
+export const TypesToggle = types;
