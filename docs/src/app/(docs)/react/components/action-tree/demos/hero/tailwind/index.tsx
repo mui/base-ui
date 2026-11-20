@@ -48,6 +48,7 @@ const CONTENT_CLASS =
   'ps-[var(--leaf-offset)]';
 
 const ICON_BUTTON_CLASS =
+  'relative after:absolute after:-inset-0.5 ' +
   'inline-flex size-5 shrink-0 items-center justify-center border-0 bg-transparent p-0 ' +
   'text-neutral-500 hover:text-neutral-950 focus-visible:outline-2 ' +
   'focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white ' +
@@ -64,15 +65,19 @@ const INPUT_CLASS =
   'text-end font-[inherit] text-sm text-neutral-950 focus:outline-2 focus:-outline-offset-1 ' +
   'focus:outline-neutral-950 dark:border-white dark:text-white dark:focus:outline-white';
 
+// The inset starts inside the 1px border, so 3px gives a 24px hit area.
 const SWITCH_CLASS =
+  'relative after:absolute after:-inset-0.75 ' +
   'flex h-5 w-9 shrink-0 border border-neutral-950 bg-white p-0.5 transition-colors ' +
   'duration-150 ease-[ease] data-checked:bg-neutral-950 focus-visible:outline-2 ' +
   'focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:border-white ' +
-  'dark:bg-neutral-950 dark:data-checked:bg-white dark:focus-visible:outline-white';
+  'dark:bg-neutral-950 dark:data-checked:bg-white dark:focus-visible:outline-white ' +
+  'forced-colors:data-checked:bg-[color:Highlight]';
 
 const THUMB_CLASS =
   'size-3.5 bg-neutral-950 transition-[translate,background-color] duration-150 ease-[ease] ' +
-  'data-checked:translate-x-4 data-checked:bg-white dark:bg-white dark:data-checked:bg-neutral-950';
+  'data-checked:translate-x-4 data-checked:bg-white dark:bg-white dark:data-checked:bg-neutral-950 ' +
+  'forced-colors:bg-[color:CanvasText] forced-colors:data-checked:bg-[color:HighlightText]';
 
 export default function ExampleActionTreeHero() {
   const actionsRef = React.useRef<ActionTree.Root.Actions<Task>>(null);
@@ -96,7 +101,7 @@ export default function ExampleActionTreeHero() {
           >
             <ActionTree.ItemContent className={CONTENT_CLASS}>
               <ActionTree.ItemExpansionTrigger
-                className={`${ICON_BUTTON_CLASS} relative after:absolute after:-inset-0.5 data-expanded:[&_svg]:rotate-90 [&_svg]:size-3`}
+                className={`${ICON_BUTTON_CLASS} data-expanded:[&_svg]:rotate-90 [&_svg]:size-3`}
               >
                 <ChevronIcon />
               </ActionTree.ItemExpansionTrigger>

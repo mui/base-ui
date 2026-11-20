@@ -58,7 +58,10 @@ const ROW_CLASS =
 const PAGE_ITEM_CLASS =
   `${ROW_CLASS} data-active:bg-neutral-950 data-active:font-medium data-active:text-white ` +
   'dark:data-active:bg-white dark:data-active:text-neutral-950 ' +
-  'forced-colors:data-active:border-[color:Highlight]';
+  'forced-colors:data-active:border-[color:Highlight] ' +
+  // An inner ring that contrasts with the active background.
+  'data-active:focus-visible:-outline-offset-4 data-active:focus-visible:outline-white ' +
+  'dark:data-active:focus-visible:outline-neutral-950';
 
 const TRIGGER_CLASS =
   'relative after:absolute after:-inset-0.5 ' +
@@ -71,6 +74,7 @@ const LINK_CLASS =
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-current';
 
 const ICON_LINK_CLASS =
+  'relative after:absolute after:-inset-0.5 ' +
   'inline-flex size-5 shrink-0 items-center justify-center text-inherit [&_svg]:size-3.5 ' +
   'focus-visible:outline-2 focus-visible:outline-current';
 

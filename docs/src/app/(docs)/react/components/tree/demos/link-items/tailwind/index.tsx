@@ -58,7 +58,10 @@ const ROW_CLASS =
 const LINK_ITEM_CLASS =
   `${ROW_CLASS} data-active:bg-neutral-950 data-active:font-medium data-active:text-white ` +
   'dark:data-active:bg-white dark:data-active:text-neutral-950 ' +
-  'forced-colors:data-active:border-[color:Highlight]';
+  'forced-colors:data-active:border-[color:Highlight] ' +
+  // An inner ring that contrasts with the active background.
+  'data-active:focus-visible:-outline-offset-4 data-active:focus-visible:outline-white ' +
+  'dark:data-active:focus-visible:outline-neutral-950';
 
 const TRIGGER_CLASS =
   'relative after:absolute after:-inset-0.5 ' +

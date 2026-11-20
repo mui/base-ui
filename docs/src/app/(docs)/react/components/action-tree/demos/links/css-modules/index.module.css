@@ -92,6 +92,16 @@
   @media (forced-colors: active) {
     border-inline-start-color: Highlight;
   }
+
+  /* An inner ring that contrasts with the active background. */
+  &:focus-visible {
+    outline-color: white;
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: oklch(14.5% 0 0deg);
+    }
+  }
 }
 
 .ExpansionTrigger {
@@ -172,6 +182,7 @@
 }
 
 .IconLink {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -187,5 +198,11 @@
 
   &:focus-visible {
     outline: 2px solid currentColor;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.125rem;
   }
 }

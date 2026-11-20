@@ -85,7 +85,8 @@
 .ItemContent {
   display: flex;
   align-items: inherit;
-  gap: inherit;
+  /* Keeps the checkbox and trigger hit areas apart. */
+  gap: 0.5rem;
   min-width: 0;
   flex: 1;
 }
@@ -93,7 +94,7 @@
 .Hierarchy {
   display: flex;
   align-items: inherit;
-  gap: inherit;
+  gap: 0.25rem;
   min-width: 0;
   flex: 1;
   margin-inline-start: calc(var(--indent) * (var(--tree-item-level) - 1));
@@ -200,6 +201,7 @@
 }
 
 .Checkbox {
+  position: relative;
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
@@ -212,6 +214,12 @@
     @media (prefers-color-scheme: dark) {
       outline: 2px solid white;
     }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.25rem;
   }
 }
 

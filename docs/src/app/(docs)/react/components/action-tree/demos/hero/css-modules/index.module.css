@@ -200,6 +200,7 @@
 }
 
 .Switch {
+  position: relative;
   box-sizing: border-box;
   display: flex;
   flex-shrink: 0;
@@ -230,6 +231,19 @@
       outline: 2px solid white;
     }
   }
+
+  @media (forced-colors: active) {
+    &[data-checked] {
+      background-color: Highlight;
+    }
+  }
+
+  /* The inset starts inside the 1px border, so 3px gives a 24px hit area. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.1875rem;
+  }
 }
 
 .Thumb {
@@ -252,9 +266,18 @@
       background-color: oklch(14.5% 0 0deg);
     }
   }
+
+  @media (forced-colors: active) {
+    background-color: CanvasText;
+
+    &[data-checked] {
+      background-color: HighlightText;
+    }
+  }
 }
 
 .RemoveButton {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -291,5 +314,11 @@
     @media (prefers-color-scheme: dark) {
       outline: 2px solid white;
     }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.125rem;
   }
 }

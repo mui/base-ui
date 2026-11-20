@@ -93,6 +93,16 @@
   @media (forced-colors: active) {
     border-inline-start-color: Highlight;
   }
+
+  /* An inner ring that contrasts with the active background. */
+  &:focus-visible {
+    outline-color: white;
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: oklch(14.5% 0 0deg);
+    }
+  }
 }
 
 .ExpansionTrigger {

@@ -78,23 +78,36 @@ export default function ExampleTreeHighFrequencyUpdates() {
         // @highlight-end
       >
         <Tree.List aria-label="Service traffic" className={styles.Tree}>
-          {(item: Service) => (
-            <Tree.Item itemId={item.id} className={styles.Item}>
-              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                <ChevronIcon />
-              </Tree.ItemExpansionTrigger>
-              <Tree.ItemGroupIndicator className={styles.GroupIndicator}>
-                <FolderIcon />
-              </Tree.ItemGroupIndicator>
-              <span className={styles.Label}>{item.label}</span>
-              {item.requests != null && (
-                <span className={styles.Requests}>{item.requests} req/s</span>
-              )}
-            </Tree.Item>
-          )}
+          {(item: Service) => <ServiceItem item={item} />}
         </Tree.List>
       </Tree.Root>
     </div>
+  );
+}
+
+function ServiceItem({ item }: { item: Service }) {
+  const requestsId = React.useId();
+
+  return (
+    <Tree.Item
+      itemId={item.id}
+      className={styles.Item}
+      // The item is named by its label, so the rate goes in its description.
+      aria-describedby={item.requests != null ? requestsId : undefined}
+    >
+      <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+        <ChevronIcon />
+      </Tree.ItemExpansionTrigger>
+      <Tree.ItemGroupIndicator className={styles.GroupIndicator}>
+        <FolderIcon />
+      </Tree.ItemGroupIndicator>
+      <span className={styles.Label}>{item.label}</span>
+      {item.requests != null && (
+        <span id={requestsId} className={styles.Requests}>
+          {item.requests} req/s
+        </span>
+      )}
+    </Tree.Item>
   );
 }
 

@@ -62,6 +62,7 @@ const HIERARCHY_CLASS =
   'ps-[var(--leaf-offset)]';
 
 const CHECKBOX_CLASS =
+  'relative after:absolute after:-inset-0.75 ' +
   'inline-flex shrink-0 items-center justify-center ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
@@ -86,7 +87,8 @@ export default function ExampleActionTreeCheckboxSelection() {
       >
         {(item: ActionTree.DefaultItem) => (
           <ActionTree.Item itemId={item.id} className={ITEM_CLASS}>
-            <ActionTree.ItemContent className="flex min-w-0 flex-1 items-[inherit] gap-[inherit]">
+            {/* The gap keeps the checkbox and trigger hit areas apart */}
+            <ActionTree.ItemContent className="flex min-w-0 flex-1 items-[inherit] gap-2">
               {/* @highlight-start @focus @padding 2 */}
               <ActionTree.ItemCheckbox className={CHECKBOX_CLASS}>
                 <ActionTree.ItemCheckboxIndicator className={INDICATOR_CLASS} keepMounted>

@@ -66,7 +66,10 @@ const MODE_SELECT_CLASS =
 
 const INPUT_CONTAINER_CLASS =
   'flex items-center border-b border-neutral-200 focus-within:border-neutral-950 focus-within:ring-1 focus-within:ring-neutral-950 focus-within:ring-inset ' +
-  'dark:border-neutral-700 dark:focus-within:border-white dark:focus-within:ring-white';
+  'dark:border-neutral-700 dark:focus-within:border-white dark:focus-within:ring-white ' +
+  // Forced colors drop the ring.
+  'forced-colors:focus-within:outline-2 forced-colors:focus-within:-outline-offset-2 ' +
+  'forced-colors:focus-within:outline-[color:Highlight]';
 
 const INPUT_CLASS =
   'min-h-8 w-0 flex-1 border-0 bg-transparent px-2.5 text-sm leading-none text-inherit outline-0 ' +

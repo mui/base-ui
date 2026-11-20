@@ -100,29 +100,41 @@ export default function ExampleTreeHighFrequencyUpdates() {
           aria-label="Service traffic"
           className="box-content w-68 border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
         >
-          {(item: Service) => (
-            <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-              <Tree.ItemExpansionTrigger
-                className={`${CONTROL_CLASS} data-expanded:[&_svg]:rotate-90`}
-              >
-                <ChevronIcon />
-              </Tree.ItemExpansionTrigger>
-              <Tree.ItemGroupIndicator className="inline-flex shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-4">
-                <FolderIcon />
-              </Tree.ItemGroupIndicator>
-              <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                {item.label}
-              </span>
-              {item.requests != null && (
-                <span className="shrink-0 text-neutral-500 tabular-nums dark:text-neutral-400">
-                  {item.requests} req/s
-                </span>
-              )}
-            </Tree.Item>
-          )}
+          {(item: Service) => <ServiceItem item={item} />}
         </Tree.List>
       </Tree.Root>
     </div>
+  );
+}
+
+function ServiceItem({ item }: { item: Service }) {
+  const requestsId = React.useId();
+
+  return (
+    <Tree.Item
+      itemId={item.id}
+      className={ITEM_CLASS}
+      // The item is named by its label, so the rate goes in its description.
+      aria-describedby={item.requests != null ? requestsId : undefined}
+    >
+      <Tree.ItemExpansionTrigger className={`${CONTROL_CLASS} data-expanded:[&_svg]:rotate-90`}>
+        <ChevronIcon />
+      </Tree.ItemExpansionTrigger>
+      <Tree.ItemGroupIndicator className="inline-flex shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-4">
+        <FolderIcon />
+      </Tree.ItemGroupIndicator>
+      <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+        {item.label}
+      </span>
+      {item.requests != null && (
+        <span
+          id={requestsId}
+          className="shrink-0 text-neutral-600 tabular-nums dark:text-neutral-300"
+        >
+          {item.requests} req/s
+        </span>
+      )}
+    </Tree.Item>
   );
 }
 

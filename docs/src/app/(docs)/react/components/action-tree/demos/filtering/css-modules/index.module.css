@@ -35,6 +35,12 @@
       border-color: white;
       box-shadow: inset 0 0 0 1px white;
     }
+
+    /* Forced colors drop the box shadow. */
+    @media (forced-colors: active) {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
   }
 }
 
@@ -221,6 +227,7 @@
 }
 
 .RemoveButton {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -257,6 +264,12 @@
     @media (prefers-color-scheme: dark) {
       outline: 2px solid white;
     }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.125rem;
   }
 }
 
