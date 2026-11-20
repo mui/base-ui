@@ -32,17 +32,16 @@ export const ActionTreeItemControl = fastComponentRef(function ActionTreeItemCon
   const disabled = store.useState('isItemDisabled', itemId);
 
   const state: ActionTreeItemControlState = { disabled };
+  // Forward `disabled` to a rendered widget such as `<Switch.Root>` so it ignores
+  // interaction while its item or the tree is disabled. A `<div>` has no such attribute.
+  const disabledProps: React.HTMLAttributes<HTMLDivElement> & {
+    disabled?: boolean | undefined;
+  } = render ? { disabled } : EMPTY_OBJECT;
 
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, control.ref],
-    props: [
-      { tabIndex: tabIndex ?? control.tabIndex },
-      // Forward `disabled` to a rendered widget such as `<Switch.Root>` so it ignores
-      // interaction while its item or the tree is disabled.
-      render ? { disabled } : EMPTY_OBJECT,
-      elementProps,
-    ],
+    props: [{ tabIndex: tabIndex ?? control.tabIndex }, disabledProps, elementProps],
   });
 });
 
