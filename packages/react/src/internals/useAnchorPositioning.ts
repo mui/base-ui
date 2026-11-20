@@ -6,14 +6,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  autoUpdate,
-  flip,
-  limitShift,
-  offset,
-  shift as floatingShift,
-  size,
-} from '@floating-ui/react-dom';
+import { flip, limitShift, offset, shift as floatingShift, size } from '@floating-ui/react-dom';
 import type {
   Placement,
   VirtualElement,
@@ -34,6 +27,7 @@ import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../utils/popups/positioning/arrow';
 import { hide } from '../utils/popups/positioning/hideMiddleware';
+import { autoUpdateWhileMoving } from '../utils/popups/positioning/autoUpdateWhileMoving';
 import { DEFAULT_SIDES } from '../utils/popups/positioning/adaptiveOriginConstants';
 import * as CommonPositionerCssVars from '../utils/popups/positioning/CommonPositionerCssVars';
 
@@ -494,7 +488,7 @@ export function useAnchorPositioning(
     strategy: positionMethod,
     whileElementsMounted: keepMounted
       ? undefined
-      : (...args) => autoUpdate(...args, autoUpdateOptions),
+      : (...args) => autoUpdateWhileMoving(...args, autoUpdateOptions),
     nodeId,
     externalTree,
   });
@@ -589,7 +583,12 @@ export function useAnchorPositioning(
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.reference && elements.floating) {
-      return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
+      return autoUpdateWhileMoving(
+        elements.reference,
+        elements.floating,
+        update,
+        autoUpdateOptions,
+      );
     }
     return undefined;
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
