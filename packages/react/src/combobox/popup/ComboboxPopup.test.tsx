@@ -196,8 +196,8 @@ describe('<Combobox.Popup />', () => {
   });
 
   describe('data-instant', () => {
-    // The popup clears `instantType` once it unmounts, which happens as soon as it closes while
-    // animations are disabled, so the closing render records what it saw.
+    // The popup unmounts as soon as it closes while animations are disabled, so the closing render
+    // records what it saw.
     let closingInstants: Array<string | undefined> = [];
     function recordClosingInstant(state: Combobox.Popup.State) {
       if (!state.open) {
@@ -242,15 +242,10 @@ describe('<Combobox.Popup />', () => {
       expect(closingInstants[0]).toBe('dismiss');
     });
 
-    it.skipIf(isJSDOM)(
-      'stays "dismiss" on the popup while the exit animation runs',
-      async ({ onTestFinished }) => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        onTestFinished(() => {
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-        });
+    it.skipIf(isJSDOM)('stays "dismiss" on the popup while the exit animation runs', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-        const style = `
+      const style = `
           @keyframes combobox-instant-exit {
             to {
               opacity: 0;
@@ -262,44 +257,43 @@ describe('<Combobox.Popup />', () => {
           }
         `;
 
-        const { user } = await render(
-          <React.Fragment>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <Combobox.Root items={['Apple']} defaultOpen>
-              <Combobox.Input data-testid="input" />
-              <Combobox.Portal>
-                <Combobox.Positioner>
-                  <Combobox.Popup data-testid="popup" className="combobox-instant-exit">
-                    <Combobox.List>
-                      {(item: string) => (
-                        <Combobox.Item key={item} value={item}>
-                          {item}
-                        </Combobox.Item>
-                      )}
-                    </Combobox.List>
-                  </Combobox.Popup>
-                </Combobox.Positioner>
-              </Combobox.Portal>
-            </Combobox.Root>
-          </React.Fragment>,
-        );
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Combobox.Root items={['Apple']} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup data-testid="popup" className="combobox-instant-exit">
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </React.Fragment>,
+      );
 
-        const popup = screen.getByTestId('popup');
-        expect(popup).not.toHaveAttribute('data-instant');
+      const popup = screen.getByTestId('popup');
+      expect(popup).not.toHaveAttribute('data-instant');
 
-        await act(async () => {
-          screen.getByTestId('input').focus();
-        });
-        await user.keyboard('{Escape}');
+      await act(async () => {
+        screen.getByTestId('input').focus();
+      });
+      await user.keyboard('{Escape}');
 
-        // The exit animation is long, so the popup is still mounted and animating out.
-        await waitFor(() => {
-          expect(popup).toHaveAttribute('data-ending-style');
-        });
-        expect(popup).toHaveAttribute('data-instant', 'dismiss');
-      },
-    );
+      // The exit animation is long, so the popup is still mounted and animating out.
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+      expect(popup).toHaveAttribute('data-instant', 'dismiss');
+    });
 
     it('is "click" on the popup and the positioner when a keyboard press on the trigger opens the popup', async () => {
       const { user } = await render(<TestCombobox />);
@@ -424,11 +418,8 @@ describe('<Combobox.Popup />', () => {
         );
       }
 
-      async function renderControlled(onTestFinished: (fn: () => void) => void) {
+      async function renderControlled() {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        onTestFinished(() => {
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-        });
 
         const setOpenRef = React.createRef<(open: boolean) => void>();
         const { user } = await render(<ControlledCombobox setOpenRef={setOpenRef} />);
@@ -450,8 +441,8 @@ describe('<Combobox.Popup />', () => {
         });
       }
 
-      it('stays "dismiss" when the parent accepts an Escape close', async ({ onTestFinished }) => {
-        const { user } = await renderControlled(onTestFinished);
+      it('stays "dismiss" when the parent accepts an Escape close', async () => {
+        const { user } = await renderControlled();
         await openWithKeyboard(user);
 
         await user.keyboard('{Escape}');
@@ -462,10 +453,8 @@ describe('<Combobox.Popup />', () => {
         expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
       });
 
-      it('is removed when the prop closes a popup that a keyboard press opened', async ({
-        onTestFinished,
-      }) => {
-        const { user, setOpen } = await renderControlled(onTestFinished);
+      it('is removed when the prop closes a popup that a keyboard press opened', async () => {
+        const { user, setOpen } = await renderControlled();
         await openWithKeyboard(user);
         expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
 
@@ -477,10 +466,8 @@ describe('<Combobox.Popup />', () => {
         expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
       });
 
-      it('is removed when the prop reopens the popup during a dismissal', async ({
-        onTestFinished,
-      }) => {
-        const { user, setOpen } = await renderControlled(onTestFinished);
+      it('is removed when the prop reopens the popup during a dismissal', async () => {
+        const { user, setOpen } = await renderControlled();
         await openWithKeyboard(user);
         await user.keyboard('{Escape}');
         await waitFor(() => {

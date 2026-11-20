@@ -1785,8 +1785,7 @@ describe('<Select.Popup />', () => {
   });
 
   describe('data-instant', () => {
-    // The popup clears `instantType` once it finishes closing, which happens right away while
-    // animations are disabled, so the closing render records what it saw.
+    // Records the `instant` state the popup renders with as it closes.
     let closingInstants: Array<string | undefined> = [];
     function recordClosingInstant(state: Select.Popup.State) {
       if (!state.open) {
@@ -1974,11 +1973,8 @@ describe('<Select.Popup />', () => {
         );
       }
 
-      async function renderControlled(onTestFinished: (fn: () => void) => void) {
+      async function renderControlled() {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        onTestFinished(() => {
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-        });
 
         const setOpenRef = React.createRef<(open: boolean) => void>();
         const { user } = await render(<ControlledSelect setOpenRef={setOpenRef} />);
@@ -2000,8 +1996,8 @@ describe('<Select.Popup />', () => {
         });
       }
 
-      it('stays "dismiss" when the parent accepts an Escape close', async ({ onTestFinished }) => {
-        const { user } = await renderControlled(onTestFinished);
+      it('stays "dismiss" when the parent accepts an Escape close', async () => {
+        const { user } = await renderControlled();
         await openWithKeyboard(user);
 
         await user.keyboard('{Escape}');
@@ -2012,10 +2008,8 @@ describe('<Select.Popup />', () => {
         expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
       });
 
-      it('is removed when the prop closes a popup that a keyboard press opened', async ({
-        onTestFinished,
-      }) => {
-        const { user, setOpen } = await renderControlled(onTestFinished);
+      it('is removed when the prop closes a popup that a keyboard press opened', async () => {
+        const { user, setOpen } = await renderControlled();
         await openWithKeyboard(user);
         expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
 
@@ -2027,10 +2021,8 @@ describe('<Select.Popup />', () => {
         expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
       });
 
-      it('is removed when the prop reopens the popup during a dismissal', async ({
-        onTestFinished,
-      }) => {
-        const { user, setOpen } = await renderControlled(onTestFinished);
+      it('is removed when the prop reopens the popup during a dismissal', async () => {
+        const { user, setOpen } = await renderControlled();
         await openWithKeyboard(user);
         await user.keyboard('{Escape}');
         await waitFor(() => {

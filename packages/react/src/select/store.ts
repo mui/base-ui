@@ -128,7 +128,6 @@ export class SelectStore extends ValuePopupStore<
     return {
       activeIndex: null,
       openMethod: null,
-      instantType: undefined,
       scrollUpArrowVisible: false,
       scrollDownArrowVisible: false,
     };
