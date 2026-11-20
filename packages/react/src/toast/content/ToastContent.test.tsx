@@ -1,8 +1,8 @@
 import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
-import { createRenderer, describeConformance } from '#test-utils';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 const toast = {
   id: 'test',
@@ -84,4 +84,83 @@ describe('<Toast.Content />', () => {
     fireEvent.mouseEnter(screen.getByTestId('viewport'));
     expect(content).toHaveAttribute('data-expanded');
   });
+
+  it.skipIf(isJSDOM)(
+    'does not commit pending app updates when observers re-measure an unchanged height',
+    async () => {
+      const errors: string[] = [];
+      function handleError(event: ErrorEvent) {
+        errors.push(event.message);
+        event.preventDefault();
+      }
+      window.addEventListener('error', handleError);
+
+      let panelObserver: ResizeObserver | undefined;
+      function observeSelf(node: HTMLElement | null) {
+        panelObserver?.disconnect();
+        if (!node) {
+          return;
+        }
+        panelObserver = new ResizeObserver(() => {});
+        panelObserver.observe(node);
+      }
+
+      function ObservedPanelApp() {
+        const { toasts, add } = Toast.useToastManager();
+        const [panelKey, setPanelKey] = React.useState(0);
+        return (
+          <React.Fragment>
+            {/* Shallower than the toast content, and observed again on every remount. */}
+            <div key={panelKey} ref={observeSelf} data-testid="panel">
+              panel {panelKey}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                add({ title: 'Saved' });
+                // Pending while the new toast content receives its first observation.
+                requestAnimationFrame(() => setPanelKey((key) => key + 1));
+              }}
+            >
+              add
+            </button>
+            <Toast.Viewport>
+              {toasts.map((toastItem) => (
+                <Toast.Root key={toastItem.id} toast={toastItem}>
+                  <Toast.Content>
+                    <Toast.Title />
+                  </Toast.Content>
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider timeout={0}>
+            <ObservedPanelApp />
+          </Toast.Provider>,
+        );
+
+        expect(screen.getByTestId('panel')).toHaveTextContent('panel 0');
+
+        await user.click(screen.getByRole('button', { name: 'add' }));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('panel')).toHaveTextContent('panel 1');
+        });
+        // Let the observer deliveries that follow the remount run.
+        await new Promise((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+
+        expect(errors).toEqual([]);
+      } finally {
+        panelObserver?.disconnect();
+        window.removeEventListener('error', handleError);
+      }
+    },
+  );
 });
