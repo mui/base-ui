@@ -6,6 +6,7 @@ import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useFloatingParentNodeId } from './tree/FloatingTree';
+import { cancelHoverIntent } from './interactions/hoverIntent';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -516,6 +517,9 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   useIsoLayoutEffect(() => {
     if (openProp === false) {
       store.set('open', false);
+      // A close through the prop also skips `dispatchOpenChange`, which stops the hover timers on a
+      // close. Left running, they would open or close the popup during its next session.
+      cancelHoverIntent(store.context);
     }
   }, [openProp, store]);
 

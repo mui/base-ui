@@ -291,6 +291,54 @@ describe('<Popover.Root />', () => {
     });
 
     describe('controlled open', () => {
+      describe('with a closeDelay', () => {
+        clock.withFakeTimers();
+
+        it('does not report a hover close whose delay expires after `open` was set to false', async () => {
+          const handleChange = vi.fn();
+          let setOpen: (nextOpen: boolean) => void = () => {};
+
+          function App() {
+            const [open, setOpenState] = React.useState(false);
+            setOpen = setOpenState;
+            return (
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange: (nextOpen, details) => {
+                    handleChange(nextOpen, details.reason);
+                    setOpenState(nextOpen);
+                  },
+                }}
+                triggerProps={{ openOnHover: true, delay: 100, closeDelay: 500 }}
+                // Unmounting the popup would dispose of the pending close timer with it.
+                portalProps={{ keepMounted: true }}
+              />
+            );
+          }
+
+          await render(<App />);
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          enterWithMouse(trigger);
+          clock.tick(100);
+          await flushMicrotasks();
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+          // Leaving an open popover starts its close delay.
+          fireEvent.mouseLeave(trigger);
+          await act(async () => setOpen(false));
+          await flushMicrotasks();
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+          const callsBeforeExpiry = handleChange.mock.calls.length;
+
+          clock.tick(500);
+          await flushMicrotasks();
+
+          expect(handleChange.mock.calls.slice(callsBeforeExpiry)).toEqual([]);
+        });
+      });
+
       it('should call onChange when the open state changes', async () => {
         const handleChange = vi.fn();
 
