@@ -4,7 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { stopEvent } from '../../utils/popups/event';
+import { isVirtualClick, stopEvent } from '../../utils/popups/event';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
@@ -74,12 +74,43 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     });
   }
 
+  function handleKeyDown(event: React.KeyboardEvent) {
+    const isContextMenuKey = event.key === 'ContextMenu' || event.code === 'ContextMenu';
+    const isShiftF10 = event.key === 'F10' && event.shiftKey;
+    if (disabled || !(isContextMenuKey || isShiftF10)) {
+      return;
+    }
+
+    const trigger = triggerRef.current;
+    if (!trigger) {
+      return;
+    }
+
+    stopEvent(event);
+
+    const rect = trigger.getBoundingClientRect();
+    setAnchor({
+      getBoundingClientRect() {
+        return DOMRect.fromRect({ width: 0, height: 0, x: rect.left, y: rect.bottom });
+      },
+    });
+    initialCursorPointRef.current = null;
+    store.setActiveIndex(0, REASONS.keyboard, event.nativeEvent);
+    actionsRef.current?.setOpen(
+      true,
+      createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+    );
+  }
+
   function handleContextMenu(event: React.MouseEvent) {
     if (disabled) {
       return;
     }
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
+    if (event.nativeEvent.button === 0 && isVirtualClick(event.nativeEvent)) {
+      store.setActiveIndex(0, REASONS.keyboard, event.nativeEvent);
+    }
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
@@ -201,6 +232,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     ref: [triggerRef, forwardedRef],
     props: [
       {
+        tabIndex: disabled ? -1 : 0,
+        onKeyDown: handleKeyDown,
         onContextMenu: handleContextMenu,
         onTouchStart: handleTouchStart,
         onTouchMove: handleTouchMove,
