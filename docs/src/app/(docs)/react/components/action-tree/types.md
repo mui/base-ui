@@ -916,6 +916,12 @@ Renders a `<div>` element.
 | style       | `React.CSSProperties \| ((state: ActionTree.ItemControl.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render      | `ReactElement \| ((props: HTMLProps, state: ActionTree.ItemControl.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**ItemControl Data Attributes:**
+
+| Attribute     | Type | Description                                              |
+| :------------ | :--- | :------------------------------------------------------- |
+| data-disabled | -    | Present when the control's item or the tree is disabled. |
+
 ### ItemControl.Props
 
 Re-export of [ItemControl](#itemcontrol) props.
@@ -923,7 +929,14 @@ Re-export of [ItemControl](#itemcontrol) props.
 ### ItemControl.State
 
 ```typescript
-type ActionTreeItemControlState = {};
+type ActionTreeItemControlState = {
+  /**
+   * Whether the control's item or the tree is disabled.
+   * A rendered element receives it as its `disabled` prop. A widget without that prop
+   * has to read it from the state.
+   */
+  disabled: boolean;
+};
 ```
 
 ### ItemControl.Keys
@@ -1461,6 +1474,17 @@ declare namespace ActionTreeItemCheckboxIndicatorDataAttributes {
 }
 ```
 
+### ActionTreeItemControlDataAttributes
+
+Data attributes of [ItemControl](#itemcontrol).
+
+```typescript
+declare namespace ActionTreeItemControlDataAttributes {
+  /** Present when the control's item or the tree is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
 ### ActionTreeItemCssVariables
 
 CSS variables of [Item](#item).
@@ -1648,7 +1672,7 @@ type TreeFilterMode = 'hide-non-matches' | 'collapse-non-matches' | 'expand-matc
 - `ActionTree.Input`: `ActionTree.Input`, `ActionTree.Input.State`, `ActionTree.Input.Props`
 - `ActionTree.Clear`: `ActionTree.Clear`, `ActionTree.Clear.State`, `ActionTree.Clear.Props`
 - `ActionTree.useFilter`
-- `Default`: `ActionTree.Filter`, `ActionTree.FilterOptions`, `ActionTree.CreateItemsOptions`, `ActionTree.DefaultItem`, `ActionTree.ItemId`, `ActionTree.SelectionMode`, `ActionTree.CheckboxSelectionPropagation`, `ActionTree.FilterMode`, `ActionTree.ItemPosition`, `ActionTree.ItemDestination`, `ActionTree.ItemTransaction`, `ActionTree.ItemChange`, `ActionTree.SELECTION_ALL`, `ActionTreeItemDataAttributes`, `ActionTreeItemExpansionTriggerDataAttributes`, `ActionTreeItemGroupIndicatorDataAttributes`, `ActionTreeGroupTransitionDataAttributes`, `ActionTreeItemIndentGuideDataAttributes`, `ActionTreeInputDataAttributes`, `ActionTreeClearDataAttributes`, `ActionTreeListDataAttributes`, `ActionTreeItemCssVariables`, `ActionTreeGroupTransitionCssVariables`, `ActionTreeItemIndentGuideCssVariables`, `ActionTreeItemCheckboxDataAttributes`, `ActionTreeItemCheckboxIndicatorDataAttributes`, `ActionTreeItemButtonDataAttributes`, `ActionTreeItemLinkDataAttributes`, `ActionTreeItemInputDataAttributes`, `ActionTreeLabelProps`, `ActionTreeLabelState`, `ActionTreeListProps`, `ActionTreeListState`, `ActionTreeItemProps`, `ActionTreeItemState`, `ActionTreeItemExpansionTriggerProps`, `ActionTreeItemExpansionTriggerState`, `ActionTreeItemGroupIndicatorProps`, `ActionTreeItemGroupIndicatorState`, `ActionTreeItemIndentGuideProps`, `ActionTreeItemIndentGuideState`, `ActionTreeGroupTransitionProps`, `ActionTreeGroupTransitionState`, `ActionTreeEmptyProps`, `ActionTreeEmptyState`, `ActionTreeStatusProps`, `ActionTreeStatusState`, `ActionTreeFilterProviderProps`, `ActionTreeFilterProviderState`, `ActionTreeInputProps`, `ActionTreeInputState`, `ActionTreeClearProps`, `ActionTreeClearState`, `ActionTreeRootState`, `ActionTreeRootProps`, `ActionTreeItemContentState`, `ActionTreeItemContentProps`, `ActionTreeItemCheckboxProps`, `ActionTreeItemCheckboxState`, `ActionTreeItemCheckboxIndicatorState`, `ActionTreeItemCheckboxIndicatorProps`, `ActionTreeItemButtonState`, `ActionTreeItemButtonProps`, `ActionTreeItemInputState`, `ActionTreeItemInputProps`, `ActionTreeItemLinkState`, `ActionTreeItemLinkProps`, `ActionTreeItemControlKeys`, `ActionTreeItemControlState`, `ActionTreeItemControlProps`
+- `Default`: `ActionTree.Filter`, `ActionTree.FilterOptions`, `ActionTree.CreateItemsOptions`, `ActionTree.DefaultItem`, `ActionTree.ItemId`, `ActionTree.SelectionMode`, `ActionTree.CheckboxSelectionPropagation`, `ActionTree.FilterMode`, `ActionTree.ItemPosition`, `ActionTree.ItemDestination`, `ActionTree.ItemTransaction`, `ActionTree.ItemChange`, `ActionTree.SELECTION_ALL`, `ActionTreeItemDataAttributes`, `ActionTreeItemExpansionTriggerDataAttributes`, `ActionTreeItemGroupIndicatorDataAttributes`, `ActionTreeGroupTransitionDataAttributes`, `ActionTreeItemIndentGuideDataAttributes`, `ActionTreeInputDataAttributes`, `ActionTreeClearDataAttributes`, `ActionTreeListDataAttributes`, `ActionTreeItemCssVariables`, `ActionTreeGroupTransitionCssVariables`, `ActionTreeItemIndentGuideCssVariables`, `ActionTreeItemCheckboxDataAttributes`, `ActionTreeItemCheckboxIndicatorDataAttributes`, `ActionTreeItemButtonDataAttributes`, `ActionTreeItemLinkDataAttributes`, `ActionTreeItemInputDataAttributes`, `ActionTreeItemControlDataAttributes`, `ActionTreeLabelProps`, `ActionTreeLabelState`, `ActionTreeListProps`, `ActionTreeListState`, `ActionTreeItemProps`, `ActionTreeItemState`, `ActionTreeItemExpansionTriggerProps`, `ActionTreeItemExpansionTriggerState`, `ActionTreeItemGroupIndicatorProps`, `ActionTreeItemGroupIndicatorState`, `ActionTreeItemIndentGuideProps`, `ActionTreeItemIndentGuideState`, `ActionTreeGroupTransitionProps`, `ActionTreeGroupTransitionState`, `ActionTreeEmptyProps`, `ActionTreeEmptyState`, `ActionTreeStatusProps`, `ActionTreeStatusState`, `ActionTreeFilterProviderProps`, `ActionTreeFilterProviderState`, `ActionTreeInputProps`, `ActionTreeInputState`, `ActionTreeClearProps`, `ActionTreeClearState`, `ActionTreeRootState`, `ActionTreeRootProps`, `ActionTreeItemContentState`, `ActionTreeItemContentProps`, `ActionTreeItemCheckboxProps`, `ActionTreeItemCheckboxState`, `ActionTreeItemCheckboxIndicatorState`, `ActionTreeItemCheckboxIndicatorProps`, `ActionTreeItemButtonState`, `ActionTreeItemButtonProps`, `ActionTreeItemInputState`, `ActionTreeItemInputProps`, `ActionTreeItemLinkState`, `ActionTreeItemLinkProps`, `ActionTreeItemControlKeys`, `ActionTreeItemControlState`, `ActionTreeItemControlProps`
 - `ActionTree.createItems`
 - `ActionTree.ItemCollection`
 - `ActionTree.FilterFunction`

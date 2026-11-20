@@ -1,8 +1,11 @@
 'use client';
 import type * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useTreeRootContext } from '../../tree/root/TreeRootContext';
+import { useTreeItemContext } from '../../tree/item/TreeItemContext';
 import { WIDGET_CONTROL_KEYS, useActionTreeItemControl } from '../utils/useActionTreeItemControl';
 
 /**
@@ -24,10 +27,22 @@ export const ActionTreeItemControl = fastComponentRef(function ActionTreeItemCon
     defaultKeys: WIDGET_CONTROL_KEYS,
   });
 
+  const store = useTreeRootContext();
+  const itemId = useTreeItemContext();
+  const disabled = store.useState('isItemDisabled', itemId);
+
+  const state: ActionTreeItemControlState = { disabled };
+
   return useRenderElement('div', componentProps, {
-    state: {},
+    state,
     ref: [forwardedRef, control.ref],
-    props: [{ tabIndex: tabIndex ?? control.tabIndex }, elementProps],
+    props: [
+      { tabIndex: tabIndex ?? control.tabIndex },
+      // Forward `disabled` to a rendered widget such as `<Switch.Root>` so it ignores
+      // interaction while its item or the tree is disabled.
+      render ? { disabled } : EMPTY_OBJECT,
+      elementProps,
+    ],
   });
 });
 
@@ -56,7 +71,14 @@ export interface ActionTreeItemControlKeys {
   escape?: 'control' | 'tree' | undefined;
 }
 
-export interface ActionTreeItemControlState {}
+export interface ActionTreeItemControlState {
+  /**
+   * Whether the control's item or the tree is disabled.
+   * A rendered element receives it as its `disabled` prop. A widget without that prop
+   * has to read it from the state.
+   */
+  disabled: boolean;
+}
 
 export interface ActionTreeItemControlProps extends BaseUIComponentProps<
   'div',

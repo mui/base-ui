@@ -7,6 +7,7 @@ import { DirectionProvider } from '../direction-provider';
 import { Field } from '../field';
 import { Menu } from '../menu';
 import { Select } from '../select';
+import { Switch } from '../switch';
 import { ActionTree } from '.';
 import { Tree } from '../tree';
 import type { TreeDefaultItem } from '../tree/store/types';
@@ -529,6 +530,9 @@ describe('Tree', () => {
                         Action
                       </ActionTree.ItemButton>
                       <ActionTree.ItemInput aria-label="Name" data-testid="input" />
+                      <ActionTree.ItemControl
+                        render={<Switch.Root aria-label="Notify" data-testid="switch" />}
+                      />
                     </React.Fragment>
                   ) : null}
                 </ActionTree.ItemContent>
@@ -545,6 +549,11 @@ describe('Tree', () => {
       expect(action).toHaveAttribute('data-disabled');
       expect(screen.getByTestId('input')).toHaveAttribute('aria-disabled', 'true');
       expect(screen.getByTestId('input')).toHaveAttribute('data-disabled');
+
+      const control = screen.getByTestId('switch');
+      expect(control).toHaveAttribute('data-disabled');
+      fireEvent.click(control);
+      expect(control).toHaveAttribute('aria-checked', 'false');
     },
   );
 

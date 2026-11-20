@@ -16,6 +16,7 @@ export * as ActionTreeItemCheckboxIndicatorDataAttributes from './item-checkbox-
 export * as ActionTreeItemButtonDataAttributes from './item-button/ActionTreeItemButtonDataAttributes';
 export * as ActionTreeItemLinkDataAttributes from './item-link/ActionTreeItemLinkDataAttributes';
 export * as ActionTreeItemInputDataAttributes from './item-input/ActionTreeItemInputDataAttributes';
+export * as ActionTreeItemControlDataAttributes from './item-control/ActionTreeItemControlDataAttributes';
 
 export type * from './root/ActionTreeRoot';
 export type * from './item-content/ActionTreeItemContent';
