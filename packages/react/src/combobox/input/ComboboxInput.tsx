@@ -6,6 +6,7 @@ import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useImeComposition } from '../../internals/useImeComposition';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -97,8 +98,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
   const fieldStateForInput = hasPositionerParent ? DEFAULT_FIELD_STATE_ATTRIBUTES : fieldState;
 
-  const [composingValue, setComposingValue] = React.useState<string | null>(null);
-  const isComposingRef = React.useRef(false);
+  const composition = useImeComposition((nextValue, event) => {
+    store.context.setInputValue(
+      nextValue,
+      createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
+    );
+  });
   const lastActiveIndexRef = React.useRef<number | null>(null);
 
   // Restore the saved highlight on refocus only within the same open cycle.
@@ -175,7 +180,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       inputProps,
       triggerProps,
       {
-        value: composingValue ?? inputValue,
+        value: composition.composingValue ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
         'aria-labelledby': fieldLabelId,
@@ -220,22 +225,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             validation.commit(valueToValidate);
           }
         },
-        onCompositionStart(event) {
-          if (platform.os.android) {
-            return;
-          }
-          isComposingRef.current = true;
-          setComposingValue(event.currentTarget.value);
-        },
-        onCompositionEnd(event) {
-          isComposingRef.current = false;
-          const next = event.currentTarget.value;
-          setComposingValue(null);
-          store.context.setInputValue(
-            next,
-            createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
-          );
-        },
         onChange(event) {
           const nativeEvent = event.nativeEvent;
           // Autofill may not provide `inputType` (Chrome) or may report
@@ -243,7 +232,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           const inputType = (nativeEvent as InputEvent).inputType;
           const autofillLikeInput = !inputType || inputType === 'insertReplacementText';
           // During composition the input is always considered typed into.
-          const shouldOpenOnInput = isComposingRef.current || !autofillLikeInput;
+          const shouldOpenOnInput = composition.composingValue != null || !autofillLikeInput;
 
           function maybeOpenOnInput(trimmed: string) {
             if (readOnly || disabled || !trimmed || !shouldOpenOnInput) {
@@ -263,9 +252,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           // events with some keyboards (e.g. Samsung keyboard with predictive text on
           // treats all text as always-composing).
           // https://github.com/mui/base-ui/issues/2942
-          if (isComposingRef.current) {
+          if (composition.bufferChange(event.currentTarget.value)) {
             const nextVal = event.currentTarget.value;
-            setComposingValue(nextVal);
 
             if (nextVal === '' && !store.state.openOnInputClick && !store.state.inputInsidePopup) {
               store.setOpen(false, createChangeEventDetails(REASONS.inputClear, nativeEvent));
@@ -426,6 +414,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
         },
       },
+      composition.props,
       validationProps,
     ],
     stateAttributesMapping: triggerStateAttributesMapping,
