@@ -47,7 +47,7 @@
     "pretest:screen-reader": "guidepup install",
     "test:screen-reader": "playwright test --config test/screen-reader/playwright.config.ts",
     "test:screen-reader:setup": "guidepup setup",
-    "test:_unit": "cross-env TZ=UTC vitest --project @base-ui/react --project @base-ui/utils --project docs",
+    "test:_unit": "cross-env TZ=UTC vitest --project @base-ui/react --project @base-ui/utils --project docs --project docs-browser",
     "test:jsdom": "cross-env VITEST_ENV=jsdom pnpm test:_unit",
     "test:lint-rules": "node scripts/eslint/testRules.test.mjs",
     "test:jsdom:coverage": "pnpm test:jsdom --coverage",

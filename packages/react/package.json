@@ -28,6 +28,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./accordion": "./src/accordion/index.ts",
+    "./action-tree": "./src/action-tree/index.ts",
     "./alert-dialog": "./src/alert-dialog/index.ts",
     "./autocomplete": "./src/autocomplete/index.ts",
     "./avatar": "./src/avatar/index.ts",
@@ -68,6 +69,7 @@
     "./toggle-group": "./src/toggle-group/index.ts",
     "./toolbar": "./src/toolbar/index.ts",
     "./tooltip": "./src/tooltip/index.ts",
+    "./tree": "./src/tree/index.ts",
     "./types": "./src/types/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
     "./use-render": "./src/use-render/index.ts",
@@ -143,6 +145,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/use-sync-external-store": "1.7.0",
+    "axe-core": "4.14.0",
     "clsx": "2.1.1",
     "date-fns": "4.4.0",
     "luxon": "3.7.2",

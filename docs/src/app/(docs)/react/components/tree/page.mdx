@@ -1,0 +1,315 @@
+# Tree
+
+<Subtitle>A hierarchical list of items that expand to reveal their children.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React tree component for interactive hierarchical data."
+/>
+
+> **Note:** Tree is currently in preview. Its API may change before it becomes stable.
+
+import { DemoTreeHero } from './demos/hero';
+
+<DemoTreeHero />
+
+## Usage guidelines
+
+- **Avoid when items contain controls**: A tree item is one focusable element that screen readers read as a whole, so it can't hold buttons, inputs, or links that keyboard users need to reach. Use [Action Tree](/react/components/action-tree) for those items instead.
+- **Avoid trees for site navigation**: Prefer links grouped under disclosure buttons, such as [Collapsible](/react/components/collapsible). The [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) caution against trees for site navigation. If you use one, follow the [links](#links) example.
+- **Give the tree an accessible name**: Prefer `<Tree.Label>`, or provide an `aria-label` on `<Tree.List>` when no visible label is rendered.
+- **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`. An item is named by its `label`, so pass other visible content, such as a size, to `aria-describedby`. The expansion trigger and the clear button have English names, such as "Expand Documents" and "Clear filter": pass your own `aria-label` to translate them, based on `state.expanded` for the trigger.
+- **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<Tree.ItemExpansionTrigger>` so they can expand items by tapping. With multiple selection, render `<Tree.CheckboxItem>` so that tapping an item toggles it without clearing the others.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Tree } from '@base-ui/react/tree';
+
+<Tree.FilterProvider>
+  <Tree.Root>
+    <Tree.Label />
+    <Tree.Input />
+    <Tree.Clear />
+    <Tree.Status />
+    <Tree.Empty />
+
+    <Tree.List>
+      {(item) => (
+        <>
+          <Tree.Item itemId={item.id}>
+            <Tree.ItemIndentGuide />
+            <Tree.ItemExpansionTrigger />
+            <Tree.ItemGroupIndicator />
+          </Tree.Item>
+          <Tree.GroupTransition />
+        </>
+      )}
+    </Tree.List>
+  </Tree.Root>
+</Tree.FilterProvider>;
+```
+
+`<Tree.CheckboxItem>` and `<Tree.LinkItem>` replace `<Tree.Item>` for items that toggle like a checkbox or link to another page. They take the same children, and `<Tree.CheckboxItemIndicator>` goes inside `<Tree.CheckboxItem>`.
+
+`<Tree.FilterProvider>` wraps `<Tree.Root>` to add filtering, so trees without it don't bundle the filter. Adding or removing it remounts the tree, so keep it rendered and pass an empty `value` to turn filtering off.
+
+## Item models
+
+To add fields to the standard item, extend `Tree.DefaultItem` and redeclare `children` with your own type. Otherwise, nested items only need the standard fields, while callbacks type them as your model.
+
+```tsx title="Extending the standard item"
+interface Folder extends Tree.DefaultItem {
+  color: string;
+  children?: Folder[];
+}
+```
+
+For any other item model, use `Tree.createItems()`. Supply `setChildren` for nested edits and managed reparenting.
+
+```tsx title="Custom item model"
+const items = Tree.createItems(nodes, {
+  getId: (node) => node.key,
+  getLabel: (node) => node.name,
+  getChildren: (node) => node.nodes,
+  setChildren: (node, children) => ({ ...node, nodes: [...children] }),
+});
+
+<Tree.Root items={items}>
+  <Tree.List<Node>>{(node) => <Row node={node} />}</Tree.List>
+</Tree.Root>;
+```
+
+The root infers the item type from `items`. Parts outside the root's props, such as `<Tree.List>` and the providers, can't see it, so they type items as `any` unless you pass the type, as `<Tree.List<Node>>` does.
+
+## Examples
+
+### Checkbox selection
+
+Render `<Tree.CheckboxItem>` in place of `<Tree.Item>` to select items like checkboxes, and `<Tree.CheckboxItemIndicator>` inside it to show the state. Set `selectionMode="multiple"` on `<Tree.Root>` to allow more than one item to be selected. In single selection, checking an item unchecks the others, so use `<Tree.Item>` there instead.
+
+A click toggles the item and keeps the other items selected. <kbd>Shift</kbd>+click selects a range. The item reports `aria-checked` instead of `aria-selected`, and `mixed` when only some of its descendants are selected. <kbd>Escape</kbd> clears the selection.
+
+import { DemoTreeCheckboxItems } from './demos/checkbox-items';
+
+<DemoTreeCheckboxItems />
+
+### Selection propagation
+
+The `checkboxSelectionPropagation` prop controls how checkbox selection affects related items. With `descendants`, selecting a parent selects its whole branch. With `parents`, selecting all selectable children selects their parent. Both are enabled by default in multiple-selection mode.
+
+import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
+
+<DemoTreeSelectionPropagation />
+
+### Select all
+
+In multiple-selection mode, use `Tree.SELECTION_ALL` to select every selectable item without listing its ID.
+
+```tsx
+<Tree.Root items={items} selectionMode="multiple" defaultSelectedItems={Tree.SELECTION_ALL}>
+  <Tree.List>{renderItem}</Tree.List>
+</Tree.Root>
+```
+
+### Links
+
+Render `<Tree.LinkItem>` in place of `<Tree.Item>` to link an item to another page, and set `active` on the current page's item. The item renders an `<a>` element, as in the [navigation tree example](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) of the WAI-ARIA Authoring Practices.
+
+Clicks and <kbd>Enter</kbd> follow the link. A click with <kbd>Ctrl</kbd>, <kbd>Cmd</kbd>, or <kbd>Shift</kbd> opens it in a new tab or window and leaves the selection as it is. Tabbing into the tree focuses the current page's item, unless an item is selected or another item had focus before.
+
+import { DemoTreeLinkItems } from './demos/link-items';
+
+<DemoTreeLinkItems />
+
+### Animated expansion
+
+Render `<Tree.GroupTransition>` after each item to animate expanding and collapsing branches. Use the `--tree-group-transition-height` CSS variable with the `data-starting-style` and `data-ending-style` attributes to animate the group's height.
+
+import { DemoTreeAnimated } from './demos/animated';
+
+<DemoTreeAnimated />
+
+### Filtering
+
+Wrap `<Tree.Root>` in `<Tree.FilterProvider>` and add `<Tree.Input>` inside the root.
+Type to narrow the items, then press <kbd>Arrow Down</kbd> or <kbd>Enter</kbd> to focus the first match, or <kbd>Arrow Up</kbd> to focus the last one.
+Typing while an item has focus continues the query, and <kbd>Escape</kbd> clears it.
+
+import { DemoTreeFiltering } from './demos/filtering';
+
+<DemoTreeFiltering />
+
+A match keeps its ancestors visible. Use `mode` to choose how the items that don't match are shown.
+
+#### Matching items
+
+Items match their label by default and receive a `data-filter-match` attribute. Screen readers don't announce it, so describe matches with `aria-describedby`.
+
+By default, an item matches when its label contains the query, ignoring case, accents, and punctuation.
+Use `filter` to replace the matching. It receives each item's label, the trimmed query, and the item, and keeps the item when it returns `true`.
+
+```jsx title="Custom matching"
+<Tree.FilterProvider
+  filter={(text, query, item) => text.startsWith(query) || item.tags.includes(query)}
+>
+  <Tree.Root items={items}>{/* tree parts */}</Tree.Root>
+</Tree.FilterProvider>
+```
+
+`Tree.useFilter` provides the same locale-aware comparisons:
+
+```jsx title="Locale-aware prefix matching"
+const { startsWith } = Tree.useFilter();
+
+<Tree.FilterProvider filter={startsWith}>
+  <Tree.Root items={items}>{/* tree parts */}</Tree.Root>
+</Tree.FilterProvider>;
+```
+
+#### External filtering
+
+To match items on a server, pass the matches to `filteredItems`. The tree keeps showing their ancestors and applies `mode`. Every match must also be in the tree's items.
+
+```jsx title="Server-side matches"
+<Tree.FilterProvider value={query} onValueChange={setQuery} filteredItems={matches}>
+  <Tree.Root items={items}>{/* tree parts */}</Tree.Root>
+</Tree.FilterProvider>
+```
+
+To render the results yourself, pass `filter={null}` and give the root the filtered items.
+
+### Status messages
+
+`<Tree.Status>` politely announces filter matches and selection changes to screen readers.
+Keep it mounted and hide it visually, as the demos above do, since screen readers don't reliably announce a live region that appears with its message.
+
+The messages are in English.
+To translate them or write your own, pass the content as `children`, or a function that receives the latest `change` and its default `message`:
+
+```jsx title="Custom status messages"
+<Tree.Status>
+  {({ change, message }) =>
+    change?.type === 'filter' ? `${change.matchCount} files found.` : message
+  }
+</Tree.Status>
+```
+
+### Sticky ancestors
+
+To keep the ancestors of the rows at the top visible while scrolling, render copies of them above the list. With a fixed row height, the scroll position tells which row each copy covers, and `actionsRef` gives that row's ancestors. Hide the copies from assistive technology, and in `onItemHighlighted`, scroll a highlighted row out from under them.
+
+import { DemoTreeStickyAncestors } from './demos/sticky-ancestors';
+
+<DemoTreeStickyAncestors />
+
+### Updating items
+
+Use `actionsRef.current.applyTransaction()` to add, update, move, or remove items without rebuilding `items` yourself. The operations apply in the order they're called, as a single change, and each one sees the items as the earlier ones left them.
+
+import { DemoTreeUpdatingItems } from './demos/updating-items';
+
+<DemoTreeUpdatingItems />
+
+`onItemsChange` lists the changes in `eventDetails.changes`, in the order they applied, so applying them to another copy of the items, such as on a server, gives the same result. With a controlled `items`, inserted items render only once the parent passes them back, so wait for that before focusing them.
+
+### High-frequency updates
+
+Set `transactionThrottle` to commit the transactions of a short window together.
+
+import { DemoTreeHighFrequencyUpdates } from './demos/high-frequency-updates';
+
+<DemoTreeHighFrequencyUpdates />
+
+## API reference
+
+import { TypesTree, TypesTreeAdditional } from './types';
+
+### FilterProvider
+
+<TypesTree.FilterProvider />
+
+### Root
+
+<TypesTree.Root />
+
+### Label
+
+<TypesTree.Label />
+
+### List
+
+<TypesTree.List />
+
+### Item
+
+<TypesTree.Item />
+
+### CheckboxItem
+
+<TypesTree.CheckboxItem />
+
+### CheckboxItemIndicator
+
+<TypesTree.CheckboxItemIndicator />
+
+### LinkItem
+
+<TypesTree.LinkItem />
+
+### ItemGroupIndicator
+
+<TypesTree.ItemGroupIndicator />
+
+### ItemIndentGuide
+
+<TypesTree.ItemIndentGuide />
+
+### ItemExpansionTrigger
+
+<TypesTree.ItemExpansionTrigger />
+
+### Input
+
+<TypesTree.Input />
+
+### Clear
+
+<TypesTree.Clear />
+
+### Empty
+
+<TypesTree.Empty />
+
+### Status
+
+<TypesTree.Status />
+
+### GroupTransition
+
+<TypesTree.GroupTransition />
+
+## createItems
+
+Normalizes a custom item model into a collection for the `items` prop of `<Tree.Root>`, deriving each item's ID, label, and children.
+Create static collections at module scope, and memoize dynamic collections by their data and every value their accessors read.
+
+<TypesTree.createItems hideDescription />
+
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+This hook is used when customizing how items match.
+Call its methods inside the `filter` prop of `<Tree.FilterProvider>`.
+
+<TypesTree.useFilter hideDescription />
+
+## Additional types
+
+<TypesTreeAdditional />
+
+export const metadata = {
+  keywords: ['React Tree', 'Accessible Tree', 'Tree View', 'Base UI'],
+};

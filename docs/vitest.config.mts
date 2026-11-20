@@ -12,6 +12,7 @@ export default mergeConfig(
     },
     test: {
       name: 'docs',
+      exclude: ['**/*.browser.test.tsx'],
       root: resolve(import.meta.dirname, '..'),
       dir: import.meta.dirname,
       environment: 'node',
