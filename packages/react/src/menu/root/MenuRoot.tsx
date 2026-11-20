@@ -13,7 +13,7 @@ import {
 } from '../../utils/popups/tree/FloatingTree';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
-import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
+import { usePopupTypeahead } from '../../utils/popups/interactions/usePopupTypeahead';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import type { MenubarContext } from '../../menubar/MenubarContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
@@ -397,7 +397,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     [store],
   );
 
-  const typeahead = useTypeahead(store, {
+  const typeahead = usePopupTypeahead(store, {
     // Under virtual focus the input owns typing, so typeahead would race the filter query.
     enabled: !disabled && !virtualFocus,
     listRef: store.context.itemLabels,
