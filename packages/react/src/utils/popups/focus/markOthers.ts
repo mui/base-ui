@@ -100,9 +100,10 @@ function applyAttributeToOthers(
   const markedElements: Element[] = [];
 
   if (ariaHidden) {
+    // `aria-live="off"` content is not a live region, so it is hidden like the rest of the page.
     const ariaLiveElements = correctElements(
       body,
-      Array.from(body.querySelectorAll('[aria-live]')),
+      Array.from(body.querySelectorAll('[aria-live]:not([aria-live="off" i])')),
     );
     const controlElements = avoidElements.concat(ariaLiveElements);
     const controlTargets = collectOutsideElements(
