@@ -1,5 +1,4 @@
 import type * as React from 'react';
-import { NOOP } from '@base-ui/utils/empty';
 import type {
   PopupStoreContext,
   PopupStoreState,
@@ -102,12 +101,11 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
  * so detached triggers can register before migrating to the live root store.
  */
 export function createNullPreviewCardStore<Payload>(): PreviewCardHandleStore<Payload> {
-  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined)),
-    Object.freeze(createInitialContext()),
+  return new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    createInitialState<Payload>(undefined),
+    createInitialContext(),
     selectors,
   );
-  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialState<Payload>(
