@@ -195,6 +195,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const click = useClick(store, {
     enabled: !disabled,
+    flushPendingOnClick: true,
     event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,
     ignoreMouse: false,

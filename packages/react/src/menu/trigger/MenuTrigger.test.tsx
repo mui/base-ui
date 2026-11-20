@@ -10,7 +10,7 @@ import {
 } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM, firePointer } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
@@ -35,6 +35,85 @@ describe('<Menu.Trigger />', () => {
     } finally {
       errorSpy.mockRestore();
     }
+  });
+
+  describe.each([
+    { frameBeforeClick: false, phase: 'before the opening frame' },
+    { frameBeforeClick: true, phase: 'after the opening frame' },
+  ])('keyboard input immediately after a pointer click ($phase)', ({ frameBeforeClick }) => {
+    it.each([
+      { key: 'Enter', pointerType: 'mouse' },
+      { key: ' ', pointerType: 'mouse' },
+      { key: 'b', pointerType: 'mouse' },
+      { key: 'Escape', pointerType: 'mouse' },
+      { key: 'Enter', pointerType: 'touch' },
+      { key: ' ', pointerType: 'touch' },
+      { key: 'b', pointerType: 'touch' },
+      { key: 'Escape', pointerType: 'touch' },
+    ])(
+      'handles $key after a $pointerType click before the next frame',
+      async ({ key, pointerType }) => {
+        const onClick = vi.fn();
+        await render(
+          <Menu.Root>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item onClick={onClick}>Apple</Menu.Item>
+                  <Menu.Item onClick={onClick}>Banana</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        const frames: FrameRequestCallback[] = [];
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+          frames.push(callback);
+          return frames.length;
+        });
+
+        firePointer.down(trigger, {
+          pointerType,
+          timeStamp: 10,
+          width: 10,
+          height: 10,
+          pressure: 0.5,
+        });
+        fireEvent.mouseDown(trigger, { detail: 1 });
+        await act(async () => trigger.focus());
+        if (frameBeforeClick) {
+          await act(async () => {
+            frames.splice(0).forEach((callback) => callback(0));
+          });
+        }
+        firePointer.up(trigger, { pointerType, timeStamp: 20 });
+        fireEvent.mouseUp(trigger, { detail: 1 });
+        fireEvent.click(trigger, { detail: 1 });
+        await flushMicrotasks();
+
+        const popup = screen.getByRole('menu');
+        expect(popup).toHaveFocus();
+        let expectedFocus = popup;
+        if (key === 'Escape') {
+          expectedFocus = trigger;
+        } else if (key === 'b') {
+          expectedFocus = screen.getByRole('menuitem', { name: 'Banana' });
+        }
+        fireEvent.keyDown(popup, { key });
+        // Escape unmounts the popup before return focus runs on the next frame.
+        fireEvent.keyUp(key === 'Escape' ? document.body : expectedFocus, { key });
+        await flushMicrotasks();
+        await act(async () => {
+          frames.splice(0).forEach((callback) => callback(0));
+        });
+
+        expect(trigger).toHaveAttribute('aria-expanded', String(key !== 'Escape'));
+        expect(expectedFocus).toHaveFocus();
+        expect(onClick).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe.skipIf(isJSDOM)('tabbing backward from the open trigger', () => {
