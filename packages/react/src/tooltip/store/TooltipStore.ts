@@ -2,6 +2,8 @@ import type * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
 import type { TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { InlineRectCoords } from '../../utils/popups/inlineRect';
+import { updateInlineRectCoords } from '../../utils/popups/inlineRect';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/popups/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
@@ -33,6 +35,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly inlineRectCoordsRef: React.RefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
@@ -83,6 +86,28 @@ export class TooltipStore<Payload> extends BasePopupStore<
   }
 
   protected prepareOpenChange(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
+    const { inlineRectCoordsRef } = this.context;
+    const event = eventDetails.event;
+    if (!nextOpen) {
+      // Clear immediately so reopening before the close transition finishes
+      // captures coordinates for the newly hovered line.
+      inlineRectCoordsRef.current = undefined;
+    } else if (
+      eventDetails.reason === REASONS.triggerHover &&
+      eventDetails.trigger &&
+      event != null &&
+      'clientX' in event &&
+      'clientY' in event &&
+      inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
+    }
+
     return getHoverPopupInstantType(nextOpen, eventDetails.reason);
   }
 
@@ -96,6 +121,11 @@ export class TooltipStore<Payload> extends BasePopupStore<
     }
     this.setOpen(false, createChangeEventDetails(REASONS.none));
   };
+
+  protected prepareUnmount() {
+    this.context.inlineRectCoordsRef.current = undefined;
+    return {};
+  }
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
   cancelPendingOpen(event: MouseEvent | PointerEvent) {
@@ -148,5 +178,6 @@ function createInitialState<Payload>(
 function createInitialContext(): Context {
   return {
     ...createPopupStoreContext(),
+    inlineRectCoordsRef: { current: undefined },
   };
 }

@@ -1,0 +1,31 @@
+.Page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 30vh;
+}
+
+.Prose {
+  line-height: 2;
+  font-size: 1rem;
+}
+
+.InlineTrigger {
+  cursor: default;
+  border-radius: 2px;
+  padding: 0 2px;
+  background-color: var(--color-gray-100);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-open] {
+    background-color: var(--color-gray-200);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+}
