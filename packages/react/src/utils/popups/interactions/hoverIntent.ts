@@ -75,42 +75,46 @@ export class HoverIntent {
    */
   pointerType: string | undefined = undefined;
 
-  private interactedInside = false;
+  readonly #store: PopupInteractionStore;
 
-  private safePolygonHandler: ((event: MouseEvent) => void) | undefined = undefined;
+  #interactedInside = false;
 
-  private blockMouseMove = true;
+  #safePolygonHandler: ((event: MouseEvent) => void) | undefined = undefined;
 
-  private blockedPointerEvents: OutsidePointerEventsElements | null = null;
+  #blockMouseMove = true;
 
-  private restTimeoutPending = false;
+  #blockedPointerEvents: OutsidePointerEventsElements | null = null;
 
-  private readonly openChangeTimeout = new Timeout();
+  #restTimeoutPending = false;
 
-  private readonly restTimeout = new Timeout();
+  readonly #openChangeTimeout = new Timeout();
+
+  readonly #restTimeout = new Timeout();
 
   /**
    * The safe polygon options of the active trigger.
    */
   handleCloseOptions: HandleCloseOptions | undefined = undefined;
 
-  constructor(private readonly store: PopupInteractionStore) {
+  constructor(store: PopupInteractionStore) {
+    this.#store = store;
+
     // A close request while the popup is already closed isn't an open change, but it still
     // cancels a pending open. The emitter lives as long as this intent, so it needs no cleanup.
     store.context.events.on('droppedclose', () => this.cancel());
   }
 
-  private isClickLikeOpen() {
-    return isClickLikeOpenEvent(this.store.context.openEvent?.type, this.interactedInside);
+  #isClickLikeOpen() {
+    return isClickLikeOpenEvent(this.#store.context.openEvent?.type, this.#interactedInside);
   }
 
   /**
    * Cancels a pending hover open: the open delay and rest detection.
    */
   cancelPendingOpen() {
-    this.openChangeTimeout.clear();
-    this.restTimeout.clear();
-    this.restTimeoutPending = false;
+    this.#openChangeTimeout.clear();
+    this.#restTimeout.clear();
+    this.#restTimeoutPending = false;
   }
 
   /**
@@ -120,7 +124,7 @@ export class HoverIntent {
   cancel() {
     this.stopSafePolygon();
     this.cancelPendingOpen();
-    this.blockMouseMove = true;
+    this.#blockMouseMove = true;
   }
 
   /**
@@ -128,8 +132,8 @@ export class HoverIntent {
    */
   reset() {
     this.pointerType = undefined;
-    this.restTimeoutPending = false;
-    this.interactedInside = false;
+    this.#restTimeoutPending = false;
+    this.#interactedInside = false;
     this.restoreOutsidePointerEvents();
   }
 
@@ -137,13 +141,13 @@ export class HoverIntent {
    * Removes the safe polygon's `mousemove` listener.
    */
   stopSafePolygon = () => {
-    if (!this.safePolygonHandler) {
+    if (!this.#safePolygonHandler) {
       return;
     }
 
-    const doc = ownerDocument(this.store.select('anchorElement'));
-    doc.removeEventListener('mousemove', this.safePolygonHandler);
-    this.safePolygonHandler = undefined;
+    const doc = ownerDocument(this.#store.select('anchorElement'));
+    doc.removeEventListener('mousemove', this.#safePolygonHandler);
+    this.#safePolygonHandler = undefined;
   };
 
   /**
@@ -160,7 +164,7 @@ export class HoverIntent {
     }
 
     this.restoreOutsidePointerEvents();
-    this.blockedPointerEvents = elements;
+    this.#blockedPointerEvents = elements;
     pointerEventsOwnerByScopeElement.set(scopeElement, this);
 
     scopeElement.style.pointerEvents = 'none';
@@ -172,7 +176,7 @@ export class HoverIntent {
    * Undoes `blockOutsidePointerEvents()`, unless another popup has taken over the scope element.
    */
   restoreOutsidePointerEvents = () => {
-    const blocked = this.blockedPointerEvents;
+    const blocked = this.#blockedPointerEvents;
     if (!blocked) {
       return;
     }
@@ -186,14 +190,14 @@ export class HoverIntent {
       pointerEventsOwnerByScopeElement.delete(scopeElement);
     }
 
-    this.blockedPointerEvents = null;
+    this.#blockedPointerEvents = null;
   };
 
   onTriggerMouseEnter(event: MouseEvent, options: HoverIntentTriggerOptions) {
-    const { store } = this;
+    const store = this.#store;
 
-    this.openChangeTimeout.clear();
-    this.blockMouseMove = false;
+    this.#openChangeTimeout.clear();
+    this.#blockMouseMove = false;
 
     if (options.mouseOnly && !isMouseLikePointerType(this.pointerType)) {
       return;
@@ -232,7 +236,7 @@ export class HoverIntent {
     const isOverInactive =
       triggerNode == null
         ? false
-        : this.isOverInactiveTrigger(currentDomReference, triggerNode, eventTarget);
+        : this.#isOverInactiveTrigger(currentDomReference, triggerNode, eventTarget);
     const isOpen = store.select('open');
     const isInClosingTransition = store.select('transitionStatus') === 'ending';
     const isHoverCloseTransition =
@@ -267,16 +271,16 @@ export class HoverIntent {
     }
 
     if (openDelay) {
-      this.openChangeTimeout.start(openDelay, open);
+      this.#openChangeTimeout.start(openDelay, open);
     } else {
       open();
     }
   }
 
   onTriggerMouseLeave(event: MouseEvent, options: HoverIntentTriggerOptions) {
-    const { store } = this;
+    const store = this.#store;
 
-    if (this.isClickLikeOpen()) {
+    if (this.#isClickLikeOpen()) {
       this.restoreOutsidePointerEvents();
       return;
     }
@@ -285,11 +289,11 @@ export class HoverIntent {
 
     const anchorElement = store.select('anchorElement');
     const doc = ownerDocument(anchorElement);
-    this.restTimeout.clear();
-    this.restTimeoutPending = false;
+    this.#restTimeout.clear();
+    this.#restTimeoutPending = false;
 
     const handleCloseContextBase =
-      this.store.context.positioning ?? options.getHandleCloseContext?.();
+      this.#store.context.positioning ?? options.getHandleCloseContext?.();
 
     if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
       return;
@@ -299,12 +303,12 @@ export class HoverIntent {
 
     if (handleClose && handleCloseContextBase) {
       if (!store.select('open')) {
-        this.openChangeTimeout.clear();
+        this.#openChangeTimeout.clear();
       }
 
       const currentTrigger = options.triggerElementRef.current;
 
-      this.safePolygonHandler = handleClose({
+      this.#safePolygonHandler = handleClose({
         ...handleCloseContextBase,
         tree: options.tree,
         x: event.clientX,
@@ -314,16 +318,16 @@ export class HoverIntent {
           this.stopSafePolygon();
           if (
             options.enabled.current &&
-            !this.isClickLikeOpen() &&
+            !this.#isClickLikeOpen() &&
             currentTrigger === store.select('anchorElement')
           ) {
-            this.closeWithDelay(event, options.delay.current, options.tree);
+            this.#closeWithDelay(event, options.delay.current, options.tree);
           }
         },
       });
 
-      doc.addEventListener('mousemove', this.safePolygonHandler);
-      this.safePolygonHandler(event);
+      doc.addEventListener('mousemove', this.#safePolygonHandler);
+      this.#safePolygonHandler(event);
 
       return;
     }
@@ -334,7 +338,7 @@ export class HoverIntent {
         : true;
 
     if (shouldClose) {
-      this.closeWithDelay(event, options.delay.current, options.tree);
+      this.#closeWithDelay(event, options.delay.current, options.tree);
     }
   }
 
@@ -342,13 +346,13 @@ export class HoverIntent {
     event: React.MouseEvent,
     options: Pick<HoverIntentTriggerOptions, 'restMs' | 'mouseOnly' | 'shouldOpen'>,
   ) {
-    const { store } = this;
+    const store = this.#store;
     const { nativeEvent } = event;
     const trigger = event.currentTarget as HTMLElement;
 
     const currentDomReference = store.select('anchorElement');
     const currentOpen = store.select('open');
-    const isOverInactive = this.isOverInactiveTrigger(currentDomReference, trigger, event.target);
+    const isOverInactive = this.#isOverInactiveTrigger(currentDomReference, trigger, event.target);
 
     if (options.mouseOnly && !isMouseLikePointerType(this.pointerType)) {
       return;
@@ -375,26 +379,26 @@ export class HoverIntent {
 
     if (
       !isOverInactive &&
-      this.restTimeoutPending &&
+      this.#restTimeoutPending &&
       event.movementX ** 2 + event.movementY ** 2 < 2
     ) {
       return;
     }
 
-    this.restTimeout.clear();
+    this.#restTimeout.clear();
 
     const handleMouseMove = () => {
-      this.restTimeoutPending = false;
+      this.#restTimeoutPending = false;
 
       // A delayed hover open should not override a click-like open that happened
       // while the hover delay was pending.
-      if (this.isClickLikeOpen()) {
+      if (this.#isClickLikeOpen()) {
         return;
       }
 
       const latestOpen = store.select('open');
 
-      if (!this.blockMouseMove && (!latestOpen || isOverInactive) && options.shouldOpen()) {
+      if (!this.#blockMouseMove && (!latestOpen || isOverInactive) && options.shouldOpen()) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger));
       }
     };
@@ -406,8 +410,8 @@ export class HoverIntent {
     } else if (isOverInactive && currentOpen) {
       handleMouseMove();
     } else {
-      this.restTimeoutPending = true;
-      this.restTimeout.start(restMsValue, handleMouseMove);
+      this.#restTimeoutPending = true;
+      this.#restTimeout.start(restMsValue, handleMouseMove);
     }
   }
 
@@ -424,7 +428,7 @@ export class HoverIntent {
   ): boolean {
     if (
       !this.handleCloseOptions?.blockPointerEvents ||
-      !isHoverOpenEvent(this.store.context.openEvent?.type)
+      !isHoverOpenEvent(this.#store.context.openEvent?.type)
     ) {
       return false;
     }
@@ -441,7 +445,7 @@ export class HoverIntent {
     // A keep-mounted submenu can appear in the tree before it opens, so a
     // cached scope or parent lookup may resolve to the submenu itself. That
     // would not shield sibling items in the parent menu.
-    const previousScopeElement = this.blockedPointerEvents?.scopeElement ?? null;
+    const previousScopeElement = this.#blockedPointerEvents?.scopeElement ?? null;
     const cachedScopeElement =
       previousScopeElement !== positionerElement ? previousScopeElement : null;
     const parentScopeElement = parentFloating !== positionerElement ? parentFloating : null;
@@ -458,7 +462,7 @@ export class HoverIntent {
   }
 
   onPopupMouseEnter() {
-    this.openChangeTimeout.clear();
+    this.#openChangeTimeout.clear();
     this.restoreOutsidePointerEvents();
   }
 
@@ -470,7 +474,7 @@ export class HoverIntent {
       nodeId: string | undefined;
     },
   ) {
-    const { store } = this;
+    const store = this.#store;
     const { tree } = options;
 
     if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
@@ -479,7 +483,7 @@ export class HoverIntent {
       return;
     }
 
-    const currentNodeId = this.store.context.positioning?.nodeId ?? options.nodeId;
+    const currentNodeId = this.#store.context.positioning?.nodeId ?? options.nodeId;
     const relatedTarget = event.relatedTarget;
     const isMovingIntoDescendantFloating =
       tree &&
@@ -494,52 +498,52 @@ export class HoverIntent {
     }
 
     // If the safePolygon handler is active, let it handle the close logic.
-    if (this.safePolygonHandler) {
-      this.safePolygonHandler(event);
+    if (this.#safePolygonHandler) {
+      this.#safePolygonHandler(event);
       return;
     }
 
     this.restoreOutsidePointerEvents();
-    if (isHoverOpenEvent(this.store.context.openEvent?.type) && !this.isClickLikeOpen()) {
-      this.closeWithDelay(event, options.closeDelay, tree);
+    if (isHoverOpenEvent(this.#store.context.openEvent?.type) && !this.#isClickLikeOpen()) {
+      this.#closeWithDelay(event, options.closeDelay, tree);
     }
   }
 
   onPopupPointerDown(event: PointerEvent) {
     const target = getTarget(event) as Element | null;
     if (!isInteractiveElement(target)) {
-      this.interactedInside = false;
+      this.#interactedInside = false;
       return;
     }
 
-    this.interactedInside = closest(target, '[aria-haspopup]') != null;
+    this.#interactedInside = closest(target, '[aria-haspopup]') != null;
   }
 
-  private closeWithDelay(
+  #closeWithDelay(
     event: MouseEvent,
     delay: Delay | (() => Delay) | undefined,
     tree: FloatingTreeType | null,
   ) {
     const close = () => {
-      this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+      this.#store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
       tree?.events.emit('floating.closed', event);
     };
 
     const closeDelay = getDelay(delay, 'close', this.pointerType);
     if (closeDelay) {
-      this.openChangeTimeout.start(closeDelay, close);
+      this.#openChangeTimeout.start(closeDelay, close);
     } else {
-      this.openChangeTimeout.clear();
+      this.#openChangeTimeout.clear();
       close();
     }
   }
 
-  private isOverInactiveTrigger(
+  #isOverInactiveTrigger(
     currentDomReference: Element | null,
     currentTarget: Element,
     target: EventTarget | null,
   ): boolean {
-    const allTriggers = this.store.context.triggerElements;
+    const allTriggers = this.#store.context.triggerElements;
 
     // Fast path for normal usage where handlers are attached directly to triggers.
     if (allTriggers.hasElement(currentTarget)) {
