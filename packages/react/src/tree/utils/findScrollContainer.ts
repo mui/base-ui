@@ -1,5 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getComposedParentElement } from '../../utils/popups/focus/tabbable';
+import { isDocumentScroller } from './viewport';
 
 function isScrollable(element: HTMLElement): boolean {
   const style = ownerWindow(element).getComputedStyle(element);
@@ -31,4 +32,22 @@ export function findScrollContainer(start: HTMLElement): HTMLElement {
     current = parent instanceof ownerWindow(current).HTMLElement ? parent : null;
   }
   return (doc.scrollingElement as HTMLElement | null) ?? doc.documentElement;
+}
+
+/**
+ * The scroll containers around `start`, from the nearest one out to the
+ * document's scrolling element.
+ */
+export function findScrollContainers(start: HTMLElement): HTMLElement[] {
+  let container = findScrollContainer(start);
+  const containers = [container];
+  while (!isDocumentScroller(container)) {
+    const parent = getComposedParentElement(container);
+    if (!(parent instanceof ownerWindow(container).HTMLElement)) {
+      break;
+    }
+    container = findScrollContainer(parent);
+    containers.push(container);
+  }
+  return containers;
 }

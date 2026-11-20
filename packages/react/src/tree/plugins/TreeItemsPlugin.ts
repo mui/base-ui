@@ -63,7 +63,7 @@ export class TreeItemsPlugin<TItem = TreeDefaultItem> {
 
   /**
    * Scrolls the row of an item into view. The browser's focus scrolling is
-   * suppressed, as it scrolls every ancestor of the list.
+   * suppressed, as it would also scroll every ancestor horizontally.
    */
   public revealItem(itemId: TreeItemId): void {
     this.viewport?.scrollToItem(itemId);

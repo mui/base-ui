@@ -255,6 +255,41 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
       expect(rowIsWithinViewport(focusedRow(), scroller)).toBe(true);
     });
   });
+
+  it('scrolls the page when the list runs past the bottom of the window', async () => {
+    const offset = window.innerHeight - 2 * ROW_HEIGHT;
+    try {
+      await render(
+        <div style={{ paddingTop: offset, paddingBottom: window.innerHeight }}>
+          <Tree.Root items={ITEMS}>
+            <Tree.List style={{ height: 600, width: 240, overflow: 'auto' }}>
+              {renderSizedItem}
+            </Tree.List>
+          </Tree.Root>
+        </div>,
+      );
+      // Earlier tests leave the page scrolled.
+      window.scrollTo(0, 0);
+      await settle();
+
+      await act(async () => {
+        (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
+      });
+      expect(window.scrollY).toBe(0);
+
+      for (let i = 0; i < 5; i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await press('ArrowDown');
+      }
+
+      expect(focusedRow().dataset.itemId).toBe('item5');
+      expect(focusedRow().getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        window.innerHeight + 1,
+      );
+    } finally {
+      window.scrollTo(0, 0);
+    }
+  });
 });
 
 it('exposes the row level through aria-level only', async () => {

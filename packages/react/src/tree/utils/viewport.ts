@@ -1,4 +1,5 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { scrollIntoViewIfNeeded } from '../../internals/composite';
 import type { TextDirection } from '../../internals/direction-context';
 import type { TreeItemId } from '../store/types';
@@ -96,5 +97,29 @@ export function scrollIntoContainerView(
     container.scrollTop += delta / scale;
   } else {
     container.scrollLeft += delta / scale;
+  }
+}
+
+/**
+ * Scrolls `containers`, nearest first, just far enough along one axis for
+ * `element` to be visible. The outer ones, such as the page, only scroll while
+ * focus is inside `element`: a tree whose own scroll container runs past the
+ * window would otherwise leave the focused row off screen.
+ */
+export function scrollIntoContainersView(
+  containers: HTMLElement[],
+  element: HTMLElement | null,
+  orientation: 'horizontal' | 'vertical',
+  direction: TextDirection,
+): void {
+  if (element == null || containers.length === 0) {
+    return;
+  }
+  scrollIntoContainerView(containers[0], element, orientation, direction);
+  if (!contains(element, activeElement(ownerDocument(element)))) {
+    return;
+  }
+  for (let i = 1; i < containers.length; i += 1) {
+    scrollIntoContainerView(containers[i], element, orientation, direction);
   }
 }

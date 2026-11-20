@@ -1,14 +1,15 @@
 'use client';
 import type * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { findScrollContainer } from '../utils/findScrollContainer';
-import { scrollIntoContainerView } from '../utils/viewport';
+import { findScrollContainers } from '../utils/findScrollContainer';
+import { scrollIntoContainersView } from '../utils/viewport';
 import { ITEM_SELECTOR } from '../utils/itemIdKey';
 import { useTreeRootContext } from '../root/TreeRootContext';
 
 /**
  * Attaches the viewport of a list that renders every row, which brings rows
- * into view within the nearest scroll container around the list.
+ * into view within the nearest scroll container around the list, and within the
+ * outer ones while the row has focus.
  */
 export function useTreeListViewport(listRef: React.RefObject<HTMLElement | null>) {
   const store = useTreeRootContext();
@@ -18,7 +19,8 @@ export function useTreeListViewport(listRef: React.RefObject<HTMLElement | null>
     if (!listEl) {
       return undefined;
     }
-    const scrollContainer = findScrollContainer(listEl);
+    const scrollContainers = findScrollContainers(listEl);
+    const scrollContainer = scrollContainers[0];
 
     // Rows are aligned with the nearest edge of the tree's own scroll container,
     // like Menu, Select and Combobox do.
@@ -29,14 +31,14 @@ export function useTreeListViewport(listRef: React.RefObject<HTMLElement | null>
           ?.offsetHeight ?? 0,
       getScrollportHeight: () => scrollContainer.clientHeight,
       scrollToItem: (itemId) =>
-        scrollIntoContainerView(
-          scrollContainer,
+        scrollIntoContainersView(
+          scrollContainers,
           store.items.getItemDOMElement(itemId),
           'vertical',
           store.state.direction,
         ),
       scrollIntoViewHorizontally: (element) =>
-        scrollIntoContainerView(scrollContainer, element, 'horizontal', store.state.direction),
+        scrollIntoContainersView(scrollContainers, element, 'horizontal', store.state.direction),
     });
   }, [store, listRef]);
 }
