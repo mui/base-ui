@@ -81,7 +81,8 @@ export class HoverIntent {
 
   private blockMouseMove = true;
 
-  private blockedPointerEvents: OutsidePointerEventsElements | null = null;
+  private blockedPointerEvents:
+    (OutsidePointerEventsElements & { additionalTargets: HTMLElement[] | undefined }) | null = null;
 
   private restTimeoutPending = false;
 
@@ -147,11 +148,14 @@ export class HoverIntent {
   };
 
   /**
-   * Blocks pointer events within `scopeElement`, except on the trigger and positioner elements,
-   * so the pointer can travel to the popup without hovering anything else.
+   * Blocks pointer events within `scopeElement` so the pointer can travel to the popup.
+   * The trigger, positioner, and additional pointer targets remain interactive.
    * Takes over the scope element from another popup that blocks it.
    */
-  blockOutsidePointerEvents(elements: OutsidePointerEventsElements) {
+  blockOutsidePointerEvents(
+    elements: OutsidePointerEventsElements,
+    getAdditionalPointerTargets = this.handleCloseOptions?.getAdditionalPointerTargets,
+  ) {
     const { scopeElement, triggerElement, positionerElement } = elements;
 
     const existingOwner = pointerEventsOwnerByScopeElement.get(scopeElement);
@@ -160,12 +164,22 @@ export class HoverIntent {
     }
 
     this.restoreOutsidePointerEvents();
-    this.blockedPointerEvents = elements;
+    const additionalTargets = getAdditionalPointerTargets?.(scopeElement).filter(
+      (element) =>
+        element !== triggerElement &&
+        element !== positionerElement &&
+        element.style.pointerEvents === '',
+    );
+
+    this.blockedPointerEvents = { ...elements, additionalTargets };
     pointerEventsOwnerByScopeElement.set(scopeElement, this);
 
     scopeElement.style.pointerEvents = 'none';
     triggerElement.style.pointerEvents = 'auto';
     positionerElement.style.pointerEvents = 'auto';
+    additionalTargets?.forEach((element) => {
+      element.style.pointerEvents = 'auto';
+    });
   }
 
   /**
@@ -177,12 +191,15 @@ export class HoverIntent {
       return;
     }
 
-    const { scopeElement, triggerElement, positionerElement } = blocked;
+    const { scopeElement, triggerElement, positionerElement, additionalTargets } = blocked;
 
     if (pointerEventsOwnerByScopeElement.get(scopeElement) === this) {
       scopeElement.style.removeProperty('pointer-events');
       triggerElement.style.removeProperty('pointer-events');
       positionerElement.style.removeProperty('pointer-events');
+      additionalTargets?.forEach((element) => {
+        element.style.removeProperty('pointer-events');
+      });
       pointerEventsOwnerByScopeElement.delete(scopeElement);
     }
 

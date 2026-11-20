@@ -21,13 +21,14 @@ const falsyNavigationMenuValueCases = [
 function TestNavigationMenu(
   props: NavigationMenu.Root.Props & {
     keepMountedPortal?: boolean;
+    listStyle?: React.CSSProperties;
   },
 ) {
-  const { keepMountedPortal = false, ...rootProps } = props;
+  const { keepMountedPortal = false, listStyle, ...rootProps } = props;
 
   return (
     <NavigationMenu.Root {...rootProps}>
-      <NavigationMenu.List>
+      <NavigationMenu.List style={listStyle}>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
           <NavigationMenu.Content data-testid="popup-1">
@@ -1025,6 +1026,38 @@ function TestNavigationMenuWithPopover() {
   );
 }
 
+describe.skipIf(isJSDOM)('<NavigationMenu.Root /> with native pointer input', () => {
+  const { render } = createRenderer();
+
+  it('switches directly between adjacent triggers on hover', async () => {
+    const { userEvent: browserUser } = await import('vitest/browser');
+    await render(<TestNavigationMenu listStyle={{ display: 'flex', gap: 8 }} />);
+    const trigger1 = screen.getByTestId('trigger-1');
+    const trigger2 = screen.getByTestId('trigger-2');
+
+    await act(async () => {
+      await browserUser.hover(trigger1, { timeout: 3000 });
+    });
+    await screen.findByTestId('popup-1');
+
+    expect(trigger1.closest('ul')).toHaveStyle({ pointerEvents: 'none' });
+    const siblingRect = trigger2.getBoundingClientRect();
+    expect(
+      document.elementFromPoint(
+        siblingRect.x + siblingRect.width / 2,
+        siblingRect.y + siblingRect.height / 2,
+      ),
+    ).toBe(trigger2);
+
+    await act(async () => {
+      await browserUser.hover(trigger2, { timeout: 3000 });
+    });
+    expect(await screen.findByTestId('popup-2')).toBeVisible();
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+  });
+});
+
 describe('<NavigationMenu.Root />', () => {
   const { render, clock } = createRenderer({
     clockOptions: {
@@ -1083,12 +1116,13 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('popup-1')).not.toBe(null);
       expect(topLevelList.style.pointerEvents).toBe('none');
       expect(document.body.style.pointerEvents).toBe('');
-      expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
+      expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('auto');
 
       fireEvent.mouseEnter(screen.getByTestId('top-level-positioner'));
       await flushMicrotasks();
 
       expect(topLevelList.style.pointerEvents).toBe('');
+      expect(siblingTrigger.style.pointerEvents).toBe('');
     });
 
     it('reapplies top-level safePolygon pointer events after returning from the popup and switching triggers', async () => {
@@ -1158,7 +1192,7 @@ describe('<NavigationMenu.Root />', () => {
 
       expect(topLevelList.style.pointerEvents).toBe('none');
       expect(document.body.style.pointerEvents).toBe('');
-      expect(getComputedStyle(trigger1).pointerEvents).toBe('none');
+      expect(getComputedStyle(trigger1).pointerEvents).toBe('auto');
       expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
       expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
@@ -1227,24 +1261,6 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.pointerDown(secondTrigger, { pointerType: 'mouse' });
       expect(document.body.style.pointerEvents).toBe('');
     });
-
-    it.skipIf(isJSDOM)(
-      'blocks pointer events on sibling top-level triggers when opened through real hover',
-      async () => {
-        const { user } = await render(<TestNavigationMenu />);
-        const trigger = screen.getByTestId('trigger-1');
-        const siblingTrigger = screen.getByTestId('trigger-2');
-        const topLevelList = trigger.closest('ul') as HTMLElement;
-
-        await user.hover(trigger);
-
-        await waitFor(() => {
-          expect(topLevelList.style.pointerEvents).toBe('none');
-        });
-
-        expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
-      },
-    );
 
     it('opens on click with mouse input', async () => {
       await render(<TestNavigationMenu />);
