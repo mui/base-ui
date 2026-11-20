@@ -88,6 +88,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     style,
     disabled = false,
     swipeDirection: swipeDirectionProp,
+    payload,
     ...elementProps
   } = componentProps;
 
@@ -302,6 +303,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   function openDrawer(event?: PointerEvent | TouchEvent) {
     openedBySwipeRef.current = true;
+    store.set('payload', payload);
     store.setOpen(true, createChangeEventDetails(REASONS.swipe, event, swipeAreaRef.current!));
   }
 
@@ -491,7 +493,16 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   });
 });
 
-export interface DrawerSwipeAreaProps extends BaseUIComponentProps<'div', DrawerSwipeAreaState> {
+export interface DrawerSwipeArea {
+  <Payload>(
+    componentProps: DrawerSwipeAreaProps<Payload> & React.RefAttributes<HTMLDivElement>,
+  ): React.JSX.Element;
+}
+
+export interface DrawerSwipeAreaProps<Payload = unknown> extends BaseUIComponentProps<
+  'div',
+  DrawerSwipeAreaState
+> {
   /**
    * Whether the swipe area is disabled.
    * @default false
@@ -502,6 +513,10 @@ export interface DrawerSwipeAreaProps extends BaseUIComponentProps<'div', Drawer
    * Defaults to the opposite of `Drawer.Root` `swipeDirection`.
    */
   swipeDirection?: DrawerSwipeDirection | undefined;
+  /**
+   * A payload to pass to the drawer when it is opened by a swipe.
+   */
+  payload?: Payload | undefined;
 }
 
 export interface DrawerSwipeAreaState {
@@ -524,6 +539,6 @@ export interface DrawerSwipeAreaState {
 }
 
 export namespace DrawerSwipeArea {
-  export type Props = DrawerSwipeAreaProps;
+  export type Props<Payload = unknown> = DrawerSwipeAreaProps<Payload>;
   export type State = DrawerSwipeAreaState;
 }
