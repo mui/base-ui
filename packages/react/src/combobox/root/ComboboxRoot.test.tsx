@@ -1093,6 +1093,104 @@ describe('<Combobox.Root />', () => {
         expect(screen.queryByRole('option')).toBe(null);
       },
     );
+
+    it.skipIf(isJSDOM)(
+      'highlights the new selection when an inline picker reopens during the Dialog close animation',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        // Long enough that a slow run still reopens before the close finishes.
+        const style = `
+          @keyframes combobox-close-test {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: combobox-close-test 10s linear;
+          }
+        `;
+
+        const onValueChange = vi.fn();
+
+        function Picker() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <Combobox.Root
+              items={['Apple', 'Banana']}
+              defaultValue="Apple"
+              inline
+              open={open}
+              onOpenChange={setOpen}
+              highlightItemOnHover={false}
+              onValueChange={onValueChange}
+            >
+              <Dialog.Root open={open} onOpenChange={setOpen}>
+                <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Popup
+                    data-testid="popup"
+                    className="animation-test-popup"
+                    aria-label="Fruit"
+                  >
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Combobox.Root>
+          );
+        }
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Picker />
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        const input = await screen.findByTestId('input');
+        const apple = screen.getByRole('option', { name: 'Apple' });
+        await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+
+        const pressedBanana = screen.getByRole('option', { name: 'Banana' });
+        await user.click(pressedBanana);
+        const selectionEvent: unknown = expect.anything();
+        expect(onValueChange).toHaveBeenLastCalledWith('Banana', selectionEvent);
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+        // Reopen while the previous popup is still animating out.
+        await user.click(trigger);
+        await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
+
+        // The reopened list must highlight the new selection, not the previous one, so pressing
+        // Enter cannot silently recommit the item the user just replaced.
+        const banana = screen.getByRole('option', { name: 'Banana' });
+        await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
+        const reopenedApple = screen.getByRole('option', { name: 'Apple' });
+        expect(reopenedApple).not.toHaveAttribute('data-highlighted');
+        expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+
+        expect(input).toHaveFocus();
+        onValueChange.mockClear();
+        await user.keyboard('{Enter}');
+        expect(onValueChange).toHaveBeenCalledTimes(1);
+        expect(onValueChange).toHaveBeenLastCalledWith('Banana', selectionEvent);
+      },
+    );
   });
 
   it('does not aria-hide the input group when the input is outside the popup', async () => {
