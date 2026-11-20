@@ -2,6 +2,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSide } from '@floating-ui/utils';
 import type { Middleware } from '@floating-ui/react-dom';
 import { DEFAULT_SIDES } from './adaptiveOriginConstants';
+import { getWindowOffsetParentZoom } from './zoomAwarePlatform';
 
 export const adaptiveOrigin: Middleware = {
   name: 'adaptiveOrigin',
@@ -47,6 +48,14 @@ export const adaptiveOrigin: Middleware = {
     } else if (await platform.isElement?.(offsetParent)) {
       offsetDimensions = await platform.getDimensions(offsetParent);
     }
+
+    // `x` and `y` are in the positioner's CSS pixels, while the viewport is measured in viewport
+    // pixels, so convert it when an ancestor CSS zoom applies to a window offset parent.
+    const zoom = await getWindowOffsetParentZoom(floating);
+    offsetDimensions = {
+      width: offsetDimensions.width / zoom,
+      height: offsetDimensions.height / zoom,
+    };
 
     const currentSide = getSide(placement);
     let x = rawX;

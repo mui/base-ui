@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, onTestFinished } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { createRenderer } from '#test-utils';
@@ -283,7 +283,7 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
       });
     });
 
-    it('aligns with the anchor when an ancestor sets CSS zoom', async ({ onTestFinished }) => {
+    it('aligns with the anchor when an ancestor sets CSS zoom', async () => {
       // A zoomed static `<body>` keeps the window as the offset parent.
       const zoom = 2;
       document.body.style.zoom = String(zoom);
@@ -303,7 +303,101 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
       });
     });
 
+    // The page scroll is in viewport pixels, so converting rects for collision detection in the
+    // default `absolute` strategy only stays correct once it accounts for the zoom.
+    it.each([
+      { name: 'a fixed anchor', scrolled: false },
+      { name: 'an anchor in a scrolled page', scrolled: true },
+    ])(
+      'rests at collisionPadding from the colliding edge under CSS zoom with $name',
+      async ({ scrolled }) => {
+        const zoom = 2;
+        const collisionPadding = 12;
+        document.body.style.zoom = String(zoom);
+        onTestFinished(() => {
+          document.body.style.zoom = '';
+          window.scrollTo(0, 0);
+        });
+
+        await render(
+          // The anchor sits near the bottom of the visible area so the popup flips to the top and
+          // collides with the top viewport edge.
+          <div
+            data-testid="anchor-container"
+            style={
+              scrolled ? { margin: '1500px 16px' } : { position: 'fixed', bottom: 8, left: 16 }
+            }
+          >
+            {prepareComponent({
+              positioner: {
+                side: 'bottom',
+                collisionPadding,
+                collisionAvoidance: { fallbackAxisSide: 'none' },
+              },
+              popup: {
+                style: { width: 200, height: 1000, maxHeight: 'var(--available-height)' },
+              },
+            })}
+          </div>,
+        );
+
+        if (scrolled) {
+          const containerBottom = screen
+            .getByTestId('anchor-container')
+            .getBoundingClientRect().bottom;
+          await act(async () => {
+            window.scrollTo(0, window.scrollY + containerBottom - window.innerHeight + 8 * zoom);
+          });
+        }
+        expect(window.scrollY > 0).toBe(scrolled);
+
+        const positioner = screen.getByTestId('positioner');
+        await waitFor(() => {
+          expect(positioner).toHaveAttribute('data-side', 'top');
+        });
+        await waitFor(() => {
+          expect(Math.round(positioner.getBoundingClientRect().top)).toBe(collisionPadding * zoom);
+        });
+      },
+    );
+
     if (hasViewport) {
+      it('aligns with the anchor on the top side with Viewport when an ancestor sets CSS zoom', async () => {
+        const zoom = 2;
+        const anchorTop = 200;
+        const anchorLeft = 100;
+        document.body.style.zoom = String(zoom);
+        onTestFinished(() => {
+          document.body.style.zoom = '';
+        });
+
+        await render(
+          <div style={{ position: 'fixed', top: anchorTop, left: anchorLeft }}>
+            {prepareComponent({
+              viewport: true,
+              positioner: {
+                side: 'top',
+                // A transition makes the positioner anchor its bottom/right edges (adaptive origin).
+                render: (props) => (
+                  <div {...props} style={{ ...props.style, transition: 'outline-color 1s' }} />
+                ),
+              },
+            })}
+          </div>,
+        );
+
+        const positioner = screen.getByTestId('positioner');
+        await waitForPositioned(positioner);
+        await waitFor(() => {
+          expect(positioner.style.bottom).not.toBe('');
+        });
+        await waitFor(() => {
+          expect(positioner.getBoundingClientRect().bottom).toBe(anchorTop * zoom);
+        });
+        const { x, width } = positioner.getBoundingClientRect();
+        expect(x + width / 2).toBe((anchorLeft + anchorWidth / 2) * zoom);
+      });
+
       it('uses top/left positioning with Viewport', async () => {
         await render(prepareComponent({ viewport: true }));
 
