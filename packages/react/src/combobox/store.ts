@@ -77,6 +77,8 @@ export type ComboboxStoreContext = ValuePopupContext<AriaCombobox.OpenChangeEven
   readonly pointerDownItemRef: React.RefObject<Element | null>;
   /** Native event that triggered the in-flight selection. */
   readonly selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
+  /** Dismisses the input's local composition preview after an accepted item press. */
+  readonly resetInputCompositionRef: React.RefObject<(() => void) | null>;
 
   // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.

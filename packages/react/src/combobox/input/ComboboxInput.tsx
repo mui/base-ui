@@ -101,6 +101,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const isComposingRef = React.useRef(false);
   const lastActiveIndexRef = React.useRef<number | null>(null);
 
+  const resetInputComposition = useStableCallback(() => {
+    isComposingRef.current = false;
+    setComposingValue(null);
+  });
+
+  React.useImperativeHandle(store.context.resetInputCompositionRef, () => resetInputComposition, [
+    resetInputComposition,
+  ]);
+
   // Restore the saved highlight on refocus only within the same open cycle.
   useIsoLayoutEffect(() => {
     if (!open) {
@@ -228,9 +237,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           setComposingValue(event.currentTarget.value);
         },
         onCompositionEnd(event) {
-          isComposingRef.current = false;
+          const wasComposing = isComposingRef.current;
           const next = event.currentTarget.value;
-          setComposingValue(null);
+          resetInputComposition();
+          // An item press may have already replaced the preview. Do not report its label as
+          // typed input when the browser subsequently ends that composition. Android does not
+          // track composition state, so its commits must still propagate.
+          if (!wasComposing && !platform.os.android) {
+            return;
+          }
           store.context.setInputValue(
             next,
             createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
