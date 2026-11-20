@@ -39,6 +39,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const inputInsidePopup = store.useState('inputInsidePopup');
 
   const empty = useListEmpty();
+  const backdropCutout = inputGroupElement ?? inputElement ?? triggerElement;
 
   const { element, positioning, open, mounted } =
     usePopupPositioner<ComboboxPositionerInternalState>(store, componentProps, {
@@ -50,6 +51,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
           (inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement)),
         collisionAvoidance: componentProps.collisionAvoidance ?? DROPDOWN_COLLISION_AVOIDANCE,
         lazyFlip: true,
+        cutout: modal ? backdropCutout : null,
       },
       state: { empty },
     });
@@ -70,7 +72,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
       {mounted && modal && (
         <InternalBackdrop
           inert={inertValue(!open)}
-          cutout={inputGroupElement ?? inputElement ?? triggerElement}
+          cutout={backdropCutout ? positioning.cutoutRect : undefined}
         />
       )}
       {element}

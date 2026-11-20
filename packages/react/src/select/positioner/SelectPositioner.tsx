@@ -107,6 +107,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
+    cutout: modal ? triggerElement : null,
   });
 
   const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
@@ -225,7 +226,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       onMapChange={onMapChange}
     >
       <SelectPositionerContext.Provider value={contextValue}>
-        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
+        {mounted && modal && (
+          <InternalBackdrop
+            inert={inertValue(!open)}
+            cutout={triggerElement ? positioning.cutoutRect : undefined}
+          />
+        )}
         {element}
       </SelectPositionerContext.Provider>
     </CompositeList>
