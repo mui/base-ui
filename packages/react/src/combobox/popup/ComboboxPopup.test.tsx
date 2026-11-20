@@ -1,7 +1,7 @@
 import { expect, describe, it, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Combobox.Popup />', () => {
@@ -241,6 +241,65 @@ describe('<Combobox.Popup />', () => {
       expect(screen.queryByTestId('popup')).toBe(null);
       expect(closingInstants[0]).toBe('dismiss');
     });
+
+    it.skipIf(isJSDOM)(
+      'stays "dismiss" on the popup while the exit animation runs',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const style = `
+          @keyframes combobox-instant-exit {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .combobox-instant-exit[data-ending-style] {
+            animation: combobox-instant-exit 10s linear;
+          }
+        `;
+
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Combobox.Root items={['Apple']} defaultOpen>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup" className="combobox-instant-exit">
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>,
+        );
+
+        const popup = screen.getByTestId('popup');
+        expect(popup).not.toHaveAttribute('data-instant');
+
+        await act(async () => {
+          screen.getByTestId('input').focus();
+        });
+        await user.keyboard('{Escape}');
+
+        // The exit animation is long, so the popup is still mounted and animating out.
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(popup).toHaveAttribute('data-instant', 'dismiss');
+      },
+    );
 
     it('is "click" on the popup and the positioner when a keyboard press on the trigger opens the popup', async () => {
       const { user } = await render(<TestCombobox />);
