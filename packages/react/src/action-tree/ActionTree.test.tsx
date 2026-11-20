@@ -818,24 +818,25 @@ describe('Tree', () => {
       expect(screen.getByTestId('action')).toHaveFocus();
     });
 
-    it.each([
-      ['email', 'action'],
-      ['number', 'action'],
-      ['range', 'input'],
-    ])('moves Right Arrow focus from a %s input to the %s', async (type, expected) => {
-      await render(
-        <SingleRowTree>
-          <ActionTree.ItemInput type={type} aria-label="Value" data-testid="input" />
-          <ActionTree.ItemButton data-testid="action">Action</ActionTree.ItemButton>
-        </SingleRowTree>,
-      );
+    // Email and number inputs hide their caret, so the arrows always move it.
+    it.each([{ type: 'email' }, { type: 'number' }, { type: 'range' }])(
+      'keeps the horizontal arrows in a $type input',
+      async ({ type }) => {
+        await render(
+          <SingleRowTree>
+            <ActionTree.ItemInput type={type} aria-label="Value" data-testid="input" />
+            <ActionTree.ItemButton data-testid="action">Action</ActionTree.ItemButton>
+          </SingleRowTree>,
+        );
 
-      const input = screen.getByTestId('input');
-      act(() => input.focus());
-      fireEvent.keyDown(input, { key: 'ArrowRight' });
+        const input = screen.getByTestId('input');
+        act(() => input.focus());
 
-      expect(screen.getByTestId(expected)).toHaveFocus();
-    });
+        expect(fireEvent.keyDown(input, { key: 'ArrowRight' })).toBe(true);
+        expect(fireEvent.keyDown(input, { key: 'ArrowLeft' })).toBe(true);
+        expect(input).toHaveFocus();
+      },
+    );
 
     it('moves between items with the vertical arrows from a single-line input', async () => {
       await render(

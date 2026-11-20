@@ -10,6 +10,9 @@ import { useTreeItemContext } from '../../tree/item/TreeItemContext';
 
 // Single-line fields don't use the vertical arrows, so those still move between items.
 const SINGLE_LINE_TEXT_TYPES = new Set(['text', 'search', 'email', 'url', 'tel', 'password']);
+// Fields whose caret `selectionStart` exposes. Email and number fields hide it, so
+// the tree can't tell when the caret reaches an edge, and they keep the arrows.
+const CARET_TEXT_TYPES = new Set(['text', 'search', 'url', 'tel', 'password']);
 
 function getInputControlKeys(element: HTMLElement): Required<ActionTreeItemControlKeys> {
   const input = element as HTMLInputElement;
@@ -23,8 +26,7 @@ function getInputControlKeys(element: HTMLElement): Required<ActionTreeItemContr
     isInput && SINGLE_LINE_TEXT_TYPES.has(input.type) && !input.hasAttribute('list');
   // The tree leaves the horizontal arrows to a text field while they move its caret.
   const textField =
-    element.localName === 'textarea' ||
-    (isInput && (SINGLE_LINE_TEXT_TYPES.has(input.type) || input.type === 'number'));
+    element.localName === 'textarea' || (isInput && CARET_TEXT_TYPES.has(input.type));
   return {
     horizontal: textField ? 'tree' : 'control',
     vertical: singleLineText ? 'tree' : 'control',
@@ -122,9 +124,9 @@ export interface ActionTreeItemInputProps extends BaseUIComponentProps<
   /**
    * Which keys the input handles itself instead of the tree.
    * By default, the input keeps Home and End. A text input keeps the Left and Right
-   * arrows until the caret reaches the start or end of its text. Email and number
-   * inputs don't expose their caret, so the arrows leave them, and other inputs keep
-   * them. The Up and Down arrows move between items unless the input uses them,
+   * arrows until the caret reaches the start or end of its text. Other inputs keep
+   * them, including email and number inputs, which don't expose their caret.
+   * The Up and Down arrows move between items unless the input uses them,
    * like a number or date input.
    */
   controlKeys?: ActionTreeItemControlKeys | undefined;
