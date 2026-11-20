@@ -2,12 +2,11 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import type { CollapsibleRoot } from './CollapsibleRoot';
+import type { CollapsibleRoot, CollapsibleRootState } from './CollapsibleRoot';
+import { useFallbackId } from './useFallbackId';
 
 export function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
@@ -23,10 +22,7 @@ export function useCollapsibleRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true, true);
 
-  const defaultPanelId = useBaseUiId();
-  // `undefined` uses the initial generated fallback; `null` means the panel unmounted.
-  const [registeredPanelId, setPanelIdState] = React.useState<string | null | undefined>();
-  const panelId = registeredPanelId === null ? undefined : (registeredPanelId ?? defaultPanelId);
+  const [defaultPanelId, panelId, setPanelIdState] = useFallbackId();
 
   const handleTrigger = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     const nextOpen = !open;
@@ -41,30 +37,37 @@ export function useCollapsibleRoot(
     setOpen(nextOpen);
   });
 
+  const state: CollapsibleRootState = React.useMemo(
+    () => ({
+      open,
+      disabled,
+      transitionStatus,
+    }),
+    [open, disabled, transitionStatus],
+  );
+
   return React.useMemo(
     () => ({
       defaultPanelId,
-      disabled,
       handleTrigger,
       mounted,
-      open,
+      onOpenChange,
       panelId,
       setMounted,
       setOpen,
       setPanelIdState,
-      transitionStatus,
+      state,
     }),
     [
       defaultPanelId,
-      disabled,
       handleTrigger,
       mounted,
-      open,
+      onOpenChange,
       panelId,
       setMounted,
       setOpen,
       setPanelIdState,
-      transitionStatus,
+      state,
     ],
   );
 }
@@ -96,10 +99,6 @@ export interface UseCollapsibleRootParameters {
 
 export interface UseCollapsibleRootReturnValue {
   defaultPanelId: React.HTMLAttributes<Element>['id'];
-  /**
-   * Whether the component should ignore user interaction.
-   */
-  disabled: boolean;
   handleTrigger: (event: React.MouseEvent | React.KeyboardEvent) => void;
   /**
    * Whether the collapsible panel is mounted for transition and hidden-state
@@ -107,15 +106,12 @@ export interface UseCollapsibleRootReturnValue {
    * `keepMounted` or `hiddenUntilFound` is enabled.
    */
   mounted: boolean;
-  /**
-   * Whether the collapsible panel is currently open.
-   */
-  open: boolean;
+  onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
   panelId: React.HTMLAttributes<Element>['id'];
   setMounted: (nextMounted: boolean) => void;
   setOpen: (open: boolean) => void;
   setPanelIdState: React.Dispatch<React.SetStateAction<string | null | undefined>>;
-  transitionStatus: TransitionStatus;
+  state: CollapsibleRootState;
 }
 
 export interface UseCollapsibleRootState {}
