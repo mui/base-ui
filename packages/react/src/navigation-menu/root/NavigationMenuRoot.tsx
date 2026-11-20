@@ -94,10 +94,45 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
-  const [viewportElement, setViewportElement] = React.useState<HTMLElement | null>(null);
-  const [viewportTargetElement, setViewportTargetElement] = React.useState<HTMLElement | null>(
+  const [viewportElement, setViewportElementState] = React.useState<HTMLElement | null>(null);
+  const [viewportTargetElement, setViewportTargetElementState] = React.useState<HTMLElement | null>(
     null,
   );
+  const viewportElementsRef = React.useRef<{
+    viewport: HTMLElement | null;
+    target: HTMLElement | null;
+  }>({ viewport: null, target: null });
+  const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
+  const setViewportElement = useStableCallback((element: HTMLElement | null) => {
+    viewportElementsRef.current.viewport = element;
+    setViewportElementState(element);
+    if (element) {
+      setPortalContainer(viewportElementsRef.current.target || element);
+    }
+  });
+  const setViewportTargetElement = useStableCallback((element: HTMLElement | null) => {
+    viewportElementsRef.current.target = element;
+    setViewportTargetElementState(element);
+    if (element) {
+      setPortalContainer(element);
+    }
+  });
+
+  // Attach immediately, but only clear the portal container after a visible Root commit, and
+  // only once the viewport has left the document. Suspense and Activity detach refs but keep the
+  // hidden viewport in place, so pending content stays mounted in it.
+  // Read refs because descendant refs can reattach after this render during a reveal.
+  useIsoLayoutEffect(() => {
+    const elements = viewportElementsRef.current;
+    const element = elements.target || elements.viewport;
+    if (element || !portalContainer?.isConnected) {
+      setPortalContainer(element);
+    }
+  }, [viewportElement, viewportTargetElement, portalContainer]);
+
+  // Content still portals into a viewport that Suspense or Activity has hidden.
+  const viewportHidden =
+    portalContainer != null && viewportElement == null && viewportTargetElement == null;
   const [activationDirection, setActivationDirection] =
     React.useState<NavigationMenuRootContext['activationDirection']>(null);
   const [floatingRootStore, setFloatingRootStore] = React.useState<FloatingRootStore | undefined>(
@@ -269,8 +304,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       setPopupElement,
       viewportElement,
       setViewportElement,
-      viewportTargetElement,
       setViewportTargetElement,
+      portalContainer,
+      viewportHidden,
       activationDirection: contextActivationDirection,
       setActivationDirection,
       floatingRootStore,
@@ -299,7 +335,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       positionerElement,
       popupElement,
       viewportElement,
-      viewportTargetElement,
+      setViewportElement,
+      setViewportTargetElement,
+      portalContainer,
+      viewportHidden,
       contextActivationDirection,
       floatingRootStore,
       nested,

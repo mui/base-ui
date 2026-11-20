@@ -48,11 +48,11 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const {
     mounted: popupMounted,
-    viewportElement,
+    portalContainer,
+    viewportHidden,
     value,
     activationDirection,
     currentContentRef,
-    viewportTargetElement,
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -68,7 +68,9 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   // If the popup unmounts before the content's exit animation completes, reset the internal
   // mounted state so the next open can re-enter via `transitionStatus="starting"`.
-  if (mounted && !popupMounted) {
+  // Inactive content in a hidden viewport can't wait for its exit either: a suspended tree runs no
+  // effects, so it would keep rendering, and keep the Suspense fallback on screen.
+  if (mounted && (!popupMounted || (!open && viewportHidden))) {
     setMounted(false);
   }
 
@@ -130,7 +132,6 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         }
       : commonProps;
 
-  const portalContainer = viewportTargetElement || viewportElement;
   const hidden = keepMounted && !mounted;
   const shouldRenderInline = keepMounted && !portalContainer && !hasMountedInPortal;
 
