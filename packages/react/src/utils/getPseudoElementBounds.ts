@@ -1,5 +1,6 @@
-import { ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
+import { contains } from '@base-ui/utils/shadowDom';
 
 interface ElementBounds {
   left: number;
@@ -15,17 +16,37 @@ const BOUNDARY_OFFSET = 5;
 
 /**
  * Determines if a mouse event occurred within the bounds of an element
- * (including its pseudo-elements), with a small tolerance for pointer drift.
+ * (including its pseudo-elements and descendants that extend past it),
+ * with a small tolerance for pointer drift.
  */
 export function isMouseWithinBounds(event: MouseEvent, element: HTMLElement): boolean {
   const bounds = getPseudoElementBounds(element);
 
-  return (
+  if (
     event.clientX >= bounds.left - BOUNDARY_OFFSET &&
     event.clientX <= bounds.right + BOUNDARY_OFFSET &&
     event.clientY >= bounds.top - BOUNDARY_OFFSET &&
     event.clientY <= bounds.bottom + BOUNDARY_OFFSET
-  );
+  ) {
+    return true;
+  }
+
+  return isOverDescendant(event, element);
+}
+
+// A descendant can extend the element's hit area past its bounds (e.g. an absolutely
+// positioned child). It may be covered by a backdrop, so check every layer at the point.
+function isOverDescendant(event: MouseEvent, element: HTMLElement): boolean {
+  const doc = ownerDocument(element);
+
+  // Not implemented in jsdom.
+  if (typeof doc.elementsFromPoint !== 'function') {
+    return false;
+  }
+
+  return doc
+    .elementsFromPoint(event.clientX, event.clientY)
+    .some((hitElement) => contains(element, hitElement));
 }
 
 export function getPseudoElementBounds(element: HTMLElement): ElementBounds {
