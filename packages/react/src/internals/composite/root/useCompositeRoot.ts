@@ -4,6 +4,7 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import type { TextDirection } from '../../direction-context/DirectionContext';
@@ -19,7 +20,9 @@ import {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
+  isElementVisible,
   isListIndexDisabled,
+  isListIndexDisabledByAttributes,
   isIndexOutOfListBounds,
   isNativeInput,
   scrollIntoViewIfNeeded,
@@ -107,6 +110,39 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
+  // The item holding the tab stop whose visibility still needs checking. The check reads computed
+  // style, which in the commit that mounts the composite would force the browser to recalculate
+  // style and layout before the first paint, so it runs in the next animation frame instead.
+  const pendingVisibilityCheckRef = React.useRef<HTMLElement | null>(null);
+
+  const moveTabStopToFirstEnabled = useStableCallback((elements: Array<HTMLElement | null>) => {
+    const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
+    if (!isIndexOutOfListBounds(elements, firstEnabledIndex)) {
+      onHighlightedIndexChange(firstEnabledIndex);
+    }
+  });
+
+  const moveTabStopFromHiddenItem = useStableCallback(() => {
+    const element = pendingVisibilityCheckRef.current;
+    pendingVisibilityCheckRef.current = null;
+    const elements = elementsRef.current;
+    // Only the item checked in the commit is checked here, and only while it still holds the tab
+    // stop: anything that moved the tab stop since has already chosen an item that can hold it.
+    if (element && elements[highlightedIndex] === element && !isElementVisible(element)) {
+      moveTabStopToFirstEnabled(elements);
+    }
+  });
+
+  // Runs after every commit, so a frame cancelled by an effect cleanup (as in Strict Mode) is
+  // requested again while the check is still pending.
+  React.useEffect(() => {
+    if (!pendingVisibilityCheckRef.current) {
+      return undefined;
+    }
+    const frame = AnimationFrame.request(moveTabStopFromHiddenItem);
+    return () => AnimationFrame.cancel(frame);
+  });
+
   const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0) {
       return;
@@ -148,16 +184,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
-    } else if (isListIndexDisabled(sortedElements, highlightedIndex, disabledIndices)) {
+    } else if (isListIndexDisabledByAttributes(sortedElements, highlightedIndex, disabledIndices)) {
       // The default highlighted item is disabled, so it should not hold the single
       // roving tab stop: a natively disabled element is removed from the tab order,
       // and an aria-disabled one should not be the entry point. Move the tab stop
       // to the first enabled item. If every item is disabled, keep the current
       // highlighted index.
-      const firstEnabledIndex = findNonDisabledListIndex(sortedElements, { disabledIndices });
-      if (!isIndexOutOfListBounds(sortedElements, firstEnabledIndex)) {
-        onHighlightedIndexChange(firstEnabledIndex);
-      }
+      moveTabStopToFirstEnabled(sortedElements);
+    } else {
+      pendingVisibilityCheckRef.current = sortedElements[highlightedIndex] ?? null;
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
@@ -178,18 +213,17 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       return;
     }
     const elements = elementsRef.current;
-    if (isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
-      const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
-      if (!isIndexOutOfListBounds(elements, firstEnabledIndex)) {
-        onHighlightedIndexChange(firstEnabledIndex);
-      }
+    if (isListIndexDisabledByAttributes(elements, highlightedIndex, disabledIndices)) {
+      moveTabStopToFirstEnabled(elements);
+    } else {
+      pendingVisibilityCheckRef.current = elements[highlightedIndex] ?? null;
     }
   }, [
     disabledIndices,
     externalHighlightedIndex,
     highlightedIndex,
     elementsRef,
-    onHighlightedIndexChange,
+    moveTabStopToFirstEnabled,
   ]);
 
   const wrappedOnLoop = useStableCallback(
