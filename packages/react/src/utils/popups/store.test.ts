@@ -239,7 +239,7 @@ class TestPopupStore extends BasePopupStore<
       popupStoreSelectors,
     );
 
-    this.context.events.on('openchange', () => {
+    this.context.events.on('openChange', () => {
       this.steps.push('notify');
     });
     this.subscribe(() => {
@@ -332,7 +332,7 @@ describe('BasePopupStore', () => {
       const onOpenChange = vi.fn();
       const onDroppedClose = vi.fn();
       const store = new TestPopupStore(onOpenChange, { mounted });
-      store.context.events.on('droppedclose', onDroppedClose);
+      store.context.events.on('droppedClose', onDroppedClose);
 
       store.setOpen(false, createDetails(REASONS.triggerHover));
 
@@ -355,7 +355,7 @@ describe('BasePopupStore', () => {
       const onOpenChange = vi.fn();
       const onDroppedClose = vi.fn();
       const store = new TestPopupStore(onOpenChange, state);
-      store.context.events.on('droppedclose', onDroppedClose);
+      store.context.events.on('droppedClose', onDroppedClose);
 
       store.setOpen(false, createDetails(REASONS.escapeKey));
 
@@ -725,12 +725,11 @@ describe('BasePopupStore', () => {
   });
 
   describe('interaction notification', () => {
-    it('reports the change, the trigger named for the close and whether the popup is nested', () => {
+    it('reports the change and the trigger named for the close', () => {
       const store = new TestPopupStore(() => {}, { open: true });
-      store.context.nested = true;
       store.closeTrigger = createConnectedButton();
       const onOpenChangeEvent = vi.fn();
-      store.context.events.on('openchange', onOpenChangeEvent);
+      store.context.events.on('openChange', onOpenChangeEvent);
       const event = new KeyboardEvent('keydown');
 
       store.setOpen(false, createChangeEventDetails(REASONS.escapeKey, event));
@@ -740,7 +739,6 @@ describe('BasePopupStore', () => {
         open: false,
         reason: REASONS.escapeKey,
         nativeEvent: event,
-        nested: true,
         triggerElement: store.closeTrigger,
       });
     });

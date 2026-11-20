@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { PopupTreeRegistry } from '../../utils/popups/tree/PopupTreeRegistry';
 import { MenuStore } from './MenuStore';
 
 function createMountedMenuStore() {
@@ -58,6 +59,125 @@ describe('MenuStore', () => {
       store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, mouseenter));
 
       expect(store.context.lastOpenChangeEvent).toBe(mouseenter);
+    });
+  });
+
+  describe('registerTreeNode', () => {
+    it("registers one node in the menu's own tree, under the node the Root renders in", () => {
+      const store = new MenuStore({ popupParentNodeId: 'outer' });
+
+      store.registerTreeNode('menu');
+
+      expect(store.state.ownTree.getNode('menu')?.parentId).toBe('outer');
+    });
+
+    it("moves the same node to the active trigger's location and back when the trigger is gone", () => {
+      const store = new MenuStore({ popupParentNodeId: null });
+      const popoverTree = new PopupTreeRegistry();
+      store.registerTreeNode('menu');
+      const node = store.state.ownTree.getNode('menu');
+      expect(node).not.toBe(undefined);
+
+      store.update({
+        triggerTree: popoverTree,
+        triggerParentNodeId: 'popover',
+        activeTriggerElement: document.createElement('button'),
+      });
+
+      expect(popoverTree.getNode('menu')).toBe(node);
+      expect(node?.parentId).toBe('popover');
+      expect(store.state.ownTree.getNode('menu')).toBe(undefined);
+
+      store.set('activeTriggerElement', null);
+
+      expect(store.state.ownTree.getNode('menu')).toBe(node);
+      expect(node?.parentId).toBe(null);
+      expect(popoverTree.getNode('menu')).toBe(undefined);
+    });
+
+    it("keeps the trigger's missing parent instead of the Root's", () => {
+      const store = new MenuStore({ popupParentNodeId: 'outer' });
+      const triggerTree = new PopupTreeRegistry();
+      store.update({
+        triggerTree,
+        triggerParentNodeId: null,
+        activeTriggerElement: document.createElement('button'),
+      });
+
+      store.registerTreeNode('menu');
+
+      expect(triggerTree.getNode('menu')?.parentId).toBe(null);
+    });
+
+    it('stays in its own tree while the active trigger sits outside any tree', () => {
+      const store = new MenuStore();
+      store.registerTreeNode('menu');
+      const node = store.state.ownTree.getNode('menu');
+
+      store.update({
+        triggerTree: null,
+        triggerParentNodeId: null,
+        activeTriggerElement: document.createElement('button'),
+      });
+
+      expect(store.state.ownTree.getNode('menu')).toBe(node);
+    });
+
+    it('updates the parent in place when the active trigger moves within the same tree', () => {
+      const store = new MenuStore();
+      const popoverTree = new PopupTreeRegistry();
+      store.update({
+        triggerTree: popoverTree,
+        triggerParentNodeId: 'popover-1',
+        activeTriggerElement: document.createElement('button'),
+      });
+      store.registerTreeNode('menu');
+      const node = popoverTree.getNode('menu');
+      expect(node?.parentId).toBe('popover-1');
+
+      store.set('triggerParentNodeId', 'popover-2');
+
+      expect(popoverTree.getNode('menu')).toBe(node);
+      expect(node?.parentId).toBe('popover-2');
+      expect(popoverTree.descendants('popover-1', false)).toEqual([]);
+    });
+
+    it("places a submenu in its parent menu's tree and follows that tree", () => {
+      const parentStore = new MenuStore();
+      const store = new MenuStore({
+        parent: { type: 'menu', store: parentStore },
+        popupParentNodeId: 'parent-menu',
+      });
+      store.subscribeToParentMenu();
+      store.registerTreeNode('submenu');
+      expect(parentStore.state.ownTree.getNode('submenu')?.parentId).toBe('parent-menu');
+
+      const popoverTree = new PopupTreeRegistry();
+      parentStore.update({
+        triggerTree: popoverTree,
+        triggerParentNodeId: 'popover',
+        activeTriggerElement: document.createElement('button'),
+      });
+
+      expect(popoverTree.getNode('submenu')?.parentId).toBe('parent-menu');
+      expect(parentStore.state.ownTree.getNode('submenu')).toBe(undefined);
+    });
+
+    it('removes the node and stops following the location once unregistered', () => {
+      const store = new MenuStore();
+      const popoverTree = new PopupTreeRegistry();
+      const unregister = store.registerTreeNode('menu');
+      expect(store.state.ownTree.getNode('menu')).not.toBe(undefined);
+
+      unregister();
+      store.update({
+        triggerTree: popoverTree,
+        triggerParentNodeId: 'popover',
+        activeTriggerElement: document.createElement('button'),
+      });
+
+      expect(store.state.ownTree.getNode('menu')).toBe(undefined);
+      expect(popoverTree.getNode('menu')).toBe(undefined);
     });
   });
 });

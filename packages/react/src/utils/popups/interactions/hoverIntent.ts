@@ -7,15 +7,10 @@ import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import type {
-  Delay,
-  PopupInteractionStore,
-  PopupInteractionContext,
-  FloatingTreeType,
-} from '../types';
+import type { Delay, PopupInteractionStore, PopupInteractionContext } from '../types';
+import type { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import { isInteractiveElement } from '../element';
 import { isMouseLikePointerType } from '../event';
-import { getNodeChildren } from '../tree/nodes';
 import type { HandleClose, HandleCloseContextBase, HandleCloseOptions } from './useHoverShared';
 import {
   getDelay,
@@ -43,7 +38,6 @@ export interface HoverIntentTriggerOptions {
   isHoverCloseActive: Latest<boolean>;
   triggerElementRef: Latest<Element | null>;
   mouseOnly: boolean;
-  tree: FloatingTreeType | null;
   shouldOpen: () => boolean;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
 }
@@ -97,7 +91,7 @@ export class HoverIntent {
   constructor(private readonly store: PopupInteractionStore) {
     // A close request while the popup is already closed isn't an open change, but it still
     // cancels a pending open. The emitter lives as long as this intent, so it needs no cleanup.
-    store.context.events.on('droppedclose', () => this.cancel());
+    store.context.events.on('droppedClose', () => this.cancel());
   }
 
   private isClickLikeOpen() {
@@ -303,10 +297,12 @@ export class HoverIntent {
       }
 
       const currentTrigger = options.triggerElementRef.current;
+      const tree = store.select('popupTree');
 
       this.safePolygonHandler = handleClose({
         ...handleCloseContextBase,
-        tree: options.tree,
+        tree,
+        nodeId: store.select('popupNodeId'),
         x: event.clientX,
         y: event.clientY,
         onClose: () => {
@@ -317,7 +313,7 @@ export class HoverIntent {
             !this.isClickLikeOpen() &&
             currentTrigger === store.select('anchorElement')
           ) {
-            this.closeWithDelay(event, options.delay.current, options.tree);
+            this.closeWithDelay(event, options.delay.current);
           }
         },
       });
@@ -334,7 +330,7 @@ export class HoverIntent {
         : true;
 
     if (shouldClose) {
-      this.closeWithDelay(event, options.delay.current, options.tree);
+      this.closeWithDelay(event, options.delay.current);
     }
   }
 
@@ -419,7 +415,7 @@ export class HoverIntent {
   blockOutsidePointerEventsForPopup(
     triggerElement: HTMLElement | SVGSVGElement,
     positionerElement: HTMLElement,
-    tree: FloatingTreeType | null,
+    tree: PopupTreeRegistry | null,
     parentId: string | null,
   ): boolean {
     if (
@@ -431,8 +427,7 @@ export class HoverIntent {
 
     const doc = ownerDocument(positionerElement);
 
-    const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
-      ?.elements.floating as HTMLElement | null;
+    const parentFloating = tree?.getNode(parentId)?.context?.elements.floating;
 
     if (parentFloating) {
       parentFloating.style.pointerEvents = '';
@@ -462,16 +457,8 @@ export class HoverIntent {
     this.restoreOutsidePointerEvents();
   }
 
-  onPopupMouseLeave(
-    event: MouseEvent,
-    options: {
-      closeDelay: number | (() => number);
-      tree: FloatingTreeType | null;
-      nodeId: string | undefined;
-    },
-  ) {
+  onPopupMouseLeave(event: MouseEvent, closeDelay: number | (() => number)) {
     const { store } = this;
-    const { tree } = options;
 
     if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
       // If the mouse is leaving the popup for another trigger, don't explicitly close the popup
@@ -479,17 +466,15 @@ export class HoverIntent {
       return;
     }
 
-    const currentNodeId = this.store.context.positioning?.nodeId ?? options.nodeId;
-    const relatedTarget = event.relatedTarget;
-    const isMovingIntoDescendantFloating =
-      tree &&
-      currentNodeId &&
-      isElement(relatedTarget) &&
-      getNodeChildren(tree.nodesRef.current, currentNodeId, false).some((node) =>
-        contains(node.context?.elements.floating, relatedTarget),
-      );
-
-    if (isMovingIntoDescendantFloating) {
+    if (
+      store
+        .select('popupTree')
+        ?.descendantContains(
+          store.select('popupNodeId'),
+          event.relatedTarget as Element | null,
+          /* includeClosed */ true,
+        )
+    ) {
       return;
     }
 
@@ -501,7 +486,7 @@ export class HoverIntent {
 
     this.restoreOutsidePointerEvents();
     if (isHoverOpenEvent(this.store.context.openEvent?.type) && !this.isClickLikeOpen()) {
-      this.closeWithDelay(event, options.closeDelay, tree);
+      this.closeWithDelay(event, closeDelay);
     }
   }
 
@@ -515,14 +500,10 @@ export class HoverIntent {
     this.interactedInside = closest(target, '[aria-haspopup]') != null;
   }
 
-  private closeWithDelay(
-    event: MouseEvent,
-    delay: Delay | (() => Delay) | undefined,
-    tree: FloatingTreeType | null,
-  ) {
+  private closeWithDelay(event: MouseEvent, delay: Delay | (() => Delay) | undefined) {
     const close = () => {
       this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      tree?.events.emit('floating.closed', event);
+      this.store.select('popupTree')?.events.emit('nodeHoverClose', event);
     };
 
     const closeDelay = getDelay(delay, 'close', this.pointerType);

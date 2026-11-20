@@ -1,10 +1,9 @@
 import { vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { FloatingTreeStore } from '../tree/FloatingTreeStore';
+import { PopupTreeRegistry } from '../tree/PopupTreeRegistry';
 import type { HandleCloseContext } from './useHoverShared';
-import type { PopupPositioningContext } from '../types';
+import type { PopupNodeSnapshot } from '../tree/PopupTreeRegistry';
 import { safePolygon } from './safePolygon';
-import { getEmptyRootStore } from '../floating-root/getEmptyRootStore';
 
 function createRect(left: number, top: number, width: number, height: number) {
   return {
@@ -48,7 +47,7 @@ function createHandleCloseContext({
   domReference: Element;
   floating: HTMLElement;
   onClose: () => void;
-  tree: FloatingTreeStore;
+  tree: PopupTreeRegistry;
   placement?: 'top' | 'bottom' | 'left' | 'right';
   x?: number;
   y?: number;
@@ -64,7 +63,7 @@ function createHandleCloseContext({
   };
 }
 
-function createFloatingContext({
+function createNodeSnapshot({
   domReference,
   floating,
   open,
@@ -72,31 +71,11 @@ function createFloatingContext({
   domReference: Element;
   floating: HTMLElement;
   open: boolean;
-}): PopupPositioningContext {
-  const refs: PopupPositioningContext['refs'] = {
-    reference: { current: domReference },
-    floating: { current: floating },
-    domReference: { current: domReference },
-    setReference() {},
-    setFloating() {},
-    setPositionReference() {},
-  };
-
+}): PopupNodeSnapshot {
   return {
-    x: 0,
-    y: 0,
-    strategy: 'absolute',
-    placement: 'right',
-    middlewareData: {},
-    isPositioned: true,
-    update: async () => {},
-    floatingStyles: {},
     open,
-    nodeId: 'root',
-    defaultPopupId: 'floating-id',
-    refs,
-    elements: { reference: domReference, domReference, floating },
-    rootStore: getEmptyRootStore(),
+    elements: { domReference, floating },
+    rootStore: { context: {} },
   };
 }
 
@@ -162,7 +141,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeRegistry();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -171,7 +150,7 @@ describe('safePolygon', () => {
       tree,
     });
 
-    const openChildContext = createFloatingContext({ domReference, floating, open: true });
+    const openChildContext = createNodeSnapshot({ domReference, floating, open: true });
     tree.addNode({ id: 'child', parentId: 'root', context: openChildContext });
 
     const handler = safePolygon()(context);
@@ -190,7 +169,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeRegistry();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -199,7 +178,7 @@ describe('safePolygon', () => {
       tree,
     });
 
-    const openChildContext = createFloatingContext({ domReference, floating, open: true });
+    const openChildContext = createNodeSnapshot({ domReference, floating, open: true });
     tree.addNode({ id: 'inline-root', parentId: 'root' });
     tree.addNode({ id: 'child', parentId: 'inline-root', context: openChildContext });
 
@@ -219,7 +198,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeRegistry();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -228,7 +207,7 @@ describe('safePolygon', () => {
       tree,
     });
 
-    const closedChildContext = createFloatingContext({ domReference, floating, open: false });
+    const closedChildContext = createNodeSnapshot({ domReference, floating, open: false });
     tree.addNode({ id: 'child', parentId: 'root', context: closedChildContext });
 
     const handler = safePolygon()(context);
@@ -251,7 +230,7 @@ describe('safePolygon', () => {
       domReference.getBoundingClientRect = () => scenario.referenceRect;
       floating.getBoundingClientRect = () => scenario.floatingRect;
 
-      const tree = new FloatingTreeStore();
+      const tree = new PopupTreeRegistry();
       const onClose = vi.fn();
       const context = createHandleCloseContext({
         domReference,
@@ -280,7 +259,7 @@ describe('safePolygon', () => {
       domReference.getBoundingClientRect = () => scenario.referenceRect;
       floating.getBoundingClientRect = () => scenario.floatingRect;
 
-      const tree = new FloatingTreeStore();
+      const tree = new PopupTreeRegistry();
       const onClose = vi.fn();
       const context = createHandleCloseContext({
         domReference,
@@ -307,7 +286,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => scenario.referenceRect;
     floating.getBoundingClientRect = () => scenario.floatingRect;
 
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeRegistry();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,

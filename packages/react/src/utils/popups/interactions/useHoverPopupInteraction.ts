@@ -7,9 +7,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
 import type { PopupInteractionStore } from '../types';
-import { getNodeChildren } from '../tree/nodes';
 import { getHoverIntent } from './hoverIntent';
 
 export type UseHoverPopupInteractionProps = {
@@ -25,11 +23,6 @@ export type UseHoverPopupInteractionProps = {
    * @default 0
    */
   closeDelay?: number | (() => number) | undefined;
-  /**
-   * Tree node id override for floating elements that participate in the tree
-   * without a `PopupPositioningContext`, such as inline nested navigation menus.
-   */
-  nodeId?: string | undefined;
 };
 
 /**
@@ -39,14 +32,18 @@ export function useHoverPopupInteraction(
   store: PopupInteractionStore,
   parameters: UseHoverPopupInteractionProps = {},
 ): void {
-  const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
+  const { enabled = true, closeDelay: closeDelayProp = 0 } = parameters;
 
   const open = store.useState('open');
   const positionerElement = store.useState('positionerElement');
   const anchorElement = store.useState('anchorElement');
 
-  const tree = useFloatingTree();
-  const parentId = useFloatingParentNodeId();
+  const tree = store.useState('popupTree');
+  // The node whose open descendants keep this popup open: its own node, or for a popup that
+  // doesn't register one, the node it's nested in.
+  const nodeId = store.useState('popupNodeId');
+  const parentNodeId = store.useState('popupParentNodeId');
+  const ownerNodeId = nodeId ?? parentNodeId;
   const intent = getHoverIntent(store);
 
   const childClosedTimeout = useTimeout();
@@ -78,14 +75,14 @@ export function useHoverPopupInteraction(
         anchorElement as HTMLElement | SVGSVGElement,
         positionerElement,
         tree,
-        parentId,
+        ownerNodeId,
       )
     ) {
       return intent.restoreOutsidePointerEvents;
     }
 
     return undefined;
-  }, [enabled, open, anchorElement, positionerElement, intent, tree, parentId]);
+  }, [enabled, open, anchorElement, positionerElement, intent, tree, ownerNodeId]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -93,22 +90,22 @@ export function useHoverPopupInteraction(
     }
 
     function hasParentChildren() {
-      return !!(tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0);
+      return !!(ownerNodeId && tree?.descendants(ownerNodeId).length);
     }
 
     function onFloatingMouseEnter() {
       intent.onPopupMouseEnter();
       childClosedTimeout.clear();
-      tree?.events.off('floating.closed', onNodeClosed);
+      tree?.events.off('nodeHoverClose', onNodeClosed);
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
       if (hasParentChildren() && tree) {
-        tree.events.on('floating.closed', onNodeClosed);
+        tree.events.on('nodeHoverClose', onNodeClosed);
         return;
       }
 
-      intent.onPopupMouseLeave(event, { closeDelay: closeDelayProp, tree, nodeId: nodeIdProp });
+      intent.onPopupMouseLeave(event, closeDelayProp);
     }
 
     function onPopupPointerDown(event: PointerEvent) {
@@ -116,14 +113,14 @@ export function useHoverPopupInteraction(
     }
 
     function onNodeClosed(event: MouseEvent) {
-      if (!tree || !parentId || hasParentChildren()) {
+      if (!tree || !ownerNodeId || hasParentChildren()) {
         return;
       }
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
       childClosedTimeout.start(0, () => {
-        tree.events.off('floating.closed', onNodeClosed);
+        tree.events.off('nodeHoverClose', onNodeClosed);
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree.events.emit('floating.closed', event);
+        tree.events.emit('nodeHoverClose', event);
       });
     }
 
@@ -133,7 +130,7 @@ export function useHoverPopupInteraction(
       floating && addEventListener(floating, 'mouseleave', onFloatingMouseLeave),
       floating && addEventListener(floating, 'pointerdown', onPopupPointerDown, true),
       () => {
-        tree?.events.off('floating.closed', onNodeClosed);
+        tree?.events.off('nodeHoverClose', onNodeClosed);
       },
     );
   }, [
@@ -141,10 +138,9 @@ export function useHoverPopupInteraction(
     positionerElement,
     store,
     closeDelayProp,
-    nodeIdProp,
     intent,
     tree,
-    parentId,
+    ownerNodeId,
     childClosedTimeout,
   ]);
 }

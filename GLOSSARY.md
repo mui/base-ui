@@ -30,13 +30,30 @@ The part that places a popup next to its anchor and keeps it there as the page s
 _Avoid_: floating element, floating wrapper
 _In code_: `positionerElement` is the positioner in components that have one.
 
+**Popup tree**:
+The popups of one family that are nested inside each other, such as a menu and its submenus, plus anything from another family that registers in it, such as detached Menu triggers rendered inside a Popover. Tree members find their open descendants and ancestors through it, so a parent popup can tell that a child keeps an Escape press or an outside press from reaching it, or that the pointer is moving into a child. It also carries events the members share, such as a hover-opened popup closing after the pointer left it. The menus in a tree also share events of their own, such as an item being hovered, which Menu keeps per tree.
+_Avoid_: floating tree
+
+**Tree member**:
+A popup that registers a node in a popup tree: Popover, Preview Card, the Menu family, Menubar and Navigation Menu. Other popups, such as Tooltip, Dialog, Select and Combobox, may read the tree but don't register a node, so a member doesn't count them as its descendants. Tree membership is everything that follows from being a member: the tree queries and events, and the parent scope a member's Positioner gives the popups nested in it.
+_Avoid_: floating node
+
+**Family tree**:
+Each popup family keeps its own popup tree. A member nested in a popup of another family records that popup's node as its parent, but it registers in its own family's tree, so the other family's tree doesn't see it. Detached Menu triggers rendered inside a Popover are the exception: while one of them is the active trigger, the Menu's node sits in the Popover's tree under the Popover's node, and the Menu's tree events go out on it.
+_Avoid_: shared tree
+
+**Snapshot**:
+What a tree member publishes on its node for the other members: whether it is open, its floating and trigger elements, and its interaction data. Whether it is open and its elements are updated each time the member renders, so a node the member stops updating keeps the last ones. A Menu has one node, which moves to wherever its active trigger sits in a popup tree, so switching triggers leaves no stale node behind. The interaction data isn't copied: other members read the member's current values.
+_Avoid_: floating context
+_In code_: a node's `context` field.
+
 **Hover intent**:
 The logic that decides when hovering a trigger opens its popup and when leaving closes it. It covers the open and close delays, waiting for the pointer to rest, and the safe polygon that keeps the popup open while the pointer travels from the trigger to it. Each popup has one, shared by all its triggers.
 _Avoid_: hover state, useHover
 
 **Interaction store**:
-The store a popup's interactions read and write: whether it is open, its anchor, its positioner element (the Positioner part, or the Popup itself for popups without one, such as Dialog), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a `FloatingRootStore` fed from their own state.
+The store a popup's interactions read and write: whether it is open, its anchor, its positioner element (the Positioner part, or the Popup itself for popups without one, such as Dialog), its place in the popup tree (the tree, its own node and the node it's nested in), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a `FloatingRootStore` fed from their own state.
 _Avoid_: floating context
 
 **Floating UI modules**:
-Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingTree`, `FloatingNode`, `FloatingTreeStore`, `FloatingFocusManager`, `FloatingPortal`, `FloatingPortalLite`, `FloatingDelayGroup` and `FloatingRootStore`, and positioning keeps Floating UI's terms because it wraps `@floating-ui/react-dom`'s `useFloating` (in `useBaseUIFloating`). The hook that creates a `FloatingRootStore`, which Floating UI calls `useFloatingRootContext`, is `useFloatingRootStore`, since it returns a store. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.
+Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingFocusManager`, `FloatingPortal`, `FloatingPortalLite`, `FloatingDelayGroup` and `FloatingRootStore`, and positioning keeps Floating UI's terms because it wraps `@floating-ui/react-dom`'s `useFloating` (in `useBaseUIFloating`). The hook that creates a `FloatingRootStore`, which Floating UI calls `useFloatingRootContext`, is `useFloatingRootStore`, since it returns a store. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.
