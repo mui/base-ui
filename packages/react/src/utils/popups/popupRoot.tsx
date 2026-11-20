@@ -75,6 +75,7 @@ type PopupRootStore = ReactStore<
     open: boolean,
     eventDetails: BaseUIChangeEventDetails<typeof REASONS.imperativeAction | typeof REASONS.none>,
   ): void;
+  applyOpenProp(openProp: boolean | undefined): void;
   resetOnUnmount(): void;
 };
 
@@ -502,6 +503,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors> & {
+    applyOpenProp(openProp: boolean | undefined): void;
     resetOnUnmount(): void;
   },
   openProp: boolean | undefined,
@@ -509,14 +511,12 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   popupRef: React.RefObject<HTMLElement | null> = store.context.popupRef,
 ) {
   // In controlled mode, `state.open` holds the last open-change request instead of the open state,
-  // and a close through the prop doesn't reset it. Clear it in the commit that receives a closing
-  // prop, so `true` on unmount means a request made since then. Parts read `open` through the store,
-  // where the prop is synced in a layout effect, so none of them sees the popup as closed before
-  // this runs.
+  // and a change through the prop doesn't reset it. Reconcile the two in the commit that receives
+  // the prop, so `true` on unmount means a request made since the prop last closed the popup. Parts
+  // read `open` through the store, where the prop is synced in a layout effect, so none of them
+  // sees the new open state before this runs.
   useIsoLayoutEffect(() => {
-    if (openProp === false) {
-      store.set('open', false);
-    }
+    store.applyOpenProp(openProp);
   }, [openProp, store]);
 
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({

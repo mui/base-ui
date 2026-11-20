@@ -261,6 +261,10 @@ class TestPopupStore extends BasePopupStore<
     return { extra: 1 };
   }
 
+  protected prepareOpenPropChange() {
+    return { extra: -2 };
+  }
+
   protected prepareUnmount() {
     return { extra: -1 };
   }
@@ -279,6 +283,59 @@ function createDetails(reason: string, trigger?: Element) {
 }
 
 describe('BasePopupStore', () => {
+  describe('applyOpenProp', () => {
+    it('keeps the state of a request the prop accepts', () => {
+      const store = new TestPopupStore(() => {}, { open: true, openProp: true });
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      const listener = vi.fn();
+      store.subscribe(listener);
+
+      store.applyOpenProp(false);
+
+      expect(store.state.extra).toBe(1);
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('drops the last request and its state when the prop closes the popup by itself', () => {
+      const store = new TestPopupStore(() => {}, { openProp: true });
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+
+      store.applyOpenProp(false);
+
+      expect(store.state.open).toBe(false);
+      expect(store.state.extra).toBe(-2);
+    });
+
+    it('drops the state of the last request when the prop opens the popup by itself', () => {
+      const store = new TestPopupStore(() => {}, { open: true, openProp: true });
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      store.applyOpenProp(false);
+
+      store.applyOpenProp(true);
+
+      expect(store.state.open).toBe(false);
+      expect(store.state.extra).toBe(-2);
+    });
+
+    it('keeps the state a popup mounts with when the prop opens it from the start', () => {
+      const store = new TestPopupStore(() => {}, { openProp: true, extra: 5 });
+
+      store.applyOpenProp(true);
+
+      expect(store.state.extra).toBe(5);
+    });
+
+    it('does nothing for an uncontrolled popup', () => {
+      const store = new TestPopupStore(() => {});
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+
+      store.applyOpenProp(undefined);
+
+      expect(store.state.open).toBe(true);
+      expect(store.state.extra).toBe(1);
+    });
+  });
+
   describe('setOpen', () => {
     it('calls onOpenChange, notifies interactions, prepares and commits once, in that order', () => {
       const store = new TestPopupStore(() => {

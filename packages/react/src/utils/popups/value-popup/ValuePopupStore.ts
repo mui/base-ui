@@ -134,4 +134,8 @@ export abstract class ValuePopupStore<
       instantType: getPressPopupInstantType(nextOpen, eventDetails.reason, eventDetails.event),
     } as PopupOpenChangeState<State>;
   }
+
+  protected prepareOpenPropChange(): PopupOpenChangeState<State> {
+    return { instantType: undefined } as PopupOpenChangeState<State>;
+  }
 }

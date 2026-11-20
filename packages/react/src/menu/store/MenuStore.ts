@@ -327,6 +327,10 @@ export class MenuStore<Payload> extends BasePopupStore<
     };
   }
 
+  protected prepareOpenPropChange() {
+    return { instantType: undefined };
+  }
+
   protected prepareUnmount() {
     return { allowMouseEnter: false };
   }

@@ -396,6 +396,9 @@ export abstract class BasePopupStore<
   // Replaced on every open, so a close can tell whether the popup has opened again since.
   private openSession = {};
 
+  // The `open` prop the store last applied, starting with the one it was created with.
+  private appliedOpenProp = this.state.openProp;
+
   override setState(newState: Readonly<State>): void {
     // A request or an `open` prop that opens the popup starts a new open session. An open request
     // a controlled `open` prop hasn't applied doesn't, so a close waiting on the parent keeps its
@@ -523,6 +526,33 @@ export abstract class BasePopupStore<
     _nextOpen: boolean,
     _eventDetails: ChangeEventDetails,
   ): PopupOpenChangeState<State> {
+    return {};
+  }
+
+  /**
+   * Applies the controlled `open` prop. A prop that matches the last request is the parent
+   * accepting it, so what the request committed stays. Any other change of the prop comes from the
+   * parent alone: it drops the request and what the store keeps about it, such as why its
+   * transition is instant. The prop a popup mounts with is not a change.
+   */
+  applyOpenProp(openProp: boolean | undefined): void {
+    const changed = openProp !== this.appliedOpenProp;
+    this.appliedOpenProp = openProp;
+
+    if (openProp === undefined || openProp === this.state.open) {
+      return;
+    }
+
+    this.update({
+      ...(changed ? this.prepareOpenPropChange() : undefined),
+      ...(openProp ? undefined : { open: false }),
+    } as Pick<State, keyof State>);
+  }
+
+  /**
+   * Returns the state to reset when the `open` prop changes the popup without a matching request.
+   */
+  protected prepareOpenPropChange(): PopupOpenChangeState<State> {
     return {};
   }
 

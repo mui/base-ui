@@ -1935,5 +1935,115 @@ describe('<Select.Popup />', () => {
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
     });
+
+    // With animations disabled the popup unmounts in the commit that receives a closing prop, so
+    // these run a long exit animation and read the attribute while the popup animates out.
+    describe.skipIf(isJSDOM)('controlled `open` prop', () => {
+      const style = `
+        @keyframes select-controlled-exit {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .select-controlled-exit[data-ending-style] {
+          animation: select-controlled-exit 10s linear;
+        }
+      `;
+
+      function ControlledSelect(props: { setOpenRef: React.Ref<(open: boolean) => void> }) {
+        const [open, setOpen] = React.useState(false);
+        React.useImperativeHandle(props.setOpenRef, () => setOpen, []);
+        return (
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Select.Root open={open} onOpenChange={setOpen}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup data-testid="popup" className="select-controlled-exit">
+                    <Select.Item value="a">a</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      async function renderControlled(onTestFinished: (fn: () => void) => void) {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const setOpenRef = React.createRef<(open: boolean) => void>();
+        const { user } = await render(<ControlledSelect setOpenRef={setOpenRef} />);
+        const setOpen = async (open: boolean) => {
+          await act(async () => {
+            setOpenRef.current?.(open);
+          });
+        };
+        return { user, setOpen };
+      }
+
+      async function openWithKeyboard(user: Awaited<ReturnType<typeof render>>['user']) {
+        await act(async () => {
+          screen.getByTestId('trigger').focus();
+        });
+        await user.keyboard('{Enter}');
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+        });
+      }
+
+      it('stays "dismiss" when the parent accepts an Escape close', async ({ onTestFinished }) => {
+        const { user } = await renderControlled(onTestFinished);
+        await openWithKeyboard(user);
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+      });
+
+      it('is removed when the prop closes a popup that a keyboard press opened', async ({
+        onTestFinished,
+      }) => {
+        const { user, setOpen } = await renderControlled(onTestFinished);
+        await openWithKeyboard(user);
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+
+        await setOpen(false);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+      });
+
+      it('is removed when the prop reopens the popup during a dismissal', async ({
+        onTestFinished,
+      }) => {
+        const { user, setOpen } = await renderControlled(onTestFinished);
+        await openWithKeyboard(user);
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+
+        await setOpen(true);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+        });
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+      });
+    });
   });
 });

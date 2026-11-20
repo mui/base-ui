@@ -4243,6 +4243,83 @@ describe('<Menu.Root />', () => {
     });
   });
 
+  describe('data-instant with a controlled `open` prop', () => {
+    function ControlledMenu(props: { setOpenRef: React.Ref<(open: boolean) => void> }) {
+      const [open, setOpen] = React.useState(false);
+      React.useImperativeHandle(props.setOpenRef, () => setOpen, []);
+      return (
+        <Menu.Root open={open} onOpenChange={setOpen}>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="popup">
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    async function renderControlled() {
+      const setOpenRef = React.createRef<(open: boolean) => void>();
+      const { user } = await render(<ControlledMenu setOpenRef={setOpenRef} />);
+      const setOpen = async (open: boolean) => {
+        await act(async () => {
+          setOpenRef.current?.(open);
+        });
+      };
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'Trigger' }).focus();
+      });
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+
+      return { user, setOpen };
+    }
+
+    it('keeps the instant type of a close request the parent accepts', async () => {
+      const { user } = await renderControlled();
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
+
+    it('drops the instant type of the open request when the prop closes the popup', async () => {
+      const { setOpen } = await renderControlled();
+
+      await setOpen(false);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+    });
+
+    it('drops the instant type of a dismissal when the prop reopens the popup', async () => {
+      const { user, setOpen } = await renderControlled();
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      });
+
+      await setOpen(true);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+    });
+  });
+
   describe('open change requests', () => {
     it('reports a close after the parent declined a hover open without canceling it', async () => {
       const handleOpenChange = vi.fn();
