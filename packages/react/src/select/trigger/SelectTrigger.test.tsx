@@ -109,7 +109,7 @@ describe('<Select.Trigger />', () => {
         release?: boolean;
       } = {},
     ) {
-      await render(
+      const view = await render(
         <Select.Root onOpenChange={options.onOpenChange}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
@@ -136,12 +136,12 @@ describe('<Select.Trigger />', () => {
       await waitFor(() => {
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
       });
-      return trigger;
+      return { ...view, trigger };
     }
 
     it('ignores a later release when the opening press was released immediately', async () => {
       const onOpenChange = vi.fn();
-      const trigger = await pressTrigger({ onOpenChange, release: true });
+      const { trigger } = await pressTrigger({ onOpenChange, release: true });
       await act(async () => {
         await wait(20);
       });
@@ -159,7 +159,7 @@ describe('<Select.Trigger />', () => {
     });
 
     it('keeps the popup open when the press slips up to 5px off the trigger', async () => {
-      const trigger = await pressTrigger();
+      const { trigger } = await pressTrigger();
 
       fireEvent.mouseUp(document.body, { button: 0, clientX: 96, clientY: 120 });
       await act(async () => {
@@ -170,7 +170,7 @@ describe('<Select.Trigger />', () => {
     });
 
     it('closes the popup when the press is dragged off the trigger and released', async () => {
-      const trigger = await pressTrigger();
+      const { trigger } = await pressTrigger();
 
       fireEvent.mouseUp(document.body, { button: 0, clientX: 94, clientY: 120 });
 
@@ -185,7 +185,7 @@ describe('<Select.Trigger />', () => {
       const shadowRoot = host.attachShadow({ mode: 'open' });
 
       try {
-        const trigger = await pressTrigger({ container: shadowRoot });
+        const { trigger } = await pressTrigger({ container: shadowRoot });
         const popup = shadowRoot.querySelector('[role="listbox"]');
         expect(popup).not.toBe(null);
 
@@ -197,6 +197,57 @@ describe('<Select.Trigger />', () => {
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
       } finally {
         host.remove();
+      }
+    });
+
+    it('ignores a held press released after the popup closed and reopened', async () => {
+      const { user, trigger } = await pressTrigger();
+
+      await user.keyboard('[Escape]');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[ArrowDown]');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      fireEvent.mouseUp(document.body, { button: 0, clientX: 10, clientY: 10 });
+      await act(async () => {
+        await wait(20);
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('removes its document mouseup listener when unmounted during the opening press', async () => {
+      const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+      const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+      const getCapture = (options: boolean | EventListenerOptions | undefined) =>
+        typeof options === 'boolean' ? options : Boolean(options?.capture);
+
+      try {
+        const { unmount, trigger } = await pressTrigger();
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+        const added = addEventListenerSpy.mock.calls.filter(([type]) => type === 'mouseup');
+        expect(added.length).toBeGreaterThan(0);
+
+        unmount();
+
+        const leftover = added.filter(
+          ([, listener, options]) =>
+            !removeEventListenerSpy.mock.calls.some(
+              ([type, removed, removeOptions]) =>
+                type === 'mouseup' &&
+                removed === listener &&
+                getCapture(removeOptions) === getCapture(options),
+            ),
+        );
+        expect(leftover).toEqual([]);
+      } finally {
+        addEventListenerSpy.mockRestore();
+        removeEventListenerSpy.mockRestore();
       }
     });
   });
