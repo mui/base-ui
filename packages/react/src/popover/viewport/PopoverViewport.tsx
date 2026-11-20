@@ -42,7 +42,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.useStateSetter('viewportElement')],
+    ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
     stateAttributesMapping: popupViewportStateMapping,
   });

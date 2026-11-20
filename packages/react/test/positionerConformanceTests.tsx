@@ -1209,7 +1209,7 @@ function triggerSwitchTests({
     },
   );
 
-  it('animates a switch with a stable virtual anchor until its container resizes', async () => {
+  it('animates a switch with a stable virtual anchor and retargets it when its container resizes', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     function Test({ triggerId = 'first' }) {
@@ -1291,17 +1291,9 @@ function triggerSwitchTests({
     const move = recordTransitions(positioner, { pause: true });
     const sizeMove = recordTransitions(popup, { pause: true });
     await setProps({ triggerId: 'second' });
-    await waitFor(() => expect(sizeMove.started).toContain('width'));
-    // Advance the held size transition so ResizeObserver sees a real size change.
-    await act(async () => {
-      popup.getAnimations()[0].currentTime = 1000;
-      await waitSingleFrame();
-    });
+    // The switch measures the stable anchor again, so the move starts before the popup resizes.
     await waitFor(() => expect(move.started).toContain('transform'));
-    await act(async () => {
-      await waitSingleFrame();
-      await waitSingleFrame();
-    });
+    await waitFor(() => expect(sizeMove.started).toContain('width'));
     expect(positioner).not.toHaveAttribute('data-instant');
     expect(positioner.getAnimations()[0].playState).toBe('paused');
     expect(popup.getAnimations()[0].playState).toBe('paused');
@@ -1315,16 +1307,27 @@ function triggerSwitchTests({
       await waitSingleFrame();
     });
     expect(secondPoint.getBoundingClientRect().left).toBe(previousPointLeft + 80);
-    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+    // A layout move is not a scroll or resize, so the move continues to the new point.
     await waitFor(() =>
-      expect(positioner.getBoundingClientRect().left).toBe(
+      expect(new (ownerWindow(positioner).DOMMatrix)(positioner.style.transform).m41).toBeCloseTo(
         secondPoint.getBoundingClientRect().left,
+        0,
       ),
     );
-    expect(move.started).toEqual(['transform']);
+    expect(positioner).not.toHaveAttribute('data-instant');
+
+    await act(async () => {
+      positioner.getAnimations().forEach((animation) => animation.finish());
+      popup.getAnimations().forEach((animation) => animation.finish());
+    });
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+    expect(positioner.getBoundingClientRect().left).toBeCloseTo(
+      secondPoint.getBoundingClientRect().left,
+      0,
+    );
   });
 
-  it('tracks a parent resize instantly during a switch', async () => {
+  it('retargets a switch when a parent resize moves the anchor', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
     const handle = createHandle();
     const triggerStyle = triggerProps?.style as React.CSSProperties | undefined;
@@ -1386,28 +1389,31 @@ function triggerSwitchTests({
     await waitFor(() => expect(move.started).toContain('transform'));
     expect(positioner).not.toHaveAttribute('data-instant');
     expect(positioner.getAnimations()[0].playState).toBe('paused');
-    move.stop();
 
     const previousAnchorLeft = anchor.getBoundingClientRect().left;
-    const transitions = recordTransitions(positioner);
     await act(async () => {
       screen.getByTestId('anchor-container').style.width = '600px';
       await waitSingleFrame();
       await waitSingleFrame();
     });
     expect(anchor.getBoundingClientRect().left).toBe(previousAnchorLeft + 100);
+    // A layout move is not a scroll or resize, so the move continues to the new anchor position.
     await waitFor(() =>
       expect(new (ownerWindow(positioner).DOMMatrix)(positioner.style.transform).m41).toBeCloseTo(
         anchor.getBoundingClientRect().left,
         0,
       ),
     );
+    expect(positioner).not.toHaveAttribute('data-instant');
+
+    await act(async () => {
+      positioner.getAnimations().forEach((animation) => animation.finish());
+    });
     await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
     expect(positioner.getBoundingClientRect().left).toBeCloseTo(
       anchor.getBoundingClientRect().left,
       0,
     );
-    expect(transitions.started).toEqual([]);
   });
 
   it('keeps a switch running while the popup content scrolls', async () => {

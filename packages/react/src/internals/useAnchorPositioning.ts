@@ -477,40 +477,19 @@ export function useAnchorPositioning(
   );
 
   const autoUpdatePosition = useStableCallback(
-    (reference: Element | VirtualElement, floating: HTMLElement, updatePosition: () => void) => {
-      if (!onAnchorTracking) {
-        return autoUpdate(reference, floating, updatePosition, autoUpdateOptions);
-      }
-
-      let previousRect: Rect | undefined;
-      let previousTrigger = interactionStore.select('anchorElement');
-      return autoUpdate(
+    (reference: Element | VirtualElement, floating: HTMLElement, updatePosition: () => void) =>
+      autoUpdate(
         reference,
         floating,
         (event?: Event) => {
-          const { x, y, width, height } = reference.getBoundingClientRect();
-          const trigger = interactionStore.select('anchorElement');
-          // A trigger switch can move a stable virtual reference. Start a new geometry baseline
-          // for each trigger, while still interrupting explicit scroll and resize events.
-          if (
-            previousRect &&
-            (event?.type === 'scroll' ||
-              event?.type === 'resize' ||
-              (trigger === previousTrigger &&
-                (x !== previousRect.x ||
-                  y !== previousRect.y ||
-                  width !== previousRect.width ||
-                  height !== previousRect.height)))
-          ) {
-            onAnchorTracking.current?.();
+          // A scroll or resize ends a trigger switch. A transition on the anchor itself does not.
+          if (event?.type === 'scroll' || event?.type === 'resize') {
+            onAnchorTracking?.current?.();
           }
-          previousRect = { x, y, width, height };
-          previousTrigger = trigger;
           updatePosition();
         },
         autoUpdateOptions,
-      );
-    },
+      ),
   );
 
   const {
@@ -865,7 +844,7 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  /** Runs before an external anchor-tracking update, without interrupting popup size animations. */
+  /** Runs before a scroll or resize repositions the popup. */
   onAnchorTracking?: React.RefObject<(() => void) | null> | undefined;
   /**
    * The interaction store the popup is positioned with. Components without a popup store create

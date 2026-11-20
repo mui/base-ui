@@ -5,7 +5,3 @@
  * @type {`${'left' | 'right' | ''} ${'down' | 'up' | ''}`}
  */
 export const activationDirection = 'data-activation-direction';
-/**
- * Indicates that the viewport is currently transitioning between old and new content.
- */
-export const transitioning = 'data-transitioning';
