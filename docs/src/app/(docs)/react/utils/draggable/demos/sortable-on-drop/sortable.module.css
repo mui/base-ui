@@ -1,0 +1,61 @@
+.Root {
+  display: grid;
+  width: 20rem;
+  max-width: 100%;
+}
+
+.Row {
+  padding: 0.25rem 9px;
+}
+
+.Item {
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &[data-self-drop]::after,
+  &[data-drop-position='before']::after,
+  &[data-drop-position='after']::after {
+    position: absolute;
+    inset-inline: -9px;
+    height: 3px;
+    background-color: oklch(62.3% 0.214 259.815deg);
+    content: '';
+    pointer-events: none;
+  }
+
+  &[data-self-drop]::after,
+  &[data-drop-position='before']::after {
+    top: -6.5px;
+  }
+
+  &[data-drop-position='after']::after {
+    bottom: -6.5px;
+  }
+
+  &[data-dragging] {
+    opacity: 0.4;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+}

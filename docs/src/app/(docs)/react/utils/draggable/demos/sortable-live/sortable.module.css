@@ -1,0 +1,37 @@
+.Root {
+  display: grid;
+  gap: 0.5rem;
+  width: 20rem;
+  max-width: 100%;
+}
+
+.Item {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &[data-dragging] {
+    opacity: 0.4;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+}
