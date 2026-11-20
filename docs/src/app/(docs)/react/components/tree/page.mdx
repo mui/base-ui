@@ -18,7 +18,7 @@ import { DemoTreeHero } from './demos/hero';
 - **Avoid when items contain controls**: A tree item is one focusable element that screen readers read as a whole, so it can't hold buttons, inputs, or links that keyboard users need to reach. Use [Action Tree](/react/components/action-tree) for those items instead.
 - **Avoid trees for site navigation**: Prefer links grouped under disclosure buttons, such as [Collapsible](/react/components/collapsible). The [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) caution against trees for site navigation. If you use one, follow the [links](#links) example.
 - **Give the tree an accessible name**: Prefer `<Tree.Label>`, or provide an `aria-label` on `<Tree.List>` when no visible label is rendered.
-- **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`. The expansion trigger and the clear button have English names, such as "Expand Documents" and "Clear filter": pass your own `aria-label` to translate them.
+- **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`. An item is named by its `label`, so pass other visible content, such as a size, to `aria-describedby`. The expansion trigger and the clear button have English names, such as "Expand Documents" and "Clear filter": pass your own `aria-label` to translate them, based on `state.expanded` for the trigger.
 - **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<Tree.ItemExpansionTrigger>` so they can expand items by tapping. With multiple selection, render `<Tree.CheckboxItem>` so that tapping an item toggles it without clearing the others.
 
 ## Anatomy
@@ -88,9 +88,9 @@ The root infers the item type from `items`. Parts outside the root's props, such
 
 ### Checkbox selection
 
-Render `<Tree.CheckboxItem>` in place of `<Tree.Item>` to select items like checkboxes, and `<Tree.CheckboxItemIndicator>` inside it to show the state. Set `selectionMode="multiple"` on `<Tree.Root>` to allow more than one item to be selected.
+Render `<Tree.CheckboxItem>` in place of `<Tree.Item>` to select items like checkboxes, and `<Tree.CheckboxItemIndicator>` inside it to show the state. Set `selectionMode="multiple"` on `<Tree.Root>` to allow more than one item to be selected. In single selection, checking an item unchecks the others, so use `<Tree.Item>` there instead.
 
-A click toggles the item and keeps the other items selected. <kbd>Shift</kbd>+click selects a range. The item reports `aria-checked` instead of `aria-selected`, and `mixed` when only some of its descendants are selected.
+A click toggles the item and keeps the other items selected. <kbd>Shift</kbd>+click selects a range. The item reports `aria-checked` instead of `aria-selected`, and `mixed` when only some of its descendants are selected. <kbd>Escape</kbd> clears the selection.
 
 import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 
@@ -146,7 +146,7 @@ A match keeps its ancestors visible. Use `mode` to choose how the items that don
 
 #### Matching items
 
-Items match their label by default and receive a `data-filter-match` attribute.
+Items match their label by default and receive a `data-filter-match` attribute. Screen readers don't announce it, so describe matches with `aria-describedby`.
 
 By default, an item matches when its label contains the query, ignoring case, accents, and punctuation.
 Use `filter` to replace the matching. It receives each item's label, the trimmed query, and the item, and keeps the item when it returns `true`.
