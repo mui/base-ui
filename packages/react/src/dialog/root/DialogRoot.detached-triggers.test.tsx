@@ -24,6 +24,7 @@ describe('<Dialog.Root />', () => {
     openInteractions: ['click'],
     ariaExpanded: true,
     throwOnMissingTrigger: false,
+    closesOnActiveTriggerUnmount: false,
   });
 
   describe('does not re-render inactive triggers', () => {
