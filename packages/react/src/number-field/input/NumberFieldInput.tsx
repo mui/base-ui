@@ -300,9 +300,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         index >= selectionStart &&
         index < selectionEnd;
 
-      // Only allow a single sign character: permit it when there is no existing sign of either
-      // kind, when all text is selected, or when the selection covers the existing sign so it's
-      // being replaced.
+      // A mantissa and its exponent may each have one sign (`-1e-7`). Limit the sign
+      // check to the part being edited without treating unit/currency labels as exponents.
+      const exponentIndex = inputValue.search(/(?<=\p{N})[eE](?=[+−－‒–—﹣＋﹢\-\p{N}]*$)/u);
+      const inExponent =
+        exponentIndex !== -1 && selectionStart != null && selectionStart > exponentIndex;
+      const signStart = inExponent ? exponentIndex + 1 : 0;
+      const signEnd = !inExponent && exponentIndex !== -1 ? exponentIndex : inputValue.length;
+      const signedPart = inputValue.slice(signStart, signEnd);
+
+      // Permit replacing an existing sign, including with the opposite kind.
       const signGroups = [
         [ANY_MINUS_DETECT_RE, ANY_MINUS_RE],
         [ANY_PLUS_DETECT_RE, ANY_PLUS_RE],
@@ -310,12 +317,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       signGroups.forEach(([detectRe, globalRe]) => {
         if (
           detectRe.test(event.key) &&
-          Array.from(allowedNonNumericKeys).some((k) => detectRe.test(k))
+          (inExponent || Array.from(allowedNonNumericKeys).some((k) => detectRe.test(k)))
         ) {
-          const existingIndex = inputValue.search(globalRe);
+          const partIndex = signedPart.search(globalRe);
+          const existingIndex = partIndex === -1 ? -1 : signStart + partIndex;
           const isReplacingExisting = existingIndex !== -1 && selectionContainsIndex(existingIndex);
           isAllowedNonNumericKey =
-            !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
+            !(ANY_MINUS_DETECT_RE.test(signedPart) || ANY_PLUS_DETECT_RE.test(signedPart)) ||
             isAllSelected ||
             isReplacingExisting;
         }

@@ -154,7 +154,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const getAllowedNonNumericKeys = useStableCallback(() => {
     const parts = getAllFormatParts(locale, format);
 
-    const keys = new Set<string>(BASE_NON_NUMERIC_SYMBOLS);
+    // Scientific notation is an entry shortcut independent of the display format.
+    const keys = new Set<string>([...BASE_NON_NUMERIC_SYMBOLS, 'e', 'E']);
     const addAll = (chars: readonly string[]) => chars.forEach((char) => keys.add(char));
 
     // Integer formats omit the decimal from `parts`, so fall back to the locale's separator in that
