@@ -111,6 +111,19 @@ function getFirstTabbableElement(container: Element | null) {
   return tabbable(container)[0] || container;
 }
 
+function getLabels(element: Element | null): Element[] {
+  if (!element) {
+    return [];
+  }
+
+  const win = ownerWindow(element);
+  if (element instanceof win.HTMLInputElement || element instanceof win.HTMLTextAreaElement) {
+    return Array.from(element.labels ?? []);
+  }
+
+  return [];
+}
+
 function handleTabIndex(floatingFocusElement: HTMLElement) {
   if (
     floatingFocusElement.hasAttribute('tabindex') &&
@@ -655,6 +668,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       resolveRef(previousFocusableElement),
       resolveRef(nextFocusableElement),
       isUntrappedTypeableCombobox ? domReference : null,
+      // Keep the input's `<label>`s exposed so it keeps its accessible name.
+      ...(isUntrappedTypeableCombobox ? getLabels(domReference) : []),
     ].filter((x): x is Element => x != null);
 
     const ariaHiddenCleanup = markOthers(insideElements, {
