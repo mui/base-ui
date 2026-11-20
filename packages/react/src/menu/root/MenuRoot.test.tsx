@@ -14,6 +14,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Menu } from '@base-ui/react/menu';
+import { ContextMenu } from '@base-ui/react/context-menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { platform } from '@base-ui/utils/platform';
@@ -2982,59 +2983,65 @@ describe('<Menu.Root />', () => {
         await cleanup();
       });
 
-      it('triggers a menu item and closes the menu on click, drag, release', async () => {
-        ignoreActWarnings();
-        const openChangeSpy = vi.fn();
-        const clickSpy = vi.fn();
+      it.each([
+        { name: 'standalone', Wrapper: 'div' },
+        { name: 'inside ContextMenu.Trigger', Wrapper: InsideContextMenuTrigger },
+      ] as const)(
+        'triggers a menu item and closes the menu on click, drag, release ($name)',
+        async ({ Wrapper }) => {
+          ignoreActWarnings();
+          const openChangeSpy = vi.fn();
+          const clickSpy = vi.fn();
 
-        const items = [
-          <Menu.Item key="1" data-testid="item-1">
-            1
-          </Menu.Item>,
-          <Menu.Item key="2" data-testid="item-2" onClick={clickSpy}>
-            2
-          </Menu.Item>,
-          <Menu.Item key="3" data-testid="item-3">
-            3
-          </Menu.Item>,
-        ];
+          const items = [
+            <Menu.Item key="1" data-testid="item-1">
+              1
+            </Menu.Item>,
+            <Menu.Item key="2" data-testid="item-2" onClick={clickSpy}>
+              2
+            </Menu.Item>,
+            <Menu.Item key="3" data-testid="item-3">
+              3
+            </Menu.Item>,
+          ];
 
-        await render(
-          <div>
-            <TestMenu
-              rootProps={{ onOpenChange: openChangeSpy }}
-              popupProps={{ children: items }}
-            />
-          </div>,
-        );
+          await render(
+            <Wrapper>
+              <TestMenu
+                rootProps={{ onOpenChange: openChangeSpy }}
+                popupProps={{ children: items }}
+              />
+            </Wrapper>,
+          );
 
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-        fireEvent.mouseDown(trigger);
+          fireEvent.mouseDown(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu')).not.toBe(null);
-        });
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).not.toBe(null);
+          });
 
-        await wait(200);
+          await wait(200);
 
-        const item2 = screen.getByTestId('item-2');
-        fireEvent.mouseUp(item2);
+          const item2 = screen.getByTestId('item-2');
+          fireEvent.mouseUp(item2);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu')).toBe(null);
-        });
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).toBe(null);
+          });
 
-        expect(clickSpy.mock.calls.length).toBe(1);
+          expect(clickSpy.mock.calls.length).toBe(1);
 
-        expect(openChangeSpy.mock.calls.length).toBe(2);
-        expect(openChangeSpy.mock.calls[0][0]).toBe(true);
-        expect(openChangeSpy.mock.lastCall?.[0]).toBe(false);
-        expect(openChangeSpy.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
-        // The synthesized drag-release click must carry `detail: 1` so MenuRoot does
-        // not classify it as a keyboard (`detail === 0`) activation.
-        expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(1);
-      });
+          expect(openChangeSpy.mock.calls.length).toBe(2);
+          expect(openChangeSpy.mock.calls[0][0]).toBe(true);
+          expect(openChangeSpy.mock.lastCall?.[0]).toBe(false);
+          expect(openChangeSpy.mock.lastCall?.[1].reason).toBe(REASONS.itemPress);
+          // The synthesized drag-release click must carry `detail: 1` so MenuRoot does
+          // not classify it as a keyboard (`detail === 0`) activation.
+          expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(1);
+        },
+      );
 
       it('continues arrow navigation from a checkbox item selected by drag release', async () => {
         ignoreActWarnings();
@@ -4807,6 +4814,14 @@ describe('<Menu.Root />', () => {
     );
   });
 });
+
+function InsideContextMenuTrigger(props: { children: React.ReactNode }) {
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger>{props.children}</ContextMenu.Trigger>
+    </ContextMenu.Root>
+  );
+}
 
 function ContainedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
