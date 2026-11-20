@@ -41,6 +41,16 @@ export function isNativeInput(
   return false;
 }
 
+// `email` and `number` inputs take typed text but have no selection API, so the caret position
+// can't be read.
+export function isTextInputWithoutCaret(element: EventTarget): element is HTMLInputElement {
+  return (
+    isInputElement(element) &&
+    element.selectionStart == null &&
+    (element.type === 'email' || element.type === 'number')
+  );
+}
+
 export function scrollIntoViewIfNeeded(
   scrollContainer: HTMLElement | null,
   element: HTMLElement | null,
