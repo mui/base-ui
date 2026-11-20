@@ -23,7 +23,7 @@ import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../constants';
 import { getFloatingFocusElement, isTypeableCombobox, isTypeableElement } from '../element';
 import { enqueueFocus } from '../focus/enqueueFocus';
-import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../event';
+import { getNavigationKey, isVirtualClick, isVirtualPointerEvent, stopEvent } from '../event';
 
 // WebKit fires zero-delta `mousemove`/`pointermove` events when the list scrolls
 // beneath a stationary pointer, moving the highlight during keyboard navigation.
@@ -554,6 +554,7 @@ export function useListNavigation(
   });
 
   const commonOnKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+    const key = getNavigationKey(event);
     isPointerModalityRef.current = false;
     forceSyncFocusRef.current = true;
 
@@ -572,10 +573,10 @@ export function useListNavigation(
       return;
     }
 
-    if (nested && isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid)) {
+    if (nested && isCrossOrientationCloseKey(key, orientation, rtl, isGrid)) {
       // If the nested list's close key is also the parent navigation key,
       // let the parent navigate. Otherwise, stop propagating the event.
-      if (!isMainOrientationKey(event.key, getParentOrientation())) {
+      if (!isMainOrientationKey(key, getParentOrientation())) {
         stopEvent(event);
       }
 
@@ -606,13 +607,13 @@ export function useListNavigation(
     const maxIndex = getMaxListIndex(listRef, disabledIndices);
 
     if (!typeableComboboxReference) {
-      if (event.key === 'Home') {
+      if (key === 'Home') {
         stopEvent(event);
         indexRef.current = minIndex;
         onNavigate(event);
       }
 
-      if (event.key === 'End') {
+      if (key === 'End') {
         stopEvent(event);
         indexRef.current = maxIndex;
         onNavigate(event);
@@ -624,6 +625,7 @@ export function useListNavigation(
     if (navigateGrid != null) {
       const index = navigateGrid(
         event,
+        key,
         indexRef.current,
         listRef,
         orientation,
@@ -646,7 +648,7 @@ export function useListNavigation(
       }
     }
 
-    if (isMainOrientationKey(event.key, orientation)) {
+    if (isMainOrientationKey(key, orientation)) {
       stopEvent(event);
 
       // Reset the index if no item is focused. Focus can also rest on a container inside the
@@ -659,9 +661,7 @@ export function useListNavigation(
         contains(event.currentTarget, focusedElement) &&
         !listRef.current.some((item) => item != null && contains(item, focusedElement))
       ) {
-        indexRef.current = isMainOrientationToEndKey(event.key, orientation, rtl)
-          ? minIndex
-          : maxIndex;
+        indexRef.current = isMainOrientationToEndKey(key, orientation, rtl) ? minIndex : maxIndex;
         onNavigate(event);
         // The boundary item may already be highlighted, so `activeIndex` won't change and the
         // effect that moves focus to the highlighted item won't run.
@@ -672,7 +672,7 @@ export function useListNavigation(
       }
 
       const { index, wrapped } = getNextListIndex(listRef.current, currentIndex, {
-        decrement: !isMainOrientationToEndKey(event.key, orientation, rtl),
+        decrement: !isMainOrientationToEndKey(key, orientation, rtl),
         loopFocus,
         allowEscape,
         disabledIndices,
@@ -841,22 +841,14 @@ export function useListNavigation(
       onKeyDown(event) {
         // non-reactive open state (to prevent re-creation of the handler)
         const currentOpen = store.select('open');
+        const key = getNavigationKey(event);
         isPointerModalityRef.current = false;
 
-        const isArrowKey = event.key.startsWith('Arrow');
-        const isParentCrossOpenKey = isCrossOrientationOpenKey(
-          event.key,
-          getParentOrientation(),
-          rtl,
-        );
-        const isMainKey = isMainOrientationKey(
-          event.key,
-          currentOpen ? orientation : triggerOrientation,
-        );
+        const isArrowKey = key.startsWith('Arrow');
+        const isParentCrossOpenKey = isCrossOrientationOpenKey(key, getParentOrientation(), rtl);
+        const isMainKey = isMainOrientationKey(key, currentOpen ? orientation : triggerOrientation);
         const isNavigationKey =
-          (nested ? isParentCrossOpenKey : isMainKey) ||
-          event.key === 'Enter' ||
-          event.key.trim() === '';
+          (nested ? isParentCrossOpenKey : isMainKey) || key === 'Enter' || key.trim() === '';
 
         if (virtual && currentOpen && (!nested || isTypeableElement(event.currentTarget))) {
           return commonOnKeyDown(event);
@@ -869,8 +861,8 @@ export function useListNavigation(
         }
 
         if (isNavigationKey) {
-          const isParentMainKey = isMainOrientationKey(event.key, getParentOrientation());
-          keyRef.current = nested && isParentMainKey ? null : event.key;
+          const isParentMainKey = isMainOrientationKey(key, getParentOrientation());
+          keyRef.current = nested && isParentMainKey ? null : key;
         }
 
         if (nested) {

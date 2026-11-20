@@ -19,6 +19,7 @@ import type { DisabledIndices } from '../../../internals/composite/listIndex';
  */
 export function gridNavigation(
   event: React.KeyboardEvent,
+  key: string,
   prevIndex: number,
   listRef: React.RefObject<Array<HTMLElement | null>>,
   orientation: 'horizontal' | 'vertical' | 'both',
@@ -31,6 +32,7 @@ export function gridNavigation(
 ): number | undefined {
   const nextIndex = getGridNavigatedIndex(listRef.current, {
     event,
+    key,
     orientation,
     loopFocus,
     rtl,
