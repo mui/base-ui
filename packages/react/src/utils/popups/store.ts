@@ -469,7 +469,13 @@ export abstract class BasePopupStore<
       return;
     }
 
-    dispatchOpenChange(this.context, popupStoreSelectors.open(this.state), nextOpen, details);
+    dispatchOpenChange(
+      this.context,
+      popupStoreSelectors.open(this.state),
+      nextOpen,
+      details,
+      details.trigger != null && details.trigger !== this.state.activeTriggerElement,
+    );
 
     const extraState = this.prepareOpenChange(nextOpen, details);
 
