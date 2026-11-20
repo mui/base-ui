@@ -40,8 +40,10 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   const empty = useListEmpty();
 
-  const { element, positioning, open, mounted } =
-    usePopupPositioner<ComboboxPositionerInternalState>(store, componentProps, {
+  const { element, positioning, open, mounted } = usePopupPositioner<ComboboxPositionerState>(
+    store,
+    componentProps,
+    {
       forwardedRef,
       keepMounted,
       positioning: {
@@ -52,7 +54,8 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
         lazyFlip: true,
       },
       state: { empty },
-    });
+    },
+  );
 
   useAnchoredPopupScrollLock(
     open && modal,
@@ -78,9 +81,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   );
 });
 
-// The shared positioner state also carries `instant`, which a combobox never sets.
-type ComboboxPositionerInternalState = ComboboxPositionerState & { instant: undefined };
-
 export interface ComboboxPositionerState {
   /**
    * Whether the popup is currently open.
@@ -102,6 +102,10 @@ export interface ComboboxPositionerState {
    * Whether there are no items to display.
    */
   empty: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: 'click' | 'dismiss' | undefined;
 }
 
 export interface ComboboxPositionerProps

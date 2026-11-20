@@ -48,9 +48,7 @@ export type State = ValuePopupState & {
   submitOnItemClick: boolean;
   hasInputValue: boolean;
 
-  // The shared positioner reads these. A combobox has neither an instant transition nor an
-  // adaptive origin, so they stay `undefined`.
-  instantType: undefined;
+  // The shared positioner reads this. A combobox has no adaptive origin, so it stays `undefined`.
   adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
@@ -158,7 +156,6 @@ export const selectors = {
   grid: (state: State) => state.grid,
   virtualized: (state: State) => state.virtualized,
   autoHighlight: (state: State) => state.autoHighlight,
-  instantType: (state: State) => state.instantType,
   adaptiveOrigin: (state: State) => state.adaptiveOrigin,
 };
 

@@ -474,6 +474,8 @@ type SelectPositionerState = {
   align: Align;
   /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** Whether CSS transitions should be disabled. */
+  instant: 'click' | 'dismiss' | undefined;
 };
 ```
 
@@ -499,6 +501,7 @@ Renders a `<div>` element.
 | data-open           | -                                                                                    | Present when the select is open.                                      |
 | data-closed         | -                                                                                    | Present when the select is closed.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                                       | Indicates how the popup is aligned relative to specified side.        |
+| data-instant        | `'click' \| 'dismiss'`                                                               | Present if animations should be instant.                              |
 | data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                                    | Present when the select begins animating in.                          |
 | data-ending-style   | -                                                                                    | Present when the select is animating out.                             |
@@ -519,6 +522,8 @@ type SelectPopupState = {
   open: boolean;
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** Whether transitions should be skipped. */
+  instant: 'click' | 'dismiss' | undefined;
 };
 ```
 
@@ -957,6 +962,11 @@ declare namespace SelectPopupDataAttributes {
    * @type 'start' | 'center' | 'end'
    */
   const align: 'data-align';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss'
+   */
+  const instant: 'data-instant';
 }
 ```
 
