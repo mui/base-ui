@@ -6,7 +6,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { getOffset } from '../utils/getOffset';
+import { getMaxScroll, getTrackMetrics } from '../utils/getOffset';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
@@ -90,12 +90,11 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         return;
       }
 
-      const maxScroll = horizontal
-        ? viewportEl.scrollWidth - viewportEl.clientWidth
-        : viewportEl.scrollHeight - viewportEl.clientHeight;
+      const maxScroll = getMaxScroll(viewportEl, vertical);
       // RTL horizontal scrolling uses a negative `scrollLeft` range, from 0 to `-maxScroll`.
-      const minScroll = horizontal && direction === 'rtl' ? -maxScroll : 0;
-      const maxScrollValue = horizontal && direction === 'rtl' ? 0 : maxScroll;
+      const isRtlHorizontal = horizontal && direction === 'rtl';
+      const minScroll = isRtlHorizontal ? -maxScroll : 0;
+      const maxScrollValue = isRtlHorizontal ? 0 : maxScroll;
       const scrollValue = viewportEl[scrollProperty];
 
       // At an edge (or with no overflow), let the wheel event chain to the
@@ -135,30 +134,14 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       }
 
       const viewportEl = viewportRef.current;
-      if (!viewportEl) {
-        return;
-      }
-
       const scrollbarEl = vertical ? scrollbarYRef.current : scrollbarXRef.current;
 
-      if (!thumbEl || !scrollbarEl) {
+      if (!viewportEl || !thumbEl || !scrollbarEl) {
         return;
       }
 
-      const axis = vertical ? 'y' : 'x';
-      const thumbOffset = getOffset(thumbEl, 'margin', axis);
-      const scrollbarOffset = getOffset(scrollbarEl, 'padding', axis);
-      const thumbSizePx = vertical ? thumbEl.offsetHeight : thumbEl.offsetWidth;
-      const trackRect = scrollbarEl.getBoundingClientRect();
-      const clickPosition = vertical
-        ? event.clientY - trackRect.top - thumbSizePx / 2 - scrollbarOffset + thumbOffset / 2
-        : event.clientX - trackRect.left - thumbSizePx / 2 - scrollbarOffset + thumbOffset / 2;
-
-      const scrollableSize = vertical ? viewportEl.scrollHeight : viewportEl.scrollWidth;
-      const viewportSize = vertical ? viewportEl.clientHeight : viewportEl.clientWidth;
-      const trackSize = vertical ? scrollbarEl.offsetHeight : scrollbarEl.offsetWidth;
-
-      const maxThumbOffset = trackSize - thumbSizePx - scrollbarOffset - thumbOffset;
+      const { scrollbarOffset, thumbOffset, thumbSizePx, maxThumbOffset, maxScrollDistance } =
+        getTrackMetrics(viewportEl, scrollbarEl, thumbEl, vertical);
       // A short or heavily padded track can drive `maxThumbOffset` to zero or
       // negative once the thumb hits its `MIN_THUMB_SIZE` floor. Dividing by it
       // would yield a non-finite (`Infinity`/`NaN`) or inverted scroll position.
@@ -166,8 +149,14 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         return;
       }
 
+      const trackRect = scrollbarEl.getBoundingClientRect();
+      const clickPosition =
+        (vertical ? event.clientY - trackRect.top : event.clientX - trackRect.left) -
+        thumbSizePx / 2 -
+        scrollbarOffset +
+        thumbOffset / 2;
+
       const scrollRatio = clickPosition / maxThumbOffset;
-      const maxScrollDistance = scrollableSize - viewportSize;
 
       // Disable snapping before the jump-to-click assignment, or the
       // assigned position quantizes to the nearest snap point and the thumb
@@ -219,6 +208,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   };
 
   const element = useRenderElement('div', componentProps, {
+    enabled: shouldRender,
     ref: [forwardedRef, vertical ? scrollbarYRef : scrollbarXRef],
     state,
     props: [props, elementProps],
