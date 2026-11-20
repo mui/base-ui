@@ -1,4 +1,4 @@
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
@@ -292,6 +292,42 @@ describe('<Popover.Positioner />', () => {
       expect(Math.abs(closingRect.y - initialRect.y)).toBeLessThanOrEqual(1);
     },
   );
+
+  it.skipIf(isJSDOM).each([
+    { name: 'without zoom', zoom: 1 },
+    { name: 'when an ancestor sets CSS zoom', zoom: 2 },
+  ])("stops shifting where the arrow reaches the anchor's edge $name", async ({ zoom }) => {
+    document.body.style.zoom = String(zoom);
+    onTestFinished(() => {
+      document.body.style.zoom = '';
+    });
+
+    const arrowWidth = 20;
+    const collisionPadding = 5;
+    // The anchor's right edge sits 10px into the viewport, so collision padding alone would
+    // shift the popup to 5px.
+    await render(
+      <Popover.Root open>
+        <Trigger style={{ width: 40, height: 20, position: 'fixed', top: 100, left: -30 }}>
+          Trigger
+        </Trigger>
+        <Popover.Portal>
+          <Popover.Positioner data-testid="positioner" collisionPadding={collisionPadding}>
+            <Popover.Popup style={{ width: 200, height: 50 }}>
+              <Popover.Arrow style={{ width: arrowWidth, height: 10 }} />
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    // The limit keeps half the arrow plus the mean horizontal padding inside the anchor.
+    const expectedLeft = 10 - arrowWidth / 2 - collisionPadding;
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.getBoundingClientRect().left).toBeCloseTo(expectedLeft * zoom, 0);
+    });
+  });
 
   describe.skipIf(isJSDOM)('transform origin', () => {
     function getTransformOrigin() {
