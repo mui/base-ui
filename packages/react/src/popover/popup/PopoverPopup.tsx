@@ -96,6 +96,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
         onKeyDown(event) {
+          // A portal `container` inside the toolbar puts the popup in its DOM, where the toolbar
+          // can't tell the popup's keys apart from its own.
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }

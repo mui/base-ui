@@ -166,54 +166,69 @@ describe('<Popover.Popup />', () => {
   });
 
   describe('inside a toolbar', () => {
-    function ToolbarPopover({ children }: { children: React.ReactNode }) {
+    function ToolbarPopover({
+      children,
+      portalInsideToolbar = false,
+    }: {
+      children: React.ReactNode;
+      portalInsideToolbar?: boolean;
+    }) {
+      const containerRef = React.useRef<HTMLDivElement>(null);
       return (
         <Toolbar.Root>
           <Toolbar.Button>First</Toolbar.Button>
           <Popover.Root>
             <Toolbar.Button render={<Popover.Trigger />}>Open</Toolbar.Button>
-            <Popover.Portal>
+            <Popover.Portal container={portalInsideToolbar ? containerRef : undefined}>
               <Popover.Positioner>
                 <Popover.Popup>{children}</Popover.Popup>
               </Popover.Positioner>
             </Popover.Portal>
           </Popover.Root>
           <Toolbar.Button>Last</Toolbar.Button>
+          <div ref={containerRef} />
         </Toolbar.Root>
       );
     }
 
-    // The popup is portaled but still bubbles React events up to `Toolbar.Root`, whose composite
-    // handler would move the roving highlight and pull focus out of the open popup.
-    it('does not relay composite keys from the popup to the toolbar', async () => {
-      const { user } = await render(
-        <ToolbarPopover>
-          <button type="button">Inside</button>
-        </ToolbarPopover>,
-      );
+    // The popup still bubbles React events up to `Toolbar.Root`, whose composite handler would
+    // move the roving highlight and pull focus out of the open popup. A portal container inside
+    // the toolbar also puts the popup in its DOM.
+    it.each([
+      { name: 'portaled outside the toolbar', portalInsideToolbar: false },
+      { name: 'portaled inside the toolbar', portalInsideToolbar: true },
+    ])(
+      'does not relay composite keys from the popup to the toolbar when $name',
+      async ({ portalInsideToolbar }) => {
+        const { user } = await render(
+          <ToolbarPopover portalInsideToolbar={portalInsideToolbar}>
+            <button type="button">Inside</button>
+          </ToolbarPopover>,
+        );
 
-      // The toolbar itself still navigates with the same key, so a passing assertion below can't
-      // come from an inert toolbar.
-      await user.keyboard('[Tab]');
-      expect(screen.getByRole('button', { name: 'First' })).toHaveFocus();
-      await user.keyboard('[ArrowRight]');
-      const trigger = screen.getByRole('button', { name: 'Open' });
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
+        // The toolbar itself still navigates with the same key, so a passing assertion below can't
+        // come from an inert toolbar.
+        await user.keyboard('[Tab]');
+        expect(screen.getByRole('button', { name: 'First' })).toHaveFocus();
+        await user.keyboard('[ArrowRight]');
+        const trigger = screen.getByRole('button', { name: 'Open' });
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
 
-      await user.keyboard('[Enter]');
-      const insideButton = screen.getByRole('button', { name: 'Inside' });
-      await waitFor(() => {
+        await user.keyboard('[Enter]');
+        const insideButton = screen.getByRole('button', { name: 'Inside' });
+        await waitFor(() => {
+          expect(insideButton).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await flushMicrotasks();
+
         expect(insideButton).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowRight]');
-      await flushMicrotasks();
-
-      expect(insideButton).toHaveFocus();
-      expect(screen.getByRole('button', { name: 'Last' })).not.toHaveFocus();
-    });
+        expect(screen.getByRole('button', { name: 'Last' })).not.toHaveFocus();
+      },
+    );
 
     // Shielding the toolbar must not disable the keys inside the popup: only propagation is
     // stopped, so native caret movement in popup content keeps working.

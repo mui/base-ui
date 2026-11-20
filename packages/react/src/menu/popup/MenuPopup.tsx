@@ -163,6 +163,8 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
             }),
         onKeyDown(event) {
           submenuRootContext?.onPopupKeyDown?.(event);
+          // A portal `container` inside the toolbar puts the popup in its DOM, where the toolbar
+          // can't tell the popup's keys apart from its own.
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }
