@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import {
   act,
@@ -25,6 +25,23 @@ import {
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+
+const platformOverride = vi.hoisted(() => ({ apple: undefined as boolean | undefined }));
+
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+
+  return {
+    ...actual,
+    platform: {
+      ...actual.platform,
+      os: Object.defineProperty({ ...actual.platform.os }, 'apple', {
+        get: () => platformOverride.apple ?? actual.platform.os.apple,
+      }),
+    },
+  };
+});
 
 describe('<Menu.Root />', () => {
   beforeEach(resetBrowserPointer);
@@ -2741,6 +2758,61 @@ describe('<Menu.Root />', () => {
       expect(screen.getByTestId('menu')).not.toHaveAttribute('data-open');
     });
     expect(menuItem).toHaveAttribute('tabindex', '-1');
+  });
+
+  describe('Ctrl+N and Ctrl+P', () => {
+    afterEach(() => {
+      platformOverride.apple = undefined;
+    });
+
+    function TestMenu() {
+      return (
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>One</Menu.Item>
+                <Menu.Item>Two</Menu.Item>
+                <Menu.Item>Three</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('opens and navigates on Apple platforms', async () => {
+      platformOverride.apple = true;
+      const { user } = await render(<TestMenu />);
+
+      await act(async () => screen.getByRole('button', { name: 'Toggle' }).focus());
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus();
+      });
+
+      await user.keyboard('{Control>}p{/Control}');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+    });
+
+    it('is ignored on other platforms', async () => {
+      platformOverride.apple = false;
+      const { user } = await render(<TestMenu />);
+
+      await act(async () => screen.getByRole('button', { name: 'Toggle' }).focus());
+      await user.keyboard('{Control>}n{/Control}');
+
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
   });
 
   describe('prop: highlightItemOnHover', () => {

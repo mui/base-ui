@@ -57,3 +57,28 @@ export function isClickLikeEvent(event: Event | React.SyntheticEvent) {
   const type = event.type;
   return type === 'click' || type === 'mousedown' || type === 'keydown' || type === 'keyup';
 }
+
+/**
+ * Returns the key that list navigation should handle for a keyboard event.
+ * On Apple platforms, Ctrl+N and Ctrl+P move down and up a line in native text fields and menus,
+ * so they map to ArrowDown and ArrowUp.
+ */
+export function getNavigationKey(event: KeyboardEvent | React.KeyboardEvent): string {
+  if (!platform.os.apple || !event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+    return event.key;
+  }
+
+  // Use the layout's character so Dvorak and similar layouts match the labelled key.
+  // Layouts without Latin letters fall back to the physical key.
+  const letter = /^[a-z]$/i.test(event.key)
+    ? event.key.toLowerCase()
+    : event.code.slice(3).toLowerCase();
+
+  if (letter === 'n') {
+    return 'ArrowDown';
+  }
+  if (letter === 'p') {
+    return 'ArrowUp';
+  }
+  return event.key;
+}

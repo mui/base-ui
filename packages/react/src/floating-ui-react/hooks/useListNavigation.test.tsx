@@ -1,4 +1,4 @@
-import { vi, it, describe, expect } from 'vitest';
+import { vi, it, describe, expect, afterEach, beforeEach } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -13,6 +13,23 @@ import { Main as EmojiPicker } from '../../../test/floating-ui-tests/EmojiPicker
 import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFocus';
 import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
 import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
+
+const platformOverride = vi.hoisted(() => ({ apple: undefined as boolean | undefined }));
+
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+
+  return {
+    ...actual,
+    platform: {
+      ...actual.platform,
+      os: Object.defineProperty({ ...actual.platform.os }, 'apple', {
+        get: () => platformOverride.apple ?? actual.platform.os.apple,
+      }),
+    },
+  };
+});
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
@@ -424,6 +441,108 @@ describe('useListNavigation', () => {
     await userEvent.keyboard('{ArrowDown}');
 
     expect(screen.getByTestId('active-index').textContent).toBe('0');
+  });
+
+  describe('Ctrl+N and Ctrl+P', () => {
+    afterEach(() => {
+      platformOverride.apple = undefined;
+    });
+
+    describe('on Apple platforms', () => {
+      beforeEach(() => {
+        platformOverride.apple = true;
+      });
+
+      it('opens on Ctrl+N and focuses the first item', async () => {
+        render(<App />);
+
+        fireEvent.keyDown(screen.getByRole('button'), { key: 'n', code: 'KeyN', ctrlKey: true });
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+        await waitFor(() => {
+          expect(screen.getByTestId('item-0')).toHaveFocus();
+        });
+      });
+
+      it('opens on Ctrl+P and focuses the last item', async () => {
+        render(<App />);
+
+        fireEvent.keyDown(screen.getByRole('button'), { key: 'p', code: 'KeyP', ctrlKey: true });
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+        await waitFor(() => {
+          expect(screen.getByTestId('item-2')).toHaveFocus();
+        });
+      });
+
+      it('navigates like ArrowDown and ArrowUp, respecting loopFocus', async () => {
+        render(<App loopFocus />);
+
+        fireEvent.keyDown(screen.getByRole('button'), { key: 'n', code: 'KeyN', ctrlKey: true });
+        await waitFor(() => {
+          expect(screen.getByTestId('item-0')).toHaveFocus();
+        });
+
+        fireEvent.keyDown(screen.getByRole('menu'), { key: 'n', code: 'KeyN', ctrlKey: true });
+        await waitFor(() => {
+          expect(screen.getByTestId('item-1')).toHaveFocus();
+        });
+
+        fireEvent.keyDown(screen.getByRole('menu'), { key: 'p', code: 'KeyP', ctrlKey: true });
+        await waitFor(() => {
+          expect(screen.getByTestId('item-0')).toHaveFocus();
+        });
+
+        fireEvent.keyDown(screen.getByRole('menu'), { key: 'p', code: 'KeyP', ctrlKey: true });
+        await waitFor(() => {
+          expect(screen.getByTestId('item-2')).toHaveFocus();
+        });
+      });
+
+      it('matches the physical key on layouts without Latin letters', async () => {
+        render(<App />);
+
+        fireEvent.keyDown(screen.getByRole('button'), { key: 'т', code: 'KeyN', ctrlKey: true });
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+        await waitFor(() => {
+          expect(screen.getByTestId('item-0')).toHaveFocus();
+        });
+      });
+
+      it('matches the character on Latin layouts that move the letter', async () => {
+        render(<App />);
+
+        // Dvorak types "n" with the key in the KeyL position.
+        fireEvent.keyDown(screen.getByRole('button'), { key: 'n', code: 'KeyL', ctrlKey: true });
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+        await waitFor(() => {
+          expect(screen.getByTestId('item-0')).toHaveFocus();
+        });
+      });
+
+      it.each([
+        ['Shift', { shiftKey: true }],
+        ['Alt', { altKey: true }],
+        ['Meta', { metaKey: true }],
+      ])('ignores Ctrl+%s+N', async (_, modifiers) => {
+        render(<App />);
+
+        fireEvent.keyDown(screen.getByRole('button'), {
+          key: 'n',
+          code: 'KeyN',
+          ctrlKey: true,
+          ...modifiers,
+        });
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+    });
+
+    it('is ignored on other platforms', async () => {
+      platformOverride.apple = false;
+      render(<App />);
+
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'n', code: 'KeyN', ctrlKey: true });
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'p', code: 'KeyP', ctrlKey: true });
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
   });
 
   describe('prop: loopFocus', () => {

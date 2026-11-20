@@ -63,6 +63,7 @@ export function getGridNavigatedIndex(
   list: Array<HTMLElement | null>,
   {
     event,
+    key = event.key,
     orientation,
     loopFocus,
     onLoop,
@@ -75,6 +76,10 @@ export function getGridNavigatedIndex(
     stopEvent: stop = false,
   }: {
     event: React.KeyboardEvent;
+    /**
+     * The navigation key to handle. Defaults to `event.key`.
+     */
+    key?: string | undefined;
     orientation: 'horizontal' | 'vertical' | 'both';
     loopFocus: boolean;
     onLoop?:
@@ -92,9 +97,9 @@ export function getGridNavigatedIndex(
   let nextIndex = prevIndex;
 
   let verticalDirection: 'up' | 'down' | undefined;
-  if (event.key === ARROW_UP) {
+  if (key === ARROW_UP) {
     verticalDirection = 'up';
-  } else if (event.key === ARROW_DOWN) {
+  } else if (key === ARROW_DOWN) {
     verticalDirection = 'down';
   }
 
@@ -287,7 +292,7 @@ export function getGridNavigatedIndex(
   if (orientation === 'both') {
     const prevRow = floor(prevIndex / cols);
 
-    if (event.key === (rtl ? ARROW_LEFT : ARROW_RIGHT)) {
+    if (key === (rtl ? ARROW_LEFT : ARROW_RIGHT)) {
       if (stop) {
         stopEvent(event);
       }
@@ -322,7 +327,7 @@ export function getGridNavigatedIndex(
       }
     }
 
-    if (event.key === (rtl ? ARROW_RIGHT : ARROW_LEFT)) {
+    if (key === (rtl ? ARROW_RIGHT : ARROW_LEFT)) {
       if (stop) {
         stopEvent(event);
       }
@@ -365,7 +370,7 @@ export function getGridNavigatedIndex(
     if (isIndexOutOfListBounds(list, nextIndex)) {
       if (loopFocus && lastRow) {
         nextIndex =
-          event.key === (rtl ? ARROW_RIGHT : ARROW_LEFT)
+          key === (rtl ? ARROW_RIGHT : ARROW_LEFT)
             ? maxIndex
             : findNonDisabledListIndex(list, {
                 startingIndex: prevIndex - (prevIndex % cols) - 1,

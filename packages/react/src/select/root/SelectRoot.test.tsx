@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Select } from '@base-ui/react/select';
@@ -15,6 +15,23 @@ import {
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
+
+const platformOverride = vi.hoisted(() => ({ apple: undefined as boolean | undefined }));
+
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+
+  return {
+    ...actual,
+    platform: {
+      ...actual.platform,
+      os: Object.defineProperty({ ...actual.platform.os }, 'apple', {
+        get: () => platformOverride.apple ?? actual.platform.os.apple,
+      }),
+    },
+  };
+});
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -4910,6 +4927,63 @@ describe('<Select.Root />', () => {
       options.forEach((opt) => {
         expect(opt).not.toHaveAttribute('data-selected');
       });
+    });
+  });
+
+  describe('Ctrl+N and Ctrl+P', () => {
+    afterEach(() => {
+      platformOverride.apple = undefined;
+    });
+
+    function TestSelect() {
+      return (
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one">One</Select.Item>
+                <Select.Item value="two">Two</Select.Item>
+                <Select.Item value="three">Three</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      );
+    }
+
+    it('opens and navigates on Apple platforms', async () => {
+      platformOverride.apple = true;
+      const { user } = await render(<TestSelect />);
+
+      await act(async () => screen.getByTestId('trigger').focus());
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'One' })).toHaveFocus();
+      });
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Two' })).toHaveFocus();
+      });
+
+      await user.keyboard('{Control>}p{/Control}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'One' })).toHaveFocus();
+      });
+    });
+
+    it('is ignored on other platforms', async () => {
+      platformOverride.apple = false;
+      const { user } = await render(<TestSelect />);
+
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('{Control>}n{/Control}');
+
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
   });
 

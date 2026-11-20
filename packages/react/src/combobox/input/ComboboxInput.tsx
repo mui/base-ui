@@ -18,7 +18,7 @@ import {
 import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { getNavigationKey, stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -341,6 +341,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+            if (getNavigationKey(event) !== event.key) {
+              store.state.keyboardActiveRef.current = true;
+            }
             return;
           }
 
