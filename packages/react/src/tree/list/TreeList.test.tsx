@@ -290,6 +290,40 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
       window.scrollTo(0, 0);
     }
   });
+
+  it('does not scroll the page when the scrolled list already shows the focused row', async () => {
+    try {
+      await render(
+        <div style={{ paddingBottom: 4 * window.innerHeight }}>
+          <Tree.Root items={ITEMS}>
+            <Tree.List
+              data-testid="list"
+              style={{ height: VIEWPORT_HEIGHT, width: 240, overflow: 'auto' }}
+            >
+              {renderSizedItem}
+            </Tree.List>
+          </Tree.Root>
+        </div>,
+      );
+      const scroller = screen.getByTestId('list');
+      window.scrollTo(0, 0);
+      await settle();
+
+      await act(async () => {
+        (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
+      });
+      expect(window.scrollY).toBe(0);
+
+      await press('End');
+
+      expect(focusedRow().dataset.itemId).toBe('item99');
+      expect(scroller.scrollTop).toBeGreaterThan(0);
+      expect(window.scrollY).toBe(0);
+      expect(rowIsWithinViewport(focusedRow(), scroller)).toBe(true);
+    } finally {
+      window.scrollTo(0, 0);
+    }
+  });
 });
 
 it('exposes the row level through aria-level only', async () => {

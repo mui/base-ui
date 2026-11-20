@@ -1,7 +1,5 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
-import { scrollIntoViewIfNeeded } from '../../internals/composite';
-import type { TextDirection } from '../../internals/direction-context';
 import type { TreeItemId } from '../store/types';
 import { getVerticalScale } from './getVerticalScale';
 
@@ -24,40 +22,36 @@ export function getRowsPerPage(height: number, rowHeight: number): number {
   return rowHeight > 0 ? Math.max(1, Math.floor(height / rowHeight)) : 0;
 }
 
-/**
- * Scrolls `container` just far enough along one axis for `element` to be
- * visible, aligning it with the nearest edge.
- *
- * For an element scroll container, it reads live bounding rects rather than
- * walking the `offsetParent` chain, so it stays correct when the container isn't
- * positioned (and therefore isn't the element's `offsetParent`). For the page
- * scroller, offsets measured up the `offsetParent` chain already live in the
- * document's scroll coordinate space, so the shared helper is correct there.
- */
 /** Whether `element` is the document's scroller, whose scroll events fire on the document. */
 export function isDocumentScroller(element: Element): boolean {
   const doc = ownerDocument(element);
   return element === doc.scrollingElement || element === doc.documentElement;
 }
 
+/**
+ * Scrolls `container` just far enough along one axis for `element` to be
+ * visible, aligning it with the nearest edge.
+ *
+ * It reads live bounding rects rather than walking the `offsetParent` chain, so
+ * it stays correct when the container isn't positioned and when inner scroll
+ * containers between it and `element` are scrolled. The page scroller's
+ * scrollport is the viewport.
+ */
 export function scrollIntoContainerView(
   container: HTMLElement,
   element: HTMLElement | null,
   orientation: 'horizontal' | 'vertical',
-  direction: TextDirection,
 ): void {
   if (element == null) {
     return;
   }
-  if (isDocumentScroller(container)) {
-    scrollIntoViewIfNeeded(container, element, direction, orientation);
-    return;
-  }
-
   const vertical = orientation === 'vertical';
+  const isPage = isDocumentScroller(container);
   const containerRect = container.getBoundingClientRect();
   let scale: number;
-  if (vertical) {
+  if (isPage) {
+    scale = 1;
+  } else if (vertical) {
     scale = getVerticalScale(container, containerRect);
   } else {
     scale = container.offsetWidth > 0 ? containerRect.width / container.offsetWidth : 1;
@@ -71,16 +65,31 @@ export function scrollIntoContainerView(
   const paddingEnd =
     (parseFloat(vertical ? styles.scrollPaddingBottom : styles.scrollPaddingRight) || 0) * scale;
   // The scrollport excludes the container's borders and scrollbars.
-  const scrollportStart = vertical
-    ? containerRect.top + container.clientTop * scale
-    : containerRect.left + container.clientLeft * scale;
+  let scrollportStart: number;
+  if (isPage) {
+    scrollportStart = 0;
+  } else if (vertical) {
+    scrollportStart = containerRect.top + container.clientTop * scale;
+  } else {
+    scrollportStart = containerRect.left + container.clientLeft * scale;
+  }
+  // The page's scrollport is the viewport, which `documentElement` measures.
+  const scrollportBox = isPage ? ownerDocument(container).documentElement : container;
   const scrollportEnd =
-    scrollportStart + (vertical ? container.clientHeight : container.clientWidth) * scale;
+    scrollportStart + (vertical ? scrollportBox.clientHeight : scrollportBox.clientWidth) * scale;
   const elementRect = element.getBoundingClientRect();
+  const elementStyles = ownerWindow(element).getComputedStyle(element);
+  const marginStart =
+    parseFloat(vertical ? elementStyles.scrollMarginTop : elementStyles.scrollMarginLeft) || 0;
+  const marginEnd =
+    parseFloat(vertical ? elementStyles.scrollMarginBottom : elementStyles.scrollMarginRight) || 0;
 
   const startGap =
-    (vertical ? elementRect.top : elementRect.left) - (scrollportStart + paddingStart);
-  const endGap = (vertical ? elementRect.bottom : elementRect.right) - (scrollportEnd - paddingEnd);
+    (vertical ? elementRect.top : elementRect.left) -
+    marginStart -
+    (scrollportStart + paddingStart);
+  const endGap =
+    (vertical ? elementRect.bottom : elementRect.right) + marginEnd - (scrollportEnd - paddingEnd);
 
   // Align to the nearest edge, preferring the start when the element is larger
   // than the visible band (matches native `scroll-into-view` "nearest" behavior).
@@ -110,16 +119,15 @@ export function scrollIntoContainersView(
   containers: HTMLElement[],
   element: HTMLElement | null,
   orientation: 'horizontal' | 'vertical',
-  direction: TextDirection,
 ): void {
   if (element == null || containers.length === 0) {
     return;
   }
-  scrollIntoContainerView(containers[0], element, orientation, direction);
+  scrollIntoContainerView(containers[0], element, orientation);
   if (!contains(element, activeElement(ownerDocument(element)))) {
     return;
   }
   for (let i = 1; i < containers.length; i += 1) {
-    scrollIntoContainerView(containers[i], element, orientation, direction);
+    scrollIntoContainerView(containers[i], element, orientation);
   }
 }
