@@ -82,9 +82,10 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   }, [open, setPreventUnmountOnClose]);
 
   // Mirrors `mounted` synchronously so repeated `forceUnmount()` calls in one batch complete
-  // closing once. Resynced on every commit: `setMounted(false)` while open re-mounts on the next
-  // render without changing the committed `mounted`, so a `[mounted]` dependency would leave the
-  // mirror stale and block every later unmount.
+  // closing once. Resynced on every commit unless `unmount` already ran in it (see below):
+  // `setMounted(false)` while open re-mounts on the next render without changing the committed
+  // `mounted`, so a `[mounted]` dependency would leave the mirror stale and block every later
+  // unmount.
   const mountedRef = React.useRef(mounted);
   // A `forceUnmount()` call while open is decided in the commit that renders its request. Other
   // renders in the same batch can commit first, such as a store update React 18 flushes
@@ -93,17 +94,25 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   const unmountRequestRef = React.useRef(0);
   const pendingUnmountRef = React.useRef<number | null>(null);
 
+  // Set when `unmount` runs during this render's commit before the effect below, for example from
+  // a descendant's layout effect. The committed `mounted` is stale then, and resyncing the mirror
+  // to it would let the close completion unmount a second time.
+  let unmountedInCommit = false;
+
   const unmount = () => {
+    unmountedInCommit = true;
     mountedRef.current = false;
     setMounted(false);
     onUnmount();
   };
 
   useIsoLayoutEffect(() => {
-    mountedRef.current = mounted;
+    if (!unmountedInCommit) {
+      mountedRef.current = mounted;
+    }
     if (pendingUnmountRef.current !== null && pendingUnmountRef.current <= unmountRequest) {
       pendingUnmountRef.current = null;
-      if (!open && mounted) {
+      if (!open && mountedRef.current) {
         unmount();
       }
     }
