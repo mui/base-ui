@@ -36,14 +36,19 @@ export function isDocumentScroller(element: Element): boolean {
  * it stays correct when the container isn't positioned and when inner scroll
  * containers between it and `element` are scrolled. The page scroller's
  * scrollport is the viewport.
+ *
+ * `pending` is how far, in client pixels, inner containers are still going to
+ * move `element` toward the start: a smooth scroll hasn't moved it yet.
+ * Returns how far this call moves `element` toward the start.
  */
 export function scrollIntoContainerView(
   container: HTMLElement,
   element: HTMLElement | null,
   orientation: 'horizontal' | 'vertical',
-): void {
+  pending = 0,
+): number {
   if (element == null) {
-    return;
+    return 0;
   }
   const vertical = orientation === 'vertical';
   const isPage = isDocumentScroller(container);
@@ -57,7 +62,7 @@ export function scrollIntoContainerView(
     scale = container.offsetWidth > 0 ? containerRect.width / container.offsetWidth : 1;
   }
   if (scale === 0) {
-    return;
+    return 0;
   }
   const styles = ownerWindow(container).getComputedStyle(container);
   const paddingStart =
@@ -86,10 +91,14 @@ export function scrollIntoContainerView(
 
   const startGap =
     (vertical ? elementRect.top : elementRect.left) -
+    pending -
     marginStart -
     (scrollportStart + paddingStart);
   const endGap =
-    (vertical ? elementRect.bottom : elementRect.right) + marginEnd - (scrollportEnd - paddingEnd);
+    (vertical ? elementRect.bottom : elementRect.right) -
+    pending +
+    marginEnd -
+    (scrollportEnd - paddingEnd);
 
   // Align to the nearest edge, preferring the start when the element is larger
   // than the visible band (matches native `scroll-into-view` "nearest" behavior).
@@ -100,13 +109,25 @@ export function scrollIntoContainerView(
     delta = endGap;
   }
   if (delta === 0) {
-    return;
+    return 0;
   }
+  // Under `scroll-behavior: smooth` the assignment animates, so the applied
+  // distance is computed rather than read back, clamped to the scroll range.
+  const scrollSize = vertical
+    ? container.scrollHeight - scrollportBox.clientHeight
+    : container.scrollWidth - scrollportBox.clientWidth;
+  // RTL horizontal scrolling runs from `-scrollSize` to `0`.
+  const rtl = !vertical && styles.direction === 'rtl';
+  const min = rtl ? -scrollSize : 0;
+  const max = rtl ? 0 : scrollSize;
+  const current = vertical ? container.scrollTop : container.scrollLeft;
+  const next = current + delta / scale;
   if (vertical) {
-    container.scrollTop += delta / scale;
+    container.scrollTop = next;
   } else {
-    container.scrollLeft += delta / scale;
+    container.scrollLeft = next;
   }
+  return (Math.min(Math.max(next, min), Math.max(min, max)) - current) * scale;
 }
 
 /**
@@ -123,11 +144,11 @@ export function scrollIntoContainersView(
   if (element == null || containers.length === 0) {
     return;
   }
-  scrollIntoContainerView(containers[0], element, orientation);
+  let pending = scrollIntoContainerView(containers[0], element, orientation);
   if (!contains(element, activeElement(ownerDocument(element)))) {
     return;
   }
   for (let i = 1; i < containers.length; i += 1) {
-    scrollIntoContainerView(containers[i], element, orientation);
+    pending += scrollIntoContainerView(containers[i], element, orientation, pending);
   }
 }

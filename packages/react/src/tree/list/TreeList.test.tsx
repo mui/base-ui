@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
-import { screen, act, fireEvent } from '@mui/internal-test-utils';
+import { screen, act, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { Tree } from '..';
 
@@ -320,6 +320,45 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
       expect(scroller.scrollTop).toBeGreaterThan(0);
       expect(window.scrollY).toBe(0);
       expect(rowIsWithinViewport(focusedRow(), scroller)).toBe(true);
+    } finally {
+      window.scrollTo(0, 0);
+    }
+  });
+
+  it('does not scroll the page while a smooth list scroll brings the focused row into view', async () => {
+    try {
+      await render(
+        <div style={{ paddingBottom: 4 * window.innerHeight }}>
+          <Tree.Root items={ITEMS}>
+            <Tree.List
+              data-testid="list"
+              style={{
+                height: VIEWPORT_HEIGHT,
+                width: 240,
+                overflow: 'auto',
+                scrollBehavior: 'smooth',
+              }}
+            >
+              {renderSizedItem}
+            </Tree.List>
+          </Tree.Root>
+        </div>,
+      );
+      const scroller = screen.getByTestId('list');
+      window.scrollTo(0, 0);
+      await settle();
+
+      await act(async () => {
+        (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
+      });
+      expect(window.scrollY).toBe(0);
+
+      await press('End');
+
+      expect(focusedRow().dataset.itemId).toBe('item99');
+      expect(window.scrollY).toBe(0);
+      await waitFor(() => expect(rowIsWithinViewport(focusedRow(), scroller)).toBe(true));
+      expect(window.scrollY).toBe(0);
     } finally {
       window.scrollTo(0, 0);
     }
