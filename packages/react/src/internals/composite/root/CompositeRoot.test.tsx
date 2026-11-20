@@ -530,6 +530,31 @@ describe('Composite', () => {
       expect(allowed).toBe(false);
     });
 
+    it('does not move or loop when every item is disabled', async () => {
+      const onLoop = vi.fn((_event, _prevIndex, nextIndex: number) => nextIndex);
+      await render(
+        <CompositeRoot
+          grid={threeColsGrid}
+          disabledIndices={gridItems.map((_, index) => index)}
+          onLoop={onLoop}
+        >
+          <TestGridItems />
+        </CompositeRoot>,
+      );
+
+      const item1 = screen.getByTestId('1');
+      act(() => item1.focus());
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      fireEvent.keyDown(item1, { key: 'ArrowUp' });
+      fireEvent.keyDown(item1, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(onLoop).not.toHaveBeenCalled();
+      expect(item1).toHaveAttribute('tabindex', '0');
+      expect(item1).toHaveFocus();
+    });
+
     it('uniform 1x1 items', async () => {
       function App() {
         return (
