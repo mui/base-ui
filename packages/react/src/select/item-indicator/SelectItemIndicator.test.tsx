@@ -39,6 +39,33 @@ describe('<Select.ItemIndicator />', () => {
     },
   }));
 
+  it('removes the default checkmark when `children={null}` is passed alongside `render`', async () => {
+    // See https://github.com/mui/base-ui/issues/4752 — `render` alone does not clear the
+    // default glyph (that would change behavior for call sites using `render` only to swap
+    // the tag); pairing it with `children={null}` is the documented way to opt out.
+    await render(
+      <Select.Root open>
+        <Select.Trigger>
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Positioner>
+          <Select.Item value="a">
+            a
+            <Select.ItemIndicator
+              keepMounted
+              render={<span data-testid="custom-indicator" className="my-check" />}
+            >
+              {null}
+            </Select.ItemIndicator>
+          </Select.Item>
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    const indicator = screen.getByTestId('custom-indicator');
+    expect(indicator.textContent).toBe('');
+  });
+
   it('settles out of its transition state after the item is deselected', async () => {
     const { user } = await render(
       <Select.Root multiple defaultOpen defaultValue={['a']}>
