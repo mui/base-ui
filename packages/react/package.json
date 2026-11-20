@@ -120,7 +120,7 @@
     }
   },
   "scripts": {
-    "prebuild": "rimraf --glob build build-tests build-typecheck published-docs \"*.tsbuildinfo\" && node ./scripts/stagePublishedDocs.mjs",
+    "prebuild": "node ./scripts/stagePublishedDocs.mjs",
     "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore --copy \"published-docs/**:docs\" --tsgo",
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
@@ -138,7 +138,7 @@
   "devDependencies": {
     "@date-fns/tz": "1.5.0",
     "@testing-library/react": "16.3.3",
-    "@testing-library/user-event": "14.6.10",
+    "@testing-library/user-event": "14.6.12",
     "@types/luxon": "3.7.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
