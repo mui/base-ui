@@ -172,7 +172,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     open,
     ref: store.context.popupRef,
     onComplete() {
-      if (open) {
+      // The popup can attach in the commit that closes it, before the store reads closed.
+      if (open && store.select('open')) {
         store.context.onOpenChangeComplete?.(true);
       }
     },

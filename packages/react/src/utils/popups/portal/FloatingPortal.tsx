@@ -24,6 +24,7 @@ import type { UseRenderElementComponentProps } from '../../../internals/useRende
 import { ownerVisuallyHidden } from '../../../internals/constants';
 import type { BaseUIComponentProps } from '../../../internals/types';
 import { createFlushBeforePaint } from '../../../internals/createFlushBeforePaint';
+import { useIsHydrating } from '../../useIsHydrating';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -79,8 +80,21 @@ export function useFloatingPortalNode(
   const portalContext = usePortalContext();
   const parentPortalNode = portalContext?.portalNode;
 
+  const hydrating = useIsHydrating();
+  // A portal mounted on the client after hydration (as a popup opened by a press is) renders into a
+  // container it can already resolve, so its subtree does not wait a commit for the effect below.
+  // While hydrating, and for a ref not yet attached, the effect resolves it.
+  const [initialContainer] = React.useState<HTMLElement | ShadowRoot | null>(() => {
+    if (hydrating || containerProp === null) {
+      return null;
+    }
+    if (containerProp && !isNode(containerProp)) {
+      return containerProp.current;
+    }
+    return containerProp ?? parentPortalNode ?? document.body;
+  });
   const [containerElement, setContainerElement] = React.useState<HTMLElement | ShadowRoot | null>(
-    null,
+    initialContainer,
   );
   const [portalNode, setPortalNode] = React.useState<HTMLElement | null>(null);
   const setPortalNodeRef = useStableCallback((node: HTMLElement | null) => {
@@ -92,7 +106,7 @@ export function useFloatingPortalNode(
     }
   });
 
-  const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
+  const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(initialContainer);
   const [containerCheck, setContainerCheck] = React.useState(0);
   const pendingResolveRef = React.useRef<(() => void) | null>(null);
 
