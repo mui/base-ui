@@ -121,6 +121,7 @@ type ToastRootToastObject<Data extends {} = any> = {
 ### Provider
 
 Provides a context for creating and managing toasts.
+Renders two visually hidden live regions used to announce toasts.
 
 **Provider Props:**
 
