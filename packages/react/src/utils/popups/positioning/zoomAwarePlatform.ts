@@ -8,7 +8,7 @@ import { isElement } from '@floating-ui/utils/dom';
  * Floating UI scales coordinates by the offset parent's zoom or transform only when the offset
  * parent is an element, so an ancestor CSS `zoom` is otherwise ignored for a window offset parent.
  */
-async function getWindowOffsetParentZoom(floating: Element | null) {
+export async function getWindowOffsetParentZoom(floating: Element | null) {
   // Browsers without standardized CSS zoom don't expose `currentCSSZoom`.
   const zoom = floating?.currentCSSZoom ?? 1;
   // Check the zoom first so unzoomed positioners skip the offset parent lookup.
