@@ -450,17 +450,20 @@ describe('useListNavigation', () => {
         expect(screen.getByTestId('item-0')).toHaveFocus();
       });
 
-      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown', repeat: true });
       await waitFor(() => {
         expect(screen.getByTestId('item-1')).toHaveFocus();
       });
 
-      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown', repeat: true });
       await waitFor(() => {
         expect(screen.getByTestId('item-2')).toHaveFocus();
       });
 
-      // Reached the end of the list and loops.
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown', repeat: true });
+      expect(screen.getByTestId('item-2')).toHaveFocus();
+
+      // A fresh press at the end of the list loops.
       fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
       await waitFor(() => {
         expect(screen.getByTestId('item-0')).toHaveFocus();
@@ -476,21 +479,42 @@ describe('useListNavigation', () => {
         expect(screen.getByTestId('item-2')).toHaveFocus();
       });
 
-      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp', repeat: true });
       await waitFor(() => {
         expect(screen.getByTestId('item-1')).toHaveFocus();
       });
 
-      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp', repeat: true });
       await waitFor(() => {
         expect(screen.getByTestId('item-0')).toHaveFocus();
       });
 
-      // Reached the end of the list and loops.
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp', repeat: true });
+      expect(screen.getByTestId('item-0')).toHaveFocus();
+
+      // A fresh press at the end of the list loops.
       fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
       await waitFor(() => {
         expect(screen.getByTestId('item-2')).toHaveFocus();
       });
+    });
+
+    it('allowEscape does not escape on a repeated press at the boundary', async () => {
+      render(<App allowEscape virtual loopFocus />);
+      const reference = screen.getByRole('button');
+      act(() => reference.focus());
+      expect(reference).toHaveFocus();
+
+      fireEvent.keyDown(reference, { key: 'ArrowDown' });
+      expect(reference).toHaveFocus();
+      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
+
+      fireEvent.keyDown(reference, { key: 'ArrowUp', repeat: true });
+      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
+
+      fireEvent.keyDown(reference, { key: 'ArrowUp' });
+      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('false');
+      await flushMicrotasks();
     });
   });
 
