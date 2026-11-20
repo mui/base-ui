@@ -155,6 +155,46 @@ describe('Composite', () => {
       expect(onHighlightedIndexChange).toHaveBeenCalledWith(2);
     });
 
+    it.skipIf(isJSDOM)(
+      'scrolls the active item into view in the frame after the mount commit',
+      async () => {
+        let scrollLeftInCommit: number | null = null;
+
+        function ReadScrollInCommit() {
+          React.useLayoutEffect(() => {
+            scrollLeftInCommit = screen.getByTestId('root').scrollLeft;
+          }, []);
+          return null;
+        }
+
+        await render(
+          <React.Fragment>
+            <CompositeRoot
+              data-testid="root"
+              orientation="horizontal"
+              style={{ display: 'flex', width: 100, overflowX: 'auto' }}
+            >
+              {['1', '2', '3', '4', '5'].map((item) => (
+                <CompositeItem
+                  key={item}
+                  data-composite-item-active={item === '5' ? '' : undefined}
+                  style={{ flex: '0 0 100px' }}
+                >
+                  {item}
+                </CompositeItem>
+              ))}
+            </CompositeRoot>
+            <ReadScrollInCommit />
+          </React.Fragment>,
+        );
+
+        expect(scrollLeftInCommit).toBe(0);
+        await waitFor(() => {
+          expect(screen.getByTestId('root').scrollLeft).toBeGreaterThan(0);
+        });
+      },
+    );
+
     it('keeps native input behavior when the native target differs from the synthetic target', async () => {
       await render(
         <CompositeRoot orientation="horizontal">
