@@ -2,8 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
+import { usePopupLabelElement } from '../../utils/popups/popupParts';
 
 /**
  * A heading that labels the popover.
@@ -15,20 +14,13 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
   componentProps: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
-  const store = usePopoverRootContext();
-
-  const id = useBaseUiId(elementProps.id);
-
-  store.useSyncedValueWithCleanup('titleElementId', id);
-
-  const element = useRenderElement('h2', componentProps, {
-    ref: forwardedRef,
-    props: [{ id }, elementProps],
-  });
-
-  return element;
+  return usePopupLabelElement(
+    'h2',
+    componentProps,
+    forwardedRef,
+    usePopoverRootContext(),
+    'titleElementId',
+  );
 });
 
 export interface PopoverTitleState {}

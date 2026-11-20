@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
+import { usePopupBackdrop } from '../../utils/popups/popupParts';
 
 /**
  * An overlay displayed beneath the popup.
@@ -16,35 +15,12 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   componentProps: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, forceRender = false, ...elementProps } = componentProps;
-
+  const { forceRender = false, ...backdropProps } = componentProps;
   const store = useDialogRootContext();
-
-  const open = store.useState('open');
   const nested = store.useState('nested');
-  const mounted = store.useState('mounted');
-  const transitionStatus = store.useState('transitionStatus');
 
-  const state: DialogBackdropState = {
-    open,
-    transitionStatus,
-  };
-
-  return useRenderElement('div', componentProps, {
-    state,
-    ref: [store.context.backdropRef, forwardedRef],
-    stateAttributesMapping: popupTransitionStateMapping,
-    props: [
-      {
-        role: 'presentation',
-        hidden: !mounted,
-        style: {
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-        },
-      },
-      elementProps,
-    ],
+  return usePopupBackdrop(backdropProps, forwardedRef, store, {
+    ref: store.context.backdropRef,
     enabled: forceRender || !nested,
   });
 });

@@ -4,8 +4,7 @@ import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositi
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
-import { popupStateMapping } from '../../utils/popups/popupStateMapping';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { usePopupArrow } from '../../utils/popups/popupParts';
 
 /**
  * Displays an element positioned against the preview card anchor.
@@ -17,28 +16,13 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   componentProps: PreviewCardArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
   const store = usePreviewCardRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
-
-  const open = store.useState('open');
-
-  const state: PreviewCardArrowState = {
-    open,
-    side,
-    align,
-    uncentered: arrowUncentered,
-  };
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [arrowRef, forwardedRef],
-    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    stateAttributesMapping: popupStateMapping,
-  });
-
-  return element;
+  return usePopupArrow(
+    componentProps,
+    forwardedRef,
+    store.useState('open'),
+    usePreviewCardPositionerContext(),
+  );
 });
 
 export interface PreviewCardArrowState {

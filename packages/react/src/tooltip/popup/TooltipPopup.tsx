@@ -6,11 +6,11 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
+import { usePopupOpenChangeComplete } from '../../utils/popups/popupParts';
 
 /**
  * A container for the tooltip contents.
@@ -34,15 +34,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const disabled = store.useState('disabled');
   const closeDelay = store.useState('closeDelay');
 
-  useOpenChangeComplete({
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (open) {
-        store.context.onOpenChangeComplete?.(true);
-      }
-    },
-  });
+  usePopupOpenChangeComplete(store, open);
 
   useHoverPopupInteraction(store, {
     enabled: !disabled,

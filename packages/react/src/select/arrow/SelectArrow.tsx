@@ -5,7 +5,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { usePopupArrow } from '../../utils/popups/popupParts';
 
 /**
  * Displays an element positioned against the select popup anchor.
@@ -17,29 +17,14 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   componentProps: SelectArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
   const store = useSelectRootContext();
-  const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
-    useSelectPositionerContext();
+  const positioner = useSelectPositionerContext();
 
-  const open = store.useState('open');
-
-  const state: SelectArrowState = {
-    open,
-    side,
-    align,
-    uncentered: arrowUncentered,
-  };
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [arrowRef, forwardedRef],
-    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
+  const element = usePopupArrow(componentProps, forwardedRef, store.useState('open'), positioner, {
     stateAttributesMapping: popupTransitionStateMapping,
   });
 
-  if (alignItemWithTriggerActive) {
+  if (positioner.alignItemWithTriggerActive) {
     return null;
   }
 
