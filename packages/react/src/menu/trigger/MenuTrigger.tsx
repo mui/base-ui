@@ -6,7 +6,7 @@ import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import {
@@ -22,13 +22,13 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateM
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
-import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
+import { isPressReleasedInside } from '../../utils/popups/pressRelease';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from './useMixedToggleClickHandler';
@@ -138,18 +138,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     const mouseUpTarget = getTarget(mouseEvent) as Element | null;
 
     if (
-      contains(triggerRef.current, mouseUpTarget) ||
-      contains(store.select('positionerElement'), mouseUpTarget) ||
-      mouseUpTarget === triggerRef.current
+      isPressReleasedInside(mouseEvent, triggerRef.current, store.select('positionerElement')) ||
+      (mouseUpTarget != null && findRootOwnerId(mouseUpTarget) === store.select('rootId'))
     ) {
-      return;
-    }
-
-    if (mouseUpTarget != null && findRootOwnerId(mouseUpTarget) === store.select('rootId')) {
-      return;
-    }
-
-    if (isMouseWithinBounds(mouseEvent, triggerRef.current)) {
       return;
     }
 
