@@ -1,0 +1,94 @@
+# Password Field
+
+<Subtitle>A password input with a button to reveal or hide its value.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React password field component with a button to reveal or hide the entered password."
+/>
+
+> **Note:** Password Field is currently in preview. Its API may change before it becomes stable.
+
+import { DemoPasswordFieldHero } from './demos/hero';
+
+<DemoPasswordFieldHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Set `autoComplete` for new passwords**: The input defaults to `autoComplete="current-password"`. On sign-up or change-password forms, pass `autoComplete="new-password"` so browsers and password managers offer to generate one.
+- **Use one input per root**: The toggle controls a single `<PasswordField.Input>`. Give a "confirm password" input its own `<PasswordField.Root>`.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
+
+<PasswordField.Root>
+  <PasswordField.Input />
+  <PasswordField.Toggle>
+    <PasswordField.ToggleIndicator />
+  </PasswordField.Toggle>
+</PasswordField.Root>;
+```
+
+## Examples
+
+### Toggle icon
+
+Swap the icon with `<PasswordField.ToggleIndicator>`. Its `match` prop sets the mode it renders in:
+`'visible'` (the default) or `'masked'`.
+
+import { DemoPasswordFieldToggleIcon } from './demos/toggle-icon';
+
+<DemoPasswordFieldToggleIcon />
+
+### Submitting and resetting forms
+
+Submitting the owning form hides the password, and resetting it restores the initial visibility.
+Both call `onVisibleChange` with the `'form-submit'` or `'form-reset'` reason, which can be canceled:
+
+```tsx title="Keeping the password visible after a submit"
+<PasswordField.Root
+  onVisibleChange={(visible, eventDetails) => {
+    if (eventDetails.reason === 'form-submit') {
+      eventDetails.cancel();
+    }
+  }}
+>
+```
+
+## API reference
+
+import { TypesPasswordField } from './types';
+
+### Root
+
+<TypesPasswordField.Root />
+
+### Input
+
+<TypesPasswordField.Input />
+
+### Toggle
+
+<TypesPasswordField.Toggle />
+
+### ToggleIndicator
+
+<TypesPasswordField.ToggleIndicator />
+
+export const metadata = {
+  keywords: [
+    'React Password Field',
+    'Password Input',
+    'Show Password Toggle',
+    'Reveal Password',
+    'Password Visibility Toggle',
+    'Accessible Password Input',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
