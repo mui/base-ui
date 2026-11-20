@@ -806,6 +806,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         : elementFocusedBeforeOpen,
     );
 
+    let outsidePressWithoutPreventScroll = false;
+
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
@@ -824,35 +826,27 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         return;
       }
 
-      if (details.nested) {
-        preventReturnFocusRef.current = false;
-      } else if (
+      preventReturnFocusRef.current = false;
+      outsidePressWithoutPreventScroll = false;
+
+      if (
+        details.nested ||
         isVirtualClick(details.nativeEvent as MouseEvent) ||
         isVirtualPointerEvent(details.nativeEvent as PointerEvent)
       ) {
-        preventReturnFocusRef.current = false;
-      } else {
-        // On outside press, only return focus to the reference when the browser supports the
-        // `focus({ preventScroll })` option; without it, restoring focus scrolls the page.
-        // Chrome on Android and Samsung Internet still don't support `preventScroll`
-        // (https://issues.chromium.org/issues/41453122), so the runtime check keeps return
-        // focus disabled there to avoid the scroll jump.
-        let isPreventScrollSupported = false;
-        ownerDocument(floatingFocusElement)
-          .createElement('div')
-          .focus({
-            get preventScroll() {
-              isPreventScrollSupported = true;
-              return false;
-            },
-          });
-
-        if (isPreventScrollSupported) {
-          preventReturnFocusRef.current = false;
-        } else {
-          preventReturnFocusRef.current = true;
-        }
+        return;
       }
+
+      // Chrome on Android and Samsung Internet can ignore `focus({ preventScroll })`.
+      // Avoid automatically returning focus in that case, since the page could scroll.
+      let isPreventScrollSupported = false;
+      doc.createElement('div').focus({
+        get preventScroll() {
+          isPreventScrollSupported = true;
+          return false;
+        },
+      });
+      outsidePressWithoutPreventScroll = !isPreventScrollSupported;
     }
 
     events.on('openchange', onOpenChangeLocal);
@@ -873,6 +867,18 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         resolvedReturnFocusValue = true;
       }
 
+      const specifiedReturnElement =
+        typeof resolvedReturnFocusValue === 'boolean' ? null : resolveRef(resolvedReturnFocusValue);
+
+      if (outsidePressWithoutPreventScroll) {
+        // The application can opt in to moving focus by naming a specific element.
+        return explicitReturnFocusRef.current === false ? null : specifiedReturnElement;
+      }
+
+      if (specifiedReturnElement) {
+        return specifiedReturnElement;
+      }
+
       const referenceReturnElement = domReference?.isConnected ? domReference : null;
       const previousReturnElement =
         elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
@@ -887,11 +893,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         defaultReturnElement = getPreviouslyFocusedElement() || null;
       }
 
-      if (typeof resolvedReturnFocusValue === 'boolean') {
-        return defaultReturnElement;
-      }
-
-      return resolveRef(resolvedReturnFocusValue) || defaultReturnElement || null;
+      return defaultReturnElement;
     }
 
     return () => {
@@ -926,9 +928,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // focus. Use the newest visible element focused before it instead, unless the closing
         // commit already moved focus (e.g. `autoFocus`).
         if (tabbableReturnElement?.isConnected && closest(tabbableReturnElement, '[hidden]')) {
-          tabbableReturnElement = [activeEl, doc.body].includes(activeElement(doc))
-            ? getPreviouslyFocusedElement(true) || null
-            : null;
+          tabbableReturnElement =
+            !outsidePressWithoutPreventScroll && [activeEl, doc.body].includes(activeElement(doc))
+              ? getPreviouslyFocusedElement(true) || null
+              : null;
         }
         // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
         const hasExplicitReturnFocus =
