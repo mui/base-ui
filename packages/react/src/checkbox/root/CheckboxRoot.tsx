@@ -35,6 +35,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
+import { useFormReset } from '../../internals/useFormReset';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -162,7 +163,48 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       registerFieldInput(element, { controlRef, value: registeredInputValue }),
     [registerFieldInput, registeredInputValue],
   );
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, parent ? undefined : registerInput);
+  function setChecked(nextChecked: boolean, details: CheckboxRoot.ChangeEventDetails) {
+    onCheckedChange?.(nextChecked, details);
+
+    if (details.isCanceled) {
+      return;
+    }
+
+    groupOnChange?.(nextChecked, details);
+
+    if (details.isCanceled) {
+      return;
+    }
+
+    setCheckedState(nextChecked);
+
+    if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
+      const nextGroupValue = nextChecked
+        ? [...groupContext.value, value]
+        : groupContext.value.filter((item) => item !== value);
+
+      groupContext.setValue(nextGroupValue, details);
+    }
+  }
+
+  const [initialChecked] = React.useState(checked);
+  const resetRef = useFormReset((eventDetails, [input]) => {
+    if (checked !== initialChecked) {
+      setChecked(initialChecked, eventDetails);
+    }
+    // Lets reads right after `form.reset()` see the restored state before React commits.
+    if (groupChecked === undefined && !eventDetails.isCanceled) {
+      input.defaultChecked = initialChecked;
+    }
+  });
+  const mergedInputRef = useMergedRefs(
+    inputRefProp,
+    inputRef,
+    parent ? undefined : registerInput,
+    // A group owns the value of its checkboxes that have a `value`, so it resets them.
+    (groupContext && value !== undefined && groupContext.resetRef) ||
+      (parent ? undefined : resetRef),
+  );
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -176,6 +218,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     if (inputRef.current) {
       // Re-assert on `checked` changes too: clicking the input natively resets `indeterminate`.
       inputRef.current.indeterminate = computedIndeterminate;
+      // Keep the `checked` attribute in sync so a native form reset leaves the input matching
+      // `checked`.
+      inputRef.current.defaultChecked = checked;
     }
     // Inside a group, the group derives the filled state from its value.
     if (!groupContext) {
@@ -222,30 +267,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           return;
         }
 
-        const nextChecked = event.currentTarget.checked;
-        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
-
-        onCheckedChange?.(nextChecked, details);
-
-        if (details.isCanceled) {
-          return;
-        }
-
-        groupOnChange?.(nextChecked, details);
-
-        if (details.isCanceled) {
-          return;
-        }
-
-        setCheckedState(nextChecked);
-
-        if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
-          const nextGroupValue = nextChecked
-            ? [...groupContext.value, value]
-            : groupContext.value.filter((item) => item !== value);
-
-          groupContext.setValue(nextGroupValue, details);
-        }
+        setChecked(
+          event.currentTarget.checked,
+          createChangeEventDetails(REASONS.none, event.nativeEvent),
+        );
       },
       onClick(event) {
         // The click dispatched from the root's `onClick` is an implementation detail
@@ -258,9 +283,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     },
     // React <19 sets an empty value if `undefined` is passed explicitly
     // To avoid this, we only set the value if it's defined
-    valueProp !== undefined
-      ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
-      : EMPTY_OBJECT,
+    valueProp !== undefined ? { value: valueProp } : EMPTY_OBJECT,
     getDescriptionProps,
     (props) => validation.getValidationProps(disabled, props),
   );
@@ -511,7 +534,7 @@ export interface CheckboxRootProps
   value?: string | undefined;
 }
 
-export type CheckboxRootChangeEventReason = typeof REASONS.none;
+export type CheckboxRootChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 export type CheckboxRootChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxRoot.ChangeEventReason>;
 

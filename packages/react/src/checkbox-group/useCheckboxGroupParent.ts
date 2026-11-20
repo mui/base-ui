@@ -126,6 +126,11 @@ export function useCheckboxGroupParent(
       getChildProps,
       registerChildId,
       disabledStatesRef,
+      // The parent cycles back to this value after checking and unchecking all.
+      setCycleValue(nextValue: string[]) {
+        uncontrolledStateRef.current = nextValue;
+        setStatus('mixed');
+      },
     }),
     [getParentProps, getChildProps, registerChildId],
   );
@@ -137,13 +142,17 @@ export interface UseCheckboxGroupParentParameters {
   onValueChange?:
     | ((
         value: string[],
-        eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+        eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none' | 'formReset']>,
       ) => void)
     | undefined;
 }
 
 export interface UseCheckboxGroupParentReturnValue {
   disabledStatesRef: React.RefObject<Map<string, boolean>>;
+  /**
+   * Sets the value the parent checkbox restores after checking and unchecking all.
+   */
+  setCycleValue: (value: string[]) => void;
   /**
    * Reports the `id` of the element a child checkbox exposes.
    */
@@ -154,14 +163,14 @@ export interface UseCheckboxGroupParentReturnValue {
     'aria-controls': string | undefined;
     onCheckedChange: (
       checked: boolean,
-      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none' | 'formReset']>,
     ) => void;
   };
   getChildProps: (value: string) => {
     checked: boolean;
     onCheckedChange: (
       checked: boolean,
-      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none' | 'formReset']>,
     ) => void;
   };
 }

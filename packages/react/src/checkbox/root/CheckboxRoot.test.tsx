@@ -1,16 +1,18 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import {
+  clickResetButton,
   createFormDataSpy,
   createRenderer,
   describeConformance,
   hiddenInputSizeTests,
   isJSDOM,
+  resetForm,
 } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
@@ -1952,5 +1954,274 @@ describe('<Checkbox.Root />', () => {
 
     await user.click(checkbox);
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
+  });
+  describe('form reset', () => {
+    it('submits the restored state right after form.reset()', async () => {
+      await render(
+        <form data-testid="form">
+          <Checkbox.Root name="terms" />
+        </form>,
+      );
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      fireEvent.click(screen.getByRole('checkbox'));
+      expect(new FormData(form).get('terms')).toBe('on');
+
+      let submitted: FormDataEntryValue | null = 'not read';
+      await act(async () => {
+        form.reset();
+        submitted = new FormData(form).get('terms');
+      });
+
+      expect(submitted).toBe(null);
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('restores defaultChecked and clears field state', async () => {
+      const onCheckedChange = vi.fn();
+      await render(
+        <form>
+          <Field.Root data-testid="field">
+            <Checkbox.Root name="terms" onCheckedChange={onCheckedChange} />
+          </Field.Root>
+          <button type="reset">Reset</button>
+        </form>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      const field = screen.getByTestId('field');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+      expect(field).toHaveAttribute('data-dirty');
+      expect(field).toHaveAttribute('data-filled');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+      expect(onCheckedChange).toHaveBeenCalledTimes(2);
+      expect(onCheckedChange.mock.calls[1][0]).toBe(false);
+      expect(onCheckedChange.mock.calls[1][1].reason).toBe('form-reset');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+      expect(field).not.toHaveAttribute('data-dirty');
+      expect(field).not.toHaveAttribute('data-filled');
+    });
+
+    it('restores a checked default', async () => {
+      await render(
+        <form data-testid="form">
+          <Checkbox.Root name="terms" defaultChecked />
+        </form>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+
+      fireEvent.click(checkbox);
+      expect(input.checked).toBe(false);
+
+      await resetForm();
+
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+      expect(input.checked).toBe(true);
+    });
+
+    // React 18 ignores function actions and submits the form natively.
+    it.skipIf(reactMajor < 19)(
+      'follows the reset React runs after a form action succeeds',
+      async () => {
+        const onCheckedChange = vi.fn();
+        await render(
+          <form data-testid="form" action={async () => {}}>
+            <Field.Root data-testid="field">
+              <Checkbox.Root name="terms" onCheckedChange={onCheckedChange} />
+            </Field.Root>
+          </form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+        const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        const field = screen.getByTestId('field');
+
+        fireEvent.click(checkbox);
+        expect(checkbox).toHaveAttribute('aria-checked', 'true');
+        expect(field).toHaveAttribute('data-dirty');
+
+        await act(async () => {
+          screen.getByTestId<HTMLFormElement>('form').requestSubmit();
+        });
+
+        await waitFor(() => {
+          expect(checkbox).toHaveAttribute('aria-checked', 'false');
+        });
+        expect(onCheckedChange.mock.calls[1][1].reason).toBe('form-reset');
+        expect(input.checked).toBe(false);
+        expect(field).not.toHaveAttribute('data-dirty');
+      },
+    );
+
+    it('keeps the input in sync when a controlled checkbox ignores the reset', async () => {
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <form data-testid="form">
+            <Checkbox.Root name="terms" checked={checked} />
+            <button type="button" onClick={() => setChecked(true)}>
+              Check
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      fireEvent.click(screen.getByRole('button', { name: 'Check' }));
+
+      await resetForm();
+
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'true');
+      expect(input.checked).toBe(true);
+    });
+
+    it('calls onCheckedChange with the initial value when controlled', async () => {
+      const onCheckedChange = vi.fn();
+
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <form data-testid="form">
+            <Checkbox.Root
+              name="terms"
+              checked={checked}
+              onCheckedChange={(nextChecked, details) => {
+                onCheckedChange(nextChecked, details.reason);
+                setChecked(nextChecked);
+              }}
+            />
+            <button type="button" onClick={() => setChecked(true)}>
+              Check
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+
+      const checkbox = screen.getByRole('checkbox');
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+
+      fireEvent.click(screen.getByRole('button', { name: 'Check' }));
+      expect(input.checked).toBe(true);
+
+      await resetForm();
+
+      expect(onCheckedChange).toHaveBeenLastCalledWith(false, 'form-reset');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+    });
+
+    // A trusted click flushes React between the `reset` event and the browser restoring values.
+    it.skipIf(isJSDOM)('stays in sync when the reset button is clicked', async () => {
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <form>
+            <Checkbox.Root data-testid="uncontrolled" name="a" defaultChecked />
+            <Checkbox.Root data-testid="controlled" name="b" checked={checked} />
+            <button type="button" onClick={() => setChecked(true)}>
+              Check
+            </button>
+            <button type="reset">Reset</button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+
+      const [uncontrolledInput, controlledInput] = Array.from(
+        document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+      );
+
+      fireEvent.click(screen.getByTestId('uncontrolled'));
+      fireEvent.click(screen.getByRole('button', { name: 'Check' }));
+      expect(uncontrolledInput.checked).toBe(false);
+      expect(controlledInput.checked).toBe(true);
+
+      await clickResetButton();
+
+      expect(screen.getByTestId('uncontrolled')).toHaveAttribute('aria-checked', 'true');
+      expect(uncontrolledInput.checked).toBe(true);
+      expect(screen.getByTestId('controlled')).toHaveAttribute('aria-checked', 'true');
+      expect(controlledInput.checked).toBe(true);
+    });
+
+    it('keeps the value and field state when the reset change is canceled', async () => {
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <Checkbox.Root
+              name="terms"
+              onCheckedChange={(_, details) => {
+                if (details.reason === 'form-reset') {
+                  details.cancel();
+                }
+              }}
+            />
+          </Field.Root>
+        </form>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+
+      fireEvent.click(checkbox);
+
+      await resetForm();
+
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+      expect(input.checked).toBe(true);
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+    });
+
+    it('resets itself inside a CheckboxGroup when it has no value', async () => {
+      await render(
+        <form data-testid="form">
+          <CheckboxGroup defaultValue={[]}>
+            <Checkbox.Root data-testid="agree" />
+          </CheckboxGroup>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('agree'));
+      expect(screen.getByTestId('agree')).toHaveAttribute('aria-checked', 'true');
+
+      await resetForm();
+
+      expect(screen.getByTestId('agree')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('leaves the reset to its CheckboxGroup when it has a value', async () => {
+      const onCheckedChange = vi.fn();
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <CheckboxGroup defaultValue={[]} onValueChange={onValueChange}>
+            <Checkbox.Root value="a" data-testid="a" onCheckedChange={onCheckedChange} />
+          </CheckboxGroup>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('a'));
+      onCheckedChange.mockClear();
+      onValueChange.mockClear();
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onCheckedChange).not.toHaveBeenCalled();
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'false');
+    });
   });
 });

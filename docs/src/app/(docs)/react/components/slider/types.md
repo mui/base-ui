@@ -96,7 +96,8 @@ type SliderRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type SliderRootChangeEventReason = 'input-change' | 'track-press' | 'drag' | 'keyboard' | 'none';
+type SliderRootChangeEventReason =
+  'input-change' | 'track-press' | 'drag' | 'keyboard' | 'form-reset' | 'none';
 ```
 
 ### Root.ChangeEventDetails
@@ -108,6 +109,7 @@ type SliderRootChangeEventDetails = (
   | { reason: 'track-press'; event: PointerEvent | MouseEvent | TouchEvent }
   | { reason: 'drag'; event: PointerEvent | TouchEvent }
   | { reason: 'keyboard'; event: KeyboardEvent }
+  | { reason: 'form-reset'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;

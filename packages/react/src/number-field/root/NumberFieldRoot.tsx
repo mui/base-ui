@@ -49,6 +49,7 @@ import type {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
+import { useFormReset } from '../../internals/useFormReset';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -111,7 +112,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const formatStyle = format?.style;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 
   const id = useLabelableId({ id: idProp });
 
@@ -286,6 +286,25 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       return shouldFireChange;
     },
   );
+
+  const [initialValue] = React.useState(value);
+
+  const resetRef = useFormReset((eventDetails) => {
+    // The initial value is restored as is, without clamping or rounding it again. A native reset
+    // fires no `change` event, so it isn't a commit.
+    if (value !== initialValue) {
+      onValueChangeProp?.(initialValue, eventDetails);
+      if (eventDetails.isCanceled) {
+        return;
+      }
+      setValueUnwrapped(initialValue);
+    }
+    // Drop any typed text and its pending commit, even when the value is back at its initial one.
+    hasPendingCommitRef.current = false;
+    allowInputSyncRef.current = true;
+    setInputValue(formatNumber(initialValue, locale, format));
+  });
+  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, resetRef);
 
   const incrementValue = useStableCallback(
     (amount: number, { direction, currentValue, event, reason }: IncrementValueParameters) => {
@@ -721,6 +740,7 @@ export type NumberFieldRootChangeEventReason =
   | typeof REASONS.decrementPress
   | typeof REASONS.wheel
   | typeof REASONS.scrub
+  | typeof REASONS.formReset
   | typeof REASONS.none;
 export type NumberFieldRootChangeEventDetails = BaseUIChangeEventDetails<
   NumberFieldRootChangeEventReason,

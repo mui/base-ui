@@ -13,6 +13,7 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { LabelableProvider } from '../../internals/labelable-provider';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { useFieldValidation } from './useFieldValidation';
 import { useFieldControlRegistration } from '../../internals/field-register-control/useFieldControlRegistration';
 
@@ -23,7 +24,12 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { errors, validationMode: formValidationMode, submitCountRef } = useFormContext();
+  const {
+    errors,
+    validationMode: formValidationMode,
+    submitCountRef,
+    clearErrors,
+  } = useFormContext();
 
   const {
     render,
@@ -121,6 +127,8 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     [disabled, touched, dirty, valid, filled, focused],
   );
 
+  const resettingRef = React.useRef(false);
+
   const validation = useFieldValidation({
     setValidityData,
     validate,
@@ -132,6 +140,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     shouldValidateOnChange,
     validationMode,
     registeredFieldIdRef,
+    resettingRef,
   });
 
   const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
@@ -144,6 +153,31 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     registeredFieldIdRef,
     setValidityData,
     validityData,
+  });
+
+  const [resetCount, bumpResetCount] = React.useReducer((count: number) => count + 1, 0);
+  const reset = useStableCallback(() => {
+    resettingRef.current = true;
+    bumpResetCount();
+  });
+
+  // Parent layout effects run after the control's, so the control restoring its value doesn't
+  // start validation in between.
+  useValueChanged(resetCount, () => {
+    resettingRef.current = false;
+    validation.change(undefined, true);
+    if (dirtyProp === undefined) {
+      markedDirtyRef.current = false;
+    }
+    setDirty(false);
+    setTouched(false);
+    setValidityData((prev) => ({
+      ...prev,
+      state: DEFAULT_VALIDITY_STATE,
+      error: '',
+      errors: [],
+    }));
+    clearErrors(effectiveName);
   });
 
   React.useImperativeHandle(actionsRef, () => ({ validate: validateFieldControl }), [
@@ -167,6 +201,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       state,
       registerFieldControl,
       validation,
+      reset,
     }),
     [
       invalid,
@@ -182,6 +217,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       state,
       registerFieldControl,
       validation,
+      reset,
     ],
   );
 
