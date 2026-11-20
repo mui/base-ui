@@ -6,7 +6,8 @@ import { useForcedRerendering } from './useForcedRerendering';
 let globalId = 0;
 
 // TODO React 17: Remove `useGlobalId` once React 17 support is removed
-function useGlobalId(idOverride?: string, prefix: string = 'mui'): string | undefined {
+// `@mui/utils/useId` uses the `mui` prefix with its own counter, so `mui` here can give duplicate ids.
+function useGlobalId(idOverride?: string, prefix: string = 'base-ui'): string | undefined {
   const defaultId = React.useRef<string | undefined>(undefined);
   const forceRerender = useForcedRerendering();
   const id = idOverride ?? defaultId.current;
