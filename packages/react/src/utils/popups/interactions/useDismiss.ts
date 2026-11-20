@@ -166,6 +166,8 @@ export function useDismiss(
   // gesture (e.g. the drag-release that opened it), not a new outside press.
   const sawPressWhileOpenRef = React.useRef(false);
   const compositionEndPendingRef = React.useRef(false);
+  // A composing Escape keydown not yet followed by `compositionend`.
+  const composingEscapeRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   const touchStateRef = React.useRef<{
@@ -228,9 +230,14 @@ export function useDismiss(
       // Key code 229 indicates that an IME is processing the key event.
       const isImeKey = native.keyCode === 229;
 
+      if (native.isComposing) {
+        composingEscapeRef.current = true;
+      }
+
       // Wait until IME is settled. Pressing `Escape` while composing should
-      // close the compose menu, but not the floating element. The ref covers Safari, which fires
-      // `compositionend` before `keydown`; the native event identifies an active composition.
+      // close the compose menu, but not the floating element. The pending ref covers the keydown
+      // that follows `compositionend` (see `handleCompositionEnd`); the native event identifies an
+      // active composition.
       if (compositionEndPendingRef.current || native.isComposing || isImeKey) {
         return;
       }
@@ -332,6 +339,7 @@ export function useDismiss(
       if (!open) {
         sawPressWhileOpenRef.current = false;
         compositionEndPendingRef.current = false;
+        composingEscapeRef.current = false;
         currentPointerTypeRef.current = '';
         touchStateRef.current = null;
       }
@@ -345,19 +353,21 @@ export function useDismiss(
     const doc = ownerDocument(positionerElement);
 
     function handleCompositionEnd() {
-      // Safari fires `compositionend` before `keydown`, so we need to wait
-      // until the next tick before dismissing. Open this bounded window on compositionend
-      // even when the composition began while the popup was closed.
+      // Safari fires `compositionend` before the `keydown` that ends the composition, so open
+      // this bounded window even when the composition began while the popup was closed.
       // https://bugs.webkit.org/show_bug.cgi?id=165004
+      // Elsewhere, only after a composing Escape: Chrome and Firefox on macOS send that Escape
+      // again as a non-composing keydown (Chrome after a fake `keyup`) right after `compositionend`.
+      if (!platform.engine.webkit && !composingEscapeRef.current) {
+        return;
+      }
+      composingEscapeRef.current = false;
       compositionEndPendingRef.current = true;
-      compositionTimeout.start(
-        // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
-        // Only apply to WebKit for the test to remain 0ms.
-        platform.engine.webkit ? 5 : 0,
-        () => {
-          compositionEndPendingRef.current = false;
-        },
-      );
+      // 0ms or 1ms don't work in Safari. 5ms appears to consistently work, and leaves room for
+      // Chrome's queued keyup and keydown.
+      compositionTimeout.start(5, () => {
+        compositionEndPendingRef.current = false;
+      });
     }
 
     function suppressImmediateOutsideClickAfterPreventedStart() {
