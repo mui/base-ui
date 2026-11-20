@@ -1,16 +1,13 @@
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import {
+  mapCheckedStateAttribute,
+  transitionStatusMapping,
+} from '../../internals/stateAttributesMapping';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
-import * as RadioRootDataAttributes from '../root/RadioRootDataAttributes';
 
 export const stateAttributesMapping = {
-  checked(value): Record<string, string> {
-    if (value) {
-      return { [RadioRootDataAttributes.checked]: '' };
-    }
-    return { [RadioRootDataAttributes.unchecked]: '' };
-  },
+  checked: mapCheckedStateAttribute,
   ...transitionStatusMapping,
   ...fieldValidityMapping,
 } satisfies StateAttributesMapping<{
