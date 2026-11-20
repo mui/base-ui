@@ -4,7 +4,10 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, closest, contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NOOP } from '../../internals/noop';
@@ -14,7 +17,8 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
-import { CompositeItem } from '../../internals/composite/item/CompositeItem';
+import { useCompositeItem } from '../../internals/composite/item/useCompositeItem';
+import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
@@ -132,7 +136,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     role: 'radio',
     'aria-checked': checked,
     'aria-labelledby': ariaLabelledBy,
-    [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
+    // A disabled checked radio can't hold the group's tab stop, so the composite falls
+    // back to the first enabled radio instead.
+    [ACTIVE_COMPOSITE_ITEM as string]: checked && !disabled ? '' : undefined,
     id: nativeButton ? inputId : id,
     // Only a fully disabled group leaves the tab order. A single disabled radio
     // keeps the composite tab index.
@@ -266,8 +272,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   return (
     <RadioRootContext.Provider value={contextValue}>
       {isRadioGroup ? (
-        <CompositeItem
-          tag="span"
+        <RadioGroupItem
           render={render}
           className={className}
           style={style}
@@ -285,6 +290,66 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 }) as {
   <Value>(props: RadioRoot.Props<Value>): React.JSX.Element;
 };
+
+/**
+ * A composite item that takes the group's tab stop when its radio becomes checked and enabled
+ * after mount. The initial tab stop comes from `ACTIVE_COMPOSITE_ITEM`, which the composite only
+ * reads when its items first register.
+ */
+function RadioGroupItem(props: RadioGroupItemProps) {
+  const { state, refs, props: itemProps, stateAttributesMapping } = props;
+  const { highlightedIndex, onHighlightedIndexChange } = useCompositeRootContext();
+  const { compositeProps, compositeRef, index } = useCompositeItem();
+
+  const itemRef = React.useRef<HTMLElement | null>(null);
+  const isTabStopCandidate = state.checked && !state.disabled;
+  const wasTabStopCandidateRef = React.useRef(isTabStopCandidate);
+
+  useIsoLayoutEffect(() => {
+    if (index === -1) {
+      return;
+    }
+
+    const wasTabStopCandidate = wasTabStopCandidateRef.current;
+    wasTabStopCandidateRef.current = isTabStopCandidate;
+
+    // Only react to the radio becoming checked and enabled, so roving focus that moves the
+    // highlight away from the checked radio (e.g. in a read-only group) isn't pulled back.
+    if (!isTabStopCandidate || wasTabStopCandidate || highlightedIndex === index) {
+      return;
+    }
+
+    // While focus is inside the group, keep the highlight on the focused radio so keyboard
+    // navigation stays relative to it after a late or rejected value change.
+    const element = itemRef.current;
+    const group = element ? closest(element, '[role="radiogroup"]') : null;
+    if (group) {
+      const focused = activeElement(ownerDocument(group));
+      if (focused && contains(group, focused)) {
+        return;
+      }
+    }
+
+    onHighlightedIndexChange(index);
+  }, [isTabStopCandidate, index, highlightedIndex, onHighlightedIndexChange]);
+
+  return useRenderElement('span', props, {
+    state,
+    ref: [compositeRef, itemRef, ...refs],
+    props: [compositeProps, ...itemProps],
+    stateAttributesMapping,
+  });
+}
+
+interface RadioGroupItemProps extends Pick<
+  BaseUIComponentProps<'span', RadioRootState>,
+  'render' | 'className' | 'style'
+> {
+  state: RadioRootState;
+  refs: React.Ref<HTMLElement | null>[];
+  props: Array<Record<string, any> | (() => Record<string, any>)>;
+  stateAttributesMapping: StateAttributesMapping<RadioRootState>;
+}
 
 export interface RadioRootState extends FieldRootState {
   /**
