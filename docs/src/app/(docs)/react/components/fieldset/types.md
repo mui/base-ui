@@ -30,6 +30,38 @@ type FieldsetRootState = {
 };
 ```
 
+### Description
+
+A paragraph with additional information about the fieldset.
+Renders a `<p>` element.
+
+**Description Props:**
+
+| Prop      | Type                                                                                               | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Fieldset.Description.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Fieldset.Description.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Fieldset.Description.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Description Data Attributes:**
+
+| Attribute     | Type | Description                            |
+| :------------ | :--- | :------------------------------------- |
+| data-disabled | -    | Present when the fieldset is disabled. |
+
+### Description.Props
+
+Re-export of [Description](#description) props.
+
+### Description.State
+
+```typescript
+type FieldsetDescriptionState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
+```
+
 ### Legend
 
 An accessible label that is automatically associated with the fieldset.
@@ -64,6 +96,17 @@ type FieldsetLegendState = {
 
 ## Additional Types
 
+### FieldsetDescriptionDataAttributes
+
+Data attributes of [Description](#description).
+
+```typescript
+declare namespace FieldsetDescriptionDataAttributes {
+  /** Present when the fieldset is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
 ### FieldsetLegendDataAttributes
 
 Data attributes of [Legend](#legend).
@@ -79,7 +122,8 @@ declare namespace FieldsetLegendDataAttributes {
 
 - `Fieldset.Root`: `Fieldset.Root`, `Fieldset.Root.State`, `Fieldset.Root.Props`
 - `Fieldset.Legend`: `Fieldset.Legend`, `Fieldset.Legend.State`, `Fieldset.Legend.Props`
-- `Default`: `FieldsetLegendDataAttributes`, `FieldsetRootState`, `FieldsetRootProps`, `FieldsetLegendState`, `FieldsetLegendProps`
+- `Fieldset.Description`: `Fieldset.Description`, `Fieldset.Description.State`, `Fieldset.Description.Props`
+- `Default`: `FieldsetLegendDataAttributes`, `FieldsetDescriptionDataAttributes`, `FieldsetRootState`, `FieldsetRootProps`, `FieldsetLegendState`, `FieldsetLegendProps`, `FieldsetDescriptionState`, `FieldsetDescriptionProps`
 
 ## Canonical Types
 
@@ -89,3 +133,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Fieldset.Root.Props`: `FieldsetRootProps`
 - `Fieldset.Legend.State`: `FieldsetLegendState`
 - `Fieldset.Legend.Props`: `FieldsetLegendProps`
+- `Fieldset.Description.State`: `FieldsetDescriptionState`
+- `Fieldset.Description.Props`: `FieldsetDescriptionProps`

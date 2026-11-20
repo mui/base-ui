@@ -23,6 +23,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   } = componentProps;
 
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
+  const [descriptionIds, setDescriptionIds] = React.useState<string[]>([]);
 
   const parentDisabled = useFieldsetRootContext(true)?.disabled;
   const disabled = parentDisabled || disabledProp;
@@ -30,6 +31,11 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   const state: FieldsetRootState = {
     disabled,
   };
+
+  const describedBy =
+    Array.from(
+      new Set([...(elementProps['aria-describedby']?.split(' ') ?? []), ...descriptionIds]),
+    ).join(' ') || undefined;
 
   const element = useRenderElement('fieldset', componentProps, {
     ref: forwardedRef,
@@ -40,6 +46,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
         disabled,
       },
       elementProps,
+      { 'aria-describedby': describedBy },
     ],
   });
 
@@ -47,9 +54,10 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     () => ({
       legendId,
       setLegendId,
+      setDescriptionIds,
       disabled,
     }),
-    [legendId, setLegendId, disabled],
+    [legendId, setLegendId, setDescriptionIds, disabled],
   );
 
   return (
