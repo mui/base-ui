@@ -145,6 +145,25 @@ describe('<Tree.LinkItem />', () => {
     expect(auxClick).toBe(false);
     expect(onNavigate).not.toHaveBeenCalled();
   });
+  it('expands from its trigger without following the link', async () => {
+    await render(
+      <Tree.Root items={items} defaultExpandedItems={['docs']}>
+        <Tree.List aria-label="Pages">
+          {(item) => (
+            <Tree.LinkItem itemId={item.id} href={`#${item.id}`} data-testid={item.id}>
+              <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
+              {item.label}
+            </Tree.LinkItem>
+          )}
+        </Tree.List>
+      </Tree.Root>,
+    );
+
+    expect(screen.getByTestId('docs')).toHaveAttribute('aria-expanded', 'true');
+    expect(fireEvent.click(screen.getByTestId('trigger-docs'))).toBe(false);
+    expect(screen.getByTestId('docs')).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('throws in an ActionTree.Root', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(

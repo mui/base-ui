@@ -68,6 +68,10 @@ export const TreeItemExpansionTrigger = fastComponentRef(function TreeItemExpans
             ? store.expansion.toggleSubtreeExpansion
             : store.expansion.toggleItemExpansion;
           toggle(itemId, REASONS.triggerPress, event.nativeEvent);
+          // Inside a link item, the click would also follow the link.
+          if (store.items.getItemKind(itemId) === 'link') {
+            event.preventDefault();
+          }
           if (!store.expansion.isPropagationAllowed(event.nativeEvent)) {
             event.stopPropagation();
           }
