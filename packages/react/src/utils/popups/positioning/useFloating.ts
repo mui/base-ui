@@ -5,6 +5,7 @@ import { useFloating as usePosition } from '@floating-ui/react-dom';
 import type { VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useFloatingTree } from '../tree/FloatingTree';
+import { createZoomAwarePlatform } from './zoomAwarePlatform';
 import type {
   PopupPositioningContext,
   PopupInteractionStore,
@@ -45,8 +46,14 @@ export function useBaseUIFloating(
     [anchor, positionerElement, anchorElement],
   );
 
+  const platform = React.useMemo(
+    () => createZoomAwarePlatform(positionerElement),
+    [positionerElement],
+  );
+
   const position = usePosition({
     ...options,
+    platform,
     elements: {
       ...storeElements,
       ...(positionerAnchor && { reference: positionerAnchor }),

@@ -324,7 +324,10 @@ export function useAnchorPositioning(
                   }
                   const { width, height } = arrowElementRef.current.getBoundingClientRect();
                   const sideAxis = getSideAxis(getSide(limitData.placement));
-                  const arrowSize = sideAxis === 'y' ? width : height;
+                  // The arrow is measured in viewport pixels, while the rects the limit applies to
+                  // are in the positioner's CSS pixels, so remove any ancestor CSS zoom.
+                  const zoom = limitData.elements.floating.currentCSSZoom ?? 1;
+                  const arrowSize = (sideAxis === 'y' ? width : height) / zoom;
                   const offsetAmount =
                     sideAxis === 'y'
                       ? collisionPadding.left + collisionPadding.right
