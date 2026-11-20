@@ -1,8 +1,8 @@
 import { expect, describe, it, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { createRenderer, describeConformance } from '#test-utils';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Combobox.Popup />', () => {
   const { render } = createRenderer();
@@ -193,5 +193,102 @@ describe('<Combobox.Popup />', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'final focus' })).toHaveFocus();
     });
+  });
+
+  describe('with the input outside the popup', () => {
+    function OutsideInputCombobox(props: {
+      open?: boolean;
+      onOpenChange?: (open: boolean) => void;
+    }) {
+      return (
+        <div>
+          <div data-testid="outside">outside</div>
+          <Combobox.Root items={['Apple', 'Banana']} {...props}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                  <button type="button" onClick={() => props.onOpenChange?.(false)}>
+                    Manage
+                  </button>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </div>
+      );
+    }
+
+    it('returns focus to the input when the popup closes while focus is inside it', async () => {
+      const { user } = await render(<OutsideInputCombobox />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await screen.findByRole('listbox');
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Manage' })).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the input when controlled state closes the popup from inside', async () => {
+      function Controlled() {
+        const [open, setOpen] = React.useState(false);
+        return <OutsideInputCombobox open={open} onOpenChange={setOpen} />;
+      }
+
+      const { user } = await render(<Controlled />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await screen.findByRole('listbox');
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Manage' })).toHaveFocus();
+
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+    });
+
+    // jsdom's `focus()` ignores `preventScroll`, so the focus manager never returns focus on an
+    // outside press there and this test couldn't fail.
+    it.skipIf(isJSDOM)(
+      'does not focus the input when an outside press closes the popup while the input is focused',
+      async () => {
+        const { user } = await render(<OutsideInputCombobox />);
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        await screen.findByRole('listbox');
+        expect(input).toHaveFocus();
+
+        await user.click(screen.getByTestId('outside'));
+
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+        await flushMicrotasks();
+        expect(input).not.toHaveFocus();
+      },
+    );
   });
 });
