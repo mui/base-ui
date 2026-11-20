@@ -1,4 +1,5 @@
 import { expect, describe, it } from 'vitest';
+import * as React from 'react';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -217,5 +218,48 @@ describe('<NavigationMenu.Content />', () => {
     });
 
     expect(viewport.contains(screen.getByTestId('content-1'))).toBe(true);
+  });
+
+  // Issue #5103
+  it('renders content that suspends when the Suspense boundary is outside the root', async () => {
+    let resolveLazy: (value: { default: React.ComponentType }) => void = () => {};
+    const LazyContent = React.lazy(
+      () =>
+        new Promise<{ default: React.ComponentType }>((resolve) => {
+          resolveLazy = resolve;
+        }),
+    );
+
+    const { user } = await render(
+      <React.Suspense fallback="Loading...">
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item">
+              <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <LazyContent />
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>
+      </React.Suspense>,
+    );
+
+    expect(screen.queryByText('Loading...')).toBe(null);
+
+    await user.hover(screen.getByRole('button', { name: 'Item' }));
+
+    expect(await screen.findByText('Loading...')).not.toBe(null);
+
+    resolveLazy({ default: () => <p>Loaded content</p> });
+
+    expect(await screen.findByText('Loaded content')).not.toBe(null);
   });
 });
