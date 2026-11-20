@@ -39,7 +39,8 @@ export function isDocumentScroller(element: Element): boolean {
  *
  * `pending` is how far, in client pixels, inner containers are still going to
  * move `element` toward the start: a smooth scroll hasn't moved it yet.
- * Returns how far this call moves `element` toward the start.
+ * Returns how far this call is still going to move `element` toward the start,
+ * beyond what its live position already reflects.
  */
 export function scrollIntoContainerView(
   container: HTMLElement,
@@ -111,8 +112,9 @@ export function scrollIntoContainerView(
   if (delta === 0) {
     return 0;
   }
-  // Under `scroll-behavior: smooth` the assignment animates, so the applied
-  // distance is computed rather than read back, clamped to the scroll range.
+  // Under `scroll-behavior: smooth` the assignment animates, so the target is
+  // computed, clamped to the scroll range, and compared with the position read
+  // back: an immediate scroll leaves nothing pending.
   const scrollSize = vertical
     ? container.scrollHeight - scrollportBox.clientHeight
     : container.scrollWidth - scrollportBox.clientWidth;
@@ -127,7 +129,8 @@ export function scrollIntoContainerView(
   } else {
     container.scrollLeft = next;
   }
-  return (Math.min(Math.max(next, min), Math.max(min, max)) - current) * scale;
+  const target = Math.min(Math.max(next, min), Math.max(min, max));
+  return (target - (vertical ? container.scrollTop : container.scrollLeft)) * scale;
 }
 
 /**

@@ -325,6 +325,44 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
     }
   });
 
+  it('keeps the page position when the list scrolls the focused row into view on a scrolled page', async () => {
+    const offset = 2 * window.innerHeight;
+    try {
+      await render(
+        <div style={{ paddingTop: offset, paddingBottom: 4 * window.innerHeight }}>
+          <Tree.Root items={ITEMS}>
+            <Tree.List
+              data-testid="list"
+              style={{ height: VIEWPORT_HEIGHT, width: 240, overflow: 'auto' }}
+            >
+              {renderSizedItem}
+            </Tree.List>
+          </Tree.Root>
+        </div>,
+      );
+      const scroller = screen.getByTestId('list');
+      const pageScroll = offset - 100;
+      window.scrollTo(0, pageScroll);
+      await settle();
+
+      await act(async () => {
+        (screen.getByText('Item 0').closest('[role="treeitem"]') as HTMLElement).focus();
+      });
+      expect(window.scrollY).toBe(pageScroll);
+
+      await press('End');
+
+      expect(focusedRow().dataset.itemId).toBe('item99');
+      expect(scroller.scrollTop).toBeGreaterThan(0);
+      expect(window.scrollY).toBe(pageScroll);
+      expect(focusedRow().getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        window.innerHeight + 1,
+      );
+    } finally {
+      window.scrollTo(0, 0);
+    }
+  });
+
   it('does not scroll the page while a smooth list scroll brings the focused row into view', async () => {
     try {
       await render(
