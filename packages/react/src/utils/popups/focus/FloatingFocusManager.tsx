@@ -687,7 +687,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // Focus the initial element when the floating element opens.
   useIsoLayoutEffect(() => {
     if (!open || disabled || !isHTMLElement(floatingFocusElement)) {
-      return;
+      return undefined;
     }
 
     closeTypeRef.current = '';
@@ -695,9 +695,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     const doc = ownerDocument(floatingFocusElement);
     const previouslyFocusedElement = activeElement(doc);
+    let cleanedUp = false;
+    let cancelQueuedFocus: (() => void) | undefined;
 
     // Wait for any layout effect state setters to execute to set `tabIndex`.
     queueMicrotask(() => {
+      if (cleanedUp) {
+        return;
+      }
+
       const initialFocusValueOrFn = initialFocusRef.current;
       const resolvedInitialFocus =
         typeof initialFocusValueOrFn === 'function'
@@ -732,7 +738,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
       elToFocus = elToFocus || getDefaultFocusElement();
 
-      const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
+      const focusedElement = activeElement(doc);
+      const hadFocusInside = contains(floatingFocusElement, focusedElement);
 
       // Screen readers re-sync focus to their cursor right after a synthesized press. A focus
       // that lands a frame later reads as a stray move and gets pulled back to the reference.
@@ -740,8 +747,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const openedByVirtualPress =
         openEvent?.type === 'mousedown' && isVirtualClick(openEvent as MouseEvent);
 
-      // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
-      void enqueueFocus(elToFocus, {
+      // A request left over from an earlier open would otherwise land after the popup reopens.
+      cancelQueuedFocus = enqueueFocus(elToFocus, {
         sync: openedByVirtualPress,
         preventScroll: elToFocus === floatingFocusElement,
         shouldFocus() {
@@ -752,19 +759,30 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             return false;
           }
 
+          const currentActiveElement = activeElement(doc);
+
+          // A focus made inside the popup after this was queued (e.g. by list navigation) wins.
           if (hadFocusInside) {
-            return true;
+            return currentActiveElement === focusedElement;
           }
 
-          const currentActiveElement = activeElement(doc);
           const focusMovedInside =
             currentActiveElement !== elToFocus &&
-            contains(floatingFocusElement, currentActiveElement);
+            (contains(floatingFocusElement, currentActiveElement) ||
+              (tree != null &&
+                getNodeChildren(tree.nodesRef.current, getNodeId()).some((node) =>
+                  contains(node.context?.elements.floating, currentActiveElement),
+                )));
 
           return !focusMovedInside;
         },
       });
     });
+
+    return () => {
+      cleanedUp = true;
+      cancelQueuedFocus?.();
+    };
   }, [
     disabled,
     open,
@@ -774,6 +792,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     openInteractionTypeRef,
     openRef,
     storeContext,
+    tree,
+    getNodeId,
   ]);
 
   // A return-focus queued by the effect cleanup. If the effect re-arms in the same commit, a
