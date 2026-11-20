@@ -225,7 +225,9 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 
   const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
   const focusInsideDisabledRef = React.useRef(false);
+  const lastRegisteredOpenRef = React.useRef(false);
 
+  const hasFocusManager = !!focusManagerState;
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;
 
@@ -234,7 +236,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
-    if (!portalNode || modal) {
+    if (!portalNode || !hasFocusManager || modal) {
       return undefined;
     }
 
@@ -260,10 +262,21 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     return mergeCleanups(
       addEventListener(portalNode, 'focusin', onFocus, true),
       addEventListener(portalNode, 'focusout', onFocus, true),
+      () => {
+        // Closed content stays out of the tab order until the open effect below restores it.
+        if (focusInsideDisabledRef.current && lastRegisteredOpenRef.current) {
+          enableFocusInside(portalNode);
+          focusInsideDisabledRef.current = false;
+        }
+      },
     );
-  }, [portalNode, modal]);
+  }, [portalNode, hasFocusManager, modal]);
 
   useIsoLayoutEffect(() => {
+    if (open !== undefined) {
+      lastRegisteredOpenRef.current = open;
+    }
+
     if (!portalNode || open !== true || !focusInsideDisabledRef.current) {
       return;
     }
