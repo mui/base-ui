@@ -5,6 +5,8 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { useFloatingParentNodeId } from './tree/FloatingTree';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -479,6 +481,11 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   ]);
 }
 
+// TODO React 17: Use `React.startTransition` directly once React 17 support is removed. React 17
+// renders an update outside a batch synchronously, so a parent's response has always committed.
+const startTransition: (callback: () => void) => void =
+  SafeReact.startTransition ?? ((callback) => callback());
+
 /**
  * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
@@ -486,7 +493,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state. It resets its open session through
- *   `resetOnUnmount` once the popup unmounts.
+ *   `resetOnUnmount` once the popup unmounts. If an open request arrived before the unmount, the
+ *   reset runs, along with `onOpenChangeComplete(false)`, only once the request turns out to be
+ *   ignored, and is skipped if the request reopens the popup.
  * @param openProp The Root's `open` prop. Pass the prop itself, not the store's `openProp`: the
  *   store only receives it in a layout effect, which is a commit too late for the reset below.
  * @param animateInitialOpen Whether a popup that mounts already open should still play its enter
@@ -519,6 +528,15 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     }
   }, [openProp, store]);
 
+  // Set while an unmount that found an open request waits to see whether the request commits.
+  const pendingCloseCheckRef = React.useRef<object | null>(null);
+  const [closeCheck, setCloseCheck] = React.useState<object | null>(null);
+
+  const completeClose = useStableCallback(() => {
+    store.resetOnUnmount();
+    store.context.onOpenChangeComplete?.(false);
+  });
+
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
     ref: popupRef,
@@ -529,9 +547,37 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       store.set('preventUnmountingOnClose', preventUnmountOnClose),
     animateInitialOpen,
     onUnmount() {
-      store.resetOnUnmount();
-      store.context.onOpenChangeComplete?.(false);
+      // A trigger press during the exit writes `open: true` before a controlled `open` prop commits
+      // (see `resetOnUnmount`), and the parent may also ignore it. Its response is already queued
+      // when `onOpenChange` returns, and a transition renders after it or, when the response is a
+      // transition too, with it (React 18), so finish the close in that render unless the reopen
+      // has committed by then.
+      if (store.state.open) {
+        store.update({ mounted: false, preventUnmountingOnClose: false });
+        const check = {};
+        pendingCloseCheckRef.current = check;
+        startTransition(() => setCloseCheck(check));
+        return;
+      }
+      completeClose();
     },
+  });
+
+  useIsoLayoutEffect(() => {
+    const pendingCloseCheck = pendingCloseCheckRef.current;
+    if (pendingCloseCheck === null) {
+      return;
+    }
+    // Read the prop: the store, and so `open`, only receives it in a layout effect, which is a
+    // render too late when the reopen commits in the same render as the check.
+    if (openProp ?? open) {
+      // The reopen superseded the close, the same as one that commits before the exit completes:
+      // keep the state the request wrote and skip the close reset and completion.
+      pendingCloseCheckRef.current = null;
+    } else if (closeCheck === pendingCloseCheck) {
+      pendingCloseCheckRef.current = null;
+      completeClose();
+    }
   });
 
   // Seed the Root-owned store before parts subscribe, matching the hook's initial mounted state.
