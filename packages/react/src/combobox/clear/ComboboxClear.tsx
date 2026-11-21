@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -68,6 +69,41 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     disabled,
   });
 
+  const { onClick, onPointerDown } = useEnhancedClickHandler((event, interactionType) => {
+    if (event.type !== 'click' || disabled || readOnly) {
+      return;
+    }
+
+    const type = getHighlightReason(event);
+
+    store.context.setInputValue(
+      '',
+      createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
+    );
+
+    if (selectionMode !== 'none') {
+      store.context.setSelectedValue(
+        Array.isArray(selectedValue) ? [] : null,
+        createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
+      );
+      // A distinct object shape: `Store.update` iterates own keys, so passing an explicit
+      // `selectedIndex: undefined` would overwrite the state instead of leaving it alone.
+      store.context.setIndices({
+        activeIndex: null,
+        selectedIndex: null,
+        type,
+        event: event.nativeEvent,
+      });
+    } else {
+      store.context.setIndices({ activeIndex: null, type, event: event.nativeEvent });
+    }
+
+    // Focusing the input after a tap would raise the on-screen keyboard.
+    if (interactionType !== 'touch' && interactionType !== 'pen') {
+      store.context.inputRef.current?.focus();
+    }
+  });
+
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
   const state: ComboboxClearState = {
@@ -98,37 +134,8 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
         onMouseDown(event) {
           event.preventDefault();
         },
-        onClick(event) {
-          if (disabled || readOnly) {
-            return;
-          }
-
-          const type = getHighlightReason(event);
-
-          store.context.setInputValue(
-            '',
-            createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
-          );
-
-          if (selectionMode !== 'none') {
-            store.context.setSelectedValue(
-              Array.isArray(selectedValue) ? [] : null,
-              createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
-            );
-            // A distinct object shape: `Store.update` iterates own keys, so passing an explicit
-            // `selectedIndex: undefined` would overwrite the state instead of leaving it alone.
-            store.context.setIndices({
-              activeIndex: null,
-              selectedIndex: null,
-              type,
-              event: event.nativeEvent,
-            });
-          } else {
-            store.context.setIndices({ activeIndex: null, type, event: event.nativeEvent });
-          }
-
-          store.context.inputRef.current?.focus();
-        },
+        onClick,
+        onPointerDown,
       },
       elementProps,
       getButtonProps,

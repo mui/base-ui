@@ -104,6 +104,22 @@ describe('<Combobox.Clear />', () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it('does not focus the input after a touch press', async () => {
+    await render(
+      <Combobox.Root defaultValue="a">
+        <Combobox.Input data-testid="input" />
+        <Combobox.Clear data-testid="clear" />
+      </Combobox.Root>,
+    );
+
+    const clear = screen.getByTestId('clear');
+    fireEvent.pointerDown(clear, { pointerType: 'touch' });
+    fireEvent.click(clear, { detail: 1 });
+
+    expect(screen.queryByTestId('clear')).toBe(null);
+    expect(document.activeElement).not.toBe(screen.getByRole('combobox'));
+  });
+
   it('clears after pointer interaction marks keyboard navigation inactive', async () => {
     const { user } = await render(
       <Combobox.Root defaultValue="a">
