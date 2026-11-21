@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { clamp } from '@base-ui/utils/clamp';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -240,8 +241,8 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     const isHorizontal = dismissDirection === 'left' || dismissDirection === 'right';
     const movementX = isHorizontal ? movement : 0;
     const movementY = isHorizontal ? 0 : movement;
-    const openProgress = Math.max(0, Math.min(1, clampedDisplacement / closedOffset));
-    const backdropProgress = Math.max(0, Math.min(1, 1 - openProgress));
+    const openProgress = clamp(clampedDisplacement / closedOffset, 0, 1);
+    const backdropProgress = clamp(1 - openProgress, 0, 1);
 
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementX, `${movementX}px`);
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementY, `${movementY}px`);

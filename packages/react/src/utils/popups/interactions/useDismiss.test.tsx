@@ -4,7 +4,7 @@ import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/i
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import { createRenderer, isJSDOM, useTestInteractions } from '#test-utils';
+import { createRenderer, isJSDOM, useTestInteractions, firePointer } from '#test-utils';
 import { FloatingFocusManager } from '../focus/FloatingFocusManager';
 import {
   FloatingNode,
@@ -17,6 +17,7 @@ import { useDismiss, normalizeProp } from './useDismiss';
 import { useFocus } from './useFocus';
 import { useClick } from './useClick';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
+import type { UseFloatingOptions } from '../types';
 import { REASONS } from '../../../internals/reasons';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { UseDismissProps } from './useDismiss';
@@ -166,7 +167,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       // cancellation.
       fireEvent.change(textbox, { target: { value: 'あ' } });
       fireEvent.compositionStart(textbox);
-      fireEvent.keyDown(textbox, { key: 'Escape' });
+      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true });
       fireEvent.compositionEnd(textbox);
 
       // Wait for the compositionend timeout tick due to Safari
@@ -439,7 +440,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <React.Fragment>
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
-              <FloatingFocusManager context={context.rootStore}>
+              <FloatingFocusManager store={context.rootStore}>
                 <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
               </FloatingFocusManager>
             )}
@@ -515,7 +516,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
               <FloatingPortal container={shadowRoot}>
-                <FloatingFocusManager context={context.rootStore}>
+                <FloatingFocusManager store={context.rootStore}>
                   <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
                 </FloatingFocusManager>
               </FloatingPortal>
@@ -576,7 +577,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
                 {modal == null ? (
                   dialogJsx
                 ) : (
-                  <FloatingFocusManager context={context.rootStore} modal={modal}>
+                  <FloatingFocusManager store={context.rootStore} modal={modal}>
                     {dialogJsx}
                   </FloatingFocusManager>
                 )}
@@ -735,7 +736,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         <FloatingNode id={nodeId}>
           <button {...getReferenceProps({ ref: refs.setReference })} />
           {open && (
-            <FloatingFocusManager context={context.rootStore}>
+            <FloatingFocusManager store={context.rootStore}>
               <div {...getFloatingProps({ ref: refs.setFloating })} data-testid={testId}>
                 {children}
               </div>
@@ -1002,6 +1003,117 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
       });
+
+      describe('when Escape reaches the document', () => {
+        // Layers that share no FloatingTree, like a Dialog opened from a Popover.
+        function Layer({
+          testId,
+          defaultOpen = false,
+          children,
+          ...props
+        }: UseDismissProps & {
+          testId: string;
+          defaultOpen?: boolean;
+          children?: React.ReactNode;
+        }) {
+          const [open, setOpen] = React.useState(defaultOpen);
+          const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([
+            useClick(context.rootStore),
+            useDismiss(context.rootStore, props),
+          ]);
+
+          return (
+            <React.Fragment>
+              <button
+                data-testid={`${testId}-trigger`}
+                {...getReferenceProps({ ref: refs.setReference })}
+              />
+              {open && (
+                <div data-testid={testId} {...getFloatingProps({ ref: refs.setFloating })}>
+                  {children}
+                </div>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        async function openInnerAndBlur() {
+          await userEvent.click(screen.getByTestId('inner-trigger'));
+          expect(screen.getByTestId('inner')).toBeInTheDocument();
+
+          await act(async () => {
+            (document.activeElement as HTMLElement).blur();
+          });
+          expect(document.activeElement).toBe(document.body);
+        }
+
+        test('closes only the most recently opened layer', async () => {
+          render(
+            <Layer testId="outer" defaultOpen>
+              <Layer testId="inner" />
+            </Layer>,
+          );
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
+
+        test('closes the layers below when the layers above bubble', async () => {
+          render(
+            <Layer testId="outer" defaultOpen>
+              <Layer testId="inner" bubbles={{ escapeKey: true }} />
+            </Layer>,
+          );
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
+
+        test('handles the Escape again once the layer above closed', async () => {
+          render(
+            <React.Fragment>
+              <Layer testId="outer" defaultOpen outsidePress={false} />
+              <Layer testId="inner" />
+            </React.Fragment>,
+          );
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          await userEvent.click(screen.getByTestId('inner-trigger'));
+          expect(screen.getByTestId('inner')).toBeInTheDocument();
+
+          await act(async () => {
+            (document.activeElement as HTMLElement).blur();
+          });
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
+      });
     });
   });
 
@@ -1100,7 +1212,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <button {...getReferenceProps({ ref: refs.setReference })} />
           {open && (
             <FloatingPortal>
-              <FloatingFocusManager context={context.rootStore}>
+              <FloatingFocusManager store={context.rootStore}>
                 <div {...getFloatingProps({ ref: refs.setFloating })}>
                   <span>{id}</span>
                   {children}
@@ -1228,6 +1340,27 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.mouseDown(document.body);
       fireEvent.click(document.body, { detail: 1 });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('an outside click stopped before its target does not close on a later click inside', async () => {
+      render(<App outsidePressEvent="intentional" />);
+      const input = screen.getByRole('textbox');
+
+      // Another document capture listener, like a drag library's after a drop, stops the click
+      // after useDismiss has seen it but before it reaches its target.
+      const stopClick = (event: MouseEvent) => event.stopPropagation();
+      document.addEventListener('click', stopClick, { capture: true, once: true });
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // This click bubbles to the body, where the stopped click was headed.
+      fireEvent.pointerDown(input, { pointerType: 'mouse' });
+      fireEvent.mouseDown(input);
+      fireEvent.mouseUp(input);
+      fireEvent.click(input, { detail: 1 });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
     test('mouse click whose press started before open does not close', async () => {
@@ -1689,7 +1822,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           </button>
           {open && (
             <FloatingPortal container={portalContainer}>
-              <FloatingFocusManager context={context.rootStore} modal={false}>
+              <FloatingFocusManager store={context.rootStore} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {children}
                 </div>
@@ -1729,5 +1862,125 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     expect(screen.getByText('open 1')).toBeInTheDocument();
     expect(screen.getByText('open 2')).toBeInTheDocument();
     expect(screen.getByText('nested')).toBeInTheDocument();
+  });
+});
+
+describe('press ownership across independent non-modal layers', () => {
+  const { render: renderLayers } = createRenderer();
+
+  function createTouch(target: HTMLElement, clientX: number) {
+    const init = { identifier: 1, target, clientX, clientY: 0 };
+    return typeof Touch === 'undefined' ? init : new Touch(init);
+  }
+
+  function Layer({
+    id,
+    open,
+    mode,
+    onOpenChange,
+  }: {
+    id: string;
+    open: boolean;
+    mode: 'intentional' | 'sloppy';
+    onOpenChange: UseFloatingOptions['onOpenChange'];
+  }) {
+    const { refs, context } = useFloating({ open, onOpenChange });
+    const { getFloatingProps } = useTestInteractions([
+      useDismiss(context.rootStore, { outsidePressEvent: mode }),
+    ]);
+    return (
+      <div
+        data-testid={id}
+        data-open={context.open ? '' : undefined}
+        {...getFloatingProps({ ref: refs.setFloating })}
+      />
+    );
+  }
+
+  describe.each([
+    { name: 'later-opened', targetIsLater: true, expectedCloses: 0 },
+    { name: 'earlier-opened', targetIsLater: false, expectedCloses: 1 },
+  ])('$name layer', ({ targetIsLater, expectedCloses }) => {
+    test.each([
+      {
+        name: 'intentional mouse click',
+        mode: 'intentional' as const,
+        press: (target: HTMLElement) => {
+          firePointer.down(target, { pointerType: 'mouse', timeStamp: 1 });
+          fireEvent.mouseDown(target);
+          firePointer.up(target, { pointerType: 'mouse', timeStamp: 2 });
+          fireEvent.mouseUp(target);
+          fireEvent.click(target, { detail: 1 });
+        },
+      },
+      {
+        name: 'sloppy pointerdown',
+        mode: 'sloppy' as const,
+        press: (target: HTMLElement) => {
+          firePointer.down(target, { pointerType: 'mouse', timeStamp: 1 });
+        },
+      },
+      {
+        name: 'sloppy mousedown',
+        mode: 'sloppy' as const,
+        press: (target: HTMLElement) => {
+          fireEvent.mouseDown(target);
+        },
+      },
+      {
+        name: 'sloppy touchend',
+        mode: 'sloppy' as const,
+        press: (target: HTMLElement) => {
+          const touch = createTouch(target, 0);
+          fireEvent.touchStart(target, { touches: [touch], changedTouches: [touch] });
+          const moved = createTouch(target, 6);
+          fireEvent.touchMove(target, { touches: [moved], changedTouches: [moved] });
+          fireEvent.touchEnd(target, { touches: [], changedTouches: [moved] });
+        },
+      },
+      {
+        name: 'sloppy touchmove',
+        mode: 'sloppy' as const,
+        press: (target: HTMLElement) => {
+          const touch = createTouch(target, 0);
+          fireEvent.touchStart(target, { touches: [touch], changedTouches: [touch] });
+          const moved = createTouch(target, 12);
+          fireEvent.touchMove(target, { touches: [moved], changedTouches: [moved] });
+        },
+      },
+    ])('$name respects opening order', async ({ mode, press }) => {
+      const onOlderOpenChange = vi.fn<NonNullable<UseFloatingOptions['onOpenChange']>>();
+      const onTargetOpenChange = vi.fn<NonNullable<UseFloatingOptions['onOpenChange']>>();
+      function Fixture({ bothOpen }: { bothOpen: boolean }) {
+        return (
+          <React.Fragment>
+            <Layer
+              id="older"
+              open={bothOpen || targetIsLater}
+              mode={mode}
+              onOpenChange={onOlderOpenChange}
+            />
+            <Layer
+              id="target"
+              open={bothOpen || !targetIsLater}
+              mode={mode}
+              onOpenChange={onTargetOpenChange}
+            />
+          </React.Fragment>
+        );
+      }
+      const { setProps } = await renderLayers(<Fixture bothOpen={false} />);
+      await setProps({ bothOpen: true });
+      expect(screen.getByTestId('older')).toHaveAttribute('data-open');
+      expect(screen.getByTestId('target')).toHaveAttribute('data-open');
+      expect(onOlderOpenChange).not.toHaveBeenCalled();
+      expect(onTargetOpenChange).not.toHaveBeenCalled();
+      press(screen.getByTestId('target'));
+      expect(onOlderOpenChange).toHaveBeenCalledTimes(expectedCloses);
+      expect(
+        onOlderOpenChange.mock.calls.map(([open, details]) => ({ open, reason: details.reason })),
+      ).toEqual(expectedCloses ? [{ open: false, reason: REASONS.outsidePress }] : []);
+      expect(onTargetOpenChange).not.toHaveBeenCalled();
+    });
   });
 });

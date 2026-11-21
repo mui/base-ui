@@ -12,7 +12,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
 import * as DrawerPopupCssVars from './DrawerPopupCssVars';
 import * as DrawerPopupDataAttributes from './DrawerPopupDataAttributes';
@@ -145,9 +145,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
-  const popupId = elementProps.id ?? floatingId;
+  const popupId = elementProps.id ?? defaultPopupId;
 
   const swipe = useDrawerViewportContext();
   useDialogPortalContext();
@@ -394,7 +394,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   return (
     <FloatingFocusManager
-      context={store}
+      store={store}
       openInteractionType={openMethod}
       disabled={!mounted}
       closeOnFocusOut={!disablePointerDismissal}

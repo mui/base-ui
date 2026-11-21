@@ -3,15 +3,16 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
 import { flip, offset, shift } from '@floating-ui/react-dom';
-import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import { FloatingNode, useFloatingNodeId } from '../../src/utils/popups/tree/FloatingTree';
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
+import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useFocus } from '../../src/utils/popups/interactions/useFocus';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
 import styles from './Navigation.module.css';
 
 interface SubItemProps {
@@ -44,7 +45,7 @@ export const NavigationItem = React.forwardRef<
 >(function NavigationItem({ children, label, href, ...props }, ref) {
   const [open, setOpen] = React.useState(false);
   const hasChildren = !!children;
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
+  const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
 
   const nodeId = useFloatingNodeId();
 
@@ -56,10 +57,15 @@ export const NavigationItem = React.forwardRef<
     placement: 'right-start',
   });
 
+  const hoverStore = hasChildren ? context.rootStore : fallbackStore;
+  const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {
+    handleClose: safePolygon(),
+    triggerElementRef: hasChildren ? refs.domReference : undefined,
+  });
+  useHoverPopupInteraction(hoverStore);
+
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
-    useHover(hasChildren ? context : fallbackContext, {
-      handleClose: safePolygon(),
-    }),
+    { reference: hoverReferenceProps },
     useFocus(context.rootStore, {
       enabled: hasChildren,
     }),
@@ -84,7 +90,7 @@ export const NavigationItem = React.forwardRef<
       </li>
       <FloatingPortal>
         {open && (
-          <FloatingFocusManager context={context.rootStore} modal={false} initialFocus={false}>
+          <FloatingFocusManager store={context.rootStore} modal={false} initialFocus={false}>
             <div
               data-testid="subnavigation"
               ref={refs.setFloating}

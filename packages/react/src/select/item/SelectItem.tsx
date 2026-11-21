@@ -60,7 +60,7 @@ export const SelectItem = React.memo(
     } = store.useState('itemRoot');
     const disabled = selectDisabled || disabledProp;
     const highlighted = store.useState('isActive', listItem.index);
-    const open = store.useState('open');
+    const activeWhileOpen = store.useState('isActiveWhileOpen', listItem.index);
     const selected = store.useState('isSelected', itemValue);
     const selectedByFocus = store.useState('isSelectedByFocus', listItem.index);
 
@@ -78,7 +78,7 @@ export const SelectItem = React.memo(
     }, [index, itemValue, store]);
 
     useIsoLayoutEffect(() => {
-      const selectedValue = store.state.value;
+      const selectedValue = store.state.selectedValue;
 
       const currentIndex = store.state.selectedIndex;
       let nextIndex = currentIndex;
@@ -137,7 +137,7 @@ export const SelectItem = React.memo(
         return;
       }
 
-      const selectedValue = store.state.value;
+      const selectedValue = store.state.selectedValue;
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const nextValue = selected
@@ -146,7 +146,7 @@ export const SelectItem = React.memo(
         store.context.setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
       } else {
         store.context.setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
-        store.context.setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
+        store.setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
       }
     }
 
@@ -157,7 +157,7 @@ export const SelectItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      tabIndex: open && highlighted ? 0 : -1,
+      tabIndex: activeWhileOpen ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         store.set('activeIndex', index);
 

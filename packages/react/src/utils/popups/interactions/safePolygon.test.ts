@@ -2,9 +2,9 @@ import { vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { HandleCloseContext } from './useHoverShared';
-import type { FloatingContext } from '../types';
+import type { PopupPositioningContext } from '../types';
 import { safePolygon } from './safePolygon';
-import { getEmptyRootContext } from '../floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../floating-root/getEmptyRootStore';
 
 function createRect(left: number, top: number, width: number, height: number) {
   return {
@@ -72,20 +72,14 @@ function createFloatingContext({
   domReference: Element;
   floating: HTMLElement;
   open: boolean;
-}): FloatingContext {
-  const refs: FloatingContext['refs'] = {
+}): PopupPositioningContext {
+  const refs: PopupPositioningContext['refs'] = {
     reference: { current: domReference },
     floating: { current: floating },
     domReference: { current: domReference },
     setReference() {},
     setFloating() {},
     setPositionReference() {},
-  };
-
-  const events: FloatingContext['events'] = {
-    emit() {},
-    on() {},
-    off() {},
   };
 
   return {
@@ -98,14 +92,11 @@ function createFloatingContext({
     update: async () => {},
     floatingStyles: {},
     open,
-    onOpenChange() {},
-    events,
-    dataRef: { current: {} },
     nodeId: 'root',
-    floatingId: 'floating-id',
+    defaultPopupId: 'floating-id',
     refs,
     elements: { reference: domReference, domReference, floating },
-    rootStore: getEmptyRootContext(),
+    rootStore: getEmptyRootStore(),
   };
 }
 

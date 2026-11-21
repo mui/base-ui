@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
 import type { Placement } from '@floating-ui/react-dom';
 import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
-import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
   FloatingNode,
@@ -14,9 +14,10 @@ import {
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
 import styles from './Popover.module.css';
 
 /** @internal */
@@ -120,12 +121,17 @@ function PopoverComponent({
   const labelId = `${id}-label`;
   const descriptionId = `${id}-description`;
   const triggerId = `${id}-trigger`;
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
+  const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
+  const hoverStore = hover ? context.rootStore : fallbackStore;
+
+  const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {
+    handleClose: safePolygon({ blockPointerEvents: true }),
+    triggerElementRef: hover ? refs.domReference : undefined,
+  });
+  useHoverPopupInteraction(hoverStore);
 
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
-    useHover(hover ? context : fallbackContext, {
-      handleClose: safePolygon({ blockPointerEvents: true }),
-    }),
+    { reference: hoverReferenceProps },
     useClick(context.rootStore),
     useDismiss(context.rootStore, {
       bubbles,
@@ -142,18 +148,18 @@ function PopoverComponent({
             id: triggerId,
             'aria-haspopup': 'dialog',
             'aria-expanded': open,
-            'aria-controls': open ? context.floatingId : undefined,
+            'aria-controls': open ? context.defaultPopupId : undefined,
             'data-open': open ? '' : undefined,
           } as React.HTMLProps<Element>),
         )}
       <FloatingPortal>
         {open && (
-          <FloatingFocusManager context={context.rootStore} modal={modal}>
+          <FloatingFocusManager store={context.rootStore} modal={modal}>
             <div
               className={styles.Floating}
               ref={refs.setFloating}
               style={floatingStyles}
-              id={context.floatingId}
+              id={context.defaultPopupId}
               role="dialog"
               aria-labelledby={labelId}
               aria-describedby={descriptionId}

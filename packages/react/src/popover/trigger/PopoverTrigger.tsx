@@ -8,21 +8,21 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
-} from '../../utils/popupStateMapping';
+} from '../../utils/popups/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { FocusGuard } from '../../utils/FocusGuard';
-import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
+import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
-import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
+import { useOpenMethodTriggerProps } from '../../utils/popups/interactions/useOpenInteractionType';
 
 /**
  * A button that opens the popover.
@@ -81,7 +81,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   const isTouchPressOpen = store.useState('isTouchPressOpen', openOnHover);
   const hasFocusGuards = store.useState('hasTriggerFocusGuards', thisTriggerId);
 
-  const hoverProps = useHoverReferenceInteraction(store, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     enabled: !disabled && openOnHover && !isTouchPressOpen,
     mouseOnly: true,
     move: false,

@@ -35,6 +35,7 @@ describe('<Select.Positioner />', () => {
 
   positionerConformanceTests({
     render,
+    stableState: false,
     createComponent: ({ root, trigger, positioner, popup }) => (
       <Select.Root {...root}>
         <Trigger {...trigger}>Trigger</Trigger>

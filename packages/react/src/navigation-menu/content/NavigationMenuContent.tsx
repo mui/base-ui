@@ -16,15 +16,13 @@ import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext'
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import * as NavigationMenuContentDataAttributes from './NavigationMenuContentDataAttributes';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState> = {
-  ...popupStateMapping,
-  ...transitionStatusMapping,
+  ...popupTransitionStateMapping,
   activationDirection(value) {
     if (!value) {
       return null;

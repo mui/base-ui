@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
@@ -73,7 +74,9 @@ export function DialogInteractions({
           return internalBackdrop || backdrop
             ? internalBackdrop === target ||
                 backdrop === target ||
-                (contains(target, popupElement) && !target?.hasAttribute('data-base-ui-portal'))
+                // `target` can be the document, which contains the popup but isn't an element.
+                (contains(target, popupElement) &&
+                  !(isElement(target) && target.hasAttribute('data-base-ui-portal')))
             : true;
         }
         return true;

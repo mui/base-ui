@@ -5,7 +5,7 @@ import { NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
-import { NullStore } from '../../utils/NullStore';
+import { NullStore } from '../../utils/popups/NullStore';
 import type {
   PopupStoreContext,
   PopupStoreState,
@@ -18,7 +18,7 @@ import {
   popupStoreSelectors,
 } from '../../utils/popups/store';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -100,26 +100,18 @@ export class PopoverStore<Payload> extends BasePopupStore<
   Selectors,
   PopoverRoot.ChangeEventDetails
 > {
-  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
-  }
-
-  protected getCloseTrigger(eventDetails: PopoverRoot.ChangeEventDetails) {
-    // Only a close button reports the trigger the popover is closing from.
-    const activeTriggerId = this.select('activeTriggerId');
-    if (eventDetails.reason !== REASONS.closePress || activeTriggerId == null) {
-      return undefined;
-    }
-
-    return (
-      this.context.triggerElements.getById(activeTriggerId) ??
-      this.select('activeTriggerElement') ??
-      undefined
+  constructor(initialState: Partial<State<Payload>>, defaultPopupId: string | undefined) {
+    super(
+      createInitialState<Payload>(initialState, defaultPopupId),
+      createInitialContext(),
+      selectors,
     );
   }
 
-  protected prepareOpenChange(_nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
-    if (eventDetails.reason === REASONS.triggerHover) {
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
+    const reason = eventDetails.reason;
+
+    if (reason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the popover if it's open.
       // If they clicked within 500ms of the popover opening, keep it open.
       this.context.stickIfOpen = true;
@@ -127,13 +119,6 @@ export class PopoverStore<Payload> extends BasePopupStore<
         this.context.stickIfOpen = false;
       });
     }
-
-    return {};
-  }
-
-  // `instantType` is committed in its own update, after the open change.
-  protected completeOpenChange(nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
-    const reason = eventDetails.reason;
 
     let instantType: State<Payload>['instantType'];
     if (reason === REASONS.triggerPress && (eventDetails.event as MouseEvent).detail === 0) {
@@ -144,7 +129,7 @@ export class PopoverStore<Payload> extends BasePopupStore<
       instantType = 'focus';
     }
 
-    this.set('instantType', instantType);
+    return { instantType };
   }
 
   protected prepareUnmount() {
@@ -171,10 +156,10 @@ export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     modal: false,
     focusManagerModal: false,

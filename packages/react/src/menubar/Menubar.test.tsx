@@ -89,7 +89,7 @@ describe('<Menubar />', () => {
     });
   });
 
-  it('reports a delayed touch click it ignores to a controlled menu', async () => {
+  it('keeps a controlled menu open on a delayed touch click it ignores, until the cooldown ends', async () => {
     const onEditOpenChange = vi.fn();
 
     function ControlledEditMenubar() {
@@ -147,11 +147,22 @@ describe('<Menubar />', () => {
         editTrigger,
         new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
       );
+      expect(onEditOpenChange).toHaveBeenLastCalledWith(true, 'trigger-focus');
+      expect(editTrigger).toHaveAttribute('data-popup-open');
+
+      await act(async () => {
+        vi.advanceTimersByTime(310);
+      });
     } finally {
       vi.useRealTimers();
     }
 
-    // The menu ignores the click only after reporting it, so a controlled menu follows the report.
+    // Once the cooldown ends, a touch click closes the menu again.
+    fireEvent(
+      editTrigger,
+      new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+    );
+
     expect(onEditOpenChange).toHaveBeenLastCalledWith(false, 'trigger-press');
     await waitFor(() => {
       expect(screen.queryByTestId('edit-menu')).toBe(null);
@@ -888,33 +899,39 @@ describe('<Menubar />', () => {
     });
 
     describe.skipIf(isJSDOM)('scroll locking', () => {
-      it('applies scroll lock when a touch-opened submenu covers the viewport width', async () => {
-        await render(
-          <Menubar modal style={{ display: 'flex' }}>
-            <Menu.Root>
-              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
-                  <Menu.Popup>
-                    <Menu.Item>Open</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </Menubar>,
-        );
+      it.each([
+        { name: 'unmounted while closed', keepMounted: false },
+        { name: 'kept mounted while closed', keepMounted: true },
+      ])(
+        'applies scroll lock when a touch-opened submenu $name covers the viewport width',
+        async ({ keepMounted }) => {
+          await render(
+            <Menubar modal style={{ display: 'flex' }}>
+              <Menu.Root>
+                <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+                <Menu.Portal keepMounted={keepMounted}>
+                  <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
+                    <Menu.Popup>
+                      <Menu.Item>Open</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menubar>,
+          );
 
-        const trigger = screen.getByTestId('file-trigger');
+          const trigger = screen.getByTestId('file-trigger');
 
-        pressWithTouch(trigger);
+          pressWithTouch(trigger);
 
-        const menu = await screen.findByRole('menu');
-        const doc = menu.ownerDocument;
+          const menu = await screen.findByRole('menu');
+          const doc = menu.ownerDocument;
 
-        await waitFor(() => {
-          expect(isScrollLocked(doc)).toBe(true);
-        });
-      });
+          await waitFor(() => {
+            expect(isScrollLocked(doc)).toBe(true);
+          });
+        },
+      );
 
       it('does not apply scroll lock when a touch-opened submenu is narrower than the viewport', async () => {
         await render(

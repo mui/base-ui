@@ -4,10 +4,7 @@ import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../interactions/useHoverShared';
-import type { FloatingRootContext, Delay } from '../types';
-import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../../internals/reasons';
+import type { PopupInteractionStore, Delay } from '../types';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -17,7 +14,7 @@ interface ContextValue {
   timeout: Timeout;
   currentIdRef: React.RefObject<string | null | undefined>;
   currentContextRef: React.RefObject<{
-    onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
+    closeForSibling: () => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
 }
@@ -52,12 +49,12 @@ export interface FloatingDelayGroupProps {
 }
 
 /**
- * Experimental next version of `FloatingDelayGroup` to become the default
- * in the future. This component is not yet stable.
  * Provides context for a group of floating elements that should share a
- * `delay`. Unlike `FloatingDelayGroup`, `useDelayGroup` with this
- * component does not cause a re-render of unrelated consumers of the
- * context when the delay changes.
+ * `delay`. Once one of them opens, the others open instantly until
+ * `timeoutMs` passes after it closes.
+ * Consumers read the delay through refs, so changing it doesn't re-render
+ * unrelated consumers of the context.
+ * Based on `NextFloatingDelayGroup` from `@floating-ui/react`.
  * @see https://floating-ui.com/docs/FloatingDelayGroup
  * @internal
  */
@@ -137,12 +134,17 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  store: FloatingRootContext,
-  options: UseDelayGroupOptions = { open: false },
+  store: PopupInteractionStore & {
+    /**
+     * Closes the popup because another popup in the group opened.
+     */
+    closeForSibling(): void;
+  },
+  options: UseDelayGroupOptions,
 ): UseDelayGroupReturn {
   const { open } = options;
 
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
   const {
@@ -175,11 +177,11 @@ export function useDelayGroup(
       return undefined;
     }
 
-    if (!open && currentIdRef.current === floatingId) {
+    if (!open && currentIdRef.current === defaultPopupId) {
       setIsInstantPhase(false);
 
       if (timeoutMs) {
-        const closingId = floatingId;
+        const closingId = defaultPopupId;
         timeout.start(timeoutMs, () => {
           // If another tooltip has taken over the group, skip resetting.
           if (
@@ -203,7 +205,7 @@ export function useDelayGroup(
     return undefined;
   }, [
     open,
-    floatingId,
+    defaultPopupId,
     currentIdRef,
     delayRef,
     timeoutMs,
@@ -224,24 +226,24 @@ export function useDelayGroup(
     // A new tooltip is opening, so cancel any pending timeout that would reset
     // the group's delay back to the initial value.
     timeout.clear();
-    currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
-    currentIdRef.current = floatingId;
+    currentContextRef.current = { closeForSibling: store.closeForSibling, setIsInstantPhase };
+    currentIdRef.current = defaultPopupId;
     delayRef.current = {
       open: 0,
       close: getDelay(initialDelayRef.current, 'close'),
     };
 
-    if (prevId !== null && prevId !== floatingId) {
+    if (prevId !== null && prevId !== defaultPopupId) {
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
-      prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));
+      prevContext?.closeForSibling();
     } else {
       setIsInstantPhase(false);
       prevContext?.setIsInstantPhase(false);
     }
   }, [
     open,
-    floatingId,
+    defaultPopupId,
     store,
     currentIdRef,
     delayRef,
@@ -252,7 +254,7 @@ export function useDelayGroup(
 
   useIsoLayoutEffect(() => {
     return () => {
-      if (currentIdRef.current === floatingId) {
+      if (currentIdRef.current === defaultPopupId) {
         currentContextRef.current = null;
 
         if (!openRef.current) {
@@ -264,7 +266,7 @@ export function useDelayGroup(
         timeout.clear();
       }
     };
-  }, [currentContextRef, currentIdRef, delayRef, floatingId, initialDelayRef, timeout]);
+  }, [currentContextRef, currentIdRef, delayRef, defaultPopupId, initialDelayRef, timeout]);
 
   return React.useMemo(
     () => ({

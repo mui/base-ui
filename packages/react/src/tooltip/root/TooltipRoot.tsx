@@ -36,7 +36,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   const { store, open, mounted, payload, transitionStatus } = usePopupRoot(
     props,
-    (initialState, floatingId) => new TooltipStore<Payload>(initialState, floatingId),
+    (initialState, defaultPopupId) => new TooltipStore<Payload>(initialState, defaultPopupId),
     { closeOnActiveTriggerUnmount: true, disabled },
   );
 

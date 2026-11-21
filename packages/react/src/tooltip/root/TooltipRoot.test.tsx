@@ -24,6 +24,57 @@ describe('<Tooltip.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  it('keeps the payload while a controlled reopen moves to another trigger', async () => {
+    const handle = Tooltip.createHandle<string>();
+    const payloads: Array<string | undefined> = [];
+    let setState!: (state: { open: boolean; triggerId: string | null }) => void;
+
+    function App() {
+      const [state, setStateInternal] = React.useState<{ open: boolean; triggerId: string | null }>(
+        {
+          open: true,
+          triggerId: 'first',
+        },
+      );
+      setState = setStateInternal;
+      return (
+        <React.Fragment>
+          <Tooltip.Trigger handle={handle} id="first" payload="First">
+            First
+          </Tooltip.Trigger>
+          <Tooltip.Trigger handle={handle} id="second" payload="Second">
+            Second
+          </Tooltip.Trigger>
+          <Tooltip.Root handle={handle} open={state.open} triggerId={state.triggerId}>
+            {({ payload }) => {
+              payloads.push(payload);
+              return (
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup>{payload}</Tooltip.Popup>
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              );
+            }}
+          </Tooltip.Root>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+    await act(async () => {
+      setState({ open: false, triggerId: null });
+    });
+
+    payloads.length = 0;
+    await act(async () => {
+      setState({ open: true, triggerId: 'second' });
+    });
+
+    expect(payloads).not.toContain(undefined);
+    expect(payloads.at(-1)).toBe('Second');
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Tooltip.Root {...props.root}>
@@ -68,7 +119,7 @@ describe('<Tooltip.Root />', () => {
   describe('trigger unmount during the open delay', () => {
     clock.withFakeTimers();
 
-    function App({ showTrigger }: { showTrigger: boolean }) {
+    function ContainedApp({ showTrigger }: { showTrigger: boolean }) {
       return (
         <Tooltip.Root>
           {showTrigger && <Tooltip.Trigger>Toggle</Tooltip.Trigger>}
@@ -81,7 +132,26 @@ describe('<Tooltip.Root />', () => {
       );
     }
 
-    it('does not open once the hovered trigger has unmounted', async () => {
+    function DetachedApp({ showTrigger }: { showTrigger: boolean }) {
+      const handle = useRefWithInit(() => Tooltip.createHandle()).current;
+      return (
+        <React.Fragment>
+          {showTrigger && <Tooltip.Trigger handle={handle}>Toggle</Tooltip.Trigger>}
+          <Tooltip.Root handle={handle}>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </React.Fragment>
+      );
+    }
+
+    it.each([
+      { name: 'contained trigger', App: ContainedApp },
+      { name: 'detached trigger', App: DetachedApp },
+    ])('does not open once the hovered $name has unmounted', async ({ App }) => {
       const { setProps } = await render(<App showTrigger />);
 
       const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -561,6 +631,7 @@ describe('<Tooltip.Root />', () => {
 
       it('unmounts an exiting tooltip when another tooltip opens', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const handleFirstOpenChange = vi.fn();
 
         const style = `
           .tooltip[data-ending-style] {
@@ -578,7 +649,10 @@ describe('<Tooltip.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             {['First', 'Second'].map((name, index) => (
-              <Tooltip.Root key={name}>
+              <Tooltip.Root
+                key={name}
+                onOpenChange={index === 0 ? handleFirstOpenChange : undefined}
+              >
                 <Tooltip.Trigger data-testid={`trigger-${index + 1}`} delay={0}>
                   {name}
                 </Tooltip.Trigger>
@@ -613,6 +687,8 @@ describe('<Tooltip.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('popup-1')).toBe(null);
         });
+        // The first tooltip was already closing, so it reports only its open and its hover close.
+        expect(handleFirstOpenChange).toHaveBeenCalledTimes(2);
       });
 
       it('inline opacity: 0 is removed before user CSS transitions run', async () => {
@@ -795,16 +871,17 @@ describe('<Tooltip.Root />', () => {
       });
 
       it('keeps the tooltip disabled when the root is disabled and the trigger opts back in', async () => {
+        const onOpenChange = vi.fn();
         await render(
           <TestTooltip
-            rootProps={{ disabled: true }}
+            rootProps={{ disabled: true, onOpenChange }}
             triggerProps={{ disabled: false, delay: 0 }}
           />,
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-        expect(trigger).not.toHaveAttribute('data-trigger-disabled');
+        expect(trigger).toHaveAttribute('data-trigger-disabled');
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -813,6 +890,7 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.queryByText('Content')).toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalled();
       });
     });
 
@@ -1563,34 +1641,51 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describe('close requests', () => {
-    it('reports leaving the trigger before the open delay ends as a hover close', async () => {
-      const onOpenChange = vi.fn();
-      await render(
-        <Tooltip.Root onOpenChange={onOpenChange}>
-          <Tooltip.Trigger delay={200}>Trigger</Tooltip.Trigger>
+  it('closes a tooltip that is still open when another tooltip in the group opens', async () => {
+    const handleFirstOpenChange = vi.fn();
+    const { user } = await render(
+      <Tooltip.Provider>
+        <Tooltip.Root onOpenChange={handleFirstOpenChange}>
+          <Tooltip.Trigger delay={0} closeDelay={10000}>
+            First
+          </Tooltip.Trigger>
           <Tooltip.Portal>
             <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
+              <Tooltip.Popup>First tooltip</Tooltip.Popup>
             </Tooltip.Positioner>
           </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-      const trigger = screen.getByRole('button', { name: 'Trigger' });
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <Tooltip.Trigger delay={0}>Second</Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Second tooltip</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>,
+    );
 
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-      fireEvent.mouseLeave(trigger);
-      await flushMicrotasks();
+    await user.hover(screen.getByRole('button', { name: 'First' }));
+    await screen.findByText('First tooltip');
+    // The close delay keeps the first tooltip open after the pointer leaves.
+    await user.unhover(screen.getByRole('button', { name: 'First' }));
+    expect(screen.queryByText('First tooltip')).not.toBe(null);
 
-      expect(screen.queryByText('Content')).toBe(null);
-      expect(onOpenChange).toHaveBeenCalledTimes(1);
-      expect(onOpenChange.mock.calls[0][0]).toBe(false);
-      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.triggerHover);
+    await user.hover(screen.getByRole('button', { name: 'Second' }));
+    await screen.findByText('Second tooltip');
+
+    await waitFor(() => {
+      expect(screen.queryByText('First tooltip')).toBe(null);
     });
+    expect(handleFirstOpenChange).toHaveBeenLastCalledWith(
+      false,
+      expect.objectContaining({ reason: REASONS.none }),
+    );
+  });
 
-    it('does not report a trigger for an Escape close', async () => {
+  describe('close requests', () => {
+    it('reports the active trigger for an Escape close', async () => {
       const onOpenChange = vi.fn();
       const { user } = await render(
         <Tooltip.Root defaultOpen onOpenChange={onOpenChange}>
@@ -1608,7 +1703,9 @@ describe('<Tooltip.Root />', () => {
 
       expect(onOpenChange).toHaveBeenCalledTimes(1);
       expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
-      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(
+        screen.getByRole('button', { name: 'Trigger' }),
+      );
     });
   });
 
@@ -2972,7 +3069,7 @@ describe('nested tooltips', () => {
     fireEvent.mouseEnter(innerTrigger);
     fireEvent.mouseOver(innerTrigger);
     // Repeated mouseMoves keep the safePolygon / mouseover path active, which
-    // calls `setOpen(true)` via `useHoverReferenceInteraction`'s onMouseMove
+    // calls `setOpen(true)` via `useHoverTriggerInteraction`'s onMouseMove
     // handler — that path is now gated by `checkShouldOpen()`.
     fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
     fireEvent.mouseMove(innerTrigger, { clientX: 51, clientY: 10 });

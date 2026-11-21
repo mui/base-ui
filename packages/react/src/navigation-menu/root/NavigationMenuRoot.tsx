@@ -26,7 +26,6 @@ import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import * as NavigationMenuPositionerCssVars from '../positioner/NavigationMenuPositionerCssVars';
 import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 
@@ -101,9 +100,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   );
   const [activationDirection, setActivationDirection] =
     React.useState<NavigationMenuRootContext['activationDirection']>(null);
-  const [floatingRootContext, setFloatingRootContext] = React.useState<
-    FloatingRootStore | undefined
-  >(undefined);
+  const [floatingRootStore, setFloatingRootStore] = React.useState<FloatingRootStore | undefined>(
+    undefined,
+  );
   const [viewportInert, setViewportInert] = React.useState(false);
 
   const prevTriggerElementRef = React.useRef<Element | null | undefined>(null);
@@ -150,7 +149,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
 
       onOpenChangeComplete?.(false);
       setActivationDirection(null);
-      setFloatingRootContext(undefined);
+      setFloatingRootStore(undefined);
 
       currentContentRef.current = null;
       closeReasonRef.current = undefined;
@@ -209,7 +208,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       }
 
       const changeEventDetails = eventDetails as NavigationMenuRoot.ChangeEventDetails;
-      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(changeEventDetails);
+      // Navigation Menu only takes the request from `onValueChange` itself, not after an `await`.
+      let unmountPrevented = false;
+      changeEventDetails.preventUnmountOnClose = () => {
+        unmountPrevented = true;
+      };
 
       if (nextValue !== value) {
         onValueChange?.(nextValue, changeEventDetails);
@@ -223,10 +226,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
         // A redundant close (for example the trigger's blur after an imperative close) skips
         // `onValueChange`, so it can't opt out again and must not discard the recorded opt-out.
         if (value != null) {
-          setPreventUnmountOnClose(shouldPreventUnmountOnClose());
+          setPreventUnmountOnClose(unmountPrevented);
         }
         setActivationDirection(null);
-        setFloatingRootContext(undefined);
+        setFloatingRootStore(undefined);
       }
 
       setValueUnwrapped(nextValue);
@@ -270,8 +273,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       setViewportTargetElement,
       activationDirection: contextActivationDirection,
       setActivationDirection,
-      floatingRootContext,
-      setFloatingRootContext,
+      floatingRootStore,
+      setFloatingRootStore,
       currentContentRef,
       nested,
       rootRef,
@@ -298,7 +301,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       viewportElement,
       viewportTargetElement,
       contextActivationDirection,
-      floatingRootContext,
+      floatingRootStore,
       nested,
       delay,
       closeDelay,

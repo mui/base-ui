@@ -30,8 +30,8 @@ export interface NavigationMenuRootContext<Value = any> {
   setActivationDirection: React.Dispatch<
     React.SetStateAction<'left' | 'right' | 'up' | 'down' | null>
   >;
-  floatingRootContext: FloatingRootStore | undefined;
-  setFloatingRootContext: React.Dispatch<React.SetStateAction<FloatingRootStore | undefined>>;
+  floatingRootStore: FloatingRootStore | undefined;
+  setFloatingRootStore: React.Dispatch<React.SetStateAction<FloatingRootStore | undefined>>;
   currentContentRef: React.RefObject<HTMLDivElement | null>;
   nested: boolean;
   rootRef: React.RefObject<HTMLDivElement | null>;

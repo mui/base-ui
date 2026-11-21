@@ -7,7 +7,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
@@ -17,11 +17,11 @@ import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useDelayGroup } from '../../utils/popups/delay-group/FloatingDelayGroup';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { isMouseLikePointerType } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useHoverInteractionSharedState } from '../../utils/popups/interactions/useHoverInteractionSharedState';
+import { getHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import { getDelay } from '../../utils/popups/interactions/useHoverShared';
 import * as TooltipTriggerDataAttributes from './TooltipTriggerDataAttributes';
 
@@ -58,9 +58,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     ...elementProps
   } = componentProps;
 
-  const rootContext = useTooltipRootContext(true);
+  const rootStore = useTooltipRootContext(true);
   const handleStore = usePopupHandleStore(handle);
-  const store = handleStore ?? rootContext;
+  const store = handleStore ?? rootStore;
   if (!store) {
     throw new Error(
       'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',
@@ -90,12 +90,12 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(store, {
     open: isOpenedByThisTrigger,
   });
-  const hoverInteraction = useHoverInteractionSharedState(store);
+  const hoverIntent = getHoverIntent(store);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
 
   const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp ?? rootDisabled;
+  const disabled = disabledProp || rootDisabled;
   const disabledRef = useValueAsRef(disabled);
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
@@ -130,15 +130,13 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
     isNestedTriggerHoveredRef.current = nestedTriggerHovered;
     if (nestedTriggerHovered) {
-      hoverInteraction.openChangeTimeout.clear();
-      hoverInteraction.restTimeout.clear();
-      hoverInteraction.restTimeoutPending = false;
+      hoverIntent.cancelPendingOpen();
       nestedTriggerOpenTimeout.clear();
     }
     return nestedTriggerHovered;
   }
 
-  const hoverProps = useHoverReferenceInteraction(store, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     enabled: !disabled,
     mouseOnly: true,
     move: false,

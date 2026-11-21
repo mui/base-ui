@@ -5,7 +5,13 @@ export { createFormDataSpy } from './formData';
 export { createRenderer } from './createRenderer';
 export { mergeRefs } from './mergeRefs';
 export { mockRuntimeLocale } from './mockRuntimeLocale';
-export { enterWithMouse, firePointer, moveMouse, pressWithTouch } from './pointer';
+export {
+  enterWithMouse,
+  firePointer,
+  moveMouse,
+  pressWithScreenReader,
+  pressWithTouch,
+} from './pointer';
 export { resetBrowserPointer } from './resetBrowserPointer';
 export { isScrollLocked } from './scrollLock';
 export { useTestInteractions } from './useTestInteractions';
@@ -16,6 +22,7 @@ export { waitForPositioned } from './waitForPositioned';
 export { describeConformance } from './describeConformance';
 export { detachedTriggersConformanceTests } from './detachedTriggersConformanceTests';
 export { dialogRootSharedTests } from './dialogRootSharedTests';
+export { hiddenInputSizeTests } from './hiddenInputSizeTests';
 export { hiddenInputTypeTests } from './hiddenInputTypeTests';
 export { popupConformanceTests } from './popupConformanceTests';
 export { popupFocusPropsTests } from './popupFocusPropsTests';

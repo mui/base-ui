@@ -54,7 +54,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
           Reference
         </button>
         {open && (
-          <FloatingFocusManager context={context.rootStore}>
+          <FloatingFocusManager store={context.rootStore}>
             <div
               role="menu"
               ref={refs.setFloating}
