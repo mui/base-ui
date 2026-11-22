@@ -138,83 +138,73 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     inert: !open,
   });
 
-  const prevMapSizeRef = React.useRef(0);
+  const onMapChange = useStableCallback(() => {
+    if (store.context.valuesRef.current.length === 0) {
+      return;
+    }
 
-  const onMapChange = useStableCallback(
-    (map: Map<Element, { index?: number | null | undefined } | null>) => {
-      if (store.context.valuesRef.current.length === 0) {
-        return;
-      }
+    // Filtering unmounts options without removing them from the select: the value stays, and
+    // `Select.Value` resolves its label from `items` rather than from a mounted option.
+    if (filterable) {
+      return;
+    }
 
-      const prevSize = prevMapSizeRef.current;
-      prevMapSizeRef.current = map.size;
+    const { value, multiple } = selection;
+    const { isItemEqualToValue } = store.context;
+    const eventDetails = createChangeEventDetails(REASONS.none);
 
-      // Filtering unmounts options without removing them from the select: the value stays, and
-      // `Select.Value` resolves its label from `items` rather than from a mounted option.
-      if (filterable) {
-        return;
-      }
+    if (!multiple && value != null) {
+      const selectedValueIndex = findItemIndex(
+        store.context.valuesRef.current,
+        value,
+        isItemEqualToValue,
+      );
+      if (selectedValueIndex === -1) {
+        const initialSelectedValue = store.context.initialValueRef.current;
+        const hasInitial =
+          initialSelectedValue != null &&
+          findItemIndex(
+            store.context.valuesRef.current,
+            initialSelectedValue,
+            isItemEqualToValue,
+          ) !== -1;
+        const nextValue = hasInitial ? initialSelectedValue : null;
+        store.context.setValue(nextValue, eventDetails);
 
-      const { value, multiple } = selection;
-      const { isItemEqualToValue } = store.context;
-      const eventDetails = createChangeEventDetails(REASONS.none);
-
-      if (prevSize !== 0 && !multiple && value != null) {
-        const selectedValueIndex = findItemIndex(
-          store.context.valuesRef.current,
-          value,
-          isItemEqualToValue,
-        );
-        if (selectedValueIndex === -1) {
-          const initialSelectedValue = store.context.initialValueRef.current;
-          const hasInitial =
-            initialSelectedValue != null &&
-            findItemIndex(
-              store.context.valuesRef.current,
-              initialSelectedValue,
-              isItemEqualToValue,
-            ) !== -1;
-          const nextValue = hasInitial ? initialSelectedValue : null;
-          store.context.setValue(nextValue, eventDetails);
-
-          if (nextValue === null) {
-            store.set('selectedIndex', null);
-            store.context.selectedItemTextRef.current = null;
-          }
+        if (nextValue === null) {
+          store.set('selectedIndex', null);
+          store.context.selectedItemTextRef.current = null;
         }
       }
+    }
 
-      if (prevSize !== 0 && multiple && Array.isArray(value)) {
-        const nextValue = value.filter(
-          (selectedItemValue) =>
-            findItemIndex(
-              store.context.valuesRef.current,
-              selectedItemValue,
-              isItemEqualToValue,
-            ) !== -1,
-        );
-        if (nextValue.length !== value.length) {
-          store.context.setValue(nextValue, eventDetails);
+    if (multiple && Array.isArray(value)) {
+      const nextValue = value.filter(
+        (selectedItemValue) =>
+          findItemIndex(store.context.valuesRef.current, selectedItemValue, isItemEqualToValue) !==
+          -1,
+      );
+      if (nextValue.length !== value.length) {
+        store.context.setValue(nextValue, eventDetails);
 
-          if (nextValue.length === 0) {
-            store.set('selectedIndex', null);
-            store.context.selectedItemTextRef.current = null;
-          }
+        if (nextValue.length === 0) {
+          store.set('selectedIndex', null);
+          store.context.selectedItemTextRef.current = null;
         }
       }
+    }
 
-      if (open && alignItemWithTriggerActive) {
-        store.update({
-          scrollUpArrowVisible: false,
-          scrollDownArrowVisible: false,
-        });
+    if (open && alignItemWithTriggerActive) {
+      store.update({
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
 
-        const stylesToClear: React.CSSProperties = { height: '' };
-        clearStyles(positionerElement, stylesToClear);
-        clearStyles(store.context.popupRef.current, stylesToClear);
-      }
-    },
-  );
+      const stylesToClear: React.CSSProperties = { height: '' };
+      clearStyles(positionerElement, stylesToClear);
+      clearStyles(store.context.popupRef.current, stylesToClear);
+    }
+  });
 
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
