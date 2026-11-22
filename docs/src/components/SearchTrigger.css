@@ -48,5 +48,9 @@
 
   .SearchTriggerShortcut {
     color: var(--gray-t1);
+
+    &[data-pending] {
+      visibility: hidden;
+    }
   }
 }
