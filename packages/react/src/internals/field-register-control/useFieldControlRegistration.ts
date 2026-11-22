@@ -21,6 +21,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     invalid,
     markedDirtyRef,
     name,
+    registeredFieldName,
     setRegisteredFieldName,
     registeredFieldIdRef,
     setValidityData,
@@ -108,7 +109,10 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       return;
     }
 
-    setRegisteredFieldName(name ? undefined : registration.name);
+    const nextRegisteredFieldName = name ? undefined : registration.name;
+    if (registeredFieldName !== nextRegisteredFieldName) {
+      setRegisteredFieldName(nextRegisteredFieldName);
+    }
 
     formRef.current.fields.set(registration.id, {
       getValue: getValueForForm,
@@ -117,7 +121,16 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
-  }, [formRef, getValueForForm, invalid, name, setRegisteredFieldName, validate, validityData]);
+  }, [
+    formRef,
+    getValueForForm,
+    invalid,
+    name,
+    registeredFieldName,
+    setRegisteredFieldName,
+    validate,
+    validityData,
+  ]);
 
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
@@ -177,6 +190,7 @@ export interface UseFieldControlRegistrationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
+  registeredFieldName: string | undefined;
   setRegisteredFieldName: (name: string | undefined) => void;
   registeredFieldIdRef: React.RefObject<string | undefined>;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
