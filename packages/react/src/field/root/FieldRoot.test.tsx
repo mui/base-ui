@@ -64,6 +64,21 @@ describe('<Field.Root />', () => {
     render,
   }));
 
+  it('commits at most one update when mounting with a control', async () => {
+    const phases: Array<Parameters<React.ProfilerOnRenderCallback>[1]> = [];
+
+    await renderNonStrict(
+      <React.Profiler id="field" onRender={(_, phase) => phases.push(phase)}>
+        <Field.Root>
+          <Field.Control />
+        </Field.Root>
+      </React.Profiler>,
+    );
+
+    expect(phases[0]).toBe('mount');
+    expect(phases.length).toBeLessThanOrEqual(2);
+  });
+
   it('updates label association when replacing one control with another', async () => {
     function TestCase() {
       const [showB, setShowB] = React.useState(false);
