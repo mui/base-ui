@@ -42,8 +42,8 @@ describe('<PasswordField.ToggleIndicator />', () => {
   describe('prop: match', () => {
     it.each([
       { name: 'visible (default)', match: undefined, initiallyRendered: false },
-      { name: 'visible', match: 'visible' as const, initiallyRendered: false },
-      { name: 'masked', match: 'masked' as const, initiallyRendered: true },
+      { name: 'visible', match: 'password-visible' as const, initiallyRendered: false },
+      { name: 'masked', match: 'password-masked' as const, initiallyRendered: true },
     ])('renders only while the password is $name', async ({ match, initiallyRendered }) => {
       const { user } = await render(
         <PasswordField.Root>
@@ -65,8 +65,8 @@ describe('<PasswordField.ToggleIndicator />', () => {
       const { user } = await render(
         <PasswordField.Root>
           <PasswordField.Toggle>
-            <PasswordField.ToggleIndicator match="masked">show</PasswordField.ToggleIndicator>
-            <PasswordField.ToggleIndicator match="visible">hide</PasswordField.ToggleIndicator>
+            <PasswordField.ToggleIndicator match="password-masked">show</PasswordField.ToggleIndicator>
+            <PasswordField.ToggleIndicator match="password-visible">hide</PasswordField.ToggleIndicator>
           </PasswordField.Toggle>
         </PasswordField.Root>,
       );

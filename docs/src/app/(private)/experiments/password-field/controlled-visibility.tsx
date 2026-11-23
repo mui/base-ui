@@ -22,10 +22,10 @@ export default function PasswordFieldControlledVisibility() {
       <div className={styles.Control}>
         <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
         <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
-          <PasswordField.ToggleIndicator className={styles.Icon} match="masked">
+          <PasswordField.ToggleIndicator className={styles.Icon} match="password-masked">
             <EyeOffIcon />
           </PasswordField.ToggleIndicator>
-          <PasswordField.ToggleIndicator className={styles.Icon} match="visible">
+          <PasswordField.ToggleIndicator className={styles.Icon} match="password-visible">
             <EyeIcon />
           </PasswordField.ToggleIndicator>
         </PasswordField.Toggle>
