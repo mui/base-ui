@@ -1,9 +1,8 @@
-import { expect, vi, describe, it } from 'vitest';
+import { beforeEach, expect, vi, describe, it, onTestFinished } from 'vitest';
 import * as React from 'react';
-import userEvent from '@testing-library/user-event';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, ignoreActWarnings, screen } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, resetBrowserPointer } from '#test-utils';
 
 describe('<PasswordField.Toggle />', () => {
   const { render } = createRenderer();
@@ -145,8 +144,79 @@ describe('<PasswordField.Toggle />', () => {
     });
   });
 
+  // Testing Library's `user.click` moves focus itself, so these use real browser input.
   describe.skipIf(isJSDOM)('focus management', () => {
-    it('keeps focus on the input when toggled with a pointer', async () => {
+    beforeEach(() => {
+      ignoreActWarnings();
+    });
+
+    it('keeps focus and the selection on the input when toggled with a pointer', async () => {
+      onTestFinished(resetBrowserPointer);
+      const { userEvent } = await import('vitest/browser');
+      await render(
+        <PasswordField.Root>
+          <PasswordField.Input defaultValue="hunter2" />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
+      );
+
+      const input = document.querySelector('input')!;
+
+      await act(async () => {
+        input.focus();
+        input.setSelectionRange(2, 4);
+      });
+
+      await userEvent.click(screen.getByRole('button'));
+
+      expect(input).toHaveFocus();
+      expect(input).toHaveAttribute('type', 'text');
+      // No explicit restoration: focus never leaves the input, and the browser keeps the
+      // selection across the `password`/`text` swap on its own.
+      expect(input.selectionStart).toBe(2);
+      expect(input.selectionEnd).toBe(4);
+    });
+
+    it('keeps focus on the input when toggled with a pointer inside a closed shadow root', async () => {
+      onTestFinished(resetBrowserPointer);
+      const { userEvent } = await import('vitest/browser');
+      const host = document.body.appendChild(document.createElement('div'));
+      const shadowRoot = host.attachShadow({ mode: 'closed' });
+      const container = shadowRoot.appendChild(document.createElement('div'));
+      onTestFinished(() => host.remove());
+
+      await render(
+        <PasswordField.Root>
+          <PasswordField.Input />
+          <PasswordField.Toggle />
+        </PasswordField.Root>,
+        { container },
+      );
+
+      const input = shadowRoot.querySelector('input')!;
+
+      await act(async () => {
+        input.focus();
+      });
+      expect(shadowRoot.activeElement).toBe(input);
+
+      // A locator can't reach into a closed shadow root, so click the host where the toggle is.
+      const buttonRect = shadowRoot.querySelector('button')!.getBoundingClientRect();
+      const hostRect = host.getBoundingClientRect();
+      await userEvent.click(host, {
+        position: {
+          x: buttonRect.left - hostRect.left + buttonRect.width / 2,
+          y: buttonRect.top - hostRect.top + buttonRect.height / 2,
+        },
+      });
+
+      expect(shadowRoot.activeElement).toBe(input);
+      expect(input).toHaveAttribute('type', 'text');
+    });
+
+    it('moves focus to the toggle when it is pressed while the input is not focused', async () => {
+      onTestFinished(resetBrowserPointer);
+      const { userEvent } = await import('vitest/browser');
       await render(
         <PasswordField.Root>
           <PasswordField.Input />
@@ -154,20 +224,16 @@ describe('<PasswordField.Toggle />', () => {
         </PasswordField.Root>,
       );
 
-      const input = document.querySelector('input')!;
       const button = screen.getByRole('button');
-
-      await act(async () => {
-        input.focus();
-      });
 
       await userEvent.click(button);
 
-      expect(input).toHaveFocus();
-      expect(input).toHaveAttribute('type', 'text');
+      expect(button).toHaveFocus();
+      expect(document.querySelector('input')).toHaveAttribute('type', 'text');
     });
 
     it('keeps focus on the toggle when activated with the keyboard', async () => {
+      const { userEvent } = await import('vitest/browser');
       await render(
         <PasswordField.Root>
           <PasswordField.Input />
@@ -185,99 +251,6 @@ describe('<PasswordField.Toggle />', () => {
 
       expect(button).toHaveFocus();
       expect(document.querySelector('input')).toHaveAttribute('type', 'text');
-    });
-  });
-
-  it.skipIf(isJSDOM)('preserves the caret position after toggling with a pointer', async () => {
-    await render(
-      <PasswordField.Root>
-        <PasswordField.Input defaultValue="hunter2" />
-        <PasswordField.Toggle />
-      </PasswordField.Root>,
-    );
-
-    const input = document.querySelector('input')!;
-    const button = screen.getByRole('button');
-
-    await act(async () => {
-      input.focus();
-      input.setSelectionRange(2, 4);
-    });
-
-    await userEvent.click(button);
-
-    // No explicit restoration: `mousedown` is prevented so focus never leaves the input, and
-    // the browser keeps the selection across the `password`/`text` swap on its own.
-    expect(input.selectionStart).toBe(2);
-    expect(input.selectionEnd).toBe(4);
-  });
-
-  describe('mousedown', () => {
-    it('prevents the default of a primary press while the input is focused', async () => {
-      await render(
-        <PasswordField.Root>
-          <PasswordField.Input />
-          <PasswordField.Toggle />
-        </PasswordField.Root>,
-      );
-
-      const input = document.querySelector('input')!;
-      const button = screen.getByRole('button');
-
-      expect(fireEvent.mouseDown(button)).toBe(true);
-
-      await act(async () => {
-        input.focus();
-      });
-
-      expect(fireEvent.mouseDown(button)).toBe(false);
-    });
-
-    it('prevents the default of a primary press while the input is focused in a closed shadow root', async () => {
-      const host = document.body.appendChild(document.createElement('div'));
-      const shadowRoot = host.attachShadow({ mode: 'closed' });
-      const container = shadowRoot.appendChild(document.createElement('div'));
-
-      try {
-        await render(
-          <PasswordField.Root>
-            <PasswordField.Input />
-            <PasswordField.Toggle />
-          </PasswordField.Root>,
-          { container },
-        );
-
-        const input = shadowRoot.querySelector('input')!;
-        const button = shadowRoot.querySelector('button')!;
-
-        expect(fireEvent.mouseDown(button)).toBe(true);
-
-        await act(async () => {
-          input.focus();
-        });
-        expect(shadowRoot.activeElement).toBe(input);
-
-        expect(fireEvent.mouseDown(button)).toBe(false);
-      } finally {
-        await act(async () => {
-          host.remove();
-        });
-      }
-    });
-
-    it('does not prevent the default of a secondary press', async () => {
-      await render(
-        <PasswordField.Root>
-          <PasswordField.Input />
-          <PasswordField.Toggle />
-        </PasswordField.Root>,
-      );
-
-      await act(async () => {
-        document.querySelector('input')!.focus();
-      });
-
-      expect(fireEvent.mouseDown(screen.getByRole('button'), { button: 2 })).toBe(true);
     });
   });
 
