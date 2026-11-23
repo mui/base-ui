@@ -42,11 +42,20 @@ const groups: ProduceGroup[] = [
 ];
 
 function GroupedCombobox(props: {
-  isItemDisabled?: (item: Produce) => boolean;
+  getDisabled?: (item: Produce) => boolean;
   renderGroupHeader?: (group: ProduceGroup) => React.ReactElement;
 }) {
+  const { getDisabled } = props;
+  const items = getDisabled
+    ? Combobox.createItems(groups, {
+        getValue: (item) => item.id,
+        getLabel: (item) => item.label,
+        getDisabled,
+      })
+    : groups;
+
   return (
-    <Combobox.Root items={groups} isItemDisabled={props.isItemDisabled}>
+    <Combobox.Root<any> items={items}>
       <Combobox.Input data-testid="input" />
       <Combobox.Portal>
         <Combobox.Positioner>
@@ -65,7 +74,7 @@ function GroupedCombobox(props: {
                 }
               >
                 {(item) => (
-                  <Combobox.Item key={item.id} value={item}>
+                  <Combobox.Item key={item.id} value={getDisabled ? item.id : item}>
                     {item.label}
                   </Combobox.Item>
                 )}
@@ -218,9 +227,7 @@ describe('<Virtualizer /> in a grouped Combobox', () => {
   });
 
   it('skips a disabled item across a group boundary', async () => {
-    const { user } = await render(
-      <GroupedCombobox isItemDisabled={(item) => item.id === 'carrot'} />,
-    );
+    const { user } = await render(<GroupedCombobox getDisabled={(item) => item.id === 'carrot'} />);
 
     await user.click(screen.getByTestId('input'));
     await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');

@@ -112,7 +112,7 @@ The third `Item` type parameter is what lets the wrapper accept a `Combobox.crea
 
 ### Value selection with IDs
 
-When your app stores IDs rather than item objects, use `Combobox.createItems` with `getValue` and `getLabel` to derive each item's selection value and display label.
+When your app stores IDs rather than item objects, use `Combobox.createItems` with `getValue` and `getLabel` to derive each item's selection value and display label. The optional `getDisabled` marks items as disabled, so keyboard navigation skips them and they can't be selected.
 
 With static data, create the collection at module scope. The accessor parameters are inferred from `users`. Pass the derived ID to the `value` prop of `<Combobox.Item>`, not the item being rendered:
 
@@ -377,7 +377,7 @@ A list may only contain options, so `trailing` content must not present itself a
 
 Interactive affordances are a different case: a control inside the list would be neither valid there nor reachable, since focus stays in the input. Keep buttons such as a create-new action outside the list, where they are in the tab order.
 
-When some items are disabled, pass `isItemDisabled` to `<Combobox.Root>`. Its index argument is the item's index in the filtered and limited collection. The `disabled` prop only marks a rendered `<Combobox.Item>` as disabled; `isItemDisabled` is the predicate keyboard navigation uses, including while an item is outside the rendered window.
+When some items are disabled, create the items with [`Combobox.createItems()`](#createitems) and its `getDisabled` option. The `disabled` prop only marks a rendered `<Combobox.Item>` as disabled; `getDisabled` is what keyboard navigation uses to skip disabled items, including while an item is outside the rendered window. A plain `items` array has no equivalent, so its disabled items can still be highlighted with the keyboard, though not selected.
 
 import { DemoComboboxVirtualized } from './demos/virtualized';
 

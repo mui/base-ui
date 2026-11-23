@@ -87,7 +87,7 @@ In a list of your own, the header renderer receives the group's name attributes 
 
 Group headers are rows of their own: they are measured like items, and `estimatedGroupHeaderHeight` is the height assumed for a header before it is measured. It defaults to the static `estimatedItemHeight`, and accepts a function receiving the group and its index. Headers never feed the running average that refines the item estimate.
 
-Item indexes count items only, across all groups, so `activeIndex`, `scrollToIndex`, `isItemDisabled`, and `aria-posinset` mean the same thing in a grouped collection as in a flat one. `getIndexAtOffset` answers a header's offset with the first item of its group; for an empty group, with the item that follows it, or the last item when nothing follows. It returns `null` only when the collection has no items, however many headers it renders.
+Item indexes count items only, across all groups, so `activeIndex`, `scrollToIndex`, and `aria-posinset` mean the same thing in a grouped collection as in a flat one. `getIndexAtOffset` answers a header's offset with the first item of its group; for an empty group, with the item that follows it, or the last item when nothing follows. It returns `null` only when the collection has no items, however many headers it renders.
 
 Groups are identified by their index in the collection by default. Provide `getGroupKey` when a collection can be filtered: once a group drops out, the groups behind it would otherwise change identity. A group with no items renders its header.
 
@@ -131,7 +131,7 @@ Only declare a height the items genuinely have. An item that turns out to be a d
 
 ## Disabled items
 
-The `disabled` prop only marks a rendered item as disabled, so it is unavailable while the item is outside the rendered window. Pass `isItemDisabled` to the list root instead — it is the predicate keyboard navigation uses, including for items that are not mounted. Its index argument is the item's index in the filtered and limited collection.
+The `disabled` prop only marks a rendered item as disabled, so it is unavailable while the item is outside the rendered window. Declare disabled items in the data instead: create the items with `Combobox.createItems()` and its `getDisabled` option, which is what keyboard navigation uses to skip disabled items, including those that are not mounted. Without it, a disabled item can still be highlighted with the keyboard, though not selected.
 
 ## Scrolling to an item
 

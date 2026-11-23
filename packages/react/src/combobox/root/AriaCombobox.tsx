@@ -143,7 +143,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     loopFocus = true,
     itemToStringLabel: itemToStringLabelProp,
     itemToStringValue,
-    isItemDisabled,
     isItemEqualToValue = defaultItemEquality,
     virtualized = false,
     inline: inlineProp = false,
@@ -241,6 +240,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       });
     };
   }, [collection, itemToStringLabelProp, externalWindow, isItemEqualToValue]);
+
+  // Disabled state declared by the collection, by source item and by selection value. Resolved
+  // like labels: collection data first, then the current external window.
+  const itemDisabled = collection?.itemDisabled;
+  const isValueDisabled = React.useMemo(() => {
+    if (!collection || !itemDisabled) {
+      return undefined;
+    }
+    return (itemValue: Value) => {
+      const item =
+        collection.item(itemValue, isItemEqualToValue) ??
+        externalWindow?.findItem(itemValue, isItemEqualToValue);
+      return item != null && itemDisabled(item);
+    };
+  }, [collection, itemDisabled, externalWindow, isItemEqualToValue]);
 
   const filterItemToString = React.useMemo<FilterItemToString | undefined>(() => {
     if (!collection) {
@@ -384,7 +398,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           grid,
           externallyVirtualized: virtualized,
           renderAllRows: false,
-          isItemDisabled,
+          isValueDisabled,
           highlightType: 'none',
           openOnInputClick,
           itemToStringLabel,
@@ -694,11 +708,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   );
 
   const { getFirstEnabledIndex, isIndexDisabled } = useDisabledIndex({
-    // With an `items` prop the navigable collection is the filtered one; without it, the values
-    // the rendered items registered.
-    getItemValue: (index) => (hasItems ? flatFilteredValues[index] : valuesRef.current[index]),
+    getDisabled: itemDisabled ? (index) => itemDisabled(flatFilteredItems[index]) : undefined,
     hasItemCollection: hasItems,
-    isItemDisabled,
     listRef,
   });
 
@@ -1455,7 +1466,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     resetOnPointerLeave: !keepHighlight,
     orientation: grid ? 'horizontal' : undefined,
     rtl: direction === 'rtl',
-    disabledIndices: isItemDisabled ? isIndexDisabled : EMPTY_ARRAY,
+    disabledIndices: itemDisabled ? isIndexDisabled : EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
     scrollItemIntoView: () => shouldScrollItemIntoView(store.context.virtualizationRegistry),
     onNavigate(nextActiveIndex, event) {
@@ -1570,7 +1581,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     externallyVirtualized: virtualized,
     openOnInputClick,
     itemToStringLabel,
-    isItemDisabled,
+    isValueDisabled,
     modal,
     autoHighlight: autoHighlightMode,
     isItemEqualToValue,
@@ -2024,15 +2035,6 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * With a `createItems()` collection, this receives the derived value.
    */
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
-  /**
-   * Determines whether an item is disabled from its value and logical index in the filtered,
-   * limited collection used for keyboard navigation.
-   *
-   * Use this prop when disabled state must be known before an item is rendered, such as when
-   * virtualizing the list. The `disabled` prop only marks a rendered item; this callback is what
-   * makes keyboard navigation skip disabled items and gives rendered items their disabled state.
-   */
-  isItemDisabled?: ((itemValue: ItemValue, index: number) => boolean) | undefined;
   /**
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * With a `createItems()` collection, both arguments are derived values.

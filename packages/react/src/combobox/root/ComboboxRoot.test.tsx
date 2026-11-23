@@ -2610,10 +2610,10 @@ describe('<Combobox.Root />', () => {
         });
       });
 
-      it('reaches items outside an external virtualizer window through isItemDisabled', async () => {
+      it('reaches items outside an external virtualizer window through getDisabled', async () => {
         // An external virtualizer leaves most items unmounted and registers no built-in
         // virtualizer, so the root has no element to consult for them. Navigation must still
-        // reach them: the consumer predicate classifies unmounted items, and a missing element
+        // reach them: the collection's accessor classifies unmounted items, and a missing element
         // on its own is not disabled in a windowed list.
         const items = Array.from(
           { length: 30 },
@@ -2633,9 +2633,12 @@ describe('<Combobox.Root />', () => {
 
         const { user } = await render(
           <Combobox.Root
-            items={items}
+            items={Combobox.createItems(items, {
+              getValue: (item) => item,
+              getLabel: (item) => item,
+              getDisabled: (item) => item === 'item-10',
+            })}
             virtualized
-            isItemDisabled={(item) => item === 'item-10'}
             onItemHighlighted={onItemHighlighted}
           >
             <Combobox.Input data-testid="input" />
@@ -4078,8 +4081,11 @@ describe('<Combobox.Root />', () => {
         const items = Array.from({ length: props.itemCount ?? 30 }, (_, index) => `item ${index}`);
         return (
           <Combobox.Root
-            items={items}
-            isItemDisabled={(item: string) => props.disabledValues?.includes(item) ?? false}
+            items={Combobox.createItems(items, {
+              getValue: (item) => item,
+              getLabel: (item) => item,
+              getDisabled: (item) => props.disabledValues?.includes(item) ?? false,
+            })}
           >
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
@@ -4182,17 +4188,25 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('uses isItemDisabled to skip static items during navigation', async () => {
+    it('uses getDisabled to skip items during navigation', async () => {
       const { user } = await render(
-        <Combobox.Root isItemDisabled={(item) => item === 'banana'}>
+        <Combobox.Root
+          items={Combobox.createItems(['apple', 'banana', 'cherry'], {
+            getValue: (item) => item,
+            getLabel: (item) => item,
+            getDisabled: (item) => item === 'banana',
+          })}
+        >
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  <Combobox.Item value="apple">apple</Combobox.Item>
-                  <Combobox.Item value="banana">banana</Combobox.Item>
-                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -4212,19 +4226,25 @@ describe('<Combobox.Root />', () => {
       );
     });
 
-    it('combines isItemDisabled with rendered item disabled state', async () => {
+    it('combines getDisabled with rendered item disabled state', async () => {
       const { user } = await render(
-        <Combobox.Root isItemDisabled={() => false}>
+        <Combobox.Root
+          items={Combobox.createItems(['apple', 'banana', 'cherry'], {
+            getValue: (item) => item,
+            getLabel: (item) => item,
+            getDisabled: () => false,
+          })}
+        >
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  <Combobox.Item value="apple">apple</Combobox.Item>
-                  <Combobox.Item value="banana" disabled>
-                    banana
-                  </Combobox.Item>
-                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} disabled={item === 'banana'}>
+                      {item}
+                    </Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -9928,9 +9948,12 @@ describe('<Combobox.Root />', () => {
     it('highlights the first enabled matching item after typing', async () => {
       const { user } = await render(
         <Combobox.Root
-          items={['alpha', 'alpine', 'beta']}
+          items={Combobox.createItems(['alpha', 'alpine', 'beta'], {
+            getValue: (item) => item,
+            getLabel: (item) => item,
+            getDisabled: (item) => item === 'alpha',
+          })}
           autoHighlight
-          isItemDisabled={(item) => item === 'alpha'}
         >
           <Combobox.Input />
           <Combobox.Portal>
@@ -9961,9 +9984,12 @@ describe('<Combobox.Root />', () => {
     it('does not highlight an item when every match is disabled', async () => {
       const { user } = await render(
         <Combobox.Root
-          items={['alpha', 'alpine', 'beta']}
+          items={Combobox.createItems(['alpha', 'alpine', 'beta'], {
+            getValue: (item) => item,
+            getLabel: (item) => item,
+            getDisabled: () => true,
+          })}
           autoHighlight
-          isItemDisabled={() => true}
         >
           <Combobox.Input />
           <Combobox.Portal>

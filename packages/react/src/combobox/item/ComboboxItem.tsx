@@ -91,13 +91,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     readOnly,
     isItemEqualToValue,
   } = store.useState('itemRoot');
-  const isItemDisabled = store.useState('isItemDisabled');
+  const isValueDisabled = store.useState('isValueDisabled');
 
   const selectable = selectionMode !== 'none';
   const index = explicitIndex ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
   const hasRegistered = index !== -1;
-  const disabled =
-    rootDisabled || disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
+  const disabled = rootDisabled || disabledProp || isValueDisabled?.(itemValue) === true;
 
   const highlighted = store.useState('isActive', index);
   const matchesSelectedValue = store.useState('isSelected', itemValue);
@@ -107,7 +106,8 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   useVirtualItemDiagnostics({
     componentName,
     disabledProp,
-    hasIsItemDisabled: isItemDisabled != null,
+    // Only Combobox accepts a `createItems()` collection, so there is nothing to advise elsewhere.
+    hasDisabledAccessor: isValueDisabled != null || componentName !== 'Combobox',
     virtualItem,
   });
 

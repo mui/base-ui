@@ -36,7 +36,8 @@ export declare class ComboboxItemCollection<in out Item, Value = Item> {
 
 /**
  * Internal shape of a collection. The extra members let the root project items to
- * their values and resolve a selected value back to its label while items are unmounted.
+ * their values, and resolve a value back to its label and disabled state while items are
+ * unmounted.
  */
 export interface ItemCollection<Item = any, Value = any> {
   /**
@@ -50,6 +51,13 @@ export interface ItemCollection<Item = any, Value = any> {
   value: (item: Item) => Value;
   /** Whether a projected value belongs to the collection's own data. */
   hasValue: (value: Value, isEqual: ItemEqualityComparer<Value>) => boolean;
+  /** Resolves a projected value back to its source item in the collection's own data. */
+  item: (value: Value, isEqual: ItemEqualityComparer<Value>) => Item | undefined;
+  /**
+   * Whether a source item is disabled. `undefined` when the collection does not declare disabled
+   * items.
+   */
+  itemDisabled: ((item: Item) => boolean) | undefined;
   /** Resolves a source item's label while filtering in the source-item domain. */
   itemLabel: (item: Item) => string;
   /**

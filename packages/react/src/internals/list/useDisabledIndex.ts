@@ -5,16 +5,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 export interface UseDisabledIndexParameters {
   /**
-   * Resolves an index in the navigable collection to the value handed to `isItemDisabled`. How a
-   * list maps indices to values is its own business: a Combobox reads a filtered collection when
-   * it has one and the registered values otherwise, a Select always reads the registered values.
+   * Whether the list's data declares the item at an index in the navigable collection disabled,
+   * such as through the `getDisabled` accessor of a `createItems()` collection. Consulted first,
+   * because it is the only thing that can classify an item that is not in the DOM.
    */
-  getItemValue: (index: number) => unknown;
-  /**
-   * The consumer's predicate, from the root's `isItemDisabled` prop. Consulted first, because it
-   * is the only thing that can classify an item that is not in the DOM.
-   */
-  isItemDisabled: ((itemValue: any, index: number) => boolean) | undefined;
+  getDisabled: ((index: number) => boolean) | undefined;
   /**
    * Whether the list knows its collection independently of the DOM — an `items` prop, as opposed
    * to items discovered as their elements register.
@@ -51,10 +46,10 @@ export interface DisabledIndex {
  * navigation once.
  */
 export function useDisabledIndex(parameters: UseDisabledIndexParameters): DisabledIndex {
-  const { getItemValue, hasItemCollection, isItemDisabled, listRef } = parameters;
+  const { getDisabled, hasItemCollection, listRef } = parameters;
 
   const isIndexDisabled = useStableCallback((index: number) => {
-    if (isItemDisabled?.(getItemValue(index), index) === true) {
+    if (getDisabled?.(index) === true) {
       return true;
     }
 

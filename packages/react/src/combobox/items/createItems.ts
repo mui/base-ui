@@ -66,6 +66,12 @@ export interface CreateComboboxItemsOptions<
    * neither the data nor the current `filteredItems`.
    */
   getLabel: (item: Item) => string;
+  /**
+   * Whether an item is disabled. Users can't select a disabled item, and keyboard navigation
+   * skips it, including while the item isn't rendered.
+   * @default () => false
+   */
+  getDisabled?: ((item: Item) => boolean) | undefined;
 }
 
 /**
@@ -86,7 +92,8 @@ export interface CreateComboboxItemsOptions<
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  *
  * @param data The flat or grouped source items, or `undefined` while they are loading.
- * @param options Functions that derive each source item's selection value and display label.
+ * @param options Functions that derive each source item's selection value, display label and
+ * disabled state.
  * @returns A collection whose selection value is the `getValue` accessor's return value.
  */
 export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
@@ -94,7 +101,7 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
   data: (ComboboxItemsData<Item> & RejectGroupShapedItems<Item>) | undefined,
   options: CreateComboboxItemsOptions<Item, Value>,
 ): ComboboxItemCollection<Item, Value> {
-  const { getValue, getLabel } = options;
+  const { getValue, getLabel, getDisabled } = options;
 
   let valueToItem: Map<Value, Item> | null = null;
 
@@ -147,7 +154,11 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
     hasValue(itemValue: Value, isEqual: ItemEqualityComparer<Value>) {
       return findCollectionItem(ensureDerived(), itemValue, isEqual) !== undefined;
     },
+    item(itemValue: Value, isEqual: ItemEqualityComparer<Value>) {
+      return findCollectionItem(ensureDerived(), itemValue, isEqual);
+    },
     itemLabel: getLabel,
+    itemDisabled: getDisabled,
     label(
       itemValue: Value,
       isEqual: ItemEqualityComparer<Value>,

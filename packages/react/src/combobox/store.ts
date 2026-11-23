@@ -52,7 +52,11 @@ export type State = ValuePopupState & {
    */
   renderAllRows: boolean;
   openOnInputClick: boolean;
-  isItemDisabled?: ((item: any, index: number) => boolean) | undefined;
+  /**
+   * Whether the `createItems()` collection declares the item with a value disabled. `undefined`
+   * when the items do not declare disabled state.
+   */
+  isValueDisabled?: ((itemValue: any) => boolean) | undefined;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
   hasInputValue: boolean;
@@ -197,7 +201,7 @@ export const selectors = {
   grid: (state: State) => state.grid,
   externallyVirtualized: (state: State) => state.externallyVirtualized,
   renderAllRows: (state: State) => state.renderAllRows,
-  isItemDisabled: (state: State) => state.isItemDisabled,
+  isValueDisabled: (state: State) => state.isValueDisabled,
   autoHighlight: (state: State) => state.autoHighlight,
   instantType: (state: State) => state.instantType,
   adaptiveOrigin: (state: State) => state.adaptiveOrigin,

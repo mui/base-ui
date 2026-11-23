@@ -32,7 +32,6 @@ Doesn't render its own HTML element.
 | form                 | `string`                                                                                              | -       | Identifies the form that owns the internal input.&#xA;Useful when the combobox is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | grid                 | `boolean`                                                                                             | `false` | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | inline               | `boolean`                                                                                             | `false` | Whether the list is rendered inline without using the component's own popup. Specify `open` unconditionally in conjunction with this prop so the list is considered&#xA;visible: `<Combobox.Root inline open>` In a `Combobox.Root` > `Dialog.Root` composition, bind the Combobox's `open` and&#xA;`onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the&#xA;component resets its transient state (filter query, highlighted item, and input value) when&#xA;the dialog closes.                                                                                                 |
-| isItemDisabled       | `((itemValue: Value, index: number) => boolean)`                                                      | -       | Determines whether an item is disabled from its value and logical index in the filtered,&#xA;limited collection used for keyboard navigation. Use this prop when disabled state must be known before an item is rendered, such as when&#xA;virtualizing the list. The `disabled` prop only marks a rendered item; this callback is what&#xA;makes keyboard navigation skip disabled items and gives rendered items their disabled state.                                                                                                                                                                         |
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                                       | -       | Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;With a `createItems()` collection, both arguments are derived values.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                                                                                                     |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                                      | -       | Converts an item value to the string used for filtering and display in the input.&#xA;Provide this for object values and for primitive values whose rendered labels differ from&#xA;their values, especially in large or virtualized collections, so browser autofill can match&#xA;labels without mounting every item.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.&#xA;With a `createItems()` collection, this receives the derived value, and the collection's&#xA;`getLabel` takes precedence for values it can resolve. |
 | itemToStringValue    | `((itemValue: Value) => string)`                                                                      | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.&#xA;With a `createItems()` collection, this receives the derived value.                                                                                                                                                                                                                                            |
@@ -1103,10 +1102,10 @@ by their data.
 
 **Parameters:**
 
-| Parameter | Type                                                       | Default | Description                                                                 |
-| :-------- | :--------------------------------------------------------- | :------ | :-------------------------------------------------------------------------- |
-| data      | `ComboboxItemsData<Item> \| undefined`                     | -       | The flat or grouped source items, or `undefined` while they are loading.    |
-| options   | `CreateComboboxItemsOptions<Item, ComboboxPrimitiveValue>` | -       | Functions that derive each source item's selection value and display label. |
+| Parameter | Type                                                       | Default | Description                                                                                     |
+| :-------- | :--------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------- |
+| data      | `ComboboxItemsData<Item> \| undefined`                     | -       | The flat or grouped source items, or `undefined` while they are loading.                        |
+| options   | `CreateComboboxItemsOptions<Item, ComboboxPrimitiveValue>` | -       | Functions that derive each source item's selection value, display label and&#xA;disabled state. |
 
 **Return Value:**
 
@@ -1582,6 +1581,12 @@ type CreateComboboxItemsOptions<
    * neither the data nor the current `filteredItems`.
    */
   getLabel: (item: Item) => string;
+  /**
+   * Whether an item is disabled. Users can't select a disabled item, and keyboard navigation
+   * skips it, including while the item isn't rendered.
+   * @default () => false
+   */
+  getDisabled?: (item: Item) => boolean;
 };
 ```
 

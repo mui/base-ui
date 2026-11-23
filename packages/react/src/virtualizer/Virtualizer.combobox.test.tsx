@@ -150,8 +150,11 @@ describe('<Virtualizer /> in Combobox', () => {
     const { user } = await render(
       <Combobox.Root
         defaultOpen
-        items={createItems(100)}
-        isItemDisabled={(_, index) => index === 99}
+        items={Combobox.createItems(createItems(100), {
+          getValue: (item) => item,
+          getLabel: (item) => item,
+          getDisabled: (item) => item === 'Item 100',
+        })}
       >
         <Combobox.Input data-testid="input" />
         <Combobox.List>
@@ -191,7 +194,13 @@ describe('<Virtualizer /> in Combobox', () => {
     let scrollTop = 0;
 
     const { user } = await render(
-      <Combobox.Root items={createItems(100)} isItemDisabled={(_, index) => index < 50}>
+      <Combobox.Root
+        items={Combobox.createItems(createItems(100), {
+          getValue: (item) => item,
+          getLabel: (item) => item,
+          getDisabled: (item) => Number(item.slice('Item '.length)) <= 50,
+        })}
+      >
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -232,9 +241,16 @@ describe('<Virtualizer /> in Combobox', () => {
     });
   });
 
-  it('applies logical disabled state to rendered items', async () => {
+  it('applies the collection disabled state to rendered items', async () => {
     await render(
-      <Combobox.Root defaultOpen items={createItems(3)} isItemDisabled={(_, index) => index === 0}>
+      <Combobox.Root
+        defaultOpen
+        items={Combobox.createItems(createItems(3), {
+          getValue: (item) => item,
+          getLabel: (item) => item,
+          getDisabled: (item) => item === 'Item 1',
+        })}
+      >
         <Combobox.List>
           <Virtualizer estimatedItemHeight={20}>
             {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
@@ -252,9 +268,12 @@ describe('<Virtualizer /> in Combobox', () => {
   it('auto-highlights the first enabled filtered item', async () => {
     const { user } = await render(
       <Combobox.Root
-        items={['alpha', 'alpine', 'beta']}
+        items={Combobox.createItems(['alpha', 'alpine', 'beta'], {
+          getValue: (item) => item,
+          getLabel: (item) => item,
+          getDisabled: (item) => item === 'alpha',
+        })}
         autoHighlight
-        isItemDisabled={(item) => item === 'alpha'}
       >
         <Combobox.Input />
         <Combobox.List>
@@ -1128,7 +1147,7 @@ describe('<Virtualizer /> in Combobox', () => {
     }
   });
 
-  it('warns when a virtualized item is disabled without isItemDisabled', async () => {
+  it('warns when a virtualized item is disabled and the items do not declare disabled state', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     try {
@@ -1149,8 +1168,8 @@ describe('<Virtualizer /> in Combobox', () => {
       expect(
         warnSpy.mock.calls.some(([message]) =>
           String(message).includes(
-            'virtualized <Combobox.Item> is disabled, but <Combobox.Root> does not have an ' +
-              '`isItemDisabled` prop',
+            'virtualized <Combobox.Item> is disabled, but the `items` of <Combobox.Root> do not ' +
+              'declare disabled items',
           ),
         ),
       ).toBe(true);
