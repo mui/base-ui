@@ -7,57 +7,37 @@ const genres = [
   {
     label: 'Pop',
     songs: [
-      { title: 'Billie Jean', artist: 'Michael Jackson', duration: '4:54', value: 'billie-jean' },
-      { title: 'Dancing Queen', artist: 'ABBA', duration: '3:51', value: 'dancing-queen' },
-      { title: 'Like a Prayer', artist: 'Madonna', duration: '5:41', value: 'like-a-prayer' },
-      {
-        title: 'Running Up That Hill',
-        artist: 'Kate Bush',
-        duration: '5:00',
-        value: 'running-up-that-hill',
-      },
+      { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
+      { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
+      { title: 'Like a Prayer', artist: 'Madonna', value: 'like-a-prayer' },
+      { title: 'Running Up That Hill', artist: 'Kate Bush', value: 'running-up-that-hill' },
     ],
   },
   {
     label: 'Rock',
     songs: [
-      { title: 'Hotel California', artist: 'Eagles', duration: '6:30', value: 'hotel-california' },
-      { title: 'London Calling', artist: 'The Clash', duration: '3:19', value: 'london-calling' },
-      { title: 'Heroes', artist: 'David Bowie', duration: '6:07', value: 'heroes' },
-      { title: 'Bohemian Rhapsody', artist: 'Queen', duration: '5:55', value: 'bohemian-rhapsody' },
+      { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
+      { title: 'London Calling', artist: 'The Clash', value: 'london-calling' },
+      { title: 'Heroes', artist: 'David Bowie', value: 'heroes' },
+      { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
     ],
   },
   {
     label: 'Soul',
     songs: [
-      { title: 'Superstition', artist: 'Stevie Wonder', duration: '4:26', value: 'superstition' },
-      { title: 'Respect', artist: 'Aretha Franklin', duration: '2:27', value: 'respect' },
-      {
-        title: "What's Going On",
-        artist: 'Marvin Gaye',
-        duration: '3:53',
-        value: 'whats-going-on',
-      },
-      {
-        title: "Let's Stay Together",
-        artist: 'Al Green',
-        duration: '3:18',
-        value: 'lets-stay-together',
-      },
+      { title: 'Superstition', artist: 'Stevie Wonder', value: 'superstition' },
+      { title: 'Respect', artist: 'Aretha Franklin', value: 'respect' },
+      { title: "What's Going On", artist: 'Marvin Gaye', value: 'whats-going-on' },
+      { title: "Let's Stay Together", artist: 'Al Green', value: 'lets-stay-together' },
     ],
   },
   {
     label: 'Electronic',
     songs: [
-      { title: 'Blue Monday', artist: 'New Order', duration: '7:29', value: 'blue-monday' },
-      {
-        title: 'Around the World',
-        artist: 'Daft Punk',
-        duration: '7:09',
-        value: 'around-the-world',
-      },
-      { title: 'Teardrop', artist: 'Massive Attack', duration: '5:29', value: 'teardrop' },
-      { title: 'Windowlicker', artist: 'Aphex Twin', duration: '6:07', value: 'windowlicker' },
+      { title: 'Blue Monday', artist: 'New Order', value: 'blue-monday' },
+      { title: 'Around the World', artist: 'Daft Punk', value: 'around-the-world' },
+      { title: 'Teardrop', artist: 'Massive Attack', value: 'teardrop' },
+      { title: 'Windowlicker', artist: 'Aphex Twin', value: 'windowlicker' },
     ],
   },
 ];
@@ -87,9 +67,10 @@ export default function ExampleListbox() {
                       <CheckIcon />
                     </Listbox.ItemIndicator>
                   </span>
-                  <span className={styles.ItemTitle}>{song.title}</span>
-                  <span className={styles.ItemArtist}>{song.artist}</span>
-                  <span className={styles.ItemDuration}>{song.duration}</span>
+                  <span className={styles.ItemText}>
+                    <span className={styles.ItemTitle}>{song.title}</span>
+                    <span className={styles.ItemArtist}>{song.artist}</span>
+                  </span>
                 </Listbox.Item>
               ))}
             </Listbox.Group>
