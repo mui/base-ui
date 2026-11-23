@@ -258,6 +258,38 @@ describe('<PasswordField.Toggle />', () => {
       expect(fireEvent.mouseDown(button)).toBe(false);
     });
 
+    it('prevents the default of a primary press while the input is focused in a closed shadow root', async () => {
+      const host = document.body.appendChild(document.createElement('div'));
+      const shadowRoot = host.attachShadow({ mode: 'closed' });
+      const container = shadowRoot.appendChild(document.createElement('div'));
+
+      try {
+        await render(
+          <PasswordField.Root>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>,
+          { container },
+        );
+
+        const input = shadowRoot.querySelector('input')!;
+        const button = shadowRoot.querySelector('button')!;
+
+        expect(fireEvent.mouseDown(button)).toBe(true);
+
+        await act(async () => {
+          input.focus();
+        });
+        expect(shadowRoot.activeElement).toBe(input);
+
+        expect(fireEvent.mouseDown(button)).toBe(false);
+      } finally {
+        await act(async () => {
+          host.remove();
+        });
+      }
+    });
+
     it('does not prevent the default of a secondary press', async () => {
       await render(
         <PasswordField.Root>

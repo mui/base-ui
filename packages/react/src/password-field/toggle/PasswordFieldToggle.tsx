@@ -1,7 +1,5 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui/utils/owner';
-import { activeElement } from '@base-ui/utils/shadowDom';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -56,7 +54,10 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
         // user can keep typing. Keyboard activation has no `mousedown` and focuses the toggle.
         onMouseDown(event) {
           const input = inputRef.current;
-          if (event.button === 0 && input && activeElement(ownerDocument(input)) === input) {
+          // The input's own root reports its focus even inside a closed shadow root, which a
+          // traversal from the document can't enter.
+          const root = input?.getRootNode() as Document | ShadowRoot | undefined;
+          if (event.button === 0 && input && root?.activeElement === input) {
             event.preventDefault();
           }
         },
