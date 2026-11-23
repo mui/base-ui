@@ -2038,6 +2038,60 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('last')).toHaveFocus();
       });
 
+      test.each([
+        { name: 'nextFocusableElement', shift: false, expected: 'last' },
+        { name: 'previousFocusableElement', shift: true, expected: 'reference' },
+      ])(
+        'falls back to the outside focus guard when $name is an empty ref',
+        async ({ name, shift, expected }) => {
+          const emptyRef = { current: null };
+
+          function App() {
+            const [open, setOpen] = React.useState(false);
+            const { refs, context } = useFloating({
+              open,
+              onOpenChange: setOpen,
+            });
+
+            return (
+              <>
+                <span tabIndex={0} data-testid="first" />
+                <button
+                  data-testid="reference"
+                  ref={refs.setReference}
+                  onClick={() => setOpen(true)}
+                />
+                <FloatingPortal>
+                  {open && (
+                    <FloatingFocusManager
+                      store={context.rootStore}
+                      modal={false}
+                      {...{ [name]: emptyRef }}
+                    >
+                      <div data-testid="floating" ref={refs.setFloating}>
+                        <span tabIndex={0} data-testid="inside" />
+                      </div>
+                    </FloatingFocusManager>
+                  )}
+                </FloatingPortal>
+                <span tabIndex={0} data-testid="last" />
+              </>
+            );
+          }
+
+          render(<App />);
+
+          await userEvent.click(screen.getByTestId('reference'));
+          await flushMicrotasks();
+
+          expect(screen.getByTestId('inside')).toHaveFocus();
+
+          await userEvent.tab({ shift });
+
+          expect(screen.getByTestId(expected)).toHaveFocus();
+        },
+      );
+
       test('does not mark reference siblings due to outside focus guards', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);

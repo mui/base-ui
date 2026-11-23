@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useCompositeListContext } from './CompositeListContext';
+import type { CompositeListContextValue } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
   /**
@@ -19,11 +20,20 @@ export interface UseCompositeListItemParameters<Metadata> {
   metadata?: Metadata | undefined;
   /** Keep the ref object stable to avoid unnecessarily reattaching the item. */
   textRef?: React.RefObject<HTMLElement | null> | undefined;
+  /** The list to register with, in place of the one provided through `CompositeListContext`. */
+  list?: CompositeListContextValue<Metadata> | undefined;
 }
 
 interface UseCompositeListItemReturnValue {
   ref: (node: HTMLElement | null) => void;
   index: number;
+}
+
+interface CompositeListItemHandle {
+  element: Element | null;
+  /** The index the item renders with: the initial guess, then the last one the list delivered. */
+  index: number;
+  setIndex: (index: number) => void;
 }
 
 /**
@@ -32,42 +42,40 @@ interface UseCompositeListItemReturnValue {
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { guess, label, metadata, textRef, index: externalIndex } = params;
+  const { guess, label, metadata, textRef, index: externalIndex, list } = params;
 
-  const { register, unregister, subscribeMapChange, nextIndexRef } = useCompositeListContext();
+  const contextList = useCompositeListContext();
+  const { register, unregister, guessIndex } = list ?? contextList;
 
   // Guess the index from the render order. This avoids a re-render after mount for
   // flat lists rendered in DOM order; when the guess is wrong (grouped or out-of-order
-  // rendering), the commit flush corrects it before paint.
-  const indexRef = React.useRef(-1);
+  // rendering), the commit flush corrects it before paint. Strict Mode invokes the
+  // initializer twice per render, so the guess is scoped to the render to reserve one index.
+  let guessedIndex = -1;
   const [internalIndex, setInternalIndex] = React.useState<number>(
     externalIndex == null && guess
       ? () => {
-          if (indexRef.current === -1) {
-            const newIndex = nextIndexRef.current;
-            nextIndexRef.current += 1;
-            indexRef.current = newIndex;
+          if (guessedIndex === -1) {
+            guessedIndex = guessIndex();
           }
-          return indexRef.current;
+          return guessedIndex;
         }
       : -1,
   );
   const index = externalIndex ?? internalIndex;
 
-  const componentRef = React.useRef<Element | null>(null);
+  const handle = useRefWithInit(() => createHandle(internalIndex, setInternalIndex)).current;
 
   // Deliberately identity-sensitive: nested items sharing one DOM node rely on ref attachment
   // order to decide which registration wins, and republishing from an effect instead would let
   // an inner item's later update silently take ownership from the outer one.
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
-      const previousNode = componentRef.current;
-
-      if (previousNode) {
-        unregister(previousNode);
+      if (handle.element) {
+        unregister(handle.element);
       }
 
-      componentRef.current = node;
+      handle.element = node;
 
       if (node) {
         register(node, {
@@ -75,25 +83,31 @@ export function useCompositeListItem<Metadata>(
           index: externalIndex ?? null,
           label,
           textRef,
+          setIndex: handle.setIndex,
         });
       }
     },
-    [externalIndex, register, unregister, metadata, label, textRef],
+    [externalIndex, register, unregister, metadata, label, textRef, handle],
   );
 
-  useIsoLayoutEffect(() => {
-    if (externalIndex != null) {
-      return undefined;
-    }
-
-    return subscribeMapChange((map) => {
-      const i = componentRef.current ? map.get(componentRef.current)?.index : null;
-
-      if (i != null) {
-        setInternalIndex(i);
-      }
-    });
-  }, [externalIndex, subscribeMapChange]);
-
   return { ref, index };
+}
+
+function createHandle(
+  initialIndex: number,
+  setInternalIndex: React.Dispatch<React.SetStateAction<number>>,
+): CompositeListItemHandle {
+  const handle: CompositeListItemHandle = {
+    element: null,
+    index: initialIndex,
+    setIndex(index) {
+      // React only bails out of a same-value update eagerly when the fiber has no pending work,
+      // so an unchanged index is filtered here to spare the item a render.
+      if (handle.index !== index) {
+        handle.index = index;
+        setInternalIndex(index);
+      }
+    },
+  };
+  return handle;
 }
