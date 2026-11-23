@@ -294,6 +294,33 @@ describe('Composite', () => {
       },
     );
 
+    it.skipIf(isJSDOM)(
+      'keeps the active item in view on mount when the scroll container is not positioned',
+      async () => {
+        await render(
+          <CompositeRoot
+            orientation="horizontal"
+            data-testid="root"
+            style={{ display: 'flex', overflowX: 'auto', width: 100, marginLeft: 400 }}
+          >
+            {['1', '2', '3', '4'].map((item) => (
+              <CompositeItem
+                key={item}
+                data-composite-item-active={item === '1' ? '' : undefined}
+                style={{ flexShrink: 0, width: 80 }}
+              >
+                {item}
+              </CompositeItem>
+            ))}
+          </CompositeRoot>,
+        );
+
+        const root = screen.getByTestId('root');
+        expect(root.scrollWidth).toBeGreaterThan(root.clientWidth);
+        expect(root.scrollLeft).toBe(0);
+      },
+    );
+
     describe('Home and End keys', () => {
       it('Home key moves focus to the first item', async () => {
         await render(
