@@ -21,7 +21,7 @@ export default function ExamplePasswordField() {
           aria-label="Show password"
           className="grid h-full aspect-square shrink-0 place-items-center rounded-none border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
         >
-          <PasswordField.ToggleIndicator keepMounted className="group">
+          <PasswordField.ToggleIndicator className="group">
             <PadlockIcon className="block" />
           </PasswordField.ToggleIndicator>
         </PasswordField.Toggle>

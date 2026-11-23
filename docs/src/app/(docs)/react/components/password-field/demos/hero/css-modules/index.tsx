@@ -13,7 +13,7 @@ export default function ExamplePasswordField() {
       <PasswordField.Root id={id} className={styles.Root}>
         <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
         <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
-          <PasswordField.ToggleIndicator keepMounted className={styles.Indicator}>
+          <PasswordField.ToggleIndicator className={styles.Indicator}>
             <PadlockIcon className={styles.Icon} />
           </PasswordField.ToggleIndicator>
         </PasswordField.Toggle>

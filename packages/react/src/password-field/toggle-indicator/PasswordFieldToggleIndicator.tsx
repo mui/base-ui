@@ -24,8 +24,7 @@ export const PasswordFieldToggleIndicator = React.forwardRef(function PasswordFi
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
-    match = 'password-visible',
-    keepMounted = false,
+    match,
     render,
     className,
     style,
@@ -34,7 +33,8 @@ export const PasswordFieldToggleIndicator = React.forwardRef(function PasswordFi
 
   const { visible, disabled } = usePasswordFieldRootContext();
 
-  const rendered = match === 'password-visible' ? visible : !visible;
+  // Without `match`, the indicator always renders and reflects the state through `data-visible`.
+  const rendered = match === undefined || (match === 'password-visible') === visible;
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
@@ -61,7 +61,7 @@ export const PasswordFieldToggleIndicator = React.forwardRef(function PasswordFi
     props: [{ 'aria-hidden': true }, elementProps],
   });
 
-  if (!keepMounted && !mounted) {
+  if (!mounted) {
     return null;
   }
 
@@ -91,14 +91,9 @@ export interface PasswordFieldToggleIndicatorProps extends BaseUIComponentProps<
    * The password state the indicator renders in.
    * Use `'password-visible'` for the icon shown while the password is revealed, and
    * `'password-masked'` for the icon shown while it is masked.
-   * @default 'password-visible'
+   * When omitted, the indicator always renders.
    */
   match?: 'password-visible' | 'password-masked' | undefined;
-  /**
-   * Whether to keep the element in the DOM while it doesn't apply.
-   * @default false
-   */
-  keepMounted?: boolean | undefined;
 }
 
 export namespace PasswordFieldToggleIndicator {

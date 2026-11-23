@@ -7,7 +7,7 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 describe('<PasswordField.ToggleIndicator />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<PasswordField.ToggleIndicator keepMounted />, () => ({
+  describeConformance(<PasswordField.ToggleIndicator />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<PasswordField.Root>{node}</PasswordField.Root>);
@@ -24,11 +24,11 @@ describe('<PasswordField.ToggleIndicator />', () => {
     expect(screen.getByTestId('indicator')).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('reflects the visibility through data-visible', async () => {
+  it('stays mounted without match and reflects the visibility through data-visible', async () => {
     const { user } = await render(
       <PasswordField.Root>
         <PasswordField.Toggle />
-        <PasswordField.ToggleIndicator data-testid="indicator" keepMounted />
+        <PasswordField.ToggleIndicator data-testid="indicator" />
       </PasswordField.Root>,
     );
 
@@ -36,12 +36,16 @@ describe('<PasswordField.ToggleIndicator />', () => {
     expect(indicator).not.toHaveAttribute('data-visible');
 
     await user.click(screen.getByRole('button'));
+    expect(screen.getByTestId('indicator')).toBe(indicator);
     expect(indicator).toHaveAttribute('data-visible');
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByTestId('indicator')).toBe(indicator);
+    expect(indicator).not.toHaveAttribute('data-visible');
   });
 
   describe('prop: match', () => {
     it.each([
-      { name: 'visible (default)', match: undefined, initiallyRendered: false },
       { name: 'visible', match: 'password-visible' as const, initiallyRendered: false },
       { name: 'masked', match: 'password-masked' as const, initiallyRendered: true },
     ])('renders only while the password is $name', async ({ match, initiallyRendered }) => {
@@ -79,18 +83,6 @@ describe('<PasswordField.ToggleIndicator />', () => {
     });
   });
 
-  describe('prop: keepMounted', () => {
-    it('keeps the element in the DOM while it does not apply', async () => {
-      await render(
-        <PasswordField.Root>
-          <PasswordField.ToggleIndicator data-testid="indicator" keepMounted />
-        </PasswordField.Root>,
-      );
-
-      expect(screen.getByTestId('indicator')).not.toHaveAttribute('data-visible');
-    });
-  });
-
   describe.skipIf(isJSDOM)('animations', () => {
     afterEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -120,6 +112,7 @@ describe('<PasswordField.ToggleIndicator />', () => {
             <PasswordField.ToggleIndicator
               className="animation-test-indicator"
               data-testid="indicator"
+              match="password-visible"
             />
           </PasswordField.Root>
         </div>,

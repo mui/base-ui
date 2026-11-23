@@ -38,8 +38,8 @@ import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-f
 
 ### Toggle icon
 
-Swap the icon with `<PasswordField.ToggleIndicator>`. Its `match` prop sets the state it renders in:
-`'password-visible'` (the default) or `'password-masked'`.
+`<PasswordField.ToggleIndicator>` always renders and reflects the visibility through `data-visible`.
+To swap icons instead, pass `match="password-visible"` or `match="password-masked"` so each indicator renders only in that state.
 
 import { DemoPasswordFieldToggleIcon } from './demos/toggle-icon';
 
