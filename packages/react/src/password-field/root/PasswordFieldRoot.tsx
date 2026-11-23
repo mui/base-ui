@@ -89,20 +89,26 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
       return undefined;
     }
 
-    // The root node receives the events after handlers on the form could cancel a reset, and
-    // the input's form is read when they fire, so a late or changed form owner is followed.
+    // The input's form is read when the events fire, so a late or changed form owner is followed.
     return mergeCleanups(
+      // Reset listens in the bubble phase so a handler on the form can cancel it first.
       addEventListener(rootNode, 'reset', (event) => {
         if (event.target === inputRef.current?.form && !event.defaultPrevented) {
           setVisible(initialVisible, createChangeEventDetails(REASONS.formReset, event));
         }
       }),
+      // Submit listens in the capture phase, before any form handler can stop its propagation.
       // A prevented submit hides too: a revealed password must not outlive a submission attempt.
-      addEventListener(rootNode, 'submit', (event) => {
-        if (event.target === inputRef.current?.form) {
-          setVisible(false, createChangeEventDetails(REASONS.formSubmit, event));
-        }
-      }),
+      addEventListener(
+        rootNode,
+        'submit',
+        (event) => {
+          if (event.target === inputRef.current?.form) {
+            setVisible(false, createChangeEventDetails(REASONS.formSubmit, event));
+          }
+        },
+        true,
+      ),
     );
   }, [initialVisible, setVisible]);
 

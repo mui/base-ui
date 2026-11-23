@@ -366,6 +366,31 @@ describe('<PasswordField.Root />', () => {
       expect(onVisibleChange.mock.calls[0][1].reason).toBe(REASONS.formSubmit);
     });
 
+    it('hides the password on submit even if the submit handler stops propagation', async () => {
+      const onVisibleChange = vi.fn();
+      await render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
+          <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </form>,
+      );
+
+      const input = document.querySelector('input')!;
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.submit(input.form!);
+
+      expect(input).toHaveAttribute('type', 'password');
+      expect(onVisibleChange.mock.calls[0][1].reason).toBe(REASONS.formSubmit);
+    });
+
     it('keeps the password visible on submit when the change is canceled', async () => {
       await render(
         <form onSubmit={(event) => event.preventDefault()}>

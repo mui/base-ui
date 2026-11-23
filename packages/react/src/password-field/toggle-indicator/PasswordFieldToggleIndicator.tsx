@@ -23,13 +23,7 @@ export const PasswordFieldToggleIndicator = React.forwardRef(function PasswordFi
   componentProps: PasswordFieldToggleIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const {
-    match,
-    render,
-    className,
-    style,
-    ...elementProps
-  } = componentProps;
+  const { match, render, className, style, ...elementProps } = componentProps;
 
   const { visible, disabled } = usePasswordFieldRootContext();
 

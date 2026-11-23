@@ -69,8 +69,12 @@ describe('<PasswordField.ToggleIndicator />', () => {
       const { user } = await render(
         <PasswordField.Root>
           <PasswordField.Toggle>
-            <PasswordField.ToggleIndicator match="password-masked">show</PasswordField.ToggleIndicator>
-            <PasswordField.ToggleIndicator match="password-visible">hide</PasswordField.ToggleIndicator>
+            <PasswordField.ToggleIndicator match="password-masked">
+              show
+            </PasswordField.ToggleIndicator>
+            <PasswordField.ToggleIndicator match="password-visible">
+              hide
+            </PasswordField.ToggleIndicator>
           </PasswordField.Toggle>
         </PasswordField.Root>,
       );
