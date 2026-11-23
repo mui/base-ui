@@ -20,7 +20,6 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
   const {
     disabled: disabledProp = false,
     nativeButton = true,
-    type, // cannot change the button type; the toggle must never submit a form
     render,
     className,
     style,
@@ -70,6 +69,9 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
       },
       elementProps,
       getButtonProps,
+      // `type` isn't part of the props, and a spread or untyped one is overridden too: the
+      // toggle must never submit a form.
+      nativeButton ? { type: 'button' } : undefined,
     ],
   });
 
@@ -88,7 +90,9 @@ export interface PasswordFieldToggleState {
 }
 
 export interface PasswordFieldToggleProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', PasswordFieldToggleState> {
+  extends
+    NativeButtonProps,
+    Omit<BaseUIComponentProps<'button', PasswordFieldToggleState>, 'type'> {
   /**
    * Whether the toggle should ignore user interaction.
    * Use the `disabled` prop on `PasswordField.Root` to disable the input as well.

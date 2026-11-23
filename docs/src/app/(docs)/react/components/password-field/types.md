@@ -567,18 +567,18 @@ type PasswordFieldToggleProps = {
    */
   className?: string | ((state: PasswordFieldToggleState) => string | undefined);
   /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?:
+    React.CSSProperties | ((state: PasswordFieldToggleState) => React.CSSProperties | undefined);
+  /**
    * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
   render?: ReactElement | ((props: HTMLProps, state: PasswordFieldToggleState) => ReactElement);
-  /**
-   * Style applied to the element, or a function that
-   * returns a style object based on the component's state.
-   */
-  style?:
-    React.CSSProperties | ((state: PasswordFieldToggleState) => React.CSSProperties | undefined);
 };
 ```
 

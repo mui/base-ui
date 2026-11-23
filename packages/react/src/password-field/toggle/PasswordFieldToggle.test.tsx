@@ -63,6 +63,7 @@ describe('<PasswordField.Toggle />', () => {
     await render(
       <PasswordField.Root>
         <PasswordField.Input />
+        {/* @ts-expect-error `type` is not part of the props */}
         <PasswordField.Toggle type="submit" />
       </PasswordField.Root>,
     );
