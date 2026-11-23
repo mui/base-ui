@@ -23,6 +23,7 @@ import {
   isTabbable,
   getNextTabbable,
   getPreviousTabbable,
+  getTabbableNearElement,
 } from './tabbable';
 import type { FocusableElement } from './tabbable';
 import { getNodeAncestors, getNodeChildren } from '../tree/nodes';
@@ -1065,8 +1066,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
                 const prevTabbable = getPreviousTabbable(domReference);
                 prevTabbable?.focus();
               } else {
+                // A closed popup that stays mounted for its exit animation no longer renders the
+                // guards after the reference, so continue the tab order from the reference itself.
                 (
-                  resolveRef(nextFocusableElement) ?? portalContext.afterOutsideRef.current
+                  resolveRef(nextFocusableElement) ??
+                  portalContext.afterOutsideRef.current ??
+                  getTabbableNearElement(domReference, 1, floating)
                 )?.focus();
               }
             }

@@ -65,6 +65,36 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
       return trigger;
     }
 
+    it('moves focus after the trigger when tabbing forward from the popup during its exit animation', async () => {
+      await render(
+        <div>
+          <style>{`
+            .popup[data-ending-style] { animation: fade-out 200ms forwards; }
+            @keyframes fade-out { to { opacity: 0; } }
+          `}</style>
+          <TestPopup className="popup" />
+          <button data-testid="after">After</button>
+        </div>,
+      );
+
+      await openPopup();
+      const inside = screen.getByTestId('inside');
+      await act(async () => inside.focus());
+      await user.keyboard('{Escape}');
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      expect(inside).toHaveFocus();
+
+      await user.tab();
+
+      const after = screen.getByTestId('after');
+      expect(after).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(after).toHaveFocus();
+    });
+
     describe.each(['forward', 'backward'] as const)('tabbing %s', (direction) => {
       /** Puts focus on the element the upcoming Tab should leave from. */
       async function focusTabOrigin(trigger: HTMLElement) {
