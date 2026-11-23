@@ -624,6 +624,81 @@ describe('<Popover.Root />', () => {
           expect(screen.getByTestId('popover-popup')).not.toBe(null);
         });
       });
+
+      it.each([
+        { name: 'Escape', closeKey: '{Escape}' },
+        { name: 'choosing an item', closeKey: '{Enter}' },
+      ])(
+        'keeps the popover content tabbable after closing a nested menu with $name using a shared container',
+        async ({ closeKey }) => {
+          function Test() {
+            const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
+            const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
+              if (node) {
+                setDialogNode(node);
+              }
+            }, []);
+
+            return (
+              <dialog open ref={handleDialogRef}>
+                <button>Before</button>
+                <TestPopover
+                  portalProps={{ container: dialogNode ?? undefined }}
+                  afterTrigger={<button data-testid="focus-target">Save</button>}
+                  popupProps={{
+                    children: (
+                      <Menu.Root>
+                        <Menu.Trigger>Open nested</Menu.Trigger>
+                        <Menu.Portal container={dialogNode ?? undefined}>
+                          <Menu.Positioner>
+                            <Menu.Popup data-testid="menu-popup">
+                              <Menu.Item data-testid="menu-item">Item</Menu.Item>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.Root>
+                    ),
+                  }}
+                />
+                <button>After</button>
+              </dialog>
+            );
+          }
+
+          const { user } = await render(<Test />);
+
+          await act(async () => {
+            screen.getByRole('button', { name: 'Toggle' }).focus();
+          });
+          await user.keyboard('{Enter}');
+          await screen.findByTestId('popover-popup');
+
+          const nestedTrigger = await screen.findByRole('button', { name: 'Open nested' });
+          await act(async () => {
+            nestedTrigger.focus();
+          });
+          await user.keyboard('{Enter}');
+
+          const item = await screen.findByTestId('menu-item');
+          await waitFor(() => {
+            expect(item).toHaveFocus();
+          });
+
+          await user.keyboard(closeKey);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu-popup')).toBe(null);
+          });
+          await waitFor(() => {
+            expect(nestedTrigger).toHaveFocus();
+          });
+          expect(nestedTrigger).not.toHaveAttribute('tabindex', '-1');
+
+          await user.tab();
+
+          expect(screen.getByTestId('focus-target')).toHaveFocus();
+        },
+      );
     });
 
     describe('prop: defaultOpen', () => {
