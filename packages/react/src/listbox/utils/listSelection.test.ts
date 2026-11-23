@@ -187,11 +187,5 @@ describe('ListSelection', () => {
       selection.selectAll(EVENT);
       expect(getValue()).toEqual(['a', 'b', 'd', 'e']);
     });
-
-    it('clear keeps the selected disabled items and reports Escape as the reason', () => {
-      const { selection, commit } = setup({ multiple: true, value: ['a', 'b'], disabled: ['b'] });
-      selection.clear(EVENT);
-      expect(commit).toHaveBeenCalledWith(['b'], REASONS.escapeKey, EVENT);
-    });
   });
 });

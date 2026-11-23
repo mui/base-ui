@@ -158,6 +158,32 @@ import { DemoListboxVirtualized } from './demos/virtualized';
 
 <DemoListboxVirtualized />
 
+## Keyboard interactions
+
+In every selection mode:
+
+- Arrow keys move focus to the next or previous item. Focus stops at the first and last items. A horizontal listbox uses the left and right arrow keys.
+- <kbd>Home</kbd> and <kbd>End</kbd> move focus to the first and last items.
+- Typing characters moves focus to the next item whose label starts with them.
+- <kbd>Space</kbd> or <kbd>Enter</kbd> selects the focused item.
+- <kbd>Tab</kbd> moves focus into the listbox, to the selected item or the first item, and out of
+  it.
+
+With `multiple`:
+
+- <kbd>Space</kbd> or <kbd>Enter</kbd> adds or removes the focused item.
+- <kbd>Shift</kbd>+arrow keys select the range from the item that had focus when <kbd>Shift</kbd>
+  was pressed.
+- <kbd>Shift</kbd>+<kbd>Space</kbd> selects the range from the last selected item to the focused
+  item.
+- <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Home</kbd> or <kbd>End</kbd> selects from the focused item
+  to the first or last item. On macOS, use <kbd>Cmd</kbd> instead of <kbd>Ctrl</kbd>.
+- <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd> selects every item.
+
+With `multiple="opt-in"`, arrow keys also move the selection. See [Opt-in multiple selection](#opt-in-multiple-selection) for the keys that select more than one item.
+
+The listbox doesn't handle <kbd>Esc</kbd>, so a popup or dialog around it can close.
+
 ## API reference
 
 import { TypesListbox } from './types';

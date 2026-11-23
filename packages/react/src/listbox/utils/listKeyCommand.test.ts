@@ -164,14 +164,17 @@ describe('resolveListKeyCommand', () => {
       });
     });
 
-    it('clears the selection on Escape', () => {
-      expect(resolve('Escape', { multiple: true })).toEqual({ type: 'clear' });
+    it.each([
+      { name: 'multiple', multiple: true as const },
+      { name: 'opt-in', multiple: 'opt-in' as const },
+      { name: 'single', multiple: false as const },
+    ])('leaves Escape alone with $name selection', ({ multiple }) => {
+      expect(resolve('Escape', { multiple })).toBe(null);
     });
 
     it.each([
       { name: 'Ctrl+Shift+End', key: { key: 'End', ctrlKey: true, shiftKey: true } },
       { name: 'Ctrl+A', key: { key: 'a', ctrlKey: true } },
-      { name: 'Escape', key: { key: 'Escape' } },
     ])('ignores $name when the list selects a single item', ({ key }) => {
       expect(resolve(key, { multiple: false })).toBe(null);
     });

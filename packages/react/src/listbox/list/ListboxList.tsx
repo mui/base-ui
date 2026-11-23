@@ -50,10 +50,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
   const runKeyCommand = useStableCallback((command: ListKeyCommand, event: React.KeyboardEvent) => {
     const nativeEvent = event.nativeEvent;
-    // Escape keeps its default action, so a surrounding popup can still close.
-    if (command.type !== 'clear') {
-      event.preventDefault();
-    }
+    event.preventDefault();
 
     switch (command.type) {
       case 'move':
@@ -80,9 +77,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
       case 'selectAll':
         store.selection.selectAll(nativeEvent);
         break;
-      case 'clear':
-        store.selection.clear(nativeEvent);
-        break;
       default:
     }
   });
@@ -100,6 +94,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
       typingRef.current = isTyping;
     },
     onMatch(index, event) {
+      // The key did something, so it doesn't also trigger a shortcut outside the list.
+      stopEvent(event);
       store.focus.moveTo(index, event.nativeEvent);
     },
   });
@@ -169,33 +165,25 @@ export const ListboxList = React.forwardRef(function ListboxList(
       shiftAnchorRef.current = null;
     },
     onKeyDownCapture(event: React.KeyboardEvent) {
-      // Typeahead runs before the items' handlers, so a typed key doesn't reach the item it moved
-      // focus away from, and Space continues a search in progress instead of selecting.
-      if (event.key === ' ') {
-        if (typingRef.current) {
-          typeahead.onKeyDown(event);
-        }
-        return;
+      // While a search is in progress, Space continues it instead of selecting the focused item,
+      // so it's handled before the item's own handler.
+      if (event.key === ' ' && typingRef.current) {
+        typeahead.onKeyDown(event);
       }
-      if (
-        !disabled &&
-        event.key.length === 1 &&
-        !event.ctrlKey &&
-        !event.metaKey &&
-        !event.altKey
-      ) {
-        stopEvent(event);
-        typingRef.current = true;
-        // The keyboard takes over from the pointer.
-        if (store.state.hoveredIndex !== null) {
-          store.hoverItem(null, event.nativeEvent);
-        }
-      }
-      typeahead.onKeyDown(event);
     },
     onKeyDown(event: React.KeyboardEvent) {
       if (disabled) {
         return;
+      }
+
+      // Typeahead runs after the handlers passed to the items and the list, which can call
+      // `preventBaseUIHandler()` to use a key for something else. A key that matches no item
+      // carries on to handlers outside the list.
+      if (event.key !== ' ') {
+        if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+          typingRef.current = true;
+        }
+        typeahead.onKeyDown(event);
       }
 
       if (event.key === 'Shift') {
@@ -266,14 +254,14 @@ export const ListboxList = React.forwardRef(function ListboxList(
       return;
     }
     // With `items`, an item that isn't rendered still exists.
-    const count = store.state.items?.size ?? 0;
-    if (activeItemIndex >= 0 && activeItemIndex < count) {
+    const itemsSize = store.state.items?.size ?? 0;
+    if (activeItemIndex >= 0 && activeItemIndex < itemsSize) {
       return;
     }
 
     // The item that held the tab stop was removed and nothing took its position.
     const tabStopIndex = store.getTabStopIndex();
-    if (listHasFocus && count > 0) {
+    if (listHasFocus && (itemsSize > 0 || elementsRef.current[tabStopIndex])) {
       store.focus.moveTo(tabStopIndex, undefined);
     } else {
       store.focus.cancel();

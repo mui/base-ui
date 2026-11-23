@@ -135,14 +135,10 @@ export const ListboxItem = React.memo(
       }
     }, [hasRegistered, index, store]);
 
-    // A virtualized list stops rendering the focused item when it scrolls out of view. The list
-    // takes focus in its place, so the keyboard keeps working, and gives it back once the item
-    // renders again.
-    const hasItems = items != null;
+    // The focused item stops rendering when a virtualized list scrolls it out of view, or when
+    // it's removed. The list takes focus in its place, so the keyboard keeps working, and gives it
+    // back once the item renders again, or to another item when it's gone.
     useIsoLayoutEffect(() => {
-      if (!hasItems) {
-        return undefined;
-      }
       const element = itemRef.current;
       return () => {
         if (element && activeElement(ownerDocument(element)) === element) {
@@ -151,7 +147,7 @@ export const ListboxItem = React.memo(
           store.focus.hold(() => store.indexOfValue(itemValueRef.current));
         }
       };
-    }, [hasItems, itemValueRef, store]);
+    }, [itemValueRef, store]);
 
     const state: ListboxItemState = {
       disabled,
@@ -159,7 +155,6 @@ export const ListboxItem = React.memo(
       highlighted,
     };
 
-    const lastKeyRef = React.useRef<string | null>(null);
     // The pointer type of the last press, so a touch tap can be told apart from a click.
     const lastPointerTypeRef = React.useRef<string | null>(null);
 
@@ -171,7 +166,6 @@ export const ListboxItem = React.memo(
     });
 
     function handleItemKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-      lastKeyRef.current = event.key;
       store.highlightItem(index, event.nativeEvent);
 
       // macOS reserves Ctrl+Space and Cmd+Space, so Option+Space toggles the focused item there.
@@ -237,7 +231,8 @@ export const ListboxItem = React.memo(
           contains(listElement, activeElement(ownerDocument(element)))
         ) {
           store.highlightItem(index, event.nativeEvent);
-          element.focus();
+          // The pointer is already over the item, so the list doesn't scroll to it.
+          element.focus({ preventScroll: true });
         }
       },
       onKeyDownCapture(event: BaseUIEvent<React.KeyboardEvent>) {
@@ -253,23 +248,14 @@ export const ListboxItem = React.memo(
         lastPointerTypeRef.current = event.pointerType;
       },
       onClick(event) {
-        // useButton in composite mode synthesizes a click from keydown (Space/Enter).
-        // lastKeyRef is set in our onKeyDown and cleared below. If lastKeyRef is
-        // null but the event type is 'keydown', it means a synthetic click arrived
-        // without a real keydown we tracked — ignore it to avoid double-selection.
-        if (event.type === 'keydown' && lastKeyRef.current === null) {
-          return;
-        }
-
         // A click without a pointer press, such as from assistive technology, isn't a touch tap.
-        const touch = event.type !== 'keydown' && lastPointerTypeRef.current === 'touch';
+        const touch = lastPointerTypeRef.current === 'touch';
         lastPointerTypeRef.current = null;
 
         if (disabled) {
           return;
         }
 
-        lastKeyRef.current = null;
         store.selection.press(
           index,
           {

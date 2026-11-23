@@ -81,7 +81,9 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     if (multiple) {
       return Array.isArray(value) ? value : EMPTY_ARRAY;
     }
-    return value == null ? EMPTY_ARRAY : [value];
+    // `null` is a value an item can have, as in Select, so it's selected while the value is
+    // `null`. It's also the value when nothing is selected.
+    return value === undefined ? EMPTY_ARRAY : [value];
   }, [value, multiple]);
 
   const store = useRefWithInit(
@@ -252,8 +254,7 @@ export interface ListboxItemObject<Value> {
 
 export interface ListboxRootState {}
 
-export type ListboxRootChangeEventReason =
-  typeof REASONS.itemPress | typeof REASONS.listNavigation | typeof REASONS.escapeKey;
+export type ListboxRootChangeEventReason = typeof REASONS.itemPress | typeof REASONS.listNavigation;
 
 export type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
 

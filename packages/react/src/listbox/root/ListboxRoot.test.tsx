@@ -5,6 +5,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { reset as resetLoggedMessages } from '@base-ui/utils/warn';
 import { createRenderer, isJSDOM } from '#test-utils';
+import type { BaseUIEvent } from '../../internals/types';
 
 // The shortcuts differ on macOS, which `ListboxItem.mac.test.tsx` covers.
 vi.mock('@base-ui/utils/platform', async () => {
@@ -511,6 +512,24 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('prop: highlightItemOnHover', () => {
+    it('moves focus to the hovered item without scrolling the list', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      const focusSpy = vi.spyOn(itemB, 'focus');
+      fireEvent.mouseMove(itemB);
+
+      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+    });
+
     function renderListWithOutsideButton(highlightItemOnHover?: boolean) {
       return render(
         <div>
@@ -869,6 +888,27 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange).toHaveBeenCalledTimes(2);
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
       expect(handleValueChange.mock.calls[1][0]).toEqual(['b', 'c']);
+    });
+
+    it('replaces the selection on Space after a touch tap on the same item', async () => {
+      const handleValueChange = vi.fn();
+
+      const { user } = await render(
+        <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      fireEvent.pointerDown(itemB, { pointerType: 'touch' });
+      fireEvent.click(itemB);
+      await act(async () => itemB.focus());
+      await user.keyboard(' ');
+
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['a', 'b'], ['b']]);
     });
 
     it('replaces the selection on a click without a pointer press after a touch tap', async () => {
@@ -1353,7 +1393,7 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
     });
 
-    it('Escape clears the selection with the escape-key reason', async () => {
+    it('Escape keeps the selection and its default action', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -1366,11 +1406,12 @@ describe('<Listbox.Root />', () => {
       );
 
       await act(async () => screen.getByRole('option', { name: 'a' }).focus());
-      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'Escape' });
+      const notPrevented = fireEvent.keyDown(document.activeElement as HTMLElement, {
+        key: 'Escape',
+      });
 
-      expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual([]);
-      expect(handleValueChange.mock.calls[0][1].reason).toBe('escape-key');
+      expect(notPrevented).toBe(true);
+      expect(handleValueChange).not.toHaveBeenCalled();
     });
 
     it('Ctrl+A ignores disabled options', async () => {
@@ -1805,25 +1846,6 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange).toHaveBeenLastCalledWith(['c', 'd', 'b'], expect.anything());
     });
 
-    it('keeps a selected disabled item selected when Escape clears the selection', async () => {
-      const handleValueChange = vi.fn();
-      await render(
-        <Listbox.Root multiple defaultValue={['a', 'b']} onValueChange={handleValueChange}>
-          <Listbox.List>
-            <Listbox.Item value="a">a</Listbox.Item>
-            <Listbox.Item value="b" disabled>
-              b
-            </Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
-      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'Escape' });
-
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['b']);
-    });
-
     it('keeps a selected disabled item selected when Ctrl+A selects all', async () => {
       const handleValueChange = vi.fn();
       await render(
@@ -2096,6 +2118,82 @@ describe('<Listbox.Root />', () => {
       );
     });
 
+    describe('other key handlers', () => {
+      function renderList(props: {
+        onListKeyDown?: React.KeyboardEventHandler;
+        onItemKeyDown?: React.KeyboardEventHandler;
+      }) {
+        return render(
+          <Listbox.Root>
+            <Listbox.List onKeyDown={props.onListKeyDown}>
+              <Listbox.Item value="apple" onKeyDown={props.onItemKeyDown}>
+                Apple
+              </Listbox.Item>
+              <Listbox.Item value="banana">Banana</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>,
+        );
+      }
+
+      it('lets a key that matches no item reach handlers on the item, the list and outside', async () => {
+        const handleItemKeyDown = vi.fn();
+        const handleListKeyDown = vi.fn();
+        const handleDocumentKeyDown = vi.fn();
+        document.addEventListener('keydown', handleDocumentKeyDown);
+
+        try {
+          const { user } = await renderList({
+            onItemKeyDown: handleItemKeyDown,
+            onListKeyDown: handleListKeyDown,
+          });
+          await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+          await user.keyboard('x');
+
+          expect(handleItemKeyDown).toHaveBeenCalledTimes(1);
+          expect(handleListKeyDown).toHaveBeenCalledTimes(1);
+          expect(handleDocumentKeyDown).toHaveBeenCalledTimes(1);
+        } finally {
+          document.removeEventListener('keydown', handleDocumentKeyDown);
+        }
+      });
+
+      it('keeps a key that matches an item from reaching handlers outside the list', async () => {
+        const handleDocumentKeyDown = vi.fn();
+        document.addEventListener('keydown', handleDocumentKeyDown);
+
+        try {
+          const { user } = await renderList({});
+          await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+          await user.keyboard('b');
+
+          expect(screen.getByRole('option', { name: 'Banana' })).toHaveFocus();
+          expect(handleDocumentKeyDown).not.toHaveBeenCalled();
+        } finally {
+          document.removeEventListener('keydown', handleDocumentKeyDown);
+        }
+      });
+
+      it.each([
+        { name: 'does not match', prevent: true, focused: 'Apple' },
+        { name: 'matches', prevent: false, focused: 'Banana' },
+      ])(
+        '$name an item when a list handler calls preventBaseUIHandler: $prevent',
+        async ({ prevent, focused }) => {
+          const { user } = await renderList({
+            onListKeyDown(event) {
+              if (prevent) {
+                (event as BaseUIEvent<React.KeyboardEvent>).preventBaseUIHandler();
+              }
+            },
+          });
+          await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+          await user.keyboard('b');
+
+          expect(screen.getByRole('option', { name: focused })).toHaveFocus();
+        },
+      );
+    });
+
     describe('typing session', () => {
       const { render: renderFakeTimers, clock } = createRenderer();
 
@@ -2265,6 +2363,72 @@ describe('<Listbox.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
       expect(screen.getByRole('option', { name: 'a' })).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('an item with a null value', () => {
+    function NoneList(props: Listbox.Root.Props<string | null>) {
+      return (
+        <Listbox.Root {...props}>
+          <Listbox.List>
+            <Listbox.Item value={null}>None</Listbox.Item>
+            <Listbox.Item value="a">a</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>
+      );
+    }
+
+    it('is selected while the value is null', async () => {
+      await render(<NoneList defaultValue="a" />);
+      expect(screen.getByRole('option', { name: 'None' })).toHaveAttribute(
+        'aria-selected',
+        'false',
+      );
+
+      await render(<NoneList value={null} />);
+      expect(screen.getAllByRole('option', { name: 'None' })[1]).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
+    it('becomes selected when pressed', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <NoneList defaultValue="a" onValueChange={handleValueChange} />,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'None' }));
+
+      expect(handleValueChange.mock.calls[0][0]).toBe(null);
+      expect(screen.getByRole('option', { name: 'None' })).toHaveAttribute('aria-selected', 'true');
+    });
+  });
+
+  describe('removing the focused item', () => {
+    it('moves focus to the tab stop when the list has no `items`', async () => {
+      function App(props: { names: string[] }) {
+        return (
+          <Listbox.Root defaultValue="a">
+            <Listbox.List>
+              {props.names.map((name) => (
+                <Listbox.Item key={name} value={name}>
+                  {name}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App names={['a', 'b', 'c']} />);
+      await act(async () => screen.getByRole('option', { name: 'b' }).focus());
+      expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+
+      await setProps({ names: ['a', 'c'] });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
     });
   });
 

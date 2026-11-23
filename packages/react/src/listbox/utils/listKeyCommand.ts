@@ -26,7 +26,6 @@ export type ListKeyCommand =
   /** Selects a range and moves focus to `focusIndex`, which also becomes the range anchor. */
   | { type: 'selectRange'; from: number; to: number; focusIndex: number }
   | { type: 'selectAll' }
-  | { type: 'clear' }
   /** The list owns the key, but there's nothing to do, such as an arrow key at the end. */
   | { type: 'none' };
 
@@ -44,9 +43,6 @@ export function resolveListKeyCommand(
   const step = getArrowStep(key.key, context);
 
   if (!shiftKey && !ctrlKey && !metaKey && !altKey) {
-    if (key.key === 'Escape') {
-      return multiple ? { type: 'clear' } : null;
-    }
     if (count === 0) {
       return null;
     }
@@ -78,10 +74,6 @@ export function resolveListKeyCommand(
     return shiftArrow ? { type: 'none' } : null;
   }
 
-  if (key.key === 'Escape') {
-    return { type: 'clear' };
-  }
-
   // Opt-in mode: Ctrl+Arrow moves focus without changing the selection. macOS reserves
   // Ctrl+Arrow and uses Cmd+Arrow to jump to the ends, so Option+Arrow does it there.
   const moveWithoutSelecting = mac ? altKey && !ctrlOrMeta : ctrlOrMeta;
@@ -106,8 +98,7 @@ export function resolveListKeyCommand(
       : { type: 'selectRange', from: currentIndex, to: count - 1, focusIndex: count - 1 };
   }
 
-  // The APG makes deselecting a fully selected list optional, and Escape already clears the
-  // selection.
+  // The APG makes deselecting a fully selected list optional.
   if (ctrlOrMeta && (key.key === 'a' || key.key === 'A')) {
     return { type: 'selectAll' };
   }

@@ -25,8 +25,7 @@ export interface PressModifiers {
 }
 
 /** What caused a selection change. */
-export type SelectionReason =
-  typeof REASONS.itemPress | typeof REASONS.listNavigation | typeof REASONS.escapeKey;
+export type SelectionReason = typeof REASONS.itemPress | typeof REASONS.listNavigation;
 
 export interface ListSelectionParameters<E> {
   /** The selected values. */
@@ -169,11 +168,6 @@ export class ListSelection<E = Event> {
       }
     }
     this.parameters.commit(nextValue, REASONS.listNavigation, event);
-  }
-
-  clear(event: E) {
-    const { value, items } = this.read();
-    this.parameters.commit(replaceWith(value, items, []), REASONS.escapeKey, event);
   }
 
   private read() {
