@@ -9420,7 +9420,7 @@ describe('<Combobox.Root />', () => {
         },
       );
 
-      it('does not move the selection highlight when results refill through an empty list without typing', async () => {
+      it('does not highlight the first item when results refill through an empty list without typing', async () => {
         const onValueChange = vi.fn();
         const { user, setProps } = await render(
           <AsyncCombobox
@@ -9432,7 +9432,11 @@ describe('<Combobox.Root />', () => {
         const input = screen.getByRole('combobox');
         expect(input).toHaveValue('32');
         await user.click(screen.getByTestId('trigger'));
-        expect(screen.getByRole('option', { name: '32' })).toHaveAttribute('data-highlighted');
+        // A trigger press opens on the frame after `mousedown`, which `user.click` can beat.
+        const selected = await screen.findByRole('option', { name: '32' });
+        await waitFor(() => {
+          expect(selected).toHaveAttribute('data-highlighted');
+        });
 
         await setProps({ items: [] });
         await setProps({ items: ['31', '32', '33'] });
