@@ -48,18 +48,15 @@ export const PasswordFieldToggleIndicator = React.forwardRef(function PasswordFi
 
   const state: PasswordFieldToggleIndicator.State = { visible, disabled, transitionStatus };
 
-  const element = useRenderElement('span', componentProps, {
+  // Disabled while unmounted so a render element is never resolved, or suspended on, for an
+  // indicator that isn't shown.
+  return useRenderElement('span', componentProps, {
+    enabled: mounted,
     ref: [forwardedRef, indicatorRef],
     state,
     stateAttributesMapping,
     props: [{ 'aria-hidden': true }, elementProps],
   });
-
-  if (!mounted) {
-    return null;
-  }
-
-  return element;
 });
 
 export interface PasswordFieldToggleIndicatorState {

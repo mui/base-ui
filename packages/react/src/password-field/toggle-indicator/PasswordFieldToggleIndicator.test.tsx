@@ -1,6 +1,6 @@
 import { expect, describe, it, afterEach } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -85,6 +85,33 @@ describe('<PasswordField.ToggleIndicator />', () => {
       await user.click(button);
       expect(button.textContent).toBe('hide');
     });
+
+    // The Flight client passes a render element created in a Server Component as a `react.lazy`
+    // wrapper, which suspends until its chunk loads.
+    it.skipIf(reactMajor < 19)(
+      'does not suspend the field on a pending render element while not rendered',
+      async () => {
+        const pendingRender = {
+          $$typeof: Symbol.for('react.lazy'),
+          _payload: null,
+          _init: () => {
+            throw new Promise(() => {});
+          },
+        } as unknown as React.ReactElement;
+
+        await render(
+          <React.Suspense fallback={<div data-testid="fallback" />}>
+            <PasswordField.Root>
+              <PasswordField.Input />
+              <PasswordField.ToggleIndicator match="password-visible" render={pendingRender} />
+            </PasswordField.Root>
+          </React.Suspense>,
+        );
+
+        expect(screen.queryByTestId('fallback')).toBe(null);
+        expect(document.querySelector('input')).not.toBe(null);
+      },
+    );
   });
 
   describe.skipIf(isJSDOM)('animations', () => {
