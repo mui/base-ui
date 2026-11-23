@@ -4,8 +4,6 @@ import clsx from 'clsx';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import scrollIntoView from 'scroll-into-view-if-needed';
-import { HEADER_HEIGHT_DESKTOP } from './Header';
 import './SideNav.css';
 
 export function Root(props: React.ComponentProps<'div'>) {
@@ -51,42 +49,17 @@ interface ItemProps extends React.ComponentProps<'li'> {
   icon?: React.ReactNode;
 }
 
-const SCROLL_MARGIN = 48;
-
 export function Item(props: ItemProps) {
   const { children, className, href, external, icon, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
   const exactActive = pathname === href;
   const active = exactActive || pathname.startsWith(`${href}/`);
-  const rem = React.useRef(16);
 
   React.useEffect(() => {
-    rem.current = parseFloat(getComputedStyle(document.documentElement).fontSize);
-  }, []);
-
-  React.useEffect(() => {
-    if (ref.current && active) {
-      const scrollMargin = (SCROLL_MARGIN * rem.current) / 16;
-      const headerHeight = (HEADER_HEIGHT_DESKTOP * rem.current) / 16;
-      const viewport = document.querySelector('[data-side-nav-viewport]');
-
-      if (!viewport) {
-        return;
-      }
-
-      scrollIntoView(ref.current, {
-        block: 'nearest',
-        scrollMode: 'if-needed',
-        boundary: (parent) => viewport.contains(parent),
-        behavior: (actions) => {
-          actions.forEach(({ top }) => {
-            const dir = viewport.scrollTop > top ? -1 : 1;
-            const offset = Math.max(0, headerHeight - Math.max(0, window.scrollY));
-            viewport.scrollTop = top + offset + scrollMargin * dir;
-          });
-        },
-      });
+    if (active) {
+      // The item's `scroll-margin-block` keeps a gap between it and the nav's edge.
+      ref.current?.scrollIntoView({ block: 'nearest' });
     }
   }, [active]);
 
