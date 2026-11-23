@@ -50,7 +50,7 @@ import { DemoListboxMultiSelection } from './demos/multi-selection';
 
 ### Opt-in multiple selection
 
-Use `multiple="opt-in"` when users opt in to selecting more than one item by holding a modifier key. Without one, a click or an arrow key moves the selection to a single item.
+Use `multiple="opt-in"` when users opt in to selecting more than one item by holding a modifier key. Without one, a click or moving focus with the keyboard moves the selection to a single item.
 
 - <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+click adds or removes an item.
 - <kbd>Shift</kbd>+click or <kbd>Shift</kbd>+arrow keys select a range.
@@ -180,7 +180,7 @@ With `multiple`:
   to the first or last item. On macOS, use <kbd>Cmd</kbd> instead of <kbd>Ctrl</kbd>.
 - <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd> selects every item.
 
-With `multiple="opt-in"`, arrow keys also move the selection. See [Opt-in multiple selection](#opt-in-multiple-selection) for the keys that select more than one item.
+With `multiple="opt-in"`, the selection follows focus: arrow keys, <kbd>Home</kbd>, <kbd>End</kbd> and typing also move the selection to the item they move focus to. See [Opt-in multiple selection](#opt-in-multiple-selection) for the keys that select more than one item.
 
 The listbox doesn't handle <kbd>Esc</kbd>, so a popup or dialog around it can close.
 

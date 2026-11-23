@@ -846,7 +846,7 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
     });
 
-    it('keeps the selection when Home and End move focus', async () => {
+    it('moves the selection when Home and End move focus', async () => {
       const handleValueChange = vi.fn();
       await renderOptIn({ defaultValue: ['b'] }, handleValueChange);
 
@@ -855,13 +855,21 @@ describe('<Listbox.Root />', () => {
 
       fireEvent.keyDown(itemB, { key: 'End' });
       await flushMicrotasks();
-      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-highlighted');
-
       fireEvent.keyDown(screen.getByRole('option', { name: 'c' }), { key: 'Home' });
       await flushMicrotasks();
-      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted');
 
-      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['c'], ['a']]);
+    });
+
+    it('moves the selection to the item a typed character moves focus to', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await renderOptIn({ defaultValue: ['a'] }, handleValueChange);
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      await user.keyboard('c');
+
+      expect(screen.getByRole('option', { name: 'c' })).toHaveFocus();
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['c']]);
     });
 
     it('toggles items on touch tap, like multiple', async () => {

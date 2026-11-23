@@ -63,7 +63,7 @@ export function resolveListKeyCommand(
       return { type: 'none' };
     }
     // In opt-in mode, the selection follows focus (the APG alternative multiple selection model).
-    return { type: 'move', index, select: optIn && step !== 0 };
+    return { type: 'move', index, select: optIn };
   }
 
   const ctrlOrMeta = ctrlKey || metaKey;

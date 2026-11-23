@@ -90,8 +90,19 @@ describe('resolveListKeyCommand', () => {
       });
     });
 
-    it('does not move the selection with Home', () => {
-      expect(resolve('Home', { multiple: 'opt-in' })).toEqual({
+    it.each([
+      { key: 'Home', index: 0 },
+      { key: 'End', index: 4 },
+    ])('moves the selection with $key', ({ key, index }) => {
+      expect(resolve(key, { multiple: 'opt-in' })).toEqual({
+        type: 'move',
+        index,
+        select: true,
+      });
+    });
+
+    it('does not move the selection with Home when each item is toggled independently', () => {
+      expect(resolve('Home', { multiple: true })).toEqual({
         type: 'move',
         index: 0,
         select: false,

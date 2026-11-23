@@ -96,7 +96,15 @@ export const ListboxList = React.forwardRef(function ListboxList(
     onMatch(index, event) {
       // The key did something, so it doesn't also trigger a shortcut outside the list.
       stopEvent(event);
-      store.focus.moveTo(index, event.nativeEvent);
+      const nativeEvent = event.nativeEvent;
+      store.focus.moveTo(
+        index,
+        nativeEvent,
+        // In opt-in mode, the selection follows focus, however focus moves.
+        store.state.multiple === 'opt-in'
+          ? () => store.selection.moveTo(index, nativeEvent)
+          : undefined,
+      );
     },
   });
 
