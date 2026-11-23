@@ -79,4 +79,46 @@ describe('Listbox.createItems', () => {
       }
     });
   });
+  describe('map', () => {
+    it('calls the callback with each item and its position, in order', () => {
+      const items = Listbox.createItems(fruits, {
+        getValue: (fruit) => fruit.id,
+        getLabel: (fruit) => fruit.name,
+      });
+
+      expect(items.map((fruit, index) => `${index}:${fruit.id}`)).toEqual(['0:apple', '1:banana']);
+    });
+
+    it('visits the items of grouped data without their groups', () => {
+      const items = Listbox.createItems(
+        [
+          { label: 'First', items: [fruits[0]] },
+          { label: 'Second', items: [fruits[1]] },
+        ],
+        {
+          getValue: (fruit) => fruit.id,
+          getLabel: (fruit) => fruit.name,
+        },
+      );
+
+      expect(items.map((fruit, index) => `${index}:${fruit.id}`)).toEqual(['0:apple', '1:banana']);
+    });
+  });
+
+  describe('grouped data', () => {
+    it('returns an item of any group by its value', () => {
+      const items = Listbox.createItems(
+        [
+          { label: 'First', items: [fruits[0]] },
+          { label: 'Second', items: [fruits[1]] },
+        ],
+        {
+          getValue: (fruit) => fruit.id,
+          getLabel: (fruit) => fruit.name,
+        },
+      );
+
+      expect(items.get('banana')).toBe(fruits[1]);
+    });
+  });
 });

@@ -2615,6 +2615,98 @@ describe('<Listbox.Root />', () => {
       });
     });
 
+    describe('with an array of objects', () => {
+      const fruits = [
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana', disabled: true },
+        { value: 'cherry', label: 'Cherry' },
+      ];
+
+      // Renders only the first item.
+      function FruitList(props: Omit<Listbox.Root.Props<string, true>, 'items'>) {
+        return (
+          <Listbox.Root {...props} items={fruits} multiple>
+            <Listbox.List>
+              <Listbox.Item value="apple">Apple</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      it('selects the values of enabled items that are not rendered', async () => {
+        const handleValueChange = vi.fn();
+        await render(<FruitList onValueChange={handleValueChange} />);
+
+        await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
+
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['apple', 'cherry']);
+      });
+
+      it('finds an item that is not rendered by its label', async () => {
+        const handleItemHighlighted = vi.fn();
+        await render(<FruitList onItemHighlighted={handleItemHighlighted} />);
+
+        await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+        handleItemHighlighted.mockClear();
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'c' });
+        await flushMicrotasks();
+
+        expect(handleItemHighlighted.mock.calls.map((call) => call[0])).toContain('cherry');
+      });
+    });
+
+    describe('with groups', () => {
+      const groups = [
+        { label: 'Fruits', items: ['Apple', 'Banana'] },
+        {
+          label: 'Vegetables',
+          items: [
+            { value: 'Carrot', label: 'Carrot' },
+            { value: 'Daikon', label: 'Daikon', disabled: true },
+            { value: 'Endive', label: 'Endive' },
+          ],
+        },
+      ];
+
+      // Renders only the first group.
+      function GroupedList(props: Omit<Listbox.Root.Props<string, true>, 'items'>) {
+        return (
+          <Listbox.Root {...props} items={groups} multiple>
+            <Listbox.List>
+              <Listbox.Group>
+                <Listbox.GroupLabel>Fruits</Listbox.GroupLabel>
+                <Listbox.Item value="Apple">Apple</Listbox.Item>
+                <Listbox.Item value="Banana">Banana</Listbox.Item>
+              </Listbox.Group>
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      it('selects the enabled items of every group', async () => {
+        const handleValueChange = vi.fn();
+        await render(<GroupedList onValueChange={handleValueChange} />);
+
+        await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
+
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['Apple', 'Banana', 'Carrot', 'Endive']);
+      });
+
+      it('moves from the last item of a group to the first item of the next', async () => {
+        const handleItemHighlighted = vi.fn();
+        await render(<GroupedList onItemHighlighted={handleItemHighlighted} />);
+
+        await act(async () => screen.getByRole('option', { name: 'Banana' }).focus());
+        handleItemHighlighted.mockClear();
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+        await flushMicrotasks();
+
+        expect(handleItemHighlighted.mock.calls.map((call) => call[0])).toContain('Carrot');
+      });
+    });
+
     describe('when the items change', () => {
       it('moves the tab stop to the selected item when the items load', async () => {
         function LoadingList(props: { names: string[] | undefined }) {

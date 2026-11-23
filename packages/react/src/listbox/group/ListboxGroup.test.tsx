@@ -55,4 +55,26 @@ describe('<Listbox.Group />', () => {
     await setProps({ showLabel: false });
     expect(screen.getByRole('group')).not.toHaveAttribute('aria-labelledby');
   });
+
+  describe('prop: items', () => {
+    it('gives its items to a Collection inside it', async () => {
+      await render(
+        <Listbox.Root items={['Apple', 'Banana', 'Carrot']}>
+          <Listbox.List>
+            <Listbox.Group items={['Banana']}>
+              <Listbox.Collection>
+                {(item: string) => (
+                  <Listbox.Item key={item} value={item}>
+                    {item}
+                  </Listbox.Item>
+                )}
+              </Listbox.Collection>
+            </Listbox.Group>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Banana']);
+    });
+  });
 });

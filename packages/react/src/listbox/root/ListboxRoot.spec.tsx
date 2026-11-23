@@ -141,3 +141,66 @@ fruits.get(1);
 
 // @ts-expect-error -- other data goes through `Listbox.createItems()`
 <Listbox.Root items={[{ id: 'a' }]} />;
+
+// An array of `{ value, label, disabled }` objects takes its values from the `value` fields.
+<Listbox.Root
+  items={[
+    { value: 'a', label: 'Apple' },
+    { value: 'b', label: 'Banana', disabled: true },
+  ]}
+  multiple
+  onValueChange={(value) => {
+    expectType<string[], typeof value>(value);
+  }}
+/>;
+
+// @ts-expect-error -- the values are the items' `value` fields
+<Listbox.Root items={[{ value: 'a', label: 'Apple' }]} defaultValue={1} />;
+
+// @ts-expect-error -- the label is a string, since it's used for keyboard text navigation
+<Listbox.Root items={[{ value: 'a', label: <span>Apple</span> }]} />;
+
+// Groups hold either kind of item.
+<Listbox.Root
+  items={[
+    { label: 'Fruits', items: ['a', 'b'] },
+    { label: 'Vegetables', items: [{ value: 'c', label: 'Carrot' }] },
+  ]}
+  onValueChange={(value) => {
+    expectType<string | null, typeof value>(value);
+  }}
+/>;
+
+// `createItems` takes groups, and its accessors receive the items.
+const groupedFruits = Listbox.createItems(
+  [{ label: 'Fruits', items: [{ id: 'a', name: 'Apple' }] }],
+  {
+    getValue: (fruit) => {
+      expectType<{ id: string; name: string }, typeof fruit>(fruit);
+      return fruit.id;
+    },
+    getLabel: (fruit) => fruit.name,
+  },
+);
+<Listbox.Root items={groupedFruits} defaultValue="a" />;
+
+// `map` passes each item and its position.
+fruits.map((fruit, index) => {
+  expectType<{ id: string; name: string }, typeof fruit>(fruit);
+  expectType<number, typeof index>(index);
+  return fruit.id;
+});
+
+// The list takes a function child, and a group takes its items.
+<Listbox.List>{(item: string) => <Listbox.Item value={item} />}</Listbox.List>;
+<Listbox.Group items={['a']}>
+  <Listbox.Collection>{(item: string) => <Listbox.Item value={item} />}</Listbox.Collection>
+</Listbox.Group>;
+
+// A group declared as an interface fits, too.
+interface FruitGroup {
+  label: string;
+  items: string[];
+}
+declare const fruitGroups: FruitGroup[];
+<Listbox.Root items={fruitGroups} defaultValue="a" />;

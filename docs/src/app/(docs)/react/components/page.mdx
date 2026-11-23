@@ -925,8 +925,9 @@ An always-visible list for selecting one or more options.
   - Examples
     - Multiple selection
     - Opt-in multiple selection
+    - Items
     - Grouped
-    - Object data
+    - Custom data
     - Virtualized
   - API reference
     - Root
@@ -936,29 +937,32 @@ An always-visible list for selecting one or more options.
     - ItemIndicator
     - Group
     - GroupLabel
+    - Collection
   - createItems
 - Exports:
   - Listbox - Root
     - Props: children, defaultValue, disabled, highlightItemOnHover, items, multiple, onItemHighlighted, onValueChange, orientation, value
   - Listbox - List
-    - Props: className, render, style
+    - Props: children, className, render, style
     - Data Attributes: data-disabled, data-orientation
   - Listbox - Item
     - Props: children, className, disabled, label, nativeButton, render, style, value
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Listbox - Group
-    - Props: className, render, style
+    - Props: className, items, render, style
   - Listbox - GroupLabel
     - Props: className, render, style
   - Listbox - Label
     - Props: className, render, style
+  - Listbox - Collection
+    - Props: children
   - Listbox - ItemIndicator
     - Props: children, className, keepMounted, render, style
     - Data Attributes: data-ending-style, data-starting-style
   - Listbox - createItems
     - Parameters: data, options
   - ListboxItemCollection
-- Types: Listbox.Group.Props, Listbox.Group.State, Listbox.GroupLabel.Props, Listbox.GroupLabel.State, Listbox.Item.Props, Listbox.Item.State, Listbox.ItemIndicator.Props, Listbox.ItemIndicator.State, Listbox.Label.Props, Listbox.Label.State, Listbox.List.Props, Listbox.List.State, Listbox.Root.ChangeEventDetails, Listbox.Root.ChangeEventReason, Listbox.Root.HighlightEventDetails, Listbox.Root.HighlightEventReason, Listbox.Root.Props, Listbox.Root.State
+- Types: Listbox.Collection.Props, Listbox.Collection.State, Listbox.Group.Props, Listbox.Group.State, Listbox.GroupLabel.Props, Listbox.GroupLabel.State, Listbox.Item.Props, Listbox.Item.State, Listbox.ItemIndicator.Props, Listbox.ItemIndicator.State, Listbox.Label.Props, Listbox.Label.State, Listbox.List.Props, Listbox.List.State, Listbox.Root.ChangeEventDetails, Listbox.Root.ChangeEventReason, Listbox.Root.HighlightEventDetails, Listbox.Root.HighlightEventReason, Listbox.Root.Props, Listbox.Root.State
 
 </details>
 

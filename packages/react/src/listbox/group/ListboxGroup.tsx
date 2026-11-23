@@ -14,7 +14,7 @@ export const ListboxGroup = React.forwardRef(function ListboxGroup(
   componentProps: ListboxGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { className, render, style, items, ...elementProps } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
@@ -22,8 +22,9 @@ export const ListboxGroup = React.forwardRef(function ListboxGroup(
     () => ({
       labelId,
       setLabelId,
+      items,
     }),
-    [labelId, setLabelId],
+    [labelId, setLabelId, items],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -43,7 +44,13 @@ export const ListboxGroup = React.forwardRef(function ListboxGroup(
 });
 
 export interface ListboxGroupState {}
-export interface ListboxGroupProps extends BaseUIComponentProps<'div', ListboxGroupState> {}
+export interface ListboxGroupProps extends BaseUIComponentProps<'div', ListboxGroupState> {
+  /**
+   * The items of this group.
+   * When provided, a `Listbox.Collection` inside the group renders these items.
+   */
+  items?: readonly any[] | undefined;
+}
 
 export namespace ListboxGroup {
   export type State = ListboxGroupState;

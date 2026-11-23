@@ -1,8 +1,19 @@
+'use client';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
-const groups = [
+interface Folder {
+  label: string;
+  value: string;
+}
+
+interface FolderGroup {
+  label: string;
+  items: Folder[];
+}
+
+const groups: FolderGroup[] = [
   {
     label: 'Mailboxes',
     items: [
@@ -23,25 +34,27 @@ const groups = [
 
 export default function ExampleListboxGrouped() {
   return (
-    <Listbox.Root defaultValue="archive">
+    <Listbox.Root items={groups} defaultValue="archive">
       <div className={styles.Panel}>
         <div className={styles.Header}>
           <Listbox.Label className={styles.Label}>Move to</Listbox.Label>
         </div>
         <Listbox.List className={styles.List}>
-          {groups.map((group) => (
-            <Listbox.Group key={group.label}>
+          {(group: FolderGroup) => (
+            <Listbox.Group key={group.label} items={group.items}>
               <Listbox.GroupLabel className={styles.GroupLabel}>{group.label}</Listbox.GroupLabel>
-              {group.items.map(({ label, value }) => (
-                <Listbox.Item key={value} value={value} className={styles.Item}>
-                  <Listbox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon />
-                  </Listbox.ItemIndicator>
-                  <span className={styles.ItemText}>{label}</span>
-                </Listbox.Item>
-              ))}
+              <Listbox.Collection>
+                {(item: Folder) => (
+                  <Listbox.Item key={item.value} value={item.value} className={styles.Item}>
+                    <Listbox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon />
+                    </Listbox.ItemIndicator>
+                    <span className={styles.ItemText}>{item.label}</span>
+                  </Listbox.Item>
+                )}
+              </Listbox.Collection>
             </Listbox.Group>
-          ))}
+          )}
         </Listbox.List>
       </div>
     </Listbox.Root>

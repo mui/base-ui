@@ -14,6 +14,7 @@ import { createListboxItems } from '../items/createItems';
 import type {
   CreateListboxItemsOptions,
   ListboxItemCollection,
+  ListboxItemGroupInput,
   ListboxItems,
   ListboxPrimitiveValue,
 } from '../items/createItems';
@@ -21,13 +22,15 @@ import { ListboxRootContext } from './ListboxRootContext';
 import { ListboxStore, getSelectedValueSet } from '../store';
 import { useHighlightChangeNotifier } from '../utils/useHighlightChangeNotifier';
 
-// An array of primitives is a collection whose items are their own key and label.
-const PRIMITIVE_ITEM_OPTIONS: CreateListboxItemsOptions<
-  ListboxPrimitiveValue,
+// A plain array is a collection of primitives, which are their own value and label, or of
+// `{ value, label, disabled }` objects.
+const PLAIN_ITEM_OPTIONS: CreateListboxItemsOptions<
+  ListboxPrimitiveValue | ListboxItemObject<ListboxPrimitiveValue>,
   ListboxPrimitiveValue
 > = {
-  getValue: (item) => item,
-  getLabel: (item) => String(item),
+  getValue: (item) => (typeof item === 'object' ? item.value : item),
+  getLabel: (item) => (typeof item === 'object' ? item.label : String(item)),
+  getDisabled: (item) => typeof item === 'object' && item.disabled === true,
 };
 
 /**
@@ -56,7 +59,7 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   const items = React.useMemo(
     () =>
       (Array.isArray(itemsProp)
-        ? createListboxItems(itemsProp, PRIMITIVE_ITEM_OPTIONS)
+        ? createListboxItems(itemsProp as readonly ListboxPrimitiveValue[], PLAIN_ITEM_OPTIONS)
         : itemsProp) as unknown as ListboxItems | undefined,
     [itemsProp],
   );
@@ -213,12 +216,38 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * virtualized, so keyboard navigation, typeahead and selection can reach items that aren't
    * rendered.
    *
-   * Pass an array of strings or numbers, each of which is an item's value and label, or a
-   * collection created with `Listbox.createItems()` for any other data. Give each `Listbox.Item`
-   * its value, which with a collection is what `getValue` returns for the item.
+   * Pass one of the following:
+   * - An array of strings or numbers, each of which is an item's value and label.
+   * - An array of `{ value, label, disabled }` objects.
+   * - An array of groups, each with an `items` array of either of the above.
+   * - A collection created with `Listbox.createItems()` for any other data.
+   *
+   * Give each `Listbox.Item` its value, which with a collection is what `getValue` returns for
+   * the item.
    */
   items?:
-    readonly (Value & ListboxPrimitiveValue)[] | ListboxItemCollection<any, Value> | undefined;
+    | readonly (Value & ListboxPrimitiveValue)[]
+    | readonly ListboxItemObject<Value & ListboxPrimitiveValue>[]
+    | readonly ListboxItemGroupInput<
+        (Value & ListboxPrimitiveValue) | ListboxItemObject<Value & ListboxPrimitiveValue>
+      >[]
+    | ListboxItemCollection<any, Value>
+    | undefined;
+}
+
+/**
+ * An item in a plain array passed to the root's `items` prop.
+ */
+export interface ListboxItemObject<Value> {
+  /** The item's value, which identifies it. Give the same value to its `Listbox.Item`. */
+  value: Value;
+  /** The text that represents the item in keyboard text navigation. */
+  label: string;
+  /**
+   * Whether the item is disabled.
+   * @default false
+   */
+  disabled?: boolean | undefined;
 }
 
 export interface ListboxRootState {}

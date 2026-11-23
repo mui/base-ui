@@ -7,9 +7,11 @@ export type * from './item/ListboxItem';
 export type * from './item-indicator/ListboxItemIndicator';
 export type * from './group/ListboxGroup';
 export type * from './group-label/ListboxGroupLabel';
+export type * from './collection/ListboxCollection';
 export type {
   CreateListboxItemsOptions,
   ListboxItemCollection,
+  ListboxItemGroup,
   ListboxPrimitiveValue,
 } from './items/createItems';
 

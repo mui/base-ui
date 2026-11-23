@@ -13,6 +13,7 @@ import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../utils/popups/event';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { useListboxRootContext } from '../root/ListboxRootContext';
+import { ListboxCollection } from '../collection/ListboxCollection';
 import { resolveListKeyCommand } from '../utils/listKeyCommand';
 import type { ListKeyCommand } from '../utils/listKeyCommand';
 
@@ -26,7 +27,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   componentProps: ListboxList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { className, render, style, children, ...elementProps } = componentProps;
 
   const store = useListboxRootContext();
 
@@ -283,10 +284,17 @@ export const ListboxList = React.forwardRef(function ListboxList(
     syncActiveItem();
   }, [value, items, syncActiveItem]);
 
+  // A function child renders each of the root's `items`.
+  const resolvedChildren = React.useMemo(
+    () =>
+      typeof children === 'function' ? <ListboxCollection>{children}</ListboxCollection> : children,
+    [children],
+  );
+
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement],
     state,
-    props: [defaultProps, elementProps],
+    props: [defaultProps, { children: resolvedChildren }, elementProps],
   });
 
   return (
@@ -312,7 +320,16 @@ export interface ListboxListState {
   orientation: 'vertical' | 'horizontal';
 }
 
-export interface ListboxListProps extends BaseUIComponentProps<'div', ListboxListState> {}
+export interface ListboxListProps extends Omit<
+  BaseUIComponentProps<'div', ListboxListState>,
+  'children'
+> {
+  /**
+   * The items of the list. A function renders each of the root's `items`: it receives an item, or
+   * a group when the items are grouped, and its index.
+   */
+  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+}
 
 export namespace ListboxList {
   export type Props = ListboxListProps;
