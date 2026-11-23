@@ -4,7 +4,6 @@ import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import { Dialog } from '@base-ui/react/dialog';
 import { Drawer } from '@base-ui/react/drawer';
-import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { loadSearchSitemap } from './Search/searchSitemap';
@@ -48,15 +47,6 @@ export function SearchControls({
   const [openTarget, setOpenTarget] = React.useState<OpenTarget | null>(null);
   const preloadTimeout = useTimeout();
   const pathname = usePathname();
-
-  // `null` until hydration: the server can't know the visitor's platform.
-  const isMac = React.useSyncExternalStore<boolean | null>(
-    () => () => {},
-    () => platform.os.mac,
-    () => null,
-  );
-  // Reserve the ⌘ shortcut's space while the platform is unknown, without showing it.
-  const isCmd = isMac ?? true;
 
   const closeMobileNav = React.useCallback(() => {
     scrollTopAfterMobileCloseRef.current = false;
@@ -192,8 +182,10 @@ export function SearchControls({
         onClick={handleDesktopTriggerClick}
       >
         Search
-        <span className="SearchTriggerShortcut" data-pending={isMac === null || undefined}>
-          ({isCmd ? <kbd>⌘</kbd> : <kbd>Ctrl+</kbd>}
+        {/* `PlatformScript` sets `data-platform` on <html>; CSS shows the matching modifier. */}
+        <span className="SearchTriggerShortcut">
+          (<kbd data-platform="mac">⌘</kbd>
+          <kbd data-platform="other">Ctrl+</kbd>
           <kbd>k</kbd>)
         </span>
       </Dialog.Trigger>

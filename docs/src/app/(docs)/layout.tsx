@@ -9,6 +9,7 @@ import { DocsProviders } from 'docs/src/components/DocsProviders';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header } from 'docs/src/components/Header';
+import { PlatformScript } from 'docs/src/components/PlatformScript';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
@@ -19,8 +20,9 @@ import { getSitemapPageInfo, isSitemapPageVisible } from 'docs/src/utils/sitemap
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     // Use suppressHydrationWarning to avoid https://github.com/react/react/issues/24430
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <PlatformScript />
         <link
           rel="preload"
           href="/fonts/die-grotesk-a-regular.woff2"

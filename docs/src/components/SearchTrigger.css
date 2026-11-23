@@ -49,8 +49,9 @@
   .SearchTriggerShortcut {
     color: var(--gray-t1);
 
-    &[data-pending] {
-      visibility: hidden;
+    :root:not([data-platform='mac']) & [data-platform='mac'],
+    :root[data-platform='mac'] & [data-platform='other'] {
+      display: none;
     }
   }
 }
