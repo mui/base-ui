@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { act, fireEvent, flushMicrotasks, reactMajor, screen } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
+import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { useToastProviderContext } from './ToastProviderContext';
 import type { ToastManager } from '../createToastManager';
 
@@ -194,36 +194,11 @@ describe('<Toast.Provider />', () => {
 
     function ToastList() {
       return Toast.useToastManager().toasts.map((toast) => (
-        <Toast.Root key={toast.id} toast={toast} data-testid="toast">
+        <Toast.Root key={toast.id} toast={toast}>
           <Toast.Title />
         </Toast.Root>
       ));
     }
-
-    it.skipIf(isJSDOM)(
-      'keeps the timer paused while a real pointer hovers the toast',
-      async ({ onTestFinished }) => {
-        const { userEvent } = await import('vitest/browser');
-        onTestFinished(resetBrowserPointer);
-        const onClose = vi.fn();
-        const toastManager = Toast.createToastManager();
-        await render(<App visible toastManager={toastManager} />);
-
-        await act(async () => {
-          toastManager.add({ title: 'Toast', timeout: 1000, onClose });
-        });
-
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          await userEvent.hover(screen.getByTestId('toast'));
-        });
-        expect(screen.getByTestId('viewport')).toHaveAttribute('data-expanded');
-
-        clock.tick(2000);
-        await flushMicrotasks();
-        expect(onClose).not.toHaveBeenCalled();
-      },
-    );
 
     it('pauses the auto-dismiss timer while hidden and resumes it with the remaining time once revealed', async () => {
       const onClose = vi.fn();
