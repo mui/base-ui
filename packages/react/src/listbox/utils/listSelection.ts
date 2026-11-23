@@ -116,16 +116,14 @@ export class ListSelection<E = Event> {
 
   /**
    * Moves the selection to an item, as focus moves to it in opt-in mode. A disabled item can't be
-   * selected, so nothing is.
+   * selected, so the selection stays where it was while focus is on one.
    */
   moveTo(index: number, event: E) {
     const { value, items } = this.read();
     const itemValue = enabledValueAt(items, index);
-    this.parameters.commit(
-      replaceWith(value, items, itemValue === undefined ? [] : [itemValue]),
-      REASONS.listNavigation,
-      event,
-    );
+    if (itemValue !== undefined) {
+      this.parameters.commit(replaceWith(value, items, [itemValue]), REASONS.listNavigation, event);
+    }
     this.pressAnchor = index;
     this.anchorFocus = index;
   }

@@ -147,10 +147,10 @@ describe('ListSelection', () => {
       expect(getValue()).toEqual(['c', 'd', 'e']);
     });
 
-    it('moveTo clears the selection when the item is disabled', () => {
-      const { selection, getValue } = setup({ multiple: 'opt-in', value: ['a'], disabled: ['c'] });
+    it('moveTo keeps the selection when the item is disabled', () => {
+      const { selection, commit } = setup({ multiple: 'opt-in', value: ['a'], disabled: ['c'] });
       selection.moveTo(2, EVENT);
-      expect(getValue()).toEqual([]);
+      expect(commit).not.toHaveBeenCalled();
     });
 
     it('extendTo selects from the given anchor and moves the press anchor to it', () => {

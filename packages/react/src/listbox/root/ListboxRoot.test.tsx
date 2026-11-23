@@ -861,6 +861,33 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['c'], ['a']]);
     });
 
+    it('keeps the selection while focus passes over a disabled item', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      fireEvent.keyDown(screen.getByRole('option', { name: 'a' }), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+      expect(handleValueChange).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['c']]);
+    });
+
     it('moves the selection to the item a typed character moves focus to', async () => {
       const handleValueChange = vi.fn();
       const { user } = await renderOptIn({ defaultValue: ['a'] }, handleValueChange);
