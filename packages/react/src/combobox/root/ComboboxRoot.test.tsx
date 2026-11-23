@@ -9392,6 +9392,34 @@ describe('<Combobox.Root />', () => {
         },
       );
 
+      it.each(['items', 'filteredItems'] as const)(
+        'highlights the first candidate when results refill through an empty list with %s',
+        async (dataProp) => {
+          const onValueChange = vi.fn();
+          const { user, setProps } = await render(
+            <AsyncCombobox
+              dataProp={dataProp}
+              items={['31', '32', '33']}
+              onValueChange={onValueChange}
+            />,
+          );
+          const input = screen.getByRole('combobox');
+          await user.type(input, '32');
+          expect(screen.getByRole('option', { name: '31' })).toHaveAttribute('data-highlighted');
+
+          await setProps({ items: [] });
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+
+          await setProps({ items: ['32', '320'] });
+          const option = screen.getByRole('option', { name: '32' });
+          expect(option).toHaveAttribute('data-highlighted');
+          expect(input).toHaveAttribute('aria-activedescendant', option.id);
+
+          await user.keyboard('{Enter}');
+          expect(onValueChange).toHaveBeenCalledExactlyOnceWith('32', expect.anything());
+        },
+      );
+
       it('waits for a controlled popup to open', async () => {
         const { user, setProps } = await render(<AsyncCombobox items={['32']} open={false} />);
         await user.type(screen.getByRole('combobox'), '32');
