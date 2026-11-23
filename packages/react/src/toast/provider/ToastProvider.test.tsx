@@ -199,29 +199,30 @@ describe('<Toast.Provider />', () => {
       ));
     }
 
-    // This test hovers the toast with the real pointer and doesn't move it away afterwards. The next
-    // test renders its toast in the same spot, so it only passes because
-    // `beforeEach(resetBrowserPointer)` moves the pointer away first.
-    it.skipIf(isJSDOM)('keeps the timer paused while a real pointer hovers the toast', async () => {
-      const { userEvent } = await import('vitest/browser');
-      const onClose = vi.fn();
-      const toastManager = Toast.createToastManager();
-      await render(<App visible toastManager={toastManager} />);
+    it.skipIf(isJSDOM)(
+      'keeps the timer paused while a real pointer hovers the toast',
+      async ({ onTestFinished }) => {
+        const { userEvent } = await import('vitest/browser');
+        onTestFinished(resetBrowserPointer);
+        const onClose = vi.fn();
+        const toastManager = Toast.createToastManager();
+        await render(<App visible toastManager={toastManager} />);
 
-      await act(async () => {
-        toastManager.add({ title: 'Toast', timeout: 1000, onClose });
-      });
+        await act(async () => {
+          toastManager.add({ title: 'Toast', timeout: 1000, onClose });
+        });
 
-      // eslint-disable-next-line testing-library/no-unnecessary-act
-      await act(async () => {
-        await userEvent.hover(screen.getByTestId('toast'));
-      });
-      expect(screen.getByTestId('viewport')).toHaveAttribute('data-expanded');
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+          await userEvent.hover(screen.getByTestId('toast'));
+        });
+        expect(screen.getByTestId('viewport')).toHaveAttribute('data-expanded');
 
-      clock.tick(2000);
-      await flushMicrotasks();
-      expect(onClose).not.toHaveBeenCalled();
-    });
+        clock.tick(2000);
+        await flushMicrotasks();
+        expect(onClose).not.toHaveBeenCalled();
+      },
+    );
 
     it('pauses the auto-dismiss timer while hidden and resumes it with the remaining time once revealed', async () => {
       const onClose = vi.fn();
@@ -231,16 +232,6 @@ describe('<Toast.Provider />', () => {
       await act(async () => {
         toastManager.add({ title: 'Toast', timeout: 1000, onClose });
       });
-
-      if (!isJSDOM) {
-        // Let a real frame render, so a pointer resting over the toast always hovers it. Without
-        // this, the outcome depends on whether a frame happens to pass while the toast is visible.
-        const { userEvent } = await import('vitest/browser');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          await userEvent.keyboard('{Shift}');
-        });
-      }
 
       clock.tick(400);
       await setProps({ visible: false });
