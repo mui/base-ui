@@ -446,6 +446,7 @@ Renders a `<div>` element.
 | data-closed        | -                                                                                    | Present when the select popup is closed.                              |
 | data-anchor-hidden | -                                                                                    | Present when the anchor is hidden.                                    |
 | data-align         | `'start' \| 'center' \| 'end'`                                                       | Indicates how the popup is aligned relative to specified side.        |
+| data-instant       | `'click' \| 'dismiss'`                                                               | Present if animations should be instant.                              |
 | data-side          | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 **Positioner CSS Variables:**
@@ -1026,6 +1027,11 @@ declare namespace SelectPositionerDataAttributes {
    * @type 'start' | 'center' | 'end'
    */
   const align: 'data-align';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss'
+   */
+  const instant: 'data-instant';
 }
 ```
 

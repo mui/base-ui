@@ -572,6 +572,7 @@ Renders a `<div>` element.
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-empty         | -                                                                          | Present when the items list is empty.                                 |
+| data-instant       | `'click' \| 'dismiss'`                                                     | Present if animations should be instant.                              |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 **Positioner CSS Variables:**
@@ -1507,6 +1508,11 @@ declare namespace ComboboxPositionerDataAttributes {
   const align: 'data-align';
   /** Present when the items list is empty. */
   const empty: 'data-empty';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss'
+   */
+  const instant: 'data-instant';
 }
 ```
 
