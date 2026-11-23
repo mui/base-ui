@@ -12,8 +12,7 @@ describe('<Toast.Provider />', () => {
 
   clock.withFakeTimers();
 
-  // The toasts render under the top-left corner, where an earlier browser test may have left the
-  // real pointer. Chromium would hover them with trusted events and pause their timers.
+  // A real hover pauses the toast timers these tests assert on.
   beforeEach(resetBrowserPointer);
 
   it('syncs a changed timeout before descendant layout effects', async () => {
