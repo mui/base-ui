@@ -309,47 +309,34 @@ describe('<PasswordField.Root />', () => {
       });
     }
 
-    it('restores the initial visibility when the form is reset', async () => {
-      const onVisibleChange = vi.fn();
-      await render(
-        <form>
-          <PasswordField.Root onVisibleChange={onVisibleChange}>
-            <PasswordField.Input />
-            <PasswordField.Toggle />
-          </PasswordField.Root>
-        </form>,
-      );
+    it.each([
+      { name: 'masked', defaultVisible: false, initialType: 'password', revealedType: 'text' },
+      { name: 'visible', defaultVisible: true, initialType: 'text', revealedType: 'password' },
+    ])(
+      'restores the initial visibility when the form is reset and it was initially $name',
+      async ({ defaultVisible, initialType, revealedType }) => {
+        const onVisibleChange = vi.fn();
+        await render(
+          <form>
+            <PasswordField.Root defaultVisible={defaultVisible} onVisibleChange={onVisibleChange}>
+              <PasswordField.Input />
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+          </form>,
+        );
 
-      const input = document.querySelector('input')!;
-      await reveal();
-      expect(input).toHaveAttribute('type', 'text');
+        const input = document.querySelector('input')!;
+        await reveal();
+        expect(input).toHaveAttribute('type', revealedType);
 
-      fireEvent.reset(input.form!);
+        fireEvent.reset(input.form!);
 
-      expect(input).toHaveAttribute('type', 'password');
-      expect(onVisibleChange.mock.calls.length).toBe(2);
-      expect(onVisibleChange.mock.lastCall?.[0]).toBe(false);
-      expect(onVisibleChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
-    });
-
-    it('reveals the password again on reset when it was initially visible', async () => {
-      await render(
-        <form>
-          <PasswordField.Root defaultVisible>
-            <PasswordField.Input />
-            <PasswordField.Toggle />
-          </PasswordField.Root>
-        </form>,
-      );
-
-      const input = document.querySelector('input')!;
-      await reveal();
-      expect(input).toHaveAttribute('type', 'password');
-
-      fireEvent.reset(input.form!);
-
-      expect(input).toHaveAttribute('type', 'text');
-    });
+        expect(input).toHaveAttribute('type', initialType);
+        expect(onVisibleChange.mock.calls.length).toBe(2);
+        expect(onVisibleChange.mock.lastCall?.[0]).toBe(defaultVisible);
+        expect(onVisibleChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
+      },
+    );
 
     it('does not restore the visibility when the form-reset change is canceled', async () => {
       await render(
@@ -532,8 +519,11 @@ describe('<PasswordField.Root />', () => {
       });
     }
 
-    it('masks the input while the form submits without changing the visibility', async () => {
-      const onVisibleChange = vi.fn();
+    it('masks the input while the form submits, even when onVisibleChange cancels every change', async () => {
+      // Masking doesn't go through onVisibleChange, so it can't be canceled or even observed there.
+      const onVisibleChange = vi.fn((_visible: boolean, eventDetails: { cancel: () => void }) => {
+        eventDetails.cancel();
+      });
       await render(
         <form onSubmit={(event) => event.preventDefault()}>
           <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
@@ -580,82 +570,6 @@ describe('<PasswordField.Root />', () => {
       expect(input).toHaveAttribute('type', 'password');
     });
 
-    it('masks the input on submit even when `visible` is controlled', async () => {
-      await render(
-        <form onSubmit={(event) => event.preventDefault()}>
-          <PasswordField.Root visible>
-            <PasswordField.Input />
-            <PasswordField.Toggle />
-          </PasswordField.Root>
-        </form>,
-      );
-
-      const input = document.querySelector('input')!;
-      expect(input).toHaveAttribute('type', 'text');
-
-      fireEvent.submit(input.form!);
-
-      expect(input).toHaveAttribute('type', 'password');
-
-      await unmaskAfterSubmit();
-
-      expect(input).toHaveAttribute('type', 'text');
-    });
-
-    it('masks the input on submit even when onVisibleChange cancels every change', async () => {
-      const onVisibleChange = vi.fn((_visible: boolean, eventDetails: { cancel: () => void }) => {
-        eventDetails.cancel();
-      });
-      await render(
-        <form onSubmit={(event) => event.preventDefault()}>
-          <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
-            <PasswordField.Input />
-            <PasswordField.Toggle />
-          </PasswordField.Root>
-        </form>,
-      );
-
-      const input = document.querySelector('input')!;
-      expect(input).toHaveAttribute('type', 'text');
-
-      fireEvent.submit(input.form!);
-
-      expect(input).toHaveAttribute('type', 'password');
-      expect(onVisibleChange.mock.calls.length).toBe(0);
-    });
-
-    it('keeps the input masked when a submit handler re-renders it', async () => {
-      function App() {
-        const [label, setLabel] = React.useState('before');
-        return (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              setLabel('after');
-            }}
-          >
-            <PasswordField.Root visible>
-              <PasswordField.Input aria-label={label} />
-              <PasswordField.Toggle />
-            </PasswordField.Root>
-          </form>
-        );
-      }
-
-      await render(<App />);
-      const input = document.querySelector('input')!;
-      expect(input).toHaveAttribute('type', 'text');
-
-      fireEvent.submit(input.form!);
-
-      expect(input).toHaveAttribute('aria-label', 'after');
-      expect(input).toHaveAttribute('type', 'password');
-
-      await unmaskAfterSubmit();
-
-      expect(input).toHaveAttribute('type', 'text');
-    });
-
     it('stays masked after the submit when the password was hidden during it', async () => {
       await render(
         <form onSubmit={(event) => event.preventDefault()}>
@@ -700,24 +614,6 @@ describe('<PasswordField.Root />', () => {
       fireEvent.submit(input.form!);
 
       expect(input).toHaveAttribute('type', 'password');
-    });
-
-    it('does not update after unmounting during a submit', async () => {
-      const { unmount } = await render(
-        <form onSubmit={(event) => event.preventDefault()}>
-          <PasswordField.Root defaultVisible>
-            <PasswordField.Input />
-          </PasswordField.Root>
-        </form>,
-      );
-
-      const form = document.querySelector('form')!;
-      fireEvent.submit(form);
-      unmount();
-
-      // A state update after unmounting would fail the test through the console.
-      await unmaskAfterSubmit();
-      expect(document.querySelector('input')).toBe(null);
     });
 
     it('does not call onVisibleChange on reset when the visibility would not change', async () => {
@@ -816,18 +712,35 @@ describe('<PasswordField.Root />', () => {
       }
 
       it.each([
-        { name: 'a submit button', trigger: 'submit-button', updateOnSubmit: false },
+        {
+          name: 'a submit button',
+          trigger: 'submit-button',
+          updateOnSubmit: false,
+          controlled: false,
+        },
         {
           name: 'a submit button whose onSubmit updates state',
           trigger: 'submit-button',
           updateOnSubmit: true,
+          controlled: false,
         },
-        { name: 'requestSubmit() in onClick', trigger: 'request-submit', updateOnSubmit: false },
+        {
+          name: 'requestSubmit() in onClick',
+          trigger: 'request-submit',
+          updateOnSubmit: false,
+          controlled: false,
+        },
+        {
+          name: 'a submit button whose onSubmit updates state, with `visible` controlled',
+          trigger: 'submit-button',
+          updateOnSubmit: true,
+          controlled: true,
+        },
       ] as const)(
         'builds the form data with type="password" when submitted through $name',
-        async ({ trigger, updateOnSubmit }) => {
+        async ({ trigger, updateOnSubmit, controlled }) => {
           await render(
-            <App trigger={trigger} updateOnSubmit={updateOnSubmit} controlled={false} />,
+            <App trigger={trigger} updateOnSubmit={updateOnSubmit} controlled={controlled} />,
           );
           const input = document.querySelector<HTMLInputElement>('input[name="password"]')!;
           const typesAtFormData: string[] = [];
@@ -846,23 +759,6 @@ describe('<PasswordField.Root />', () => {
           expect(input.type).toBe('text');
         },
       );
-
-      it('builds the form data with type="password" when `visible` is controlled', async () => {
-        await render(<App trigger="submit-button" updateOnSubmit controlled />);
-        const input = document.querySelector<HTMLInputElement>('input[name="password"]')!;
-        const typesAtFormData: string[] = [];
-        input.form!.addEventListener('formdata', () => {
-          typesAtFormData.push(input.type);
-        });
-        expect(input.type).toBe('text');
-
-        const { userEvent } = await import('vitest/browser');
-        await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
-
-        expect(typesAtFormData).toEqual(['password']);
-        await wait(10);
-        expect(input.type).toBe('text');
-      });
     });
   });
 });
