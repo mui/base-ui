@@ -1195,6 +1195,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         candidateItems.length === 0 &&
         autoHighlightMode &&
         (hasItems || hasFilteredItemsProp) &&
+        queryChangedAfterOpen &&
         String(inputValue).trim() !== ''
       ) {
         pendingQueryHighlightRef.current = { hasQuery: true };
@@ -1226,6 +1227,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     flatFilteredValues,
     inline,
     open,
+    queryChangedAfterOpen,
     resolvedPopupRef,
     store,
     // Reruns the effect when the query changes without affecting the deps above, such as

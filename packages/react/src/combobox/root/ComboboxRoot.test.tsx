@@ -9420,6 +9420,28 @@ describe('<Combobox.Root />', () => {
         },
       );
 
+      it('does not move the selection highlight when results refill through an empty list without typing', async () => {
+        const onValueChange = vi.fn();
+        const { user, setProps } = await render(
+          <AsyncCombobox
+            items={['31', '32', '33']}
+            defaultValue="32"
+            onValueChange={onValueChange}
+          />,
+        );
+        const input = screen.getByRole('combobox');
+        expect(input).toHaveValue('32');
+        await user.click(screen.getByTestId('trigger'));
+        expect(screen.getByRole('option', { name: '32' })).toHaveAttribute('data-highlighted');
+
+        await setProps({ items: [] });
+        await setProps({ items: ['31', '32', '33'] });
+        expect(screen.getByRole('option', { name: '31' })).not.toHaveAttribute('data-highlighted');
+
+        await user.keyboard('{Enter}');
+        expect(onValueChange).not.toHaveBeenCalled();
+      });
+
       it('waits for a controlled popup to open', async () => {
         const { user, setProps } = await render(<AsyncCombobox items={['32']} open={false} />);
         await user.type(screen.getByRole('combobox'), '32');
