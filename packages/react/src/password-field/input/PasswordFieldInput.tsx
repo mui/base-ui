@@ -23,7 +23,13 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
 ) {
   const { disabled: disabledProp = false, ...elementProps } = componentProps;
 
-  const { visible, disabled: rootDisabled, inputIdProp, inputRef } = usePasswordFieldRootContext();
+  const {
+    visible,
+    maskedForSubmit,
+    disabled: rootDisabled,
+    inputIdProp,
+    inputRef,
+  } = usePasswordFieldRootContext();
 
   const mergedRef = useMergedRefs(forwardedRef, inputRef);
 
@@ -39,7 +45,7 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
       // The Root owns `id` and `type`, so the toggle's `aria-controls` and switching can't break.
       id={inputIdProp}
       disabled={rootDisabled || disabledProp}
-      type={visible ? 'text' : 'password'}
+      type={visible && !maskedForSubmit ? 'text' : 'password'}
     />
   );
 });

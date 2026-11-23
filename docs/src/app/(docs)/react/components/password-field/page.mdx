@@ -46,21 +46,6 @@ import { DemoPasswordFieldToggleIcon } from './demos/toggle-icon';
 
 <DemoPasswordFieldToggleIcon />
 
-### Submitting and resetting forms
-
-Submitting the owning form hides the password, and resetting it restores the initial visibility.
-Both call `onVisibleChange` with the `'form-submit'` or `'form-reset'` reason, which can be canceled:
-
-```tsx title="Keeping the password visible after a submit"
-<PasswordField.Root
-  onVisibleChange={(visible, eventDetails) => {
-    if (eventDetails.reason === 'form-submit') {
-      eventDetails.cancel();
-    }
-  }}
->
-```
-
 ## API reference
 
 import { TypesPasswordField } from './types';

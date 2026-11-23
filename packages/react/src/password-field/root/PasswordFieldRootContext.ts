@@ -12,6 +12,10 @@ export interface PasswordFieldRootContext {
    */
   setVisible: (visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void;
   /**
+   * Whether the input is masked while its form submits, regardless of `visible`.
+   */
+  maskedForSubmit: boolean;
+  /**
    * Whether the field should ignore user interaction.
    */
   disabled: boolean;

@@ -5,6 +5,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { NOOP } from '../../internals/noop';
@@ -83,9 +84,35 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
   const rootRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  // A revealed password must never be submitted as `type="text"`: browsers can save text inputs to
+  // autofill history, and password managers may not recognize them. Submitting therefore masks the
+  // input without changing `visible`, so it can't be canceled or overridden by the `visible` prop.
+  const [maskedForSubmit, setMaskedForSubmit] = React.useState(false);
+  const unmaskTimeout = useTimeout();
+
+  const maskForSubmit = useStableCallback((event: Event) => {
+    const input = inputRef.current;
+    if (!visible || !input || event.target !== input.form) {
+      return;
+    }
+
+    // The form data is built right after this event is dispatched, possibly before React
+    // commits, so the DOM is masked directly. The state keeps a re-render that React commits
+    // first, such as a form handler's update, from rendering `text` again.
+    input.type = 'password';
+    setMaskedForSubmit(true);
+    // The form data has been built by the next task. A prevented submit unmasks then too.
+    unmaskTimeout.start(0, () => {
+      setMaskedForSubmit(false);
+    });
+  });
+
   useIsoLayoutEffect(() => {
     const rootNode = rootRef.current?.getRootNode();
-    if (!rootNode) {
+    // Attach the listener to the input's tree and not the Root's because, when the input and its
+    // form are portaled into a shadow root, `submit` fires there and never reaches the Root's document.
+    const inputRootNode = inputRef.current?.getRootNode();
+    if (!rootNode || !inputRootNode) {
       return undefined;
     }
 
@@ -98,19 +125,9 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
         }
       }),
       // Submit listens in the capture phase, before any form handler can stop its propagation.
-      // A prevented submit hides too: a revealed password must not outlive a submission attempt.
-      addEventListener(
-        rootNode,
-        'submit',
-        (event) => {
-          if (event.target === inputRef.current?.form) {
-            setVisible(false, createChangeEventDetails(REASONS.formSubmit, event));
-          }
-        },
-        true,
-      ),
+      addEventListener(inputRootNode, 'submit', maskForSubmit, true),
     );
-  }, [initialVisible, setVisible]);
+  }, [initialVisible, setVisible, maskForSubmit]);
 
   const state: PasswordFieldRoot.State = React.useMemo(
     () => ({ ...fieldState, disabled, visible }),
@@ -121,12 +138,13 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
     () => ({
       visible,
       setVisible,
+      maskedForSubmit,
       disabled,
       inputId,
       inputIdProp,
       inputRef,
     }),
-    [visible, setVisible, disabled, inputId, inputIdProp],
+    [visible, setVisible, maskedForSubmit, disabled, inputId, inputIdProp],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -173,8 +191,7 @@ export interface PasswordFieldRootProps extends BaseUIComponentProps<
   defaultVisible?: boolean | undefined;
   /**
    * Callback fired when the password visibility changes.
-   * Besides the toggle, resetting the owning form restores the initial visibility, and
-   * submitting it hides the password.
+   * Besides the toggle, resetting the owning form restores the initial visibility.
    */
   onVisibleChange?:
     ((visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void) | undefined;
@@ -187,7 +204,7 @@ export interface PasswordFieldRootProps extends BaseUIComponentProps<
 }
 
 export type PasswordFieldRootChangeEventReason =
-  typeof REASONS.triggerPress | typeof REASONS.formReset | typeof REASONS.formSubmit;
+  typeof REASONS.triggerPress | typeof REASONS.formReset;
 export type PasswordFieldRootChangeEventDetails =
   BaseUIChangeEventDetails<PasswordFieldRoot.ChangeEventReason>;
 

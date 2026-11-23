@@ -40,6 +40,5 @@ export const initial = 'initial' as const;
 export const imperativeAction = 'imperative-action' as const;
 export const formReset = 'form-reset' as const;
 export const swipe = 'swipe' as const;
-export const formSubmit = 'form-submit' as const;
 
 export const windowResize = 'window-resize' as const;
