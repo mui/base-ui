@@ -74,14 +74,13 @@ export function getNavigationKey(event: KeyboardEvent | React.KeyboardEvent): st
 
   // Use the layout's character so Dvorak and similar layouts match the labelled key.
   // Layouts without Latin letters fall back to the physical key.
-  const letter = /^[a-z]$/i.test(event.key)
-    ? event.key.toLowerCase()
-    : event.code.slice(3).toLowerCase();
+  const isLatinLetter = /^[a-z]$/i.test(event.key);
+  const letter = isLatinLetter ? event.key.toLowerCase() : event.code;
 
-  if (letter === 'n') {
+  if (letter === 'n' || letter === 'KeyN') {
     return 'ArrowDown';
   }
-  if (letter === 'p') {
+  if (letter === 'p' || letter === 'KeyP') {
     return 'ArrowUp';
   }
   return event.key;

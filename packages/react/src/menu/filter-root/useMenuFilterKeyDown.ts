@@ -10,7 +10,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
-import { stopEvent } from '../../utils/popups/event';
+import { getNavigationKey, stopEvent } from '../../utils/popups/event';
 import { getMaxListIndex, getMinListIndex } from '../../internals/composite/listIndex';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import {
@@ -68,7 +68,7 @@ export function getMenuFilterKeyAction(
     caretAtStart,
     caretAtEnd,
   } = context;
-  const { key } = event;
+  const key = getNavigationKey(event);
   // Enter that commits an IME composition belongs to the input, not the list.
   if (event.which === 229) {
     return 'ignore';
@@ -84,8 +84,9 @@ export function getMenuFilterKeyAction(
   const isBoundary = key === 'Home' || key === 'End';
 
   // Modified arrows and boundary keys are text-editing commands (extend the selection, move by
-  // word or to a text boundary), like a modified character.
-  if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+  // word or to a text boundary), like a modified character. Shortcuts that `getNavigationKey`
+  // maps to an arrow navigate like that arrow.
+  if (key === event.key && (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey)) {
     return isArrow || isBoundary || key.length === 1 ? 'edit' : 'navigate';
   }
   // Space types into a non-empty input, and otherwise acts on the highlighted item.
@@ -175,7 +176,7 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
         }
         break;
       case 'navigate': {
-        if (isMainOrientationKey(event.key, orientation)) {
+        if (isMainOrientationKey(getNavigationKey(event), orientation)) {
           // Keep the same event from reaching the popup's list navigation and moving the virtual
           // cursor a second time.
           event.stopPropagation();
@@ -187,7 +188,7 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
         event.stopPropagation();
         const listRef = store.context.itemDomElements;
         const index =
-          event.key === 'ArrowDown'
+          getNavigationKey(event) === 'ArrowDown'
             ? getMinListIndex(listRef, EMPTY_ARRAY)
             : getMaxListIndex(listRef, EMPTY_ARRAY);
         if (listRef.current[index]) {
