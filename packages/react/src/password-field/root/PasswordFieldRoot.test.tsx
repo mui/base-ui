@@ -324,11 +324,16 @@ describe('<PasswordField.Root />', () => {
       expect(input).toHaveAttribute('type', 'text');
     });
 
-    it('does not restore the visibility when the reset is canceled', async () => {
-      const onVisibleChange = vi.fn();
+    it('does not restore the visibility when the form-reset change is canceled', async () => {
       await render(
-        <form onReset={(event) => event.preventDefault()}>
-          <PasswordField.Root onVisibleChange={onVisibleChange}>
+        <form>
+          <PasswordField.Root
+            onVisibleChange={(_visible, eventDetails) => {
+              if (eventDetails.reason === REASONS.formReset) {
+                eventDetails.cancel();
+              }
+            }}
+          >
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -342,7 +347,156 @@ describe('<PasswordField.Root />', () => {
       fireEvent.reset(input.form!);
 
       expect(input).toHaveAttribute('type', 'text');
-      expect(onVisibleChange.mock.calls.length).toBe(1);
+    });
+
+    it.each([
+      {
+        name: 'stops its propagation',
+        onReset: (event: React.FormEvent) => event.stopPropagation(),
+      },
+      {
+        name: 'prevents it',
+        onReset: (event: React.FormEvent) => event.preventDefault(),
+      },
+    ])('restores the initial visibility when an onReset handler $name', async ({ onReset }) => {
+      const onVisibleChange = vi.fn();
+      await render(
+        <form onReset={onReset}>
+          <PasswordField.Root onVisibleChange={onVisibleChange}>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </form>,
+      );
+
+      const input = document.querySelector('input')!;
+      await reveal();
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.reset(input.form!);
+
+      expect(input).toHaveAttribute('type', 'password');
+      expect(onVisibleChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
+    });
+
+    it('resets a controlled visibility through onVisibleChange', async () => {
+      function App() {
+        const [visible, setVisible] = React.useState(false);
+        return (
+          <form>
+            <PasswordField.Root visible={visible} onVisibleChange={setVisible}>
+              <PasswordField.Input />
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      const input = document.querySelector('input')!;
+      await reveal();
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.reset(input.form!);
+
+      expect(input).toHaveAttribute('type', 'password');
+    });
+
+    it('follows a `form` attribute changed by a re-render of only the input', async () => {
+      let useFormB!: () => void;
+      function Input() {
+        const [form, setForm] = React.useState('a');
+        useFormB = () => setForm('b');
+        return <PasswordField.Input form={form} />;
+      }
+      const Field = React.memo(function Field() {
+        return (
+          <PasswordField.Root>
+            <Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        );
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="a" />
+          <form id="b" />
+          <Field />
+        </React.Fragment>,
+      );
+      const input = document.querySelector('input')!;
+      await reveal();
+      await act(async () => useFormB());
+      expect(input.form).toBe(document.querySelector('#b'));
+
+      fireEvent.reset(document.querySelector('#a')!);
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.reset(document.querySelector('#b')!);
+      expect(input).toHaveAttribute('type', 'password');
+    });
+
+    it('follows a form that mounts after the field without re-rendering it', async () => {
+      let mountForm!: () => void;
+      function LateForm() {
+        const [mounted, setMounted] = React.useState(false);
+        mountForm = () => setMounted(true);
+        return mounted ? <form id="late" /> : null;
+      }
+      const Field = React.memo(function Field() {
+        return (
+          <PasswordField.Root>
+            <PasswordField.Input form="late" />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        );
+      });
+
+      await render(
+        <React.Fragment>
+          <Field />
+          <LateForm />
+        </React.Fragment>,
+      );
+      const input = document.querySelector('input')!;
+      await reveal();
+      expect(input).toHaveAttribute('type', 'text');
+      await act(async () => mountForm());
+      expect(input.form).toBe(document.querySelector('#late'));
+
+      fireEvent.reset(input.form!);
+
+      expect(input).toHaveAttribute('type', 'password');
+    });
+
+    it('restores the visibility on reset when the form and input are portaled into a shadow root', async () => {
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      onTestFinished(() => host.remove());
+
+      await render(
+        <PasswordField.Root>
+          {ReactDOM.createPortal(
+            <form>
+              <PasswordField.Input />
+              <PasswordField.Toggle />
+            </form>,
+            shadowRoot as unknown as Element,
+          )}
+        </PasswordField.Root>,
+      );
+
+      const input = shadowRoot.querySelector('input')!;
+      await act(async () => {
+        shadowRoot.querySelector('button')!.click();
+      });
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.reset(input.form!);
+
+      expect(input).toHaveAttribute('type', 'password');
     });
 
     function unmaskAfterSubmit() {

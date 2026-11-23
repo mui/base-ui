@@ -15,7 +15,7 @@ Renders a `<div>` element.
 | :-------------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | defaultVisible  | `boolean`                                                                                      | `false` | Whether the password is initially revealed as plain text. To render a controlled password field, use the `visible` prop instead.                                                              |
 | visible         | `boolean`                                                                                      | -       | Whether the password is currently revealed as plain text. To render an uncontrolled password field, use the `defaultVisible` prop instead.                                                    |
-| onVisibleChange | `((visible: boolean, eventDetails: PasswordFieldPreview.Root.ChangeEventDetails) => void)`     | -       | Callback fired when the password visibility changes.&#xA;Besides the toggle, resetting the owning form restores the initial visibility.                                                       |
+| onVisibleChange | `((visible: boolean, eventDetails: PasswordFieldPreview.Root.ChangeEventDetails) => void)`     | -       | Callback fired when the password visibility changes.&#xA;Besides the toggle, resetting the owning form restores the initial visibility.&#xA;Cancel `'form-reset'` to prevent it.              |
 | disabled        | `boolean`                                                                                      | `false` | Whether the component should ignore user interaction.&#xA;Applies to both the input and the toggle.                                                                                           |
 | id              | `string`                                                                                       | -       | The id of the input element.                                                                                                                                                                  |
 | className       | `string \| ((state: PasswordFieldRootState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -445,6 +445,7 @@ type PasswordFieldRootProps = {
   /**
    * Callback fired when the password visibility changes.
    * Besides the toggle, resetting the owning form restores the initial visibility.
+   * Cancel `'form-reset'` to prevent it.
    */
   onVisibleChange?: (visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void;
   /**

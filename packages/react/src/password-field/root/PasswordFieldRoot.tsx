@@ -81,7 +81,6 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
     },
   );
 
-  const rootRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   // A revealed password must never be submitted as `type="text"`: browsers can save text inputs to
@@ -108,24 +107,28 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
   });
 
   useIsoLayoutEffect(() => {
-    const rootNode = rootRef.current?.getRootNode();
-    // Attach the listener to the input's tree and not the Root's because, when the input and its
-    // form are portaled into a shadow root, `submit` fires there and never reaches the Root's document.
-    const inputRootNode = inputRef.current?.getRootNode();
-    if (!rootNode || !inputRootNode) {
+    // Attach the listeners to the input's tree and not the Root's because, when the input and its
+    // form are portaled into a shadow root, `submit` and `reset` fire there and never reach the
+    // Root's document.
+    const rootNode = inputRef.current?.getRootNode();
+    if (!rootNode) {
       return undefined;
     }
 
+    // Both listen in the capture phase, before any form handler can stop their propagation.
     // The input's form is read when the events fire, so a late or changed form owner is followed.
     return mergeCleanups(
-      // Reset listens in the bubble phase so a handler on the form can cancel it first.
-      addEventListener(rootNode, 'reset', (event) => {
-        if (event.target === inputRef.current?.form && !event.defaultPrevented) {
-          setVisible(initialVisible, createChangeEventDetails(REASONS.formReset, event));
-        }
-      }),
-      // Submit listens in the capture phase, before any form handler can stop its propagation.
-      addEventListener(inputRootNode, 'submit', maskForSubmit, true),
+      addEventListener(
+        rootNode,
+        'reset',
+        (event) => {
+          if (event.target === inputRef.current?.form) {
+            setVisible(initialVisible, createChangeEventDetails(REASONS.formReset, event));
+          }
+        },
+        true,
+      ),
+      addEventListener(rootNode, 'submit', maskForSubmit, true),
     );
   }, [initialVisible, setVisible, maskForSubmit]);
 
@@ -148,7 +151,7 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
   );
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, rootRef],
+    ref: forwardedRef,
     state,
     props: elementProps,
     stateAttributesMapping,
@@ -192,6 +195,7 @@ export interface PasswordFieldRootProps extends BaseUIComponentProps<
   /**
    * Callback fired when the password visibility changes.
    * Besides the toggle, resetting the owning form restores the initial visibility.
+   * Cancel `'form-reset'` to prevent it.
    */
   onVisibleChange?:
     ((visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void) | undefined;
