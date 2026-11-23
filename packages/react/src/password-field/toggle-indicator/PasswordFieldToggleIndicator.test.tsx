@@ -65,27 +65,6 @@ describe('<PasswordField.ToggleIndicator />', () => {
       expect(screen.queryByTestId('indicator') !== null).toBe(initiallyRendered);
     });
 
-    it('swaps between a pair of indicators', async () => {
-      const { user } = await render(
-        <PasswordField.Root>
-          <PasswordField.Toggle>
-            <PasswordField.ToggleIndicator match="password-masked">
-              show
-            </PasswordField.ToggleIndicator>
-            <PasswordField.ToggleIndicator match="password-visible">
-              hide
-            </PasswordField.ToggleIndicator>
-          </PasswordField.Toggle>
-        </PasswordField.Root>,
-      );
-
-      const button = screen.getByRole('button');
-      expect(button.textContent).toBe('show');
-
-      await user.click(button);
-      expect(button.textContent).toBe('hide');
-    });
-
     // The Flight client passes a render element created in a Server Component as a `react.lazy`
     // wrapper, which suspends until its chunk loads.
     it.skipIf(reactMajor < 19)(

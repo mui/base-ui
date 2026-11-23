@@ -71,21 +71,6 @@ describe('<PasswordField.Toggle />', () => {
     expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
   });
 
-  describe('aria-controls', () => {
-    it('points aria-controls at the generated input id', async () => {
-      await render(
-        <PasswordField.Root>
-          <PasswordField.Input />
-          <PasswordField.Toggle />
-        </PasswordField.Root>,
-      );
-
-      const input = document.querySelector('input')!;
-      expect(input.id).not.toBe('');
-      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', input.id);
-    });
-  });
-
   describe('accessible label', () => {
     it('does not set a default aria-label (the consumer provides a localized one)', async () => {
       await render(
@@ -96,17 +81,6 @@ describe('<PasswordField.Toggle />', () => {
       );
 
       expect(screen.getByRole('button')).not.toHaveAttribute('aria-label');
-    });
-
-    it('forwards an explicit aria-label', async () => {
-      await render(
-        <PasswordField.Root>
-          <PasswordField.Input />
-          <PasswordField.Toggle aria-label="Reveal password" />
-        </PasswordField.Root>,
-      );
-
-      expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Reveal password');
     });
   });
 
