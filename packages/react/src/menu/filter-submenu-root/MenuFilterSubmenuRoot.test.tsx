@@ -1,9 +1,11 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { act, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, resetBrowserPointer, waitSingleFrame } from '#test-utils';
+
+const platformOverride = vi.hoisted(() => ({ apple: undefined as boolean | undefined }));
 
 // The submenu trigger's VoiceOver branch is covered separately; keep the mainline deterministic.
 vi.mock('@base-ui/utils/platform', async () => {
@@ -13,6 +15,9 @@ vi.mock('@base-ui/utils/platform', async () => {
   return {
     platform: {
       ...actual.platform,
+      os: Object.defineProperty({ ...actual.platform.os }, 'apple', {
+        get: () => platformOverride.apple ?? actual.platform.os.apple,
+      }),
       screenReader: { ...actual.platform.screenReader, voiceOver: false },
     },
   };
@@ -841,4 +846,135 @@ describe('closing a filtered submenu from the keyboard', () => {
       host.remove();
     }
   });
+});
+
+describe('Ctrl+N and Ctrl+P on Apple platforms', () => {
+  const { render } = createRenderer();
+
+  beforeEach(() => {
+    platformOverride.apple = true;
+  });
+
+  afterEach(() => {
+    platformOverride.apple = undefined;
+  });
+
+  function Submenu(props: {
+    filterable: boolean;
+    orientation?: Menu.SubmenuRoot.Props['orientation'];
+  }) {
+    const submenu = (
+      <Menu.SubmenuRoot orientation={props.orientation}>
+        <Menu.SubmenuTrigger openOnHover={false}>More</Menu.SubmenuTrigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="submenu">
+              {props.filterable && <Menu.Input aria-label="Filter child actions" />}
+              <Menu.List>
+                <Menu.Item>Child</Menu.Item>
+              </Menu.List>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.SubmenuRoot>
+    );
+    return props.filterable ? <Menu.FilterProvider>{submenu}</Menu.FilterProvider> : submenu;
+  }
+
+  it.each([false, true])(
+    'opens a filterable submenu of a horizontal parent with Ctrl+N (filterable parent: %s)',
+    async (parentFilterable) => {
+      const menu = (
+        <Menu.Root orientation="horizontal">
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {parentFilterable && <Menu.Input aria-label="Filter actions" />}
+                <Menu.List>
+                  <Menu.Item>First</Menu.Item>
+                  <Submenu filterable />
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+      const { user } = await render(
+        parentFilterable ? <Menu.FilterProvider>{menu}</Menu.FilterProvider> : menu,
+      );
+
+      await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
+      await user.keyboard('[Enter]');
+      const initialFocus = parentFilterable
+        ? await screen.findByRole('searchbox', { name: 'Filter actions' })
+        : await screen.findByRole('menuitem', { name: 'First' });
+      await waitFor(() => expect(initialFocus).toHaveFocus());
+      await user.keyboard('[ArrowRight]');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'More' })).toHaveAttribute('data-highlighted');
+      });
+
+      await user.keyboard('{Control>}n{/Control}');
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter child actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+    },
+  );
+
+  it.each([
+    { parentFilterable: false, submenuFilterable: true },
+    { parentFilterable: true, submenuFilterable: true },
+    { parentFilterable: true, submenuFilterable: false },
+  ])(
+    'closes a horizontal submenu with Ctrl+P and moves the parent on from its trigger (filterable parent: $parentFilterable, filterable submenu: $submenuFilterable)',
+    async ({ parentFilterable, submenuFilterable }) => {
+      const menu = (
+        <Menu.Root>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {parentFilterable && <Menu.Input aria-label="Filter actions" />}
+                <Menu.List>
+                  <Menu.Item>First</Menu.Item>
+                  <Submenu filterable={submenuFilterable} orientation="horizontal" />
+                  <Menu.Item>Last</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+      const { user } = await render(
+        parentFilterable ? <Menu.FilterProvider>{menu}</Menu.FilterProvider> : menu,
+      );
+
+      await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
+      await user.keyboard('[Enter]');
+      const initialFocus = parentFilterable
+        ? await screen.findByRole('searchbox', { name: 'Filter actions' })
+        : await screen.findByRole('menuitem', { name: 'First' });
+      await waitFor(() => expect(initialFocus).toHaveFocus());
+      await user.keyboard('[ArrowDown]');
+      const trigger = screen.getByRole('menuitem', { name: 'More' });
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-highlighted');
+      });
+      await user.keyboard('[ArrowRight]');
+      await screen.findByTestId('submenu');
+
+      await user.keyboard('{Control>}p{/Control}');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('submenu')).toBe(null);
+      });
+      expect(screen.getByRole('menuitem', { name: 'First' })).toHaveAttribute('data-highlighted');
+      expect(screen.getByRole('menuitem', { name: 'Last' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+    },
+  );
 });

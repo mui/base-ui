@@ -5,6 +5,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { warn } from '@base-ui/utils/warn';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isTypeableElement } from '../../utils/popups/element';
+import { getNavigationKey } from '../../utils/popups/event';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { refocusOwner, isRefocusingOwner } from '../../filter-dropdown/utils/refocusOwner';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -144,7 +145,9 @@ export function useMenuFilterPopup(
         return;
       }
 
-      if (isCrossOrientationCloseKey(event.key, orientation, direction === 'rtl', false)) {
+      if (
+        isCrossOrientationCloseKey(getNavigationKey(event), orientation, direction === 'rtl', false)
+      ) {
         focusOwnerRef.current?.focus({ preventScroll: true });
         // Nested popups bubble through this React tree, so keep the key from the parent.
         event.stopPropagation();
