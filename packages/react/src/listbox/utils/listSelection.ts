@@ -57,6 +57,9 @@ export class ListSelection<E = Event> {
   /** The last pressed or selected item, which Shift+press extends a range from. */
   private pressAnchor: number | null = null;
 
+  /** The item that had focus when `pressAnchor` was last set or kept. */
+  private anchorFocus: number | null = null;
+
   constructor(parameters: ListSelectionParameters<E>) {
     this.parameters = parameters;
   }
@@ -98,6 +101,18 @@ export class ListSelection<E = Event> {
     if (!keepsAnchor) {
       this.pressAnchor = index;
     }
+    this.anchorFocus = index;
+  }
+
+  /**
+   * Where a Shift+Arrow range starts from the focused item: the press anchor while focus is still
+   * on the item that set or kept it, so Shift+Arrow continues a Shift+press range, and the focused
+   * item once focus has moved elsewhere.
+   */
+  getRangeAnchor(focusedIndex: number | null): number | null {
+    return this.pressAnchor !== null && this.anchorFocus === focusedIndex
+      ? this.pressAnchor
+      : focusedIndex;
   }
 
   /**
@@ -113,11 +128,13 @@ export class ListSelection<E = Event> {
       event,
     );
     this.pressAnchor = index;
+    this.anchorFocus = index;
   }
 
   /**
    * Selects the range from an anchor to an item, replacing the rest of the selection, so the
-   * range grows and shrinks as the item changes.
+   * range grows and shrinks as the item changes. The anchor becomes the one Shift+press extends
+   * from, too.
    */
   extendTo(index: number, anchorIndex: number | null, event: E) {
     const { value, items } = this.read();
@@ -126,6 +143,8 @@ export class ListSelection<E = Event> {
       REASONS.listNavigation,
       event,
     );
+    this.pressAnchor = anchorIndex;
+    this.anchorFocus = index;
   }
 
   /** Adds a range to the selection. `anchorIndex` is where the next Shift+press extends from. */
@@ -133,6 +152,7 @@ export class ListSelection<E = Event> {
     const { value, items } = this.read();
     this.parameters.commit(addRange(value, items, from, to), REASONS.listNavigation, event);
     this.pressAnchor = anchorIndex;
+    this.anchorFocus = anchorIndex;
   }
 
   /** Disabled items keep their state: the selected ones stay selected, and the others aren't. */

@@ -153,13 +153,21 @@ describe('ListSelection', () => {
       expect(getValue()).toEqual([]);
     });
 
-    it('extendTo selects from the given anchor without moving the press anchor', () => {
+    it('extendTo selects from the given anchor and moves the press anchor to it', () => {
       const { selection, getValue } = setup({ multiple: true });
       selection.press(0, {}, EVENT);
       selection.extendTo(4, 3, EVENT);
       expect(getValue()).toEqual(['d', 'e']);
       selection.press(1, { shiftKey: true }, EVENT);
-      expect(getValue()).toEqual(['a', 'b']);
+      expect(getValue()).toEqual(['b', 'c', 'd']);
+    });
+
+    it('getRangeAnchor returns the press anchor while focus is on the pressed item', () => {
+      const { selection } = setup({ multiple: true });
+      selection.press(0, {}, EVENT);
+      selection.press(2, { shiftKey: true }, EVENT);
+      expect(selection.getRangeAnchor(2)).toBe(0);
+      expect(selection.getRangeAnchor(3)).toBe(3);
     });
 
     it('selectRange adds to the selection and moves the anchor', () => {

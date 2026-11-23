@@ -4,7 +4,6 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type {
   BaseUIChangeEventDetails,
   BaseUIHighlightEventDetails,
@@ -19,7 +18,7 @@ import type {
   ListboxPrimitiveValue,
 } from '../items/createItems';
 import { ListboxRootContext } from './ListboxRootContext';
-import { ListboxStore } from '../store';
+import { ListboxStore, getSelectedValueSet } from '../store';
 import { useHighlightChangeNotifier } from '../utils/useHighlightChangeNotifier';
 
 // An array of primitives is a collection whose items are their own key and label.
@@ -100,7 +99,7 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     (nextSelectedValues: any[], eventDetails: ListboxRoot.ChangeEventDetails) => {
       // Nothing changes when the selection is the same, such as when the focused item is
       // disabled or every item is already selected.
-      if (areArraysEqual(nextSelectedValues, store.state.value)) {
+      if (isSameSelection(nextSelectedValues, store.state.value)) {
         return;
       }
 
@@ -252,4 +251,13 @@ export namespace ListboxRoot {
   export type ChangeEventDetails = ListboxRootChangeEventDetails;
   export type HighlightEventReason = ListboxRootHighlightEventReason;
   export type HighlightEventDetails = ListboxRootHighlightEventDetails;
+}
+
+/** Whether two selections hold the same values, in any order. */
+function isSameSelection(a: any[], b: any[]) {
+  if (a.length !== b.length) {
+    return false;
+  }
+  const selected = getSelectedValueSet(b);
+  return a.every((value) => selected.has(value));
 }

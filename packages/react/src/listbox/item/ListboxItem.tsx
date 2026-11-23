@@ -261,6 +261,10 @@ export const ListboxItem = React.memo(
           return;
         }
 
+        // A click without a pointer press, such as from assistive technology, isn't a touch tap.
+        const touch = event.type !== 'keydown' && lastPointerTypeRef.current === 'touch';
+        lastPointerTypeRef.current = null;
+
         if (disabled) {
           return;
         }
@@ -271,7 +275,7 @@ export const ListboxItem = React.memo(
           {
             shiftKey: event.shiftKey,
             ctrlKey: event.ctrlKey || event.metaKey,
-            touch: event.type !== 'keydown' && lastPointerTypeRef.current === 'touch',
+            touch,
           },
           event.nativeEvent,
         );

@@ -148,6 +148,23 @@ describe('<Listbox.Root />', () => {
 
       expect(handleValueChange).not.toHaveBeenCalled();
     });
+
+    it('is not called when Ctrl+A selects a fully selected list held in a different order', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Listbox.Root multiple defaultValue={['b', 'a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+    });
   });
 
   describe('prop: onItemHighlighted', () => {
@@ -854,6 +871,27 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[1][0]).toEqual(['b', 'c']);
     });
 
+    it('replaces the selection on a click without a pointer press after a touch tap', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      fireEvent.pointerDown(itemB, { pointerType: 'touch' });
+      fireEvent.click(itemB);
+      // A click from assistive technology arrives without a pointer press.
+      fireEvent.click(itemB);
+
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['a', 'b'], ['b']]);
+    });
+
     it('should preserve existing selections outside the range on Ctrl+Shift+Click', async () => {
       const handleValueChange = vi.fn();
 
@@ -1484,6 +1522,40 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([
         ['a', 'b'],
         ['c', 'd'],
+      ]);
+    });
+
+    it('Shift+Arrow continues a range made with Shift+Click', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple defaultValue={[]} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+            <Listbox.Item value="d">d</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const option = (name: string) => screen.getByRole('option', { name });
+      fireEvent.click(option('a'));
+      await act(async () => option('c').focus());
+      fireEvent.click(option('c'), { shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('c'), { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('d'), { key: 'Shift', shiftKey: true });
+      await flushMicrotasks();
+      fireEvent.keyDown(option('d'), { key: 'ArrowUp', shiftKey: true });
+      await flushMicrotasks();
+
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([
+        ['a'],
+        ['a', 'b', 'c'],
+        ['a', 'b', 'c', 'd'],
+        ['a', 'b', 'c'],
       ]);
     });
 

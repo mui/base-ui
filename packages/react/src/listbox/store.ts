@@ -67,7 +67,7 @@ const selectedValueSets = new WeakMap<any[], Set<any>>();
  * The selected values as a set, built once per `value` array, so that checking whether an item is
  * selected doesn't scan the selection.
  */
-function getSelectedValueSet(value: any[]) {
+export function getSelectedValueSet(value: any[]) {
   let set = selectedValueSets.get(value);
   if (!set) {
     set = new Set(value);

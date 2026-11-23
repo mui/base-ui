@@ -43,7 +43,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const direction = useDirection();
   const { elementsRef, labelsRef, typingRef } = store.context;
 
-  // Where a Shift+Arrow range starts: the item focused when Shift was pressed.
+  // Where a Shift+Arrow range starts: the item focused when Shift was pressed, or the anchor of a
+  // Shift+press range that ended on it.
   const shiftAnchorRef = React.useRef<number | null>(null);
 
   const runKeyCommand = useStableCallback((command: ListKeyCommand, event: React.KeyboardEvent) => {
@@ -64,7 +65,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         break;
       case 'extend': {
         if (shiftAnchorRef.current === null) {
-          shiftAnchorRef.current = store.state.activeIndex;
+          shiftAnchorRef.current = store.selection.getRangeAnchor(store.state.activeIndex);
         }
         const anchorIndex = shiftAnchorRef.current ?? command.index;
         store.focus.moveTo(command.index, nativeEvent);
@@ -197,7 +198,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       }
 
       if (event.key === 'Shift') {
-        shiftAnchorRef.current = store.state.activeIndex;
+        shiftAnchorRef.current = store.selection.getRangeAnchor(store.state.activeIndex);
       } else if (!event.shiftKey) {
         shiftAnchorRef.current = null;
       }
