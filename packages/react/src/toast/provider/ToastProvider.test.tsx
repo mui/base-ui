@@ -12,7 +12,8 @@ describe('<Toast.Provider />', () => {
 
   clock.withFakeTimers();
 
-  // A real hover pauses the toast timers these tests assert on.
+  // Keep tests isolated: a real pointer left over a toast by an earlier test hovers it and
+  // pauses its timer.
   beforeEach(resetBrowserPointer);
 
   it('syncs a changed timeout before descendant layout effects', async () => {
