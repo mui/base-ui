@@ -135,7 +135,8 @@ describe('<PasswordField.Input />', () => {
               value={value}
               onValueChange={(nextValue, eventDetails) => {
                 onValueChange(nextValue, eventDetails);
-                setValue(nextValue);
+                // The parent stores a transformed value, so the input must render the prop.
+                setValue(nextValue.toUpperCase());
               }}
             />
           </PasswordField.Root>
@@ -147,10 +148,10 @@ describe('<PasswordField.Input />', () => {
 
       fireEvent.change(input, { target: { value: 'secret' } });
 
-      expect(input.value).toBe('secret');
       expect(onValueChange.mock.lastCall?.[0]).toBe('secret');
       expect(onValueChange.mock.lastCall?.[1].reason).toBe('none');
       expect(onValueChange.mock.lastCall?.[1].event).toBeInstanceOf(Event);
+      expect(input.value).toBe('SECRET');
     });
   });
 });
