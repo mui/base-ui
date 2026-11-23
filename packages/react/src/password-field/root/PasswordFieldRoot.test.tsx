@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { Field } from '@base-ui/react/field';
+import { Fieldset } from '@base-ui/react/fieldset';
 import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
@@ -156,6 +157,32 @@ describe('<PasswordField.Root />', () => {
         button.click();
       });
 
+      expect(onVisibleChange.mock.calls.length).toBe(0);
+    });
+
+    it('is disabled by a surrounding Fieldset.Root without a Field.Root', async () => {
+      const onVisibleChange = vi.fn();
+      await render(
+        <Fieldset.Root disabled>
+          <PasswordField.Root onVisibleChange={onVisibleChange} data-testid="root">
+            <PasswordField.Input />
+            <PasswordField.Toggle nativeButton={false} render={<span />} />
+          </PasswordField.Root>
+        </Fieldset.Root>,
+      );
+
+      const input = document.querySelector('input')!;
+      const toggle = screen.getByRole('button');
+      expect(input).toHaveAttribute('type', 'password');
+      expect(screen.getByTestId('root')).toHaveAttribute('data-disabled');
+
+      // A native `<fieldset disabled>` doesn't stop a click on a non-native toggle, but
+      // `user.click` refuses to click inside one, so the click is dispatched directly.
+      await act(async () => {
+        toggle.click();
+      });
+
+      expect(input).toHaveAttribute('type', 'password');
       expect(onVisibleChange.mock.calls.length).toBe(0);
     });
 

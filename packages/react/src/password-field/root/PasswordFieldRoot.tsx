@@ -10,6 +10,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { NOOP } from '../../internals/noop';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -47,8 +48,11 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
     ...elementProps
   } = componentProps;
 
+  // A native `<fieldset disabled>` doesn't disable a non-native toggle, so the Fieldset's state is
+  // read directly, as `Field.Root` does, for a field that isn't wrapped in one.
+  const disabledFieldset = useFieldsetRootContext(true)?.disabled;
   const { disabled: fieldDisabled, state: fieldState } = useFieldRootContext();
-  const disabled = fieldDisabled || disabledProp;
+  const disabled = disabledFieldset || fieldDisabled || disabledProp;
 
   // `Field.Control` resolves its id as `controlId ?? id`. Inside a Field, an input without an
   // explicit id takes the Field's id, so only a standalone input needs a generated one.
