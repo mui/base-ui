@@ -199,8 +199,9 @@ describe('<Toast.Provider />', () => {
       ));
     }
 
-    // This leaves the real pointer over the toast. The next test renders its toast in the same spot,
-    // so it only passes because `beforeEach(resetBrowserPointer)` moves the pointer away first.
+    // This test hovers the toast with the real pointer and doesn't move it away afterwards. The next
+    // test renders its toast in the same spot, so it only passes because
+    // `beforeEach(resetBrowserPointer)` moves the pointer away first.
     it.skipIf(isJSDOM)('keeps the timer paused while a real pointer hovers the toast', async () => {
       const { userEvent } = await import('vitest/browser');
       const onClose = vi.fn();
