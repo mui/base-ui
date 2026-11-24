@@ -28,7 +28,7 @@ export const ToggleIndicator = React.forwardRef(function ToggleIndicator(
   const { pressed, disabled } = useToggleRootContext();
 
   // Without `match`, the indicator always renders and reflects the state through `data-pressed`.
-  const rendered = match === undefined || (match === 'pressed') === pressed;
+  const rendered = match === undefined || (match === 'on') === pressed;
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
@@ -77,11 +77,11 @@ export interface ToggleIndicatorState {
 export interface ToggleIndicatorProps extends BaseUIComponentProps<'span', ToggleIndicatorState> {
   /**
    * The state the indicator renders in.
-   * Use `'pressed'` for the icon shown while the toggle is pressed, and `'unpressed'` for the
-   * icon shown while it is not.
+   * Use `'on'` for the icon shown while the toggle is pressed, and `'off'` for the icon shown
+   * while it is not.
    * When omitted, the indicator always renders.
    */
-  match?: 'pressed' | 'unpressed' | undefined;
+  match?: 'on' | 'off' | undefined;
 }
 
 export namespace ToggleIndicator {

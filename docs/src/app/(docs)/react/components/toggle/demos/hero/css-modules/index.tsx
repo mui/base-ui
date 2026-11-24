@@ -6,10 +6,10 @@ import styles from './index.module.css';
 export default function ExampleToggle() {
   return (
     <Toggle.Root aria-label="Mute" className={styles.Button}>
-      <Toggle.Indicator className={styles.Indicator} match="unpressed">
+      <Toggle.Indicator className={styles.Indicator} match="off">
         <VolumeIcon />
       </Toggle.Indicator>
-      <Toggle.Indicator className={styles.Indicator} match="pressed">
+      <Toggle.Indicator className={styles.Indicator} match="on">
         <VolumeMutedIcon />
       </Toggle.Indicator>
     </Toggle.Root>

@@ -12,14 +12,14 @@ import type { ToggleIndicatorProps, ToggleProps } from '@base-ui/react/toggle';
     expectType<Toggle.Root.ChangeEventDetails, typeof eventDetails>(eventDetails);
   }}
 >
-  <Toggle.Indicator match="unpressed" />
+  <Toggle.Indicator match="off" />
 </Toggle.Root>;
 
 // @ts-expect-error value must match the Value type argument
 <Toggle.Root<'bold'> value="italic" />;
 
-// @ts-expect-error match only accepts pressed or unpressed
-<Toggle.Indicator match="on" />;
+// @ts-expect-error match only accepts on or off
+<Toggle.Indicator match="pressed" />;
 
 const rootRef = React.createRef<HTMLButtonElement>();
 const indicatorRef = React.createRef<HTMLSpanElement>();

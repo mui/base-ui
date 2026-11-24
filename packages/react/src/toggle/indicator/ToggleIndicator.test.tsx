@@ -95,8 +95,8 @@ describe('<Toggle.Indicator />', () => {
 
   describe('prop: match', () => {
     it.each([
-      { name: 'pressed', match: 'pressed' as const, initiallyRendered: false },
-      { name: 'unpressed', match: 'unpressed' as const, initiallyRendered: true },
+      { name: 'pressed', match: 'on' as const, initiallyRendered: false },
+      { name: 'unpressed', match: 'off' as const, initiallyRendered: true },
     ])('renders only while the toggle is $name', async ({ match, initiallyRendered }) => {
       const { user } = await render(
         <Toggle.Root>
@@ -116,8 +116,8 @@ describe('<Toggle.Indicator />', () => {
     it('swaps between a pair of indicators', async () => {
       const { user } = await render(
         <Toggle.Root>
-          <Toggle.Indicator match="unpressed">off</Toggle.Indicator>
-          <Toggle.Indicator match="pressed">on</Toggle.Indicator>
+          <Toggle.Indicator match="off">off</Toggle.Indicator>
+          <Toggle.Indicator match="on">on</Toggle.Indicator>
         </Toggle.Root>,
       );
 
@@ -144,7 +144,7 @@ describe('<Toggle.Indicator />', () => {
         await render(
           <React.Suspense fallback={<div data-testid="fallback" />}>
             <Toggle.Root>
-              <Toggle.Indicator match="pressed" render={pendingRender} />
+              <Toggle.Indicator match="on" render={pendingRender} />
             </Toggle.Root>
           </React.Suspense>,
         );
@@ -183,7 +183,7 @@ describe('<Toggle.Indicator />', () => {
             <Toggle.Indicator
               className="animation-test-indicator"
               data-testid="indicator"
-              match="pressed"
+              match="on"
             />
           </Toggle.Root>
         </div>,
