@@ -184,8 +184,8 @@ export function SearchControls({
         Search
         {/* `PlatformScript` sets `data-platform` on <html>; CSS shows the matching modifier. */}
         <span className="SearchTriggerShortcut">
-          (<kbd data-platform="mac">⌘</kbd>
-          <kbd data-platform="other">Ctrl+</kbd>
+          (<kbd className="SearchTriggerShortcutMac">⌘</kbd>
+          <kbd className="SearchTriggerShortcutOther">Ctrl+</kbd>
           <kbd>k</kbd>)
         </span>
       </Dialog.Trigger>

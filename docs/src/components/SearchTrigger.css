@@ -48,10 +48,11 @@
 
   .SearchTriggerShortcut {
     color: var(--gray-t1);
+  }
 
-    :root:not([data-platform='mac']) & [data-platform='mac'],
-    :root[data-platform='mac'] & [data-platform='other'] {
-      display: none;
-    }
+  /* `PlatformScript` sets `data-platform` on <html> before first paint. */
+  :root:not([data-platform='mac']) .SearchTriggerShortcutMac,
+  :root[data-platform='mac'] .SearchTriggerShortcutOther {
+    display: none;
   }
 }
