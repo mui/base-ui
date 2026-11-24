@@ -15,6 +15,7 @@ import { DemoListboxHero } from './demos/hero';
 - **Prefer Select for forms**: Use [Select](/react/components/select) instead of Listbox for selection in forms.
 - **Multi-select support**: Set `multiple` to allow selecting more than one item. The value is then an array.
 - **Provide an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered.
+- **Keep items free of interactive content**: Don't place buttons, links, inputs, or other controls inside `<Listbox.Item>`. Assistive technology treats an option's content as plain text, and the listbox handles key presses on its items, so a control inside one can't be reached or typed into. Put actions next to the listbox instead.
 
 ## Anatomy
 
