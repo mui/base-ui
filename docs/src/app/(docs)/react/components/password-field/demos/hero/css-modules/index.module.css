@@ -140,15 +140,18 @@
   display: block;
 }
 
-/* Lifts the shackle out of the lock body while the password is visible. */
-.Shackle {
-  transition: transform 150ms;
+/* Draws the slash across the eye while the password is masked, and retracts it once visible. */
+.Slash {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
 
+  /* Retracts at a constant speed so the end of the slash doesn't linger outside the eye. */
   .Indicator[data-visible] & {
-    transform: translateY(-2px);
+    stroke-dashoffset: 17;
+    transition-timing-function: linear;
   }
 }

@@ -22,7 +22,7 @@ export default function ExamplePasswordField() {
           className="grid h-full aspect-square shrink-0 place-items-center rounded-none border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
         >
           <PasswordField.ToggleIndicator className="group">
-            <PadlockIcon className="block" />
+            <EyeIcon className="block" />
           </PasswordField.ToggleIndicator>
         </PasswordField.Toggle>
       </PasswordField.Root>
@@ -30,16 +30,35 @@ export default function ExamplePasswordField() {
   );
 }
 
-function PadlockIcon(props: React.ComponentProps<'svg'>) {
+function EyeIcon(props: React.ComponentProps<'svg'>) {
+  const maskId = React.useId();
+  const slashClassName =
+    '[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-150 ease-in-out group-data-visible:[stroke-dashoffset:17] group-data-visible:ease-linear motion-reduce:transition-none';
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
-      <path
-        d="M5.5 10V5.5a2.5 2.5 0 0 1 5 0V7"
-        stroke="currentColor"
-        strokeWidth="1"
-        className="transition-transform duration-150 group-data-visible:-translate-y-0.5 motion-reduce:transition-none"
-      />
-      <rect x="3" y="7" width="10" height="7" fill="currentColor" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+    >
+      <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">
+        <rect width="16" height="16" fill="white" stroke="none" />
+        <path
+          d="M2.53 1.47l12 12"
+          stroke="black"
+          strokeWidth="1.5"
+          strokeDasharray="17"
+          className={slashClassName}
+        />
+      </mask>
+      <g mask={`url(#${maskId})`}>
+        <path d="M1.333 8s2.334-4.667 6.667-4.667S14.667 8 14.667 8 12.333 12.667 8 12.667 1.333 8 1.333 8Z" />
+        <circle cx="8" cy="8" r="2.5" />
+      </g>
+      <path d="M2 2l12 12" strokeDasharray="17" className={slashClassName} />
     </svg>
   );
 }
