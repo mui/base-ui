@@ -151,7 +151,7 @@
 
   /* Retracts at a constant speed so the end of the slash doesn't linger outside the eye. */
   .Indicator[data-visible] & {
-    stroke-dashoffset: 17;
+    stroke-dashoffset: 1;
     transition-timing-function: linear;
   }
 }

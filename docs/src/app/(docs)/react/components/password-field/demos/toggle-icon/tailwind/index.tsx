@@ -64,7 +64,7 @@ function EyeOffIcon(props: React.ComponentProps<'svg'>) {
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">
+      <mask id={maskId}>
         <rect width="16" height="16" fill="white" />
         <path d="M2.53 1.47l12 12" stroke="black" strokeWidth="1.5" />
       </mask>
