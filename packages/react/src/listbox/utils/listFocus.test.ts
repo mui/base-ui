@@ -154,4 +154,62 @@ describe('ListFocus', () => {
       expect(onFocused).not.toHaveBeenCalled();
     });
   });
+
+  describe('an item that stops rendering', () => {
+    it('holds focus on the list and reports where the item is', () => {
+      const { list, elements, focus } = setup(3);
+      elements[1]!.focus();
+      let position = 1;
+
+      focus.hold(() => position);
+
+      expect(list).toHaveFocus();
+      expect(focus.isPending()).toBe(true);
+
+      // Items were added before the held item.
+      position = 4;
+      expect(focus.updateHeldIndex()).toBe(4);
+    });
+
+    it('reports that the item was removed', () => {
+      const { focus } = setup(3);
+      let position = 1;
+      focus.hold(() => position);
+
+      position = -1;
+
+      expect(focus.updateHeldIndex()).toBe(-1);
+    });
+
+    it('holds nothing when the list cannot take focus', () => {
+      const { list, focus } = setup(3);
+      list.removeAttribute('tabindex');
+
+      focus.hold(() => 1);
+
+      expect(focus.isPending()).toBe(false);
+    });
+
+    it('gives focus back without scrolling once the item renders again', () => {
+      const { focus, mountItem } = setup(3);
+      focus.hold(() => 1);
+      const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
+
+      try {
+        const item = mountItem(1);
+
+        expect(item).toHaveFocus();
+        expect(focusSpy).toHaveBeenLastCalledWith({ preventScroll: true });
+      } finally {
+        focusSpy.mockRestore();
+      }
+    });
+
+    it('reports no held item when focus moved to an item that is not rendered yet', () => {
+      const { focus } = setup(3);
+      focus.moveTo(10, EVENT);
+
+      expect(focus.updateHeldIndex()).toBe(undefined);
+    });
+  });
 });

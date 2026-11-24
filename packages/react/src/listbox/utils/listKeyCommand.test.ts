@@ -175,6 +175,27 @@ describe('resolveListKeyCommand', () => {
       });
     });
 
+    it('selects every item on Ctrl+A typed as an uppercase letter', () => {
+      expect(resolve({ key: 'A', ctrlKey: true }, { multiple: true })).toEqual({
+        type: 'selectAll',
+      });
+    });
+
+    it('does nothing on Shift+ArrowDown when no item holds the tab stop', () => {
+      expect(
+        resolve({ key: 'ArrowDown', shiftKey: true }, { multiple: true, currentIndex: null }),
+      ).toEqual({ type: 'none' });
+    });
+
+    it.each([
+      { name: 'Ctrl+ArrowDown on the last item', key: 'ArrowDown', currentIndex: 4 },
+      { name: 'Ctrl+ArrowUp on the first item', key: 'ArrowUp', currentIndex: 0 },
+    ])('does nothing on $name in opt-in mode', ({ key, currentIndex }) => {
+      expect(resolve({ key, ctrlKey: true }, { multiple: 'opt-in', currentIndex })).toEqual({
+        type: 'none',
+      });
+    });
+
     it('selects every item by the physical A key on a layout without Latin letters', () => {
       expect(resolve({ key: 'ф', code: 'KeyA', ctrlKey: true }, { multiple: true })).toEqual({
         type: 'selectAll',

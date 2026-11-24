@@ -14,7 +14,6 @@ function setup(options: { multiple: boolean | 'opt-in'; value?: string[]; disabl
     count: VALUES.length,
     getValue: (index) => VALUES[index],
     indexOfValue: (itemValue) => VALUES.indexOf(itemValue),
-    isSameValue: Object.is,
     isDisabled: (index) => disabled.includes(VALUES[index]),
     keepsDisabled: multiple !== false,
   };
@@ -147,10 +146,17 @@ describe('ListSelection', () => {
       expect(getValue()).toEqual(['c', 'd', 'e']);
     });
 
-    it('moveTo keeps the selection when the item is disabled', () => {
-      const { selection, commit } = setup({ multiple: 'opt-in', value: ['a'], disabled: ['c'] });
+    it('moveTo keeps the selection when the item is disabled, and still moves the anchor', () => {
+      const { selection, commit, getValue } = setup({
+        multiple: 'opt-in',
+        value: ['a'],
+        disabled: ['c'],
+      });
       selection.moveTo(2, EVENT);
       expect(commit).not.toHaveBeenCalled();
+
+      selection.press(4, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['d', 'e']);
     });
 
     it('extendTo selects from the given anchor and moves the press anchor to it', () => {

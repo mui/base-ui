@@ -72,7 +72,7 @@ describe('Listbox.createItems', () => {
 
         expect(items.get('apple')).toBe(duplicated[0]);
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Two items passed to createItems() derived the value apple'),
+          expect.stringContaining('have the value apple'),
         );
       } finally {
         consoleErrorSpy.mockRestore();

@@ -38,28 +38,59 @@ describe('<Listbox.Item /> on macOS', () => {
     expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
   });
 
-  it('does not toggle a focused disabled item on Option+Space', async () => {
+  it('ignores Option+Space on a disabled item, so a range still extends from the earlier press', async () => {
     const handleValueChange = vi.fn();
 
     await render(
-      <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
+      <Listbox.Root multiple onValueChange={handleValueChange}>
+        <Listbox.List>
+          <Listbox.Item value="a" disabled>
+            a
+          </Listbox.Item>
+          <Listbox.Item value="b">b</Listbox.Item>
+          <Listbox.Item value="c">c</Listbox.Item>
+          <Listbox.Item value="d">d</Listbox.Item>
+        </Listbox.List>
+      </Listbox.Root>,
+    );
+
+    const option = (name: string) => screen.getByRole('option', { name });
+    fireEvent.click(option('c'));
+    await act(async () => option('a').focus());
+    fireEvent.keyDown(option('a'), { key: '\u00a0', code: 'Space', altKey: true });
+    fireEvent.keyUp(option('a'), { key: '\u00a0', code: 'Space', altKey: true });
+    await flushMicrotasks();
+    fireEvent.click(option('d'), { shiftKey: true });
+
+    expect(handleValueChange.mock.lastCall?.[0]).toEqual(['c', 'd']);
+  });
+
+  it.each([
+    { name: 'toggles the item with multiple', multiple: true as const, expected: ['a', 'b'] },
+    { name: 'does nothing with single selection', multiple: false as const, expected: undefined },
+  ])('Option+Space $name', async ({ multiple, expected }) => {
+    const handleValueChange = vi.fn();
+
+    await render(
+      <Listbox.Root
+        multiple={multiple}
+        defaultValue={multiple ? ['a'] : 'a'}
+        onValueChange={handleValueChange}
+      >
         <Listbox.List>
           <Listbox.Item value="a">a</Listbox.Item>
-          <Listbox.Item value="b" disabled>
-            b
-          </Listbox.Item>
+          <Listbox.Item value="b">b</Listbox.Item>
         </Listbox.List>
       </Listbox.Root>,
     );
 
     const itemB = screen.getByRole('option', { name: 'b' });
     await act(async () => itemB.focus());
-
     fireEvent.keyDown(itemB, { key: '\u00a0', code: 'Space', altKey: true });
     fireEvent.keyUp(itemB, { key: '\u00a0', code: 'Space', altKey: true });
     await flushMicrotasks();
 
-    expect(handleValueChange).not.toHaveBeenCalled();
+    expect(handleValueChange.mock.lastCall?.[0]).toEqual(expected);
   });
 
   it('moves focus without changing the selection on Option+arrow keys, then toggles with Option+Space', async () => {

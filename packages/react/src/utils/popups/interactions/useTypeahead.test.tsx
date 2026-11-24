@@ -8,13 +8,14 @@ import type { UseTypeaheadProps, UseTypeaheadReturnValue } from './useTypeahead'
 const LABELS = ['ab', 'b', 'c'];
 
 function List(
-  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping' | 'enabled'> & {
-    actionsRef: React.RefObject<UseTypeaheadReturnValue | null>;
-  },
+  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping' | 'stopTypingKeys'> &
+    Partial<Pick<UseTypeaheadProps, 'getLabel'>> & {
+      actionsRef: React.RefObject<UseTypeaheadReturnValue | null>;
+    },
 ) {
-  const { actionsRef, ...typeaheadProps } = props;
+  const { actionsRef, getLabel = (index) => LABELS[index] ?? null, ...typeaheadProps } = props;
   const typeahead = useTypeahead({
-    getLabel: (index) => LABELS[index] ?? null,
+    getLabel,
     getCount: () => LABELS.length,
     activeIndex: null,
     ...typeaheadProps,
@@ -27,7 +28,7 @@ function List(
 describe('useTypeahead', () => {
   const { render } = createRenderer();
 
-  function renderList(props: Pick<UseTypeaheadProps, 'enabled'> = {}) {
+  function renderList(props: Partial<Pick<UseTypeaheadProps, 'stopTypingKeys' | 'getLabel'>> = {}) {
     const onMatch = vi.fn();
     const onTyping = vi.fn();
     const actionsRef = React.createRef<UseTypeaheadReturnValue>();
@@ -42,16 +43,37 @@ describe('useTypeahead', () => {
     fireEvent.keyDown(list, { key });
   }
 
-  describe('prop: enabled', () => {
+  describe('prop: stopTypingKeys', () => {
     it.each([
-      { name: 'matches', state: 'enabled', enabled: true, calls: 1 },
-      { name: 'does not match', state: 'disabled', enabled: false, calls: 0 },
-    ])('$name typed keys when $state', async ({ enabled, calls }) => {
-      const { onMatch } = await renderList({ enabled });
+      { name: 'stops', stopTypingKeys: true, reachesDocument: 0 },
+      { name: 'does not stop', stopTypingKeys: false, reachesDocument: 1 },
+    ])(
+      '$name a typed key from reaching other handlers: $stopTypingKeys',
+      async ({ stopTypingKeys, reachesDocument }) => {
+        const handleDocumentKeyDown = vi.fn();
+        document.addEventListener('keydown', handleDocumentKeyDown);
 
-      type('c');
+        try {
+          await renderList({ stopTypingKeys });
 
-      expect(onMatch).toHaveBeenCalledTimes(calls);
+          type('c');
+
+          expect(handleDocumentKeyDown).toHaveBeenCalledTimes(reachesDocument);
+        } finally {
+          document.removeEventListener('keydown', handleDocumentKeyDown);
+        }
+      },
+    );
+  });
+
+  describe('prop: getLabel', () => {
+    it('stops reading labels at the first match', async () => {
+      const getLabel = vi.fn((index: number) => LABELS[index] ?? null);
+      await renderList({ getLabel });
+
+      type('a');
+
+      expect(getLabel).toHaveBeenCalledTimes(1);
     });
   });
 
