@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { focusElementWithVisible, useLabel } from '../../internals/labelable-provider/useLabel';
@@ -28,12 +27,12 @@ export const ListboxLabel = React.forwardRef(function ListboxLabel(
 
   const defaultLabelId = getDefaultLabelId(rootId);
 
-  const setLabelId = useStableCallback((nextLabelId: React.SetStateAction<string | undefined>) => {
+  function setLabelId(nextLabelId: React.SetStateAction<string | undefined>) {
     const currentLabelId = store.state.labelId;
     const resolvedLabelId =
       typeof nextLabelId === 'function' ? nextLabelId(currentLabelId) : nextLabelId;
     store.set('labelId', resolvedLabelId);
-  });
+  }
 
   // Focus the list element directly, so a custom or changed `id` on the list can't break it.
   function focusList() {

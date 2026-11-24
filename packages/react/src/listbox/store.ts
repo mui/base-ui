@@ -45,7 +45,6 @@ export type Context = {
    * data decides.
    */
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
-  typingRef: React.RefObject<boolean>;
   /** Returns `false` when the change was canceled. */
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => boolean;
   /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
@@ -159,9 +158,7 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
    * caused it, so `onItemHighlighted` can report the reason.
    */
   setActiveIndex(index: number | null, event?: Event) {
-    this.context.highlightEvent = event;
-    this.set('activeIndex', index);
-    this.context.highlightEvent = undefined;
+    this.updateWithEvent({ activeIndex: index }, event);
   }
 
   /**
@@ -175,7 +172,6 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
       count: items ? items.size : this.context.valuesRef.current.length,
       getValue: (index) => this.getValueAt(index),
       indexOfValue: (value) => this.indexOfValue(value),
-      isSameValue: Object.is,
       // With `items`, the data decides, so the answer is the same whether or not an item is
       // rendered.
       isDisabled: (index) =>
@@ -217,18 +213,14 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
    * so the hovered item is forgotten until the pointer moves again.
    */
   highlightItem(index: number, event?: Event) {
-    this.context.highlightEvent = event;
-    this.update({ activeIndex: index, itemFocused: true, hoveredIndex: null });
-    this.context.highlightEvent = undefined;
+    this.updateWithEvent({ activeIndex: index, itemFocused: true, hoveredIndex: null }, event);
   }
 
   /**
    * Records the item under the pointer, or `null` when the pointer leaves the list.
    */
   hoverItem(index: number | null, event?: Event) {
-    this.context.highlightEvent = event;
-    this.set('hoveredIndex', index);
-    this.context.highlightEvent = undefined;
+    this.updateWithEvent({ hoveredIndex: index }, event);
   }
 
   /**
@@ -236,8 +228,16 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
    * nothing is highlighted until the pointer moves again.
    */
   unhighlightItem(event?: Event) {
+    this.updateWithEvent({ itemFocused: false, hoveredIndex: null }, event);
+  }
+
+  /** Updates the state while `onItemHighlighted` can read the event that caused the change. */
+  private updateWithEvent<Key extends keyof State>(
+    values: Pick<State, Key>,
+    event: Event | undefined,
+  ) {
     this.context.highlightEvent = event;
-    this.update({ itemFocused: false, hoveredIndex: null });
+    this.update(values);
     this.context.highlightEvent = undefined;
   }
 }
@@ -265,7 +265,6 @@ function createInitialContext(): Context {
     valuesRef: { current: [] },
     labelsRef: { current: [] },
     disabledItemsRef: { current: [] },
-    typingRef: { current: false },
     setValue: () => true,
     highlightEvent: undefined,
     elementsRef: { current: [] },

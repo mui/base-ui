@@ -15,6 +15,12 @@ export interface UsePopupTypeaheadProps extends Omit<
    * A ref which contains all strings of the list items, by index.
    */
   listRef: React.RefObject<Array<string | null>>;
+  /**
+   * Whether the Hook is enabled, including all internal Effects and event
+   * handlers.
+   * @default true
+   */
+  enabled?: boolean | undefined;
 }
 
 /**
@@ -27,11 +33,12 @@ export function usePopupTypeahead(
   store: PopupInteractionStore,
   props: UsePopupTypeaheadProps,
 ): ElementProps {
-  const { listRef, enabled = true, selectedIndex = null } = props;
+  const { listRef, enabled = true, selectedIndex = null, ...typeaheadProps } = props;
   const open = store.useState('open');
 
   const { onKeyDown, endSession, reset } = useTypeahead({
-    ...props,
+    ...typeaheadProps,
+    selectedIndex,
     getLabel: (index) => listRef.current[index],
     getCount: () => listRef.current.length,
     stopTypingKeys: open,

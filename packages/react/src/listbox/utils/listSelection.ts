@@ -5,7 +5,6 @@ export interface SelectionItems {
   count: number;
   getValue: (index: number) => any;
   indexOfValue: (value: any) => number;
-  isSameValue: (a: any, b: any) => boolean;
   isDisabled: (index: number) => boolean;
   /**
    * Whether replacing the selection keeps the selected disabled items, which users can't
@@ -128,7 +127,7 @@ export class ListSelection<E = Event> {
       return null;
     }
     const items = this.parameters.getItems();
-    if (items.isSameValue(items.getValue(anchor.index), anchor.value)) {
+    if (Object.is(items.getValue(anchor.index), anchor.value)) {
       return anchor.index;
     }
     const index = items.indexOfValue(anchor.value);
@@ -279,8 +278,8 @@ function toggle(currentValue: any[], items: SelectionItems, index: number): any[
   if (itemValue === undefined) {
     return currentValue;
   }
-  if (currentValue.some((v) => items.isSameValue(v, itemValue))) {
-    return currentValue.filter((v) => !items.isSameValue(v, itemValue));
+  if (currentValue.some((v) => Object.is(v, itemValue))) {
+    return currentValue.filter((v) => !Object.is(v, itemValue));
   }
   return [...currentValue, itemValue];
 }

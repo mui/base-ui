@@ -97,6 +97,7 @@ export interface ListboxItems<Item = any, Key extends ListboxPrimitiveValue = an
  * @param options Functions that derive each item's value, label and disabled state.
  */
 export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
+  /** @type readonly Item[] | readonly ListboxItemGroup<Item>[] | undefined */
   data: readonly ListboxItemGroupInput<Item>[] | undefined,
   options: CreateListboxItemsOptions<Item, Key>,
 ): ListboxItemCollection<Item, Key>;
@@ -134,9 +135,9 @@ export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
         indexByKey.set(key, index);
       } else if (process.env.NODE_ENV !== 'production') {
         error(
-          `Two items passed to createItems() derived the value ${String(key)}, so selection ` +
-            'cannot tell them apart: the first item wins and every item carrying the value ' +
-            'renders as selected. Return a unique value from `getValue`.',
+          `Two items in the \`items\` of <Listbox.Root> have the value ${String(key)}, so ` +
+            'selection cannot tell them apart: the first item wins and every item carrying the ' +
+            'value renders as selected. Give each item a unique value, or return one from `getValue`.',
         );
       }
     }

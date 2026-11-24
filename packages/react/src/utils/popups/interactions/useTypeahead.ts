@@ -47,12 +47,6 @@ export interface UseTypeaheadProps {
    */
   onTyping?: ((isTyping: boolean) => void) | undefined;
   /**
-   * Whether the Hook is enabled, including all internal Effects and event
-   * handlers.
-   * @default true
-   */
-  enabled?: boolean | undefined;
-  /**
    * The number of milliseconds to wait before resetting the typed string.
    * @default 750
    */
@@ -99,7 +93,6 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     onMatch: onMatchProp,
     disabledIndices,
     onTyping: onTypingProp,
-    enabled = true,
     resetMs = 750,
     selectedIndex = null,
     stopTypingKeys = false,
@@ -113,10 +106,6 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
   const matchIndexRef = React.useRef<number | null>(null);
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    if (!enabled) {
-      return;
-    }
-
     function getElement(index: number) {
       return elementsRef?.current[index];
     }

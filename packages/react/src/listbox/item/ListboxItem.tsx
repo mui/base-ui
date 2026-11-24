@@ -74,7 +74,8 @@ export const ListboxItem = React.memo(
         warn(
           '<Listbox.Item> ignores the `disabled` and `label` props when <Listbox.Root> has `items`, ' +
             "because the list must know every item's state and label, including those that aren't " +
-            'rendered. Use the `getDisabled` and `getLabel` options of `Listbox.createItems()` instead.',
+            'rendered. Set them in the data instead: the `disabled` and `label` fields of an item, ' +
+            'or the `getDisabled` and `getLabel` options of `Listbox.createItems()`.',
         );
       }
       // Checked after the commit against the root's current `items`, which this render may not
@@ -84,8 +85,9 @@ export const ListboxItem = React.memo(
         if (store.state.items?.indexOf(itemValue) === -1) {
           error(
             `A <Listbox.Item> has the value ${String(itemValue)}, which is not in the \`items\` passed to ` +
-              "<Listbox.Root>, so it can't be highlighted or selected. Give each item the value " +
-              'that `getValue` returns for it.',
+              "<Listbox.Root>, so it can't be highlighted or selected. Give each <Listbox.Item> " +
+              'the value of its item in `items`: the item itself, its `value` field, or what ' +
+              '`getValue` returns for it.',
           );
         }
       }, [items, itemValue, store]);
@@ -338,8 +340,8 @@ export interface ListboxItemProps
   /**
    * Whether the component should ignore user interaction.
    *
-   * Ignored when the root has `items`. Use the `getDisabled` option of `Listbox.createItems()`
-   * instead.
+   * Ignored when the root has `items`. Use the item's `disabled` field or the `getDisabled`
+   * option of `Listbox.createItems()` instead.
    * @default false
    */
   disabled?: boolean | undefined;
@@ -348,8 +350,8 @@ export interface ListboxItemProps
    *
    * Defaults to the item text content if not provided.
    *
-   * Ignored when the root has `items`. Use the `getLabel` option of `Listbox.createItems()`
-   * instead.
+   * Ignored when the root has `items`. Use the item's `label` field or the `getLabel` option of
+   * `Listbox.createItems()` instead.
    */
   label?: string | undefined;
 }

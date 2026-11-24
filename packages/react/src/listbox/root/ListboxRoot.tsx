@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type {
   BaseUIChangeEventDetails,
@@ -100,7 +99,8 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   ).current;
 
   // Parts report the next selection as an array; convert it to the public shape.
-  const setValue = useStableCallback(
+  store.useContextCallback(
+    'setValue',
     (nextSelectedValues: any[], eventDetails: ListboxRoot.ChangeEventDetails) => {
       // Nothing changes when the selection is the same, such as when the focused item is
       // disabled or every item is already selected.
@@ -119,8 +119,6 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
       return true;
     },
   );
-
-  store.useContextCallback('setValue', setValue);
 
   store.useSyncedValues({
     id: generatedId,
@@ -220,7 +218,8 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * rendered.
    *
    * Pass one of the following:
-   * - An array of strings or numbers, each of which is an item's value and label.
+   * - An array of primitives, such as strings or numbers, each of which is an item's value and
+   *   label.
    * - An array of `{ value, label, disabled }` objects.
    * - An array of groups, each with an `items` array of either of the above.
    * - A collection created with `Listbox.createItems()` for any other data.

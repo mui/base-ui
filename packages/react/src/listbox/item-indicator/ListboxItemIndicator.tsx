@@ -43,6 +43,7 @@ export interface ListboxItemIndicatorProps extends BaseUIComponentProps<
   children?: React.ReactNode;
   /**
    * Whether to keep the HTML element in the DOM when the item is not selected.
+   * @default false
    */
   keepMounted?: boolean | undefined;
 }

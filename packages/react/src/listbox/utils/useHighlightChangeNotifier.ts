@@ -27,58 +27,41 @@ export function useHighlightChangeNotifier<Value>(params: {
 }): void {
   const { store, onItemHighlighted } = params;
 
-  const stableOnItemHighlighted = useStableCallback(
-    (itemValue: Value | undefined, eventDetails: ListboxRoot.HighlightEventDetails) => {
-      onItemHighlighted?.(itemValue, eventDetails);
-    },
-  );
-
-  const lastReportedHighlightRef = React.useRef<ResolvedHighlight<Value> | null>(null);
-
-  const resolveHighlightedItem = useStableCallback((): ResolvedHighlight<Value> => {
-    const highlightedIndex = getHighlightedIndex(store.state);
-
-    if (highlightedIndex == null) {
-      return { index: -1, value: undefined };
-    }
-
-    return {
-      index: highlightedIndex,
-      value: store.getValueAt(highlightedIndex) as Value | undefined,
-    };
+  const notify = useStableCallback((highlight: ResolvedHighlight<Value>) => {
+    const event = store.context.highlightEvent;
+    onItemHighlighted?.(
+      highlight.value,
+      createGenericEventDetails(getHighlightReason(event), event, {
+        index: highlight.index,
+      }) as ListboxRoot.HighlightEventDetails,
+    );
   });
 
+  const hasListener = onItemHighlighted != null;
+
   React.useEffect(() => {
-    if (!onItemHighlighted) {
-      lastReportedHighlightRef.current = null;
+    if (!hasListener) {
       return undefined;
     }
 
-    lastReportedHighlightRef.current = resolveHighlightedItem();
+    function resolveHighlight(): ResolvedHighlight<Value> {
+      const index = getHighlightedIndex(store.state);
+      return index == null
+        ? { index: -1, value: undefined }
+        : { index, value: store.getValueAt(index) as Value | undefined };
+    }
+
+    // The item at a position can change without the position changing, so the value is compared
+    // too.
+    let last = resolveHighlight();
 
     return store.subscribe(() => {
-      const nextHighlight = resolveHighlightedItem();
-
-      if (areHighlightsEqual(lastReportedHighlightRef.current, nextHighlight)) {
+      const next = resolveHighlight();
+      if (last.index === next.index && Object.is(last.value, next.value)) {
         return;
       }
-
-      lastReportedHighlightRef.current = nextHighlight;
-
-      const event = store.context.highlightEvent;
-      stableOnItemHighlighted(
-        nextHighlight.value,
-        createGenericEventDetails(getHighlightReason(event), event, {
-          index: nextHighlight.index,
-        }) as ListboxRoot.HighlightEventDetails,
-      );
+      last = next;
+      notify(next);
     });
-  }, [store, onItemHighlighted, stableOnItemHighlighted, resolveHighlightedItem]);
-}
-
-function areHighlightsEqual<Value>(
-  prev: ResolvedHighlight<Value> | null,
-  next: ResolvedHighlight<Value>,
-) {
-  return prev != null && prev.index === next.index && Object.is(prev.value, next.value);
+  }, [store, hasListener, notify]);
 }

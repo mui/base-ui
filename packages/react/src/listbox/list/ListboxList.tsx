@@ -43,7 +43,9 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const itemCount = items?.size;
   const activeItemRendered = store.useState('activeItemRendered');
   const direction = useDirection();
-  const { elementsRef, labelsRef, typingRef } = store.context;
+  const { elementsRef, labelsRef } = store.context;
+  // Whether a typeahead search is in progress, in which Space continues it.
+  const typingRef = React.useRef(false);
 
   // Where a Shift+Arrow range starts: the item focused when Shift was pressed, or the anchor of a
   // Shift+press range that ended on it.
@@ -55,7 +57,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // arrives another way.
   const pointerPressedRef = React.useRef(false);
 
-  const runKeyCommand = useStableCallback((command: ListKeyCommand, event: React.KeyboardEvent) => {
+  function runKeyCommand(command: ListKeyCommand, event: React.KeyboardEvent) {
     const nativeEvent = event.nativeEvent;
     event.preventDefault();
 
@@ -92,7 +94,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         break;
       default:
     }
-  });
+  }
 
   // Typeahead, like Select and Menu: keys typed in quick succession build one search, which resets
   // after a pause, and typing the same letter again cycles through the items that start with it.
@@ -101,7 +103,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
     getCount: () => store.getCount(),
     elementsRef,
     activeIndex,
-    enabled: !disabled,
     resetMs: TYPEAHEAD_RESET_MS,
     onTyping(isTyping) {
       typingRef.current = isTyping;
@@ -128,9 +129,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     }
   }, [disabled, store]);
 
-  const setListElement = useStableCallback((element: HTMLElement | null) => {
-    store.set('listElement', element);
-  });
+  const setListElement = store.useStateSetter('listElement');
 
   // In a virtualized list, the item that holds the tab stop may not be rendered, so the list takes
   // its place in the tab order until it renders.
@@ -193,8 +192,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
     },
     onPointerDown() {
       pointerPressedRef.current = true;
-      // A new pointer press starts a new Shift+Arrow range from wherever focus lands.
-      shiftAnchorRef.current = null;
     },
     onPointerUp() {
       pointerPressedRef.current = false;
@@ -205,7 +202,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     onKeyDownCapture(event: React.KeyboardEvent) {
       // While a search is in progress, Space continues it instead of selecting the focused item,
       // so it's handled before the item's own handler.
-      if (event.key === ' ' && typingRef.current) {
+      if (event.key === ' ' && typingRef.current && !disabled) {
         typeahead.onKeyDown(event);
       }
     },
@@ -259,7 +256,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         orientation,
         rtl: direction === 'rtl',
         currentIndex: store.state.activeIndex,
-        count: itemCount ?? elementsRef.current.length,
+        count: store.getCount(),
         multiple,
         mac: platform.os.mac,
       });
