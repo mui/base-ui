@@ -15,11 +15,11 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
   componentProps: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const store = usePopoverRootContext();
 
-  const id = useBaseUiId(elementProps.id);
+  const id = useBaseUiId(idProp);
 
   store.useSyncedValueWithCleanup('titleElementId', id);
 
