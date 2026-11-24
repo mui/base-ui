@@ -1172,9 +1172,9 @@ describe('<Listbox.Root />', () => {
       await render(
         <Listbox.Root>
           <Listbox.List>
-            <Listbox.Item>one</Listbox.Item>
-            <Listbox.Item>two</Listbox.Item>
-            <Listbox.Item>three</Listbox.Item>
+            <Listbox.Item value="same">one</Listbox.Item>
+            <Listbox.Item value="same">two</Listbox.Item>
+            <Listbox.Item value="same">three</Listbox.Item>
           </Listbox.List>
         </Listbox.Root>,
       );
@@ -2209,6 +2209,28 @@ describe('<Listbox.Root />', () => {
       });
 
       it.each([
+        { name: 'ArrowDown', key: '{ArrowDown}', prevent: true, focused: 'Apple' },
+        { name: 'ArrowDown', key: '{ArrowDown}', prevent: false, focused: 'Banana' },
+        { name: 'a typed character', key: 'b', prevent: true, focused: 'Apple' },
+        { name: 'a typed character', key: 'b', prevent: false, focused: 'Banana' },
+      ])(
+        'handles $name unless an item handler calls preventBaseUIHandler: $prevent',
+        async ({ key, prevent, focused }) => {
+          const { user } = await renderList({
+            onItemKeyDown(event) {
+              if (prevent) {
+                (event as BaseUIEvent<React.KeyboardEvent>).preventBaseUIHandler();
+              }
+            },
+          });
+          await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+          await user.keyboard(key);
+
+          expect(screen.getByRole('option', { name: focused })).toHaveFocus();
+        },
+      );
+
+      it.each([
         { name: 'does not match', prevent: true, focused: 'Apple' },
         { name: 'matches', prevent: false, focused: 'Banana' },
       ])(
@@ -2437,6 +2459,94 @@ describe('<Listbox.Root />', () => {
 
       expect(handleValueChange.mock.calls[0][0]).toBe(null);
       expect(screen.getByRole('option', { name: 'None' })).toHaveAttribute('aria-selected', 'true');
+    });
+  });
+
+  describe('focus on the list element', () => {
+    function renderList() {
+      return render(
+        <Listbox.Root defaultValue="a">
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+    }
+
+    it('passes focus to the tab stop without scrolling when it comes from a press', async () => {
+      await renderList();
+      const list = screen.getByRole('listbox');
+      const focusSpy = vi.spyOn(screen.getByRole('option', { name: 'a' }), 'focus');
+
+      // A press on a gap between items or on a group label focuses the list.
+      fireEvent.pointerDown(list);
+      await act(async () => list.focus());
+
+      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+    });
+
+    it('passes focus to the tab stop and scrolls to it when it comes from elsewhere', async () => {
+      await renderList();
+      const list = screen.getByRole('listbox');
+      const focusSpy = vi.spyOn(screen.getByRole('option', { name: 'a' }), 'focus');
+
+      await act(async () => list.focus());
+
+      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('scroll position', () => {
+    it('stays where it was when a press focuses the list element', async () => {
+      const names = Array.from({ length: 40 }, (_, index) => `item ${index}`);
+      await render(
+        <Listbox.Root defaultValue="item 0">
+          <Listbox.List style={{ height: 100, overflow: 'auto' }}>
+            {names.map((name) => (
+              <Listbox.Item key={name} value={name} style={{ height: 20 }}>
+                {name}
+              </Listbox.Item>
+            ))}
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      list.scrollTop = 400;
+      expect(list.scrollTop).toBe(400);
+
+      fireEvent.pointerDown(list);
+      await act(async () => list.focus());
+
+      expect(screen.getByRole('option', { name: 'item 0' })).toHaveFocus();
+      expect(list.scrollTop).toBe(400);
+    });
+  });
+
+  describe('range anchor when the items change', () => {
+    it('extends a Shift+press range from the pressed item after an item before it is removed', async () => {
+      const handleValueChange = vi.fn();
+      function App(props: { names: string[] }) {
+        return (
+          <Listbox.Root multiple onValueChange={handleValueChange}>
+            <Listbox.List>
+              {props.names.map((name) => (
+                <Listbox.Item key={name} value={name}>
+                  {name}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App names={['a', 'b', 'c', 'd', 'e']} />);
+      fireEvent.click(screen.getByRole('option', { name: 'b' }));
+      await setProps({ names: ['b', 'c', 'd', 'e'] });
+      fireEvent.click(screen.getByRole('option', { name: 'd' }), { shiftKey: true });
+
+      expect(handleValueChange.mock.lastCall?.[0]).toEqual(['b', 'c', 'd']);
     });
   });
 
@@ -2811,6 +2921,33 @@ describe('<Listbox.Root />', () => {
           'aria-selected',
           'true',
         );
+      });
+    });
+
+    describe('while the list holds focus for an item that is not rendered', () => {
+      it.each([
+        { name: 'Space', key: ' ' },
+        { name: 'Enter', key: 'Enter' },
+      ])('selects that item on $name', async ({ key }) => {
+        const handleValueChange = vi.fn();
+        await render(
+          <Listbox.Root items={['a', 'b', 'c']} onValueChange={handleValueChange}>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>,
+        );
+
+        await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+        fireEvent.keyDown(screen.getByRole('option', { name: 'a' }), { key: 'ArrowDown' });
+        await flushMicrotasks();
+        const list = screen.getByRole('listbox');
+        expect(list).toHaveFocus();
+
+        const notPrevented = fireEvent.keyDown(list, { key });
+
+        expect(notPrevented).toBe(false);
+        expect(handleValueChange.mock.lastCall?.[0]).toBe('b');
       });
     });
 

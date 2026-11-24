@@ -50,14 +50,23 @@ export interface ListSelectionParameters<E> {
  * presses and keyboard commands into the next selected values, and remembers the item that
  * Shift+press extends a range from.
  */
+/**
+ * An item a range extends from. It's remembered by its value, so it's found again after items are
+ * added or removed around it, and by its position, which tells items that share a value apart.
+ */
+export interface RangeAnchor {
+  index: number;
+  value: any;
+}
+
 export class ListSelection<E = Event> {
   declare private readonly parameters: ListSelectionParameters<E>;
 
   /** The last pressed or selected item, which Shift+press extends a range from. */
-  private pressAnchor: number | null = null;
+  private pressAnchor: RangeAnchor | null = null;
 
   /** The item that had focus when `pressAnchor` was last set or kept. */
-  private anchorFocus: number | null = null;
+  private anchorFocus: RangeAnchor | null = null;
 
   constructor(parameters: ListSelectionParameters<E>) {
     this.parameters = parameters;
@@ -68,10 +77,10 @@ export class ListSelection<E = Event> {
     const { shiftKey = false, ctrlKey = false, touch = false } = modifiers;
     const multiple = this.parameters.getMultiple();
     const replaceOnPress = multiple === 'opt-in' && !touch;
-    if (shiftKey && multiple && this.pressAnchor === null) {
-      this.pressAnchor = this.parameters.getDefaultAnchor();
+    if (shiftKey && multiple && this.resolveAnchor(this.pressAnchor) === null) {
+      this.pressAnchor = this.createAnchor(this.parameters.getDefaultAnchor());
     }
-    const anchorIndex = this.pressAnchor;
+    const anchorIndex = this.resolveAnchor(this.pressAnchor);
     const { value, items } = this.read();
 
     let nextValue: any[];
@@ -98,9 +107,27 @@ export class ListSelection<E = Event> {
     this.parameters.commit(nextValue, REASONS.itemPress, event);
 
     if (!keepsAnchor) {
-      this.pressAnchor = index;
+      this.pressAnchor = this.createAnchor(index);
     }
-    this.anchorFocus = index;
+    this.anchorFocus = this.createAnchor(index);
+  }
+
+  /** Remembers the item at a position as an anchor. */
+  createAnchor(index: number | null): RangeAnchor | null {
+    return index === null ? null : { index, value: this.parameters.getItems().getValue(index) };
+  }
+
+  /** Where an anchor's item is now, or `null` when there's no anchor or its item is gone. */
+  resolveAnchor(anchor: RangeAnchor | null): number | null {
+    if (anchor === null) {
+      return null;
+    }
+    const items = this.parameters.getItems();
+    if (items.isSameValue(items.getValue(anchor.index), anchor.value)) {
+      return anchor.index;
+    }
+    const index = items.indexOfValue(anchor.value);
+    return index === -1 ? null : index;
   }
 
   /**
@@ -109,8 +136,9 @@ export class ListSelection<E = Event> {
    * item once focus has moved elsewhere.
    */
   getRangeAnchor(focusedIndex: number | null): number | null {
-    return this.pressAnchor !== null && this.anchorFocus === focusedIndex
-      ? this.pressAnchor
+    const pressIndex = this.resolveAnchor(this.pressAnchor);
+    return pressIndex !== null && this.resolveAnchor(this.anchorFocus) === focusedIndex
+      ? pressIndex
       : focusedIndex;
   }
 
@@ -124,8 +152,8 @@ export class ListSelection<E = Event> {
     if (itemValue !== undefined) {
       this.parameters.commit(replaceWith(value, items, [itemValue]), REASONS.listNavigation, event);
     }
-    this.pressAnchor = index;
-    this.anchorFocus = index;
+    this.pressAnchor = this.createAnchor(index);
+    this.anchorFocus = this.createAnchor(index);
   }
 
   /**
@@ -140,16 +168,16 @@ export class ListSelection<E = Event> {
       REASONS.listNavigation,
       event,
     );
-    this.pressAnchor = anchorIndex;
-    this.anchorFocus = index;
+    this.pressAnchor = this.createAnchor(anchorIndex);
+    this.anchorFocus = this.createAnchor(index);
   }
 
   /** Adds a range to the selection. `anchorIndex` is where the next Shift+press extends from. */
   selectRange(from: number, to: number, anchorIndex: number, event: E) {
     const { value, items } = this.read();
     this.parameters.commit(addRange(value, items, from, to), REASONS.listNavigation, event);
-    this.pressAnchor = anchorIndex;
-    this.anchorFocus = anchorIndex;
+    this.pressAnchor = this.createAnchor(anchorIndex);
+    this.anchorFocus = this.createAnchor(anchorIndex);
   }
 
   /** Disabled items keep their state: the selected ones stay selected, and the others aren't. */

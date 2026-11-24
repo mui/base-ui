@@ -16,6 +16,7 @@ import type {
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
+import { isStationaryWebKitPointer } from '../../utils/popups/interactions/useListNavigation';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { ListboxItemContext } from './ListboxItemContext';
 
@@ -34,7 +35,7 @@ export const ListboxItem = React.memo(
       render,
       className,
       style,
-      value: itemValue = null,
+      value: itemValue,
       label,
       disabled: disabledProp,
       nativeButton = false,
@@ -215,7 +216,12 @@ export const ListboxItem = React.memo(
         store.unhighlightItem(event.nativeEvent);
       },
       onMouseMove(event) {
-        if (!store.state.highlightItemOnHover || rootDisabled) {
+        if (
+          !store.state.highlightItemOnHover ||
+          rootDisabled ||
+          // The list scrolled under a resting pointer, such as during keyboard navigation.
+          isStationaryWebKitPointer(event)
+        ) {
           return;
         }
         store.hoverItem(index, event.nativeEvent);
@@ -302,9 +308,8 @@ export interface ListboxItemProps
   children?: React.ReactNode;
   /**
    * A unique value that identifies this listbox item.
-   * @default null
    */
-  value?: any;
+  value: any;
   /**
    * Whether the component should ignore user interaction.
    *

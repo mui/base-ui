@@ -28,7 +28,7 @@ import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../event';
 // WebKit fires zero-delta `mousemove`/`pointermove` events when the list scrolls
 // beneath a stationary pointer, moving the highlight during keyboard navigation.
 // https://github.com/mui/base-ui/issues/4002
-function isStationaryWebKitPointer(event: React.MouseEvent | React.PointerEvent) {
+export function isStationaryWebKitPointer(event: React.MouseEvent | React.PointerEvent) {
   return platform.engine.webkit && event.movementX === 0 && event.movementY === 0;
 }
 

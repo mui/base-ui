@@ -204,3 +204,8 @@ interface FruitGroup {
 }
 declare const fruitGroups: FruitGroup[];
 <Listbox.Root items={fruitGroups} defaultValue="a" />;
+
+// An item needs a value.
+// @ts-expect-error -- `value` is required
+<Listbox.Item />;
+<Listbox.Item value={null} />;
