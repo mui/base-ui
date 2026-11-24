@@ -131,15 +131,18 @@ function UserList({ users }) {
   const selectedUser = items.get(value);
 
   return (
-    <Listbox.Root items={items} value={value} onValueChange={setValue}>
-      <Listbox.List>
-        {items.map((user) => (
-          <Listbox.Item key={user.id} value={user.id}>
-            {user.name}
-          </Listbox.Item>
-        ))}
-      </Listbox.List>
-    </Listbox.Root>
+    <div>
+      <Listbox.Root items={items} value={value} onValueChange={setValue}>
+        <Listbox.List>
+          {items.map((user) => (
+            <Listbox.Item key={user.id} value={user.id}>
+              {user.name}
+            </Listbox.Item>
+          ))}
+        </Listbox.List>
+      </Listbox.Root>
+      <p>Selected: {selectedUser?.name}</p>
+    </div>
   );
 }
 ```
@@ -170,18 +173,26 @@ In every selection mode:
 - <kbd>Tab</kbd> moves focus into the listbox, to the selected item or the first item, and out of
   it.
 
-With `multiple`:
+With `multiple`, each item is added or removed on its own:
 
 - <kbd>Space</kbd> or <kbd>Enter</kbd> adds or removes the focused item.
-- <kbd>Shift</kbd>+arrow keys select the range from the item that had focus when <kbd>Shift</kbd>
-  was pressed.
-- <kbd>Shift</kbd>+<kbd>Space</kbd> selects the range from the last selected item to the focused
-  item.
-- <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Home</kbd> or <kbd>End</kbd> selects from the focused item
-  to the first or last item. On macOS, use <kbd>Cmd</kbd> instead of <kbd>Ctrl</kbd>.
-- <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd> selects every item.
 
-With `multiple="opt-in"`, the selection follows focus: arrow keys, <kbd>Home</kbd>, <kbd>End</kbd> and typing also move the selection to the item they move focus to. Disabled items can receive focus, and the selection stays where it was while focus is on one. See [Opt-in multiple selection](#opt-in-multiple-selection) for the keys that select more than one item.
+With `multiple="opt-in"`, the selection follows focus:
+
+- Arrow keys, <kbd>Home</kbd>, <kbd>End</kbd> and typing move the selection to the item they move focus to. Disabled items can receive focus, and the selection stays where it was while focus is on one.
+- <kbd>Space</kbd> or <kbd>Enter</kbd> makes the focused item the only selected item.
+- See [Opt-in multiple selection](#opt-in-multiple-selection) for the keys that add or remove single items.
+
+In both multiple modes:
+
+- <kbd>Shift</kbd>+arrow keys replace the selection with the range from the item that had focus when
+  <kbd>Shift</kbd> was pressed to the focused item.
+- <kbd>Shift</kbd>+<kbd>Space</kbd> replaces the selection with the range from the last selected
+  item to the focused item.
+- <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Home</kbd> or <kbd>End</kbd> adds the items from the focused
+  item to the first or last item to the selection. On macOS, use <kbd>Cmd</kbd> instead of
+  <kbd>Ctrl</kbd>.
+- <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd> selects every item.
 
 The listbox doesn't handle <kbd>Esc</kbd>, so a popup or dialog around it can close.
 

@@ -83,6 +83,15 @@
     }
   }
 
+  &[data-selected]:focus-visible {
+    outline: 2px solid white;
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: oklch(14.5% 0 0deg);
+    }
+  }
+
   &[data-disabled] {
     color: oklch(55.6% 0 0deg);
 

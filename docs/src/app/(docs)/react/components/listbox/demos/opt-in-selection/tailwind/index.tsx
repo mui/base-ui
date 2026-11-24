@@ -30,7 +30,7 @@ export default function ExampleListboxOptInSelection() {
             <Listbox.Item
               key={songValue}
               value={songValue}
-              className="block cursor-default px-3.5 py-1.5 text-sm outline-hidden select-none data-highlighted:not-data-selected:bg-neutral-100 dark:data-highlighted:not-data-selected:bg-neutral-800 data-selected:bg-neutral-950 data-selected:text-white dark:data-selected:bg-white dark:data-selected:text-neutral-950 data-disabled:text-neutral-500 dark:data-disabled:text-neutral-400"
+              className="block cursor-default px-3.5 py-1.5 text-sm outline-0 select-none data-selected:focus-visible:outline-2 data-selected:focus-visible:-outline-offset-4 data-selected:focus-visible:outline-white dark:data-selected:focus-visible:outline-neutral-950 data-highlighted:not-data-selected:bg-neutral-100 dark:data-highlighted:not-data-selected:bg-neutral-800 data-selected:bg-neutral-950 data-selected:text-white dark:data-selected:bg-white dark:data-selected:text-neutral-950 data-disabled:text-neutral-500 dark:data-disabled:text-neutral-400"
             >
               {title}
             </Listbox.Item>

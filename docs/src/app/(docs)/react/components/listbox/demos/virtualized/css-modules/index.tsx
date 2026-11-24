@@ -31,7 +31,11 @@ export default function ExampleListboxVirtualized() {
           <Listbox.Label className={styles.Label}>Tracks</Listbox.Label>
         </div>
         <Listbox.List ref={listRef} className={styles.List}>
-          <div className={styles.Content} style={{ height: virtualizer.getTotalSize() }}>
+          <div
+            role="presentation"
+            className={styles.Content}
+            style={{ height: virtualizer.getTotalSize() }}
+          >
             {virtualizer.getVirtualItems().map((virtualItem) => {
               const track = tracks[virtualItem.index];
               return (
