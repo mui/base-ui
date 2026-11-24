@@ -43,24 +43,9 @@
       outline-color: white;
     }
   }
-
-  /* Stacks the filled heart on top of the outline. */
-  & > * {
-    grid-area: 1 / 1;
-  }
 }
 
-/* Without `match`, the indicator stays mounted so the filled heart can grow in and shrink out. */
+/* Stacks the two indicators so they share one spot while one replaces the other. */
 .Indicator {
-  display: block;
-  transform: scale(0);
-  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  &[data-pressed] {
-    transform: scale(1);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
+  grid-area: 1 / 1;
 }

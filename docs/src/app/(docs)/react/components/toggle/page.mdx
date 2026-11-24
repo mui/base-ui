@@ -24,15 +24,14 @@ import { Toggle } from '@base-ui/react/toggle';
 
 ## Examples
 
-### Toggle icon
+### Animate icon
 
-Use a pair of indicators to swap the icon when the toggle is pressed.
-Set `match="pressed"` on the icon shown while the toggle is pressed, and `match="unpressed"` on the icon shown while it isn't.
-Without `match`, an indicator always renders, and you can style it with `data-pressed`.
+Without `match`, the indicator stays mounted and reflects the pressed state through `data-pressed`.
+Wrap an icon in it and use `data-pressed` to transition parts of the icon, such as the heart's filled path.
 
-import { DemoToggleIcon } from './demos/toggle-icon';
+import { DemoToggleAnimateIcon } from './demos/animate-icon';
 
-<DemoToggleIcon />
+<DemoToggleAnimateIcon />
 
 ## API reference
 
