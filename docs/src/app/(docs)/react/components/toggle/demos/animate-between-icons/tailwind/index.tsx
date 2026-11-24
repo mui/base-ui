@@ -10,13 +10,13 @@ export default function ExampleToggleAnimateBetweenIcons() {
     >
       <Toggle.Indicator
         match="off"
-        className="transition-[opacity,transform] duration-150 data-ending-style:scale-50 data-ending-style:opacity-0 data-starting-style:scale-50 data-starting-style:opacity-0 motion-reduce:transition-none"
+        className="transition-[opacity,scale] duration-150 data-ending-style:scale-50 data-ending-style:opacity-0 data-starting-style:scale-50 data-starting-style:opacity-0 motion-reduce:transition-none"
       >
         <VolumeIcon />
       </Toggle.Indicator>
       <Toggle.Indicator
         match="on"
-        className="transition-[opacity,transform] duration-150 data-ending-style:scale-50 data-ending-style:opacity-0 data-starting-style:scale-50 data-starting-style:opacity-0 motion-reduce:transition-none"
+        className="transition-[opacity,scale] duration-150 data-ending-style:scale-50 data-ending-style:opacity-0 data-starting-style:scale-50 data-starting-style:opacity-0 motion-reduce:transition-none"
       >
         <VolumeMutedIcon />
       </Toggle.Indicator>
