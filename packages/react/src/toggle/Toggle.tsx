@@ -21,6 +21,8 @@ const ToggleComponent = React.forwardRef(function Toggle(
  * A two-state button that can be on or off.
  * Renders a `<button>` element.
  *
+ * Rendering `<Toggle>` directly is deprecated. Use `<Toggle.Root>` instead.
+ *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
 export const Toggle = ToggleComponent as {

@@ -122,6 +122,8 @@ type ToggleIndicatorState = {
 A two-state button that can be on or off.
 Renders a `<button>` element.
 
+Rendering `<Toggle>` directly is deprecated. Use `<Toggle.Root>` instead.
+
 **Toggle Props:**
 
 | Prop            | Type                                                                                 | Default | Description                                                                                                                                                                                   |
