@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Toggle } from '@base-ui/react/toggle';
 
-export default function ExampleToggleAnimateIcon() {
+export default function ExampleToggleAnimateIconPath() {
   return (
     <Toggle.Root
       aria-label="Favorite"

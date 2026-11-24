@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Toggle } from '@base-ui/react/toggle';
 import styles from './index.module.css';
 
-export default function ExampleToggleAnimateIcon() {
+export default function ExampleToggleAnimateIconPath() {
   return (
     <Toggle.Root aria-label="Favorite" className={styles.Button}>
       <Toggle.Indicator className={styles.Indicator}>

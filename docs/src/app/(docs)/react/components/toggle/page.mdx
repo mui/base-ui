@@ -24,14 +24,23 @@ import { Toggle } from '@base-ui/react/toggle';
 
 ## Examples
 
-### Animate icon
+### Animate icon path
 
 Without `match`, the indicator stays mounted and reflects the pressed state through `data-pressed`.
 Wrap an icon in it and use `data-pressed` to transition parts of the icon, such as the heart's filled path.
 
-import { DemoToggleAnimateIcon } from './demos/animate-icon';
+import { DemoToggleAnimateIconPath } from './demos/animate-icon-path';
 
-<DemoToggleAnimateIcon />
+<DemoToggleAnimateIconPath />
+
+### Animate between icons
+
+With `match`, each indicator mounts and unmounts as the pressed state changes.
+Use `data-starting-style` and `data-ending-style` to animate one icon out while the other animates in.
+
+import { DemoToggleAnimateBetweenIcons } from './demos/animate-between-icons';
+
+<DemoToggleAnimateBetweenIcons />
 
 ## API reference
 
