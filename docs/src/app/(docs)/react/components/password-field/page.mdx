@@ -37,14 +37,23 @@ import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-f
 
 ## Examples
 
-### Toggle icon
+### Animate icon path
 
-`<PasswordField.ToggleIndicator>` always renders and reflects the visibility through `data-visible`.
-To swap icons instead, pass `match="password-visible"` or `match="password-masked"` so each indicator renders only in that state.
+Without `match`, the indicator stays mounted and reflects the visibility through `data-visible`.
+Wrap an icon in it and use `data-visible` to transition parts of the icon, such as the eye's slash.
 
-import { DemoPasswordFieldToggleIcon } from './demos/toggle-icon';
+import { DemoPasswordFieldAnimateIconPath } from './demos/animate-icon-path';
 
-<DemoPasswordFieldToggleIcon />
+<DemoPasswordFieldAnimateIconPath />
+
+### Animate between icons
+
+With `match`, each indicator mounts and unmounts as the visibility changes.
+Use `data-starting-style` and `data-ending-style` to animate one icon out while the other animates in.
+
+import { DemoPasswordFieldAnimateBetweenIcons } from './demos/animate-between-icons';
+
+<DemoPasswordFieldAnimateBetweenIcons />
 
 ## API reference
 

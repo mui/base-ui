@@ -132,7 +132,26 @@
   }
 }
 
-/* Stacks the two indicators so they share one spot while one replaces the other. */
 .Indicator {
-  grid-area: 1 / 1;
+  display: block;
+}
+
+.Icon {
+  display: block;
+}
+
+/* Draws the slash across the eye while the password is masked, and retracts it once visible. */
+.Slash {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  /* Retracts at a constant speed so the end of the slash doesn't linger outside the eye. */
+  .Indicator[data-visible] & {
+    stroke-dashoffset: 1;
+    transition-timing-function: linear;
+  }
 }

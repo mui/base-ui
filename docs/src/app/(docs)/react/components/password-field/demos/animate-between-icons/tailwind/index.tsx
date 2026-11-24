@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 
-export default function ExamplePasswordFieldToggleIcon() {
+export default function ExamplePasswordFieldAnimateBetweenIcons() {
   const id = React.useId();
   return (
     <div className="flex w-full max-w-64 flex-col items-start gap-1">
@@ -21,10 +21,16 @@ export default function ExamplePasswordFieldToggleIcon() {
           aria-label="Show password"
           className="grid h-full aspect-square shrink-0 place-items-center rounded-none *:[grid-area:1/1] border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
         >
-          <PasswordField.ToggleIndicator match="password-masked">
+          <PasswordField.ToggleIndicator
+            match="password-masked"
+            className="transition-[opacity,scale] duration-150 data-ending-style:scale-50 data-ending-style:opacity-0 data-starting-style:scale-50 data-starting-style:opacity-0 motion-reduce:transition-none"
+          >
             <EyeOffIcon />
           </PasswordField.ToggleIndicator>
-          <PasswordField.ToggleIndicator match="password-visible">
+          <PasswordField.ToggleIndicator
+            match="password-visible"
+            className="transition-[opacity,scale] duration-150 data-ending-style:scale-50 data-ending-style:opacity-0 data-starting-style:scale-50 data-starting-style:opacity-0 motion-reduce:transition-none"
+          >
             <EyeIcon />
           </PasswordField.ToggleIndicator>
         </PasswordField.Toggle>
@@ -54,7 +60,6 @@ function EyeIcon(props: React.ComponentProps<'svg'>) {
 }
 
 function EyeOffIcon(props: React.ComponentProps<'svg'>) {
-  const maskId = React.useId();
   return (
     <svg
       width="16"
@@ -64,18 +69,16 @@ function EyeOffIcon(props: React.ComponentProps<'svg'>) {
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <mask id={maskId}>
-        <rect width="16" height="16" fill="white" />
-        <path d="M2.53 1.47l12 12" stroke="black" strokeWidth="1.5" />
-      </mask>
-      <g mask={`url(#${maskId})`}>
-        <path
-          d="M1.333 8s2.334-4.667 6.667-4.667S14.667 8 14.667 8 12.333 12.667 8 12.667 1.333 8 1.333 8Z"
-          stroke="currentColor"
-          strokeWidth="1"
-        />
-        <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1" />
-      </g>
+      <path
+        d="M5.854 3.733C6.503 3.485 7.219 3.333 8 3.333C12.333 3.333 14.667 8 14.667 8C14.667 8 13.996 9.341 12.707 10.585M11.537 11.537C10.571 12.188 9.388 12.667 8 12.667C3.667 12.667 1.333 8 1.333 8C1.333 8 2.411 5.844 4.463 4.463"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <path
+        d="M9.768 9.768A2.5 2.5 0 0 1 6.232 6.232M7.646 5.525A2.5 2.5 0 0 1 10.475 8.354"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
       <path d="M2 2l12 12" stroke="currentColor" strokeWidth="1" />
     </svg>
   );
