@@ -1390,13 +1390,13 @@ describe('<CompositeList />', () => {
       };
 
       function Subscriber() {
-        const { subscribeMapChange } = useCompositeListContext();
+        const list = useCompositeListContext();
         useIsoLayoutEffect(
           () =>
-            subscribeMapChange((map) => {
+            list.subscribeMapChange((map) => {
               calls.push(`subscriber:${map.size}`);
             }),
-          [subscribeMapChange],
+          [list],
         );
         return null;
       }
@@ -1433,7 +1433,7 @@ describe('<CompositeList />', () => {
 
       function Item(props: { label: string }) {
         const list = React.useContext(ListContext)!;
-        const { ref, index } = useCompositeListItem({ guess: true, list: list.context });
+        const { ref, index } = useCompositeListItem({ guess: true, list });
         return <div ref={ref} data-testid={props.label} data-index={index} />;
       }
 

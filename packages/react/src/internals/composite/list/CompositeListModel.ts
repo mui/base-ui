@@ -35,8 +35,11 @@ export interface CompositeListModelParameters<Metadata> {
   requestFlush: () => void;
 }
 
-/** The items of one composite list, kept ordered by index in `elementsRef` and `labelsRef`. */
-export class CompositeListModel<Metadata> {
+/**
+ * The items of one composite list, kept ordered by index in `elementsRef` and `labelsRef`. The
+ * model is the context value its items register through.
+ */
+export class CompositeListModel<Metadata> implements CompositeListContextValue<Metadata> {
   // Fields assigned in the constructor are declared rather than initialized, so they are not
   // defined twice: data grids construct one model per cell while rendering.
   declare elementsRef: React.RefObject<Array<HTMLElement | null>>;
@@ -49,8 +52,6 @@ export class CompositeListModel<Metadata> {
 
   /** Starts dirty so the mount commit flushes the registrations collected while mounting. */
   dirty = true;
-
-  #contextValue: CompositeListContextValue<Metadata> | null = null;
 
   #registrations: Map<Element, CompositeListRegistration<Metadata>> | null = null;
 
@@ -65,8 +66,8 @@ export class CompositeListModel<Metadata> {
 
   #observer: MutationObserver | null = null;
 
-  /** The automatically indexed nodes, in order, that `#observer` watches for reorders. */
-  #observedNodes: readonly HTMLElement[] = EMPTY_ARRAY;
+  /** The snapshot whose automatically indexed nodes `#observer` watches for reorders. */
+  #observedItems: readonly CompositeListItem<Metadata>[] = EMPTY_ARRAY;
 
   constructor(params: CompositeListModelParameters<Metadata>) {
     this.elementsRef = params.elementsRef;
@@ -75,40 +76,37 @@ export class CompositeListModel<Metadata> {
     this.requestFlush = params.requestFlush;
   }
 
-  /** The value items register through. Created on first access, as many lists never hold one. */
-  get context(): CompositeListContextValue<Metadata> {
-    this.#contextValue ??= {
-      register: (node, registration) => {
-        this.#registrations ??= new Map();
-        const shadowed = this.#registrations.get(node);
-        this.#registrations.set(
-          node,
-          shadowed && shadowed.setIndex !== registration.setIndex
-            ? shareIndex(shadowed, registration)
-            : registration,
-        );
-        this.#markDirty();
-      },
-      unregister: (node) => {
-        if (this.#registrations?.delete(node)) {
-          this.#markDirty();
-        }
-      },
-      subscribeMapChange: (fn) => {
-        this.#listeners ??= new Set();
-        const listeners = this.#listeners;
-        listeners.add(fn);
-        return () => {
-          listeners.delete(fn);
-        };
-      },
-      guessIndex: () => {
-        const index = this.#nextIndex;
-        this.#nextIndex += 1;
-        return index;
-      },
+  register(node: Element, registration: CompositeListRegistration<Metadata>) {
+    this.#registrations ??= new Map();
+    const shadowed = this.#registrations.get(node);
+    this.#registrations.set(
+      node,
+      shadowed && shadowed.setIndex !== registration.setIndex
+        ? shareIndex(shadowed, registration)
+        : registration,
+    );
+    this.#markDirty();
+  }
+
+  unregister(node: Element) {
+    if (this.#registrations?.delete(node)) {
+      this.#markDirty();
+    }
+  }
+
+  subscribeMapChange(fn: (map: Map<Element, CompositeMetadata<Metadata>>) => void) {
+    this.#listeners ??= new Set();
+    const listeners = this.#listeners;
+    listeners.add(fn);
+    return () => {
+      listeners.delete(fn);
     };
-    return this.#contextValue;
+  }
+
+  guessIndex() {
+    const index = this.#nextIndex;
+    this.#nextIndex += 1;
+    return index;
   }
 
   /** Moves the items to new refs on the next flush, emptying the previous ones. */
@@ -148,15 +146,16 @@ export class CompositeListModel<Metadata> {
 
     // The observer's roots follow from the nodes' ancestry, which React only changes by
     // remounting them as new nodes, so an unchanged node order keeps the observer.
-    if (!observesAutomaticNodes(this.#observedNodes, items)) {
-      this.#observe(getAutomaticNodes(items));
+    if (!hasSameAutomaticNodes(this.#observedItems, items)) {
+      this.#observe(items);
     }
 
     if (previousItems && publishesSameMap(previousItems, items)) {
       return;
     }
 
-    for (const { index, registration } of items) {
+    for (let i = 0; i < items.length; i += 1) {
+      const { index, registration } = items[i];
       if (receivesIndex(registration)) {
         registration.setIndex(index);
       }
@@ -217,13 +216,19 @@ export class CompositeListModel<Metadata> {
   #syncRefs(items: readonly CompositeListItem<Metadata>[]) {
     const elements = this.elementsRef.current;
     const labels = this.labelsRef?.current;
+    // The snapshot is sorted by index. Emptying the arrays clears stale slots, and they are then
+    // sized up front like the snapshot.
+    const size = items.length > 0 ? items[items.length - 1].index + 1 : 0;
 
     elements.length = 0;
+    elements.length = size;
     if (labels) {
       labels.length = 0;
+      labels.length = size;
     }
 
-    for (const item of items) {
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
       elements[item.index] = item.element;
 
       if (labels) {
@@ -241,47 +246,53 @@ export class CompositeListModel<Metadata> {
     }
   }
 
-  #observe(sortedNodes: readonly HTMLElement[]) {
+  #observe(items: readonly CompositeListItem<Metadata>[]) {
     this.#disconnectObserver();
-    this.#observedNodes = sortedNodes;
+    this.#observedItems = items;
 
-    // A single item can't reorder.
-    if (typeof MutationObserver !== 'function' || sortedNodes.length < 2) {
+    if (typeof MutationObserver !== 'function') {
       return;
     }
-
-    const observer = new MutationObserver((entries) => {
-      // Only verify the order after a move: a node that was removed and later
-      // re-added within the same batch. Additions and removals alone can't
-      // change the relative order of the remaining items, and items that mount
-      // or unmount re-sort through `register`/`unregister`.
-      if (hasMovedNode(entries) && !isInDocumentOrder(sortedNodes)) {
-        this.#disconnectObserver();
-        this.#markDirty();
-      }
-    });
-
-    this.#observer = observer;
 
     // A reorder that changes item indexes must invert at least one adjacent pair
     // from the previous sorted order. Observing each pair's common parent catches
     // both direct item moves and ancestor wrapper moves at the boundary.
+    let observer: MutationObserver | null = null;
     let previousRoot: Element | null = null;
-    for (let i = 1; i < sortedNodes.length; i += 1) {
-      const root = getCommonAncestor(sortedNodes[i - 1], sortedNodes[i]);
+    let previous = nextAutomaticIndex(items, 0);
+    let next = nextAutomaticIndex(items, previous + 1);
+    while (next < items.length) {
+      const root = getCommonAncestor(items[previous].element, items[next].element);
       // Observing a root again only replaces its options. Adjacent pairs mostly share their
       // parent, so skipping consecutive repeats saves the calls without collecting a set.
       if (root && root !== previousRoot) {
+        observer ??= this.#createObserver(items);
         observer.observe(root, OBSERVER_OPTIONS);
         previousRoot = root;
       }
+      previous = next;
+      next = nextAutomaticIndex(items, next + 1);
     }
+  }
+
+  #createObserver(items: readonly CompositeListItem<Metadata>[]) {
+    this.#observer = new MutationObserver((entries) => {
+      // Only verify the order after a move: a node that was removed and later
+      // re-added within the same batch. Additions and removals alone can't
+      // change the relative order of the remaining items, and items that mount
+      // or unmount re-sort through `register`/`unregister`.
+      if (hasMovedNode(entries) && !isInDocumentOrder(items)) {
+        this.#disconnectObserver();
+        this.#markDirty();
+      }
+    });
+    return this.#observer;
   }
 
   #disconnectObserver() {
     this.#observer?.disconnect();
     this.#observer = null;
-    this.#observedNodes = EMPTY_ARRAY;
+    this.#observedItems = EMPTY_ARRAY;
   }
 }
 
@@ -363,7 +374,9 @@ function createMetadataMap<Metadata>(items: readonly CompositeListItem<Metadata>
 function getCompositeListSnapshot<Metadata>(
   registrations: Map<Element, CompositeListRegistration<Metadata>>,
 ) {
-  const items: CompositeListItem<Metadata>[] = [];
+  // Sized up front, as appending to an empty array reserves more slots than a short list needs.
+  const items: CompositeListItem<Metadata>[] = new Array(registrations.size);
+  let count = 0;
   let hasExplicitIndex = false;
 
   registrations.forEach((registration, node) => {
@@ -373,8 +386,10 @@ function getCompositeListSnapshot<Metadata>(
     }
 
     hasExplicitIndex ||= index !== null;
-    items.push({ index: index ?? -1, element: node as HTMLElement, registration });
+    items[count] = { index: index ?? -1, element: node as HTMLElement, registration };
+    count += 1;
   });
+  items.length = count;
 
   if (!hasExplicitIndex) {
     items.sort(compareByDocumentPosition);
@@ -414,39 +429,42 @@ function isAutomatic<Metadata>(item: CompositeListItem<Metadata>) {
   return item.registration.index === null;
 }
 
-// Automatic items take increasing indexes in document order, so the snapshot, sorted by index,
-// lists them in document order.
-function getAutomaticNodes<Metadata>(items: readonly CompositeListItem<Metadata>[]) {
-  const nodes: HTMLElement[] = [];
-  for (const item of items) {
-    if (isAutomatic(item)) {
-      nodes.push(item.element);
-    }
+function nextAutomaticIndex<Metadata>(items: readonly CompositeListItem<Metadata>[], from: number) {
+  let index = from;
+  while (index < items.length && !isAutomatic(items[index])) {
+    index += 1;
   }
-  return nodes;
+  return index;
 }
 
-function observesAutomaticNodes<Metadata>(
-  observedNodes: readonly HTMLElement[],
-  items: readonly CompositeListItem<Metadata>[],
+// Automatic items take increasing indexes in document order, so a snapshot, sorted by index,
+// lists them in document order.
+function hasSameAutomaticNodes<Metadata>(
+  a: readonly CompositeListItem<Metadata>[],
+  b: readonly CompositeListItem<Metadata>[],
 ) {
-  let observedIndex = 0;
-  for (const item of items) {
-    if (isAutomatic(item)) {
-      if (observedNodes[observedIndex] !== item.element) {
-        return false;
-      }
-      observedIndex += 1;
+  let i = nextAutomaticIndex(a, 0);
+  let j = nextAutomaticIndex(b, 0);
+  while (i < a.length && j < b.length) {
+    if (a[i].element !== b[j].element) {
+      return false;
     }
+    i = nextAutomaticIndex(a, i + 1);
+    j = nextAutomaticIndex(b, j + 1);
   }
-  return observedIndex === observedNodes.length;
+  return i === a.length && j === b.length;
 }
 
 // A disconnected node has no meaningful document position, so the check skips it.
-function isInDocumentOrder(sortedNodes: readonly HTMLElement[]) {
+function isInDocumentOrder<Metadata>(items: readonly CompositeListItem<Metadata>[]) {
   let previousConnectedNode: Element | null = null;
 
-  for (const node of sortedNodes) {
+  for (
+    let i = nextAutomaticIndex(items, 0);
+    i < items.length;
+    i = nextAutomaticIndex(items, i + 1)
+  ) {
+    const node = items[i].element;
     if (!node.isConnected) {
       continue;
     }

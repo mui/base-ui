@@ -20,7 +20,10 @@ export interface UseCompositeListItemParameters<Metadata> {
   metadata?: Metadata | undefined;
   /** Keep the ref object stable to avoid unnecessarily reattaching the item. */
   textRef?: React.RefObject<HTMLElement | null> | undefined;
-  /** The list to register with, in place of the one provided through `CompositeListContext`. */
+  /**
+   * The list to register with, in place of the one provided through `CompositeListContext`.
+   * Pass it on every render of the item or on none.
+   */
   list?: CompositeListContextValue<Metadata> | undefined;
 }
 
@@ -34,14 +37,17 @@ interface CompositeListItemHandle<Metadata> {
   /** The index the item renders with: the initial guess, then the last one the list delivered. */
   index: number;
   setIndex: (index: number) => void;
-  /** The ref last returned, with the registration it attaches and the list it registers with. */
-  ref: (node: HTMLElement | null) => void;
+  /** The registration the ref attaches, and the list it registers with. */
   registration: CompositeListRegistration<Metadata> | null;
-  register: CompositeListContextValue<Metadata>['register'] | null;
-  unregister: CompositeListContextValue<Metadata>['unregister'] | null;
+  list: CompositeListContextValue<Metadata> | null;
+  /** The value last returned, kept while its ref and index are unchanged. */
+  result: UseCompositeListItemReturnValue;
 }
 
 const NO_PARAMETERS = {};
+
+/** Stands in for the result until the first render, which always replaces it. */
+const UNSET_RESULT: UseCompositeListItemReturnValue = { ref: NOOP, index: -1 };
 
 /**
  * Used to register a list item and its index (DOM position) in the `CompositeList`.
@@ -49,11 +55,12 @@ const NO_PARAMETERS = {};
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = NO_PARAMETERS,
 ): UseCompositeListItemReturnValue {
-  const { guess, label, metadata = null, textRef, index: externalIndex, list } = params;
+  const { guess, label, metadata = null, textRef, index: externalIndex } = params;
   const explicitIndex = externalIndex ?? null;
-
-  const contextList = useCompositeListContext();
-  const { register, unregister, guessIndex } = list ?? contextList;
+  // The context is only read without an explicit list, which callers pass on every render or
+  // never, so the hook order holds while explicit lists spare each render a context dependency.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const list = params.list ?? useCompositeListContext();
 
   // Items can render by the thousand, in long lists or across data grid cells, so a render
   // allocates nothing unless the registration changes: the state lives in this handle rather than
@@ -64,7 +71,7 @@ export function useCompositeListItem<Metadata>(
   // flat lists rendered in DOM order; when the guess is wrong (grouped or out-of-order
   // rendering), the commit flush corrects it before paint.
   const [internalIndex, setInternalIndex] = React.useState<number>(
-    handleRef.current === null && explicitIndex === null && guess ? guessIndex() : -1,
+    handleRef.current === null && explicitIndex === null && guess ? list.guessIndex() : -1,
   );
   const index = explicitIndex ?? internalIndex;
 
@@ -84,8 +91,7 @@ export function useCompositeListItem<Metadata>(
     registration.index !== explicitIndex ||
     registration.label !== label ||
     registration.textRef !== textRef ||
-    handle.register !== register ||
-    handle.unregister !== unregister
+    handle.list !== list
   ) {
     const nextRegistration: CompositeListRegistration<Metadata> = {
       metadata,
@@ -95,12 +101,13 @@ export function useCompositeListItem<Metadata>(
       setIndex: handle.setIndex,
     };
     handle.registration = nextRegistration;
-    handle.register = register;
-    handle.unregister = unregister;
-    handle.ref = createRef(handle, nextRegistration, register, unregister);
+    handle.list = list;
+    handle.result = { ref: createRef(handle, nextRegistration, list), index };
+  } else if (handle.result.index !== index) {
+    handle.result = { ref: handle.result.ref, index };
   }
 
-  return { ref: handle.ref, index };
+  return handle.result;
 }
 
 function createHandle<Metadata>(
@@ -118,10 +125,9 @@ function createHandle<Metadata>(
         setInternalIndex(index);
       }
     },
-    ref: NOOP,
     registration: null,
-    register: null,
-    unregister: null,
+    list: null,
+    result: UNSET_RESULT,
   };
   return handle;
 }
@@ -129,18 +135,17 @@ function createHandle<Metadata>(
 function createRef<Metadata>(
   handle: CompositeListItemHandle<Metadata>,
   registration: CompositeListRegistration<Metadata>,
-  register: CompositeListContextValue<Metadata>['register'],
-  unregister: CompositeListContextValue<Metadata>['unregister'],
+  list: CompositeListContextValue<Metadata>,
 ) {
   return (node: HTMLElement | null) => {
     if (handle.element) {
-      unregister(handle.element);
+      list.unregister(handle.element);
     }
 
     handle.element = node;
 
     if (node) {
-      register(node, registration);
+      list.register(node, registration);
     }
   };
 }
