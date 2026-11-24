@@ -1,25 +1,37 @@
-import { expect, describe, it, afterEach } from 'vitest';
+import { expect, describe, it, afterEach, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { Toggle, ToggleIndicator } from '@base-ui/react/toggle';
+import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
-describe('<ToggleIndicator />', () => {
+describe('<Toggle.Indicator />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<ToggleIndicator keepMounted />, () => ({
+  describeConformance(<Toggle.Indicator keepMounted />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
-      return render(<Toggle>{node}</Toggle>);
+      return render(<Toggle.Root>{node}</Toggle.Root>);
     },
   }));
 
+  it('throws a descriptive error when rendered outside <Toggle.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Toggle.Indicator />)).rejects.toThrow(
+        'Base UI: ToggleRootContext is missing. Toggle parts must be placed within <Toggle.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('is hidden from assistive technology', async () => {
     await render(
-      <Toggle defaultPressed>
-        <ToggleIndicator data-testid="indicator" />
-      </Toggle>,
+      <Toggle.Root defaultPressed>
+        <Toggle.Indicator data-testid="indicator" />
+      </Toggle.Root>,
     );
 
     expect(screen.getByTestId('indicator')).toHaveAttribute('aria-hidden', 'true');
@@ -27,9 +39,9 @@ describe('<ToggleIndicator />', () => {
 
   it('reflects the pressed state through data-pressed', async () => {
     const { user } = await render(
-      <Toggle>
-        <ToggleIndicator data-testid="indicator" keepMounted />
-      </Toggle>,
+      <Toggle.Root>
+        <Toggle.Indicator data-testid="indicator" keepMounted />
+      </Toggle.Root>,
     );
 
     const indicator = screen.getByTestId('indicator');
@@ -41,9 +53,9 @@ describe('<ToggleIndicator />', () => {
 
   it('reflects the disabled state through data-disabled', async () => {
     await render(
-      <Toggle disabled>
-        <ToggleIndicator data-testid="indicator" keepMounted />
-      </Toggle>,
+      <Toggle.Root disabled>
+        <Toggle.Indicator data-testid="indicator" keepMounted />
+      </Toggle.Root>,
     );
 
     expect(screen.getByTestId('indicator')).toHaveAttribute('data-disabled');
@@ -52,9 +64,9 @@ describe('<ToggleIndicator />', () => {
   it('reflects the pressed state inside a toggle group', async () => {
     const { user } = await render(
       <ToggleGroup>
-        <Toggle value="bold">
-          <ToggleIndicator data-testid="indicator" keepMounted />
-        </Toggle>
+        <Toggle.Root value="bold">
+          <Toggle.Indicator data-testid="indicator" keepMounted />
+        </Toggle.Root>
       </ToggleGroup>,
     );
 
@@ -72,9 +84,9 @@ describe('<ToggleIndicator />', () => {
       { name: 'unpressed', match: 'unpressed' as const, initiallyRendered: true },
     ])('renders only while the toggle is $name', async ({ match, initiallyRendered }) => {
       const { user } = await render(
-        <Toggle>
-          <ToggleIndicator data-testid="indicator" match={match} />
-        </Toggle>,
+        <Toggle.Root>
+          <Toggle.Indicator data-testid="indicator" match={match} />
+        </Toggle.Root>,
       );
 
       expect(screen.queryByTestId('indicator') !== null).toBe(initiallyRendered);
@@ -88,10 +100,10 @@ describe('<ToggleIndicator />', () => {
 
     it('swaps between a pair of indicators', async () => {
       const { user } = await render(
-        <Toggle>
-          <ToggleIndicator match="unpressed">off</ToggleIndicator>
-          <ToggleIndicator match="pressed">on</ToggleIndicator>
-        </Toggle>,
+        <Toggle.Root>
+          <Toggle.Indicator match="unpressed">off</Toggle.Indicator>
+          <Toggle.Indicator match="pressed">on</Toggle.Indicator>
+        </Toggle.Root>,
       );
 
       const button = screen.getByRole('button');
@@ -105,9 +117,9 @@ describe('<ToggleIndicator />', () => {
   describe('prop: keepMounted', () => {
     it('keeps the element in the DOM while it does not apply', async () => {
       await render(
-        <Toggle>
-          <ToggleIndicator data-testid="indicator" keepMounted />
-        </Toggle>,
+        <Toggle.Root>
+          <Toggle.Indicator data-testid="indicator" keepMounted />
+        </Toggle.Root>,
       );
 
       expect(screen.getByTestId('indicator')).not.toHaveAttribute('data-pressed');
@@ -138,9 +150,9 @@ describe('<ToggleIndicator />', () => {
         <div>
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />
-          <Toggle defaultPressed>
-            <ToggleIndicator className="animation-test-indicator" data-testid="indicator" />
-          </Toggle>
+          <Toggle.Root defaultPressed>
+            <Toggle.Indicator className="animation-test-indicator" data-testid="indicator" />
+          </Toggle.Root>
         </div>,
       );
 

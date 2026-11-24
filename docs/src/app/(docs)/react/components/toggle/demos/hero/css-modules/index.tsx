@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
-import { Toggle, ToggleIndicator } from '@base-ui/react/toggle';
+import { Toggle } from '@base-ui/react/toggle';
 import styles from './index.module.css';
 
 export default function ExampleToggle() {
   return (
-    <Toggle aria-label="Favorite" className={styles.Button}>
+    <Toggle.Root aria-label="Favorite" className={styles.Button}>
       <HeartOutlineIcon />
-      <ToggleIndicator keepMounted className={styles.Indicator}>
+      <Toggle.Indicator keepMounted className={styles.Indicator}>
         <HeartFilledIcon />
-      </ToggleIndicator>
-    </Toggle>
+      </Toggle.Indicator>
+    </Toggle.Root>
   );
 }
 

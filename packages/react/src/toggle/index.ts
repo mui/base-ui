@@ -1,8 +1,8 @@
 export { Toggle } from './Toggle';
-export { ToggleIndicator } from './ToggleIndicator';
 
 export type * from './Toggle';
-export type * from './ToggleIndicator';
+export type * from './indicator/ToggleIndicator';
 
-export * as ToggleDataAttributes from './ToggleDataAttributes';
-export * as ToggleIndicatorDataAttributes from './ToggleIndicatorDataAttributes';
+export * as ToggleDataAttributes from './root/ToggleRootDataAttributes';
+export * as ToggleRootDataAttributes from './root/ToggleRootDataAttributes';
+export * as ToggleIndicatorDataAttributes from './indicator/ToggleIndicatorDataAttributes';

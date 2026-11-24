@@ -1,20 +1,20 @@
 'use client';
 import * as React from 'react';
-import { Toggle, ToggleIndicator } from '@base-ui/react/toggle';
+import { Toggle } from '@base-ui/react/toggle';
 
 export default function ExampleToggleIcon() {
   return (
-    <Toggle
+    <Toggle.Root
       aria-label="Mute"
       className="grid size-8 place-items-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none *:[grid-area:1/1] hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
     >
-      <ToggleIndicator match="unpressed">
+      <Toggle.Indicator match="unpressed">
         <VolumeIcon />
-      </ToggleIndicator>
-      <ToggleIndicator match="pressed">
+      </Toggle.Indicator>
+      <Toggle.Indicator match="pressed">
         <VolumeMutedIcon />
-      </ToggleIndicator>
-    </Toggle>
+      </Toggle.Indicator>
+    </Toggle.Root>
   );
 }
 
