@@ -1169,6 +1169,33 @@ describe('<CompositeList />', () => {
       expect(map.get(screen.getByTestId('first'))).toEqual({ kind: 'alpha', index: 0 });
       expect(map.get(screen.getByTestId('second'))).toEqual({ kind: 'beta', index: 1 });
     });
+
+    it('publishes the metadata an item re-renders with', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const onMapChange = vi.fn();
+
+      function MetadataItem(props: { kind: string }) {
+        const metadata = React.useMemo(() => ({ kind: props.kind }), [props.kind]);
+        const { ref } = useCompositeListItem({ metadata });
+        return <div ref={ref} data-testid="item" />;
+      }
+
+      function App(props: { kind: string }) {
+        return (
+          <CompositeList elementsRef={elementsRef} onMapChange={onMapChange}>
+            <MetadataItem kind={props.kind} />
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<App kind="alpha" />);
+      await setProps({ kind: 'beta' });
+
+      const map = onMapChange.mock.lastCall?.[0] as Map<Element, { kind: string; index: number }>;
+      expect(map.get(screen.getByTestId('item'))).toEqual({ kind: 'beta', index: 0 });
+    });
   });
 
   describe('Suspense integration', () => {

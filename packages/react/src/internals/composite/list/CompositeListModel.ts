@@ -7,6 +7,8 @@ export type CompositeMetadata<CustomMetadata> = {
   index: number;
 } & CustomMetadata;
 
+const OBSERVER_OPTIONS: MutationObserverInit = { childList: true };
+
 interface CompositeListItem<Metadata> {
   index: number;
   element: HTMLElement;
@@ -139,26 +141,26 @@ export class CompositeListModel<Metadata> {
     }
 
     const previousItems = this.#items;
-    const [items, automaticNodes] = getCompositeListSnapshot(this.#registrations);
+    const items = getCompositeListSnapshot(this.#registrations);
     this.#items = items;
 
     this.#syncRefs(items);
 
     // The observer's roots follow from the nodes' ancestry, which React only changes by
     // remounting them as new nodes, so an unchanged node order keeps the observer.
-    if (!isSameNodeOrder(this.#observedNodes, automaticNodes)) {
-      this.#observe(automaticNodes);
+    if (!observesAutomaticNodes(this.#observedNodes, items)) {
+      this.#observe(getAutomaticNodes(items));
     }
 
     if (previousItems && publishesSameMap(previousItems, items)) {
       return;
     }
 
-    items.forEach((item) => {
-      if (receivesIndex(item.registration)) {
-        item.registration.setIndex(item.index);
+    for (const { index, registration } of items) {
+      if (receivesIndex(registration)) {
+        registration.setIndex(index);
       }
-    });
+    }
 
     this.#publish(items);
   }
@@ -221,13 +223,13 @@ export class CompositeListModel<Metadata> {
       labels.length = 0;
     }
 
-    items.forEach((item) => {
+    for (const item of items) {
       elements[item.index] = item.element;
 
       if (labels) {
         labels[item.index] = getLabel(item);
       }
-    });
+    }
 
     this.#nextIndex = elements.length;
   }
@@ -264,15 +266,16 @@ export class CompositeListModel<Metadata> {
     // A reorder that changes item indexes must invert at least one adjacent pair
     // from the previous sorted order. Observing each pair's common parent catches
     // both direct item moves and ancestor wrapper moves at the boundary.
-    const roots = new Set<Element>();
+    let previousRoot: Element | null = null;
     for (let i = 1; i < sortedNodes.length; i += 1) {
       const root = getCommonAncestor(sortedNodes[i - 1], sortedNodes[i]);
-      if (root) {
-        roots.add(root);
+      // Observing a root again only replaces its options. Adjacent pairs mostly share their
+      // parent, so skipping consecutive repeats saves the calls without collecting a set.
+      if (root && root !== previousRoot) {
+        observer.observe(root, OBSERVER_OPTIONS);
+        previousRoot = root;
       }
     }
-
-    roots.forEach((root) => observer.observe(root, { childList: true }));
   }
 
   #disconnectObserver() {
@@ -324,18 +327,24 @@ function publishesSameMap<Metadata>(
   previousItems: readonly CompositeListItem<Metadata>[],
   items: readonly CompositeListItem<Metadata>[],
 ) {
-  return (
-    previousItems.length === items.length &&
-    items.every((item, index) => {
-      const previousItem = previousItems[index];
-      return (
-        item.index === previousItem.index &&
-        item.element === previousItem.element &&
-        item.registration.index === previousItem.registration.index &&
-        item.registration.metadata === previousItem.registration.metadata
-      );
-    })
-  );
+  if (previousItems.length !== items.length) {
+    return false;
+  }
+
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i];
+    const previousItem = previousItems[i];
+    if (
+      item.index !== previousItem.index ||
+      item.element !== previousItem.element ||
+      item.registration.index !== previousItem.registration.index ||
+      item.registration.metadata !== previousItem.registration.metadata
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function createMetadataMap<Metadata>(items: readonly CompositeListItem<Metadata>[]) {
@@ -355,56 +364,82 @@ function getCompositeListSnapshot<Metadata>(
   registrations: Map<Element, CompositeListRegistration<Metadata>>,
 ) {
   const items: CompositeListItem<Metadata>[] = [];
-  const automaticItems: CompositeListItem<Metadata>[] = [];
+  let hasExplicitIndex = false;
 
   registrations.forEach((registration, node) => {
-    if (!node.isConnected) {
+    const { index } = registration;
+    if (!node.isConnected || (index !== null && index < 0)) {
       return;
     }
 
-    const index = registration.index;
-    const item = {
-      index: index ?? -1,
-      element: node as HTMLElement,
-      registration,
-    };
-
-    if (index === null) {
-      automaticItems.push(item);
-    } else if (index >= 0) {
-      items.push(item);
-    }
+    hasExplicitIndex ||= index !== null;
+    items.push({ index: index ?? -1, element: node as HTMLElement, registration });
   });
 
-  automaticItems.sort((a, b) => sortByDocumentPosition(a.element, b.element));
-  const automaticNodes = automaticItems.map((item) => item.element);
-
-  if (items.length === 0) {
-    automaticItems.forEach((item, index) => {
-      item.index = index;
-    });
-    return [automaticItems, automaticNodes] as const;
+  if (!hasExplicitIndex) {
+    items.sort(compareByDocumentPosition);
+    for (let i = 0; i < items.length; i += 1) {
+      items[i].index = i;
+    }
+    return items;
   }
 
-  const reservedIndices = new Set(items.map((item) => item.index));
+  const automaticItems: CompositeListItem<Metadata>[] = [];
+  const reservedIndices = new Set<number>();
+  for (const item of items) {
+    if (isAutomatic(item)) {
+      automaticItems.push(item);
+    } else {
+      reservedIndices.add(item.index);
+    }
+  }
+
+  automaticItems.sort(compareByDocumentPosition);
   let nextAutomaticIndex = 0;
-  automaticItems.forEach((item) => {
+  for (const item of automaticItems) {
     while (reservedIndices.has(nextAutomaticIndex)) {
       nextAutomaticIndex += 1;
     }
 
     item.index = nextAutomaticIndex;
-    items.push(item);
     nextAutomaticIndex += 1;
-  });
+  }
 
   items.sort((a, b) => a.index - b.index);
 
-  return [items, automaticNodes] as const;
+  return items;
 }
 
-function isSameNodeOrder(a: readonly HTMLElement[], b: readonly HTMLElement[]) {
-  return a.length === b.length && a.every((node, index) => node === b[index]);
+function isAutomatic<Metadata>(item: CompositeListItem<Metadata>) {
+  return item.registration.index === null;
+}
+
+// Automatic items take increasing indexes in document order, so the snapshot, sorted by index,
+// lists them in document order.
+function getAutomaticNodes<Metadata>(items: readonly CompositeListItem<Metadata>[]) {
+  const nodes: HTMLElement[] = [];
+  for (const item of items) {
+    if (isAutomatic(item)) {
+      nodes.push(item.element);
+    }
+  }
+  return nodes;
+}
+
+function observesAutomaticNodes<Metadata>(
+  observedNodes: readonly HTMLElement[],
+  items: readonly CompositeListItem<Metadata>[],
+) {
+  let observedIndex = 0;
+  for (const item of items) {
+    if (isAutomatic(item)) {
+      if (observedNodes[observedIndex] !== item.element) {
+        return false;
+      }
+      observedIndex += 1;
+    }
+  }
+  return observedIndex === observedNodes.length;
 }
 
 // A disconnected node has no meaningful document position, so the check skips it.
@@ -448,6 +483,13 @@ function hasMovedNode(entries: MutationRecord[]) {
   }
 
   return false;
+}
+
+function compareByDocumentPosition<Metadata>(
+  a: CompositeListItem<Metadata>,
+  b: CompositeListItem<Metadata>,
+) {
+  return sortByDocumentPosition(a.element, b.element);
 }
 
 function sortByDocumentPosition(a: Element, b: Element) {
