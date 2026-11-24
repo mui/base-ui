@@ -61,7 +61,8 @@ export function resolveItemKeyPress(
   if (isMacToggleKey(key, context)) {
     return { shiftKey: key.shiftKey, ctrlKey: true };
   }
-  if (!key.altKey && (key.key === ' ' || key.key === 'Enter')) {
+  // An item's button presses on these keys whatever modifiers are held, so the list does too.
+  if (key.key === ' ' || key.key === 'Enter') {
     return { shiftKey: key.shiftKey, ctrlKey: key.ctrlKey || key.metaKey };
   }
   return null;

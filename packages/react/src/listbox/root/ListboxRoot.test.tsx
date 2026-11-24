@@ -1646,6 +1646,62 @@ describe('<Listbox.Root />', () => {
       ]);
     });
 
+    it('Shift+Arrow continues a range made with Shift+Click on the focused item while Shift stays held', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+            <Listbox.Item value="d">d</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const option = (name: string) => screen.getByRole('option', { name });
+      fireEvent.click(option('a'));
+      await act(async () => option('c').focus());
+      fireEvent.keyDown(option('c'), { key: 'Shift', shiftKey: true });
+      fireEvent.click(option('c'), { shiftKey: true });
+      fireEvent.keyDown(option('c'), { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+
+      expect(handleValueChange.mock.lastCall?.[0]).toEqual(['a', 'b', 'c', 'd']);
+    });
+
+    it('Shift+Arrow starts from the item the selection moved to by typing while Shift stays held, in opt-in mode', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple="opt-in" onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="Apple">Apple</Listbox.Item>
+            <Listbox.Item value="Banana">Banana</Listbox.Item>
+            <Listbox.Item value="Cherry">Cherry</Listbox.Item>
+            <Listbox.Item value="Date">Date</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const option = (name: string) => screen.getByRole('option', { name });
+      fireEvent.click(option('Apple'));
+      await act(async () => option('Apple').focus());
+      fireEvent.keyDown(option('Apple'), { key: 'Shift', shiftKey: true });
+      fireEvent.click(option('Banana'), { shiftKey: true });
+      await act(async () => option('Banana').focus());
+      // Typing moves the selection to Cherry alone.
+      fireEvent.keyDown(option('Banana'), { key: 'C', shiftKey: true });
+      await flushMicrotasks();
+      expect(handleValueChange.mock.lastCall?.[0]).toEqual(['Cherry']);
+
+      fireEvent.keyDown(option('Cherry'), { key: 'ArrowDown', shiftKey: true });
+      await flushMicrotasks();
+
+      expect(handleValueChange.mock.lastCall?.[0]).toEqual(['Cherry', 'Date']);
+    });
+
     it('Shift+Arrow continues a range made with Shift+Click', async () => {
       const handleValueChange = vi.fn();
 

@@ -128,7 +128,7 @@ export class ListSelection<E = Event> {
    * item that set or kept it, so Shift+Arrow continues a range, and the focused item once focus
    * has moved another way, such as by typing or hovering.
    */
-  private getItemReference(focusedIndex: number | null): number | null {
+  private getRangeAnchor(focusedIndex: number | null): number | null {
     const pressIndex = this.resolveAnchor(this.pressAnchor);
     return pressIndex !== null && this.resolveAnchor(this.anchorFocus) === focusedIndex
       ? pressIndex
@@ -162,7 +162,7 @@ export class ListSelection<E = Event> {
    * Shift+press extends from the same anchor.
    */
   extendTo(index: number, focusedIndex: number | null, event: E) {
-    const anchorIndex = this.getItemReference(focusedIndex);
+    const anchorIndex = this.getRangeAnchor(focusedIndex);
     const { value, items } = this.read();
     if (
       this.parameters.commit(

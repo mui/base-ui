@@ -244,6 +244,16 @@ describe('resolveItemKeyPress', () => {
       press: { key: 'Enter', metaKey: true },
       expected: { shiftKey: false, ctrlKey: true },
     },
+    {
+      name: 'Alt+Enter',
+      press: { key: 'Enter', altKey: true },
+      expected: { shiftKey: false, ctrlKey: false },
+    },
+    {
+      name: 'Alt+Space',
+      press: { key: ' ', code: 'Space', altKey: true },
+      expected: { shiftKey: false, ctrlKey: false },
+    },
   ])('presses the item on $name', ({ press, expected }) => {
     expect(resolveItemKeyPress({ ...key, ...press }, { multiple: true, mac: false })).toEqual(
       expected,
