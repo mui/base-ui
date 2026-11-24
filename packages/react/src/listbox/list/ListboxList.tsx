@@ -14,9 +14,8 @@ import { stopEvent } from '../../utils/popups/event';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { ListboxCollection } from '../collection/ListboxCollection';
-import { resolveListKeyCommand } from '../utils/listKeyCommand';
+import { resolveItemKeyPress, resolveListKeyCommand } from '../utils/listKeyCommand';
 import type { ListKeyCommand } from '../utils/listKeyCommand';
-import type { RangeAnchor } from '../utils/listSelection';
 
 /**
  * A container for the listbox items.
@@ -47,12 +46,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // Whether a typeahead search is in progress, in which Space continues it.
   const typingRef = React.useRef(false);
 
-  // Where a Shift+Arrow range starts: the item focused when Shift was pressed, or the anchor of a
-  // Shift+press range that ended on it.
-  const shiftAnchorRef = React.useRef<RangeAnchor | null>(null);
-  // The item that had focus when the range anchor was set or last extended. Once focus has moved
-  // another way, such as by typing or hovering, the next range starts from the focused item.
-  const shiftFocusRef = React.useRef<RangeAnchor | null>(null);
   // Whether a pointer is pressed in the list, which tells a press on the list from focus that
   // arrives another way.
   const pointerPressedRef = React.useRef(false);
@@ -72,17 +65,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
         break;
       case 'extend': {
         const focusedIndex = store.state.activeIndex;
-        let anchorIndex =
-          store.selection.resolveAnchor(shiftFocusRef.current) === focusedIndex
-            ? store.selection.resolveAnchor(shiftAnchorRef.current)
-            : null;
-        if (anchorIndex === null) {
-          anchorIndex = store.selection.getRangeAnchor(focusedIndex);
-          shiftAnchorRef.current = store.selection.createAnchor(anchorIndex);
-        }
-        shiftFocusRef.current = store.selection.createAnchor(command.index);
         store.focus.moveTo(command.index, nativeEvent);
-        store.selection.extendTo(command.index, anchorIndex, nativeEvent);
+        store.selection.extendTo(command.index, focusedIndex, nativeEvent);
         break;
       }
       case 'selectRange':
@@ -213,26 +197,22 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
       pointerPressedRef.current = false;
 
-      // The list holds focus for an item that isn't rendered, so it takes the item's key presses.
-      if (
-        event.target === event.currentTarget &&
-        // Option+Space types a non-breaking space on macOS, so match the physical key too.
-        (event.key === ' ' || event.code === 'Space' || event.key === 'Enter') &&
-        store.state.activeIndex !== null
-      ) {
-        event.preventDefault();
-        const macToggle = platform.os.mac && event.altKey && event.code === 'Space';
-        store.selection.press(
-          store.state.activeIndex,
-          { shiftKey: event.shiftKey, ctrlKey: event.ctrlKey || event.metaKey || macToggle },
-          event.nativeEvent,
-        );
-        return;
-      }
-
       // A handler passed to an item or the list can call `preventBaseUIHandler()` to use a key
       // for something else. An item's own button does the same for Enter and Space.
       const prevented = (event as BaseUIEvent<React.KeyboardEvent>).baseUIHandlerPrevented === true;
+
+      // The list holds focus for an item that isn't rendered, so it takes the item's key presses.
+      if (event.target === event.currentTarget && store.state.activeIndex !== null) {
+        const modifiers = resolveItemKeyPress(event, { multiple, mac: platform.os.mac });
+        if (modifiers) {
+          event.preventDefault();
+          // Holding the key presses the item once, not on every repeat.
+          if (!prevented && !event.repeat) {
+            store.pressItem(store.state.activeIndex, modifiers, event.nativeEvent);
+          }
+          return;
+        }
+      }
 
       // Typeahead runs after those handlers. A key that matches no item carries on to handlers
       // outside the list.
@@ -241,15 +221,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
           typingRef.current = true;
         }
         typeahead.onKeyDown(event);
-      }
-
-      if (event.key === 'Shift') {
-        shiftAnchorRef.current = store.selection.createAnchor(
-          store.selection.getRangeAnchor(store.state.activeIndex),
-        );
-        shiftFocusRef.current = store.selection.createAnchor(store.state.activeIndex);
-      } else if (!event.shiftKey) {
-        shiftAnchorRef.current = null;
       }
 
       const command = resolveListKeyCommand(event, {

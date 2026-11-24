@@ -17,6 +17,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { isStationaryWebKitPointer } from '../../utils/popups/interactions/useListNavigation';
+import { isMacToggleKey } from '../utils/listKeyCommand';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { ListboxItemContext } from './ListboxItemContext';
 
@@ -173,25 +174,11 @@ export const ListboxItem = React.memo(
     function handleItemKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
       store.highlightItem(index, event.nativeEvent);
 
-      // macOS reserves Ctrl+Space and Cmd+Space, so Option+Space toggles the focused item there.
-      // Option+Space types a non-breaking space on macOS, so match the physical key.
-      if (
-        platform.os.mac &&
-        store.state.multiple &&
-        event.altKey &&
-        !event.ctrlKey &&
-        !event.metaKey &&
-        event.code === 'Space'
-      ) {
+      // The item's button doesn't press it on Option+Space, so it's handled here.
+      if (isMacToggleKey(event, { multiple: store.state.multiple, mac: platform.os.mac })) {
         event.preventDefault();
         event.preventBaseUIHandler();
-        if (!disabled) {
-          store.selection.press(
-            index,
-            { shiftKey: event.shiftKey, ctrlKey: true },
-            event.nativeEvent,
-          );
-        }
+        store.pressItem(index, { shiftKey: event.shiftKey, ctrlKey: true }, event.nativeEvent);
       }
     }
 
@@ -285,11 +272,7 @@ export const ListboxItem = React.memo(
           return;
         }
 
-        if (disabled) {
-          return;
-        }
-
-        store.selection.press(
+        store.pressItem(
           index,
           {
             shiftKey: event.shiftKey,

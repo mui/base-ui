@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import { resolveListKeyCommand } from './listKeyCommand';
+import { resolveItemKeyPress, resolveListKeyCommand } from './listKeyCommand';
 import type { ListKey, ListKeyContext } from './listKeyCommand';
 
 function resolve(key: string | Partial<ListKey>, context: Partial<ListKeyContext> = {}) {
@@ -227,6 +227,56 @@ describe('resolveListKeyCommand', () => {
       expect(resolve({ key: 'ArrowDown', shiftKey: true }, { multiple: false })).toEqual({
         type: 'none',
       });
+    });
+  });
+});
+
+describe('resolveItemKeyPress', () => {
+  const key = { key: '', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false };
+
+  it.each([
+    { name: 'Space', press: { key: ' ' }, expected: { shiftKey: false, ctrlKey: false } },
+    { name: 'Enter', press: { key: 'Enter' }, expected: { shiftKey: false, ctrlKey: false } },
+    {
+      name: 'Shift+Space',
+      press: { key: ' ', shiftKey: true },
+      expected: { shiftKey: true, ctrlKey: false },
+    },
+    {
+      name: 'Ctrl+Space',
+      press: { key: ' ', ctrlKey: true },
+      expected: { shiftKey: false, ctrlKey: true },
+    },
+    {
+      name: 'Cmd+Enter',
+      press: { key: 'Enter', metaKey: true },
+      expected: { shiftKey: false, ctrlKey: true },
+    },
+  ])('presses the item on $name', ({ press, expected }) => {
+    expect(resolveItemKeyPress({ ...key, ...press }, { multiple: true, mac: false })).toEqual(
+      expected,
+    );
+  });
+
+  it('does not press the item on another key', () => {
+    expect(resolveItemKeyPress({ ...key, key: 'a' }, { multiple: true, mac: false })).toBe(null);
+  });
+
+  describe('Option+Space', () => {
+    const optionSpace = { ...key, key: '\u00a0', code: 'Space', altKey: true };
+
+    it('toggles the item on macOS with multiple selection', () => {
+      expect(resolveItemKeyPress(optionSpace, { multiple: 'opt-in', mac: true })).toEqual({
+        shiftKey: false,
+        ctrlKey: true,
+      });
+    });
+
+    it.each([
+      { name: 'on macOS with single selection', multiple: false as const, mac: true },
+      { name: 'on other platforms', multiple: true as const, mac: false },
+    ])('does not press the item $name', ({ multiple, mac }) => {
+      expect(resolveItemKeyPress(optionSpace, { multiple, mac })).toBe(null);
     });
   });
 });

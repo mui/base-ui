@@ -55,7 +55,7 @@ export interface ListSelectionParameters<E> {
  * An item a range extends from. It's remembered by its value, so it's found again after items are
  * added or removed around it, and by its position, which tells items that share a value apart.
  */
-export interface RangeAnchor {
+interface RangeAnchor {
   index: number;
   value: any;
 }
@@ -117,12 +117,12 @@ export class ListSelection<E = Event> {
   }
 
   /** Remembers the item at a position as an anchor. */
-  createAnchor(index: number | null): RangeAnchor | null {
+  private createAnchor(index: number | null): RangeAnchor | null {
     return index === null ? null : { index, value: this.parameters.getItems().getValue(index) };
   }
 
   /** Where an anchor's item is now, or `null` when there's no anchor or its item is gone. */
-  resolveAnchor(anchor: RangeAnchor | null): number | null {
+  private resolveAnchor(anchor: RangeAnchor | null): number | null {
     if (anchor === null) {
       return null;
     }
@@ -135,11 +135,11 @@ export class ListSelection<E = Event> {
   }
 
   /**
-   * Where a Shift+Arrow range starts from the focused item: the press anchor while focus is still
-   * on the item that set or kept it, so Shift+Arrow continues a Shift+press range, and the focused
-   * item once focus has moved elsewhere.
+   * Where a range extended from the focused item starts: the anchor while focus is still on the
+   * item that set or kept it, so Shift+Arrow continues a range, and the focused item once focus
+   * has moved another way, such as by typing or hovering.
    */
-  getRangeAnchor(focusedIndex: number | null): number | null {
+  private getRangeAnchor(focusedIndex: number | null): number | null {
     const pressIndex = this.resolveAnchor(this.pressAnchor);
     return pressIndex !== null && this.resolveAnchor(this.anchorFocus) === focusedIndex
       ? pressIndex
@@ -168,11 +168,12 @@ export class ListSelection<E = Event> {
   }
 
   /**
-   * Selects the range from an anchor to an item, replacing the rest of the selection, so the
-   * range grows and shrinks as the item changes. The anchor becomes the one Shift+press extends
-   * from, too.
+   * Selects the range from the anchor to an item as focus moves to it from `focusedIndex`,
+   * replacing the rest of the selection, so the range grows and shrinks as the item changes.
+   * Shift+press extends from the same anchor.
    */
-  extendTo(index: number, anchorIndex: number | null, event: E) {
+  extendTo(index: number, focusedIndex: number | null, event: E) {
+    const anchorIndex = this.getRangeAnchor(focusedIndex);
     const { value, items } = this.read();
     if (
       this.parameters.commit(

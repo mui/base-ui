@@ -159,21 +159,48 @@ describe('ListSelection', () => {
       expect(getValue()).toEqual(['d', 'e']);
     });
 
-    it('extendTo selects from the given anchor and moves the press anchor to it', () => {
+    it('extendTo starts a range from the focused item and keeps its anchor as focus moves', () => {
+      const { selection, getValue } = setup({ multiple: true });
+
+      selection.extendTo(3, 2, EVENT);
+      expect(getValue()).toEqual(['c', 'd']);
+
+      selection.extendTo(4, 3, EVENT);
+      expect(getValue()).toEqual(['c', 'd', 'e']);
+
+      selection.extendTo(1, 4, EVENT);
+      expect(getValue()).toEqual(['b', 'c']);
+    });
+
+    it('extendTo continues a Shift+press range while focus is on the pressed item', () => {
+      const { selection, getValue } = setup({ multiple: true });
+      selection.press(0, {}, EVENT);
+      selection.press(2, { shiftKey: true }, EVENT);
+
+      selection.extendTo(3, 2, EVENT);
+
+      expect(getValue()).toEqual(['a', 'b', 'c', 'd']);
+    });
+
+    it('extendTo starts a new range once focus has moved away from the pressed item', () => {
+      const { selection, getValue } = setup({ multiple: true });
+      selection.press(0, {}, EVENT);
+      selection.press(2, { shiftKey: true }, EVENT);
+
+      // Focus moved to the fourth item another way, such as by typing.
+      selection.extendTo(4, 3, EVENT);
+
+      expect(getValue()).toEqual(['d', 'e']);
+    });
+
+    it('Shift+press extends from the anchor of a range made with extendTo', () => {
       const { selection, getValue } = setup({ multiple: true });
       selection.press(0, {}, EVENT);
       selection.extendTo(4, 3, EVENT);
-      expect(getValue()).toEqual(['d', 'e']);
-      selection.press(1, { shiftKey: true }, EVENT);
-      expect(getValue()).toEqual(['b', 'c', 'd']);
-    });
 
-    it('getRangeAnchor returns the press anchor while focus is on the pressed item', () => {
-      const { selection } = setup({ multiple: true });
-      selection.press(0, {}, EVENT);
-      selection.press(2, { shiftKey: true }, EVENT);
-      expect(selection.getRangeAnchor(2)).toBe(0);
-      expect(selection.getRangeAnchor(3)).toBe(3);
+      selection.press(1, { shiftKey: true }, EVENT);
+
+      expect(getValue()).toEqual(['b', 'c', 'd']);
     });
 
     it('moveTo keeps a selected disabled item when every item is selected', () => {

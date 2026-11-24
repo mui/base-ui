@@ -5,7 +5,7 @@ import type { ListboxItems } from './items/createItems';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { ListFocus } from './utils/listFocus';
 import { ListSelection } from './utils/listSelection';
-import type { SelectionItems } from './utils/listSelection';
+import type { PressModifiers, SelectionItems } from './utils/listSelection';
 
 export type State = {
   id: string | undefined;
@@ -109,7 +109,7 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
   /** The selection gestures. They commit the next selected values through `setValue`. */
   selection = new ListSelection<MouseEvent | KeyboardEvent>({
     getValue: () => this.state.value,
-    getItems: () => this.getSelectionItems(),
+    getItems: () => this.selectionItems,
     getMultiple: () => this.state.multiple,
     getDefaultAnchor: () => this.getTabStopIndex(),
     commit: (nextValue, reason, event) =>
@@ -165,20 +165,28 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
    * The items the selection gestures select from: the rendered items' values and disabled states,
    * and, with `items`, those of the items that aren't rendered.
    */
-  getSelectionItems(): SelectionItems {
-    const { items, disabled, multiple } = this.state;
-    const disabledItems = this.context.disabledItemsRef.current;
-    return {
-      count: items ? items.size : this.context.valuesRef.current.length,
-      getValue: (index) => this.getValueAt(index),
-      indexOfValue: (value) => this.indexOfValue(value),
-      // With `items`, the data decides, so the answer is the same whether or not an item is
-      // rendered.
-      isDisabled: (index) =>
-        disabled || (items ? items.getDisabled(index) : (disabledItems[index] ?? false)),
+  private selectionItems = createSelectionItems(this);
 
-      keepsDisabled: multiple !== false,
-    };
+  /**
+   * Whether the item at a position is disabled, by the root or on its own. With `items`, the data
+   * decides, so the answer is the same whether or not the item is rendered.
+   */
+  isItemDisabled(index: number): boolean {
+    const { items, disabled } = this.state;
+    return (
+      disabled ||
+      (items ? items.getDisabled(index) : (this.context.disabledItemsRef.current[index] ?? false))
+    );
+  }
+
+  /**
+   * A press on an item, from a pointer or the keyboard, whether the item handled it or the list
+   * did while holding focus for it. A disabled item ignores it.
+   */
+  pressItem(index: number, modifiers: PressModifiers, event: MouseEvent | KeyboardEvent) {
+    if (!this.isItemDisabled(index)) {
+      this.selection.press(index, modifiers, event);
+    }
   }
 
   /** The value of the item at a position. */
@@ -240,6 +248,20 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     this.update(values);
     this.context.highlightEvent = undefined;
   }
+}
+
+function createSelectionItems(store: ListboxStore): SelectionItems {
+  return {
+    get count() {
+      return store.getCount();
+    },
+    getValue: (index) => store.getValueAt(index),
+    indexOfValue: (value) => store.indexOfValue(value),
+    isDisabled: (index) => store.isItemDisabled(index),
+    get keepsDisabled() {
+      return store.state.multiple !== false;
+    },
+  };
 }
 
 function createInitialState(): State {

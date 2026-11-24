@@ -32,6 +32,39 @@ export type ListKeyCommand =
   | { type: 'none' };
 
 /**
+ * Whether a key press is Option+Space on macOS, which toggles the focused item with multiple
+ * selection. macOS reserves Ctrl+Space and Cmd+Space, and Option+Space types a non-breaking space,
+ * so the physical key is matched.
+ */
+export function isMacToggleKey(key: ListKey, context: Pick<ListKeyContext, 'multiple' | 'mac'>) {
+  return (
+    context.mac &&
+    context.multiple !== false &&
+    key.altKey &&
+    !key.ctrlKey &&
+    !key.metaKey &&
+    key.code === 'Space'
+  );
+}
+
+/**
+ * Resolves a key press to the modifiers it presses the focused item with, or `null` when the key
+ * doesn't press it. Used when the item can't handle the key itself, because it isn't rendered.
+ */
+export function resolveItemKeyPress(
+  key: ListKey,
+  context: Pick<ListKeyContext, 'multiple' | 'mac'>,
+): { shiftKey: boolean; ctrlKey: boolean } | null {
+  if (isMacToggleKey(key, context)) {
+    return { shiftKey: key.shiftKey, ctrlKey: true };
+  }
+  if (!key.altKey && (key.key === ' ' || key.key === 'Enter')) {
+    return { shiftKey: key.shiftKey, ctrlKey: key.ctrlKey || key.metaKey };
+  }
+  return null;
+}
+
+/**
  * Resolves a key press on the list to what it does, following the APG listbox pattern.
  * Returns `null` for keys that the list doesn't handle.
  */

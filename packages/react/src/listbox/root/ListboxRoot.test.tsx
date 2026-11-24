@@ -3182,6 +3182,83 @@ describe('<Listbox.Root />', () => {
       });
     });
 
+    describe('key presses while the list holds focus for an item that is not rendered', () => {
+      const items = [
+        { value: 'a', label: 'a' },
+        { value: 'b', label: 'b', disabled: true },
+        { value: 'c', label: 'c' },
+      ];
+
+      // Renders only the first item, and moves focus to the list for the item at `index`.
+      async function holdFocusFor(
+        index: number,
+        props: Partial<Listbox.Root.Props<string, true>> & {
+          onListKeyDown?: React.KeyboardEventHandler;
+        } = {},
+      ) {
+        const { onListKeyDown, ...rootProps } = props;
+        await render(
+          <Listbox.Root multiple items={items} {...rootProps}>
+            <Listbox.List onKeyDown={onListKeyDown}>
+              <Listbox.Item value="a">a</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>,
+        );
+        await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+        for (let step = 0; step < index; step += 1) {
+          fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+        }
+        await flushMicrotasks();
+        const list = screen.getByRole('listbox');
+        expect(list).toHaveFocus();
+        return list;
+      }
+
+      it('toggles the item once while Space is held', async () => {
+        const handleValueChange = vi.fn();
+        const list = await holdFocusFor(2, { onValueChange: handleValueChange });
+
+        fireEvent.keyDown(list, { key: ' ' });
+        fireEvent.keyDown(list, { key: ' ', repeat: true });
+
+        expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['c']]);
+      });
+
+      it('ignores a press on a disabled item, so a range still extends from the earlier press', async () => {
+        const handleValueChange = vi.fn();
+        const list = await holdFocusFor(1, { onValueChange: handleValueChange });
+        // The first item was not pressed, so a range from the default anchor covers a to c.
+        fireEvent.keyDown(list, { key: ' ' });
+        fireEvent.keyDown(list, { key: 'ArrowDown' });
+        await flushMicrotasks();
+        fireEvent.keyDown(list, { key: ' ', shiftKey: true });
+
+        expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['a', 'c']]);
+      });
+
+      it.each([
+        { name: 'presses the item', prevent: false, calls: 1 },
+        { name: 'does not press the item', prevent: true, calls: 0 },
+      ])(
+        '$name when a list handler calls preventBaseUIHandler: $prevent',
+        async ({ prevent, calls }) => {
+          const handleValueChange = vi.fn();
+          const list = await holdFocusFor(2, {
+            onValueChange: handleValueChange,
+            onListKeyDown(event) {
+              if (prevent && event.key === ' ') {
+                (event as BaseUIEvent<React.KeyboardEvent>).preventBaseUIHandler();
+              }
+            },
+          });
+
+          fireEvent.keyDown(list, { key: ' ' });
+
+          expect(handleValueChange).toHaveBeenCalledTimes(calls);
+        },
+      );
+    });
+
     describe('with an array of objects', () => {
       const fruits = [
         { value: 'apple', label: 'Apple' },
