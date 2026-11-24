@@ -1,5 +1,5 @@
 'use client';
-import type * as React from 'react';
+import * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -7,18 +7,21 @@ import { useButton } from '../../internals/use-button';
 import { REASONS } from '../../internals/reasons';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { useTreeItemContext } from '../item/TreeItemContext';
+import { TreeLinkItemContext } from '../link-item/TreeLinkItemContext';
 import { expansionMapping } from '../utils/stateAttributesMapping';
 
 /**
  * A button that toggles the expansion state of a tree item.
  * Alt-click (Option-click on macOS) toggles its descendants too.
  * Renders a `<button>` element when the item can be expanded.
+ * In a `<Tree.LinkItem>`, renders a `<span>` that only handles clicks, since a link
+ * can't contain a button. Keyboard users expand the item with the arrow keys.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
 export const TreeItemExpansionTrigger = fastComponentRef(function TreeItemExpansionTrigger(
   componentProps: TreeItemExpansionTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     className,
@@ -35,6 +38,7 @@ export const TreeItemExpansionTrigger = fastComponentRef(function TreeItemExpans
   // Match the row's behavior: a resolved-disabled item can't toggle expansion.
   const disabled = store.useState('isItemDisabled', itemId) || disabledProp;
   const label = store.useState('itemLabel', itemId);
+  const inLink = React.useContext(TreeLinkItemContext);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -43,40 +47,50 @@ export const TreeItemExpansionTrigger = fastComponentRef(function TreeItemExpans
 
   const state: TreeItemExpansionTrigger.State = { expanded, disabled };
 
+  const pressProps = {
+    // Keep pointer focus on the row that owns the roving tab stop.
+    onPointerDown: (event: React.PointerEvent) => {
+      event.preventDefault();
+      store.interaction.focusItem(itemId, REASONS.itemPress, event.nativeEvent);
+    },
+    onClick: (event: React.MouseEvent) => {
+      if (inLink) {
+        // The click would also follow the link, and the row can't tell the span
+        // from its own content.
+        event.preventDefault();
+        store.interaction.claimTriggerClick(event.nativeEvent);
+        // A disabled button gets no click, but the span does.
+        if (disabled) {
+          return;
+        }
+      }
+      // Alt-click (Option-click on macOS) also toggles the descendants, as in
+      // VS Code. It has no keyboard equivalent on purpose: Finder's
+      // Option+Arrow would clash with Alt+Arrow keyboard reordering, and
+      // Alt+Left/Right navigates back and forward on Windows and Linux.
+      const toggle = event.altKey
+        ? store.expansion.toggleSubtreeExpansion
+        : store.expansion.toggleItemExpansion;
+      toggle(itemId, REASONS.triggerPress, event.nativeEvent);
+      if (!store.expansion.isPropagationAllowed(event.nativeEvent)) {
+        event.stopPropagation();
+      }
+    },
+  };
+
   // The label names what a press does, and the row carries `aria-expanded`.
   // Setting it here too would announce the state twice: "Collapse Documents, expanded".
   const ariaLabel = expanded ? `Collapse ${label}` : `Expand ${label}`;
 
-  return useRenderElement('button', componentProps, {
+  // A link can't contain a button, so inside one the trigger is a plain `<span>`
+  // with no role or name, as in the WAI-ARIA navigation tree example.
+  return useRenderElement(inLink ? 'span' : 'button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef],
+    ref: inLink ? forwardedRef : [forwardedRef, buttonRef],
     props: [
-      getButtonProps({
-        'aria-label': ariaLabel,
-        tabIndex: -1,
-        // Keep pointer focus on the row that owns the roving tab stop.
-        onPointerDown: (event: React.PointerEvent) => {
-          event.preventDefault();
-          store.interaction.focusItem(itemId, REASONS.itemPress, event.nativeEvent);
-        },
-        onClick: (event: React.MouseEvent) => {
-          // Alt-click (Option-click on macOS) also toggles the descendants, as in
-          // VS Code. It has no keyboard equivalent on purpose: Finder's
-          // Option+Arrow would clash with Alt+Arrow keyboard reordering, and
-          // Alt+Left/Right navigates back and forward on Windows and Linux.
-          const toggle = event.altKey
-            ? store.expansion.toggleSubtreeExpansion
-            : store.expansion.toggleItemExpansion;
-          toggle(itemId, REASONS.triggerPress, event.nativeEvent);
-          // Inside a link item, the click would also follow the link.
-          if (store.items.getItemKind(itemId) === 'link') {
-            event.preventDefault();
-          }
-          if (!store.expansion.isPropagationAllowed(event.nativeEvent)) {
-            event.stopPropagation();
-          }
-        },
-      }),
+      inLink
+        ? pressProps
+        : getButtonProps({ 'aria-label': ariaLabel, tabIndex: -1, ...pressProps }),
       elementProps,
     ],
     stateAttributesMapping: expansionMapping,

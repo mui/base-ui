@@ -145,23 +145,78 @@ describe('<Tree.LinkItem />', () => {
     expect(auxClick).toBe(false);
     expect(onNavigate).not.toHaveBeenCalled();
   });
-  it('expands from its trigger without following the link', async () => {
-    await render(
-      <Tree.Root items={items} defaultExpandedItems={['docs']}>
-        <Tree.List aria-label="Pages">
-          {(item) => (
-            <Tree.LinkItem itemId={item.id} href={`#${item.id}`} data-testid={item.id}>
-              <Tree.ItemExpansionTrigger data-testid={`trigger-${item.id}`} />
-              {item.label}
-            </Tree.LinkItem>
-          )}
-        </Tree.List>
-      </Tree.Root>,
-    );
+  describe('with an expansion trigger', () => {
+    function TriggerExample(props: {
+      disabled?: boolean | undefined;
+      allowPropagation?: boolean | undefined;
+    }) {
+      return (
+        <Tree.Root
+          items={items}
+          defaultExpandedItems={['docs']}
+          onExpandedItemsChange={(_expandedItems, eventDetails) => {
+            if (props.allowPropagation) {
+              eventDetails.allowPropagation();
+            }
+          }}
+        >
+          <Tree.List aria-label="Pages">
+            {(item) => (
+              <Tree.LinkItem itemId={item.id} href={`#${item.id}`} data-testid={item.id}>
+                <Tree.ItemExpansionTrigger
+                  disabled={props.disabled}
+                  data-testid={`trigger-${item.id}`}
+                />
+                {item.label}
+              </Tree.LinkItem>
+            )}
+          </Tree.List>
+        </Tree.Root>
+      );
+    }
 
-    expect(screen.getByTestId('docs')).toHaveAttribute('aria-expanded', 'true');
-    expect(fireEvent.click(screen.getByTestId('trigger-docs'))).toBe(false);
-    expect(screen.getByTestId('docs')).toHaveAttribute('aria-expanded', 'false');
+    it('renders a span, since a link cannot contain a button', async () => {
+      await render(<TriggerExample />);
+
+      const trigger = screen.getByTestId('trigger-docs');
+      expect(trigger.localName).toBe('span');
+      expect(trigger).not.toHaveAttribute('role');
+      expect(trigger).not.toHaveAttribute('aria-label');
+      expect(trigger).not.toHaveAttribute('tabindex');
+      expect(screen.queryByRole('button')).toBe(null);
+    });
+
+    it('expands the item without following the link', async () => {
+      await render(<TriggerExample />);
+
+      expect(screen.getByTestId('docs')).toHaveAttribute('aria-expanded', 'true');
+      expect(fireEvent.click(screen.getByTestId('trigger-docs'))).toBe(false);
+      expect(screen.getByTestId('docs')).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('does not select the item when the click propagates past the tree', async () => {
+      const onOuterClick = vi.fn();
+      const { user } = await render(
+        <div onClick={onOuterClick}>
+          <TriggerExample allowPropagation />
+        </div>,
+      );
+
+      expect(screen.getByTestId('docs')).toHaveAttribute('aria-selected', 'false');
+      await user.click(screen.getByTestId('trigger-docs'));
+
+      expect(onOuterClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('docs')).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.getByTestId('docs')).toHaveAttribute('aria-selected', 'false');
+    });
+
+    it('ignores clicks while disabled, without following the link', async () => {
+      await render(<TriggerExample disabled />);
+
+      expect(fireEvent.click(screen.getByTestId('trigger-docs'))).toBe(false);
+      expect(screen.getByTestId('docs')).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('docs')).toHaveAttribute('aria-selected', 'false');
+    });
   });
 
   it('throws in an ActionTree.Root', async () => {

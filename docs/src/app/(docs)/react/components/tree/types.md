@@ -866,6 +866,8 @@ Pass it directly to the root component; it has no public members.
 A button that toggles the expansion state of a tree item.
 Alt-click (Option-click on macOS) toggles its descendants too.
 Renders a `<button>` element when the item can be expanded.
+In a `<Tree.LinkItem>`, renders a `<span>` that only handles clicks, since a link
+can't contain a button. Keyboard users expand the item with the arrow keys.
 
 **ItemExpansionTrigger Props:**
 

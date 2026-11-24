@@ -6,6 +6,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { TreeItemId } from '../store/types';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { TreeItemContext } from '../item/TreeItemContext';
+import { TreeLinkItemContext } from './TreeLinkItemContext';
 import { useTreeItem } from '../utils/useTreeItem';
 import type { TreeItemBaseState } from '../utils/useTreeItem';
 import { useActiveLink } from '../utils/useActiveLink';
@@ -55,7 +56,11 @@ export const TreeLinkItem = fastComponentRef(function TreeLinkItem(
     stateAttributesMapping: itemMapping,
   });
 
-  return <TreeItemContext.Provider value={itemId}>{element}</TreeItemContext.Provider>;
+  return (
+    <TreeItemContext.Provider value={itemId}>
+      <TreeLinkItemContext.Provider value>{element}</TreeLinkItemContext.Provider>
+    </TreeItemContext.Provider>
+  );
 });
 
 export interface TreeLinkItemState extends TreeItemBaseState {

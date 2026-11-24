@@ -75,6 +75,9 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
 
   private controlRecoveryFrame = AnimationFrame.create();
 
+  /** The click a link item's expansion trigger handled, which its row ignores. */
+  private triggerClick: Event | null = null;
+
   constructor(store: TreeStore<TreeSelectionMode | undefined, TItem>) {
     this.store = store;
   }
@@ -632,10 +635,21 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   }
 
   /**
+   * Keeps the row from handling a click on its expansion trigger. Inside a link
+   * item, the trigger is a `<span>`, which the row can't tell from its own content.
+   */
+  public claimTriggerClick(event: Event): void {
+    this.triggerClick = event;
+  }
+
+  /**
    * Whether the event comes from interactive content of the row, such as a registered
    * control, which owns it: it doesn't select, expand, or sort the item.
    */
   private isEventFromInteractiveDescendant(event: React.SyntheticEvent): boolean {
+    if (event.nativeEvent === this.triggerClick) {
+      return true;
+    }
     const target = getTarget(event.nativeEvent);
     const row = event.currentTarget as Element;
     const itemKey = row.getAttribute(ITEM_KEY_ATTRIBUTE);
