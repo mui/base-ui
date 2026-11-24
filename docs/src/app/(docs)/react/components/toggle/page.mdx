@@ -12,7 +12,7 @@ import { DemoToggleHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Label the toggle on `Toggle.Root`**: `Toggle.Indicator` is hidden from assistive technology, so give `Toggle.Root` text children or an `aria-label`.
+- **Toggles must have an accessible name**: `Toggle.Indicator` is hidden from assistive technology so label the toggle with text children or `aria-label`. The text doesn't need to change because `aria-pressed` announces its state.
 
 ## Anatomy
 
