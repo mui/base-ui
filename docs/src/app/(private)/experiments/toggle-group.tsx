@@ -21,17 +21,17 @@ export default function ToggleGroupDemo() {
         aria-label="Text alignment"
         className={classes.group}
       >
-        <Toggle value="align-left" aria-label="Align left" className={classes.button}>
+        <Toggle.Root value="align-left" aria-label="Align left" className={classes.button}>
           <AlignLeftIcon />
-        </Toggle>
+        </Toggle.Root>
 
-        <Toggle value="align-center" aria-label="Align center" className={classes.button}>
+        <Toggle.Root value="align-center" aria-label="Align center" className={classes.button}>
           <AlignCenterIcon />
-        </Toggle>
+        </Toggle.Root>
 
-        <Toggle value="align-right" aria-label="Align right" className={classes.button}>
+        <Toggle.Root value="align-right" aria-label="Align right" className={classes.button}>
           <AlignRightIcon />
-        </Toggle>
+        </Toggle.Root>
       </ToggleGroup>
 
       <h4 style={{ margin: 0 }}>RTL</h4>
@@ -40,17 +40,21 @@ export default function ToggleGroupDemo() {
         <div>
           <div>
             <ToggleGroup multiple aria-label="Text formatting" className={classes.group}>
-              <Toggle value="bold" aria-label="Toggle bold" className={classes.button}>
+              <Toggle.Root value="bold" aria-label="Toggle bold" className={classes.button}>
                 <BoldIcon />
-              </Toggle>
+              </Toggle.Root>
 
-              <Toggle value="italics" aria-label="Toggle italics" className={classes.button}>
+              <Toggle.Root value="italics" aria-label="Toggle italics" className={classes.button}>
                 <ItalicsIcon />
-              </Toggle>
+              </Toggle.Root>
 
-              <Toggle value="underline" aria-label="Toggle underline" className={classes.button}>
+              <Toggle.Root
+                value="underline"
+                aria-label="Toggle underline"
+                className={classes.button}
+              >
                 <UnderlineIcon />
-              </Toggle>
+              </Toggle.Root>
             </ToggleGroup>
           </div>
         </div>

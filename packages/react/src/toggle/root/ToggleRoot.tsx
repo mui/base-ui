@@ -51,9 +51,9 @@ export const ToggleRoot = React.forwardRef(function ToggleRoot<Value extends str
     React.useEffect(() => {
       if (groupContext && valueProp === undefined && groupContext.isValueInitialized) {
         error(
-          'A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.',
+          'A `<Toggle.Root>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.',
           'This will cause issues between the Toggle Group and Toggle values.',
-          'Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
+          'Provide the `<Toggle.Root>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
         );
       }
     }, [groupContext, valueProp, groupContext?.isValueInitialized]);

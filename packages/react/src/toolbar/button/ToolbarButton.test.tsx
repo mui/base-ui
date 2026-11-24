@@ -864,10 +864,10 @@ describe('<Toolbar.Button />', () => {
       it('renders toggle and toggle group', async () => {
         await render(
           <Toolbar.Root>
-            <Toolbar.Button render={<Toggle />} value="apple" />
+            <Toolbar.Button render={<Toggle.Root />} value="apple" />
             <ToggleGroup>
-              <Toolbar.Button render={<Toggle />} value="one" />
-              <Toolbar.Button render={<Toggle />} value="two" />
+              <Toolbar.Button render={<Toggle.Root />} value="one" />
+              <Toolbar.Button render={<Toggle.Root />} value="two" />
             </ToggleGroup>
           </Toolbar.Root>,
         );
@@ -882,10 +882,19 @@ describe('<Toolbar.Button />', () => {
         const onPressedChange = vi.fn();
         const { user } = await render(
           <Toolbar.Root>
-            <Toolbar.Button render={<Toggle onPressedChange={onPressedChange} />} value="apple" />
+            <Toolbar.Button
+              render={<Toggle.Root onPressedChange={onPressedChange} />}
+              value="apple"
+            />
             <ToggleGroup>
-              <Toolbar.Button render={<Toggle onPressedChange={onPressedChange} />} value="one" />
-              <Toolbar.Button render={<Toggle onPressedChange={onPressedChange} />} value="two" />
+              <Toolbar.Button
+                render={<Toggle.Root onPressedChange={onPressedChange} />}
+                value="one"
+              />
+              <Toolbar.Button
+                render={<Toggle.Root onPressedChange={onPressedChange} />}
+                value="two"
+              />
             </ToggleGroup>
           </Toolbar.Root>,
         );
@@ -931,18 +940,18 @@ describe('<Toolbar.Button />', () => {
           <Toolbar.Root>
             <Toolbar.Button
               disabled
-              render={<Toggle onPressedChange={onPressedChange} />}
+              render={<Toggle.Root onPressedChange={onPressedChange} />}
               value="apple"
             />
             <ToggleGroup>
               <Toolbar.Button
                 disabled
-                render={<Toggle onPressedChange={onPressedChange} />}
+                render={<Toggle.Root onPressedChange={onPressedChange} />}
                 value="one"
               />
               <Toolbar.Button
                 disabled
-                render={<Toggle onPressedChange={onPressedChange} />}
+                render={<Toggle.Root onPressedChange={onPressedChange} />}
                 value="two"
               />
             </ToggleGroup>
@@ -988,9 +997,9 @@ describe('<Toolbar.Button />', () => {
         const { user } = await render(
           <Toolbar.Root>
             <ToggleGroup defaultValue={['one']} onValueChange={onValueChange}>
-              <Toggle value="one" data-testid="one" />
-              <Toggle value="two" data-testid="two" />
-              <Toggle value="three" data-testid="three" />
+              <Toggle.Root value="one" data-testid="one" />
+              <Toggle.Root value="two" data-testid="two" />
+              <Toggle.Root value="three" data-testid="three" />
             </ToggleGroup>
           </Toolbar.Root>,
         );
@@ -1029,9 +1038,9 @@ describe('<Toolbar.Button />', () => {
         const { user } = await render(
           <Toolbar.Root>
             <ToggleGroup>
-              <Toggle value="one" data-testid="one" />
-              <Toggle value="two" data-testid="two" disabled />
-              <Toggle value="three" data-testid="three" />
+              <Toggle.Root value="one" data-testid="one" />
+              <Toggle.Root value="two" data-testid="two" disabled />
+              <Toggle.Root value="three" data-testid="three" />
             </ToggleGroup>
           </Toolbar.Root>,
         );
@@ -1059,8 +1068,8 @@ describe('<Toolbar.Button />', () => {
         const { user } = await render(
           <Toolbar.Root>
             <ToggleGroup multiple defaultValue={['one']} onValueChange={onValueChange}>
-              <Toggle value="one" data-testid="one" />
-              <Toggle value="two" data-testid="two" />
+              <Toggle.Root value="one" data-testid="one" />
+              <Toggle.Root value="two" data-testid="two" />
             </ToggleGroup>
           </Toolbar.Root>,
         );
@@ -1090,8 +1099,8 @@ describe('<Toolbar.Button />', () => {
           return (
             <Toolbar.Root>
               <ToggleGroup value={value} onValueChange={setValue}>
-                <Toggle value="one" data-testid="one" />
-                <Toggle value="two" data-testid="two" />
+                <Toggle.Root value="one" data-testid="one" />
+                <Toggle.Root value="two" data-testid="two" />
               </ToggleGroup>
             </Toolbar.Root>
           );
@@ -1117,8 +1126,8 @@ describe('<Toolbar.Button />', () => {
             <Toolbar.Button data-testid="before" />
             <Toolbar.Group disabled>
               <ToggleGroup>
-                <Toggle value="one" data-testid="one" />
-                <Toggle value="two" data-testid="two" />
+                <Toggle.Root value="one" data-testid="one" />
+                <Toggle.Root value="two" data-testid="two" />
               </ToggleGroup>
             </Toolbar.Group>
             <Toolbar.Button data-testid="after" />
@@ -1153,9 +1162,9 @@ describe('<Toolbar.Button />', () => {
           return (
             <Toolbar.Root>
               <ToggleGroup>
-                <Toggle value="one" data-testid="one" />
-                <Toggle value="two" data-testid="two" disabled={twoDisabled} />
-                <Toggle value="three" data-testid="three" />
+                <Toggle.Root value="one" data-testid="one" />
+                <Toggle.Root value="two" data-testid="two" disabled={twoDisabled} />
+                <Toggle.Root value="three" data-testid="three" />
               </ToggleGroup>
             </Toolbar.Root>
           );

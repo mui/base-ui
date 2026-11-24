@@ -23,7 +23,18 @@ const ToggleComponent = React.forwardRef(function Toggle(
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-export const Toggle = ToggleComponent as typeof ToggleRoot & {
+export const Toggle = ToggleComponent as {
+  /**
+   * A two-state button that can be on or off.
+   * Renders a `<button>` element.
+   *
+   * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
+   *
+   * @deprecated Use `<Toggle.Root>` instead.
+   */
+  <Value extends string>(
+    props: Toggle.Props<Value> & React.RefAttributes<HTMLButtonElement>,
+  ): React.JSX.Element;
   /**
    * A two-state button that can be on or off.
    * Renders a `<button>` element.

@@ -87,7 +87,7 @@ function renderToggleWithTooltip(args: {
       <Tooltip.Trigger
         render={
           <Toolbar.Button
-            render={<Toggle />}
+            render={<Toggle.Root />}
             aria-label={label}
             value={key}
             className={styles.toolbar.Toggle}
