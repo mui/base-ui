@@ -19,7 +19,9 @@ import { getSitemapPageInfo, isSitemapPageVisible } from 'docs/src/utils/sitemap
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    // Use suppressHydrationWarning to avoid https://github.com/react/react/issues/24430
+    // `suppressHydrationWarning`:
+    // - on <html>, because <PlatformScript> sets `data-platform` before React hydrates.
+    // - on <body>, to avoid https://github.com/react/react/issues/24430
     <html lang="en" suppressHydrationWarning>
       <head>
         <PlatformScript />
