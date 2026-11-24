@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { Field } from '../../field';
+import { useRenderedId } from '../../internals/resolveRenderedId';
 import type {
   InputChangeEventDetails,
   InputChangeEventReason,
@@ -28,10 +29,18 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
     maskedForSubmit,
     disabled: rootDisabled,
     inputIdProp,
+    setRenderedInputId,
     inputRef,
   } = usePasswordFieldRootContext();
 
-  const mergedRef = useMergedRefs(forwardedRef, inputRef);
+  // Only the render element's id can override the Root's; a spread `id` is still ignored.
+  const [id, registerIdRef] = useRenderedId(
+    { render: elementProps.render },
+    inputIdProp,
+    setRenderedInputId,
+  );
+
+  const mergedRef = useMergedRefs(forwardedRef, inputRef, registerIdRef);
 
   return (
     <Field.Control
@@ -42,8 +51,9 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
       spellCheck={false}
       {...elementProps}
       ref={mergedRef}
-      // The Root owns `id` and `type`, so the toggle's `aria-controls` and switching can't break.
-      id={inputIdProp}
+      // The Root owns `type` so switching can't break, and `id` resolves through the Root so the
+      // toggle's `aria-controls` and a Field's label follow a render element's id.
+      id={id}
       disabled={rootDisabled || disabledProp}
       type={visible && !maskedForSubmit ? 'text' : 'password'}
     />

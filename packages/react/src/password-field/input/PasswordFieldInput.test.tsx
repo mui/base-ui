@@ -86,6 +86,18 @@ describe('<PasswordField.Input />', () => {
     expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'root-id');
   });
 
+  it('keeps an id set on the render element and points the toggle at it', async () => {
+    await render(
+      <PasswordField.Root id="root-id">
+        <PasswordField.Input render={<input id="actual" />} />
+        <PasswordField.Toggle />
+      </PasswordField.Root>,
+    );
+
+    expect(document.querySelector('input')).toHaveAttribute('id', 'actual');
+    expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'actual');
+  });
+
   describe('Field integration', () => {
     it('is labeled by Field.Label', async () => {
       await render(
@@ -99,6 +111,21 @@ describe('<PasswordField.Input />', () => {
       );
 
       expect(screen.getByLabelText('Password').tagName).toBe('INPUT');
+    });
+
+    it('is labeled by Field.Label when the render element sets the id', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label>Password</Field.Label>
+          <PasswordField.Root>
+            <PasswordField.Input render={<input id="actual" />} />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </Field.Root>,
+      );
+
+      expect(screen.getByLabelText('Password')).toHaveAttribute('id', 'actual');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'actual');
     });
 
     it('supports a controlled value with onValueChange', async () => {

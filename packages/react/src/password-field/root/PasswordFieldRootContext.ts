@@ -27,6 +27,10 @@ export interface PasswordFieldRootContext {
    * The id to pass to the input's `Field.Control`, which resolves it against a surrounding Field.
    */
   inputIdProp: string | undefined;
+  /**
+   * Publishes an id set on the input's render element, so `inputId` follows it.
+   */
+  setRenderedInputId: (id: string | undefined) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
 }
 

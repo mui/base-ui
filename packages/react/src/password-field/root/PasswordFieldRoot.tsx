@@ -59,7 +59,9 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
   const { controlId, registerControlId } = useLabelableContext();
   const defaultId = useBaseUiId();
   const inputIdProp = idProp ?? (registerControlId === NOOP ? defaultId : undefined);
-  const inputId = controlId ?? inputIdProp;
+  // An id on the input's render element wins, so the Input publishes it once mounted.
+  const [renderedInputId, setRenderedInputId] = React.useState<string | undefined>(undefined);
+  const inputId = (renderedInputId ?? controlId ?? inputIdProp) || undefined;
 
   const [visible, setVisibleState] = useControlled({
     controlled: visibleProp,
@@ -149,6 +151,7 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
       disabled,
       inputId,
       inputIdProp,
+      setRenderedInputId,
       inputRef,
     }),
     [visible, setVisible, maskedForSubmit, disabled, inputId, inputIdProp],
