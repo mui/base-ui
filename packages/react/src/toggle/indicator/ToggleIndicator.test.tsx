@@ -1,4 +1,4 @@
-import { expect, describe, it, afterEach, vi } from 'vitest';
+import { expect, describe, it, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui/react/toggle';
@@ -156,8 +156,19 @@ describe('<Toggle.Indicator />', () => {
   });
 
   describe.skipIf(isJSDOM)('animations', () => {
-    afterEach(() => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    it('applies data-starting-style when mounting', async () => {
+      await render(
+        <Toggle.Root>
+          <Toggle.Indicator data-testid="indicator" match="on" />
+        </Toggle.Root>,
+      );
+
+      expect(screen.queryByTestId('indicator')).toBe(null);
+
+      // `user.click` can yield a frame, which is long enough for the starting style to clear.
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-starting-style');
     });
 
     it('applies data-ending-style before unmount', async () => {
