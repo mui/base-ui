@@ -23,18 +23,12 @@ export const ToggleIndicator = React.forwardRef(function ToggleIndicator(
   componentProps: ToggleIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const {
-    match = 'pressed',
-    keepMounted = false,
-    render,
-    className,
-    style,
-    ...elementProps
-  } = componentProps;
+  const { match, render, className, style, ...elementProps } = componentProps;
 
   const { pressed, disabled } = useToggleRootContext();
 
-  const rendered = match === 'pressed' ? pressed : !pressed;
+  // Without `match`, the indicator always renders and reflects the state through `data-pressed`.
+  const rendered = match === undefined || (match === 'pressed') === pressed;
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
@@ -54,18 +48,15 @@ export const ToggleIndicator = React.forwardRef(function ToggleIndicator(
 
   const state: ToggleIndicator.State = { pressed, disabled, transitionStatus };
 
-  const element = useRenderElement('span', componentProps, {
+  // Disabled while unmounted so a render element is never resolved, or suspended on, for an
+  // indicator that isn't shown.
+  return useRenderElement('span', componentProps, {
+    enabled: mounted,
     ref: [forwardedRef, indicatorRef],
     state,
     stateAttributesMapping,
     props: [{ 'aria-hidden': true }, elementProps],
   });
-
-  if (!keepMounted && !mounted) {
-    return null;
-  }
-
-  return element;
 });
 
 export interface ToggleIndicatorState {
@@ -88,14 +79,9 @@ export interface ToggleIndicatorProps extends BaseUIComponentProps<'span', Toggl
    * The state the indicator renders in.
    * Use `'pressed'` for the icon shown while the toggle is pressed, and `'unpressed'` for the
    * icon shown while it is not.
-   * @default 'pressed'
+   * When omitted, the indicator always renders.
    */
   match?: 'pressed' | 'unpressed' | undefined;
-  /**
-   * Whether to keep the element in the DOM while it doesn't apply.
-   * @default false
-   */
-  keepMounted?: boolean | undefined;
 }
 
 export namespace ToggleIndicator {

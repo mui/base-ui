@@ -7,7 +7,7 @@ export default function ExampleToggle() {
   return (
     <Toggle.Root aria-label="Favorite" className={styles.Button}>
       <HeartOutlineIcon />
-      <Toggle.Indicator keepMounted className={styles.Indicator}>
+      <Toggle.Indicator className={styles.Indicator}>
         <HeartFilledIcon />
       </Toggle.Indicator>
     </Toggle.Root>

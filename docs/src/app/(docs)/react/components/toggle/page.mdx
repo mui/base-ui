@@ -27,7 +27,8 @@ import { Toggle } from '@base-ui/react/toggle';
 ### Toggle icon
 
 Use a pair of indicators to swap the icon when the toggle is pressed.
-Set `match="unpressed"` on the icon shown while the toggle is not pressed.
+Set `match="pressed"` on the icon shown while the toggle is pressed, and `match="unpressed"` on the icon shown while it isn't.
+Without `match`, an indicator always renders, and you can style it with `data-pressed`.
 
 import { DemoToggleIcon } from './demos/toggle-icon';
 

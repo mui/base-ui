@@ -12,7 +12,7 @@ import type { ToggleIndicatorProps, ToggleProps } from '@base-ui/react/toggle';
     expectType<Toggle.Root.ChangeEventDetails, typeof eventDetails>(eventDetails);
   }}
 >
-  <Toggle.Indicator match="unpressed" keepMounted />
+  <Toggle.Indicator match="unpressed" />
 </Toggle.Root>;
 
 // @ts-expect-error value must match the Value type argument

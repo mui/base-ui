@@ -1,6 +1,6 @@
 import { expect, describe, it, afterEach, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -8,7 +8,7 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 describe('<Toggle.Indicator />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Toggle.Indicator keepMounted />, () => ({
+  describeConformance(<Toggle.Indicator />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Toggle.Root>{node}</Toggle.Root>);
@@ -40,7 +40,7 @@ describe('<Toggle.Indicator />', () => {
   it('reflects the pressed state through data-pressed', async () => {
     const { user } = await render(
       <Toggle.Root>
-        <Toggle.Indicator data-testid="indicator" keepMounted />
+        <Toggle.Indicator data-testid="indicator" />
       </Toggle.Root>,
     );
 
@@ -54,7 +54,7 @@ describe('<Toggle.Indicator />', () => {
   it('reflects the disabled state through data-disabled', async () => {
     await render(
       <Toggle.Root disabled>
-        <Toggle.Indicator data-testid="indicator" keepMounted />
+        <Toggle.Indicator data-testid="indicator" />
       </Toggle.Root>,
     );
 
@@ -65,7 +65,7 @@ describe('<Toggle.Indicator />', () => {
     const { user } = await render(
       <ToggleGroup>
         <Toggle.Root value="bold">
-          <Toggle.Indicator data-testid="indicator" keepMounted />
+          <Toggle.Indicator data-testid="indicator" />
         </Toggle.Root>
       </ToggleGroup>,
     );
@@ -77,9 +77,24 @@ describe('<Toggle.Indicator />', () => {
     expect(indicator).toHaveAttribute('data-pressed');
   });
 
+  it('stays mounted without match', async () => {
+    const { user } = await render(
+      <Toggle.Root>
+        <Toggle.Indicator data-testid="indicator" />
+      </Toggle.Root>,
+    );
+
+    const indicator = screen.getByTestId('indicator');
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByTestId('indicator')).toBe(indicator);
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByTestId('indicator')).toBe(indicator);
+  });
+
   describe('prop: match', () => {
     it.each([
-      { name: 'pressed (default)', match: undefined, initiallyRendered: false },
       { name: 'pressed', match: 'pressed' as const, initiallyRendered: false },
       { name: 'unpressed', match: 'unpressed' as const, initiallyRendered: true },
     ])('renders only while the toggle is $name', async ({ match, initiallyRendered }) => {
@@ -112,18 +127,32 @@ describe('<Toggle.Indicator />', () => {
       await user.click(button);
       expect(button.textContent).toBe('on');
     });
-  });
 
-  describe('prop: keepMounted', () => {
-    it('keeps the element in the DOM while it does not apply', async () => {
-      await render(
-        <Toggle.Root>
-          <Toggle.Indicator data-testid="indicator" keepMounted />
-        </Toggle.Root>,
-      );
+    // The Flight client passes a render element created in a Server Component as a `react.lazy`
+    // wrapper, which suspends until its chunk loads.
+    it.skipIf(reactMajor < 19)(
+      'does not suspend the toggle on a pending render element while not rendered',
+      async () => {
+        const pendingRender = {
+          $$typeof: Symbol.for('react.lazy'),
+          _payload: null,
+          _init: () => {
+            throw new Promise(() => {});
+          },
+        } as unknown as React.ReactElement;
 
-      expect(screen.getByTestId('indicator')).not.toHaveAttribute('data-pressed');
-    });
+        await render(
+          <React.Suspense fallback={<div data-testid="fallback" />}>
+            <Toggle.Root>
+              <Toggle.Indicator match="pressed" render={pendingRender} />
+            </Toggle.Root>
+          </React.Suspense>,
+        );
+
+        expect(screen.queryByTestId('fallback')).toBe(null);
+        expect(screen.getByRole('button')).not.toBe(null);
+      },
+    );
   });
 
   describe.skipIf(isJSDOM)('animations', () => {
@@ -151,7 +180,11 @@ describe('<Toggle.Indicator />', () => {
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <Toggle.Root defaultPressed>
-            <Toggle.Indicator className="animation-test-indicator" data-testid="indicator" />
+            <Toggle.Indicator
+              className="animation-test-indicator"
+              data-testid="indicator"
+              match="pressed"
+            />
           </Toggle.Root>
         </div>,
       );

@@ -50,7 +50,7 @@
   }
 }
 
-/* Stays mounted so the filled heart can grow in and shrink out. */
+/* Without `match`, the indicator stays mounted so the filled heart can grow in and shrink out. */
 .Indicator {
   display: block;
   transform: scale(0);
