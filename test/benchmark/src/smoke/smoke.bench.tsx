@@ -517,9 +517,9 @@ reactBenchmark(
 smokeBenchmark('ToggleGroup', 20, (row) => (
   <ToggleGroup key={row.id} aria-label={row.label} defaultValue={[options[0].value]}>
     {options.map((option) => (
-      <Toggle.Root key={option.id} value={option.value}>
+      <Toggle key={option.id} value={option.value}>
         {option.label}
-      </Toggle.Root>
+      </Toggle>
     ))}
   </ToggleGroup>
 ));
