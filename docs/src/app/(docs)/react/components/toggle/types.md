@@ -80,7 +80,8 @@ type ToggleRootChangeEventDetails = {
 ### Toggle.Indicator
 
 Indicates whether the toggle is pressed.
-Renders a `<span>` element.
+Renders a `<span>` element that is hidden from assistive technology, so label the toggle on
+`Toggle.Root` with text children or `aria-label`.
 
 **Toggle.Indicator Props:**
 

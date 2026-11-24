@@ -15,7 +15,8 @@ const stateAttributesMapping: StateAttributesMapping<ToggleIndicatorState> = {
 
 /**
  * Indicates whether the toggle is pressed.
- * Renders a `<span>` element.
+ * Renders a `<span>` element that is hidden from assistive technology, so label the toggle on
+ * `Toggle.Root` with text children or `aria-label`.
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */

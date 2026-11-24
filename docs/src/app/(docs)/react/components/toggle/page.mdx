@@ -10,6 +10,10 @@ import { DemoToggleHero } from './demos/hero';
 
 <DemoToggleHero />
 
+## Usage guidelines
+
+- **Label the toggle on `Toggle.Root`**: `Toggle.Indicator` is hidden from assistive technology, so give `Toggle.Root` text children or an `aria-label`.
+
 ## Anatomy
 
 Import the component and assemble its parts:
@@ -21,9 +25,6 @@ import { Toggle } from '@base-ui/react/toggle';
   <Toggle.Indicator />
 </Toggle.Root>;
 ```
-
-`Toggle.Indicator` is hidden from assistive technology, because `Toggle.Root` already announces the pressed state.
-Label the toggle on `Toggle.Root`, with text children or `aria-label`, rather than with text inside the indicator.
 
 ## Examples
 
