@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps } from '../../internals/types';
+import { usePopupLabelElement } from '../../utils/popups/popupParts';
 
 /**
  * A heading that labels the dialog.
@@ -15,18 +14,13 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
   componentProps: DialogTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, style, id: idProp, ...elementProps } = componentProps;
-
-  const store = useDialogRootContext();
-
-  const id = useBaseUiId(idProp);
-
-  store.useSyncedValueWithCleanup('titleElementId', id);
-
-  return useRenderElement('h2', componentProps, {
-    ref: forwardedRef,
-    props: [{ id }, elementProps],
-  });
+  return usePopupLabelElement(
+    'h2',
+    componentProps,
+    forwardedRef,
+    useDialogRootContext(),
+    'titleElementId',
+  );
 });
 
 export interface DialogTitleProps extends BaseUIComponentProps<'h2', DialogTitleState> {}

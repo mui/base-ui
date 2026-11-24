@@ -4,8 +4,7 @@ import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenu
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupStateMapping } from '../../utils/popups/popupStateMapping';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { usePopupArrow } from '../../utils/popups/popupParts';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 
 /**
@@ -18,31 +17,11 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
   componentProps: NavigationMenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
   const { open, transitionStatus } = useNavigationMenuRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } =
-    useNavigationMenuPositionerContext();
 
-  const state: NavigationMenuArrowState = {
-    open,
-    side,
-    align,
-    uncentered: arrowUncentered,
-  };
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, arrowRef],
-    props: [
-      { style: arrowStyles, 'aria-hidden': true },
-      getDisabledMountTransitionStyles(transitionStatus),
-      elementProps,
-    ],
-    stateAttributesMapping: popupStateMapping,
+  return usePopupArrow(componentProps, forwardedRef, open, useNavigationMenuPositionerContext(), {
+    extraProps: getDisabledMountTransitionStyles(transitionStatus),
   });
-
-  return element;
 });
 
 export interface NavigationMenuArrowState {

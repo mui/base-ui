@@ -2,9 +2,8 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { usePopupBackdrop } from '../../utils/popups/popupParts';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -17,39 +16,14 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = props;
-
   const store = usePopoverRootContext();
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const transitionStatus = store.useState('transitionStatus');
   const openReason = store.useState('openChangeReason');
 
-  const state: PopoverBackdropState = {
-    open,
-    transitionStatus,
-  };
-
-  const element = useRenderElement('div', props, {
-    state,
-    ref: forwardedRef,
-    props: [
-      {
-        role: 'presentation',
-        hidden: !mounted,
-        style: {
-          pointerEvents: openReason === REASONS.triggerHover ? 'none' : undefined,
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-        },
-      },
-      elementProps,
-    ],
-    stateAttributesMapping: popupTransitionStateMapping,
+  return usePopupBackdrop(props, forwardedRef, store, {
+    style: {
+      pointerEvents: openReason === REASONS.triggerHover ? 'none' : undefined,
+    },
   });
-
-  return element;
 });
 
 export interface PopoverBackdropState {

@@ -3,8 +3,7 @@ import * as React from 'react';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
-import { popupStateMapping } from '../../utils/popups/popupStateMapping';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { usePopupArrow } from '../../utils/popups/popupParts';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 
 /**
@@ -17,30 +16,13 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   componentProps: TooltipArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
   const store = useTooltipRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useTooltipPositionerContext();
-
   const open = store.useState('open');
-  const instantType = store.useState('instantType');
+  const instant = store.useState('instantType');
 
-  const state: TooltipArrowState = {
-    open,
-    side,
-    align,
-    uncentered: arrowUncentered,
-    instant: instantType,
-  };
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, arrowRef],
-    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    stateAttributesMapping: popupStateMapping,
+  return usePopupArrow(componentProps, forwardedRef, open, useTooltipPositionerContext(), {
+    state: { instant },
   });
-
-  return element;
 });
 
 export interface TooltipArrowState {

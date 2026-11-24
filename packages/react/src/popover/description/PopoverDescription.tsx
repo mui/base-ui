@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { usePopupLabelElement } from '../../utils/popups/popupParts';
 
 /**
  * A paragraph with additional information about the popover.
@@ -15,20 +14,13 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
   componentProps: PopoverDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
-  const store = usePopoverRootContext();
-
-  const id = useBaseUiId(elementProps.id);
-
-  store.useSyncedValueWithCleanup('descriptionElementId', id);
-
-  const element = useRenderElement('p', componentProps, {
-    ref: forwardedRef,
-    props: [{ id }, elementProps],
-  });
-
-  return element;
+  return usePopupLabelElement(
+    'p',
+    componentProps,
+    forwardedRef,
+    usePopoverRootContext(),
+    'descriptionElementId',
+  );
 });
 
 export interface PopoverDescriptionState {}

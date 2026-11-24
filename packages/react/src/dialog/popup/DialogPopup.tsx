@@ -7,12 +7,12 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import {
   FOCUSABLE_POPUP_PROPS,
   createDefaultInitialFocus,
 } from '../../utils/popups/popupStoreUtils';
+import { usePopupOpenChangeComplete } from '../../utils/popups/popupParts';
 import * as DialogPopupCssVars from './DialogPopupCssVars';
 import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
 
@@ -46,15 +46,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   useDialogPortalContext();
 
-  useOpenChangeComplete({
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (open) {
-        store.context.onOpenChangeComplete?.(true);
-      }
-    },
-  });
+  usePopupOpenChangeComplete(store, open);
 
   const resolvedInitialFocus =
     initialFocus === undefined ? createDefaultInitialFocus(store.context.popupRef) : initialFocus;

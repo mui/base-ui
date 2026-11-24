@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps } from '../../internals/types';
+import { usePopupLabelElement } from '../../utils/popups/popupParts';
 
 /**
  * A paragraph with additional information about the dialog.
@@ -15,18 +14,13 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
   componentProps: DialogDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, style, id: idProp, ...elementProps } = componentProps;
-
-  const store = useDialogRootContext();
-
-  const id = useBaseUiId(idProp);
-
-  store.useSyncedValueWithCleanup('descriptionElementId', id);
-
-  return useRenderElement('p', componentProps, {
-    ref: forwardedRef,
-    props: [{ id }, elementProps],
-  });
+  return usePopupLabelElement(
+    'p',
+    componentProps,
+    forwardedRef,
+    useDialogRootContext(),
+    'descriptionElementId',
+  );
 });
 
 export interface DialogDescriptionProps extends BaseUIComponentProps<'p', DialogDescriptionState> {}

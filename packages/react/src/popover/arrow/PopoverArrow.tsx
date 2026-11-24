@@ -4,8 +4,7 @@ import { usePopoverPositionerContext } from '../positioner/PopoverPositionerCont
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupStateMapping } from '../../utils/popups/popupStateMapping';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { usePopupArrow } from '../../utils/popups/popupParts';
 
 /**
  * Displays an element positioned against the popover anchor.
@@ -17,27 +16,13 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
   componentProps: PopoverArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
-
   const store = usePopoverRootContext();
-  const open = store.useState('open');
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
-
-  const state: PopoverArrowState = {
-    open,
-    side,
-    align,
-    uncentered: arrowUncentered,
-  };
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, arrowRef],
-    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    stateAttributesMapping: popupStateMapping,
-  });
-
-  return element;
+  return usePopupArrow(
+    componentProps,
+    forwardedRef,
+    store.useState('open'),
+    usePopoverPositionerContext(),
+  );
 });
 
 export interface PopoverArrowState {
