@@ -85,18 +85,17 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     return value === undefined ? EMPTY_ARRAY : [value];
   }, [value, multiple]);
 
-  const store = useRefWithInit(
-    () =>
-      new ListboxStore({
-        id: generatedId,
-        multiple: multipleProp,
-        value: selectedValues,
-        orientation,
-        disabled,
-        highlightItemOnHover,
-        items,
-      }),
-  ).current;
+  const rootState = {
+    id: generatedId,
+    multiple: multipleProp,
+    value: selectedValues,
+    orientation,
+    disabled,
+    highlightItemOnHover,
+    items,
+  };
+
+  const store = useRefWithInit(() => new ListboxStore(rootState)).current;
 
   // Parts report the next selection as an array; convert it to the public shape.
   store.useContextCallback(
@@ -120,15 +119,7 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     },
   );
 
-  store.useSyncedValues({
-    id: generatedId,
-    multiple: multipleProp,
-    value: selectedValues,
-    orientation,
-    disabled,
-    highlightItemOnHover,
-    items,
-  });
+  store.useSyncedValues(rootState);
 
   useHighlightChangeNotifier<Value>({
     store,

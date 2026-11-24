@@ -288,11 +288,7 @@ export const ListboxItem = React.memo(
       props: [defaultProps, elementProps, getButtonProps],
     });
 
-    const contextValue: ListboxItemContext = React.useMemo(() => ({ selected }), [selected]);
-
-    return (
-      <ListboxItemContext.Provider value={contextValue}>{element}</ListboxItemContext.Provider>
-    );
+    return <ListboxItemContext.Provider value={selected}>{element}</ListboxItemContext.Provider>;
   }),
 );
 

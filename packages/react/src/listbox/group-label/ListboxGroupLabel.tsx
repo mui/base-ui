@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useListboxGroupContext } from '../group/ListboxGroupContext';
 
 /**
@@ -20,14 +19,7 @@ export const ListboxGroupLabel = React.forwardRef(function ListboxGroupLabel(
 
   const { setLabelId } = useListboxGroupContext();
 
-  const id = useBaseUiId(idProp);
-
-  useIsoLayoutEffect(() => {
-    setLabelId(id);
-    return () => {
-      setLabelId((currentId) => (currentId === id ? undefined : currentId));
-    };
-  }, [id, setLabelId]);
+  const id = useRegisteredLabelId(idProp, setLabelId);
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,

@@ -37,6 +37,12 @@ export type State = {
   highlightItemOnHover: boolean;
 };
 
+/** The part of the state that the root owns and keeps in sync with its props. */
+type RootState = Pick<
+  State,
+  'id' | 'multiple' | 'value' | 'orientation' | 'disabled' | 'highlightItemOnHover' | 'items'
+>;
+
 export type Context = {
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
@@ -102,8 +108,20 @@ export const selectors = {
 };
 
 export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof selectors> {
-  constructor(initialState?: Partial<State>) {
-    super({ ...createInitialState(), ...initialState }, createInitialContext(), selectors);
+  constructor(rootState: RootState) {
+    super(
+      {
+        ...rootState,
+        labelId: undefined,
+        activeIndex: null,
+        itemFocused: false,
+        hoveredIndex: null,
+        activeItemRendered: false,
+        listElement: null,
+      },
+      createInitialContext(),
+      selectors,
+    );
   }
 
   /** The selection gestures. They commit the next selected values through `setValue`. */
@@ -275,24 +293,6 @@ function createSelectionItems(store: ListboxStore): SelectionItems {
     get keepsDisabled() {
       return store.state.multiple !== false;
     },
-  };
-}
-
-function createInitialState(): State {
-  return {
-    id: undefined,
-    labelId: undefined,
-    multiple: false,
-    value: [],
-    activeIndex: null,
-    itemFocused: false,
-    hoveredIndex: null,
-    items: undefined,
-    activeItemRendered: false,
-    listElement: null,
-    orientation: 'vertical',
-    disabled: false,
-    highlightItemOnHover: true,
   };
 }
 

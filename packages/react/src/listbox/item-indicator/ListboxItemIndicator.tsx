@@ -15,7 +15,7 @@ export const ListboxItemIndicator = React.forwardRef(function ListboxItemIndicat
   componentProps: ListboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { selected } = useListboxItemContext();
+  const selected = useListboxItemContext();
 
   const shouldRender = componentProps.keepMounted || selected;
   if (!shouldRender) {
