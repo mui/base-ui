@@ -170,6 +170,16 @@ describe('ListSelection', () => {
       expect(selection.getRangeAnchor(3)).toBe(3);
     });
 
+    it('moveTo keeps a selected disabled item when every item is selected', () => {
+      const { selection, getValue } = setup({
+        multiple: 'opt-in',
+        value: ['a', 'b', 'c', 'd', 'e'],
+        disabled: ['b'],
+      });
+      selection.moveTo(3, EVENT);
+      expect(getValue()).toEqual(['d', 'b']);
+    });
+
     it('selectRange adds to the selection and moves the anchor', () => {
       const { selection, getValue } = setup({ multiple: true, value: ['a'] });
       selection.selectRange(2, 4, 4, EVENT);

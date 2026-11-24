@@ -48,6 +48,9 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // Where a Shift+Arrow range starts: the item focused when Shift was pressed, or the anchor of a
   // Shift+press range that ended on it.
   const shiftAnchorRef = React.useRef<RangeAnchor | null>(null);
+  // The item that had focus when the range anchor was set or last extended. Once focus has moved
+  // another way, such as by typing or hovering, the next range starts from the focused item.
+  const shiftFocusRef = React.useRef<RangeAnchor | null>(null);
   // Whether a pointer is pressed in the list, which tells a press on the list from focus that
   // arrives another way.
   const pointerPressedRef = React.useRef(false);
@@ -66,11 +69,16 @@ export const ListboxList = React.forwardRef(function ListboxList(
         );
         break;
       case 'extend': {
-        let anchorIndex = store.selection.resolveAnchor(shiftAnchorRef.current);
+        const focusedIndex = store.state.activeIndex;
+        let anchorIndex =
+          store.selection.resolveAnchor(shiftFocusRef.current) === focusedIndex
+            ? store.selection.resolveAnchor(shiftAnchorRef.current)
+            : null;
         if (anchorIndex === null) {
-          anchorIndex = store.selection.getRangeAnchor(store.state.activeIndex);
+          anchorIndex = store.selection.getRangeAnchor(focusedIndex);
           shiftAnchorRef.current = store.selection.createAnchor(anchorIndex);
         }
+        shiftFocusRef.current = store.selection.createAnchor(command.index);
         store.focus.moveTo(command.index, nativeEvent);
         store.selection.extendTo(command.index, anchorIndex, nativeEvent);
         break;
@@ -112,6 +120,13 @@ export const ListboxList = React.forwardRef(function ListboxList(
       );
     },
   });
+
+  // A disabled list has no highlighted item, including one that had focus when it was disabled.
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      store.unhighlightItem();
+    }
+  }, [disabled, store]);
 
   const setListElement = useStableCallback((element: HTMLElement | null) => {
     store.set('listElement', element);
@@ -235,6 +250,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         shiftAnchorRef.current = store.selection.createAnchor(
           store.selection.getRangeAnchor(store.state.activeIndex),
         );
+        shiftFocusRef.current = store.selection.createAnchor(store.state.activeIndex);
       } else if (!event.shiftKey) {
         shiftAnchorRef.current = null;
       }

@@ -1,4 +1,3 @@
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { REASONS } from '../../internals/reasons';
 
 /** Reads the items a selection gesture selects from, by position. */
@@ -41,8 +40,11 @@ export interface ListSelectionParameters<E> {
    * The item a Shift+press extends a range from when nothing was pressed or selected before it.
    */
   getDefaultAnchor: () => number;
-  /** Receives the next selected values. Called even when they're the same as the current ones. */
-  commit: (nextValue: any[], reason: SelectionReason, event: E) => void;
+  /**
+   * Receives the next selected values. Called even when they're the same as the current ones.
+   * Returns `false` when the change was rejected, such as when it was canceled.
+   */
+  commit: (nextValue: any[], reason: SelectionReason, event: E) => boolean | void;
 }
 
 /**
@@ -104,7 +106,10 @@ export class ListSelection<E = Event> {
       nextValue = select(value, items, index);
     }
 
-    this.parameters.commit(nextValue, REASONS.itemPress, event);
+    // A rejected change leaves the anchor where it was, with the selection it belongs to.
+    if (this.parameters.commit(nextValue, REASONS.itemPress, event) === false) {
+      return;
+    }
 
     if (!keepsAnchor) {
       this.pressAnchor = this.createAnchor(index);
@@ -149,8 +154,15 @@ export class ListSelection<E = Event> {
   moveTo(index: number, event: E) {
     const { value, items } = this.read();
     const itemValue = enabledValueAt(items, index);
-    if (itemValue !== undefined) {
-      this.parameters.commit(replaceWith(value, items, [itemValue]), REASONS.listNavigation, event);
+    if (
+      itemValue !== undefined &&
+      this.parameters.commit(
+        replaceWith(value, items, [itemValue]),
+        REASONS.listNavigation,
+        event,
+      ) === false
+    ) {
+      return;
     }
     this.pressAnchor = this.createAnchor(index);
     this.anchorFocus = this.createAnchor(index);
@@ -163,11 +175,15 @@ export class ListSelection<E = Event> {
    */
   extendTo(index: number, anchorIndex: number | null, event: E) {
     const { value, items } = this.read();
-    this.parameters.commit(
-      replaceWithRange(value, items, anchorIndex, index),
-      REASONS.listNavigation,
-      event,
-    );
+    if (
+      this.parameters.commit(
+        replaceWithRange(value, items, anchorIndex, index),
+        REASONS.listNavigation,
+        event,
+      ) === false
+    ) {
+      return;
+    }
     this.pressAnchor = this.createAnchor(anchorIndex);
     this.anchorFocus = this.createAnchor(index);
   }
@@ -175,7 +191,12 @@ export class ListSelection<E = Event> {
   /** Adds a range to the selection. `anchorIndex` is where the next Shift+press extends from. */
   selectRange(from: number, to: number, anchorIndex: number, event: E) {
     const { value, items } = this.read();
-    this.parameters.commit(addRange(value, items, from, to), REASONS.listNavigation, event);
+    if (
+      this.parameters.commit(addRange(value, items, from, to), REASONS.listNavigation, event) ===
+      false
+    ) {
+      return;
+    }
     this.pressAnchor = this.createAnchor(anchorIndex);
     this.anchorFocus = this.createAnchor(anchorIndex);
   }
@@ -183,13 +204,11 @@ export class ListSelection<E = Event> {
   /** Disabled items keep their state: the selected ones stay selected, and the others aren't. */
   selectAll(event: E) {
     const { value, items } = this.read();
+    const selected = new Set(value);
     const nextValue: any[] = [];
     for (let i = 0; i < items.count; i += 1) {
       const itemValue = items.getValue(i);
-      if (
-        itemValue !== undefined &&
-        (!items.isDisabled(i) || value.some((v) => items.isSameValue(v, itemValue)))
-      ) {
+      if (itemValue !== undefined && (!items.isDisabled(i) || selected.has(itemValue))) {
         nextValue.push(itemValue);
       }
     }
@@ -225,15 +244,28 @@ function enabledValuesBetween(items: SelectionItems, from: number, to: number): 
  * selected disabled items stay selected, since users can't deselect them.
  */
 function replaceWith(currentValue: any[], items: SelectionItems, values: any[]): any[] {
-  let next = values;
-  if (items.keepsDisabled) {
-    const selectedDisabled = currentValue.filter((v) => {
+  if (!items.keepsDisabled || currentValue.length === 0) {
+    return values;
+  }
+  let selectedDisabled: any[];
+  if (currentValue.length < items.count) {
+    selectedDisabled = currentValue.filter((v) => {
       const index = items.indexOfValue(v);
       return index !== -1 && items.isDisabled(index);
     });
-    next = [...values, ...selectedDisabled];
+  } else {
+    // With most items selected, walking the items once is cheaper than looking each selected
+    // value up, which scans the list when it has no `items`.
+    const selected = new Set(currentValue);
+    selectedDisabled = [];
+    for (let i = 0; i < items.count; i += 1) {
+      const itemValue = items.getValue(i);
+      if (itemValue !== undefined && items.isDisabled(i) && selected.has(itemValue)) {
+        selectedDisabled.push(itemValue);
+      }
+    }
   }
-  return next.length === 0 ? (EMPTY_ARRAY as any[]) : next;
+  return selectedDisabled.length === 0 ? values : [...values, ...selectedDisabled];
 }
 
 /** Makes an item the selection. Nothing changes when it can't be selected. */

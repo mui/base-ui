@@ -1,4 +1,5 @@
 import { error } from '@base-ui/utils/error';
+import { warn } from '@base-ui/utils/warn';
 import { isGroupedItems } from '../../internals/resolveValueLabel';
 
 export type ListboxPrimitiveValue = string | number | bigint | boolean;
@@ -158,7 +159,23 @@ export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
     },
     valueAt: (index) => (isInRange(index) ? getValue(source[index]) : undefined),
     indexOf,
-    getLabel: (index) => (isInRange(index) ? getLabel(source[index]) : null),
+    getLabel: (index) => {
+      if (!isInRange(index)) {
+        return null;
+      }
+      const label: unknown = getLabel(source[index]);
+      if (typeof label === 'string') {
+        return label;
+      }
+      if (process.env.NODE_ENV !== 'production') {
+        warn(
+          `An item passed to the \`items\` of <Listbox.Root> has the label ${String(label)}, which ` +
+            "is not a string, so keyboard text navigation can't match it reliably. Return a string " +
+            'from `getLabel`, or set a string `label` on the item.',
+        );
+      }
+      return label == null ? null : String(label);
+    },
     getDisabled: (index) =>
       getDisabled != null && isInRange(index) ? getDisabled(source[index]) : false,
     map: (callback) => source.map((item, index) => callback(item, index)),

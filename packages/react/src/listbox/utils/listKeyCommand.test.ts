@@ -175,6 +175,18 @@ describe('resolveListKeyCommand', () => {
       });
     });
 
+    it('selects every item by the physical A key on a layout without Latin letters', () => {
+      expect(resolve({ key: 'ф', code: 'KeyA', ctrlKey: true }, { multiple: true })).toEqual({
+        type: 'selectAll',
+      });
+    });
+
+    it('does not select every item on Ctrl+Alt+A', () => {
+      expect(
+        resolve({ key: 'a', code: 'KeyA', ctrlKey: true, altKey: true }, { multiple: true }),
+      ).toBe(null);
+    });
+
     it.each([
       { name: 'multiple', multiple: true as const },
       { name: 'opt-in', multiple: 'opt-in' as const },

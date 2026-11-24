@@ -158,6 +158,8 @@ export const ListboxItem = React.memo(
 
     // The pointer type of the last press, so a touch tap can be told apart from a click.
     const lastPointerTypeRef = React.useRef<string | null>(null);
+    // Whether the key being held is a repeat of Space or Enter.
+    const repeatedPressRef = React.useRef(false);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -224,13 +226,24 @@ export const ListboxItem = React.memo(
         ) {
           return;
         }
+        const element = itemRef.current;
+        const focused = element != null && activeElement(ownerDocument(element)) === element;
+        // The pointer moved within the item that already has focus and the highlight.
+        if (
+          focused &&
+          store.state.multiple !== 'opt-in' &&
+          store.state.hoveredIndex === null &&
+          store.state.itemFocused &&
+          store.state.activeIndex === index
+        ) {
+          return;
+        }
         store.hoverItem(index, event.nativeEvent);
 
         // Hovering only moves focus once focus is in the list, so it never takes focus from
         // another control. Until then, the hovered item is highlighted without focus. Opt-in mode
         // never moves focus on hover, since arrow keys move the selection from the focused item.
         const listElement = store.state.listElement;
-        const element = itemRef.current;
         if (
           store.state.multiple !== 'opt-in' &&
           element &&
@@ -242,6 +255,9 @@ export const ListboxItem = React.memo(
         }
       },
       onKeyDownCapture(event: BaseUIEvent<React.KeyboardEvent>) {
+        // Holding Space or Enter presses the item once, not on every repeat of the key.
+        repeatedPressRef.current =
+          event.repeat && (event.key === ' ' || event.code === 'Space' || event.key === 'Enter');
         // A disabled item's button ignores key presses, so they're handled here.
         if (itemDisabled && !rootDisabled) {
           handleItemKeyDown(event);
@@ -250,13 +266,22 @@ export const ListboxItem = React.memo(
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         handleItemKeyDown(event);
       },
+      onKeyUp() {
+        repeatedPressRef.current = false;
+      },
       onPointerDown(event) {
         lastPointerTypeRef.current = event.pointerType;
       },
       onClick(event) {
-        // A click without a pointer press, such as from assistive technology, isn't a touch tap.
-        const touch = lastPointerTypeRef.current === 'touch';
+        // A touch tap is a click made by a pointer (`detail` counts its presses) after a touch
+        // press. A click from the keyboard or assistive technology isn't one, even when an earlier
+        // touch ended without a click, such as in a scroll.
+        const touch = lastPointerTypeRef.current === 'touch' && event.detail > 0;
         lastPointerTypeRef.current = null;
+
+        if (repeatedPressRef.current) {
+          return;
+        }
 
         if (disabled) {
           return;

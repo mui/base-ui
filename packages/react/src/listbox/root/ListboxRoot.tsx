@@ -105,17 +105,18 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
       // Nothing changes when the selection is the same, such as when the focused item is
       // disabled or every item is already selected.
       if (isSameSelection(nextSelectedValues, store.state.value)) {
-        return;
+        return true;
       }
 
       const nextValue = multiple ? nextSelectedValues : (nextSelectedValues[0] ?? null);
       onValueChange?.(nextValue, eventDetails);
 
       if (eventDetails.isCanceled) {
-        return;
+        return false;
       }
 
       setValueUnwrapped(nextValue);
+      return true;
     },
   );
 

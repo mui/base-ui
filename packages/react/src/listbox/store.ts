@@ -46,7 +46,8 @@ export type Context = {
    */
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
   typingRef: React.RefObject<boolean>;
-  setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
+  /** Returns `false` when the change was canceled. */
+  setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => boolean;
   /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
   highlightEvent: Event | undefined;
   /** The rendered items' elements, by position. */
@@ -112,9 +113,8 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     getItems: () => this.getSelectionItems(),
     getMultiple: () => this.state.multiple,
     getDefaultAnchor: () => this.getTabStopIndex(),
-    commit: (nextValue, reason, event) => {
-      this.context.setValue(nextValue, createChangeEventDetails(reason, event));
-    },
+    commit: (nextValue, reason, event) =>
+      this.context.setValue(nextValue, createChangeEventDetails(reason, event)),
   });
 
   /** Moves focus to items, waiting for those that aren't rendered yet. */
@@ -266,7 +266,7 @@ function createInitialContext(): Context {
     labelsRef: { current: [] },
     disabledItemsRef: { current: [] },
     typingRef: { current: false },
-    setValue: () => {},
+    setValue: () => true,
     highlightEvent: undefined,
     elementsRef: { current: [] },
   };

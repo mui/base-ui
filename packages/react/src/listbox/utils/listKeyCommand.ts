@@ -1,5 +1,7 @@
 export interface ListKey {
   key: string;
+  /** The physical key, which stays the same on keyboard layouts that don't produce Latin letters. */
+  code?: string | undefined;
   shiftKey: boolean;
   ctrlKey: boolean;
   metaKey: boolean;
@@ -99,7 +101,7 @@ export function resolveListKeyCommand(
   }
 
   // The APG makes deselecting a fully selected list optional.
-  if (ctrlOrMeta && (key.key === 'a' || key.key === 'A')) {
+  if (ctrlOrMeta && !altKey && (key.key === 'a' || key.key === 'A' || key.code === 'KeyA')) {
     return { type: 'selectAll' };
   }
 
