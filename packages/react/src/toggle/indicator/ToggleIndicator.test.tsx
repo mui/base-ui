@@ -27,16 +27,14 @@ describe('<Toggle.Indicator />', () => {
     }
   });
 
-  it('contributes its text to the toggle accessible name', async () => {
-    const { user } = await render(
-      <Toggle.Root>
-        <Toggle.Indicator match="off">Show</Toggle.Indicator>
-        <Toggle.Indicator match="on">Hide</Toggle.Indicator>
+  it('is hidden from assistive technology', async () => {
+    await render(
+      <Toggle.Root defaultPressed>
+        <Toggle.Indicator data-testid="indicator" />
       </Toggle.Root>,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Show' }));
-    expect(screen.getByRole('button', { name: 'Hide' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('indicator')).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('reflects the pressed state through data-pressed', async () => {

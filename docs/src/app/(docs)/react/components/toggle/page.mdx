@@ -22,6 +22,9 @@ import { Toggle } from '@base-ui/react/toggle';
 </Toggle.Root>;
 ```
 
+`Toggle.Indicator` is hidden from assistive technology, because `Toggle.Root` already announces the pressed state.
+Label the toggle on `Toggle.Root`, with text children or `aria-label`, rather than with text inside the indicator.
+
 ## Examples
 
 ### Animate icon path

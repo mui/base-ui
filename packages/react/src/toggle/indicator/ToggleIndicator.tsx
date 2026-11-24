@@ -55,7 +55,7 @@ export const ToggleIndicator = React.forwardRef(function ToggleIndicator(
     ref: [forwardedRef, indicatorRef],
     state,
     stateAttributesMapping,
-    props: elementProps,
+    props: [{ 'aria-hidden': true }, elementProps],
   });
 });
 
