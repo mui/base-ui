@@ -1,4 +1,6 @@
 import { REASONS } from '../../internals/reasons';
+import { createItemReference, resolveItemReference } from './itemReference';
+import type { ItemReference } from './itemReference';
 
 /** Reads the items a selection gesture selects from, by position. */
 export interface SelectionItems {
@@ -51,23 +53,14 @@ export interface ListSelectionParameters<E> {
  * presses and keyboard commands into the next selected values, and remembers the item that
  * Shift+press extends a range from.
  */
-/**
- * An item a range extends from. It's remembered by its value, so it's found again after items are
- * added or removed around it, and by its position, which tells items that share a value apart.
- */
-interface RangeAnchor {
-  index: number;
-  value: any;
-}
-
 export class ListSelection<E = Event> {
   declare private readonly parameters: ListSelectionParameters<E>;
 
   /** The last pressed or selected item, which Shift+press extends a range from. */
-  private pressAnchor: RangeAnchor | null = null;
+  private pressAnchor: ItemReference | null = null;
 
   /** The item that had focus when `pressAnchor` was last set or kept. */
-  private anchorFocus: RangeAnchor | null = null;
+  private anchorFocus: ItemReference | null = null;
 
   constructor(parameters: ListSelectionParameters<E>) {
     this.parameters = parameters;
@@ -117,20 +110,16 @@ export class ListSelection<E = Event> {
   }
 
   /** Remembers the item at a position as an anchor. */
-  private createAnchor(index: number | null): RangeAnchor | null {
-    return index === null ? null : { index, value: this.parameters.getItems().getValue(index) };
+  private createAnchor(index: number | null): ItemReference | null {
+    return index === null ? null : createItemReference(this.parameters.getItems(), index);
   }
 
   /** Where an anchor's item is now, or `null` when there's no anchor or its item is gone. */
-  private resolveAnchor(anchor: RangeAnchor | null): number | null {
+  private resolveAnchor(anchor: ItemReference | null): number | null {
     if (anchor === null) {
       return null;
     }
-    const items = this.parameters.getItems();
-    if (Object.is(items.getValue(anchor.index), anchor.value)) {
-      return anchor.index;
-    }
-    const index = items.indexOfValue(anchor.value);
+    const index = resolveItemReference(this.parameters.getItems(), anchor);
     return index === -1 ? null : index;
   }
 
@@ -139,7 +128,7 @@ export class ListSelection<E = Event> {
    * item that set or kept it, so Shift+Arrow continues a range, and the focused item once focus
    * has moved another way, such as by typing or hovering.
    */
-  private getRangeAnchor(focusedIndex: number | null): number | null {
+  private getItemReference(focusedIndex: number | null): number | null {
     const pressIndex = this.resolveAnchor(this.pressAnchor);
     return pressIndex !== null && this.resolveAnchor(this.anchorFocus) === focusedIndex
       ? pressIndex
@@ -173,7 +162,7 @@ export class ListSelection<E = Event> {
    * Shift+press extends from the same anchor.
    */
   extendTo(index: number, focusedIndex: number | null, event: E) {
-    const anchorIndex = this.getRangeAnchor(focusedIndex);
+    const anchorIndex = this.getItemReference(focusedIndex);
     const { value, items } = this.read();
     if (
       this.parameters.commit(

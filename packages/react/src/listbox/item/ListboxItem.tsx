@@ -135,7 +135,7 @@ export const ListboxItem = React.memo(
     // moved past the rendered items of a virtualized list. Take focus from it.
     useIsoLayoutEffect(() => {
       if (hasRegistered) {
-        store.focus.itemRendered(index, itemRef.current);
+        store.focus.itemMounted(index, itemRef.current);
       }
     }, [hasRegistered, index, store]);
 
@@ -145,11 +145,9 @@ export const ListboxItem = React.memo(
     useIsoLayoutEffect(() => {
       const element = itemRef.current;
       return () => {
-        if (element && activeElement(ownerDocument(element)) === element) {
-          // The item's value when it stops rendering, not when the effect ran.
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          store.focus.hold(() => store.indexOfValue(itemValueRef.current));
-        }
+        // The item's value when it stops rendering, not when the effect ran.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        store.focus.itemUnmounting(element, itemValueRef.current);
       };
     }, [itemValueRef, store]);
 

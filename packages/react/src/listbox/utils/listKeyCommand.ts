@@ -21,8 +21,11 @@ export interface ListKeyContext {
 }
 
 export type ListKeyCommand =
-  /** Moves focus to an item. With `select`, the selection moves to it too. */
-  | { type: 'move'; index: number; select: boolean }
+  /**
+   * Moves focus to an item. With `focusOnly`, the user asked to move focus without it counting as
+   * navigation that the selection can follow.
+   */
+  | { type: 'move'; index: number; focusOnly: boolean }
   /** Moves focus to an item and selects the range from the range anchor to it. */
   | { type: 'extend'; index: number }
   /** Selects a range and moves focus to `focusIndex`, which also becomes the range anchor. */
@@ -97,8 +100,7 @@ export function resolveListKeyCommand(
     if (index === fromIndex) {
       return { type: 'none' };
     }
-    // In opt-in mode, the selection follows focus (the APG alternative multiple selection model).
-    return { type: 'move', index, select: optIn };
+    return { type: 'move', index, focusOnly: false };
   }
 
   const ctrlOrMeta = ctrlKey || metaKey;
@@ -114,7 +116,7 @@ export function resolveListKeyCommand(
   const moveWithoutSelecting = mac ? altKey && !ctrlOrMeta : ctrlOrMeta;
   if (optIn && moveWithoutSelecting && !shiftKey && step !== 0 && currentIndex != null) {
     const index = currentIndex + step;
-    return isInList(index, count) ? { type: 'move', index, select: false } : { type: 'none' };
+    return isInList(index, count) ? { type: 'move', index, focusOnly: true } : { type: 'none' };
   }
 
   if (shiftArrow) {

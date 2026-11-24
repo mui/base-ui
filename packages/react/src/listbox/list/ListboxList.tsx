@@ -3,8 +3,7 @@ import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ownerDocument } from '@base-ui/utils/owner';
-import { activeElement, contains } from '@base-ui/utils/shadowDom';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context';
@@ -56,12 +55,11 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
     switch (command.type) {
       case 'move':
-        store.focus.moveTo(
-          command.index,
-          nativeEvent,
-          // An item that isn't rendered yet is selected once it renders and receives focus.
-          command.select ? () => store.selection.moveTo(command.index, nativeEvent) : undefined,
-        );
+        if (command.focusOnly) {
+          store.focus.moveTo(command.index, nativeEvent);
+        } else {
+          store.focus.navigateTo(command.index, nativeEvent);
+        }
         break;
       case 'extend': {
         const focusedIndex = store.state.activeIndex;
@@ -94,15 +92,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     onMatch(index, event) {
       // The key did something, so it doesn't also trigger a shortcut outside the list.
       stopEvent(event);
-      const nativeEvent = event.nativeEvent;
-      store.focus.moveTo(
-        index,
-        nativeEvent,
-        // In opt-in mode, the selection follows focus, however focus moves.
-        store.state.multiple === 'opt-in'
-          ? () => store.selection.moveTo(index, nativeEvent)
-          : undefined,
-      );
+      store.focus.navigateTo(index, event.nativeEvent);
     },
   });
 
@@ -138,24 +128,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
     'aria-orientation': orientation,
     tabIndex,
     onFocus(event) {
-      const elements = elementsRef.current;
-      if (event.target !== event.currentTarget) {
-        return;
-      }
-      // The list holds focus until the item it's waiting for renders.
-      if (store.focus.isPending()) {
-        return;
-      }
-      // The list isn't a tab stop, but it can receive focus programmatically, such as from a
-      // `Listbox.Label` click, or from a press on a group label or a gap between items. Pass focus
-      // on to the item that holds the tab stop. A press leaves the list where it's scrolled to.
-      const fromPress = pointerPressedRef.current;
-      const index = store.state.activeIndex ?? store.getTabStopIndex();
-      if (elements[index]) {
-        elements[index].focus({ preventScroll: fromPress });
-      } else if (!fromPress && itemCount != null && itemCount > 0) {
-        // The item isn't rendered, so highlight it to have it scrolled into view.
-        store.focus.moveTo(index, event.nativeEvent);
+      if (event.target === event.currentTarget) {
+        store.focus.listFocused(event.nativeEvent, pointerPressedRef.current);
       }
     },
     onBlur(event) {
@@ -243,61 +217,11 @@ export const ListboxList = React.forwardRef(function ListboxList(
     },
   };
 
-  // Keeps the tab stop on an item that exists: the first selected item while no item has focus,
-  // and the focused item otherwise, wherever it moved to. Runs when the selection, the rendered
-  // items or `items` change.
+  // Keeps the tab stop on an item that exists. Runs when the selection, the rendered items or
+  // `items` change.
   const value = store.useState('value');
   const syncActiveItem = useStableCallback((map?: Map<Element, { index: number }>) => {
-    if (!store.state.itemFocused) {
-      store.syncTabStop();
-      return;
-    }
-
-    // Items can move around the focused item, such as when reordering them, so the tab stop
-    // follows the focused item to its new index.
-    const listElement = store.state.listElement;
-    const focusedElement = activeElement(ownerDocument(listElement));
-    const focusedIndex = focusedElement ? map?.get(focusedElement)?.index : undefined;
-    if (focusedIndex != null) {
-      store.setActiveIndex(focusedIndex);
-      return;
-    }
-
-    const listHasFocus = focusedElement != null && focusedElement === listElement;
-    // The list holds focus for an item that isn't rendered, and items were added or removed
-    // around it, so the tab stop follows it to its new position.
-    const heldIndex = listHasFocus ? store.focus.updateHeldIndex() : undefined;
-    if (heldIndex === -1) {
-      store.focus.cancel();
-    } else if (heldIndex != null && heldIndex !== store.state.activeIndex) {
-      store.setActiveIndex(heldIndex);
-      store.focus.itemRendered(heldIndex, elementsRef.current[heldIndex] ?? null);
-      return;
-    }
-
-    const activeItemIndex = heldIndex === -1 ? -1 : (store.state.activeIndex ?? -1);
-    const activeItemElement = elementsRef.current[activeItemIndex];
-    if (activeItemElement) {
-      // The list held focus for this item, which rendered at another position.
-      if (listHasFocus) {
-        store.focus.moveTo(activeItemIndex, undefined);
-      }
-      return;
-    }
-    // With `items`, an item that isn't rendered still exists.
-    const itemsSize = store.state.items?.size ?? 0;
-    if (activeItemIndex >= 0 && activeItemIndex < itemsSize) {
-      return;
-    }
-
-    // The item that held the tab stop was removed and nothing took its position.
-    const tabStopIndex = store.getTabStopIndex();
-    if (listHasFocus && (itemsSize > 0 || elementsRef.current[tabStopIndex])) {
-      store.focus.moveTo(tabStopIndex, undefined);
-    } else {
-      store.focus.cancel();
-      store.setActiveIndex(tabStopIndex);
-    }
+    store.focus.itemsChanged((element) => map?.get(element)?.index);
   });
   useIsoLayoutEffect(() => {
     syncActiveItem();

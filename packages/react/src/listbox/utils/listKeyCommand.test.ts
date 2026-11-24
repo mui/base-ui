@@ -32,7 +32,7 @@ describe('resolveListKeyCommand', () => {
       { name: 'Home moves to the first item', key: 'Home', index: 0 },
       { name: 'End moves to the last item', key: 'End', index: 4 },
     ])('$name', ({ key, index }) => {
-      expect(resolve(key)).toEqual({ type: 'move', index, select: false });
+      expect(resolve(key)).toEqual({ type: 'move', index, focusOnly: false });
     });
 
     it.each([
@@ -44,7 +44,7 @@ describe('resolveListKeyCommand', () => {
       expect(resolve(key, { orientation: 'horizontal', rtl })).toEqual({
         type: 'move',
         index,
-        select: false,
+        focusOnly: false,
       });
     });
 
@@ -68,7 +68,7 @@ describe('resolveListKeyCommand', () => {
       expect(resolve('ArrowDown', { currentIndex: null })).toEqual({
         type: 'move',
         index: 1,
-        select: false,
+        focusOnly: false,
       });
     });
 
@@ -82,41 +82,33 @@ describe('resolveListKeyCommand', () => {
   });
 
   describe('opt-in mode', () => {
-    it('moves the selection with the arrow keys', () => {
+    it('navigates with the arrow keys, which the selection follows', () => {
       expect(resolve('ArrowDown', { multiple: 'opt-in' })).toEqual({
         type: 'move',
         index: 3,
-        select: true,
+        focusOnly: false,
       });
     });
 
     it.each([
       { key: 'Home', index: 0 },
       { key: 'End', index: 4 },
-    ])('moves the selection with $key', ({ key, index }) => {
+    ])('navigates with $key, which the selection follows', ({ key, index }) => {
       expect(resolve(key, { multiple: 'opt-in' })).toEqual({
         type: 'move',
         index,
-        select: true,
-      });
-    });
-
-    it('does not move the selection with Home when each item is toggled independently', () => {
-      expect(resolve('Home', { multiple: true })).toEqual({
-        type: 'move',
-        index: 0,
-        select: false,
+        focusOnly: false,
       });
     });
 
     it.each([
       { name: 'Ctrl+Arrow', modifiers: { ctrlKey: true }, mac: false },
       { name: 'Option+Arrow on macOS', modifiers: { altKey: true }, mac: true },
-    ])('moves focus without selecting on $name', ({ modifiers, mac }) => {
+    ])('moves focus only on $name', ({ modifiers, mac }) => {
       expect(resolve({ key: 'ArrowDown', ...modifiers }, { multiple: 'opt-in', mac })).toEqual({
         type: 'move',
         index: 3,
-        select: false,
+        focusOnly: true,
       });
     });
 

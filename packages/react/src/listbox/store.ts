@@ -121,6 +121,20 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     getElement: (index) => this.context.elementsRef.current[index],
     getListElement: () => this.state.listElement,
     highlight: (index, event) => this.highlightItem(index, event),
+    // In opt-in mode, the selection follows focus (the APG alternative multiple selection
+    // model), however the user navigated to the item.
+    onNavigate: (index, event) => {
+      if (this.state.multiple === 'opt-in') {
+        this.selection.moveTo(index, event as MouseEvent | KeyboardEvent);
+      }
+    },
+    hasFocusedItem: () => this.state.itemFocused,
+    getActiveIndex: () => this.state.activeIndex,
+    setActiveIndex: (index) => this.setActiveIndex(index),
+    getTabStopIndex: () => this.getTabStopIndex(),
+    getDataCount: () => this.state.items?.size ?? 0,
+    getValue: (index) => this.getValueAt(index),
+    indexOfValue: (value) => this.indexOfValue(value),
   });
 
   /**
