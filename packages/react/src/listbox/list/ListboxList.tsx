@@ -38,7 +38,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
   const id = store.useState('id');
   const labelId = store.useState('labelId');
-  const activeIndex = store.useState('activeIndex');
   const orientation = store.useState('orientation');
   const disabled = store.useState('disabled');
   const multiple = store.useState('multiple');
@@ -91,7 +90,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     getLabel: (index) => store.getLabelAt(index),
     getCount: () => store.getCount(),
     elementsRef,
-    activeIndex,
+    getActiveIndex: () => store.state.activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,
     onTyping(isTyping) {
       typingRef.current = isTyping;

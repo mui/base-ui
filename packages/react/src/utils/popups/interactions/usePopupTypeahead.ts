@@ -9,8 +9,12 @@ import type { UseTypeaheadProps } from './useTypeahead';
 
 export interface UsePopupTypeaheadProps extends Omit<
   UseTypeaheadProps,
-  'getLabel' | 'getCount' | 'stopTypingKeys'
+  'getLabel' | 'getCount' | 'getActiveIndex' | 'stopTypingKeys'
 > {
+  /**
+   * The index of the active (focused or highlighted) item in the list.
+   */
+  activeIndex: number | null;
   /**
    * A ref which contains all strings of the list items, by index.
    */
@@ -33,12 +37,13 @@ export function usePopupTypeahead(
   store: PopupInteractionStore,
   props: UsePopupTypeaheadProps,
 ): ElementProps {
-  const { listRef, enabled = true, selectedIndex = null, ...typeaheadProps } = props;
+  const { listRef, activeIndex, enabled = true, selectedIndex = null, ...typeaheadProps } = props;
   const open = store.useState('open');
 
   const { onKeyDown, endSession, reset } = useTypeahead({
     ...typeaheadProps,
     selectedIndex,
+    getActiveIndex: () => activeIndex,
     getLabel: (index) => listRef.current[index],
     getCount: () => listRef.current.length,
     stopTypingKeys: open,

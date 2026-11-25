@@ -18,10 +18,10 @@ export interface UseTypeaheadProps {
    */
   getCount: () => number;
   /**
-   * The index of the active (focused or highlighted) item in the list.
-   * @default null
+   * Returns the index of the active (focused or highlighted) item in the list. It's read when a
+   * key is pressed, so the active item doesn't have to be known during render.
    */
-  activeIndex: number | null;
+  getActiveIndex: () => number | null;
   /**
    * Callback invoked with the matching index if found as the user types.
    */
@@ -89,7 +89,7 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     getLabel,
     getCount,
     elementsRef,
-    activeIndex,
+    getActiveIndex,
     onMatch: onMatchProp,
     disabledIndices,
     onTyping: onTypingProp,
@@ -102,7 +102,7 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
 
   const timeout = useTimeout();
   const stringRef = React.useRef('');
-  const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
+  const prevIndexRef = React.useRef<number | null>(-1);
   const matchIndexRef = React.useRef<number | null>(null);
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
@@ -174,7 +174,7 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     // Capture whether this is a new typing session before mutating the string.
     const isNewSession = stringRef.current === '';
     if (isNewSession) {
-      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
+      prevIndexRef.current = selectedIndex ?? getActiveIndex() ?? -1;
     }
 
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
@@ -186,7 +186,7 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
       const count = getCount();
       for (let index = 0; index < count; index += 1) {
         const text = getLabel(index);
-        if (text && isItemAvailable(index) && text[0]?.toLowerCase() === text[1]?.toLowerCase()) {
+        if (text && text[0]?.toLowerCase() === text[1]?.toLowerCase() && isItemAvailable(index)) {
           return false;
         }
       }
@@ -210,7 +210,9 @@ export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue 
     // Compute the starting index for this search.
     // If this is a new typing session (string is empty), base it on the current
     // selection/active item; otherwise continue from the last matched index.
-    const prevIndex = isNewSession ? (selectedIndex ?? activeIndex ?? -1) : prevIndexRef.current;
+    const prevIndex = isNewSession
+      ? (selectedIndex ?? getActiveIndex() ?? -1)
+      : prevIndexRef.current;
     const startIndex = (prevIndex ?? 0) + 1;
 
     const index = getMatchingIndex(stringRef.current, startIndex);

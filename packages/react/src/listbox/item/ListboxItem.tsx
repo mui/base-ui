@@ -3,7 +3,6 @@ import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { error } from '@base-ui/utils/error';
 import { warn } from '@base-ui/utils/warn';
@@ -51,18 +50,10 @@ export const ListboxItem = React.memo(
     // only some of the items and their order in the DOM doesn't match their position.
     const indexFromItems = items ? items.indexOf(itemValue) : undefined;
 
-    const itemValueRef = useValueAsRef(itemValue);
-    const itemDisabledRef = useValueAsRef(disabledProp ?? false);
     // Registered along with the item's position, so that the list reads the value and disabled
     // state of every rendered item at the moment their positions change.
-    const metadata = useRefWithInit(() => ({
-      get value() {
-        return itemValueRef.current;
-      },
-      get disabled() {
-        return itemDisabledRef.current;
-      },
-    })).current;
+    const ownDisabled = disabledProp ?? false;
+    const metadata = useRefWithInit(() => ({ value: itemValue, disabled: ownDisabled })).current;
 
     const listItem = useCompositeListItem({
       guess: true,
@@ -80,9 +71,7 @@ export const ListboxItem = React.memo(
     const hasRegistered = index !== -1;
     // With `items`, the data decides whether an item is disabled, so the answer doesn't depend on
     // whether the item is rendered.
-    const itemDisabled = items
-      ? hasRegistered && items.getDisabled(index)
-      : (disabledProp ?? false);
+    const itemDisabled = items ? hasRegistered && items.getDisabled(index) : ownDisabled;
     const disabled = rootDisabled || itemDisabled;
 
     if (process.env.NODE_ENV !== 'production') {
@@ -112,6 +101,9 @@ export const ListboxItem = React.memo(
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     // With `items`, the root already knows every value and disabled state.
     useIsoLayoutEffect(() => {
+      metadata.value = itemValue;
+      metadata.disabled = ownDisabled;
+
       if (!hasRegistered || items) {
         return undefined;
       }
@@ -131,7 +123,7 @@ export const ListboxItem = React.memo(
         delete values[index];
         delete disabledItems[index];
       };
-    }, [hasRegistered, index, itemValue, itemDisabled, items, store]);
+    }, [hasRegistered, index, itemValue, itemDisabled, ownDisabled, items, metadata, store]);
 
     // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
     // and takes its place in the tab order while it isn't.
@@ -160,10 +152,9 @@ export const ListboxItem = React.memo(
       const element = itemRef.current;
       return () => {
         // The item's value when it stops rendering, not when the effect ran.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        store.focus.itemUnmounting(element, itemValueRef.current);
+        store.focus.itemUnmounting(element, metadata.value);
       };
-    }, [itemValueRef, store]);
+    }, [metadata, store]);
 
     const state: ListboxItemState = {
       disabled,

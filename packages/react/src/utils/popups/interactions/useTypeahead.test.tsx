@@ -17,7 +17,7 @@ function List(
   const typeahead = useTypeahead({
     getLabel,
     getCount: () => LABELS.length,
-    activeIndex: null,
+    getActiveIndex: () => null,
     ...typeaheadProps,
   });
   React.useImperativeHandle(actionsRef, () => typeahead, [typeahead]);
