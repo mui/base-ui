@@ -6,8 +6,9 @@ name: Ahrefs audit
 
 on:
   schedule:
-    # Weekly: the site changes with releases, and Ahrefs recrawls it on its own schedule.
-    - cron: '21 7 * * 1' # Mondays 07:21 UTC
+    # Weekly, the day after Ahrefs' weekly crawl (Wednesdays from about 02:00 UTC), so each run
+    # reads a fresh one.
+    - cron: '21 7 * * 4' # Thursdays 07:21 UTC
   workflow_dispatch:
 
 permissions: {}
