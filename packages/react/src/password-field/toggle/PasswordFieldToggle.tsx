@@ -10,6 +10,8 @@ import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
 /**
  * A button that toggles the password's visibility.
  * Renders a `<button>` element.
+ * Label it with text children or `aria-label`.
+ * Its pressed state is announced to screen readers, so don't change the label when it's pressed.
  *
  * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)
  */

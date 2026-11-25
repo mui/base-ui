@@ -265,6 +265,8 @@ type PasswordFieldPreviewLabelState = {
 
 A button that toggles the password's visibility.
 Renders a `<button>` element.
+Label it with text children or `aria-label`.
+Its pressed state is announced to screen readers, so don't change the label when it's pressed.
 
 **Toggle Props:**
 
