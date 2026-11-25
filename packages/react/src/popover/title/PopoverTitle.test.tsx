@@ -39,4 +39,43 @@ describe('<Popover.Title />', () => {
     const id = document.querySelector('h2')?.id;
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-labelledby', id);
   });
+
+  describe('prop: id', () => {
+    it('labels the popup element with a custom id', async () => {
+      await render(
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Title id="custom-title">Title</Popover.Title>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(screen.getByRole('heading')).toHaveAttribute('id', 'custom-title');
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-labelledby', 'custom-title');
+    });
+
+    it('keeps the generated id when undefined', async () => {
+      await render(
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Title id={undefined}>Title</Popover.Title>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const title = screen.getByRole('heading');
+      expect(title.id).not.toBe('');
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-labelledby', title.id);
+    });
+  });
 });

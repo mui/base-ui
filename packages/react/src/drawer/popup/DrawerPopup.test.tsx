@@ -167,6 +167,47 @@ describe('<Drawer.Popup />', () => {
     expect(handleKeyDown).toHaveBeenCalled();
   });
 
+  describe('prop: id', () => {
+    it('sets a custom id that the trigger controls', async () => {
+      const { user } = await render(
+        <Drawer.Root>
+          <Drawer.Trigger>Open</Drawer.Trigger>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup id="custom-popup" />
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      expect(await screen.findByRole('dialog')).toHaveAttribute('id', 'custom-popup');
+      expect(trigger).toHaveAttribute('aria-controls', 'custom-popup');
+    });
+
+    it('keeps the generated id when undefined', async () => {
+      const { user } = await render(
+        <Drawer.Root>
+          <Drawer.Trigger>Open</Drawer.Trigger>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup id={undefined} />
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      const popup = await screen.findByRole('dialog');
+      expect(popup.id).not.toBe('');
+      expect(trigger).toHaveAttribute('aria-controls', popup.id);
+    });
+  });
+
   it('applies a negative snap point offset to upward drawers', async () => {
     await render(
       <Drawer.Root
