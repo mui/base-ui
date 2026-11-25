@@ -702,7 +702,7 @@ describe('FloatingFocusManager', () => {
         }
       });
 
-      test('lets a text input keep its focus ring when returning focus after pointer close', async () => {
+      test('does not pass focusVisible: false when returning focus to a text input after pointer close', async () => {
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);
           const inputRef = React.useRef<HTMLInputElement | null>(null);
