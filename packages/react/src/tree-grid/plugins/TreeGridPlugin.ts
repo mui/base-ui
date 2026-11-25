@@ -7,15 +7,10 @@ import { REASONS } from '../../internals/reasons';
 import type { TreeDefaultItem, TreeItemId, TreeSelectionMode } from '../../tree/store/types';
 import type { TreeStore } from '../../tree/store/TreeStore';
 import { selectors } from '../../tree/store/selectors';
-import {
-  getFirstNavigableItem,
-  getLastNavigableItem,
-  getNextNavigableItem,
-  getPreviousNavigableItem,
-} from '../../tree/store/treeNavigation';
 import { isControlFocusable, sortInComposedOrder } from '../../tree/utils/focusability';
 import { getItemIdKey } from '../../tree/utils/itemIdKey';
 import type { TreeGridCellControlKeys } from '../cell-control/TreeGridCellControl';
+import { getStopKeyIntent, isStopKey } from '../utils/getStopKeyIntent';
 
 interface RegisteredControl {
   element: HTMLElement;
@@ -44,16 +39,6 @@ interface ColumnPosition {
   cellIndex: number;
   index: number;
 }
-
-const CONTROL_NAVIGATION_KEYS = new Set([
-  'ArrowLeft',
-  'ArrowRight',
-  'ArrowUp',
-  'ArrowDown',
-  'Home',
-  'End',
-  'Escape',
-]);
 
 /**
  * Whether a horizontal arrow moves the caret of a text field instead of leaving
@@ -304,44 +289,23 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
   }
 
   /**
-   * Moves from `element` to the same column in the row of `targetItem`: to the
-   * stop at the same index in the cell, or the last one before it, or to the row
-   * when it has no stop there. Returns `false`, doing nothing, when `element`
-   * isn't in a row of several cells.
+   * Moves to `position` in the row of `targetItem`: to the stop at the same index
+   * in the cell, or the last one before it, or to the row when it has no stop there.
    */
-  private moveInColumn(
-    layout: RowLayout,
-    element: HTMLElement,
-    targetItem: TreeItemId | null,
-    event: React.KeyboardEvent,
-  ): boolean {
-    const position = getColumnPosition(layout, element);
-    if (position == null) {
-      return false;
-    }
-    event.preventDefault();
-    if (targetItem == null) {
-      return true;
-    }
+  private moveInColumn(position: ColumnPosition, targetItem: TreeItemId, event: KeyboardEvent) {
     const targetStops = selectors.isItemDisabled(this.store.state, targetItem)
       ? EMPTY_ARRAY
       : getCellStops(this.getLayout(targetItem), position.cellIndex);
     if (targetStops.length === 0) {
-      this.store.interaction.focusItem(targetItem, REASONS.keyboard, event.nativeEvent);
+      this.store.interaction.focusItem(targetItem, REASONS.keyboard, event);
     } else {
-      this.focusStop(
-        targetStops[Math.min(position.index, targetStops.length - 1)],
-        event.nativeEvent,
-      );
+      this.focusStop(targetStops[Math.min(position.index, targetStops.length - 1)], event);
     }
-    return true;
   }
 
   /**
-   * Keys pressed on a registered control, or on a cell that has focus. The
-   * control keeps every key it declares as its own; the remaining navigation
-   * keys move through the row and the tree. Modified keys stay with the control
-   * and the browser, except Ctrl+Home and Ctrl+End in a row of several cells.
+   * Keys pressed on a registered control, or on a cell that has focus: reads the
+   * row, then applies what `getStopKeyIntent` decides.
    * Returns whether the row should handle the key as if pressed on itself.
    */
   public handleControlKeyDown(
@@ -350,7 +314,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
     itemElement: HTMLElement,
     target: Element,
   ): boolean {
-    if (!CONTROL_NAVIGATION_KEYS.has(event.key) && event.key !== ' ') {
+    if (!isStopKey(event.key)) {
       return false;
     }
     const itemKey = getItemIdKey(itemId);
@@ -360,26 +324,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
     if (control == null && !isCell) {
       return false;
     }
-    if (event.key === ' ') {
-      // A cell has no action of its own, so Space selects its row as on the row.
-      return isCell && !hasModifier(event);
-    }
-    // A disabled control that stays focusable prevents every key to block its
-    // activation. Navigation keys still apply to it.
     const disabledFocusable = element.getAttribute('aria-disabled') === 'true';
-    const columnEdgeKey =
-      (event.key === 'Home' || event.key === 'End') &&
-      (event.ctrlKey || event.metaKey) &&
-      !event.altKey &&
-      !event.shiftKey;
-    if (
-      (event.defaultPrevented && !disabledFocusable) ||
-      (hasModifier(event) && !columnEdgeKey) ||
-      event.nativeEvent.isComposing
-    ) {
-      return false;
-    }
-
     // A disabled control can't act on any key, so the navigation keys move
     // focus away from it, including from one that stays focusable.
     const unavailable =
@@ -387,89 +332,49 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
       (disabledFocusable ||
         control.isDisabled() ||
         !isControlFocusable(control.element, itemElement));
-    // A cell has no keys of its own.
-    const keys: TreeGridCellControlKeys = control != null && !unavailable ? control.getKeys() : {};
-    const isRtl = this.store.state.direction === 'rtl';
-    const forwardKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
-    const backwardKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
+    const layout = this.getLayout(itemId);
+    const position = getColumnPosition(layout, element);
+    const intent = getStopKeyIntent(event, {
+      isRtl: this.store.state.direction === 'rtl',
+      isCell,
+      disabledFocusable,
+      keys: control != null && !unavailable ? control.getKeys() : {},
+      keepsCaret:
+        !unavailable &&
+        (event.key === 'ArrowLeft' || event.key === 'ArrowRight') &&
+        keepsHorizontalArrow(element, event.key),
+      index: layout.stops.findIndex((stop) => stop.element === element),
+      count: layout.stops.length,
+      inColumn: position != null,
+    });
 
-    switch (event.key) {
-      case forwardKey:
-      case backwardKey: {
-        if (
-          keys.horizontal === 'control' ||
-          (!unavailable && keepsHorizontalArrow(element, event.key))
-        ) {
-          return false;
-        }
-        event.preventDefault();
-        const stops = this.getLayout(itemId).stops;
-        const index = stops.findIndex((stop) => stop.element === element);
-        // Bounded: backward from the first stop returns to the row, forward
-        // from the last one stays put.
-        if (event.key === backwardKey) {
-          if (index > 0) {
-            this.focusStop(stops[index - 1]);
-          } else {
-            itemElement.focus({ preventScroll: true });
-          }
-        } else if (index < stops.length - 1) {
-          this.focusStop(stops[index + 1]);
-        }
+    switch (intent.type) {
+      case 'control':
         return false;
-      }
-      case 'ArrowDown':
-      case 'ArrowUp': {
-        if (keys.vertical === 'control') {
-          return false;
+      case 'row':
+        return true;
+      case 'stop':
+        this.focusStop(layout.stops[intent.index]);
+        break;
+      case 'focus-row':
+        if (intent.stopPropagation) {
+          event.stopPropagation();
         }
-        const targetItem = (
-          event.key === 'ArrowDown' ? getNextNavigableItem : getPreviousNavigableItem
-        )(this.store.state, itemId);
-        // In a row of a single cell, the row moves on to the next row.
-        return !this.moveInColumn(this.getLayout(itemId), element, targetItem, event);
-      }
-      case 'Home':
-      case 'End': {
-        if (keys.homeEnd === 'control') {
-          return false;
+        this.store.interaction.focusElement(itemElement, REASONS.keyboard, event.nativeEvent);
+        break;
+      case 'column': {
+        const targetItem = intent.row(this.store.state, itemId);
+        if (targetItem != null && position != null) {
+          this.moveInColumn(position, targetItem, event.nativeEvent);
         }
-        const layout = this.getLayout(itemId);
-        if (columnEdgeKey) {
-          const targetItem = (event.key === 'Home' ? getFirstNavigableItem : getLastNavigableItem)(
-            this.store.state,
-          );
-          this.moveInColumn(layout, element, targetItem, event);
-          return false;
-        }
-        event.preventDefault();
-        const stops = layout.stops;
-        if (stops.length === 0) {
-          itemElement.focus({ preventScroll: true });
-        } else {
-          this.focusStop(event.key === 'Home' ? stops[0] : stops[stops.length - 1]);
-        }
-        return false;
-      }
-      case 'Escape': {
-        if (keys.escape === 'control') {
-          return false;
-        }
-        // Consumed so an enclosing dialog stays open; Escape on the row itself
-        // is left to the containing UI.
-        event.preventDefault();
-        event.stopPropagation();
-        itemElement.focus({ preventScroll: true });
-        return false;
+        break;
       }
       default:
-        return false;
+        break;
     }
+    event.preventDefault();
+    return false;
   }
-}
-
-function hasModifier(event: React.KeyboardEvent): boolean {
-  return event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 }
 
 /** The stops of one cell of a row, or none when the row doesn't have several cells. */
