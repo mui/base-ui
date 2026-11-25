@@ -40,8 +40,7 @@ export function usePasswordFieldRootContext() {
 
   if (context === undefined) {
     throw new Error(
-      'Base UI: PasswordFieldRootContext is missing, so the part cannot read or change the password visibility. ' +
-        'PasswordField parts must be placed within <PasswordField.Root>.',
+      'Base UI: PasswordFieldRootContext is missing. PasswordField parts must be placed within <PasswordField.Root>.',
     );
   }
 
