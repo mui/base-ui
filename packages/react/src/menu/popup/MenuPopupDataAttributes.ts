@@ -9,6 +9,10 @@ export const open = CommonPopupDataAttributes.open;
  */
 export const closed = CommonPopupDataAttributes.closed;
 /**
+ * Present when the menu is a submenu.
+ */
+export const nested = 'data-nested';
+/**
  * Present when the menu begins animating in.
  */
 export const startingStyle = CommonPopupDataAttributes.startingStyle;

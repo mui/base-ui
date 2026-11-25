@@ -26,7 +26,15 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   componentProps: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    finalFocus,
+    initialFocus,
+    id: idProp,
+    ...elementProps
+  } = componentProps;
 
   const store = useDialogRootContext();
 
@@ -75,7 +83,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     props: [
       rootPopupProps,
       {
-        id: defaultPopupId,
+        id: idProp ?? defaultPopupId,
         'aria-labelledby': titleElementId,
         'aria-describedby': descriptionElementId,
         role,

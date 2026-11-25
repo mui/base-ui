@@ -57,6 +57,30 @@ describe('<ScrollArea.Viewport />', () => {
     expect(screen.queryByTestId('viewport')).toBe(null);
   });
 
+  describe.skipIf(isJSDOM)('without the Web Animations API', () => {
+    const { render: renderWithClock, clock } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('does not throw after mount', async () => {
+      await renderWithClock(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport
+            ref={(node) => {
+              if (node) {
+                Object.defineProperties(node, {
+                  getAnimations: { configurable: true, value: undefined },
+                });
+              }
+            }}
+          />
+        </ScrollArea.Root>,
+      );
+
+      expect(() => clock.runToLast()).not.toThrow();
+    });
+  });
+
   describe.skipIf(isJSDOM)('subtree animations', () => {
     afterEach(() => vi.restoreAllMocks());
 

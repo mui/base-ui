@@ -69,6 +69,28 @@ describe('<Popover.Popup />', () => {
     expect(screen.getByText('Content')).not.toBe(null);
   });
 
+  describe('prop: id', () => {
+    it('keeps the generated id when undefined', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup id={undefined} />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      const popup = await screen.findByRole('dialog');
+      expect(popup.id).not.toBe('');
+      expect(trigger).toHaveAttribute('aria-controls', popup.id);
+    });
+  });
+
   popupFocusPropsTests({
     render,
     createComponent: ({ children, ...focusProps }) => (
