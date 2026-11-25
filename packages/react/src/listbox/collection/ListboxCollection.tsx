@@ -8,8 +8,8 @@ import { ListboxGroupContext } from '../group/ListboxGroupContext';
  * Renders the items passed to the root's `items` prop, or the items of the group it's in.
  * Doesn't render its own HTML element.
  *
- * To render a list without groups, pass a function child to the `List` component instead, which
- * implicitly wraps it.
+ * To render nothing but the items in the list, pass a function child to the `List` component
+ * instead, which implicitly wraps it.
  *
  * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
  */

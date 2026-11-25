@@ -217,6 +217,11 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    *
    * Give each `Listbox.Item` its value, which with a collection is what `getValue` returns for
    * the item.
+   *
+   * Pass the same array or collection on every render, by defining it outside the component or
+   * memoizing it, since a new one makes every item render again.
+   *
+   * @type readonly Value[] | readonly ListboxItemObject<Value>[] | readonly ListboxItemGroup<Value | ListboxItemObject<Value>>[] | ListboxItemCollection<any, Value>
    */
   items?:
     | readonly (Value & ListboxPrimitiveValue)[]

@@ -76,6 +76,8 @@ Without the `items` prop, the rendered `Listbox.Item` parts are the whole list. 
 
 Give each `Listbox.Item` its value. The selection holds the same values.
 
+Pass the same array on every render, by defining it outside the component or memoizing it. A new array makes the listbox read the items again and render every item again.
+
 To render the items, pass a function to `Listbox.List`. It's called with each item and its index:
 
 ```jsx title="Rendering items with a function"
@@ -185,10 +187,11 @@ With `multiple="opt-in"`, the selection follows focus:
 
 In both multiple modes:
 
-- <kbd>Shift</kbd>+arrow keys replace the selection with the range from the item that had focus when
-  <kbd>Shift</kbd> was pressed to the focused item.
-- <kbd>Shift</kbd>+<kbd>Space</kbd> replaces the selection with the range from the last selected
-  item to the focused item.
+- <kbd>Shift</kbd>+arrow keys replace the selection with a range that starts at the focused item.
+  Pressing them again grows or shrinks the same range.
+- <kbd>Shift</kbd>+<kbd>Space</kbd> replaces the selection with the range from the item pressed last
+  to the focused item. When no item was pressed yet, the range starts at the first selected item, or
+  at the first item.
 - <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Home</kbd> or <kbd>End</kbd> adds the items from the focused
   item to the first or last item to the selection. On macOS, use <kbd>Cmd</kbd> instead of
   <kbd>Ctrl</kbd>.
