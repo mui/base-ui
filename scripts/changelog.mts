@@ -13,11 +13,7 @@ import {
   parseTitle,
   section,
 } from '@mui/internal-code-infra/changelog';
-
-/**
- * @typedef {import('@mui/internal-code-infra/changelog').ChangelogChange} ChangelogChange
- * @typedef {import('@mui/internal-code-infra/changelog').ChangelogData} ChangelogData
- */
+import type { ChangelogChange, ChangelogData } from '@mui/internal-code-infra/changelog';
 
 const GENERAL_CHANGES = 'General changes';
 const BREAKING_CHANGE = '🚨 **Breaking change:**';
@@ -49,10 +45,7 @@ const HEADINGS = new Map([['otp field', 'OTP Field']]);
 const COLLATOR = new Intl.Collator('en');
 const SORTED_LAST = '\uFFFF';
 
-/**
- * @param {string} component
- */
-function getHeading(component) {
+function getHeading(component: string) {
   if (component !== component.toLowerCase()) {
     return component;
   }
@@ -60,20 +53,14 @@ function getHeading(component) {
   return HEADINGS.get(component) ?? component.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
 }
 
-/**
- * @param {string[]} labels
- */
-function getComponents(labels) {
+function getComponents(labels: string[]) {
   return [...labelValues(labels, 'component'), ...labelValues(labels, 'hook')];
 }
 
-/**
- * @param {ChangelogChange[]} changes
- */
-function createRouter(changes) {
+function createRouter(changes: ChangelogChange[]) {
   const known = new Set(changes.flatMap(({ labels }) => getComponents(labels)));
 
-  return (/** @type {ChangelogChange} */ { labels, title }) => {
+  return ({ labels, title }: ChangelogChange) => {
     if (labels.includes(ALL_COMPONENTS_LABEL)) {
       return GENERAL_CHANGES;
     }
@@ -91,34 +78,25 @@ function createRouter(changes) {
   };
 }
 
-/**
- * @param {ChangelogChange} change
- */
-function getSortKey({ title }) {
+function getSortKey({ title }: ChangelogChange) {
   const { prefixes } = parseTitle(title);
 
   return prefixes.length > 0 ? prefixes.join('\0').toLowerCase() : SORTED_LAST;
 }
 
-/**
- * By prefixes, then in the order they were merged.
- *
- * @param {ChangelogChange} a
- * @param {ChangelogChange} b
- */
-function compareChanges(a, b) {
+/** By prefixes, then in the order they were merged. */
+function compareChanges(a: ChangelogChange, b: ChangelogChange) {
   return (
     COLLATOR.compare(getSortKey(a), getSortKey(b)) ||
     Date.parse(a.mergedAt ?? '') - Date.parse(b.mergedAt ?? '')
   );
 }
 
-/**
- * @param {ChangelogChange[]} changes
- * @param {string} level - Of the headings
- * @param {(change: ChangelogChange) => string} formatChange
- */
-function formatSections(changes, level, formatChange) {
+function renderSections(
+  changes: ChangelogChange[],
+  level: '##' | '###',
+  renderChange: (change: ChangelogChange) => string,
+) {
   const groups = groupBy([...changes].sort(compareChanges), createRouter(changes));
 
   const components = [...groups.keys()]
@@ -126,37 +104,25 @@ function formatSections(changes, level, formatChange) {
     .sort(COLLATOR.compare);
 
   return [GENERAL_CHANGES, ...components].map((heading) =>
-    section(`${level} ${heading}`, bulletList((groups.get(heading) ?? []).map(formatChange))),
+    section(`${level} ${heading}`, bulletList((groups.get(heading) ?? []).map(renderChange))),
   );
 }
 
-/**
- * @param {ChangelogChange} change
- */
-function formatText({ isBreakingChange, title }) {
+function renderText({ isBreakingChange, title }: ChangelogChange) {
   return joinWords(isBreakingChange && BREAKING_CHANGE, parseTitle(title).text);
 }
 
-/**
- * @param {ChangelogChange} change
- */
-function formatEntry(change) {
+function renderEntry(change: ChangelogChange) {
   const author = formatAuthor(change.author);
 
-  return joinWords(formatText(change), `(${formatReference(change)})`, author && `by ${author}`);
+  return joinWords(renderText(change), `(${formatReference(change)})`, author && `by ${author}`);
 }
 
-/**
- * @param {ChangelogChange} change
- */
-function formatDocsEntry(change) {
-  return joinWords(formatText(change), `([${formatReference(change)}](${change.url}))`);
+function renderDocsEntry(change: ChangelogChange) {
+  return joinWords(renderText(change), `([${formatReference(change)}](${change.url}))`);
 }
 
-/**
- * @param {ChangelogData} data
- */
-function getCreditedChanges({ changes }) {
+function getCreditedChanges({ changes }: ChangelogData) {
   return changes.filter(
     ({ labels, author, pullRequest }) =>
       !labels.some((label) => EXCLUDED_LABELS.includes(label)) &&
@@ -165,19 +131,13 @@ function getCreditedChanges({ changes }) {
   );
 }
 
-/**
- * @param {ChangelogData} data
- */
-function getListedChanges(data) {
+function getListedChanges(data: ChangelogData) {
   return getCreditedChanges(data).filter(
     ({ title }) => !EXCLUDED_PREFIXES.includes(parseTitle(title).prefixes[0]),
   );
 }
 
-/**
- * @param {ChangelogData} data
- */
-function formatContributors(data) {
+function renderContributors(data: ChangelogData) {
   const { all } = creditAuthors(getCreditedChanges(data), { exclude: EXCLUDED_CONTRIBUTORS });
 
   if (all.length === 0) {
@@ -192,29 +152,22 @@ function formatContributors(data) {
   return `${intro}: ${all.map(formatAuthor).join(', ')}`;
 }
 
-/**
- * @param {ChangelogData} data
- */
-export function formatChangelog(data) {
+export function renderChangelog(data: ChangelogData) {
   return joinBlocks(
     `## v${data.version}`,
     formatSubHeader(data),
-    formatSections(getListedChanges(data), '###', formatEntry),
-    formatContributors(data),
+    renderSections(getListedChanges(data), '###', renderEntry),
+    renderContributors(data),
   );
 }
 
-/**
- * The page of a release in the docs.
- *
- * @param {ChangelogData} data
- */
-export function formatDocsPage(data) {
+/** The page of a release in the docs. */
+export function renderDocsPage(data: ChangelogData) {
   const date = formatDate(data.date);
 
   return joinBlocks(
     `# v${data.version}`,
     `<Subtitle>${date}</Subtitle>\n<Meta name="description" content="v${data.version} release notes. ${date}." />`,
-    formatSections(getListedChanges(data), '##', formatDocsEntry),
+    renderSections(getListedChanges(data), '##', renderDocsEntry),
   );
 }

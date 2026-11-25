@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
 import { fetchChangelogData } from '@mui/internal-code-infra/changelog';
-import { formatChangelog, formatDocsPage } from './changelog.mjs';
+import { renderChangelog, renderDocsPage } from './changelog.mts';
 
 const HELP = `Prints the changelog of a release.
 
@@ -13,15 +13,12 @@ Options:
   --format          "changelog" (default), or "docs" for the release page of the docs.
   --help            Show this help.`;
 
-const FORMATTERS = new Map([
-  ['changelog', formatChangelog],
-  ['docs', formatDocsPage],
+const RENDERERS = new Map([
+  ['changelog', renderChangelog],
+  ['docs', renderDocsPage],
 ]);
 
-/**
- * @param {string} text
- */
-function print(text) {
+function print(text: string) {
   process.stdout.write(`${text}\n`);
 }
 
@@ -43,11 +40,11 @@ async function run() {
     return;
   }
 
-  const format = FORMATTERS.get(values.format);
+  const render = RENDERERS.get(values.format);
 
-  if (!format) {
+  if (!render) {
     throw new Error(
-      `Unknown format "${values.format}". Use one of: ${[...FORMATTERS.keys()].join(', ')}.`,
+      `Unknown format "${values.format}". Use one of: ${[...RENDERERS.keys()].join(', ')}.`,
     );
   }
 
@@ -58,7 +55,7 @@ async function run() {
     version: values.releaseVersion,
   });
 
-  print(format(data));
+  print(render(data));
 }
 
 await run();
