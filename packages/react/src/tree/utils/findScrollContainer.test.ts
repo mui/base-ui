@@ -64,22 +64,34 @@ describe('findScrollContainer', () => {
     expect(result === document.scrollingElement || result === document.documentElement).toBe(true);
   });
 
-  it('treats overflow-x: auto as scrollable', () => {
+  it('treats overflow-x: auto as horizontally scrollable', () => {
     const outer = makeEl({ overflowX: 'auto' });
     const leaf = makeEl();
     outer.appendChild(leaf);
     document.body.appendChild(outer);
 
-    expect(findScrollContainer(leaf)).toBe(outer);
+    expect(findScrollContainer(leaf, 'horizontal')).toBe(outer);
   });
 
-  it('treats overflow-x: scroll as scrollable', () => {
+  it('treats overflow-x: scroll as horizontally scrollable', () => {
     const outer = makeEl({ overflowX: 'scroll' });
     const leaf = makeEl();
     outer.appendChild(leaf);
     document.body.appendChild(outer);
 
-    expect(findScrollContainer(leaf)).toBe(outer);
+    expect(findScrollContainer(leaf, 'horizontal')).toBe(outer);
+  });
+
+  it('checks each axis on its own', () => {
+    const outer = makeEl({ overflowY: 'auto' });
+    const inner = makeEl({ overflowX: 'auto', overflowY: 'hidden' });
+    const leaf = makeEl();
+    outer.appendChild(inner);
+    inner.appendChild(leaf);
+    document.body.appendChild(outer);
+
+    expect(findScrollContainer(leaf, 'horizontal')).toBe(inner);
+    expect(findScrollContainer(leaf, 'vertical')).toBe(outer);
   });
 
   it('does not treat overflow: hidden as scrollable', () => {

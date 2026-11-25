@@ -223,7 +223,12 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
     const cells = this.getCells(itemId);
     if (cells.length > 1) {
       for (const cell of cells) {
-        if (!controls.some((control) => contains(cell, control.element))) {
+        // A hidden cell can't take focus, so it isn't a stop. It still counts
+        // as a column, which keeps column indexes aligned across rows.
+        if (
+          isControlFocusable(cell, itemElement) &&
+          !controls.some((control) => contains(cell, control.element))
+        ) {
           stops.push({ element: cell, control: null });
         }
       }

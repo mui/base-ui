@@ -742,6 +742,53 @@ describe('Tree', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'scrolls a control into view in a container that only scrolls horizontally',
+    async () => {
+      await render(
+        <TreeGrid.Root items={FLAT_ITEMS}>
+          <div
+            data-testid="scroller"
+            style={{ width: 200, overflowX: 'auto', overflowY: 'hidden' }}
+          >
+            <TreeGrid.Table aria-label="Files">
+              {(item: Item) => (
+                <TreeGrid.Row
+                  itemId={item.id}
+                  data-testid={`row-${item.id}`}
+                  style={{ width: 600 }}
+                >
+                  <TreeGrid.Cell style={{ display: 'flex', height: 28 }}>
+                    {item.label}
+                    <TreeGrid.CellButton
+                      data-testid={`action-${item.id}`}
+                      style={{ marginInlineStart: 'auto' }}
+                    >
+                      Info
+                    </TreeGrid.CellButton>
+                  </TreeGrid.Cell>
+                </TreeGrid.Row>
+              )}
+            </TreeGrid.Table>
+          </div>
+        </TreeGrid.Root>,
+      );
+
+      const scroller = screen.getByTestId('scroller');
+      const row = screen.getByTestId('row-documents');
+      act(() => row.focus());
+      expect(scroller.scrollLeft).toBe(0);
+      press(row, 'ArrowRight');
+
+      const action = screen.getByTestId('action-documents');
+      expect(action).toHaveFocus();
+      const scrollerRect = scroller.getBoundingClientRect();
+      expect(action.getBoundingClientRect().right).toBeLessThanOrEqual(
+        scrollerRect.left + scroller.clientWidth + 1,
+      );
+    },
+  );
+
   describe('TreeGrid.CellInput', () => {
     it.each([
       ['ltr', 'ArrowRight', 'ArrowLeft'],
@@ -2047,6 +2094,29 @@ describe('TreeGrid columns', () => {
     expect(screen.getByTestId('name-resume')).toHaveFocus();
     press(screen.getByTestId('name-resume'), 'ArrowLeft');
     expect(row).toHaveFocus();
+  });
+
+  it('skips a hidden cell', async () => {
+    await render(
+      <ColumnsTree
+        renderRow={(_item, [name, size, actions]) => [
+          name,
+          <span key="size" style={{ display: 'none' }}>
+            {size}
+          </span>,
+          actions,
+        ]}
+      />,
+    );
+
+    const row = screen.getByTestId('row-resume');
+    act(() => row.focus());
+    press(row, 'ArrowRight');
+    const name = screen.getByTestId('name-resume');
+    expect(name).toHaveFocus();
+    press(name, 'ArrowRight');
+
+    expect(screen.getByTestId('rename-resume')).toHaveFocus();
   });
 
   it('does not stop at the cell of a row with a single cell', async () => {

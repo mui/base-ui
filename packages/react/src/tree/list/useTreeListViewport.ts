@@ -19,8 +19,11 @@ export function useTreeListViewport(listRef: React.RefObject<HTMLElement | null>
     if (!listEl) {
       return undefined;
     }
-    const scrollContainers = findScrollContainers(listEl);
+    const scrollContainers = findScrollContainers(listEl, 'vertical');
     const scrollContainer = scrollContainers[0];
+    // A wrapper can scroll along one axis only, such as `overflow-x: auto` with
+    // `overflow-y: hidden`, so each axis has its own containers.
+    const horizontalScrollContainers = findScrollContainers(listEl, 'horizontal');
 
     // Rows are aligned with the nearest edge of the tree's own scroll container,
     // like Menu, Select and Combobox do.
@@ -37,7 +40,7 @@ export function useTreeListViewport(listRef: React.RefObject<HTMLElement | null>
           'vertical',
         ),
       scrollIntoViewHorizontally: (element) =>
-        scrollIntoContainersView(scrollContainers, element, 'horizontal'),
+        scrollIntoContainersView(horizontalScrollContainers, element, 'horizontal'),
     });
   }, [store, listRef]);
 }
