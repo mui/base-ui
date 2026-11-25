@@ -18,7 +18,6 @@ import { DemoPasswordFieldHero } from './demos/hero';
 - **Form controls must have an accessible name**: It can be created using a `<PasswordField.Label>` or the `Field` component. See the [forms guide](/react/handbook/forms).
 - **Toggles must have an accessible name**: `PasswordField.ToggleIndicator` is hidden from assistive technology so label the toggle with text children or `aria-label`. The text doesn't need to change because `aria-pressed` announces its state.
 - **Set `autoComplete` for new passwords**: The input defaults to `autoComplete="current-password"`. On sign-up or change-password forms, pass `autoComplete="new-password"` so browsers and password managers offer to generate one.
-- **Use one input per root**: The toggle controls a single `<PasswordField.Input>`. Give a "confirm password" input its own `<PasswordField.Root>`.
 
 ## Anatomy
 
