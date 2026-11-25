@@ -1,5 +1,5 @@
 .Table {
-  --columns: minmax(0, 1fr) 4.5rem 4.5rem;
+  --columns: minmax(0, 1fr) 4.5rem 4.5rem 2rem;
 
   box-sizing: border-box;
   width: 24rem;
@@ -163,4 +163,67 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ActionCell {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.RemoveButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  color: oklch(55.6% 0 0deg);
+  background: transparent;
+  border: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  & svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      color: oklch(14.5% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        color: white;
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      outline: 2px solid white;
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.125rem;
+  }
+}
+
+.VisuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

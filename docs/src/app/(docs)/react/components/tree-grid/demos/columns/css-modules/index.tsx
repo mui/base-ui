@@ -1,4 +1,5 @@
 'use client';
+import * as React from 'react';
 import { TreeGrid } from '@base-ui/react/tree-grid';
 import styles from './index.module.css';
 
@@ -33,13 +34,26 @@ const items: File[] = [
 ];
 
 export default function ExampleTreeGridColumns() {
+  const actionsRef = React.useRef<TreeGrid.Root.Actions<File>>(null);
+
   return (
-    <TreeGrid.Root defaultItems={items} defaultExpandedItems={['src', 'components']}>
-      <TreeGrid.Table aria-label="Files" className={styles.Table}>
+    <TreeGrid.Root
+      defaultItems={items}
+      defaultExpandedItems={['src', 'components']}
+      actionsRef={actionsRef}
+    >
+      <TreeGrid.Table
+        aria-label="Files"
+        aria-description="Press Tab to reach the remove buttons"
+        className={styles.Table}
+      >
         <TreeGrid.HeaderRow className={styles.HeaderRow}>
           <TreeGrid.HeaderCell className={styles.HeaderCell}>Name</TreeGrid.HeaderCell>
           <TreeGrid.HeaderCell className={styles.HeaderCell}>Size</TreeGrid.HeaderCell>
           <TreeGrid.HeaderCell className={styles.HeaderCell}>Modified</TreeGrid.HeaderCell>
+          <TreeGrid.HeaderCell className={styles.HeaderCell}>
+            <span className={styles.VisuallyHidden}>Actions</span>
+          </TreeGrid.HeaderCell>
         </TreeGrid.HeaderRow>
         <TreeGrid.Collection>
           {(file: File) => (
@@ -52,6 +66,19 @@ export default function ExampleTreeGridColumns() {
               </TreeGrid.Cell>
               <TreeGrid.Cell className={styles.Cell}>{file.size}</TreeGrid.Cell>
               <TreeGrid.Cell className={styles.Cell}>{file.modified}</TreeGrid.Cell>
+              <TreeGrid.Cell className={styles.ActionCell}>
+                <TreeGrid.CellButton
+                  aria-label={`Remove ${file.label}`}
+                  className={styles.RemoveButton}
+                  onClick={() =>
+                    actionsRef.current?.applyTransaction((transaction) =>
+                      transaction.remove(file.id),
+                    )
+                  }
+                >
+                  <RemoveIcon />
+                </TreeGrid.CellButton>
+              </TreeGrid.Cell>
             </TreeGrid.Row>
           )}
         </TreeGrid.Collection>
@@ -64,6 +91,14 @@ function ChevronIcon() {
   return (
     <svg viewBox="0 0 12 12" aria-hidden="true">
       <path d="M4.5 2 8.5 6l-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function RemoveIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="m4 4 8 8m0-8-8 8" fill="none" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }

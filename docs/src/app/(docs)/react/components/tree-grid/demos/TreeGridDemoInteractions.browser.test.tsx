@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, createRenderer, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 import { describe, expect, it } from 'vitest';
 import HeroCSS from './hero/css-modules';
 import HeroTailwind from './hero/tailwind';
@@ -81,6 +81,7 @@ describe.skipIf(isJSDOM)('Tree grid demo interactions', () => {
       'Name',
       'Size',
       'Modified',
+      'Actions',
     ]);
 
     const row = screen.getByRole('row', { name: 'Button.tsx' });
@@ -93,6 +94,19 @@ describe.skipIf(isJSDOM)('Tree grid demo interactions', () => {
     expect(size).toHaveFocus();
 
     fireEvent.keyDown(size, { key: 'ArrowDown' });
-    expect(screen.getByRole('gridcell', { name: '12 KB' })).toHaveFocus();
+    const nextSize = screen.getByRole('gridcell', { name: '12 KB' });
+    expect(nextSize).toHaveFocus();
+
+    // The remove button is the stop of the last column.
+    fireEvent.keyDown(nextSize, { key: 'ArrowRight' });
+    const modified = within(screen.getByRole('row', { name: 'Dialog.tsx' })).getByRole('gridcell', {
+      name: 'Mar 5',
+    });
+    expect(modified).toHaveFocus();
+    fireEvent.keyDown(modified, { key: 'ArrowRight' });
+    const remove = screen.getByRole('button', { name: 'Remove Dialog.tsx' });
+    expect(remove).toHaveFocus();
+    fireEvent.keyDown(remove, { key: 'ArrowUp' });
+    expect(screen.getByRole('button', { name: 'Remove Button.tsx' })).toHaveFocus();
   });
 });
