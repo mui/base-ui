@@ -34,6 +34,7 @@ export const TreeGridCellLink = fastComponentRef(function TreeGridCellLink(
   const store = useTreeRootContext();
   const itemId = useTreeItemContext();
   const disabled = store.useState('isItemDisabled', itemId);
+  const focusable = store.useState('canItemBeFocused', itemId);
   const control = useTreeGridCellControl({
     part: 'CellLink',
     treePart: 'LinkItem',
@@ -56,14 +57,21 @@ export const TreeGridCellLink = fastComponentRef(function TreeGridCellLink(
         tabIndex: tabIndex ?? control.tabIndex,
       },
       elementProps,
-      disabled ? getDisabledLinkProps : EMPTY_OBJECT,
+      getDisabledLinkProps(disabled, focusable),
     ],
   });
 });
 
+function getDisabledLinkProps(disabled: boolean, focusable: boolean) {
+  if (!disabled) {
+    return EMPTY_OBJECT;
+  }
+  return focusable ? omitDisabledLinkHandlers : omitUnfocusableLinkHandlers;
+}
+
 // Like a disabled `TreeGrid.CellButton`, the link stays focusable but ignores the
 // interactions that would activate it.
-function getDisabledLinkProps(props: React.ComponentPropsWithRef<'a'>) {
+function omitDisabledLinkHandlers(props: React.ComponentPropsWithRef<'a'>) {
   const { onClick, onAuxClick, onMouseDown, onPointerDown, onKeyDown, onKeyUp, ...otherProps } =
     props;
   return {
@@ -72,6 +80,12 @@ function getDisabledLinkProps(props: React.ComponentPropsWithRef<'a'>) {
     // Middle-click opens the `href` through `auxclick`, not `click`.
     onAuxClick: preventDefault,
   };
+}
+
+// The tree can't track focus inside an item that can't be focused, so a press
+// must not focus the link either.
+function omitUnfocusableLinkHandlers(props: React.ComponentPropsWithRef<'a'>) {
+  return { ...omitDisabledLinkHandlers(props), onMouseDown: preventDefault };
 }
 
 function preventDefault(event: React.MouseEvent) {

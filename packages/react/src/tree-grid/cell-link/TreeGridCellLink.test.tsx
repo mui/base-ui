@@ -13,7 +13,13 @@ function Example(props: {
   items?: TreeGrid.DefaultItem[] | undefined;
   current?: string | undefined;
   onNavigate?: ((itemId: TreeGrid.ItemId) => void) | undefined;
-  root?: { selectionMode?: 'none' | 'single' | undefined; disabled?: boolean } | undefined;
+  root?:
+    | {
+        selectionMode?: 'none' | 'single' | undefined;
+        disabled?: boolean;
+        itemFocusableWhenDisabled?: boolean;
+      }
+    | undefined;
 }) {
   const { items: treeItems = items, current, onNavigate, root } = props;
   return (
@@ -120,6 +126,29 @@ describe('<TreeGrid.CellLink />', () => {
     expect(auxClick).toBe(false);
     expect(onNavigate).not.toHaveBeenCalled();
   });
+
+  it.each([
+    { name: 'stays focusable', itemFocusableWhenDisabled: true, focused: true },
+    { name: 'cannot be focused', itemFocusableWhenDisabled: false, focused: false },
+  ])(
+    'lets a press focus the link of a disabled item only when the item $name',
+    async ({ itemFocusableWhenDisabled, focused }) => {
+      const { user } = await render(
+        <Example
+          items={[
+            { id: 'docs', label: 'Docs' },
+            { id: 'about', label: 'About', disabled: true },
+          ]}
+          root={{ itemFocusableWhenDisabled }}
+        />,
+      );
+      const link = screen.getByRole('link', { name: 'About' });
+      expect(link).not.toHaveFocus();
+
+      await user.click(link);
+      expect(link.ownerDocument.activeElement === link).toBe(focused);
+    },
+  );
 
   it('keeps Enter for expansion and selection', async () => {
     const onNavigate = vi.fn();
