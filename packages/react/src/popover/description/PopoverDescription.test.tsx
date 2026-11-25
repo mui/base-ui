@@ -39,4 +39,43 @@ describe('<Popover.Description />', () => {
     const id = document.querySelector('p')?.id;
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', id);
   });
+
+  describe('prop: id', () => {
+    it('describes the popup element with a custom id', async () => {
+      await render(
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Description id="custom-description">Description</Popover.Description>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(screen.getByText('Description')).toHaveAttribute('id', 'custom-description');
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'custom-description');
+    });
+
+    it('keeps the generated id when undefined', async () => {
+      await render(
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Description id={undefined}>Description</Popover.Description>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const description = screen.getByText('Description');
+      expect(description.id).not.toBe('');
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', description.id);
+    });
+  });
 });
