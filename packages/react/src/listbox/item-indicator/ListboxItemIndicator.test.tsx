@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import { Listbox } from '@base-ui/react/listbox';
-import { screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Listbox.ItemIndicator />', () => {
@@ -41,6 +41,15 @@ describe('<Listbox.ItemIndicator />', () => {
 
     expect(screen.getByTestId('indicator-a')).toHaveAttribute('data-selected');
     expect(screen.queryByTestId('indicator-b')).toBe(null);
+  });
+
+  it('moves to the item that becomes selected', async () => {
+    await render(<TestListbox />);
+
+    fireEvent.click(screen.getByRole('option', { name: 'b' }));
+
+    expect(screen.queryByTestId('indicator-a')).toBe(null);
+    expect(screen.getByTestId('indicator-b')).toHaveAttribute('data-selected');
   });
 
   it('prop: keepMounted keeps the indicator of unselected items in the DOM', async () => {

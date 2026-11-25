@@ -19,8 +19,13 @@ function setup(options: { multiple: boolean | 'opt-in'; value?: string[]; disabl
     indexed: false,
   };
 
+  let rejecting = false;
   const commit = vi.fn((nextValue: string[]) => {
+    if (rejecting) {
+      return false;
+    }
     value = nextValue;
+    return undefined;
   });
 
   const selection = new ListSelection<string>({
@@ -31,7 +36,17 @@ function setup(options: { multiple: boolean | 'opt-in'; value?: string[]; disabl
     commit,
   });
 
-  return { selection, commit, getValue: () => value };
+  return {
+    selection,
+    commit,
+    getValue: () => value,
+    /** Makes the list reject the changes made in `change`, like a canceled `onValueChange`. */
+    reject(change: () => void) {
+      rejecting = true;
+      change();
+      rejecting = false;
+    },
+  };
 }
 
 describe('ListSelection', () => {
@@ -212,6 +227,33 @@ describe('ListSelection', () => {
       });
       selection.moveTo(3, EVENT);
       expect(getValue()).toEqual(['d', 'b']);
+    });
+
+    it.each([
+      {
+        name: 'moveTo',
+        multiple: 'opt-in' as const,
+        run: (selection: ListSelection<string>) => selection.moveTo(3, EVENT),
+      },
+      {
+        name: 'extendTo',
+        multiple: true,
+        run: (selection: ListSelection<string>) => selection.extendTo(3, 2, EVENT),
+      },
+      {
+        name: 'selectRange',
+        multiple: true,
+        run: (selection: ListSelection<string>) => selection.selectRange(3, 4, 4, EVENT),
+      },
+    ])('$name leaves the anchor where it was when the change is rejected', ({ multiple, run }) => {
+      const { selection, getValue, reject } = setup({ multiple });
+      selection.press(0, {}, EVENT);
+
+      reject(() => run(selection));
+      expect(getValue()).toEqual(['a']);
+
+      selection.press(1, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['a', 'b']);
     });
 
     it('selectRange adds to the selection and moves the anchor', () => {

@@ -31,6 +31,26 @@ describe('<Listbox.Label />', () => {
     expect(label).toHaveTextContent('Choose one');
   });
 
+  it('stops labelling the list when it unmounts', async () => {
+    function App(props: { labelled: boolean }) {
+      return (
+        <Listbox.Root>
+          {props.labelled && <Listbox.Label>Choose one</Listbox.Label>}
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>
+      );
+    }
+
+    const { setProps } = await render(<App labelled />);
+    expect(screen.getByRole('listbox')).toHaveAttribute('aria-labelledby');
+
+    await setProps({ labelled: false });
+
+    expect(screen.getByRole('listbox')).not.toHaveAttribute('aria-labelledby');
+  });
+
   it('keeps the label linked when the list has its own id', async () => {
     await render(
       <Listbox.Root>

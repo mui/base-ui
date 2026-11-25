@@ -1,4 +1,4 @@
-import { expect, vi, describe, it, beforeEach } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -14,10 +14,6 @@ vi.mock('@base-ui/utils/platform', async () => {
 });
 
 describe('<Listbox.Root />', () => {
-  beforeEach(() => {
-    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-  });
-
   const { render } = createRenderer();
 
   describe('prop: defaultValue', () => {
@@ -187,6 +183,36 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('prop: onItemHighlighted', () => {
+    it('is called when the highlighted position gets another item', async () => {
+      const handleItemHighlighted = vi.fn();
+      const before = ['a', 'b'];
+      const after = ['x', 'b'];
+      function App(props: { names: string[] }) {
+        return (
+          <Listbox.Root items={props.names} onItemHighlighted={handleItemHighlighted}>
+            <Listbox.List>
+              {props.names.map((name, index) => (
+                <Listbox.Item key={index} value={name}>
+                  {name}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App names={before} />);
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+      expect(handleItemHighlighted.mock.lastCall?.[0]).toBe('a');
+      handleItemHighlighted.mockClear();
+
+      await setProps({ names: after });
+
+      expect(handleItemHighlighted.mock.calls.map((call) => [call[0], call[1].index])).toEqual([
+        ['x', 0],
+      ]);
+    });
+
     function renderList(onItemHighlighted: Listbox.Root.Props<string>['onItemHighlighted']) {
       return render(
         <Listbox.Root onItemHighlighted={onItemHighlighted}>
@@ -341,7 +367,6 @@ describe('<Listbox.Root />', () => {
       expect(itemA).toHaveAttribute('data-highlighted');
 
       await setProps({ items: ['b', 'a', 'c'] });
-      await flushMicrotasks();
 
       expect(itemA).toHaveFocus();
       expect(itemA).toHaveAttribute('data-highlighted');
@@ -1079,6 +1104,20 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
     });
 
+    it('does not set aria-multiselectable or aria-disabled on an enabled single-selection list', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      expect(list).not.toHaveAttribute('aria-multiselectable');
+      expect(list).not.toHaveAttribute('aria-disabled');
+    });
+
     it('should set aria-selected on selected items', async () => {
       await render(
         <Listbox.Root defaultValue="a">
@@ -1575,7 +1614,7 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
     });
 
-    it('Shift+Arrow grows and shrinks the range from where Shift was pressed', async () => {
+    it('Shift+Arrow grows and shrinks a range from the focused item', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -1592,8 +1631,6 @@ describe('<Listbox.Root />', () => {
       const option = (name: string) => screen.getByRole('option', { name });
       await act(async () => option('a').focus());
 
-      fireEvent.keyDown(option('a'), { key: 'Shift', shiftKey: true });
-      await flushMicrotasks();
       fireEvent.keyDown(option('a'), { key: 'ArrowDown', shiftKey: true });
       await flushMicrotasks();
       fireEvent.keyDown(option('b'), { key: 'ArrowDown', shiftKey: true });
@@ -1612,7 +1649,7 @@ describe('<Listbox.Root />', () => {
       ]);
     });
 
-    it('Shift+Arrow starts a new range from where Shift is pressed again', async () => {
+    it('Shift+Arrow starts a new range after an arrow key moved focus without Shift', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -1629,13 +1666,9 @@ describe('<Listbox.Root />', () => {
       const option = (name: string) => screen.getByRole('option', { name });
       await act(async () => option('a').focus());
 
-      fireEvent.keyDown(option('a'), { key: 'Shift', shiftKey: true });
-      await flushMicrotasks();
       fireEvent.keyDown(option('a'), { key: 'ArrowDown', shiftKey: true });
       await flushMicrotasks();
       fireEvent.keyDown(option('b'), { key: 'ArrowDown' });
-      await flushMicrotasks();
-      fireEvent.keyDown(option('c'), { key: 'Shift', shiftKey: true });
       await flushMicrotasks();
       fireEvent.keyDown(option('c'), { key: 'ArrowDown', shiftKey: true });
       await flushMicrotasks();
@@ -1646,32 +1679,7 @@ describe('<Listbox.Root />', () => {
       ]);
     });
 
-    it('Shift+Arrow continues a range made with Shift+Click on the focused item while Shift stays held', async () => {
-      const handleValueChange = vi.fn();
-
-      await render(
-        <Listbox.Root multiple onValueChange={handleValueChange}>
-          <Listbox.List>
-            <Listbox.Item value="a">a</Listbox.Item>
-            <Listbox.Item value="b">b</Listbox.Item>
-            <Listbox.Item value="c">c</Listbox.Item>
-            <Listbox.Item value="d">d</Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      const option = (name: string) => screen.getByRole('option', { name });
-      fireEvent.click(option('a'));
-      await act(async () => option('c').focus());
-      fireEvent.keyDown(option('c'), { key: 'Shift', shiftKey: true });
-      fireEvent.click(option('c'), { shiftKey: true });
-      fireEvent.keyDown(option('c'), { key: 'ArrowDown', shiftKey: true });
-      await flushMicrotasks();
-
-      expect(handleValueChange.mock.lastCall?.[0]).toEqual(['a', 'b', 'c', 'd']);
-    });
-
-    it('Shift+Arrow starts from the item the selection moved to by typing while Shift stays held, in opt-in mode', async () => {
+    it('Shift+Arrow starts from the item the selection moved to by typing, in opt-in mode', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -1688,7 +1696,6 @@ describe('<Listbox.Root />', () => {
       const option = (name: string) => screen.getByRole('option', { name });
       fireEvent.click(option('Apple'));
       await act(async () => option('Apple').focus());
-      fireEvent.keyDown(option('Apple'), { key: 'Shift', shiftKey: true });
       fireEvent.click(option('Banana'), { shiftKey: true });
       await act(async () => option('Banana').focus());
       // Typing moves the selection to Cherry alone.
@@ -1723,8 +1730,6 @@ describe('<Listbox.Root />', () => {
       await flushMicrotasks();
       fireEvent.keyDown(option('c'), { key: 'ArrowDown', shiftKey: true });
       await flushMicrotasks();
-      fireEvent.keyDown(option('d'), { key: 'Shift', shiftKey: true });
-      await flushMicrotasks();
       fireEvent.keyDown(option('d'), { key: 'ArrowUp', shiftKey: true });
       await flushMicrotasks();
 
@@ -1736,7 +1741,7 @@ describe('<Listbox.Root />', () => {
       ]);
     });
 
-    it('Shift+Arrow starts a new range from the focused item after typing moved focus with Shift held', async () => {
+    it('Shift+Arrow starts a new range from the focused item after typing moved focus', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -1753,7 +1758,6 @@ describe('<Listbox.Root />', () => {
       const option = (name: string) => screen.getByRole('option', { name });
       await act(async () => option('Apple').focus());
 
-      fireEvent.keyDown(option('Apple'), { key: 'Shift', shiftKey: true });
       fireEvent.keyDown(option('Apple'), { key: 'B', shiftKey: true });
       await flushMicrotasks();
       expect(option('Banana')).toHaveFocus();
@@ -1762,6 +1766,33 @@ describe('<Listbox.Root />', () => {
       await flushMicrotasks();
 
       expect(handleValueChange.mock.lastCall?.[0]).toEqual(['Banana', 'Fig']);
+    });
+
+    it('moves focus without the selection when the change is canceled during opt-in navigation', async () => {
+      const handleValueChange = vi.fn(
+        (_value: string[], eventDetails: Listbox.Root.ChangeEventDetails) => {
+          eventDetails.cancel();
+        },
+      );
+
+      await render(
+        <Listbox.Root multiple="opt-in" defaultValue={['a']} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const option = (name: string) => screen.getByRole('option', { name });
+      await act(async () => option('a').focus());
+      fireEvent.keyDown(option('a'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(option('b')).toHaveFocus();
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['b']]);
+      expect(option('a')).toHaveAttribute('aria-selected', 'true');
+      expect(option('b')).toHaveAttribute('aria-selected', 'false');
     });
 
     it('Shift+Click extends from the last applied press after a canceled one', async () => {
@@ -1812,7 +1843,6 @@ describe('<Listbox.Root />', () => {
 
       const option = (name: string) => screen.getByRole('option', { name });
       await act(async () => option('a').focus());
-      fireEvent.keyDown(option('a'), { key: 'Shift', shiftKey: true });
       fireEvent.keyDown(option('a'), { key: 'ArrowDown', shiftKey: true });
       await flushMicrotasks();
 
@@ -1820,7 +1850,31 @@ describe('<Listbox.Root />', () => {
       expect(Object.isFrozen(handleValueChange.mock.lastCall?.[0])).toBe(false);
     });
 
-    it('toggles an item once while Space is held', async () => {
+    it.each([
+      { name: 'Space', key: ' ' },
+      { name: 'Enter', key: 'Enter' },
+    ])('toggles an item once while $name is held', async ({ key }) => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root multiple onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const itemA = screen.getByRole('option', { name: 'a' });
+      await act(async () => itemA.focus());
+      fireEvent.keyDown(itemA, { key });
+      fireEvent.keyDown(itemA, { key, repeat: true });
+      fireEvent.keyDown(itemA, { key, repeat: true });
+      fireEvent.keyUp(itemA, { key });
+
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['a']]);
+    });
+
+    it('presses an item with a click after a held Space is released', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -1835,10 +1889,12 @@ describe('<Listbox.Root />', () => {
       await act(async () => itemA.focus());
       fireEvent.keyDown(itemA, { key: ' ' });
       fireEvent.keyDown(itemA, { key: ' ', repeat: true });
-      fireEvent.keyDown(itemA, { key: ' ', repeat: true });
       fireEvent.keyUp(itemA, { key: ' ' });
-
       expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['a']]);
+
+      fireEvent.click(itemA, { detail: 1 });
+
+      expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['a'], []]);
     });
 
     it('Shift+ArrowDown focuses disabled options without selecting them', async () => {
@@ -2029,36 +2085,6 @@ describe('<Listbox.Root />', () => {
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
         expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
-      });
-
-      it('Ctrl+A selects all in RTL', async () => {
-        const handleValueChange = vi.fn();
-
-        await render(
-          <DirectionProvider direction="rtl">
-            <Listbox.Root
-              multiple
-              orientation="horizontal"
-              defaultValue={[]}
-              onValueChange={handleValueChange}
-            >
-              <Listbox.List>
-                <Listbox.Item value="a">a</Listbox.Item>
-                <Listbox.Item value="b">b</Listbox.Item>
-                <Listbox.Item value="c">c</Listbox.Item>
-              </Listbox.List>
-            </Listbox.Root>
-          </DirectionProvider>,
-        );
-
-        const list = screen.getByRole('listbox');
-        await act(async () => list.focus());
-        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'a', ctrlKey: true });
-
-        await flushMicrotasks();
-
-        expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
       });
     });
   });
@@ -2575,6 +2601,23 @@ describe('<Listbox.Root />', () => {
         expect(screen.getByRole('option', { name: 'Apple' })).toHaveFocus();
       });
 
+      it('selects with Space and starts a new search once the search has ended', async () => {
+        const handleValueChange = vi.fn();
+        await renderFruits({ onValueChange: handleValueChange });
+        await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+
+        await type('b');
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveFocus();
+
+        clock.tick(500);
+        await type(' ');
+        fireEvent.keyUp(document.activeElement as HTMLElement, { key: ' ' });
+        expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual(['banana']);
+
+        await type('c');
+        expect(screen.getByRole('option', { name: 'Cherry' })).toHaveFocus();
+      });
+
       it('cycles through matches when the same letter is typed again', async () => {
         await renderFruits();
         await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
@@ -2782,6 +2825,18 @@ describe('<Listbox.Root />', () => {
 
       expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
     });
+
+    it('scrolls to the tab stop when the list receives focus after a press has ended', async () => {
+      await renderList();
+      const list = screen.getByRole('listbox');
+      const focusSpy = vi.spyOn(screen.getByRole('option', { name: 'a' }), 'focus');
+
+      fireEvent.pointerDown(list);
+      fireEvent.pointerUp(list);
+      await act(async () => list.focus());
+
+      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+    });
   });
 
   describe.skipIf(isJSDOM)('scroll position', () => {
@@ -2864,7 +2919,6 @@ describe('<Listbox.Root />', () => {
         expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
 
         await setProps({ names: ['a', 'c', 'd', 'e'] });
-        await flushMicrotasks();
 
         const selectedItem = screen.getByRole('option', { name: selected });
         expect(selectedItem).toHaveFocus();
@@ -3078,7 +3132,6 @@ describe('<Listbox.Root />', () => {
       await render(<VirtualList multiple onValueChange={handleValueChange} />);
 
       await act(async () => screen.getByRole('option', { name: 'Item 4' }).focus());
-      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'Shift', shiftKey: true });
       fireEvent.keyDown(document.activeElement as HTMLElement, {
         key: 'ArrowDown',
         shiftKey: true,
@@ -3457,6 +3510,27 @@ describe('<Listbox.Root />', () => {
       });
     });
 
+    it('puts the tab stop on the selected item that comes first in the list', async () => {
+      const names = ['a', 'b', 'c', 'd'];
+      await render(
+        <Listbox.Root items={names} multiple defaultValue={['d', 'b']}>
+          <Listbox.List>
+            {names.map((name) => (
+              <Listbox.Item key={name} value={name}>
+                {name}
+              </Listbox.Item>
+            ))}
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const tabStops = screen
+        .getAllByRole('option')
+        .filter((option) => option.tabIndex === 0)
+        .map((option) => option.textContent);
+      expect(tabStops).toEqual(['b']);
+    });
+
     describe('when the items change', () => {
       it('moves the tab stop to the selected item when the items load', async () => {
         function LoadingList(props: { names: string[] | undefined }) {
@@ -3508,7 +3582,6 @@ describe('<Listbox.Root />', () => {
         expect(screen.getByRole('option', { name: 'Item 99' })).toHaveFocus();
 
         await setProps({ names: ALL_ITEMS.slice(0, 50) });
-        await flushMicrotasks();
 
         expect(screen.getByRole('option', { name: 'Item 0' })).toHaveFocus();
       });
@@ -3564,7 +3637,6 @@ describe('<Listbox.Root />', () => {
         expect(screen.getByRole('listbox')).toHaveFocus();
 
         await setProps({ names: ALL_ITEMS.filter((name) => name !== 'Item 2'), start: 50 });
-        await flushMicrotasks();
 
         expect(screen.getByRole('option', { name: 'Item 0' })).toHaveFocus();
       });

@@ -322,6 +322,23 @@ describe('ListFocus', () => {
       expect(item).toHaveFocus();
     });
 
+    it('gives focus to the item the list waits for when it rendered while focus was elsewhere', () => {
+      const { list, focus, mountItem, setValues } = setup({
+        values: ['a', 'b', 'c', 'd', 'e'],
+        rendered: [0],
+      });
+      const outside = createFocusable(document.body);
+      focus.moveTo(3, EVENT);
+      outside.focus();
+      const item = mountItem(3);
+      list.focus();
+      expect(list).toHaveFocus();
+
+      setValues(['a', 'b', 'c', 'd', 'e']);
+
+      expect(item).toHaveFocus();
+    });
+
     it('moves focus to the default item when the item the list holds focus for is removed', () => {
       const { element, state, setValues, unmountItem, focus } = setup({
         values: ['a', 'b', 'c'],
