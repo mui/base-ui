@@ -68,10 +68,10 @@ export const TreeGridCellButton = fastComponentRef(function TreeGridCellButton(
   // A rendered component such as `<Menu.Trigger>` receives `disabled` and sets the
   // native attribute, which would make a focusable disabled button unreachable.
   // React leaves the attribute alone while that prop is unchanged, so keep it in
-  // sync in both directions.
+  // sync in both directions. An enabled button leaves it to the rendered element.
   useIsoLayoutEffect(() => {
     const element = elementRef.current;
-    if (render && element != null && 'disabled' in element) {
+    if (disabled && render && element != null && 'disabled' in element) {
       element.disabled = disabled && !focusableWhenDisabled;
     }
   }, [render, disabled, focusableWhenDisabled]);

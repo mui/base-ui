@@ -504,6 +504,18 @@ describe('Tree', () => {
     expect(trigger.disabled).toBe(false);
   });
 
+  it('keeps the native disabled state of an enabled rendered button', async () => {
+    await render(
+      <SingleRowTree>
+        <TreeGrid.CellButton render={<button type="button" disabled />} data-testid="action">
+          Action
+        </TreeGrid.CellButton>
+      </SingleRowTree>,
+    );
+
+    expect(screen.getByTestId<HTMLButtonElement>('action').disabled).toBe(true);
+  });
+
   it.each([
     { source: 'tree', disabled: true, items: FLAT_ITEMS },
     {
@@ -984,6 +996,21 @@ describe('Tree', () => {
 
       expect(screen.getByTestId('state').textContent).toBe(String(expected));
       expect(onClick).toHaveBeenCalledTimes(expected ? 1 : 0);
+    });
+
+    it.each([
+      { name: 'disabled', disabled: true, valid: true },
+      { name: 'enabled', disabled: false, valid: false },
+    ])('validates a required checkbox input only while $name', async ({ disabled, valid }) => {
+      await render(
+        <form data-testid="form">
+          <SingleRowTree>
+            <TreeGrid.CellInput type="checkbox" required disabled={disabled} aria-label="Done" />
+          </SingleRowTree>
+        </form>,
+      );
+
+      expect(screen.getByTestId<HTMLFormElement>('form').checkValidity()).toBe(valid);
     });
 
     it('skips a disabled input that is not focusable', async () => {

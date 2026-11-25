@@ -57,6 +57,7 @@ export const TreeGridCellInput = fastComponentRef(function TreeGridCellInput(
     onClick,
     readOnly: readOnlyProp,
     render,
+    required,
     style,
     tabIndex,
     ...elementProps
@@ -93,6 +94,9 @@ export const TreeGridCellInput = fastComponentRef(function TreeGridCellInput(
         'aria-disabled': disabledFocusable || undefined,
         // Blocks the edits that bypass the keyboard, such as pasting or dropping text.
         readOnly: disabledFocusable || readOnlyProp,
+        // `readOnly` doesn't bar a checkbox, radio, or file input from validation, so a
+        // required one would block its form like a natively disabled input doesn't.
+        required: disabledFocusable ? false : required,
         // A checkbox still fires `onChange` when its click is canceled, so the
         // handlers are skipped too, like a natively disabled input would.
         onClick(event: BaseUIEvent<React.MouseEvent<HTMLInputElement>>) {
