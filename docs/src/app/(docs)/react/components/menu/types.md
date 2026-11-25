@@ -91,7 +91,12 @@ type MenuRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -386,6 +391,7 @@ Renders a `<div>` element.
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                   |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to the specified side.   |
 | data-instant       | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present when position transitions should be skipped.                 |
+| data-nested        | -                                                                          | Present when the menu is a submenu.                                  |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 
 **Positioner CSS Variables:**
@@ -446,6 +452,7 @@ Renders a `<div>` element.
 | data-closed         | -                                                                          | Present when the menu is closed.                                     |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.       |
 | data-instant        | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present if animations should be instant.                             |
+| data-nested         | -                                                                          | Present when the menu is a submenu.                                  |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 | data-starting-style | -                                                                          | Present when the menu begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the menu is animating out.                              |
@@ -789,7 +796,12 @@ type MenuSubmenuRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -850,14 +862,20 @@ Renders a `<div>` element.
 
 | Prop          | Type                                                                                          | Default | Description                                                                                                                                                                                   |
 | :------------ | :-------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `any`                                                                                         | -       | The uncontrolled value of the radio item that should be initially selected. To render a controlled radio group, use the `value` prop instead.                                                 |
-| value         | `any`                                                                                         | -       | The controlled value of the radio item that should be currently selected. To render an uncontrolled radio group, use the `defaultValue` prop instead.                                         |
-| onValueChange | `((value: any, eventDetails: Menu.RadioGroup.ChangeEventDetails) => void)`                    | -       | Function called when the selected value changes.                                                                                                                                              |
+| defaultValue  | `Value`                                                                                       | -       | The uncontrolled value of the radio item that should be initially selected. To render a controlled radio group, use the `value` prop instead.                                                 |
+| value         | `Value`                                                                                       | -       | The controlled value of the radio item that should be currently selected. To render an uncontrolled radio group, use the `defaultValue` prop instead.                                         |
+| onValueChange | `((value: Value, eventDetails: Menu.RadioGroup.ChangeEventDetails) => void)`                  | -       | Function called when the selected value changes.                                                                                                                                              |
 | disabled      | `boolean`                                                                                     | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | children      | `React.ReactNode`                                                                             | -       | The content of the component.                                                                                                                                                                 |
 | className     | `string \| ((state: Menu.RadioGroup.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style         | `React.CSSProperties \| ((state: Menu.RadioGroup.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render        | `ReactElement \| ((props: HTMLProps, state: Menu.RadioGroup.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**RadioGroup Data Attributes:**
+
+| Attribute     | Type | Description                                    |
+| :------------ | :--- | :--------------------------------------------- |
+| data-disabled | -    | Present when the menu radio group is disabled. |
 
 ### RadioGroup.Props
 
@@ -917,7 +935,12 @@ type MenuRadioGroupChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -989,6 +1012,7 @@ Renders a `<span>` element.
 | :------------------ | :--- | :---------------------------------------------------- |
 | data-checked        | -    | Present when the menu radio item is selected.         |
 | data-unchecked      | -    | Present when the menu radio item is not selected.     |
+| data-highlighted    | -    | Present when the menu radio item is highlighted.      |
 | data-disabled       | -    | Present when the menu radio item is disabled.         |
 | data-starting-style | -    | Present when the radio indicator begins animating in. |
 | data-ending-style   | -    | Present when the radio indicator is animating out.    |
@@ -1104,7 +1128,12 @@ type MenuCheckboxItemChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -1131,6 +1160,7 @@ Renders a `<span>` element.
 | :------------------ | :--- | :-------------------------------------------------- |
 | data-checked        | -    | Present when the menu checkbox item is checked.     |
 | data-unchecked      | -    | Present when the menu checkbox item is not checked. |
+| data-highlighted    | -    | Present when the menu checkbox item is highlighted. |
 | data-disabled       | -    | Present when the menu checkbox item is disabled.    |
 | data-starting-style | -    | Present when the indicator begins animating in.     |
 | data-ending-style   | -    | Present when the indicator is animating out.        |
@@ -1217,7 +1247,12 @@ type MenuFilterProviderChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -1379,6 +1414,8 @@ declare namespace MenuCheckboxItemIndicatorDataAttributes {
   const checked: 'data-checked';
   /** Present when the menu checkbox item is not checked. */
   const unchecked: 'data-unchecked';
+  /** Present when the menu checkbox item is highlighted. */
+  const highlighted: 'data-highlighted';
   /** Present when the menu checkbox item is disabled. */
   const disabled: 'data-disabled';
   /** Present when the indicator begins animating in. */
@@ -1483,6 +1520,8 @@ declare namespace MenuPopupDataAttributes {
   const open: 'data-open';
   /** Present when the menu is closed. */
   const closed: 'data-closed';
+  /** Present when the menu is a submenu. */
+  const nested: 'data-nested';
   /** Present when the menu begins animating in. */
   const startingStyle: 'data-starting-style';
   /** Present when the menu is animating out. */
@@ -1561,6 +1600,8 @@ declare namespace MenuPositionerDataAttributes {
   const open: 'data-open';
   /** Present when the menu popup is closed. */
   const closed: 'data-closed';
+  /** Present when the menu is a submenu. */
+  const nested: 'data-nested';
   /** Present when the anchor is hidden. */
   const anchorHidden: 'data-anchor-hidden';
   /**
@@ -1578,6 +1619,17 @@ declare namespace MenuPositionerDataAttributes {
    * @type 'click' | 'dismiss' | 'group' | 'trigger-change'
    */
   const instant: 'data-instant';
+}
+```
+
+### MenuRadioGroupDataAttributes
+
+Data attributes of [RadioGroup](#radiogroup).
+
+```typescript
+declare namespace MenuRadioGroupDataAttributes {
+  /** Present when the menu radio group is disabled. */
+  const disabled: 'data-disabled';
 }
 ```
 
@@ -1608,6 +1660,8 @@ declare namespace MenuRadioItemIndicatorDataAttributes {
   const checked: 'data-checked';
   /** Present when the menu radio item is not selected. */
   const unchecked: 'data-unchecked';
+  /** Present when the menu radio item is highlighted. */
+  const highlighted: 'data-highlighted';
   /** Present when the menu radio item is disabled. */
   const disabled: 'data-disabled';
   /** Present when the radio indicator begins animating in. */
@@ -1776,7 +1830,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.Clear`: `Menu.Clear`, `Menu.Clear.State`, `Menu.Clear.Props`
 - `Menu.Empty`: `Menu.Empty`, `Menu.Empty.State`, `Menu.Empty.Props`
 - `Menu.useFilter`
-- `Default`: `MenuFilter`, `MenuFilterOptions`, `MenuArrowDataAttributes`, `MenuBackdropDataAttributes`, `MenuCheckboxItemDataAttributes`, `MenuCheckboxItemIndicatorDataAttributes`, `MenuItemDataAttributes`, `MenuLinkItemDataAttributes`, `MenuPopupDataAttributes`, `MenuPositionerCssVariables`, `MenuPositionerDataAttributes`, `MenuRadioItemDataAttributes`, `MenuRadioItemIndicatorDataAttributes`, `MenuTriggerDataAttributes`, `MenuViewportCssVariables`, `MenuViewportDataAttributes`, `MenuSeparatorDataAttributes`, `MenuSubmenuTriggerDataAttributes`, `MenuInputDataAttributes`, `MenuClearDataAttributes`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderState`, `MenuFilterProviderProps`, `MenuFilterProviderChangeEventReason`, `MenuFilterProviderChangeEventDetails`, `MenuInputState`, `MenuInputProps`, `MenuListState`, `MenuListProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`
+- `Default`: `MenuFilter`, `MenuFilterOptions`, `MenuArrowDataAttributes`, `MenuBackdropDataAttributes`, `MenuCheckboxItemDataAttributes`, `MenuCheckboxItemIndicatorDataAttributes`, `MenuItemDataAttributes`, `MenuLinkItemDataAttributes`, `MenuPopupDataAttributes`, `MenuPositionerCssVariables`, `MenuPositionerDataAttributes`, `MenuRadioGroupDataAttributes`, `MenuRadioItemDataAttributes`, `MenuRadioItemIndicatorDataAttributes`, `MenuTriggerDataAttributes`, `MenuViewportCssVariables`, `MenuViewportDataAttributes`, `MenuSeparatorDataAttributes`, `MenuSubmenuTriggerDataAttributes`, `MenuInputDataAttributes`, `MenuClearDataAttributes`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderState`, `MenuFilterProviderProps`, `MenuFilterProviderChangeEventReason`, `MenuFilterProviderChangeEventDetails`, `MenuInputState`, `MenuInputProps`, `MenuListState`, `MenuListProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`
 
 ## Canonical Types
 
@@ -1844,3 +1898,21 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Clear.Props`: `MenuClearProps`
 - `Menu.Empty.State`: `MenuEmptyState`
 - `Menu.Empty.Props`: `MenuEmptyProps`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLAnchorElement`: <https://developer.mozilla.org/docs/Web/API/HTMLAnchorElement>
+- `HTMLDivElement`: <https://developer.mozilla.org/docs/Web/API/HTMLDivElement>
+- `HTMLElement`: <https://developer.mozilla.org/docs/Web/API/HTMLElement>
+- `InputEvent`: <https://developer.mozilla.org/docs/Web/API/InputEvent>
+- `Intl.LocalesArgument`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `ShadowRoot`: <https://developer.mozilla.org/docs/Web/API/ShadowRoot>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

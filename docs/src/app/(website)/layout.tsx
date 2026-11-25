@@ -7,13 +7,17 @@ import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
 import { LogoLink } from 'docs/src/components/LogoLink';
+import { PlatformScript } from 'docs/src/components/PlatformScript';
 import { SearchControls } from 'docs/src/components/SearchControls';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    // Use suppressHydrationWarning to avoid https://github.com/react/react/issues/24430
-    <html lang="en">
+    // `suppressHydrationWarning`:
+    // - on <html>, because <PlatformScript> sets `data-platform` before React hydrates.
+    // - on <body>, to avoid https://github.com/react/react/issues/24430
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <PlatformScript />
         <link
           rel="preload"
           href="/fonts/die-grotesk-a-regular.woff2"

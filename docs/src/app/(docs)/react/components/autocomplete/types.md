@@ -113,7 +113,12 @@ type AutocompleteRootChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
 };
 ```
@@ -161,7 +166,12 @@ type AutocompleteRootOpenChangeEventDetails = (
   isCanceled: boolean;
   /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
+  /**
+   * The element that triggered the event, if applicable.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
+   */
   trigger: Element | undefined;
   /** Prevents the popup from unmounting until the `unmount` action is called. */
   preventUnmountOnClose: () => void;
@@ -1414,3 +1424,21 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Autocomplete.Empty.Props`: `AutocompleteEmptyProps`
 - `Autocomplete.Separator.Props`: `AutocompleteSeparatorProps`
 - `Autocomplete.Separator.State`: `AutocompleteSeparatorState`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
+- `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
+- `FocusEvent`: <https://developer.mozilla.org/docs/Web/API/FocusEvent>
+- `HTMLDivElement`: <https://developer.mozilla.org/docs/Web/API/HTMLDivElement>
+- `HTMLElement`: <https://developer.mozilla.org/docs/Web/API/HTMLElement>
+- `HTMLInputElement`: <https://developer.mozilla.org/docs/Web/API/HTMLInputElement>
+- `InputEvent`: <https://developer.mozilla.org/docs/Web/API/InputEvent>
+- `Intl.LocalesArgument`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument>
+- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
+- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
+- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
+- `ShadowRoot`: <https://developer.mozilla.org/docs/Web/API/ShadowRoot>
+- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

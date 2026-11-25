@@ -63,6 +63,44 @@ describe('<Dialog.Popup />', () => {
     });
   });
 
+  describe('prop: id', () => {
+    it.each([
+      {
+        name: 'Dialog',
+        role: 'dialog',
+        element: (
+          <Dialog.Root>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup id={undefined} />
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+      },
+      {
+        name: 'AlertDialog',
+        role: 'alertdialog',
+        element: (
+          <AlertDialog.Root>
+            <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup id={undefined} />
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        ),
+      },
+    ])('keeps the generated id when undefined ($name)', async ({ role, element }) => {
+      const { user } = await render(element);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      const popup = await screen.findByRole(role);
+      expect(popup.id).not.toBe('');
+      expect(trigger).toHaveAttribute('aria-controls', popup.id);
+    });
+  });
+
   // A modal dialog traps focus and marks the rest of the page inert, so it resolves the focus props
   // through a different path than a non-modal one.
   describe('modal', () => {

@@ -289,3 +289,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Progress.Label.State`: `ProgressLabelState`
 - `Progress.Label.Props`: `ProgressLabelProps`
 - `Progress.Status`: `ProgressStatus`
+
+## External Type Links
+
+Maps `Type`: `URL` — the docs of a built-in type the page references.
+
+- `Intl.LocalesArgument`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument>
+- `Intl.NumberFormatOptions`: <https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options>

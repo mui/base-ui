@@ -329,6 +329,40 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         expect(getHighlightedIndex()).toBe(2);
       });
 
+      it('keeps the highlight when the pointer moves straight onto content inside another item', async () => {
+        const { user } = await renderList();
+        await openWithMouse(user);
+        await user.hover(getItem(1));
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(1);
+        });
+
+        const nextItemContent = getItem(2).firstElementChild;
+        expect(nextItemContent).toBeInstanceOf(HTMLElement);
+        fireEvent.pointerLeave(getItem(1), {
+          pointerType: 'mouse',
+          relatedTarget: nextItemContent,
+        });
+        await settle();
+
+        expect(getHighlightedIndex()).toBe(1);
+      });
+
+      it('clears the highlight when the pointer leaves an item to outside the document', async () => {
+        const { user } = await renderList();
+        await openWithMouse(user);
+        await user.hover(getItem(1));
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(1);
+        });
+
+        // React sets `relatedTarget` to `window` when the native one is null.
+        fireEvent.pointerLeave(getItem(1), { pointerType: 'mouse', relatedTarget: null });
+        await settle();
+
+        expect(getHighlightedIndex()).toBe(-1);
+      });
+
       it('does not activate a disabled item', async () => {
         const onItemClick = vi.fn();
         const onValueChange = vi.fn();
