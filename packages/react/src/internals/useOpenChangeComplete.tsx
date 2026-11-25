@@ -47,7 +47,7 @@ export interface UseOpenChangeCompleteParameters {
   /**
    * Ref to the element being closed.
    */
-  ref: React.RefObject<HTMLElement | null>;
+  ref: React.RefObject<Element | null>;
   /**
    * Whether completions ready in the same microtask may be coalesced into a single commit.
    * Only safe when `onComplete` doesn't read state that another completion can change.
