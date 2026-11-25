@@ -588,14 +588,6 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     } else if (event.key.toUpperCase() === 'A' && ctrlPressed && isMulti) {
       this.store.selection.toggleSelectAll(REASONS.keyboard, event.nativeEvent);
       event.preventDefault();
-    } else if (key === 'Escape' && isMulti && !event.defaultPrevented) {
-      // One Escape does one thing: the containing UI only sees it when nothing was cleared.
-      if (this.store.selection.clearSelection(REASONS.escapeKey, event.nativeEvent)) {
-        event.preventDefault();
-        if (!this.store.selection.isPropagationAllowed(event.nativeEvent)) {
-          event.stopPropagation();
-        }
-      }
     }
 
     // A held Shift (used to type uppercase letters) must not disqualify a

@@ -160,7 +160,7 @@ export default function TreeFileExplorer() {
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     const command = getShortcutCommand(event);
-    // Without a cut, Escape still clears the selection.
+    // Without a cut, Escape goes on to the containing UI.
     if (command == null || (command === 'cancelCut' && !store.state.clipboard?.cut)) {
       return;
     }

@@ -153,7 +153,7 @@ describe('<Tree.Status />', () => {
       press('invoice-q2', 'a', { ctrlKey: true });
       expect(status).toHaveTextContent('All items selected.');
 
-      press('invoice-q2', 'Escape');
+      press('invoice-q2', 'a', { ctrlKey: true });
       expect(status).toHaveTextContent('No items selected.');
     });
 

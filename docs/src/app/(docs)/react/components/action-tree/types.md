@@ -253,8 +253,7 @@ type ActionTreeRootItemSelectionToggleEventDetails =
   | { reason: 'item-press'; event: MouseEvent | KeyboardEvent | PointerEvent }
   | { reason: 'keyboard'; event: KeyboardEvent }
   | { reason: 'imperative-action'; event: Event }
-  | { reason: 'missing'; event: Event }
-  | { reason: 'escape-key'; event: KeyboardEvent };
+  | { reason: 'missing'; event: Event };
 ```
 
 ### Root.ItemSelectionToggleValue
@@ -272,7 +271,6 @@ type ActionTreeRootSelectionChangeEventDetails = (
   | { reason: 'keyboard'; event: KeyboardEvent }
   | { reason: 'imperative-action'; event: Event }
   | { reason: 'missing'; event: Event }
-  | { reason: 'escape-key'; event: KeyboardEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
@@ -296,7 +294,7 @@ type ActionTreeRootSelectionChangeEventDetails = (
 
 ```typescript
 type ActionTreeRootSelectionChangeEventReason =
-  'item-press' | 'keyboard' | 'escape-key' | 'imperative-action' | 'missing' | 'none';
+  'item-press' | 'keyboard' | 'imperative-action' | 'missing' | 'none';
 ```
 
 ### Input
@@ -674,10 +672,10 @@ type ActionTreeFilterProviderChangeEventReason =
 
 ```typescript
 type ActionTreeFilterProviderChangeEventDetails = (
-  | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'clear-press'; event: MouseEvent | KeyboardEvent | PointerEvent }
   | { reason: 'input-change'; event: Event | InputEvent }
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;

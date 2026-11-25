@@ -90,7 +90,7 @@ The root infers the item type from `items`. Parts outside the root's props, such
 
 Render `<Tree.CheckboxItem>` in place of `<Tree.Item>` to select items like checkboxes, and `<Tree.CheckboxItemIndicator>` inside it to show the state. Set `selectionMode="multiple"` on `<Tree.Root>` to allow more than one item to be selected. In single selection, checking an item unchecks the others, so use `<Tree.Item>` there instead.
 
-A click toggles the item and keeps the other items selected. <kbd>Shift</kbd>+click selects a range. The item reports `aria-checked` instead of `aria-selected`, and `mixed` when only some of its descendants are selected. <kbd>Escape</kbd> clears the selection.
+A click toggles the item and keeps the other items selected. <kbd>Shift</kbd>+click selects a range. The item reports `aria-checked` instead of `aria-selected`, and `mixed` when only some of its descendants are selected.
 
 import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 

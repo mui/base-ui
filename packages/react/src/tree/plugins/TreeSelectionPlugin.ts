@@ -31,8 +31,6 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
 
   private lastSelectedRange = new Set<TreeItemId>();
 
-  private propagationAllowedEvent: Event | undefined = undefined;
-
   private pendingControlledAnchor: {
     itemId: TreeItemId | null;
     range?: Set<TreeItemId> | undefined;
@@ -212,22 +210,6 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       : [...new Set([...selected, ...shownIds])];
     this.setSelectedItems(next, reason, event, { anchor: { itemId: null } });
   }
-
-  /** Deselects every item of a multiple-selection tree. Returns whether the selection changed. */
-  public clearSelection = (reason: TreeRootSelectionChangeEventReason, event?: Event): boolean => {
-    const state = this.store.state;
-    if (
-      state.disabled ||
-      state.selectionMode !== 'multiple' ||
-      this.materializeSelectedItems().length === 0
-    ) {
-      return false;
-    }
-    return this.setSelectedItems([], reason, event, { anchor: { itemId: null } });
-  };
-
-  /** Whether the selection change caused by `event` called `eventDetails.allowPropagation()`. */
-  public isPropagationAllowed = (event: Event): boolean => this.propagationAllowedEvent === event;
 
   public expandSelectionRange = (
     itemId: TreeItemId,
@@ -572,9 +554,6 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       automatic || reason === REASONS.imperativeAction ? undefined : proposedModel,
     );
     this.store.context.onSelectedItemsChange?.(copySelectionModel(reportedModel), details);
-    if (details.isPropagationAllowed) {
-      this.propagationAllowedEvent = event;
-    }
     if (details.isCanceled && !automatic) {
       if (this.pendingControlledAnchor?.model === cleanModel) {
         this.pendingControlledAnchor = null;

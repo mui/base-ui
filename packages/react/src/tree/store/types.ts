@@ -173,7 +173,6 @@ export type TreeRootExpansionChangeEventDetails =
 export type TreeRootSelectionChangeEventReason =
   | typeof REASONS.itemPress
   | typeof REASONS.keyboard
-  | typeof REASONS.escapeKey
   | typeof REASONS.imperativeAction
   | typeof REASONS.missing
   | typeof REASONS.none;

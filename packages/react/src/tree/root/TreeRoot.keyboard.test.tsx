@@ -1407,7 +1407,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           expect(view.getSelectedTreeItems()).toEqual(['1', '3']);
         });
 
-        it('should deselect every item when Escape is pressed, and consume the key', async () => {
+        it('should keep the selection on Escape and leave the key to the containing UI', async () => {
           const onSelectedItemsChange = vi.fn();
           const onDocumentKeyDown = vi.fn();
           const view = await render({
@@ -1424,23 +1424,10 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           // An enclosing popup closes on an Escape that reaches it.
           const notPrevented = fireEvent.keyDown(view.getItemRoot('1'), { key: 'Escape' });
           document.removeEventListener('keydown', onDocumentKeyDown);
-          expect(view.getSelectedTreeItems()).toEqual([]);
-          expect(onSelectedItemsChange.mock.calls[0][1].reason).toBe('escape-key');
-          expect(notPrevented).toBe(false);
-          expect(onDocumentKeyDown).not.toHaveBeenCalled();
-        });
-
-        it('should keep the selection when Escape is pressed in single selection mode', async () => {
-          const view = await render({
-            items: [{ id: '1' }, { id: '2' }],
-            defaultSelectedItems: '2',
-          });
-
-          act(() => {
-            view.getItemRoot('2').focus();
-          });
-          fireEvent.keyDown(view.getItemRoot('2'), { key: 'Escape' });
-          expect(view.getSelectedTreeItems()).toEqual(['2']);
+          expect(notPrevented).toBe(true);
+          expect(onDocumentKeyDown).toHaveBeenCalledTimes(1);
+          expect(onSelectedItemsChange).not.toHaveBeenCalled();
+          expect(view.getSelectedTreeItems()).toEqual(['1', '3']);
         });
 
         it('should keep the Shift range when select-all is canceled', async () => {
