@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { NOOP } from '@base-ui/utils/empty';
+import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import { useCompositeListContext } from './CompositeListContext';
 import type { CompositeListContextValue, CompositeListRegistration } from './CompositeListContext';
 
@@ -44,8 +44,6 @@ interface CompositeListItemHandle<Metadata> {
   result: UseCompositeListItemReturnValue;
 }
 
-const NO_PARAMETERS = {};
-
 /** Stands in for the result until the first render, which always replaces it. */
 const UNSET_RESULT: UseCompositeListItemReturnValue = { ref: NOOP, index: -1 };
 
@@ -53,7 +51,7 @@ const UNSET_RESULT: UseCompositeListItemReturnValue = { ref: NOOP, index: -1 };
  * Used to register a list item and its index (DOM position) in the `CompositeList`.
  */
 export function useCompositeListItem<Metadata>(
-  params: UseCompositeListItemParameters<Metadata> = NO_PARAMETERS,
+  params: UseCompositeListItemParameters<Metadata> = EMPTY_OBJECT,
 ): UseCompositeListItemReturnValue {
   const { guess, label, metadata = null, textRef, index: externalIndex } = params;
   const explicitIndex = externalIndex ?? null;
