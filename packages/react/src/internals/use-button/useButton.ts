@@ -115,6 +115,11 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
           },
           onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
             if (disabled) {
+              // A focused disabled button cancels only the keys that would activate it (and
+              // scroll the page on Space); other keys such as find-in-page keep their default.
+              if (focusableWhenDisabled && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+              }
               return;
             }
 
@@ -228,7 +233,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
         otherExternalProps,
       );
     },
-    [disabled, focusableWhenDisabledProps, isCompositeItem, isNativeButton],
+    [disabled, focusableWhenDisabled, focusableWhenDisabledProps, isCompositeItem, isNativeButton],
   );
 
   const buttonRef = useStableCallback((element: HTMLElement | null) => {

@@ -59,6 +59,12 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
   const defaultProps: HTMLProps = {
     onClick: preventWhenDisabled,
     onPointerDown: preventWhenDisabled,
+    onKeyDown(event) {
+      // The input is only `aria-disabled`, so cancel editing keys; Tab still moves focus away.
+      if (disabled && focusableWhenDisabled && event.key !== 'Tab') {
+        event.preventDefault();
+      }
+    },
   };
 
   return (

@@ -209,6 +209,30 @@ describe('<Button />', () => {
       expect(handleKeyDown.mock.calls.length).toBe(0);
     });
 
+    it.each([
+      { name: 'native button', nativeButton: true, render: undefined },
+      { name: 'custom element', nativeButton: false, render: <span /> },
+    ])(
+      '$name: cancels only activation keys while disabled',
+      async ({ nativeButton, render: renderProp }) => {
+        const { user } = await render(
+          <Button disabled focusableWhenDisabled nativeButton={nativeButton} render={renderProp} />,
+        );
+
+        const button = screen.getByRole('button');
+        await user.keyboard('[Tab]');
+        expect(button).toHaveFocus();
+
+        // `fireEvent` returns false when `preventDefault()` was called.
+        expect(fireEvent.keyDown(button, { key: 'Enter' })).toBe(false);
+        expect(fireEvent.keyDown(button, { key: ' ' })).toBe(false);
+        expect(fireEvent.keyDown(button, { key: 'f', ctrlKey: true })).toBe(true);
+        expect(fireEvent.keyDown(button, { key: 'ArrowDown' })).toBe(true);
+        expect(fireEvent.keyDown(button, { key: 'PageDown' })).toBe(true);
+        expect(fireEvent.keyDown(button, { key: 'Tab' })).toBe(true);
+      },
+    );
+
     it.skipIf(isJSDOM)(
       'native button: allows hover handlers while blocking activation',
       async () => {
