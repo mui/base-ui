@@ -1,4 +1,6 @@
-.Demo {
+/* The menu renders in a portal, outside `.Demo`, so it needs the palette too. */
+.Demo,
+.Positioner {
   --bg: white;
   --fg: oklch(14.5% 0 0deg);
   --muted: oklch(55.6% 0 0deg);
@@ -14,7 +16,9 @@
     --hover: oklch(26.9% 0 0deg);
     --selected: oklch(37.1% 0 0deg);
   }
+}
 
+.Demo {
   width: min(100%, 64rem);
   color: var(--fg);
   font-size: 0.875rem;
@@ -465,6 +469,8 @@
 }
 
 .Positioner {
+  /* Above the sticky header row. */
+  z-index: 1;
   outline: 0;
 }
 
