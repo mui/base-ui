@@ -239,6 +239,22 @@ import { TypesTree, TypesTreeAdditional } from './types';
 
 <TypesTree.Label />
 
+### Input
+
+<TypesTree.Input />
+
+### Clear
+
+<TypesTree.Clear />
+
+### Status
+
+<TypesTree.Status />
+
+### Empty
+
+<TypesTree.Empty />
+
 ### List
 
 <TypesTree.List />
@@ -259,10 +275,6 @@ import { TypesTree, TypesTreeAdditional } from './types';
 
 <TypesTree.LinkItem />
 
-### ItemGroupIndicator
-
-<TypesTree.ItemGroupIndicator />
-
 ### ItemIndentGuide
 
 <TypesTree.ItemIndentGuide />
@@ -271,32 +283,13 @@ import { TypesTree, TypesTreeAdditional } from './types';
 
 <TypesTree.ItemExpansionTrigger />
 
-### Input
+### ItemGroupIndicator
 
-<TypesTree.Input />
-
-### Clear
-
-<TypesTree.Clear />
-
-### Empty
-
-<TypesTree.Empty />
-
-### Status
-
-<TypesTree.Status />
+<TypesTree.ItemGroupIndicator />
 
 ### GroupTransition
 
 <TypesTree.GroupTransition />
-
-## createItems
-
-Normalizes a custom item model into a collection for the `items` prop of `<Tree.Root>`, deriving each item's ID, label, and children.
-Create static collections at module scope, and memoize dynamic collections by their data and every value their accessors read.
-
-<TypesTree.createItems hideDescription />
 
 ## useFilter
 
@@ -306,10 +299,26 @@ Call its methods inside the `filter` prop of `<Tree.FilterProvider>`.
 
 <TypesTree.useFilter hideDescription />
 
+## createItems
+
+Normalizes a custom item model into a collection for the `items` prop of `<Tree.Root>`, deriving each item's ID, label, and children.
+Create static collections at module scope, and memoize dynamic collections by their data and every value their accessors read.
+
+<TypesTree.createItems hideDescription />
+
 ## Additional types
 
 <TypesTreeAdditional />
 
 export const metadata = {
-  keywords: ['React Tree', 'Accessible Tree', 'Tree View', 'Base UI'],
+  keywords: [
+    'React Tree',
+    'Tree View Component',
+    'Accessible Tree View',
+    'File Tree',
+    'Folder Tree',
+    'Hierarchical List',
+    'Nested List',
+    'Expandable Tree',
+  ],
 };

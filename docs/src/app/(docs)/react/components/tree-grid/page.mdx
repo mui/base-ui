@@ -17,10 +17,10 @@ import { DemoTreeGridHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Avoid when rows hold no controls or columns**: Use [Tree](/react/components/tree) instead when each item is a single element, including items that toggle like a checkbox or link to another page. Screen readers read a tree item as a whole, and users need fewer key presses. Tree Grid follows the [treegrid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/), so keyboard users can reach the cells, buttons, inputs, and links inside each row.
+- **Avoid when rows hold no controls or columns**: Use [Tree](/react/components/tree) instead when each item is a single element, including items that toggle like a checkbox or link to another page. Screen readers read a tree item as a whole, and users need fewer key presses.
 - **Avoid for tabular data**: Tree Grid doesn't sort, resize, edit, or page through its rows. When users compare values across rows, use a data grid instead.
 - **Give the tree grid an accessible name**: Prefer `<TreeGrid.Label>`, or provide an `aria-label` on `<TreeGrid.Table>` when no visible label is rendered.
-- **Name every control**: Give each control inside a row a name that includes the item's label, such as "Remove Wireframes". The checkbox, expansion trigger, and clear button have English names, such as "Select Documents", "Expand Documents", and "Clear filter": pass your own `aria-label` to translate them.
+- **Name every control**: Give each control inside a row a name that includes the item's label, such as "Remove Wireframes". The checkbox, expansion trigger, and clear button have English names, such as "Select Documents", "Expand Documents", and "Clear filter": pass your own `aria-label` to translate them, based on `state.expanded` for the trigger.
 - **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<TreeGrid.RowExpansionTrigger>`, and `<TreeGrid.RowCheckbox>` with checkbox selection, so they can expand and select rows by tapping.
 
 ## Anatomy
@@ -70,8 +70,6 @@ import { TreeGrid } from '@base-ui/react/tree-grid';
 
 Without a header row, pass the render function to `<TreeGrid.Table>` directly instead of `<TreeGrid.Collection>`.
 
-The cells and their controls only work in `<TreeGrid.Root>`, and `<Tree.CheckboxItem>` and `<Tree.LinkItem>` only in `<Tree.Root>`: each throws in the other root.
-
 ## Item models
 
 To add fields to the standard item, extend `TreeGrid.DefaultItem` and redeclare `children` with your own type. For any other item model, use `TreeGrid.createItems()`, and supply `setChildren` for nested edits and managed reparenting.
@@ -120,7 +118,7 @@ A focused row announces its label, not its controls or the rest of its content.
 - Describe how to reach the controls with `aria-description` on the rows that have them, or once on `<TreeGrid.Table>` when most rows do.
 - Pass secondary content, such as a count or a status, to `aria-describedby` on `<TreeGrid.Row>`, or render it in its own column.
 
-Base UI doesn't ship these strings, so translate them with the rest of your interface.
+Base UI does not ship these strings. Translate them together with the rest of your interface.
 
 To use a popup trigger as a control, pass it to the `render` prop of `<TreeGrid.CellButton>`:
 
@@ -207,7 +205,7 @@ To match rows on a server, pass the matches to `filteredItems`. Every match must
 
 ### Status messages
 
-`<TreeGrid.Status>` politely announces the number of filter matches and of selected rows to screen readers. Keep it mounted and hide it visually, as the filtering demo does. Its messages are in English: to translate them, pass a function as `children`, which receives the latest `change` and its default `message`.
+`<TreeGrid.Status>` politely announces the number of filter matches and of selected rows to screen readers. Keep it mounted and hide it visually, as the filtering demo does. The messages are in English. To translate them or write your own, pass the content as `children`, or a function that receives the latest `change` and its default `message`.
 
 ### Updating items
 
@@ -228,6 +226,22 @@ import { TypesTreeGrid, TypesTreeGridAdditional } from './types';
 ### Label
 
 <TypesTreeGrid.Label />
+
+### Input
+
+<TypesTreeGrid.Input />
+
+### Clear
+
+<TypesTreeGrid.Clear />
+
+### Status
+
+<TypesTreeGrid.Status />
+
+### Empty
+
+<TypesTreeGrid.Empty />
 
 ### Table
 
@@ -253,6 +267,14 @@ import { TypesTreeGrid, TypesTreeGridAdditional } from './types';
 
 <TypesTreeGrid.Cell />
 
+### RowIndentGuide
+
+<TypesTreeGrid.RowIndentGuide />
+
+### RowExpansionTrigger
+
+<TypesTreeGrid.RowExpansionTrigger />
+
 ### RowCheckbox
 
 <TypesTreeGrid.RowCheckbox />
@@ -265,56 +287,25 @@ import { TypesTreeGrid, TypesTreeGridAdditional } from './types';
 
 <TypesTreeGrid.RowGroupIndicator />
 
-### RowIndentGuide
+### CellLink
 
-<TypesTreeGrid.RowIndentGuide />
-
-### RowExpansionTrigger
-
-<TypesTreeGrid.RowExpansionTrigger />
-
-### CellButton
-
-<TypesTreeGrid.CellButton />
+<TypesTreeGrid.CellLink />
 
 ### CellInput
 
 <TypesTreeGrid.CellInput />
 
-### CellLink
+### CellButton
 
-<TypesTreeGrid.CellLink />
+<TypesTreeGrid.CellButton />
 
 ### CellControl
 
 <TypesTreeGrid.CellControl />
 
-### Input
-
-<TypesTreeGrid.Input />
-
-### Clear
-
-<TypesTreeGrid.Clear />
-
-### Empty
-
-<TypesTreeGrid.Empty />
-
-### Status
-
-<TypesTreeGrid.Status />
-
 ### GroupTransition
 
 <TypesTreeGrid.GroupTransition />
-
-## createItems
-
-Normalizes a custom item model into a collection for the `items` prop of `<TreeGrid.Root>`, deriving each item's ID, label, and children.
-Create static collections at module scope, and memoize dynamic collections by their data and every value their accessors read.
-
-<TypesTreeGrid.createItems hideDescription />
 
 ## useFilter
 
@@ -324,6 +315,13 @@ Call its methods inside the `filter` prop of `<TreeGrid.FilterProvider>`.
 
 <TypesTreeGrid.useFilter hideDescription />
 
+## createItems
+
+Normalizes a custom item model into a collection for the `items` prop of `<TreeGrid.Root>`, deriving each item's ID, label, and children.
+Create static collections at module scope, and memoize dynamic collections by their data and every value their accessors read.
+
+<TypesTreeGrid.createItems hideDescription />
+
 ## Additional types
 
 <TypesTreeGridAdditional />
@@ -331,9 +329,12 @@ Call its methods inside the `filter` prop of `<TreeGrid.FilterProvider>`.
 export const metadata = {
   keywords: [
     'React Tree Grid',
-    'React Treegrid',
+    'Tree Grid Component',
     'Accessible Treegrid',
-    'Hierarchical Grid',
-    'Base UI',
+    'Hierarchical Table',
+    'Tree Table',
+    'Expandable Table Rows',
+    'Nested Rows',
+    'Outline View',
   ],
 };
