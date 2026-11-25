@@ -2272,3 +2272,44 @@ describe('TreeGrid columns', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('has no column headers'));
   });
 });
+
+describe('TreeGrid controls in a disabled row', () => {
+  it.each([
+    { name: 'can be focused', rowFocusable: true },
+    { name: 'cannot be focused', rowFocusable: false },
+  ])(
+    'lets a press focus a control of a disabled row only when the row $name',
+    async ({ rowFocusable }) => {
+      const { user } = await render(
+        <TreeGrid.Root
+          items={[
+            { id: 'docs', label: 'Docs' },
+            { id: 'about', label: 'About', disabled: true },
+          ]}
+          itemFocusableWhenDisabled={rowFocusable}
+        >
+          <TreeGrid.Table aria-label="Pages">
+            {(item: TreeDefaultItem) => (
+              <TreeGrid.Row itemId={item.id}>
+                <TreeGrid.Cell>
+                  {item.label}
+                  <TreeGrid.CellControl
+                    role="slider"
+                    aria-label={`Priority of ${item.label}`}
+                    aria-valuenow={1}
+                  />
+                </TreeGrid.Cell>
+              </TreeGrid.Row>
+            )}
+          </TreeGrid.Table>
+        </TreeGrid.Root>,
+      );
+      const control = screen.getByRole('slider', { name: 'Priority of About' });
+      expect(control).not.toHaveFocus();
+
+      await user.click(control);
+
+      expect(control.ownerDocument.activeElement === control).toBe(rowFocusable);
+    },
+  );
+});

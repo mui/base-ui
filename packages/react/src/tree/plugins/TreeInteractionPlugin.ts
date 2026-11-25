@@ -739,9 +739,15 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       this.setPressFocusCause(event.nativeEvent);
     }
 
+    const fromInteractiveDescendant = this.isEventFromInteractiveDescendant(event);
+    // The tree can't track focus inside a row that can't be focused, so a press
+    // focuses nothing in it, not even a control that stays focusable while disabled.
+    if (itemDisabled && !selectors.canItemBeFocused(this.store.state, itemId)) {
+      event.preventDefault();
+    }
     // The control, or the label editor's input, owns its press, such as a
     // shift-click selecting text.
-    if (this.isEventFromInteractiveDescendant(event)) {
+    if (fromInteractiveDescendant) {
       return;
     }
 
