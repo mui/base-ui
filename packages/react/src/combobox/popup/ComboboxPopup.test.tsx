@@ -196,9 +196,7 @@ describe('<Combobox.Popup />', () => {
       await user.keyboard('b');
       expect(input.matches(':focus-visible')).toBe(true);
 
-      const option = screen.getByRole('option', { name: 'b' });
-      fireEvent.pointerDown(option, { pointerType: 'mouse' });
-      fireEvent.click(option, { detail: 1 });
+      await user.click(screen.getByRole('option', { name: 'b' }));
 
       await waitFor(() => {
         expect(trigger).toHaveFocus();
