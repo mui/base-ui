@@ -1,12 +1,13 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, mergeRefs } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeList, useCompositeList } from './CompositeList';
 import { CompositeListContext, useCompositeListContext } from './CompositeListContext';
+import type { CompositeListContextValue, CompositeListRegistration } from './CompositeListContext';
 import { CompositeListModel } from './CompositeListModel';
 import { useCompositeListItem } from './useCompositeListItem';
 
@@ -508,6 +509,35 @@ describe('<CompositeList />', () => {
       ]);
     });
 
+    // React 18 remounts the hooks for Strict Mode's second render, so every item guesses twice.
+    it.skipIf(reactMajor < 19)('reserves one guess per item under Strict Mode', async () => {
+      const initialIndexes: Record<string, number> = {};
+
+      function GuessedItem(props: { label: string }) {
+        const { ref, index } = useCompositeListItem({ guess: true });
+        if (!(props.label in initialIndexes)) {
+          initialIndexes[props.label] = index;
+        }
+        return <div ref={ref} data-testid={props.label} data-index={index} />;
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      await render(
+        <CompositeList elementsRef={elementsRef}>
+          <GuessedItem label="a" />
+          <GuessedItem label="b" />
+          <GuessedItem label="c" />
+        </CompositeList>,
+        { strict: true },
+      );
+
+      expect(initialIndexes).toEqual({ a: 0, b: 1, c: 2 });
+      expect(screen.getByTestId('c')).toHaveAttribute('data-index', '2');
+    });
+
     it('re-registers an item when its explicit index changes or is removed', async () => {
       const refCalls: Array<HTMLElement | null> = [];
       const elementsRef = {
@@ -939,6 +969,41 @@ describe('<CompositeList />', () => {
         expect(screen.getByTestId('b')).toHaveAttribute('data-index', '0');
       });
       expect(screen.getByTestId('a')).toHaveAttribute('data-index', '1');
+    });
+
+    it('observes reorders of automatic items indexed around an explicit one', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      // The explicit item sits between the automatic ones by index but outside their parent,
+      // which is the only root that sees them swap.
+      await render(
+        <CompositeList elementsRef={elementsRef}>
+          <div data-testid="list">
+            <Item label="a" />
+            <Item label="b" />
+          </div>
+          <div>
+            <Item label="explicit" index={1} />
+          </div>
+        </CompositeList>,
+        { strict: false },
+      );
+
+      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '2');
+
+      screen.getByTestId('list').insertBefore(screen.getByTestId('b'), screen.getByTestId('a'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('b')).toHaveAttribute('data-index', '0');
+      });
+      expect(screen.getByTestId('a')).toHaveAttribute('data-index', '2');
+      expect(elementsRef.current).toEqual([
+        screen.getByTestId('b'),
+        screen.getByTestId('explicit'),
+        screen.getByTestId('a'),
+      ]);
     });
 
     it('updates indexes when grouped items reorder alongside unrelated mutations', async () => {
@@ -1473,6 +1538,86 @@ describe('<CompositeList />', () => {
         screen.getByTestId('c'),
       ]);
       expect(screen.getByTestId('c')).toHaveAttribute('data-index', '2');
+    });
+
+    it('registers items through a subclass that overrides register', async () => {
+      interface Metadata {
+        kind: string;
+      }
+      const recordedMetadata = new Map<Element, Metadata | null>();
+
+      class RecordingList extends CompositeListModel<Metadata> {
+        register(node: Element, registration: CompositeListRegistration<Metadata>) {
+          recordedMetadata.set(node, registration.metadata);
+          super.register(node, registration);
+        }
+      }
+
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      function Item(props: { list: RecordingList; kind: string }) {
+        const metadata = React.useMemo(() => ({ kind: props.kind }), [props.kind]);
+        const { ref, index } = useCompositeListItem({ guess: true, list: props.list, metadata });
+        return <div ref={ref} data-testid={props.kind} data-index={index} />;
+      }
+
+      function Owner() {
+        const [, requestFlush] = React.useReducer((count: number) => count + 1, 0);
+        const list = useRefWithInit(() => new RecordingList({ elementsRef, requestFlush })).current;
+
+        useIsoLayoutEffect(() => {
+          if (list.dirty) {
+            list.flush();
+          }
+        });
+
+        return (
+          <React.Fragment>
+            <Item list={list} kind="alpha" />
+            <Item list={list} kind="beta" />
+          </React.Fragment>
+        );
+      }
+
+      await render(<Owner />);
+
+      expect(recordedMetadata.get(screen.getByTestId('alpha'))).toEqual({ kind: 'alpha' });
+      expect(recordedMetadata.get(screen.getByTestId('beta'))).toEqual({ kind: 'beta' });
+      expect(elementsRef.current).toEqual([
+        screen.getByTestId('alpha'),
+        screen.getByTestId('beta'),
+      ]);
+      expect(screen.getByTestId('beta')).toHaveAttribute('data-index', '1');
+    });
+
+    it('moves an item to the list it is passed', async () => {
+      const firstElementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const secondElementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      function Item(props: { list: CompositeListContextValue<unknown> }) {
+        const { ref } = useCompositeListItem({ list: props.list });
+        return <div ref={ref} data-testid="item" />;
+      }
+
+      function App(props: { second: boolean }) {
+        const first = useCompositeList({ elementsRef: firstElementsRef });
+        const second = useCompositeList({ elementsRef: secondElementsRef });
+        return <Item list={props.second ? second : first} />;
+      }
+
+      const { setProps } = await render(<App second={false} />);
+      expect(firstElementsRef.current).toEqual([screen.getByTestId('item')]);
+      expect(secondElementsRef.current).toEqual([]);
+
+      await setProps({ second: true });
+      expect(firstElementsRef.current).toEqual([]);
+      expect(secondElementsRef.current).toEqual([screen.getByTestId('item')]);
     });
 
     it('publishes an empty list once and settles it on later flushes', async () => {
