@@ -1,11 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useRenderElement } from '../../internals/useRenderElement';
-
-import { useTreeRootProps } from '../utils/useTreeRootProps';
-import { useTreeListViewport } from './useTreeListViewport';
 import { TreeRows } from './TreeRows';
+import { useTreeListElement } from './useTreeListElement';
 
 /**
  * Renders all tree items at once.
@@ -20,17 +17,12 @@ export const TreeList = React.forwardRef(function TreeList<TItem = any>(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, className, render, style, ...elementProps } = componentProps;
-  const { rootProps, rootRef, state } = useTreeRootProps(componentProps);
-
-  const listRef = React.useRef<HTMLDivElement | null>(null);
-
-  useTreeListViewport(listRef);
-
-  return useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, rootRef, listRef],
-    props: [rootProps, { children: <TreeRows>{children}</TreeRows> }, elementProps],
-  });
+  return useTreeListElement(
+    componentProps,
+    forwardedRef,
+    elementProps,
+    <TreeRows>{children}</TreeRows>,
+  );
 }) as <TItem = any>(
   props: TreeList.Props<TItem> & React.RefAttributes<HTMLDivElement>,
 ) => React.JSX.Element;

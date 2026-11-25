@@ -31,7 +31,7 @@ describe('findScrollContainer', () => {
     middle.appendChild(inner);
     document.body.appendChild(outer);
 
-    expect(findScrollContainer(inner)).toBe(outer);
+    expect(findScrollContainer(inner, 'vertical')).toBe(outer);
   });
 
   it('picks the nearest scrollable when multiple ancestors are scrollable', () => {
@@ -42,7 +42,7 @@ describe('findScrollContainer', () => {
     inner.appendChild(leaf);
     document.body.appendChild(outer);
 
-    expect(findScrollContainer(leaf)).toBe(inner);
+    expect(findScrollContainer(leaf, 'vertical')).toBe(inner);
   });
 
   it('returns the start element itself when it is scrollable', () => {
@@ -52,14 +52,14 @@ describe('findScrollContainer', () => {
     outer.appendChild(scrollable);
     document.body.appendChild(outer);
 
-    expect(findScrollContainer(scrollable)).toBe(scrollable);
+    expect(findScrollContainer(scrollable, 'vertical')).toBe(scrollable);
   });
 
   it('falls back to documentElement when no ancestor is scrollable', () => {
     const el = makeEl();
     document.body.appendChild(el);
 
-    const result = findScrollContainer(el);
+    const result = findScrollContainer(el, 'vertical');
     // jsdom uses documentElement as the scrollingElement fallback.
     expect(result === document.scrollingElement || result === document.documentElement).toBe(true);
   });
@@ -100,7 +100,7 @@ describe('findScrollContainer', () => {
     outer.appendChild(leaf);
     document.body.appendChild(outer);
 
-    const result = findScrollContainer(leaf);
+    const result = findScrollContainer(leaf, 'vertical');
     expect(result).not.toBe(outer);
     expect(result === document.scrollingElement || result === document.documentElement).toBe(true);
   });
@@ -112,6 +112,6 @@ describe('findScrollContainer', () => {
     const inner = document.createElement('div');
     shadow.appendChild(inner);
 
-    expect(findScrollContainer(inner)).toBe(host);
+    expect(findScrollContainer(inner, 'vertical')).toBe(host);
   });
 });

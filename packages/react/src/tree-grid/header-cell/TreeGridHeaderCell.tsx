@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -21,17 +21,10 @@ export const TreeGridHeaderCell = fastComponentRef(function TreeGridHeaderCell(
 
   const store = useTreeRootContext();
   assertTreeGrid(store, 'HeaderCell');
-  const grid = store.grid;
-
-  const registerRef = React.useCallback(
-    (element: HTMLDivElement | null) =>
-      element == null ? undefined : grid.registerHeaderCell(element),
-    [grid],
-  );
 
   return useRenderElement('div', componentProps, {
     state: {},
-    ref: [forwardedRef, registerRef],
+    ref: forwardedRef,
     props: [{ role: 'columnheader' }, elementProps],
   });
 });

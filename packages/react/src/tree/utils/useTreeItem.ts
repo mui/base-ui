@@ -5,7 +5,6 @@ import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompar
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui/utils/warn';
 import type { TreeItemId, TreeItemKind, TreeState } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
@@ -88,31 +87,8 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
-      const grid = store.grid;
-      if (grid == null || element == null) {
-        return;
-      }
-      if (element.querySelector('[role="gridcell"]') === null) {
-        warn(
-          'A <TreeGrid.Row> renders no cell.',
-          'Each row of the treegrid needs one for assistive technology to read its content.',
-          'Render the content of the item inside <TreeGrid.Cell>.',
-        );
-        return;
-      }
-      const { cells, headerCells } = grid.getCellCounts(itemId);
-      if (cells > 1 && headerCells === 0) {
-        warn(
-          'A <TreeGrid.Row> renders several cells, but the tree grid has no column headers.',
-          'Screen readers then cannot name the column of a cell.',
-          'Render a <TreeGrid.HeaderRow> with a <TreeGrid.HeaderCell> for each column, visually hidden if needed.',
-        );
-      } else if (headerCells > 0 && cells !== headerCells) {
-        warn(
-          `A <TreeGrid.Row> renders ${cells} cells, but the header row has ${headerCells}.`,
-          'Screen readers then announce the wrong column header for the cells after the gap.',
-          'Render a <TreeGrid.Cell> for each <TreeGrid.HeaderCell>, empty if needed.',
-        );
+      if (element != null) {
+        store.grid?.warnAboutCells(itemId, element);
       }
     }, [element, store, itemId]);
   }

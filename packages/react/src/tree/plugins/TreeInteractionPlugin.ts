@@ -368,30 +368,26 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (selectors.isItemFocusTarget(this.store.state, itemId)) {
       const element = this.store.items.getItemDOMElement(itemId);
       if (element) {
-        // Calling .focus() synchronously triggers the onFocus handler,
-        // which already updates focusedItemId and calls onItemHighlighted.
-        // Set the focus cause so the onFocus handler picks up the correct reason —
-        // but only when focus will actually move. A no-op focus() on the already
-        // active element fires no onFocus event, so setting the reason here would
-        // leave it stale for the next genuine focus.
-        if (element !== activeElement(ownerDocument(element))) {
-          this.lastFocusCause = { reason, event };
-          // The viewport brings the focused row into view (see `revealItem`).
-          element.focus({ preventScroll: true });
-        }
+        // The viewport brings the focused row into view (see `revealItem`).
+        this.focusElement(element, reason, event);
       }
     }
   };
 
   /**
-   * Focuses an element inside a row, such as a control or a cell, so the row's
-   * focus handler reports `reason`.
+   * Focuses a row, or an element inside it such as a control or a cell, so the
+   * row's focus handler reports `reason`.
    */
   public focusElement(
     element: HTMLElement,
     reason: TreeRootHighlightEventReason,
     event?: FocusCause['event'],
   ) {
+    // Calling .focus() synchronously triggers the onFocus handler, which updates
+    // focusedItemId and calls onItemHighlighted with the cause set here — but only
+    // when focus actually moves. A no-op focus() on the already active element
+    // fires no onFocus event, so setting the reason would leave it stale for the
+    // next genuine focus.
     if (element !== activeElement(ownerDocument(element))) {
       this.lastFocusCause = { reason, event };
       element.focus({ preventScroll: true });

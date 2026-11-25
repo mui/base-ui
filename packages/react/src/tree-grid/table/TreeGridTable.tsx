@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useRenderElement } from '../../internals/useRenderElement';
 import { useTreeRootContext } from '../../tree/root/TreeRootContext';
-import { useTreeRootProps } from '../../tree/utils/useTreeRootProps';
-import { useTreeListViewport } from '../../tree/list/useTreeListViewport';
 import { TreeRows } from '../../tree/list/TreeRows';
+import { useTreeListElement } from '../../tree/list/useTreeListElement';
 import { assertTreeGrid } from '../../tree/utils/assertTreeKind';
 
 /**
@@ -23,21 +21,12 @@ export const TreeGridTable = React.forwardRef(function TreeGridTable<TItem = any
   const { children, className, render, style, ...elementProps } = componentProps;
   const store = useTreeRootContext();
   assertTreeGrid(store, 'Table');
-  const { rootProps, rootRef, state } = useTreeRootProps(componentProps);
-
-  const tableRef = React.useRef<HTMLDivElement | null>(null);
-
-  useTreeListViewport(tableRef);
-
-  return useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, rootRef, tableRef],
-    props: [
-      rootProps,
-      { children: typeof children === 'function' ? <TreeRows>{children}</TreeRows> : children },
-      elementProps,
-    ],
-  });
+  return useTreeListElement(
+    componentProps,
+    forwardedRef,
+    elementProps,
+    typeof children === 'function' ? <TreeRows>{children}</TreeRows> : children,
+  );
 }) as <TItem = any>(
   props: TreeGridTable.Props<TItem> & React.RefAttributes<HTMLDivElement>,
 ) => React.JSX.Element;

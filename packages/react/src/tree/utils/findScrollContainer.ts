@@ -1,10 +1,10 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getComposedParentElement } from '../../utils/popups/focus/tabbable';
+import type { ScrollAxis } from '../../utils/scrollable';
 import { isDocumentScroller } from './viewport';
 
-type Axis = 'horizontal' | 'vertical';
-
-function isScrollable(element: HTMLElement, axis: Axis): boolean {
+/** Whether `element` scrolls along `axis` once it overflows, whatever its current size. */
+function scrollsAlong(element: HTMLElement, axis: ScrollAxis): boolean {
   const style = ownerWindow(element).getComputedStyle(element);
   const overflow = axis === 'vertical' ? style.overflowY : style.overflowX;
   return overflow === 'auto' || overflow === 'scroll';
@@ -16,11 +16,11 @@ function isScrollable(element: HTMLElement, axis: Axis): boolean {
  * shadow-root boundaries. Falls back to the document's scrolling element if
  * none is found.
  */
-export function findScrollContainer(start: HTMLElement, axis: Axis = 'vertical'): HTMLElement {
+export function findScrollContainer(start: HTMLElement, axis: ScrollAxis): HTMLElement {
   const doc = ownerDocument(start);
   let current: HTMLElement | null = start;
   while (current && current !== doc.documentElement) {
-    if (isScrollable(current, axis)) {
+    if (scrollsAlong(current, axis)) {
       return current;
     }
     const parent = getComposedParentElement(current);
@@ -33,7 +33,7 @@ export function findScrollContainer(start: HTMLElement, axis: Axis = 'vertical')
  * The scroll containers along `axis` around `start`, from the nearest one out
  * to the document's scrolling element.
  */
-export function findScrollContainers(start: HTMLElement, axis: Axis = 'vertical'): HTMLElement[] {
+export function findScrollContainers(start: HTMLElement, axis: ScrollAxis): HTMLElement[] {
   let container = findScrollContainer(start, axis);
   const containers = [container];
   while (!isDocumentScroller(container)) {
