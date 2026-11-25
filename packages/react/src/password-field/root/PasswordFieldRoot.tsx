@@ -119,6 +119,9 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
         },
         true,
       ),
+      // Always mask on submit, with no way to cancel it: a revealed input is plain text, so
+      // browsers could save the password to autofill history and password managers may not
+      // recognize it.
       addEventListener(rootNode, 'submit', maskForSubmit, true),
     );
   }, [initialVisible, setVisible, maskForSubmit]);
