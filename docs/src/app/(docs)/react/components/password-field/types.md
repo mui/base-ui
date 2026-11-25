@@ -301,7 +301,7 @@ type PasswordFieldPreviewToggleState = {
 ### ToggleIndicator
 
 Indicates whether the password is revealed or hidden.
-Renders a `<span>` element.
+Renders a `<span>` element that is hidden from assistive technology.
 
 **ToggleIndicator Props:**
 

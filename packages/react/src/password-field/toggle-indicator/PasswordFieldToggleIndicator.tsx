@@ -15,7 +15,7 @@ const stateAttributesMapping: StateAttributesMapping<PasswordFieldToggleIndicato
 
 /**
  * Indicates whether the password is revealed or hidden.
- * Renders a `<span>` element.
+ * Renders a `<span>` element that is hidden from assistive technology.
  *
  * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)
  */
