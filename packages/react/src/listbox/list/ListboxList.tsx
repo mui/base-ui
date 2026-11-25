@@ -229,16 +229,17 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // `items` change.
   const value = store.useState('value');
   const syncActiveItem = useStableCallback((map?: Map<Element, RegisteredItem>) => {
-    // Without `items`, the rendered items are the data.
-    if (map && !items) {
-      const values: any[] = [];
-      const disabledItems: boolean[] = [];
+    // Without `items`, the rendered items are the data. They record their own value once they
+    // render with their new position, which is after the tab stop is placed below.
+    if (map && map.size > 0 && !items) {
+      const values = store.context.valuesRef.current;
+      const disabledItems = store.context.disabledItemsRef.current;
+      values.length = map.size;
+      disabledItems.length = map.size;
       map.forEach((item) => {
         values[item.index] = item.value;
         disabledItems[item.index] = item.disabled;
       });
-      store.context.valuesRef.current = values;
-      store.context.disabledItemsRef.current = disabledItems;
     }
     store.focus.itemsChanged((element) => map?.get(element)?.index);
   });

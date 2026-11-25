@@ -13,6 +13,8 @@ export interface SelectionItems {
    * deselect. Set with multiple selection, where other items can be selected alongside them.
    */
   keepsDisabled: boolean;
+  /** Whether `indexOfValue` looks a value up without scanning the items. */
+  indexed: boolean;
 }
 
 /** Which modifiers were held during a press, and whether it was a touch. */
@@ -234,17 +236,24 @@ function replaceWith(currentValue: any[], items: SelectionItems, values: any[]):
   if (!items.keepsDisabled || currentValue.length === 0) {
     return values;
   }
-  // Walks the items once rather than looking each selected value up, which scans the list when
-  // it has no `items`.
-  const selected = new Set(currentValue);
-  const nextValue = [...values];
-  for (let i = 0; i < items.count; i += 1) {
-    const itemValue = items.getValue(i);
-    if (itemValue !== undefined && items.isDisabled(i) && selected.has(itemValue)) {
-      nextValue.push(itemValue);
+  let isDisabledValue: (value: any) => boolean;
+  if (items.indexed) {
+    isDisabledValue = (value) => {
+      const index = items.indexOfValue(value);
+      return index !== -1 && items.isDisabled(index);
+    };
+  } else {
+    // Looking each selected value up would scan the items every time, so they're walked once.
+    const disabledValues = new Set<any>();
+    for (let i = 0; i < items.count; i += 1) {
+      if (items.isDisabled(i)) {
+        disabledValues.add(items.getValue(i));
+      }
     }
+    isDisabledValue = (value) => disabledValues.has(value);
   }
-  return nextValue.length === values.length ? values : nextValue;
+  const selectedDisabled = currentValue.filter(isDisabledValue);
+  return selectedDisabled.length === 0 ? values : [...values, ...selectedDisabled];
 }
 
 /** Makes an item the selection. Nothing changes when it can't be selected. */

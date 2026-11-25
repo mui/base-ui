@@ -178,6 +178,13 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     return tabStopIndex === -1 ? 0 : tabStopIndex;
   }
 
+  /** Puts the tab stop back on the item that should hold it, unless an item has focus. */
+  syncTabStop() {
+    if (!this.state.itemFocused) {
+      this.setActiveIndex(this.getTabStopIndex());
+    }
+  }
+
   /**
    * Moves the tab stop without changing whether an item has focus, and records the event that
    * caused it, so `onItemHighlighted` can report the reason.
@@ -285,6 +292,9 @@ function createSelectionItems(store: ListboxStore): SelectionItems {
     isDisabled: (index) => store.isItemDisabled(index),
     get keepsDisabled() {
       return store.state.multiple !== false;
+    },
+    get indexed() {
+      return store.state.items != null;
     },
   };
 }

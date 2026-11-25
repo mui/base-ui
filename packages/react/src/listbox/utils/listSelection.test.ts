@@ -16,6 +16,7 @@ function setup(options: { multiple: boolean | 'opt-in'; value?: string[]; disabl
     indexOfValue: (itemValue) => VALUES.indexOf(itemValue),
     isDisabled: (index) => disabled.includes(VALUES[index]),
     keepsDisabled: multiple !== false,
+    indexed: false,
   };
 
   const commit = vi.fn((nextValue: string[]) => {

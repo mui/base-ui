@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { error } from '@base-ui/utils/error';
@@ -50,12 +51,18 @@ export const ListboxItem = React.memo(
     // only some of the items and their order in the DOM doesn't match their position.
     const indexFromItems = items ? items.indexOf(itemValue) : undefined;
 
-    // Without `items`, the rendered items are the data, so each one registers its value and
-    // disabled state along with its position.
-    const metadata = React.useMemo(
-      () => (items ? undefined : { value: itemValue, disabled: disabledProp ?? false }),
-      [items, itemValue, disabledProp],
-    );
+    const itemValueRef = useValueAsRef(itemValue);
+    const itemDisabledRef = useValueAsRef(disabledProp ?? false);
+    // Registered along with the item's position, so that the list reads the value and disabled
+    // state of every rendered item at the moment their positions change.
+    const metadata = useRefWithInit(() => ({
+      get value() {
+        return itemValueRef.current;
+      },
+      get disabled() {
+        return itemDisabledRef.current;
+      },
+    })).current;
 
     const listItem = useCompositeListItem({
       guess: true,
@@ -103,7 +110,28 @@ export const ListboxItem = React.memo(
     }
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const itemValueRef = useValueAsRef(itemValue);
+    // With `items`, the root already knows every value and disabled state.
+    useIsoLayoutEffect(() => {
+      if (!hasRegistered || items) {
+        return undefined;
+      }
+
+      const values = store.context.valuesRef.current;
+      const disabledItems = store.context.disabledItemsRef.current;
+      values[index] = itemValue;
+      disabledItems[index] = itemDisabled;
+
+      // A selected item holds the tab stop, which was placed before this position was known when
+      // the item mounted out of order.
+      if (store.select('isSelected', itemValue)) {
+        store.syncTabStop();
+      }
+
+      return () => {
+        delete values[index];
+        delete disabledItems[index];
+      };
+    }, [hasRegistered, index, itemValue, itemDisabled, items, store]);
 
     // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
     // and takes its place in the tab order while it isn't.
