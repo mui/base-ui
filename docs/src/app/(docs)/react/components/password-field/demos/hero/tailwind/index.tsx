@@ -3,13 +3,12 @@ import * as React from 'react';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 
 export default function ExamplePasswordField() {
-  const id = React.useId();
   return (
     <div className="flex w-full max-w-64 flex-col items-start gap-1">
-      <label htmlFor={id} className="text-sm font-bold text-neutral-950 dark:text-white">
-        Password
-      </label>
-      <PasswordField.Root id={id}>
+      <PasswordField.Root>
+        <PasswordField.Label className="text-sm font-bold text-neutral-950 dark:text-white">
+          Password
+        </PasswordField.Label>
         <PasswordField.Group className="box-border flex h-8 w-full items-center border border-neutral-950 bg-white text-neutral-950 has-[input:focus-visible]:outline-2 has-[input:focus-visible]:-outline-offset-1 has-[input:focus-visible]:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:has-[input:focus-visible]:outline-white">
           <PasswordField.Input
             placeholder="Enter your password"
