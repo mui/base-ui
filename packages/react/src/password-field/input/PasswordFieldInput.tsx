@@ -12,8 +12,7 @@ import type {
 import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
 
 /**
- * The password input. Its `type` toggles between `password` and `text`, and it works with
- * [Field](https://base-ui.com/react/components/field) for labeling and validation.
+ * The password input.
  * Renders an `<input>` element.
  *
  * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)

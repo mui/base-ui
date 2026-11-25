@@ -78,8 +78,7 @@ type PasswordFieldPreviewRootChangeEventDetails = (
 
 ### Input
 
-The password input. Its `type` toggles between `password` and `text`, and it works with
-[Field](https://base-ui.com/react/components/field) for labeling and validation.
+The password input.
 Renders an `<input>` element.
 
 **Input Props:**
