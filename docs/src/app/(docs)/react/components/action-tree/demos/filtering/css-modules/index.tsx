@@ -69,9 +69,10 @@ export default function ExampleActionTreeFiltering() {
                 <ActionTree.Item
                   itemId={item.id}
                   className={styles.Item}
-                  aria-description={
-                    item.children ? undefined : 'Press Tab to reach the remove button'
-                  }
+                  // Screen readers don't announce `data-filter-match`, so describe matches.
+                  render={(props, state) => (
+                    <div {...props} aria-description={describeItem(item, state.filterMatch)} />
+                  )}
                 >
                   <ActionTree.ItemContent className={styles.ItemContent}>
                     <ActionTree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
@@ -104,6 +105,14 @@ export default function ExampleActionTreeFiltering() {
       </ActionTree.FilterProvider>
     </div>
   );
+}
+
+function describeItem(item: ActionTree.DefaultItem, match: boolean) {
+  const descriptions = match ? ['Match'] : [];
+  if (!item.children) {
+    descriptions.push('Press Tab to reach the remove button');
+  }
+  return descriptions.length > 0 ? descriptions.join('. ') : undefined;
 }
 
 function ChevronIcon(props: React.ComponentProps<'svg'>) {

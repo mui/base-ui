@@ -106,9 +106,10 @@ export default function ExampleActionTreeFiltering() {
                 <ActionTree.Item
                   itemId={item.id}
                   className={ITEM_CLASS}
-                  aria-description={
-                    item.children ? undefined : 'Press Tab to reach the remove button'
-                  }
+                  // Screen readers don't announce `data-filter-match`, so describe matches.
+                  render={(props, state) => (
+                    <div {...props} aria-description={describeItem(item, state.filterMatch)} />
+                  )}
                 >
                   <ActionTree.ItemContent className="flex min-w-0 flex-1 items-[inherit] gap-[inherit]">
                     <ActionTree.ItemExpansionTrigger className={TRIGGER_CLASS}>
@@ -146,6 +147,14 @@ export default function ExampleActionTreeFiltering() {
       </ActionTree.FilterProvider>
     </div>
   );
+}
+
+function describeItem(item: ActionTree.DefaultItem, match: boolean) {
+  const descriptions = match ? ['Match'] : [];
+  if (!item.children) {
+    descriptions.push('Press Tab to reach the remove button');
+  }
+  return descriptions.length > 0 ? descriptions.join('. ') : undefined;
 }
 
 function ChevronIcon(props: React.ComponentProps<'svg'>) {

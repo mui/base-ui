@@ -113,7 +113,14 @@ export default function ExampleTreeFiltering() {
             </div>
             <Tree.List aria-label="File system" className="box-border w-full p-1">
               {(item: Tree.DefaultItem) => (
-                <Tree.Item itemId={item.id} className={ITEM_CLASS}>
+                <Tree.Item
+                  itemId={item.id}
+                  className={ITEM_CLASS}
+                  // Screen readers don't announce `data-filter-match`, so describe matches.
+                  render={(props, state) => (
+                    <div {...props} aria-description={state.filterMatch ? 'Match' : undefined} />
+                  )}
+                >
                   <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
                     <ChevronIcon />
                   </Tree.ItemExpansionTrigger>

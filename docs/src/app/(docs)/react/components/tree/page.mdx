@@ -146,7 +146,7 @@ A match keeps its ancestors visible. Use `mode` to choose how the items that don
 
 #### Matching items
 
-Items match their label by default and receive a `data-filter-match` attribute. Screen readers don't announce it, so describe matches with `aria-describedby`.
+Items match their label by default and receive a `data-filter-match` attribute. Screen readers don't announce it, so describe matches with `aria-description`, as the demo does.
 
 By default, an item matches when its label contains the query, ignoring case, accents, and punctuation.
 Use `filter` to replace the matching. It receives each item's label, the trimmed query, and the item, and keeps the item when it returns `true`.

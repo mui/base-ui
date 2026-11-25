@@ -3,11 +3,31 @@ import { act, createRenderer, fireEvent, screen, waitFor } from '@mui/internal-t
 import { describe, expect, it } from 'vitest';
 import HeroCSS from './hero/css-modules';
 import HeroTailwind from './hero/tailwind';
+import FilteringCSS from './filtering/css-modules';
+import FilteringTailwind from './filtering/tailwind';
 
 const isJSDOM = window.navigator.userAgent.includes('jsdom');
 
 describe.skipIf(isJSDOM)('Action tree demo interactions', () => {
   const { render } = createRenderer();
+
+  it.each([
+    ['css-modules', FilteringCSS],
+    ['tailwind', FilteringTailwind],
+  ])('describes the items matching the filter in the %s filtering demo', async (_, Demo) => {
+    await render(<Demo />);
+
+    expect(screen.getByRole('row', { name: 'Invoice_Q1.pdf' })).toHaveAttribute(
+      'aria-description',
+      'Match. Press Tab to reach the remove button',
+    );
+    expect(screen.getByRole('row', { name: 'Invoices' })).toHaveAttribute(
+      'aria-description',
+      'Match',
+    );
+    // An ancestor kept for context isn't a match.
+    expect(screen.getByRole('row', { name: 'Documents' })).not.toHaveAttribute('aria-description');
+  });
 
   it.each([
     ['css-modules', HeroCSS],
