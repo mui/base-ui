@@ -863,6 +863,93 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.mock.results.at(-1)?.value.reason).toBe(REASONS.inputChange);
     });
 
+    it.skipIf(isJSDOM).each([
+      { name: 'a lower maximum', min: 0, max: 60, dragValue: 85, expected: 60 },
+      { name: 'a higher minimum', min: 40, max: 100, dragValue: 15, expected: 40 },
+      {
+        name: 'new bounds that still contain the dragged value',
+        min: 0,
+        max: 90,
+        dragValue: 85,
+        expected: 85,
+      },
+    ])(
+      'commits within $name when bounds change during a drag',
+      async ({ min, max, dragValue, expected }) => {
+        const handleValueCommitted = vi.fn();
+        const { rerender } = await render(
+          <TestSlider defaultValue={50} onValueCommitted={handleValueCommitted} />,
+        );
+
+        const control = screen.getByTestId('control');
+        const slider = screen.getByRole('slider');
+        vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+        fireEvent.pointerDown(control, { buttons: 1, clientX: 50 });
+        fireEvent.pointerMove(control, { buttons: 1, clientX: dragValue });
+        expect(slider).toHaveValue(String(dragValue));
+
+        await rerender(
+          <TestSlider
+            defaultValue={50}
+            min={min}
+            max={max}
+            onValueCommitted={handleValueCommitted}
+          />,
+        );
+
+        expect(slider).toHaveValue(String(expected));
+        expect(handleValueCommitted).not.toHaveBeenCalled();
+
+        fireEvent.pointerUp(control, { clientX: dragValue });
+
+        expect(handleValueCommitted).toHaveBeenCalledExactlyOnceWith(
+          expected,
+          expect.objectContaining({ reason: REASONS.drag }),
+        );
+      },
+    );
+
+    it.skipIf(isJSDOM)('clamps both range values when bounds change during a drag', async () => {
+      const handleValueCommitted = vi.fn();
+      const { rerender } = await render(
+        <TestRangeSlider defaultValue={[10, 50]} onValueCommitted={handleValueCommitted} />,
+      );
+
+      const control = screen.getByTestId('control');
+      const [lower, upper] = screen.getAllByRole('slider');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+      const [, upperThumb] = screen.getAllByTestId('thumb');
+      vi.spyOn(upperThumb, 'getBoundingClientRect').mockImplementation(
+        () => new DOMRect(45, 0, 10, 10),
+      );
+
+      fireEvent.pointerDown(upper, { buttons: 1, clientX: 50 });
+      fireEvent.pointerMove(upper, { buttons: 1, clientX: 85 });
+      expect(lower).toHaveValue('10');
+      expect(upper).toHaveValue('85');
+
+      await rerender(
+        <TestRangeSlider
+          defaultValue={[10, 50]}
+          min={20}
+          max={60}
+          onValueCommitted={handleValueCommitted}
+        />,
+      );
+
+      expect(lower).toHaveValue('20');
+      expect(upper).toHaveValue('60');
+      expect(handleValueCommitted).not.toHaveBeenCalled();
+
+      fireEvent.pointerUp(upper, { clientX: 85 });
+
+      expect(handleValueCommitted).toHaveBeenCalledExactlyOnceWith(
+        [20, 60],
+        expect.objectContaining({ reason: REASONS.drag }),
+      );
+    });
+
     it.each(['touch', 'pen'])('commits a %s track tap', async (pointerType) => {
       const handleValueCommitted = vi.fn();
 

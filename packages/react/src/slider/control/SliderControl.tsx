@@ -366,12 +366,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
       currentInteractionValueRef.current = null;
     }
 
-    if (currentInteractionValueRef.current != null) {
+    const valueToCommit = currentInteractionValueRef.current;
+    if (valueToCommit != null) {
       const commitReason = lastChangeReasonRef.current;
-      onValueCommitted(
-        currentInteractionValueRef.current,
-        createGenericEventDetails(commitReason, nativeEvent),
-      );
+      const boundedValue = Array.isArray(valueToCommit)
+        ? valueToCommit.map((value) => clamp(value, min, max))
+        : clamp(valueToCommit, min, max);
+      onValueCommitted(boundedValue, createGenericEventDetails(commitReason, nativeEvent));
     }
 
     if (
