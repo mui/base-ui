@@ -16,6 +16,12 @@ import { ListboxCollection } from '../collection/ListboxCollection';
 import { resolveItemKeyPress, resolveListKeyCommand } from '../utils/listKeyCommand';
 import type { ListKeyCommand } from '../utils/listKeyCommand';
 
+interface RegisteredItem {
+  index: number;
+  value: any;
+  disabled: boolean;
+}
+
 /**
  * A container for the listbox items.
  * Renders a `<div>` element.
@@ -176,13 +182,14 @@ export const ListboxList = React.forwardRef(function ListboxList(
       const prevented = (event as BaseUIEvent<React.KeyboardEvent>).baseUIHandlerPrevented === true;
 
       // The list holds focus for an item that isn't rendered, so it takes the item's key presses.
-      if (event.target === event.currentTarget && store.state.activeIndex !== null) {
+      const heldIndex = store.state.activeIndex;
+      if (event.target === event.currentTarget && heldIndex !== null && store.focus.isPending()) {
         const modifiers = resolveItemKeyPress(event, { multiple, mac: platform.os.mac });
         if (modifiers) {
           event.preventDefault();
           // Holding the key presses the item once, not on every repeat.
           if (!prevented && !event.repeat) {
-            store.pressItem(store.state.activeIndex, modifiers, event.nativeEvent);
+            store.pressItem(heldIndex, modifiers, event.nativeEvent);
           }
           return;
         }
@@ -220,7 +227,18 @@ export const ListboxList = React.forwardRef(function ListboxList(
   // Keeps the tab stop on an item that exists. Runs when the selection, the rendered items or
   // `items` change.
   const value = store.useState('value');
-  const syncActiveItem = useStableCallback((map?: Map<Element, { index: number }>) => {
+  const syncActiveItem = useStableCallback((map?: Map<Element, RegisteredItem>) => {
+    // Without `items`, the rendered items are the data.
+    if (map && !items) {
+      const values: any[] = [];
+      const disabledItems: boolean[] = [];
+      map.forEach((item) => {
+        values[item.index] = item.value;
+        disabledItems[item.index] = item.disabled;
+      });
+      store.context.valuesRef.current = values;
+      store.context.disabledItemsRef.current = disabledItems;
+    }
     store.focus.itemsChanged((element) => map?.get(element)?.index);
   });
   useIsoLayoutEffect(() => {

@@ -38,6 +38,32 @@ describe('<Listbox.Item /> on macOS', () => {
     expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
   });
 
+  it('toggles the item once while Option+Space is held', async () => {
+    const handleValueChange = vi.fn();
+
+    await render(
+      <Listbox.Root multiple onValueChange={handleValueChange}>
+        <Listbox.List>
+          <Listbox.Item value="a">a</Listbox.Item>
+        </Listbox.List>
+      </Listbox.Root>,
+    );
+
+    const itemA = screen.getByRole('option', { name: 'a' });
+    await act(async () => itemA.focus());
+
+    fireEvent.keyDown(itemA, { key: '\u00a0', code: 'Space', altKey: true });
+    const repeatHandled = fireEvent.keyDown(itemA, {
+      key: '\u00a0',
+      code: 'Space',
+      altKey: true,
+      repeat: true,
+    });
+
+    expect(handleValueChange.mock.calls.map((call) => call[0])).toEqual([['a']]);
+    expect(repeatHandled).toBe(false);
+  });
+
   it('ignores Option+Space on a disabled item, so a range still extends from the earlier press', async () => {
     const handleValueChange = vi.fn();
 

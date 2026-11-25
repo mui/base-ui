@@ -50,10 +50,18 @@ export const ListboxItem = React.memo(
     // only some of the items and their order in the DOM doesn't match their position.
     const indexFromItems = items ? items.indexOf(itemValue) : undefined;
 
+    // Without `items`, the rendered items are the data, so each one registers its value and
+    // disabled state along with its position.
+    const metadata = React.useMemo(
+      () => (items ? undefined : { value: itemValue, disabled: disabledProp ?? false }),
+      [items, itemValue, disabledProp],
+    );
+
     const listItem = useCompositeListItem({
       guess: true,
       label,
       index: indexFromItems,
+      metadata,
     });
 
     const rootDisabled = store.useState('disabled');
@@ -96,28 +104,6 @@ export const ListboxItem = React.memo(
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const itemValueRef = useValueAsRef(itemValue);
-    // With `items`, the root already knows every value and disabled state.
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered || items) {
-        return undefined;
-      }
-
-      const values = store.context.valuesRef.current;
-      const disabledItems = store.context.disabledItemsRef.current;
-      values[index] = itemValue;
-      disabledItems[index] = itemDisabled;
-
-      // A selected item holds the tab stop, which was placed before this position was known when
-      // the item mounted out of order.
-      if (store.select('isSelected', itemValue)) {
-        store.syncTabStop();
-      }
-
-      return () => {
-        delete values[index];
-        delete disabledItems[index];
-      };
-    }, [hasRegistered, index, itemValue, itemDisabled, items, store]);
 
     // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
     // and takes its place in the tab order while it isn't.
@@ -176,7 +162,10 @@ export const ListboxItem = React.memo(
       if (isMacToggleKey(event, { multiple: store.state.multiple, mac: platform.os.mac })) {
         event.preventDefault();
         event.preventBaseUIHandler();
-        store.pressItem(index, { shiftKey: event.shiftKey, ctrlKey: true }, event.nativeEvent);
+        // Holding the key presses the item once, not on every repeat.
+        if (!event.repeat) {
+          store.pressItem(index, { shiftKey: event.shiftKey, ctrlKey: true }, event.nativeEvent);
+        }
       }
     }
 
@@ -188,8 +177,9 @@ export const ListboxItem = React.memo(
         if (rootDisabled) {
           return;
         }
-        store.highlightItem(index, event.nativeEvent);
-        store.focus.itemFocused(index);
+        const focusedIndex = store.focus.getFocusedIndex(index);
+        store.highlightItem(focusedIndex, event.nativeEvent);
+        store.focus.itemFocused(focusedIndex);
       },
       onBlur(event) {
         // Moving focus to another item keeps the highlight; it moves with focus instead. So does

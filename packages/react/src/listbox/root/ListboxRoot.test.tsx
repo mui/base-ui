@@ -2838,30 +2838,39 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('removing the focused item', () => {
-    it('moves focus to the tab stop when the list has no `items`', async () => {
-      function App(props: { names: string[] }) {
-        return (
-          <Listbox.Root defaultValue="a">
-            <Listbox.List>
-              {props.names.map((name) => (
-                <Listbox.Item key={name} value={name}>
-                  {name}
-                </Listbox.Item>
-              ))}
-            </Listbox.List>
-          </Listbox.Root>
-        );
-      }
+    it.each([
+      { name: 'before the removed item', selected: 'a' },
+      { name: 'right after the removed item', selected: 'c' },
+      { name: 'further after the removed item', selected: 'e' },
+    ])(
+      'moves focus to the selected item $name when the list has no `items`',
+      async ({ selected }) => {
+        function App(props: { names: string[] }) {
+          return (
+            <Listbox.Root defaultValue={selected}>
+              <Listbox.List>
+                {props.names.map((name) => (
+                  <Listbox.Item key={name} value={name}>
+                    {name}
+                  </Listbox.Item>
+                ))}
+              </Listbox.List>
+            </Listbox.Root>
+          );
+        }
 
-      const { setProps } = await render(<App names={['a', 'b', 'c']} />);
-      await act(async () => screen.getByRole('option', { name: 'b' }).focus());
-      expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+        const { setProps } = await render(<App names={['a', 'b', 'c', 'd', 'e']} />);
+        await act(async () => screen.getByRole('option', { name: 'b' }).focus());
+        expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
 
-      await setProps({ names: ['a', 'c'] });
-      await flushMicrotasks();
+        await setProps({ names: ['a', 'c', 'd', 'e'] });
+        await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
-    });
+        const selectedItem = screen.getByRole('option', { name: selected });
+        expect(selectedItem).toHaveFocus();
+        expect(selectedItem).toHaveAttribute('tabindex', '0');
+      },
+    );
   });
 
   describe('prop: items', () => {
@@ -2950,6 +2959,20 @@ describe('<Listbox.Root />', () => {
       const item5 = screen.getByRole('option', { name: 'Item 5' });
       expect(item5).toHaveFocus();
       expect(item5).toHaveAttribute('data-highlighted');
+    });
+
+    it('does not press an item on Space when a press gave the list focus without an item to hold it for', async () => {
+      const handleValueChange = vi.fn();
+      await render(<VirtualList start={20} onValueChange={handleValueChange} />);
+      const list = screen.getByRole('listbox');
+
+      fireEvent.pointerDown(list);
+      await act(async () => list.focus());
+      expect(list).toHaveFocus();
+
+      fireEvent.keyDown(list, { key: ' ' });
+
+      expect(handleValueChange).not.toHaveBeenCalled();
     });
 
     describe('while the item that receives focus is not rendered', () => {

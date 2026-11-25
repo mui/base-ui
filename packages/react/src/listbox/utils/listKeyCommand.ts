@@ -136,8 +136,11 @@ export function resolveListKeyCommand(
       : { type: 'selectRange', from: currentIndex, to: count - 1, focusIndex: count - 1 };
   }
 
-  // The APG makes deselecting a fully selected list optional.
-  if (ctrlOrMeta && !altKey && (key.key === 'a' || key.key === 'A' || key.code === 'KeyA')) {
+  // The APG makes deselecting a fully selected list optional. On a layout without Latin letters,
+  // the key in the position of A selects everything.
+  const selectAllKey =
+    key.key === 'a' || key.key === 'A' || (key.code === 'KeyA' && !/^[a-z]$/i.test(key.key));
+  if (ctrlOrMeta && !altKey && selectAllKey) {
     return { type: 'selectAll' };
   }
 

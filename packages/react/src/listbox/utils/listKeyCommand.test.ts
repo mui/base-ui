@@ -194,6 +194,10 @@ describe('resolveListKeyCommand', () => {
       });
     });
 
+    it('does not select every item by the physical A key when it types another Latin letter', () => {
+      expect(resolve({ key: 'q', code: 'KeyA', ctrlKey: true }, { multiple: true })).toBe(null);
+    });
+
     it('does not select every item on Ctrl+Alt+A', () => {
       expect(
         resolve({ key: 'a', code: 'KeyA', ctrlKey: true, altKey: true }, { multiple: true }),

@@ -47,6 +47,9 @@ export class ListFocus<E = Event> {
 
   private pending: PendingFocus<E> | null = null;
 
+  /** The position of the item that focus is being moved to, while its element takes focus. */
+  private focusingIndex: number | null = null;
+
   constructor(parameters: ListFocusParameters<E>) {
     this.parameters = parameters;
   }
@@ -71,7 +74,7 @@ export class ListFocus<E = Event> {
 
     const element = getElement(index);
     if (element) {
-      element.focus();
+      this.focusElement(element, index);
       if (navigation) {
         onNavigate(index, event as E);
       }
@@ -125,7 +128,21 @@ export class ListFocus<E = Event> {
     }
     // The user didn't ask to go back to an item that the list held focus for, so the list stays
     // where it was scrolled to.
-    element.focus({ preventScroll: pending.held });
+    this.focusElement(element, index, { preventScroll: pending.held });
+  }
+
+  private focusElement(element: HTMLElement, index: number, options?: FocusOptions) {
+    this.focusingIndex = index;
+    element.focus(options);
+    this.focusingIndex = null;
+  }
+
+  /**
+   * The position of an item that is receiving focus. An item that moved when the items changed
+   * can take focus before it renders with its new position, which `index` is then behind.
+   */
+  getFocusedIndex(index: number) {
+    return this.focusingIndex ?? index;
   }
 
   /**
