@@ -265,6 +265,140 @@ describe('<Toast.Viewport />', () => {
     expect(button).toHaveFocus();
   });
 
+  describe.skipIf(isJSDOM)('closing with the pointer', () => {
+    // Real browser input is needed: `:focus-visible` only stays off for genuine pointer presses.
+    async function press(element: HTMLElement) {
+      const { userEvent } = await import('vitest/browser');
+      // Real browser input (vitest/browser) updates React state outside Testing Library's act.
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        await userEvent.click(element);
+      });
+    }
+
+    function Fixture() {
+      return (
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>
+      );
+    }
+
+    it('returns focus to the previously focused element', async ({ onTestFinished }) => {
+      onTestFinished(resetBrowserPointer);
+      await render(<Fixture />);
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      await press(addButton);
+      expect(addButton).toHaveFocus();
+
+      await press(screen.getByLabelText('close-press'));
+
+      expect(screen.queryByTestId('root')).toBe(null);
+      expect(addButton).toHaveFocus();
+    });
+
+    it('returns focus to the previously focused element after every close', async ({
+      onTestFinished,
+    }) => {
+      onTestFinished(resetBrowserPointer);
+      await render(<Fixture />);
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      await press(addButton);
+      await press(addButton);
+      await press(addButton);
+      expect(screen.getAllByTestId('root')).toHaveLength(3);
+
+      for (let remaining = 3; remaining > 0; remaining -= 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await press(screen.getAllByLabelText('close-press')[0]);
+        expect(addButton).toHaveFocus();
+      }
+    });
+
+    it('returns focus to the element focused before the toast was first pressed', async ({
+      onTestFinished,
+    }) => {
+      onTestFinished(resetBrowserPointer);
+      await render(<Fixture />);
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      await press(addButton);
+
+      // Pressing the toast text moves focus into the toast; the close button is pressed next.
+      await press(screen.getByTestId('title'));
+      expect(screen.getByTestId('root')).toHaveFocus();
+      // Remembering the origin must not render the F6 focus guards.
+      expect(document.querySelectorAll('[data-base-ui-focus-guard]')).toHaveLength(0);
+
+      await press(screen.getByLabelText('close-press'));
+
+      expect(addButton).toHaveFocus();
+    });
+
+    it('keeps focus in a pressed toast while another toast closes', async ({ onTestFinished }) => {
+      onTestFinished(resetBrowserPointer);
+      const manager = Toast.createToastManager();
+      await render(
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <Toast.Viewport>
+            <IdList />
+          </Toast.Viewport>
+          <button type="button">origin</button>
+        </Toast.Provider>,
+      );
+
+      await act(async () => {
+        manager.add({ id: 'a', title: 'a' });
+        manager.add({ id: 'b', title: 'b' });
+      });
+
+      const origin = screen.getByRole('button', { name: 'origin' });
+      await press(origin);
+      await press(screen.getByTestId('a-title'));
+      expect(screen.getByTestId('a')).toHaveFocus();
+
+      await act(async () => manager.close('b'));
+      expect(screen.getByTestId('a')).toHaveFocus();
+
+      await act(async () => manager.close('a'));
+      expect(origin).toHaveFocus();
+    });
+
+    it('returns focus to the F6 origin when a toast reached with F6 is closed with the pointer', async ({
+      onTestFinished,
+    }) => {
+      onTestFinished(resetBrowserPointer);
+      const { userEvent } = await import('vitest/browser');
+      await render(<Fixture />);
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      await press(addButton);
+
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        await userEvent.keyboard('{F6}{Tab}');
+      });
+      expect(screen.getByTestId('root')).toHaveFocus();
+
+      await press(screen.getByLabelText('close-press'));
+
+      expect(addButton).toHaveFocus();
+    });
+
+    function IdList() {
+      return Toast.useToastManager().toasts.map((toast) => (
+        <Toast.Root key={toast.id} toast={toast} data-testid={toast.id}>
+          <Toast.Title data-testid={`${toast.id}-title`} />
+        </Toast.Root>
+      ));
+    }
+  });
+
   it('keeps focus where the viewport moves it on F6 and returns it to the F6 origin', async () => {
     const manager = Toast.createToastManager();
     const otherManager = Toast.createToastManager();

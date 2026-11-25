@@ -107,6 +107,12 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
    */
   private areTimersSuspended = false;
 
+  /**
+   * The element that held focus before a pointer press moved it into the viewport.
+   * Kept out of `State` because `prevFocusElement` renders the F6 focus guards.
+   */
+  private pointerFocusOrigin: HTMLElement | null = null;
+
   constructor(initialState: InitialState) {
     super(
       {
@@ -437,6 +443,43 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     return restored;
   }
 
+  /**
+   * Remembers where focus was before a pointer press inside the viewport, so closing the toast
+   * that took focus can put it back. Call it before the browser moves focus (on `pointerdown`).
+   */
+  recordPointerFocusOrigin() {
+    const viewport = this.state.viewport;
+    const activeEl = activeElement(ownerDocument(viewport)) as HTMLElement | null;
+
+    if (!contains(viewport, activeEl)) {
+      this.pointerFocusOrigin = activeEl;
+    } else if (isFocusVisible(activeEl)) {
+      // Focus is already inside through the keyboard, so an earlier pointer origin is stale.
+      this.pointerFocusOrigin = null;
+    }
+  }
+
+  /**
+   * Returns focus to the recorded pointer origin.
+   * @returns Whether there was an origin to return to.
+   */
+  private restorePointerFocusOrigin() {
+    const origin = this.pointerFocusOrigin;
+    this.pointerFocusOrigin = null;
+    if (!origin) {
+      return false;
+    }
+
+    const doc = ownerDocument(origin);
+    // `body` can't be focused, so return focus to it by blurring whatever has it.
+    if (origin === doc.body) {
+      (activeElement(doc) as HTMLElement | null)?.blur();
+    } else if (origin.isConnected) {
+      origin.focus({ preventScroll: true });
+    }
+    return true;
+  }
+
   handleDocumentPointerDown = (event: PointerEvent) => {
     if (event.pointerType !== 'touch') {
       return;
@@ -518,11 +561,25 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
   private handleFocusManagement(toastId: string | undefined) {
     const activeEl = activeElement(ownerDocument(this.state.viewport));
-    if (
-      !this.state.viewport ||
-      !contains(this.state.viewport, activeEl) ||
-      !isFocusVisible(activeEl)
-    ) {
+    if (!this.state.viewport || !contains(this.state.viewport, activeEl)) {
+      return;
+    }
+
+    if (!isFocusVisible(activeEl)) {
+      // A pointer press focused a toast (or one of its buttons). When that toast is the one
+      // closing, return focus to where it was before the press instead of letting it fall to
+      // `<body>` on unmount. Closing another toast leaves it where it is.
+      const closingElement =
+        toastId === undefined
+          ? this.state.viewport
+          : selectors.toasts(this.state).find((toast) => toast.id === toastId)?.ref?.current;
+
+      if (contains(closingElement, activeEl) && !this.restorePointerFocusOrigin()) {
+        // The toast was reached with F6 first, so the F6 origin is the place to return to.
+        if (this.state.prevFocusElement) {
+          this.restoreFocusToPrevElement();
+        }
+      }
       return;
     }
 

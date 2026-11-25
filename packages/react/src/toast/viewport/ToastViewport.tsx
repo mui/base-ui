@@ -195,6 +195,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handlePointerDown(event: React.PointerEvent) {
+    // The browser moves focus after `pointerdown`, so this still sees the previous element.
+    store.recordPointerFocusOrigin();
+
     if (event.pointerType === 'touch') {
       touchActiveRef.current = true;
     }
