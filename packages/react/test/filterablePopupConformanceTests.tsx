@@ -45,6 +45,23 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
     onTestFinished(() => style.remove());
   }
 
+  // Renders the popup inside a form through a custom portal container.
+  function FormTest(props: { onSubmit?: () => void }) {
+    const [container, setContainer] = React.useState<HTMLFormElement | null>(null);
+    return (
+      <form
+        ref={setContainer}
+        onSubmit={(event) => {
+          event.preventDefault();
+          props.onSubmit?.();
+        }}
+      >
+        {container && createComponent({ portalContainer: container })}
+        <button type="submit">Submit</button>
+      </form>
+    );
+  }
+
   async function findFocusedInput() {
     const input = await screen.findByRole('searchbox', { name: 'Filter' });
     await waitFor(() => {
@@ -151,22 +168,7 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
 
     it('does not submit a surrounding form with Enter while nothing is highlighted', async () => {
       const onSubmit = vi.fn();
-      function FormTest() {
-        const [container, setContainer] = React.useState<HTMLFormElement | null>(null);
-        return (
-          <form
-            ref={setContainer}
-            onSubmit={(event) => {
-              event.preventDefault();
-              onSubmit();
-            }}
-          >
-            {container && createComponent({ portalContainer: container })}
-            <button type="submit">Submit</button>
-          </form>
-        );
-      }
-      const { user } = await render(<FormTest />);
+      const { user } = await render(<FormTest onSubmit={onSubmit} />);
       await user.click(screen.getByTestId('trigger'));
       const input = await findFocusedInput();
       expect(input.closest('form')).not.toBe(null);
@@ -176,6 +178,22 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
       await user.keyboard('{Enter}');
 
       expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    // Safari ignores `autocomplete="off"` for contacts AutoFill unless the name contains "search",
+    // so the input always takes that name and stays out of any surrounding form.
+    it('names the input "search" and leaves it out of a surrounding form', async () => {
+      const { user } = await render(<FormTest />);
+      await user.click(screen.getByTestId('trigger'));
+      const input = (await findFocusedInput()) as HTMLInputElement;
+      const form = input.closest('form');
+      expect(form).not.toBe(null);
+      await user.keyboard('zz');
+      expect(input).toHaveValue('zz');
+
+      expect(input).toHaveAttribute('name', 'search');
+      expect(input.form).toBe(null);
+      expect([...new FormData(form!).values()]).not.toContain('zz');
     });
 
     it('keeps the automatic highlight when typing moves it out from under the pointer', async () => {

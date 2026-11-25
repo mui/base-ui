@@ -16,6 +16,8 @@ import {
 } from '../root/FilterDropdownRootContext';
 import { refocusOwner, isRefocusingOwner } from '../utils/refocusOwner';
 
+const NO_FORM_ID = 'base-ui-filter-input-no-form';
+
 /**
  * @internal
  */
@@ -165,6 +167,15 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         },
       },
       elementProps,
+      {
+        // Safari ignores `autocomplete="off"` for contacts AutoFill and guesses from the page whether
+        // this is a contact field. A "search" token in the name is the one signal it respects, and it
+        // decides when the input first gets focus, so the name is set from the first render.
+        name: 'search',
+        // The query is UI state, not a form value. A `form` that names no element takes the input
+        // out of any surrounding form, so it's never submitted and Enter never submits that form.
+        form: NO_FORM_ID,
+      },
     ],
   });
 });
@@ -177,9 +188,10 @@ export interface FilterDropdownInputState {
   highlighted: boolean;
 }
 
-export interface FilterDropdownInputProps extends BaseUIComponentProps<
-  'input',
-  FilterDropdownInputState
+// The input always renders its own `name` and `form`.
+export interface FilterDropdownInputProps extends Omit<
+  BaseUIComponentProps<'input', FilterDropdownInputState>,
+  'name' | 'form'
 > {}
 
 interface FilterDropdownInputHostProps extends FilterDropdownInputProps {
