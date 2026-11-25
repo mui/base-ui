@@ -219,12 +219,12 @@ Renders a `<span>` element.
 
 **ToggleIndicator Props:**
 
-| Prop      | Type                                                                                                      | Default | Description                                                                                                                                                                                                                                     |
-| :-------- | :-------------------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| match     | `'password-visible' \| 'password-masked'`                                                                 | -       | The password state the indicator renders in.&#xA;Use `'password-visible'` for the icon shown while the password is revealed, and&#xA;`'password-masked'` for the icon shown while it is masked.&#xA;When omitted, the indicator always renders. |
-| className | `string \| ((state: PasswordFieldToggleIndicatorState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                        |
-| style     | `React.CSSProperties \| ((state: PasswordFieldToggleIndicatorState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PasswordFieldToggleIndicatorState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                   |
+| Prop      | Type                                                                                                      | Default | Description                                                                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| match     | `'on' \| 'off'`                                                                                           | -       | The password state the indicator renders in.&#xA;Use `'on'` for the icon shown while the password is visible (the toggle is pressed), and&#xA;`'off'` for the icon shown while it is masked.&#xA;When omitted, the indicator always renders. |
+| className | `string \| ((state: PasswordFieldToggleIndicatorState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                     |
+| style     | `React.CSSProperties \| ((state: PasswordFieldToggleIndicatorState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                  |
+| render    | `ReactElement \| ((props: HTMLProps, state: PasswordFieldToggleIndicatorState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                |
 
 **ToggleIndicator Data Attributes:**
 
@@ -502,11 +502,11 @@ type PasswordFieldRootState = {
 type PasswordFieldToggleIndicatorProps = {
   /**
    * The password state the indicator renders in.
-   * Use `'password-visible'` for the icon shown while the password is revealed, and
-   * `'password-masked'` for the icon shown while it is masked.
+   * Use `'on'` for the icon shown while the password is visible (the toggle is pressed), and
+   * `'off'` for the icon shown while it is masked.
    * When omitted, the indicator always renders.
    */
-  match?: 'password-visible' | 'password-masked';
+  match?: 'on' | 'off';
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.

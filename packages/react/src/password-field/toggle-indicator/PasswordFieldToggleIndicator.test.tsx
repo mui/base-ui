@@ -46,8 +46,8 @@ describe('<PasswordField.ToggleIndicator />', () => {
 
   describe('prop: match', () => {
     it.each([
-      { name: 'visible', match: 'password-visible' as const, initiallyRendered: false },
-      { name: 'masked', match: 'password-masked' as const, initiallyRendered: true },
+      { name: 'visible', match: 'on' as const, initiallyRendered: false },
+      { name: 'masked', match: 'off' as const, initiallyRendered: true },
     ])('renders only while the password is $name', async ({ match, initiallyRendered }) => {
       const { user } = await render(
         <PasswordField.Root>
@@ -82,7 +82,7 @@ describe('<PasswordField.ToggleIndicator />', () => {
           <React.Suspense fallback={<div data-testid="fallback" />}>
             <PasswordField.Root>
               <PasswordField.Input />
-              <PasswordField.ToggleIndicator match="password-visible" render={pendingRender} />
+              <PasswordField.ToggleIndicator match="on" render={pendingRender} />
             </PasswordField.Root>
           </React.Suspense>,
         );
@@ -122,7 +122,7 @@ describe('<PasswordField.ToggleIndicator />', () => {
             <PasswordField.ToggleIndicator
               className="animation-test-indicator"
               data-testid="indicator"
-              match="password-visible"
+              match="on"
             />
           </PasswordField.Root>
         </div>,

@@ -13,10 +13,10 @@ export default function ExamplePasswordFieldAnimateBetweenIcons() {
       <PasswordField.Root id={id} className={styles.Root}>
         <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
         <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
-          <PasswordField.ToggleIndicator className={styles.Indicator} match="password-masked">
+          <PasswordField.ToggleIndicator className={styles.Indicator} match="off">
             <EyeOffIcon />
           </PasswordField.ToggleIndicator>
-          <PasswordField.ToggleIndicator className={styles.Indicator} match="password-visible">
+          <PasswordField.ToggleIndicator className={styles.Indicator} match="on">
             <EyeIcon />
           </PasswordField.ToggleIndicator>
         </PasswordField.Toggle>

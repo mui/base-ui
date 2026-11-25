@@ -22,13 +22,13 @@ export default function ExamplePasswordFieldAnimateBetweenIcons() {
           className="grid h-full aspect-square shrink-0 place-items-center rounded-none *:[grid-area:1/1] border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
         >
           <PasswordField.ToggleIndicator
-            match="password-masked"
+            match="off"
             className="transition-[opacity,scale] duration-150 data-ending-style:scale-50 data-ending-style:opacity-0 data-starting-style:scale-50 data-starting-style:opacity-0 motion-reduce:transition-none"
           >
             <EyeOffIcon />
           </PasswordField.ToggleIndicator>
           <PasswordField.ToggleIndicator
-            match="password-visible"
+            match="on"
             className="transition-[opacity,scale] duration-150 data-ending-style:scale-50 data-ending-style:opacity-0 data-starting-style:scale-50 data-starting-style:opacity-0 motion-reduce:transition-none"
           >
             <EyeIcon />
