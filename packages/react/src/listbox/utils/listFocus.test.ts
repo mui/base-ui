@@ -126,6 +126,29 @@ describe('ListFocus', () => {
     });
   });
 
+  describe('the position of an item that receives focus', () => {
+    it('is the position focus moves to, which the item may not have rendered with yet', () => {
+      const { element, focus } = setup();
+      let focusedIndex: number | undefined;
+      // The item still reports the position it rendered with.
+      element(1).addEventListener('focus', () => {
+        focusedIndex = focus.getFocusedIndex(0);
+      });
+
+      focus.moveTo(1, EVENT);
+
+      expect(focusedIndex).toBe(1);
+    });
+
+    it("is the item's own position once the move has ended", () => {
+      const { focus } = setup();
+
+      focus.moveTo(1, EVENT);
+
+      expect(focus.getFocusedIndex(0)).toBe(0);
+    });
+  });
+
   describe('moving focus to an item that is not rendered', () => {
     it('highlights the item and holds focus on the list', () => {
       const { list, highlight, focus } = setup();

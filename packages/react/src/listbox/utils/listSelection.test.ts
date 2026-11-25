@@ -6,8 +6,13 @@ import type { SelectionItems } from './listSelection';
 const VALUES = ['a', 'b', 'c', 'd', 'e'];
 const EVENT = 'event';
 
-function setup(options: { multiple: boolean | 'opt-in'; value?: string[]; disabled?: string[] }) {
-  const { multiple, disabled = [] } = options;
+function setup(options: {
+  multiple: boolean | 'opt-in';
+  value?: string[];
+  disabled?: string[];
+  indexed?: boolean;
+}) {
+  const { multiple, disabled = [], indexed = false } = options;
   let value = options.value ?? [];
 
   const items: SelectionItems = {
@@ -16,7 +21,7 @@ function setup(options: { multiple: boolean | 'opt-in'; value?: string[]; disabl
     indexOfValue: (itemValue) => VALUES.indexOf(itemValue),
     isDisabled: (index) => disabled.includes(VALUES[index]),
     keepsDisabled: multiple !== false,
-    indexed: false,
+    indexed,
   };
 
   let rejecting = false;
@@ -66,6 +71,12 @@ describe('ListSelection', () => {
     it('keeps the selection when a disabled item is pressed', () => {
       const { selection, getValue } = setup({ multiple: false, value: ['a'], disabled: ['c'] });
       selection.press(2, {}, EVENT);
+      expect(getValue()).toEqual(['a']);
+    });
+
+    it('deselects a selected disabled item when another item is pressed in single selection', () => {
+      const { selection, getValue } = setup({ multiple: false, value: ['c'], disabled: ['c'] });
+      selection.press(0, {}, EVENT);
       expect(getValue()).toEqual(['a']);
     });
 
@@ -133,16 +144,23 @@ describe('ListSelection', () => {
       expect(getValue()).toEqual(['a', 'b', 'c']);
     });
 
-    it('skips disabled items in the range and keeps the selected disabled ones', () => {
-      const { selection, getValue } = setup({
-        multiple: true,
-        value: ['e'],
-        disabled: ['c', 'e'],
-      });
-      selection.press(0, {}, EVENT);
-      selection.press(3, { shiftKey: true }, EVENT);
-      expect(getValue()).toEqual(['a', 'b', 'd', 'e']);
-    });
+    it.each([
+      { name: 'scanned for', indexed: false },
+      { name: 'looked up by', indexed: true },
+    ])(
+      'skips disabled items in the range and keeps the selected disabled ones, with items $name their value',
+      ({ indexed }) => {
+        const { selection, getValue } = setup({
+          multiple: true,
+          value: ['e'],
+          disabled: ['c', 'e'],
+          indexed,
+        });
+        selection.press(0, {}, EVENT);
+        selection.press(3, { shiftKey: true }, EVENT);
+        expect(getValue()).toEqual(['a', 'b', 'd', 'e']);
+      },
+    );
 
     it('adds the range to the selection in opt-in mode with Ctrl', () => {
       const { selection, getValue } = setup({ multiple: 'opt-in' });

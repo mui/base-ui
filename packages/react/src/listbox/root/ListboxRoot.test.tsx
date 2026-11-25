@@ -2826,17 +2826,33 @@ describe('<Listbox.Root />', () => {
       expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
     });
 
-    it('scrolls to the tab stop when the list receives focus after a press has ended', async () => {
-      await renderList();
-      const list = screen.getByRole('listbox');
-      const focusSpy = vi.spyOn(screen.getByRole('option', { name: 'a' }), 'focus');
+    it.each([
+      { name: 'the pointer was released', end: (list: HTMLElement) => fireEvent.pointerUp(list) },
+      {
+        name: 'the press was canceled',
+        end: (list: HTMLElement) => fireEvent.pointerCancel(list),
+      },
+      {
+        name: 'a key was pressed',
+        end: () => fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'Shift' }),
+      },
+      { name: 'focus left the list', end: (list: HTMLElement) => fireEvent.blur(list) },
+    ])(
+      'scrolls to the tab stop when the list receives focus after a press and $name',
+      async ({ end }) => {
+        await renderList();
+        const list = screen.getByRole('listbox');
+        const itemA = screen.getByRole('option', { name: 'a' });
+        await act(async () => itemA.focus());
+        const focusSpy = vi.spyOn(itemA, 'focus');
 
-      fireEvent.pointerDown(list);
-      fireEvent.pointerUp(list);
-      await act(async () => list.focus());
+        fireEvent.pointerDown(list);
+        end(list);
+        await act(async () => list.focus());
 
-      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
-    });
+        expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+      },
+    );
   });
 
   describe.skipIf(isJSDOM)('scroll position', () => {
@@ -3270,20 +3286,24 @@ describe('<Listbox.Root />', () => {
         expect(handleValueChange.mock.calls[0][0]).toEqual(objectRows.map((row) => row.id));
       });
 
-      it('keeps the selection after the data is replaced', async () => {
+      it('keeps the selection on the same value after the data is replaced in another order', async () => {
         const { setProps } = await render(<ObjectList value={['row-1']} />);
-        expect(screen.getByRole('option', { name: 'Row 1' })).toHaveAttribute(
-          'aria-selected',
-          'true',
-        );
+        expect(
+          screen.getAllByRole('option').map((option) => option.getAttribute('aria-selected')),
+        ).toEqual(['false', 'true', 'false']);
 
-        // A refetch replaces every row with a copy.
-        await setProps({ rows: objectRows.map((row) => ({ ...row })) });
+        // A refetch replaces every row with a copy, and the selected row is now first.
+        const [first, second, ...rest] = objectRows.map((row) => ({ ...row }));
+        await setProps({ rows: [second, first, ...rest] });
 
-        expect(screen.getByRole('option', { name: 'Row 1' })).toHaveAttribute(
-          'aria-selected',
-          'true',
-        );
+        expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+          'Row 1',
+          'Row 0',
+          'Row 2',
+        ]);
+        expect(
+          screen.getAllByRole('option').map((option) => option.getAttribute('aria-selected')),
+        ).toEqual(['true', 'false', 'false']);
       });
     });
 
