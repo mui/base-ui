@@ -16,8 +16,9 @@ const CARET_TEXT_TYPES = new Set(['text', 'search', 'url', 'tel', 'password']);
 
 function getInputControlKeys(element: HTMLElement): Required<TreeGridCellControlKeys> {
   const input = element as HTMLInputElement;
-  // A disabled input that stays focusable ignores every key, so they all navigate.
-  if (input.type === 'checkbox' || input.getAttribute('aria-disabled') === 'true') {
+  // A disabled input that stays focusable never gets here: the grid moves focus
+  // away from it with every navigation key.
+  if (input.type === 'checkbox') {
     return ACTION_CONTROL_KEYS;
   }
   const isInput = element.localName === 'input';
