@@ -493,8 +493,9 @@ type ActionTreeLabelState = {};
 ### Status
 
 Displays a status message whose content changes are announced politely to screen readers.
-By default, announces in English the number of items matching the filter and the
-selection changes made by pressing items or with the keyboard. Pass a function as
+By default, announces in English the number of items matching the filter, and the
+number of selected items after a press or a key changes a multiple selection.
+Screen readers announce the state of the item itself. Pass a function as
 `children` to build the message from `change` in another language.
 This component's root element must remain mounted in the DOM to announce
 changes consistently across screen readers. Avoid hiding or removing the
@@ -553,12 +554,13 @@ type ActionTreeStatusSelectionChange = {
   /**
    * The item the change selected or deselected, or the only item left selected
    * when the change replaced the selection. `null` when several items changed.
+   * The default message doesn't name it, since screen readers announce its state.
    */
   item: { itemId: TreeItemId; label: string; selected: boolean } | null;
   /**
    * The number of selected items, `'all'` when every item is selected, or `null`
-   * when naming the item is enough: in single selection mode, and when the change
-   * selects the first item or deselects the last one.
+   * when the state of the item is enough: in single selection mode, and when the
+   * change selects the first item or deselects the last one.
    */
   count: number | 'all' | null;
 };

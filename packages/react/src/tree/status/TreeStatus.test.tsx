@@ -34,6 +34,21 @@ function renderRow(item: Item) {
   );
 }
 
+/** Names the item too, which the default message leaves to the screen reader. */
+function NamedStatus() {
+  return (
+    <Tree.Status data-testid="status">
+      {({ change, message }) => {
+        if (change?.type !== 'selection' || change.item == null) {
+          return message;
+        }
+        const { label, selected } = change.item;
+        return `${label} ${selected ? 'selected' : 'not selected'}. ${message}`.trim();
+      }}
+    </Tree.Status>
+  );
+}
+
 function FilterableTree(props: { value: string; status?: React.ReactNode }) {
   return (
     <Tree.FilterProvider value={props.value}>
@@ -99,7 +114,7 @@ describe('<Tree.Status />', () => {
       return (
         <Tree.Root defaultExpandedItems={['documents']} {...props}>
           <Tree.List>{renderCheckboxItem}</Tree.List>
-          <Tree.Status data-testid="status" />
+          <NamedStatus />
         </Tree.Root>
       );
     }
@@ -113,7 +128,7 @@ describe('<Tree.Status />', () => {
       await render(
         <Tree.Root items={ITEMS} defaultExpandedItems={['documents']}>
           <Tree.List>{renderCheckboxItem}</Tree.List>
-          <Tree.Status data-testid="status" />
+          <NamedStatus />
         </Tree.Root>,
       );
       const status = screen.getByTestId('status');
@@ -128,7 +143,48 @@ describe('<Tree.Status />', () => {
       expect(status).toHaveTextContent('Invoice Q1 not selected.');
     });
 
-    it('counts a multiple selection unless naming the item is enough', async () => {
+    it('leaves the state of the item to the screen reader and counts a multiple selection', async () => {
+      await render(
+        <Tree.Root
+          items={ITEMS}
+          defaultExpandedItems={['documents']}
+          selectionMode="multiple"
+          checkboxSelectionPropagation={{ parents: false, descendants: false }}
+        >
+          <Tree.List>{renderCheckboxItem}</Tree.List>
+          <Tree.Status data-testid="status" />
+        </Tree.Root>,
+      );
+      const status = screen.getByTestId('status');
+
+      fireEvent.click(screen.getByTestId('notes'));
+      expect(screen.getByTestId('notes')).toHaveAttribute('aria-checked', 'true');
+      expect(status).toBeEmptyDOMElement();
+
+      fireEvent.click(screen.getByTestId('invoice-q1'));
+      expect(status.textContent).toBe('2 items selected.');
+
+      fireEvent.click(screen.getByTestId('notes'));
+      expect(status.textContent).toBe('1 item selected.');
+
+      press('invoice-q1', 'a', { ctrlKey: true });
+      expect(status.textContent).toBe('All items selected.');
+    });
+
+    it('leaves a single selection to the screen reader', async () => {
+      await render(
+        <Tree.Root items={ITEMS}>
+          <Tree.List>{renderRow}</Tree.List>
+          <Tree.Status data-testid="status" />
+        </Tree.Root>,
+      );
+
+      fireEvent.click(screen.getByTestId('notes'));
+      expect(screen.getByTestId('notes')).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('status')).toBeEmptyDOMElement();
+    });
+
+    it('counts a multiple selection unless the state of the item is enough', async () => {
       await render(
         <SelectionTree
           items={ITEMS}
@@ -203,7 +259,7 @@ describe('<Tree.Status />', () => {
             onSelectedItemsChange={(value) => ReactDOM.flushSync(() => setSelectedItems(value))}
           >
             <Tree.List>{renderRow}</Tree.List>
-            <Tree.Status data-testid="status" />
+            <NamedStatus />
           </Tree.Root>
         );
       }
@@ -230,7 +286,7 @@ describe('<Tree.Status />', () => {
             }}
           >
             <Tree.List>{renderRow}</Tree.List>
-            <Tree.Status data-testid="status" />
+            <NamedStatus />
           </Tree.Root>
         );
       }

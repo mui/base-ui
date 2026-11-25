@@ -89,3 +89,40 @@ test('names the tree from Tree.Label', async ({ page, screenReader }) => {
   // of the tree that focus entered, not page content read in browse mode.
   await waitForPhrase(screenReader, /files to share/i);
 });
+
+test('announces the selection count without repeating the state of the item', async ({
+  page,
+  screenReader,
+}) => {
+  await openFixture(page, screenReader, 'tree/CheckboxStatus');
+  await tabToItem(screenReader, /documents/i);
+  await screenReader.clearSpokenPhraseLog();
+  await screenReader.press('ArrowDown');
+  await waitForPhrase(screenReader, /resume/i);
+
+  // The reader announces the new state of the row, so the status adds nothing.
+  await screenReader.clearSpokenPhraseLog();
+  await screenReader.press('Space');
+  await expect(page.getByRole('row', { name: 'Resume' })).toHaveAttribute('aria-selected', 'true');
+  expect(await waitForPhrase(screenReader, /(?<!not )selected/i)).not.toMatch(/resume/i);
+
+  await screenReader.clearSpokenPhraseLog();
+  await screenReader.press('ArrowDown');
+  await waitForPhrase(screenReader, /cover letter/i);
+
+  // Selecting both children selects their parent too, which only the count tells.
+  await screenReader.clearSpokenPhraseLog();
+  await screenReader.press('Space');
+  await waitForPhrase(screenReader, /3 items selected/i);
+
+  await screenReader.clearSpokenPhraseLog();
+  await screenReader.press('Tab');
+  await expect(page.getByRole('checkbox', { name: 'Select Cover letter' })).toBeFocused();
+  await waitForPhrase(screenReader, /select cover letter/i);
+
+  // Unchecking deselects the parent too. The status counts what is left without naming
+  // Resume, which would sound as if it had just been selected.
+  await screenReader.clearSpokenPhraseLog();
+  await screenReader.press('Space');
+  expect(await waitForPhrase(screenReader, /1 item selected/i)).not.toMatch(/resume/i);
+});
