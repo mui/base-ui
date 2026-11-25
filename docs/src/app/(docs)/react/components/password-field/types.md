@@ -83,15 +83,16 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop          | Type                                                                                            | Default | Description                                                                                                                                                                                   |
-| :------------ | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `string \| number \| string[]`                                                                  | -       | The default value of the input. Use when uncontrolled.                                                                                                                                        |
-| value         | `string \| string[] \| number`                                                                  | -       | The value of the input. Use when controlled.                                                                                                                                                  |
-| onValueChange | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`                             | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
-| disabled      | `boolean`                                                                                       | `false` | Whether the input should ignore user interaction.&#xA;Use the `disabled` prop on `PasswordField.Root` to disable the toggle as well.                                                          |
-| className     | `string \| ((state: PasswordFieldInputState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style         | `React.CSSProperties \| ((state: PasswordFieldInputState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render        | `ReactElement \| ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop          | Type                                                                                            | Default              | Description                                                                                                                                                                                   |
+| :------------ | :---------------------------------------------------------------------------------------------- | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string \| number \| string[]`                                                                  | -                    | The default value of the input. Use when uncontrolled.                                                                                                                                        |
+| value         | `string \| string[] \| number`                                                                  | -                    | The value of the input. Use when controlled.                                                                                                                                                  |
+| onValueChange | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`                             | -                    | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
+| autoComplete  | `React.HTMLInputAutoCompleteAttribute`                                                          | `'current-password'` | The browser autofill hint for the input.&#xA;Use `'new-password'` on sign-up or change-password forms so browsers and password managers&#xA;offer to generate one.                            |
+| disabled      | `boolean`                                                                                       | `false`              | Whether the input should ignore user interaction.&#xA;Use the `disabled` prop on `PasswordField.Root` to disable the toggle as well.                                                          |
+| className     | `string \| ((state: PasswordFieldInputState) => string \| undefined)`                           | -                    | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style         | `React.CSSProperties \| ((state: PasswordFieldInputState) => React.CSSProperties \| undefined)` | -                    | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render        | `ReactElement \| ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement)`          | -                    | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
@@ -429,6 +430,13 @@ type PasswordFieldInputProps = {
    * @default false
    */
   disabled?: boolean;
+  /**
+   * The browser autofill hint for the input.
+   * Use `'new-password'` on sign-up or change-password forms so browsers and password managers
+   * offer to generate one.
+   * @default 'current-password'
+   */
+  autoComplete?: React.HTMLInputAutoCompleteAttribute;
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.

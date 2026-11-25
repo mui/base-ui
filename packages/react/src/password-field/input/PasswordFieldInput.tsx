@@ -67,6 +67,13 @@ export interface PasswordFieldInputProps extends Omit<InputProps, 'id' | 'type'>
    * @default false
    */
   disabled?: boolean | undefined;
+  /**
+   * The browser autofill hint for the input.
+   * Use `'new-password'` on sign-up or change-password forms so browsers and password managers
+   * offer to generate one.
+   * @default 'current-password'
+   */
+  autoComplete?: React.HTMLInputAutoCompleteAttribute | undefined;
 }
 
 export type PasswordFieldInputChangeEventReason = InputChangeEventReason;
