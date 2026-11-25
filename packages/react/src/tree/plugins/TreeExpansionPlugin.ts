@@ -202,13 +202,7 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
     );
 
     const viewChange = this.planVisibleExpansion(candidates, true);
-    this.expandItems(
-      candidates,
-      reason,
-      event,
-      new Set(viewChange.modelItemIds),
-      viewChange.apply,
-    );
+    this.expandItems(candidates, reason, event, new Set(viewChange.modelItemIds), viewChange.apply);
   };
 
   /**
