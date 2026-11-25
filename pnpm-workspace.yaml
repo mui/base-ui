@@ -26,6 +26,11 @@ allowBuilds:
 overrides:
   # Screen recording is not needed for the tests and pulls in ffmpeg-static.
   '@guidepup/setup>@guidepup/record': '-'
+  # The preview of https://github.com/mui/mui-public/pull/2126 depends on preview URLs, which
+  # blockExoticSubdeps rejects. Remove these once it is replaced by a canary.
+  '@mui/internal-code-infra>@mui/internal-babel-plugin-display-name': 2.0.1-canary.5
+  '@mui/internal-code-infra>@mui/internal-babel-plugin-minify-errors': 3.0.1-canary.5
+  '@mui/internal-code-infra>@mui/internal-babel-plugin-resolve-imports': 3.0.1-canary.6
   # via lerna -> minimatch, eslint-plugin-* -> minimatch (GHSA-3jxr-9vmj-r5cp)
   brace-expansion@1: '1.1.22'
   brace-expansion@2: '2.1.8'

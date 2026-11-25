@@ -22,7 +22,6 @@ import {
 const GENERAL_CHANGES = 'General changes';
 const BREAKING_CHANGE = '🚨 **Breaking change:**';
 const ALL_COMPONENTS_LABEL = 'scope: all components';
-const BOT_SUFFIX = '[bot]';
 
 const EXCLUDED_LABELS = [
   'dependencies',
@@ -159,9 +158,10 @@ function formatDocsEntry(change) {
  */
 function getCreditedChanges({ changes }) {
   return changes.filter(
-    ({ labels, author }) =>
+    ({ labels, author, pullRequest }) =>
       !labels.some((label) => EXCLUDED_LABELS.includes(label)) &&
-      !author?.login?.endsWith(BOT_SUFFIX),
+      !author?.isBot &&
+      !pullRequest?.openedBy?.isBot,
   );
 }
 
