@@ -74,13 +74,11 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // A revealed password must never be submitted as `type="text"`: browsers can save text inputs to
-  // autofill history, and password managers may not recognize them. Submitting therefore masks the
-  // input without changing `revealed`, so it can't be canceled or overridden by the `revealed` prop.
+  // Masks the input while its form submits, without changing `revealed`.
   const [maskedForSubmit, setMaskedForSubmit] = React.useState(false);
   const unmaskTimeout = useTimeout();
 
-  const maskForSubmit = useStableCallback((event: Event) => {
+  const handleSubmit = useStableCallback((event: Event) => {
     const input = inputRef.current;
     if (!revealed || !input || event.target !== input.form) {
       return;
@@ -122,9 +120,9 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
       // Always mask on submit, with no way to cancel it: a revealed input is plain text, so
       // browsers could save the password to autofill history and password managers may not
       // recognize it.
-      addEventListener(rootNode, 'submit', maskForSubmit, true),
+      addEventListener(rootNode, 'submit', handleSubmit, true),
     );
-  }, [initialRevealed, setRevealed, maskForSubmit]);
+  }, [initialRevealed, setRevealed, handleSubmit]);
 
   const state: PasswordFieldRoot.State = React.useMemo(
     () => ({ ...fieldState, disabled, revealed }),
