@@ -253,9 +253,4 @@ export class TreeStore<
   public getActions = (): TreeRootActions<TItem> => {
     return this.actions;
   };
-
-  /** Adds the actions of a plugin installed by a provider wrapping the root. */
-  public registerActions(actions: Partial<TreeRootActions<TItem>>): void {
-    Object.assign(this.actions, actions);
-  }
 }

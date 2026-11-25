@@ -18,10 +18,8 @@ export interface TreeRootFeature {
   /** The provider's part name, such as `FilterProvider`, for its misplacement warnings. */
   name?: string | undefined;
   /**
-   * Adds the feature's plugin to the store, such as `store.filtering`, and passes
-   * the plugin's actions to `store.registerActions()` so they replace the store's
-   * missing-provider fallbacks. Runs when the root creates its store, so the first
-   * render already has the plugin.
+   * Adds the feature's plugin to the store, such as `store.filtering`. Runs when
+   * the root creates its store, so the first render already has the plugin.
    */
   install?: ((store: TreeStore<any, any>) => void) | undefined;
   /**
@@ -30,11 +28,6 @@ export interface TreeRootFeature {
    * the store never mixes new items with stale feature state.
    */
   state?: TreeRootFeatureState | undefined;
-  /**
-   * Wraps the root's children with the feature's React logic, which reads the store
-   * with `useTreeRootContext()`.
-   */
-  render?: ((children: React.ReactNode) => React.ReactNode) | undefined;
 }
 
 /**

@@ -205,20 +205,10 @@ export function TreeRoot<
   // After the imperative handle, so plugin callbacks can use `actionsRef`.
   useIsoLayoutEffect(() => store.layoutMountEffect(), [store]);
 
-  // Memoized so that re-rendering the root alone doesn't re-render the features.
-  const content = React.useMemo(() => {
-    // The outermost provider's feature wraps the others.
-    let wrapped: React.ReactNode = children;
-    for (let index = features.length - 1; index >= 0; index -= 1) {
-      wrapped = features[index].render?.(wrapped) ?? wrapped;
-    }
-    return wrapped;
-  }, [features, children]);
-
   return (
     <TreeRootContext.Provider value={store}>
       <TreeRootFeaturesContext.Provider value={EMPTY_ARRAY}>
-        {content}
+        {children}
       </TreeRootFeaturesContext.Provider>
     </TreeRootContext.Provider>
   );

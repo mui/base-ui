@@ -14,6 +14,7 @@ import type {
 } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
+import type { TreeFilterExpansionPlan } from './TreeFilteringPlugin';
 import {
   areAncestorsExpanded,
   effectiveExpandedItemsSetSelector,
@@ -80,21 +81,36 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
     const cleanShouldBeExpanded =
       shouldBeExpanded ?? !selectors.isItemExpanded(this.store.state, itemId);
 
-    // While filtering, the filter plans its part of the visible expansion and
-    // tells whether the model changes too.
-    const viewChange = this.store.filtering?.planItemsExpansion([itemId], cleanShouldBeExpanded);
-    const commitModel = viewChange == null || viewChange.modelItemIds.length > 0;
+    const viewChange = this.planVisibleExpansion([itemId], cleanShouldBeExpanded);
+    const commitModel = viewChange.modelItemIds.length > 0;
     if (commitModel && isExpandedBefore === cleanShouldBeExpanded) {
-      viewChange?.apply();
+      viewChange.apply();
       return;
     }
 
     if (commitModel) {
-      this.applyItemExpansion(itemId, cleanShouldBeExpanded, reason, event, viewChange?.apply);
+      this.applyItemExpansion(itemId, cleanShouldBeExpanded, reason, event, viewChange.apply);
     } else {
-      viewChange?.apply();
+      viewChange.apply();
     }
   };
+
+  /**
+   * Plans a change to the visible expansion. While filtering, the filter decides
+   * part of it, writes that part with `apply` once the change is accepted, and
+   * returns the rows whose model must change too; otherwise the model is all of it.
+   */
+  private planVisibleExpansion(
+    itemIds: TreeItemId[],
+    isExpanded: boolean,
+  ): TreeFilterExpansionPlan {
+    return (
+      this.store.filtering?.planItemsExpansion(itemIds, isExpanded) ?? {
+        modelItemIds: itemIds,
+        apply: NOOP,
+      }
+    );
+  }
 
   /** Whether the expansion change caused by `event` called `eventDetails.allowPropagation()`. */
   public isPropagationAllowed = (event: Event): boolean => this.propagationAllowedEvent === event;
@@ -185,17 +201,13 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
         this.canToggleItemExpansion(child) && !selectors.isItemExpanded(this.store.state, child),
     );
 
-    // While filtering, the visible expansion is not the model alone: the filter
-    // plans its part and returns the rows the model must expand.
-    const viewChange = this.store.filtering?.isActive(this.store.state)
-      ? this.store.filtering.planItemsExpansion(candidates, true)
-      : undefined;
+    const viewChange = this.planVisibleExpansion(candidates, true);
     this.expandItems(
       candidates,
       reason,
       event,
-      viewChange && new Set(viewChange.modelItemIds),
-      viewChange?.apply,
+      new Set(viewChange.modelItemIds),
+      viewChange.apply,
     );
   };
 
@@ -225,20 +237,18 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
       }
     }
     // While filtering, the rows the filter shows collapsed expand in its view too.
-    const viewChange = this.store.filtering?.isActive(state)
-      ? this.store.filtering.planItemsExpansion(
-          expandable.filter((itemId) => !selectors.isItemExpanded(state, itemId)),
-          true,
-        )
-      : undefined;
+    const viewChange = this.planVisibleExpansion(
+      expandable.filter((itemId) => !selectors.isItemExpanded(state, itemId)),
+      true,
+    );
     this.expandItems(
       expandable.filter((itemId) => !expandedSet.has(itemId)),
       reason,
       event,
       // A subtree toggle is a user interaction, so like a single toggle it leaves
       // the model alone where the filter view decides the expansion.
-      rootId === undefined || viewChange == null ? undefined : new Set(viewChange.modelItemIds),
-      viewChange?.apply,
+      rootId === undefined ? undefined : new Set(viewChange.modelItemIds),
+      viewChange.apply,
     );
   };
 
@@ -253,22 +263,20 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
     const oldExpanded = this.store.state.expandedItems;
     let collapsed = this.withoutDetachedIds(oldExpanded).filter(isInScope);
     const effectiveExpanded = [...effectiveExpandedItemsSetSelector(this.store.state)];
-    const viewChange = this.store.filtering?.isActive(this.store.state)
-      ? this.store.filtering.planItemsExpansion(
-          subtree == null
-            ? effectiveExpanded
-            : [...new Set([...effectiveExpanded.filter(isInScope), ...collapsed])],
-          false,
-        )
-      : undefined;
-    if (subtree != null && viewChange != null) {
+    const viewChange = this.planVisibleExpansion(
+      subtree == null
+        ? effectiveExpanded
+        : [...new Set([...effectiveExpanded.filter(isInScope), ...collapsed])],
+      false,
+    );
+    if (subtree != null) {
       // Like a single toggle, a subtree toggle leaves the model alone where the
       // filter view decides the expansion.
       const modelItemIds = new Set(viewChange.modelItemIds);
       collapsed = collapsed.filter((itemId) => modelItemIds.has(itemId));
     }
     if (subtree == null ? oldExpanded.length === 0 : collapsed.length === 0) {
-      viewChange?.apply();
+      viewChange.apply();
       return;
     }
 
@@ -280,7 +288,7 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
       reason,
       event,
       undefined,
-      viewChange?.apply,
+      viewChange.apply,
     );
   };
 
@@ -419,27 +427,6 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
         this.buildGroupTransitionsForChange(oldExpanded, newExpanded) ??
         this.store.state.animatingGroups,
     });
-  }
-
-  /**
-   * Starts the expanding transition of a folder whose children loaded after it
-   * expanded, as its expansion found no rows to animate.
-   */
-  public startLoadedChildrenTransition(itemId: TreeItemId): void {
-    const { state } = this.store;
-    if (
-      !selectors.expandedItemsSet(state).has(itemId) ||
-      state.animatingGroups[getItemIdKey(itemId)] != null
-    ) {
-      return;
-    }
-    const groups = this.buildGroupTransitionsForChange(
-      state.expandedItems.filter((expandedId) => expandedId !== itemId),
-      state.expandedItems,
-    );
-    if (groups != null) {
-      this.store.set('animatingGroups', groups);
-    }
   }
 
   /** The `animatingGroups` with the transitions of a change started, or `null` when none starts. */
