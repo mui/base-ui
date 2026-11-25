@@ -59,7 +59,7 @@
     transition: none;
   }
 
-  .Character[data-visible] & {
+  .Character[data-revealed] & {
     transform: translateY(0);
   }
 }

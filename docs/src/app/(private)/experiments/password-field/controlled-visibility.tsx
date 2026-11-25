@@ -4,11 +4,11 @@ import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-f
 import styles from './controlled-visibility.module.css';
 
 export default function PasswordFieldControlledVisibility() {
-  const [visible, setVisible] = React.useState(false);
+  const [revealed, setRevealed] = React.useState(false);
   return (
-    <PasswordField.Root visible={visible} onVisibleChange={setVisible}>
+    <PasswordField.Root revealed={revealed} onRevealedChange={setRevealed}>
       <div className={styles.Field}>
-        <div className={styles.Character} data-visible={visible ? '' : undefined}>
+        <div className={styles.Character} data-revealed={revealed ? '' : undefined}>
           <Character />
         </div>
         <PasswordField.Label className={styles.Label}>Password</PasswordField.Label>

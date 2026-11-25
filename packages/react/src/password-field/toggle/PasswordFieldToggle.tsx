@@ -29,8 +29,8 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
   } = componentProps;
 
   const {
-    state: { visible, disabled: rootDisabled },
-    setVisible,
+    state: { revealed, disabled: rootDisabled },
+    setRevealed,
     inputId,
     inputRef,
   } = usePasswordFieldRootContext();
@@ -39,7 +39,7 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
 
   const { getButtonProps, buttonRef } = useButton({ disabled, native: nativeButton });
 
-  const state: PasswordFieldToggle.State = { pressed: visible, disabled };
+  const state: PasswordFieldToggle.State = { pressed: revealed, revealed, disabled };
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -48,7 +48,7 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
       {
         // A toggle button: `aria-pressed` is announced reliably on change, unlike a swapped
         // `aria-label` (which VoiceOver in particular often fails to re-announce).
-        'aria-pressed': visible,
+        'aria-pressed': revealed,
         'aria-controls': inputId,
         // A pointer press on the toggle keeps focus (and the caret) on a focused input, so the
         // user can keep typing. Keyboard activation has no `mousedown` and focuses the toggle.
@@ -62,8 +62,8 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
           }
         },
         onClick(event) {
-          setVisible(
-            !visible,
+          setRevealed(
+            !revealed,
             createChangeEventDetails(REASONS.triggerPress, event.nativeEvent, event.currentTarget),
           );
         },
@@ -84,6 +84,10 @@ export interface PasswordFieldToggleState {
    * Whether the toggle is pressed (the password is revealed as plain text).
    */
   pressed: boolean;
+  /**
+   * Whether the password is currently revealed as plain text.
+   */
+  revealed: boolean;
   /**
    * Whether the toggle should ignore user interaction.
    */

@@ -6,7 +6,7 @@ import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { PasswordFieldRoot } from '../root/PasswordFieldRoot';
 import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
-import { passwordFieldStateAttributesMapping } from '../root/stateAttributesMapping';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
 
 /**
  * An accessible label that is automatically associated with the password input.
@@ -31,7 +31,7 @@ export const PasswordFieldLabel = React.forwardRef(function PasswordFieldLabel(
     state,
     // `htmlFor` follows the id the input renders with, including one set on its render element.
     props: [labelProps, elementProps, { htmlFor: inputId }],
-    stateAttributesMapping: passwordFieldStateAttributesMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 });
 

@@ -1,4 +1,8 @@
 /**
+ * Present when the password is revealed as plain text.
+ */
+export const revealed = 'data-revealed';
+/**
  * Present when the field is disabled.
  */
 export const disabled = 'data-disabled';

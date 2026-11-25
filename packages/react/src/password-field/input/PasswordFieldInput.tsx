@@ -24,7 +24,7 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
   const { disabled: disabledProp = false, ...elementProps } = componentProps;
 
   const {
-    state: { visible, disabled: rootDisabled },
+    state: { revealed, disabled: rootDisabled },
     maskedForSubmit,
     inputIdProp,
     setRenderedInputId,
@@ -53,7 +53,8 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
       // toggle's `aria-controls` and a Field's label follow a render element's id.
       id={id}
       disabled={rootDisabled || disabledProp}
-      type={visible && !maskedForSubmit ? 'text' : 'password'}
+      type={revealed && !maskedForSubmit ? 'text' : 'password'}
+      data-revealed={revealed ? '' : undefined}
     />
   );
 });

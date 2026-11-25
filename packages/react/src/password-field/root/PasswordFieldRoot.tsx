@@ -26,9 +26,9 @@ import { PasswordFieldRootContext } from './PasswordFieldRootContext';
 export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
   const {
     id: idProp,
-    visible: visibleProp,
-    defaultVisible = false,
-    onVisibleChange,
+    revealed: revealedProp,
+    defaultRevealed = false,
+    onRevealedChange,
     disabled: disabledProp = false,
     children,
   } = props;
@@ -48,27 +48,27 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
   const [renderedInputId, setRenderedInputId] = React.useState<string | undefined>(undefined);
   const inputId = (renderedInputId ?? controlId ?? inputIdProp) || undefined;
 
-  const [visible, setVisibleState] = useControlled({
-    controlled: visibleProp,
-    default: defaultVisible,
+  const [revealed, setRevealedState] = useControlled({
+    controlled: revealedProp,
+    default: defaultRevealed,
     name: 'PasswordField',
-    state: 'visible',
+    state: 'revealed',
   });
-  const [initialVisible] = React.useState(visible);
+  const [initialRevealed] = React.useState(revealed);
 
-  const setVisible = useStableCallback(
-    (nextVisible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => {
-      if (nextVisible === visible) {
+  const setRevealed = useStableCallback(
+    (nextRevealed: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => {
+      if (nextRevealed === revealed) {
         return;
       }
 
-      onVisibleChange?.(nextVisible, eventDetails);
+      onRevealedChange?.(nextRevealed, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
       }
 
-      setVisibleState(nextVisible);
+      setRevealedState(nextRevealed);
     },
   );
 
@@ -76,13 +76,13 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
 
   // A revealed password must never be submitted as `type="text"`: browsers can save text inputs to
   // autofill history, and password managers may not recognize them. Submitting therefore masks the
-  // input without changing `visible`, so it can't be canceled or overridden by the `visible` prop.
+  // input without changing `revealed`, so it can't be canceled or overridden by the `revealed` prop.
   const [maskedForSubmit, setMaskedForSubmit] = React.useState(false);
   const unmaskTimeout = useTimeout();
 
   const maskForSubmit = useStableCallback((event: Event) => {
     const input = inputRef.current;
-    if (!visible || !input || event.target !== input.form) {
+    if (!revealed || !input || event.target !== input.form) {
       return;
     }
 
@@ -114,7 +114,7 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
         'reset',
         (event) => {
           if (event.target === inputRef.current?.form) {
-            setVisible(initialVisible, createChangeEventDetails(REASONS.formReset, event));
+            setRevealed(initialRevealed, createChangeEventDetails(REASONS.formReset, event));
           }
         },
         true,
@@ -124,24 +124,24 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
       // recognize it.
       addEventListener(rootNode, 'submit', maskForSubmit, true),
     );
-  }, [initialVisible, setVisible, maskForSubmit]);
+  }, [initialRevealed, setRevealed, maskForSubmit]);
 
   const state: PasswordFieldRoot.State = React.useMemo(
-    () => ({ ...fieldState, disabled, visible }),
-    [fieldState, disabled, visible],
+    () => ({ ...fieldState, disabled, revealed }),
+    [fieldState, disabled, revealed],
   );
 
   const contextValue: PasswordFieldRootContext = React.useMemo(
     () => ({
       state,
-      setVisible,
+      setRevealed,
       maskedForSubmit,
       inputId,
       inputIdProp,
       setRenderedInputId,
       inputRef,
     }),
-    [state, setVisible, maskedForSubmit, inputId, inputIdProp],
+    [state, setRevealed, maskedForSubmit, inputId, inputIdProp],
   );
 
   return (
@@ -155,7 +155,7 @@ export interface PasswordFieldRootState extends FieldRootState {
   /**
    * Whether the password is currently revealed as plain text.
    */
-  visible: boolean;
+  revealed: boolean;
 }
 
 export interface PasswordFieldRootProps {
@@ -166,23 +166,23 @@ export interface PasswordFieldRootProps {
   /**
    * Whether the password is currently revealed as plain text.
    *
-   * To render an uncontrolled password field, use the `defaultVisible` prop instead.
+   * To render an uncontrolled password field, use the `defaultRevealed` prop instead.
    */
-  visible?: boolean | undefined;
+  revealed?: boolean | undefined;
   /**
    * Whether the password is initially revealed as plain text.
    *
-   * To render a controlled password field, use the `visible` prop instead.
+   * To render a controlled password field, use the `revealed` prop instead.
    * @default false
    */
-  defaultVisible?: boolean | undefined;
+  defaultRevealed?: boolean | undefined;
   /**
    * Callback fired when the password visibility changes.
    * Besides the toggle, resetting the owning form restores the initial visibility.
    * Cancel `'form-reset'` to prevent it.
    */
-  onVisibleChange?:
-    ((visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void) | undefined;
+  onRevealedChange?:
+    ((revealed: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the component should ignore user interaction.
    * Applies to both the input and the toggle.

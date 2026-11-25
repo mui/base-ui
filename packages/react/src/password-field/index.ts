@@ -11,6 +11,6 @@ export type * from './toggle-indicator/PasswordFieldToggleIndicator';
 // Drop `Preview` from them together with the namespace.
 export * as PasswordFieldPreviewLabelDataAttributes from './label/PasswordFieldLabelDataAttributes';
 export * as PasswordFieldPreviewGroupDataAttributes from './group/PasswordFieldGroupDataAttributes';
-export * as PasswordFieldPreviewInputDataAttributes from '../input/InputDataAttributes';
+export * as PasswordFieldPreviewInputDataAttributes from './input/PasswordFieldInputDataAttributes';
 export * as PasswordFieldPreviewToggleDataAttributes from './toggle/PasswordFieldToggleDataAttributes';
 export * as PasswordFieldPreviewToggleIndicatorDataAttributes from './toggle-indicator/PasswordFieldToggleIndicatorDataAttributes';

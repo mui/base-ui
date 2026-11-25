@@ -24,9 +24,9 @@ describe('<PasswordField.Root />', () => {
       expect(document.querySelector('input')).toHaveAttribute('type', 'password');
     });
 
-    it('respects defaultVisible (uncontrolled)', async () => {
+    it('respects defaultRevealed (uncontrolled)', async () => {
       await render(
-        <PasswordField.Root defaultVisible>
+        <PasswordField.Root defaultRevealed>
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
@@ -35,9 +35,9 @@ describe('<PasswordField.Root />', () => {
       expect(document.querySelector('input')).toHaveAttribute('type', 'text');
     });
 
-    it('respects visible (controlled)', async () => {
+    it('respects revealed (controlled)', async () => {
       const { setProps } = await render(
-        <PasswordField.Root visible={false}>
+        <PasswordField.Root revealed={false}>
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
@@ -46,14 +46,14 @@ describe('<PasswordField.Root />', () => {
       const input = document.querySelector('input')!;
       expect(input).toHaveAttribute('type', 'password');
 
-      await setProps({ visible: true });
+      await setProps({ revealed: true });
       expect(input).toHaveAttribute('type', 'text');
     });
 
     it('does not flip the type locally when controlled (click only notifies)', async () => {
-      const onVisibleChange = vi.fn();
+      const onRevealedChange = vi.fn();
       await render(
-        <PasswordField.Root visible={false} onVisibleChange={onVisibleChange}>
+        <PasswordField.Root revealed={false} onRevealedChange={onRevealedChange}>
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
@@ -65,18 +65,18 @@ describe('<PasswordField.Root />', () => {
         screen.getByRole('button').click();
       });
 
-      // The controlled `visible` prop wins: the click reports the request but the type stays put.
-      expect(onVisibleChange.mock.calls.length).toBe(1);
-      expect(onVisibleChange.mock.calls[0][0]).toBe(true);
+      // The controlled `revealed` prop wins: the click reports the request but the type stays put.
+      expect(onRevealedChange.mock.calls.length).toBe(1);
+      expect(onRevealedChange.mock.calls[0][0]).toBe(true);
       expect(input).toHaveAttribute('type', 'password');
     });
   });
 
-  describe('prop: onVisibleChange', () => {
+  describe('prop: onRevealedChange', () => {
     it('fires when the toggle is pressed', async () => {
-      const onVisibleChange = vi.fn();
+      const onRevealedChange = vi.fn();
       await render(
-        <PasswordField.Root onVisibleChange={onVisibleChange}>
+        <PasswordField.Root onRevealedChange={onRevealedChange}>
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
@@ -86,19 +86,19 @@ describe('<PasswordField.Root />', () => {
         screen.getByRole('button').click();
       });
 
-      expect(onVisibleChange.mock.calls.length).toBe(1);
-      expect(onVisibleChange.mock.calls[0][0]).toBe(true);
-      expect(onVisibleChange.mock.calls[0][1].reason).toBe(REASONS.triggerPress);
-      expect(onVisibleChange.mock.calls[0][1].event).toBeInstanceOf(MouseEvent);
-      expect(onVisibleChange.mock.calls[0][1].trigger).toBe(screen.getByRole('button'));
+      expect(onRevealedChange.mock.calls.length).toBe(1);
+      expect(onRevealedChange.mock.calls[0][0]).toBe(true);
+      expect(onRevealedChange.mock.calls[0][1].reason).toBe(REASONS.triggerPress);
+      expect(onRevealedChange.mock.calls[0][1].event).toBeInstanceOf(MouseEvent);
+      expect(onRevealedChange.mock.calls[0][1].trigger).toBe(screen.getByRole('button'));
     });
 
     it('does not change visibility when the event is canceled', async () => {
-      const onVisibleChange = vi.fn((_visible: boolean, eventDetails: { cancel: () => void }) => {
+      const onRevealedChange = vi.fn((_revealed: boolean, eventDetails: { cancel: () => void }) => {
         eventDetails.cancel();
       });
       await render(
-        <PasswordField.Root onVisibleChange={onVisibleChange}>
+        <PasswordField.Root onRevealedChange={onRevealedChange}>
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
@@ -109,16 +109,16 @@ describe('<PasswordField.Root />', () => {
       });
 
       // The callback fired, but cancellation kept the password hidden.
-      expect(onVisibleChange.mock.calls.length).toBe(1);
+      expect(onRevealedChange.mock.calls.length).toBe(1);
       expect(document.querySelector('input')).toHaveAttribute('type', 'password');
     });
   });
 
   describe('prop: disabled', () => {
     it('disables the input and the toggle', async () => {
-      const onVisibleChange = vi.fn();
+      const onRevealedChange = vi.fn();
       await render(
-        <PasswordField.Root disabled onVisibleChange={onVisibleChange}>
+        <PasswordField.Root disabled onRevealedChange={onRevealedChange}>
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
@@ -135,14 +135,14 @@ describe('<PasswordField.Root />', () => {
         button.click();
       });
 
-      expect(onVisibleChange.mock.calls.length).toBe(0);
+      expect(onRevealedChange.mock.calls.length).toBe(0);
     });
 
     it('is disabled by a surrounding Fieldset.Root without a Field.Root', async () => {
-      const onVisibleChange = vi.fn();
+      const onRevealedChange = vi.fn();
       await render(
         <Fieldset.Root disabled>
-          <PasswordField.Root onVisibleChange={onVisibleChange}>
+          <PasswordField.Root onRevealedChange={onRevealedChange}>
             <PasswordField.Input />
             <PasswordField.Toggle nativeButton={false} render={<span />} />
           </PasswordField.Root>
@@ -160,7 +160,7 @@ describe('<PasswordField.Root />', () => {
       });
 
       expect(input).toHaveAttribute('type', 'password');
-      expect(onVisibleChange.mock.calls.length).toBe(0);
+      expect(onRevealedChange.mock.calls.length).toBe(0);
     });
 
     it('is disabled by a surrounding Field.Root', async () => {
@@ -267,15 +267,18 @@ describe('<PasswordField.Root />', () => {
     }
 
     it.each([
-      { name: 'masked', defaultVisible: false, initialType: 'password', revealedType: 'text' },
-      { name: 'visible', defaultVisible: true, initialType: 'text', revealedType: 'password' },
+      { name: 'masked', defaultRevealed: false, initialType: 'password', revealedType: 'text' },
+      { name: 'revealed', defaultRevealed: true, initialType: 'text', revealedType: 'password' },
     ])(
       'restores the initial visibility when the form is reset and it was initially $name',
-      async ({ defaultVisible, initialType, revealedType }) => {
-        const onVisibleChange = vi.fn();
+      async ({ defaultRevealed, initialType, revealedType }) => {
+        const onRevealedChange = vi.fn();
         await render(
           <form>
-            <PasswordField.Root defaultVisible={defaultVisible} onVisibleChange={onVisibleChange}>
+            <PasswordField.Root
+              defaultRevealed={defaultRevealed}
+              onRevealedChange={onRevealedChange}
+            >
               <PasswordField.Input />
               <PasswordField.Toggle />
             </PasswordField.Root>
@@ -289,9 +292,9 @@ describe('<PasswordField.Root />', () => {
         fireEvent.reset(input.form!);
 
         expect(input).toHaveAttribute('type', initialType);
-        expect(onVisibleChange.mock.calls.length).toBe(2);
-        expect(onVisibleChange.mock.lastCall?.[0]).toBe(defaultVisible);
-        expect(onVisibleChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
+        expect(onRevealedChange.mock.calls.length).toBe(2);
+        expect(onRevealedChange.mock.lastCall?.[0]).toBe(defaultRevealed);
+        expect(onRevealedChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
       },
     );
 
@@ -299,7 +302,7 @@ describe('<PasswordField.Root />', () => {
       await render(
         <form>
           <PasswordField.Root
-            onVisibleChange={(_visible, eventDetails) => {
+            onRevealedChange={(_revealed, eventDetails) => {
               if (eventDetails.reason === REASONS.formReset) {
                 eventDetails.cancel();
               }
@@ -330,10 +333,10 @@ describe('<PasswordField.Root />', () => {
         onReset: (event: React.FormEvent) => event.preventDefault(),
       },
     ])('restores the initial visibility when an onReset handler $name', async ({ onReset }) => {
-      const onVisibleChange = vi.fn();
+      const onRevealedChange = vi.fn();
       await render(
         <form onReset={onReset}>
-          <PasswordField.Root onVisibleChange={onVisibleChange}>
+          <PasswordField.Root onRevealedChange={onRevealedChange}>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -347,15 +350,15 @@ describe('<PasswordField.Root />', () => {
       fireEvent.reset(input.form!);
 
       expect(input).toHaveAttribute('type', 'password');
-      expect(onVisibleChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
+      expect(onRevealedChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
     });
 
-    it('resets a controlled visibility through onVisibleChange', async () => {
+    it('resets a controlled visibility through onRevealedChange', async () => {
       function App() {
-        const [visible, setVisible] = React.useState(false);
+        const [revealed, setRevealed] = React.useState(false);
         return (
           <form>
-            <PasswordField.Root visible={visible} onVisibleChange={setVisible}>
+            <PasswordField.Root revealed={revealed} onRevealedChange={setRevealed}>
               <PasswordField.Input />
               <PasswordField.Toggle />
             </PasswordField.Root>
@@ -476,14 +479,14 @@ describe('<PasswordField.Root />', () => {
       });
     }
 
-    it('masks the input while the form submits, even when onVisibleChange cancels every change', async () => {
-      // Masking doesn't go through onVisibleChange, so it can't be canceled or even observed there.
-      const onVisibleChange = vi.fn((_visible: boolean, eventDetails: { cancel: () => void }) => {
+    it('masks the input while the form submits, even when onRevealedChange cancels every change', async () => {
+      // Masking doesn't go through onRevealedChange, so it can't be canceled or even observed there.
+      const onRevealedChange = vi.fn((_revealed: boolean, eventDetails: { cancel: () => void }) => {
         eventDetails.cancel();
       });
       await render(
         <form onSubmit={(event) => event.preventDefault()}>
-          <PasswordField.Root defaultVisible onVisibleChange={onVisibleChange}>
+          <PasswordField.Root defaultRevealed onRevealedChange={onRevealedChange}>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -501,7 +504,7 @@ describe('<PasswordField.Root />', () => {
       await unmaskAfterSubmit();
 
       expect(input).toHaveAttribute('type', 'text');
-      expect(onVisibleChange.mock.calls.length).toBe(0);
+      expect(onRevealedChange.mock.calls.length).toBe(0);
     });
 
     it('masks the input on submit even if the submit handler stops propagation', async () => {
@@ -512,7 +515,7 @@ describe('<PasswordField.Root />', () => {
             event.stopPropagation();
           }}
         >
-          <PasswordField.Root defaultVisible>
+          <PasswordField.Root defaultRevealed>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -530,7 +533,7 @@ describe('<PasswordField.Root />', () => {
     it('stays masked after the submit when the password was hidden during it', async () => {
       await render(
         <form onSubmit={(event) => event.preventDefault()}>
-          <PasswordField.Root defaultVisible>
+          <PasswordField.Root defaultRevealed>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -555,7 +558,7 @@ describe('<PasswordField.Root />', () => {
       onTestFinished(() => host.remove());
 
       await render(
-        <PasswordField.Root defaultVisible>
+        <PasswordField.Root defaultRevealed>
           {ReactDOM.createPortal(
             <form onSubmit={(event) => event.preventDefault()}>
               <PasswordField.Input />
@@ -573,11 +576,11 @@ describe('<PasswordField.Root />', () => {
       expect(input).toHaveAttribute('type', 'password');
     });
 
-    it('does not call onVisibleChange on reset when the visibility would not change', async () => {
-      const onVisibleChange = vi.fn();
+    it('does not call onRevealedChange on reset when the visibility would not change', async () => {
+      const onRevealedChange = vi.fn();
       await render(
         <form>
-          <PasswordField.Root onVisibleChange={onVisibleChange}>
+          <PasswordField.Root onRevealedChange={onRevealedChange}>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -586,7 +589,7 @@ describe('<PasswordField.Root />', () => {
 
       fireEvent.reset(document.querySelector('form')!);
 
-      expect(onVisibleChange.mock.calls.length).toBe(0);
+      expect(onRevealedChange.mock.calls.length).toBe(0);
     });
 
     it('follows the form owner set through the `form` attribute', async () => {
@@ -595,7 +598,7 @@ describe('<PasswordField.Root />', () => {
           <React.Fragment>
             <form id="a" />
             <form id="b" />
-            <PasswordField.Root defaultVisible>
+            <PasswordField.Root defaultRevealed>
               <PasswordField.Input form={props.form} />
               <PasswordField.Toggle />
             </PasswordField.Root>
@@ -650,7 +653,7 @@ describe('<PasswordField.Root />', () => {
               }}
             >
               <PasswordField.Root
-                {...(props.controlled ? { visible: true } : { defaultVisible: true })}
+                {...(props.controlled ? { revealed: true } : { defaultRevealed: true })}
               >
                 <PasswordField.Input name="password" defaultValue="hunter2" />
                 <PasswordField.Toggle />
@@ -688,7 +691,7 @@ describe('<PasswordField.Root />', () => {
           controlled: false,
         },
         {
-          name: 'a submit button whose onSubmit updates state, with `visible` controlled',
+          name: 'a submit button whose onSubmit updates state, with `revealed` controlled',
           trigger: 'submit-button',
           updateOnSubmit: true,
           controlled: true,

@@ -4,7 +4,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { PasswordFieldRoot } from '../root/PasswordFieldRoot';
 import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
-import { passwordFieldStateAttributesMapping } from '../root/stateAttributesMapping';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
 
 /**
  * Groups the password input and its visibility toggle.
@@ -24,7 +24,7 @@ export const PasswordFieldGroup = React.forwardRef(function PasswordFieldGroup(
     ref: forwardedRef,
     state,
     props: elementProps,
-    stateAttributesMapping: passwordFieldStateAttributesMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 });
 

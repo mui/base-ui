@@ -9,11 +9,11 @@ export interface PasswordFieldRootContext {
    */
   state: PasswordFieldRoot.State;
   /**
-   * Updates the visibility, running `onVisibleChange` and respecting cancelation.
+   * Updates the visibility, running `onRevealedChange` and respecting cancelation.
    */
-  setVisible: (visible: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void;
+  setRevealed: (revealed: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void;
   /**
-   * Whether the input is masked while its form submits, regardless of `visible`.
+   * Whether the input is masked while its form submits, regardless of `revealed`.
    */
   maskedForSubmit: boolean;
   /**

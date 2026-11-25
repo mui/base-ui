@@ -16,7 +16,7 @@ describe('<PasswordField.ToggleIndicator />', () => {
 
   it('is hidden from assistive technology', async () => {
     await render(
-      <PasswordField.Root defaultVisible>
+      <PasswordField.Root defaultRevealed>
         <PasswordField.ToggleIndicator data-testid="indicator" />
       </PasswordField.Root>,
     );
@@ -24,7 +24,7 @@ describe('<PasswordField.ToggleIndicator />', () => {
     expect(screen.getByTestId('indicator')).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('stays mounted without match and reflects the visibility through data-visible', async () => {
+  it('stays mounted without match and reflects the visibility through data-revealed', async () => {
     const { user } = await render(
       <PasswordField.Root>
         <PasswordField.Toggle />
@@ -33,20 +33,20 @@ describe('<PasswordField.ToggleIndicator />', () => {
     );
 
     const indicator = screen.getByTestId('indicator');
-    expect(indicator).not.toHaveAttribute('data-visible');
+    expect(indicator).not.toHaveAttribute('data-revealed');
 
     await user.click(screen.getByRole('button'));
     expect(screen.getByTestId('indicator')).toBe(indicator);
-    expect(indicator).toHaveAttribute('data-visible');
+    expect(indicator).toHaveAttribute('data-revealed');
 
     await user.click(screen.getByRole('button'));
     expect(screen.getByTestId('indicator')).toBe(indicator);
-    expect(indicator).not.toHaveAttribute('data-visible');
+    expect(indicator).not.toHaveAttribute('data-revealed');
   });
 
   describe('prop: match', () => {
     it.each([
-      { name: 'visible', match: 'on' as const, initiallyRendered: false },
+      { name: 'revealed', match: 'on' as const, initiallyRendered: false },
       { name: 'masked', match: 'off' as const, initiallyRendered: true },
     ])('renders only while the password is $name', async ({ match, initiallyRendered }) => {
       const { user } = await render(
@@ -117,7 +117,7 @@ describe('<PasswordField.ToggleIndicator />', () => {
         <div>
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />
-          <PasswordField.Root defaultVisible>
+          <PasswordField.Root defaultRevealed>
             <PasswordField.Toggle />
             <PasswordField.ToggleIndicator
               className="animation-test-indicator"

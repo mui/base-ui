@@ -73,6 +73,17 @@ describe('<PasswordField.Label />', () => {
     expect(screen.getByText('Password')).toHaveAttribute('for', serverId);
   });
 
+  it('has data-revealed while the password is revealed', async () => {
+    await render(
+      <PasswordField.Root defaultRevealed>
+        <PasswordField.Label>Password</PasswordField.Label>
+        <PasswordField.Input />
+      </PasswordField.Root>,
+    );
+
+    expect(screen.getByText('Password')).toHaveAttribute('data-revealed');
+  });
+
   describe('Field integration', () => {
     it('labels the input with the id from Field.Root', async () => {
       await render(

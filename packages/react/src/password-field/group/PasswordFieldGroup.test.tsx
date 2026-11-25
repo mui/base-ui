@@ -15,12 +15,12 @@ describe('<PasswordField.Group />', () => {
     },
   }));
 
-  it('exposes visible to render callbacks without emitting data-visible', async () => {
+  it('reflects the revealed state through data-revealed and render callbacks', async () => {
     await render(
-      <PasswordField.Root defaultVisible>
+      <PasswordField.Root defaultRevealed>
         <PasswordField.Group
           data-testid="group"
-          className={(state) => (state.visible ? 'visible' : 'hidden')}
+          className={(state) => (state.revealed ? 'revealed' : 'hidden')}
         >
           <PasswordField.Input />
           <PasswordField.Toggle />
@@ -29,14 +29,15 @@ describe('<PasswordField.Group />', () => {
     );
 
     const group = screen.getByTestId('group');
-    expect(group).toHaveClass('visible');
-    expect(group).not.toHaveAttribute('data-visible');
+    expect(group).toHaveClass('revealed');
+    expect(group).toHaveAttribute('data-revealed');
 
     await act(async () => {
       screen.getByRole('button').click();
     });
 
     expect(group).toHaveClass('hidden');
+    expect(group).not.toHaveAttribute('data-revealed');
   });
 
   it('has data-disabled when the Root is disabled', async () => {

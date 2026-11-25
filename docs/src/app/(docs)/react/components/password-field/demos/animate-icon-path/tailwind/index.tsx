@@ -31,7 +31,7 @@ export default function ExamplePasswordFieldAnimateIconPath() {
 function EyeIcon(props: React.ComponentProps<'svg'>) {
   const maskId = React.useId();
   const slashClassName =
-    '[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-150 ease-in-out group-data-visible:[stroke-dashoffset:1] group-data-visible:ease-linear motion-reduce:transition-none';
+    '[stroke-dashoffset:0] transition-[stroke-dashoffset] duration-150 ease-in-out group-data-revealed:[stroke-dashoffset:1] group-data-revealed:ease-linear motion-reduce:transition-none';
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" {...props}>
       <mask id={maskId}>

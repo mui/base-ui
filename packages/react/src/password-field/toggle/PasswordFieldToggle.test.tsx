@@ -39,7 +39,7 @@ describe('<PasswordField.Toggle />', () => {
     expect(input).toHaveAttribute('type', 'password');
   });
 
-  it('reflects the visibility through aria-pressed and data-pressed', async () => {
+  it('reflects the visibility through aria-pressed, data-pressed and data-revealed', async () => {
     await render(
       <PasswordField.Root>
         <PasswordField.Input />
@@ -50,12 +50,14 @@ describe('<PasswordField.Toggle />', () => {
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-pressed', 'false');
     expect(button).not.toHaveAttribute('data-pressed');
+    expect(button).not.toHaveAttribute('data-revealed');
 
     await act(async () => {
       button.click();
     });
     expect(button).toHaveAttribute('aria-pressed', 'true');
     expect(button).toHaveAttribute('data-pressed');
+    expect(button).toHaveAttribute('data-revealed');
   });
 
   it('stays a non-submitting button even if a consumer passes type="submit"', async () => {

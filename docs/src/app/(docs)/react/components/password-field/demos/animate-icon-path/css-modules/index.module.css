@@ -140,7 +140,7 @@
   display: block;
 }
 
-/* Draws the slash across the eye while the password is masked, and retracts it once visible. */
+/* Draws the slash across the eye while the password is masked, and retracts it once revealed. */
 .Slash {
   stroke-dashoffset: 0;
   transition: stroke-dashoffset 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -150,7 +150,7 @@
   }
 
   /* Retracts at a constant speed so the end of the slash doesn't linger outside the eye. */
-  .Indicator[data-visible] & {
+  .Indicator[data-revealed] & {
     stroke-dashoffset: 1;
     transition-timing-function: linear;
   }

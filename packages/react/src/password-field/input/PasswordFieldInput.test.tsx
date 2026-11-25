@@ -1,6 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -51,15 +51,33 @@ describe('<PasswordField.Input />', () => {
 
   it('does not let a consumer-supplied type override the visibility-driven type', async () => {
     await render(
-      <PasswordField.Root defaultVisible>
+      <PasswordField.Root defaultRevealed>
         {/* @ts-expect-error `type` follows the visibility */}
         <PasswordField.Input type="email" />
         <PasswordField.Toggle />
       </PasswordField.Root>,
     );
 
-    // Visible -> `text`, never the consumer's `type`; the toggle stays functional.
+    // Revealed -> `text`, never the consumer's `type`; the toggle stays functional.
     expect(document.querySelector('input')).toHaveAttribute('type', 'text');
+  });
+
+  it('has data-revealed while the password is revealed', async () => {
+    await render(
+      <PasswordField.Root>
+        <PasswordField.Input data-testid="input" />
+        <PasswordField.Toggle />
+      </PasswordField.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    expect(input).not.toHaveAttribute('data-revealed');
+
+    await act(async () => {
+      screen.getByRole('button').click();
+    });
+
+    expect(input).toHaveAttribute('data-revealed');
   });
 
   it('sets data-disabled when disabled', async () => {
