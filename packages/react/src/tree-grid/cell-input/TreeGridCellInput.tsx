@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
-import type { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ACTION_CONTROL_KEYS, useTreeGridCellControl } from '../utils/useTreeGridCellControl';
 import type { TreeGridCellControlKeys } from '../cell-control/TreeGridCellControl';
@@ -53,6 +53,8 @@ export const TreeGridCellInput = fastComponentRef(function TreeGridCellInput(
     controlKeys,
     disabled: disabledProp = false,
     focusableWhenDisabled = true,
+    onChange,
+    onClick,
     readOnly: readOnlyProp,
     render,
     style,
@@ -91,7 +93,20 @@ export const TreeGridCellInput = fastComponentRef(function TreeGridCellInput(
         'aria-disabled': disabledFocusable || undefined,
         // Blocks the edits that bypass the keyboard, such as pasting or dropping text.
         readOnly: disabledFocusable || readOnlyProp,
-        onClick: preventWhenDisabled,
+        // A checkbox still fires `onChange` when its click is canceled, so the
+        // handlers are skipped too, like a natively disabled input would.
+        onClick(event: BaseUIEvent<React.MouseEvent<HTMLInputElement>>) {
+          if (disabledFocusable) {
+            event.preventDefault();
+            return;
+          }
+          onClick?.(event);
+        },
+        onChange(event: BaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
+          if (!disabledFocusable) {
+            onChange?.(event);
+          }
+        },
         onPointerDown: preventWhenDisabled,
         // `readOnly` doesn't keep a file input from accepting dropped files.
         onDrop: preventWhenDisabled,

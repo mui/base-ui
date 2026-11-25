@@ -955,6 +955,37 @@ describe('Tree', () => {
       expect(screen.getByTestId('action')).toHaveFocus();
     });
 
+    it.each([
+      { name: 'disabled', disabled: true, expected: false },
+      { name: 'enabled', disabled: false, expected: true },
+    ])('calls the handlers of a $name checkbox input', async ({ disabled, expected }) => {
+      const onClick = vi.fn();
+      function Example() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <SingleRowTree>
+            <TreeGrid.CellInput
+              type="checkbox"
+              disabled={disabled}
+              checked={checked}
+              onChange={(event) => setChecked(event.currentTarget.checked)}
+              onClick={onClick}
+              aria-label="Done"
+              data-testid="input"
+            />
+            <output data-testid="state">{String(checked)}</output>
+          </SingleRowTree>
+        );
+      }
+      const { user } = await render(<Example />);
+
+      expect(screen.getByTestId('state').textContent).toBe('false');
+      await user.click(screen.getByTestId('input'));
+
+      expect(screen.getByTestId('state').textContent).toBe(String(expected));
+      expect(onClick).toHaveBeenCalledTimes(expected ? 1 : 0);
+    });
+
     it('skips a disabled input that is not focusable', async () => {
       await render(
         <SingleRowTree>
