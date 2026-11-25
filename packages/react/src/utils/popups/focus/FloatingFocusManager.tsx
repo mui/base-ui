@@ -950,6 +950,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           const focusOptions: FocusOptions = { preventScroll: true };
           if (closeType === 'keyboard') {
             focusOptions.focusVisible = true;
+          } else if (closeType !== '') {
+            // A pointer press inside the popup may not move focus (e.g. items prevent default),
+            // so the browser can still treat an earlier key press as the current modality.
+            focusOptions.focusVisible = false;
           }
           tabbableReturnElement.focus(focusOptions);
         }

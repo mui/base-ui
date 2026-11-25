@@ -653,7 +653,7 @@ describe('FloatingFocusManager', () => {
         }
       });
 
-      test('omits focusVisible when returning focus after pointer close', async () => {
+      test('prevents focusVisible when returning focus after pointer close', async () => {
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);
 
@@ -692,16 +692,13 @@ describe('FloatingFocusManager', () => {
         const focusSpy = vi.spyOn(reference, 'focus');
 
         try {
-          // Closing with a pointer must not force `:focus-visible`; `focusVisible`
-          // is omitted entirely so the browser's own heuristics decide.
+          // Closing with a pointer must not show the focus ring, even if an
+          // earlier key press left the browser in keyboard modality.
           await userEvent.click(reference);
 
           await waitFor(() => {
-            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true, focusVisible: false });
           });
-          expect(focusSpy).not.toHaveBeenCalledWith(
-            expect.objectContaining({ focusVisible: true }),
-          );
         } finally {
           focusSpy.mockRestore();
         }
