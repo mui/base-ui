@@ -22,7 +22,8 @@ export interface UseCompositeListItemParameters<Metadata> {
   textRef?: React.RefObject<HTMLElement | null> | undefined;
   /**
    * The list to register with, in place of the one provided through `CompositeListContext`.
-   * Pass it on every render of the item or on none.
+   * Pass it on every render of the item or on none, as it decides whether the hook reads the
+   * context.
    */
   list?: CompositeListContextValue<Metadata> | undefined;
 }
@@ -55,8 +56,7 @@ export function useCompositeListItem<Metadata>(
 ): UseCompositeListItemReturnValue {
   const { guess, label, metadata = null, textRef, index: externalIndex } = params;
   const explicitIndex = externalIndex ?? null;
-  // The context is only read without an explicit list, which callers pass on every render or
-  // never, so the hook order holds while explicit lists spare each render a context dependency.
+  // Reading the context only without an explicit list spares each render a context dependency.
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const list = params.list ?? useCompositeListContext();
 

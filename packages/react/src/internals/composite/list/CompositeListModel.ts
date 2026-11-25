@@ -216,15 +216,17 @@ export class CompositeListModel<Metadata> implements CompositeListContextValue<M
   #syncRefs(items: readonly CompositeListItem<Metadata>[]) {
     const elements = this.elementsRef.current;
     const labels = this.labelsRef?.current;
-    // The snapshot is sorted by index. Emptying the arrays clears stale slots, and they are then
-    // sized up front like the snapshot.
+    // The snapshot is sorted by index. Emptying the arrays clears stale slots, and arrays without
+    // gaps are then sized up front like the snapshot. Gaps are left to the writes, as sizing across
+    // a wide one between explicit indexes would allocate every slot in it.
     const size = items.length > 0 ? items[items.length - 1].index + 1 : 0;
+    const reservedSize = size <= items.length ? size : 0;
 
     elements.length = 0;
-    elements.length = size;
+    elements.length = reservedSize;
     if (labels) {
       labels.length = 0;
-      labels.length = size;
+      labels.length = reservedSize;
     }
 
     for (let i = 0; i < items.length; i += 1) {
