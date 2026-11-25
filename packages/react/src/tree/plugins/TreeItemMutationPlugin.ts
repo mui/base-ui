@@ -149,33 +149,38 @@ export class TreeItemMutationPlugin<TItem> {
   }
 
   /**
-   * Remove deleted ids from `selectedItems` and `expandedItems`.
+   * Commits an items state and what follows from it, in the order the plugins
+   * rely on: drops the removed items from the expansion and the selection, writes
+   * the state, reports the pruned models, then reconciles the selection with the
+   * new hierarchy.
    *
-   * Returns the store updates to apply with the mutation, plus a `dispatch` the
-   * caller runs once the mutation commits, which reports the pruned models.
+   * `focusedItemId` deliberately keeps pointing at a removed item. The
+   * focus-recovery subscriber (see `TreeInteractionPlugin.setupFocusRecovery`)
+   * needs it to work out which neighbour to move to, and clears it itself when
+   * there is none. Clearing it here ran first and left focus on `<body>`.
    */
-  private pruneRemovedItemsFromState(
-    removedIds: ReadonlySet<TreeItemId>,
-    state: TreeState<TItem>,
-  ): {
-    updates: Partial<TreeState<TItem>>;
-    dispatch: () => void;
-  } {
-    const expansion = this.store.expansion.pruneRemovedItems(removedIds, state);
-    const selection = this.store.selection.pruneRemovedItems(removedIds, state);
-
-    // `focusedItemId` is deliberately left pointing at the removed item. The
-    // focus-recovery subscriber (see `TreeInteractionPlugin.setupFocusRecovery`)
-    // needs it to work out which neighbour to move to, and clears it itself when
-    // there is none. Nulling it here ran first and left focus on `<body>`.
-
-    return {
-      updates: { ...expansion.updates, ...selection.updates },
-      dispatch: () => {
-        expansion.dispatch();
-        selection.dispatch();
-      },
-    };
+  private commitItemsState(
+    nextState: TreeState<TItem>,
+    removedIds: ReadonlySet<TreeItemId> | undefined,
+    reconcileSelection: boolean,
+  ): void {
+    // Pruned against the state being committed: a required selection falls back
+    // to an item the edit adds, and never to one it disables.
+    const expansion = removedIds?.size
+      ? this.store.expansion.pruneRemovedItems(removedIds, nextState)
+      : null;
+    const selection = removedIds?.size
+      ? this.store.selection.pruneRemovedItems(removedIds, nextState)
+      : null;
+    const updates = { ...expansion?.updates, ...selection?.updates };
+    if (nextState !== this.store.state || Object.keys(updates).length > 0) {
+      this.store.setState({ ...nextState, ...updates });
+    }
+    expansion?.dispatch();
+    selection?.dispatch();
+    if (reconcileSelection) {
+      this.store.selection.reconcileSelectionAfterItemsMutation();
+    }
   }
 
   /**
@@ -218,18 +223,9 @@ export class TreeItemMutationPlugin<TItem> {
         removedIds.delete(id);
       }
     }
-    if (removedIds.size > 0) {
-      // Prune against the current state: selection or expansion may have
-      // changed while the parent was deciding.
-      const prune = this.pruneRemovedItemsFromState(removedIds, this.store.state);
-      if (Object.keys(prune.updates).length > 0) {
-        this.store.setState({ ...this.store.state, ...prune.updates });
-      }
-      prune.dispatch();
-    }
-    if (acceptance.reconcileSelection) {
-      this.store.selection.reconcileSelectionAfterItemsMutation();
-    }
+    // Against the current state: selection or expansion may have changed while
+    // the parent was deciding.
+    this.commitItemsState(this.store.state, removedIds, acceptance.reconcileSelection);
     acceptance.settle();
   }
 
@@ -310,15 +306,11 @@ export class TreeItemMutationPlugin<TItem> {
       return proposal;
     }
 
-    // Pruned against the hierarchy being committed: a required selection falls
-    // back to an item the edit adds, and never to one it disables.
-    const nextState: TreeState<TItem> = { ...this.store.state, items: newItems, ...lookupUpdates };
-    const prune = removedIds?.size ? this.pruneRemovedItemsFromState(removedIds, nextState) : null;
-    this.store.setState({ ...nextState, ...prune?.updates });
-    prune?.dispatch();
-    if (reconcileSelection) {
-      this.store.selection.reconcileSelectionAfterItemsMutation();
-    }
+    this.commitItemsState(
+      { ...this.store.state, items: newItems, ...lookupUpdates },
+      removedIds,
+      reconcileSelection,
+    );
     return ACCEPTED_PROPOSAL;
   }
 }
