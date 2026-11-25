@@ -27,9 +27,8 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
   } = componentProps;
 
   const {
-    visible,
+    state: { visible, disabled: rootDisabled },
     setVisible,
-    disabled: rootDisabled,
     inputId,
     inputRef,
   } = usePasswordFieldRootContext();

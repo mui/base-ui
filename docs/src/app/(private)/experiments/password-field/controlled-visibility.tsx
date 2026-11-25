@@ -7,28 +7,25 @@ export default function PasswordFieldControlledVisibility() {
   const id = React.useId();
   const [visible, setVisible] = React.useState(false);
   return (
-    <PasswordField.Root
-      id={id}
-      visible={visible}
-      onVisibleChange={setVisible}
-      className={styles.Root}
-    >
-      <div className={styles.Character} data-visible={visible ? '' : undefined}>
-        <Character />
-      </div>
-      <label htmlFor={id} className={styles.Label}>
-        Password
-      </label>
-      <div className={styles.Control}>
-        <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
-        <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
-          <PasswordField.ToggleIndicator className={styles.Icon} match="off">
-            <EyeOffIcon />
-          </PasswordField.ToggleIndicator>
-          <PasswordField.ToggleIndicator className={styles.Icon} match="on">
-            <EyeIcon />
-          </PasswordField.ToggleIndicator>
-        </PasswordField.Toggle>
+    <PasswordField.Root id={id} visible={visible} onVisibleChange={setVisible}>
+      <div className={styles.Field}>
+        <div className={styles.Character} data-visible={visible ? '' : undefined}>
+          <Character />
+        </div>
+        <label htmlFor={id} className={styles.Label}>
+          Password
+        </label>
+        <PasswordField.Group className={styles.Group}>
+          <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
+          <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
+            <PasswordField.ToggleIndicator className={styles.Icon} match="off">
+              <EyeOffIcon />
+            </PasswordField.ToggleIndicator>
+            <PasswordField.ToggleIndicator className={styles.Icon} match="on">
+              <EyeIcon />
+            </PasswordField.ToggleIndicator>
+          </PasswordField.Toggle>
+        </PasswordField.Group>
       </div>
     </PasswordField.Root>
   );

@@ -5,16 +5,11 @@ import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-util
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
-import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
+import { createRenderer, isJSDOM, wait } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 describe('<PasswordField.Root />', () => {
   const { render, renderToString } = createRenderer();
-
-  describeConformance(<PasswordField.Root />, () => ({
-    refInstanceof: window.HTMLDivElement,
-    render,
-  }));
 
   describe('visibility state', () => {
     it('is hidden by default', async () => {
@@ -75,22 +70,6 @@ describe('<PasswordField.Root />', () => {
       expect(onVisibleChange.mock.calls[0][0]).toBe(true);
       expect(input).toHaveAttribute('type', 'password');
     });
-
-    it('exposes visible to render callbacks without emitting data-visible', async () => {
-      await render(
-        <PasswordField.Root
-          data-testid="root"
-          defaultVisible
-          className={(state) => (state.visible ? 'visible' : 'hidden')}
-        >
-          <PasswordField.Input />
-          <PasswordField.Toggle />
-        </PasswordField.Root>,
-      );
-
-      expect(screen.getByTestId('root')).toHaveClass('visible');
-      expect(screen.getByTestId('root')).not.toHaveAttribute('data-visible');
-    });
   });
 
   describe('prop: onVisibleChange', () => {
@@ -139,7 +118,7 @@ describe('<PasswordField.Root />', () => {
     it('disables the input and the toggle', async () => {
       const onVisibleChange = vi.fn();
       await render(
-        <PasswordField.Root disabled onVisibleChange={onVisibleChange} data-testid="root">
+        <PasswordField.Root disabled onVisibleChange={onVisibleChange}>
           <PasswordField.Input />
           <PasswordField.Toggle />
         </PasswordField.Root>,
@@ -150,7 +129,6 @@ describe('<PasswordField.Root />', () => {
 
       expect(input).toBeDisabled();
       expect(button).toBeDisabled();
-      expect(screen.getByTestId('root')).toHaveAttribute('data-disabled');
       expect(button).toHaveAttribute('data-disabled');
 
       await act(async () => {
@@ -164,7 +142,7 @@ describe('<PasswordField.Root />', () => {
       const onVisibleChange = vi.fn();
       await render(
         <Fieldset.Root disabled>
-          <PasswordField.Root onVisibleChange={onVisibleChange} data-testid="root">
+          <PasswordField.Root onVisibleChange={onVisibleChange}>
             <PasswordField.Input />
             <PasswordField.Toggle nativeButton={false} render={<span />} />
           </PasswordField.Root>
@@ -174,7 +152,6 @@ describe('<PasswordField.Root />', () => {
       const input = document.querySelector('input')!;
       const toggle = screen.getByRole('button');
       expect(input).toHaveAttribute('type', 'password');
-      expect(screen.getByTestId('root')).toHaveAttribute('data-disabled');
 
       // A native `<fieldset disabled>` doesn't stop a click on a non-native toggle, but
       // `user.click` refuses to click inside one, so the click is dispatched directly.
@@ -189,7 +166,7 @@ describe('<PasswordField.Root />', () => {
     it('is disabled by a surrounding Field.Root', async () => {
       await render(
         <Field.Root disabled>
-          <PasswordField.Root data-testid="root">
+          <PasswordField.Root>
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -198,7 +175,6 @@ describe('<PasswordField.Root />', () => {
 
       expect(document.querySelector('input')).toBeDisabled();
       expect(screen.getByRole('button')).toBeDisabled();
-      expect(screen.getByTestId('root')).toHaveAttribute('data-disabled');
     });
   });
 
@@ -206,9 +182,11 @@ describe('<PasswordField.Root />', () => {
     it('sets the id of the input and points aria-controls at it', async () => {
       function App(props: { id: string }) {
         return (
-          <PasswordField.Root id={props.id} data-testid="root">
-            <PasswordField.Input />
-            <PasswordField.Toggle />
+          <PasswordField.Root id={props.id}>
+            <PasswordField.Group data-testid="group">
+              <PasswordField.Input />
+              <PasswordField.Toggle />
+            </PasswordField.Group>
           </PasswordField.Root>
         );
       }
@@ -217,7 +195,7 @@ describe('<PasswordField.Root />', () => {
 
       expect(document.querySelector('input')).toHaveAttribute('id', 'first');
       expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'first');
-      expect(screen.getByTestId('root')).not.toHaveAttribute('id');
+      expect(screen.getByTestId('group')).not.toHaveAttribute('id');
 
       await setProps({ id: 'second' });
 
@@ -278,27 +256,6 @@ describe('<PasswordField.Root />', () => {
       expect(document.querySelector('input')).toHaveAttribute('id', 'password');
       expect(screen.getByRole('button')).toHaveAttribute('aria-controls', 'password');
       expect(screen.getByText('Password')).toHaveAttribute('for', 'password');
-    });
-
-    it('reflects the Field state on the root', async () => {
-      await render(
-        <Field.Root invalid>
-          <PasswordField.Root data-testid="root">
-            <PasswordField.Input />
-            <PasswordField.Toggle />
-          </PasswordField.Root>
-        </Field.Root>,
-      );
-
-      const root = screen.getByTestId('root');
-      expect(root).toHaveAttribute('data-invalid');
-      expect(root).not.toHaveAttribute('data-focused');
-
-      await act(async () => {
-        document.querySelector('input')!.focus();
-      });
-
-      expect(root).toHaveAttribute('data-focused');
     });
   });
 

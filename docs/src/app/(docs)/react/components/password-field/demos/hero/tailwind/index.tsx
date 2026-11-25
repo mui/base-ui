@@ -9,25 +9,24 @@ export default function ExamplePasswordField() {
       <label htmlFor={id} className="text-sm font-bold text-neutral-950 dark:text-white">
         Password
       </label>
-      <PasswordField.Root
-        id={id}
-        className="box-border flex h-8 w-full items-center border border-neutral-950 bg-white text-neutral-950 has-[input:focus-visible]:outline-2 has-[input:focus-visible]:-outline-offset-1 has-[input:focus-visible]:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:has-[input:focus-visible]:outline-white"
-      >
-        <PasswordField.Input
-          placeholder="Enter your password"
-          className="box-border h-full min-w-0 flex-1 rounded-none border-none bg-transparent px-2 py-0 text-sm font-normal any-pointer-coarse:text-base text-inherit placeholder:text-neutral-500 focus:outline-none autofill:bg-clip-text dark:placeholder:text-neutral-400 [&::-ms-reveal]:hidden"
-        />
-        <PasswordField.Toggle
-          aria-label="Show password"
-          className="grid h-full aspect-square shrink-0 place-items-center rounded-none *:[grid-area:1/1] border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
-        >
-          <PasswordField.ToggleIndicator match="off">
-            <EyeOffIcon />
-          </PasswordField.ToggleIndicator>
-          <PasswordField.ToggleIndicator match="on">
-            <EyeIcon />
-          </PasswordField.ToggleIndicator>
-        </PasswordField.Toggle>
+      <PasswordField.Root id={id}>
+        <PasswordField.Group className="box-border flex h-8 w-full items-center border border-neutral-950 bg-white text-neutral-950 has-[input:focus-visible]:outline-2 has-[input:focus-visible]:-outline-offset-1 has-[input:focus-visible]:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:has-[input:focus-visible]:outline-white">
+          <PasswordField.Input
+            placeholder="Enter your password"
+            className="box-border h-full min-w-0 flex-1 rounded-none border-none bg-transparent px-2 py-0 text-sm font-normal any-pointer-coarse:text-base text-inherit placeholder:text-neutral-500 focus:outline-none autofill:bg-clip-text dark:placeholder:text-neutral-400 [&::-ms-reveal]:hidden"
+          />
+          <PasswordField.Toggle
+            aria-label="Show password"
+            className="grid h-full aspect-square shrink-0 place-items-center rounded-none *:[grid-area:1/1] border-none bg-transparent text-inherit select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:focus-visible:outline-white"
+          >
+            <PasswordField.ToggleIndicator match="off">
+              <EyeOffIcon />
+            </PasswordField.ToggleIndicator>
+            <PasswordField.ToggleIndicator match="on">
+              <EyeIcon />
+            </PasswordField.ToggleIndicator>
+          </PasswordField.Toggle>
+        </PasswordField.Group>
       </PasswordField.Root>
     </div>
   );

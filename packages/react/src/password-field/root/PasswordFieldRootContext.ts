@@ -4,9 +4,10 @@ import type { PasswordFieldRoot } from './PasswordFieldRoot';
 
 export interface PasswordFieldRootContext {
   /**
-   * Whether the password is currently revealed as plain text.
+   * The Root's state, the single source of truth for the visibility, the disabled state and the
+   * Field state that every part reads.
    */
-  visible: boolean;
+  state: PasswordFieldRoot.State;
   /**
    * Updates the visibility, running `onVisibleChange` and respecting cancelation.
    */
@@ -15,10 +16,6 @@ export interface PasswordFieldRootContext {
    * Whether the input is masked while its form submits, regardless of `visible`.
    */
   maskedForSubmit: boolean;
-  /**
-   * Whether the field should ignore user interaction.
-   */
-  disabled: boolean;
   /**
    * The id the input renders with, used by the toggle's `aria-controls`.
    */

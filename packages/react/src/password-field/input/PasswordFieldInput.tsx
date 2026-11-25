@@ -25,9 +25,8 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
   const { disabled: disabledProp = false, ...elementProps } = componentProps;
 
   const {
-    visible,
+    state: { visible, disabled: rootDisabled },
     maskedForSubmit,
-    disabled: rootDisabled,
     inputIdProp,
     setRenderedInputId,
     inputRef,

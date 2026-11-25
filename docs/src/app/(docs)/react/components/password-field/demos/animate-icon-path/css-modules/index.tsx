@@ -10,13 +10,15 @@ export default function ExamplePasswordFieldAnimateIconPath() {
       <label htmlFor={id} className={styles.Label}>
         Password
       </label>
-      <PasswordField.Root id={id} className={styles.Root}>
-        <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
-        <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
-          <PasswordField.ToggleIndicator className={styles.Indicator}>
-            <EyeIcon className={styles.Icon} />
-          </PasswordField.ToggleIndicator>
-        </PasswordField.Toggle>
+      <PasswordField.Root id={id}>
+        <PasswordField.Group className={styles.Group}>
+          <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
+          <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">
+            <PasswordField.ToggleIndicator className={styles.Indicator}>
+              <EyeIcon className={styles.Icon} />
+            </PasswordField.ToggleIndicator>
+          </PasswordField.Toggle>
+        </PasswordField.Group>
       </PasswordField.Root>
     </div>
   );

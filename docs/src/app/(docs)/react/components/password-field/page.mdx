@@ -28,10 +28,12 @@ Import the component and assemble its parts:
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 
 <PasswordField.Root>
-  <PasswordField.Input />
-  <PasswordField.Toggle>
-    <PasswordField.ToggleIndicator />
-  </PasswordField.Toggle>
+  <PasswordField.Group>
+    <PasswordField.Input />
+    <PasswordField.Toggle>
+      <PasswordField.ToggleIndicator />
+    </PasswordField.Toggle>
+  </PasswordField.Group>
 </PasswordField.Root>;
 ```
 
@@ -62,6 +64,10 @@ import { TypesPasswordField } from './types';
 ### Root
 
 <TypesPasswordField.Root />
+
+### Group
+
+<TypesPasswordField.Group />
 
 ### Input
 

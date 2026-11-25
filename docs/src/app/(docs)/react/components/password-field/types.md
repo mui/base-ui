@@ -6,33 +6,19 @@
 
 ### Root
 
-Groups the password input and its visibility toggle.
-Renders a `<div>` element.
+Provides the password visibility and the input's id to the other parts.
+Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop            | Type                                                                                           | Default | Description                                                                                                                                                                                   |
-| :-------------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultVisible  | `boolean`                                                                                      | `false` | Whether the password is initially revealed as plain text. To render a controlled password field, use the `visible` prop instead.                                                              |
-| visible         | `boolean`                                                                                      | -       | Whether the password is currently revealed as plain text. To render an uncontrolled password field, use the `defaultVisible` prop instead.                                                    |
-| onVisibleChange | `((visible: boolean, eventDetails: PasswordFieldPreview.Root.ChangeEventDetails) => void)`     | -       | Callback fired when the password visibility changes.&#xA;Besides the toggle, resetting the owning form restores the initial visibility.&#xA;Cancel `'form-reset'` to prevent it.              |
-| disabled        | `boolean`                                                                                      | `false` | Whether the component should ignore user interaction.&#xA;Applies to both the input and the toggle.                                                                                           |
-| id              | `string`                                                                                       | -       | The id of the input element.                                                                                                                                                                  |
-| className       | `string \| ((state: PasswordFieldRootState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style           | `React.CSSProperties \| ((state: PasswordFieldRootState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render          | `ReactElement \| ((props: HTMLProps, state: PasswordFieldRootState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Root Data Attributes:**
-
-| Attribute     | Type | Description                                                                 |
-| :------------ | :--- | :-------------------------------------------------------------------------- |
-| data-disabled | -    | Present when the field is disabled.                                         |
-| data-valid    | -    | Present when the field is in a valid state (when wrapped in Field.Root).    |
-| data-invalid  | -    | Present when the field is in an invalid state (when wrapped in Field.Root). |
-| data-dirty    | -    | Present when the field's value has changed (when wrapped in Field.Root).    |
-| data-touched  | -    | Present when the field has been touched (when wrapped in Field.Root).       |
-| data-filled   | -    | Present when the field is filled (when wrapped in Field.Root).              |
-| data-focused  | -    | Present when the field is focused (when wrapped in Field.Root).             |
+| Prop            | Type                                                                                       | Default | Description                                                                                                                                                                      |
+| :-------------- | :----------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultVisible  | `boolean`                                                                                  | `false` | Whether the password is initially revealed as plain text. To render a controlled password field, use the `visible` prop instead.                                                 |
+| visible         | `boolean`                                                                                  | -       | Whether the password is currently revealed as plain text. To render an uncontrolled password field, use the `defaultVisible` prop instead.                                       |
+| onVisibleChange | `((visible: boolean, eventDetails: PasswordFieldPreview.Root.ChangeEventDetails) => void)` | -       | Callback fired when the password visibility changes.&#xA;Besides the toggle, resetting the owning form restores the initial visibility.&#xA;Cancel `'form-reset'` to prevent it. |
+| disabled        | `boolean`                                                                                  | `false` | Whether the component should ignore user interaction.&#xA;Applies to both the input and the toggle.                                                                              |
+| id              | `string`                                                                                   | -       | The id of the input element.                                                                                                                                                     |
+| children        | `React.ReactNode`                                                                          | -       | The parts of the password field.                                                                                                                                                 |
 
 ### Root.Props
 
@@ -175,6 +161,56 @@ type PasswordFieldPreviewInputChangeEventDetails = {
 };
 ```
 
+### Group
+
+Groups the password input and its visibility toggle.
+Renders a `<div>` element.
+
+**Group Props:**
+
+| Prop      | Type                                                                                            | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: PasswordFieldGroupState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: PasswordFieldGroupState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: PasswordFieldGroupState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Group Data Attributes:**
+
+| Attribute     | Type | Description                                                                 |
+| :------------ | :--- | :-------------------------------------------------------------------------- |
+| data-disabled | -    | Present when the field is disabled.                                         |
+| data-valid    | -    | Present when the field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid  | -    | Present when the field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty    | -    | Present when the field's value has changed (when wrapped in Field.Root).    |
+| data-touched  | -    | Present when the field has been touched (when wrapped in Field.Root).       |
+| data-filled   | -    | Present when the field is filled (when wrapped in Field.Root).              |
+| data-focused  | -    | Present when the field is focused (when wrapped in Field.Root).             |
+
+### Group.Props
+
+Re-export of [Group](#group) props.
+
+### Group.State
+
+```typescript
+type PasswordFieldPreviewGroupState = {
+  /** Whether the password is currently revealed as plain text. */
+  visible: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
 ### Toggle
 
 A button that toggles the password's visibility.
@@ -253,6 +289,52 @@ type PasswordFieldPreviewToggleIndicatorState = {
 ```
 
 ## Additional Types
+
+### PasswordFieldGroupProps
+
+```typescript
+type PasswordFieldGroupProps = {
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: PasswordFieldGroupState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: PasswordFieldGroupState) => ReactElement);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?:
+    React.CSSProperties | ((state: PasswordFieldGroupState) => React.CSSProperties | undefined);
+};
+```
+
+### PasswordFieldGroupState
+
+```typescript
+type PasswordFieldGroupState = {
+  /** Whether the password is currently revealed as plain text. */
+  visible: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
 
 ### PasswordFieldInputChangeEventDetails
 
@@ -341,6 +423,29 @@ type PasswordFieldInputState = {
 };
 ```
 
+### PasswordFieldPreviewGroupDataAttributes
+
+Data attributes of [Group](#group).
+
+```typescript
+declare namespace PasswordFieldPreviewGroupDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
 ### PasswordFieldPreviewInputDataAttributes
 
 Data attributes of [Input](#input).
@@ -360,29 +465,6 @@ declare namespace PasswordFieldPreviewInputDataAttributes {
   /** Present when the input is filled (when wrapped in Field.Root). */
   const filled: 'data-filled';
   /** Present when the input is focused (when wrapped in Field.Root). */
-  const focused: 'data-focused';
-}
-```
-
-### PasswordFieldPreviewRootDataAttributes
-
-Data attributes of [Root](#root).
-
-```typescript
-declare namespace PasswordFieldPreviewRootDataAttributes {
-  /** Present when the field is disabled. */
-  const disabled: 'data-disabled';
-  /** Present when the field is in a valid state (when wrapped in Field.Root). */
-  const valid: 'data-valid';
-  /** Present when the field is in an invalid state (when wrapped in Field.Root). */
-  const invalid: 'data-invalid';
-  /** Present when the field has been touched (when wrapped in Field.Root). */
-  const touched: 'data-touched';
-  /** Present when the field's value has changed (when wrapped in Field.Root). */
-  const dirty: 'data-dirty';
-  /** Present when the field is filled (when wrapped in Field.Root). */
-  const filled: 'data-filled';
-  /** Present when the field is focused (when wrapped in Field.Root). */
   const focused: 'data-focused';
 }
 ```
@@ -454,24 +536,8 @@ type PasswordFieldRootProps = {
    * @default false
    */
   disabled?: boolean;
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component's state.
-   */
-  className?: string | ((state: PasswordFieldRootState) => string | undefined);
-  /**
-   * Allows you to replace the component's HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render?: ReactElement | ((props: HTMLProps, state: PasswordFieldRootState) => ReactElement);
-  /**
-   * Style applied to the element, or a function that
-   * returns a style object based on the component's state.
-   */
-  style?:
-    React.CSSProperties | ((state: PasswordFieldRootState) => React.CSSProperties | undefined);
+  /** The parts of the password field. */
+  children?: React.ReactNode;
 };
 ```
 
@@ -595,10 +661,11 @@ type PasswordFieldToggleState = {
 ## Export Groups
 
 - `PasswordFieldPreview.Root`: `PasswordFieldPreview.Root`, `PasswordFieldPreview.Root.State`, `PasswordFieldPreview.Root.Props`, `PasswordFieldPreview.Root.ChangeEventReason`, `PasswordFieldPreview.Root.ChangeEventDetails`
+- `PasswordFieldPreview.Group`: `PasswordFieldPreview.Group`, `PasswordFieldPreview.Group.State`, `PasswordFieldPreview.Group.Props`
 - `PasswordFieldPreview.Input`: `PasswordFieldPreview.Input`, `PasswordFieldPreview.Input.State`, `PasswordFieldPreview.Input.Props`, `PasswordFieldPreview.Input.ChangeEventReason`, `PasswordFieldPreview.Input.ChangeEventDetails`
 - `PasswordFieldPreview.Toggle`: `PasswordFieldPreview.Toggle`, `PasswordFieldPreview.Toggle.State`, `PasswordFieldPreview.Toggle.Props`
 - `PasswordFieldPreview.ToggleIndicator`: `PasswordFieldPreview.ToggleIndicator`, `PasswordFieldPreview.ToggleIndicator.State`, `PasswordFieldPreview.ToggleIndicator.Props`
-- `Default`: `PasswordFieldPreviewRootDataAttributes`, `PasswordFieldPreviewInputDataAttributes`, `PasswordFieldPreviewToggleDataAttributes`, `PasswordFieldPreviewToggleIndicatorDataAttributes`, `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`, `PasswordFieldToggleIndicatorState`, `PasswordFieldToggleIndicatorProps`
+- `Default`: `PasswordFieldPreviewGroupDataAttributes`, `PasswordFieldPreviewInputDataAttributes`, `PasswordFieldPreviewToggleDataAttributes`, `PasswordFieldPreviewToggleIndicatorDataAttributes`, `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldGroupState`, `PasswordFieldGroupProps`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`, `PasswordFieldToggleIndicatorState`, `PasswordFieldToggleIndicatorProps`
 
 ## Canonical Types
 

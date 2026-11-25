@@ -6,47 +6,32 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { NOOP } from '../../internals/noop';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
-import { fieldValidityMapping } from '../../internals/field-constants/constants';
-import type { BaseUIComponentProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { PasswordFieldRootContext } from './PasswordFieldRootContext';
 
-const stateAttributesMapping: StateAttributesMapping<PasswordFieldRootState> = {
-  ...fieldValidityMapping,
-  visible: () => null,
-};
-
 /**
- * Groups the password input and its visibility toggle.
- * Renders a `<div>` element.
+ * Provides the password visibility and the input's id to the other parts.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)
  */
-export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
-  componentProps: PasswordFieldRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
+export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
   const {
     id: idProp,
     visible: visibleProp,
     defaultVisible = false,
     onVisibleChange,
     disabled: disabledProp = false,
-    render,
-    className,
-    style,
-    ...elementProps
-  } = componentProps;
+    children,
+  } = props;
 
   // A native `<fieldset disabled>` doesn't disable a non-native toggle, so the Fieldset's state is
   // read directly, as `Field.Root` does, for a field that isn't wrapped in one.
@@ -113,9 +98,9 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
   });
 
   useIsoLayoutEffect(() => {
-    // Attach the listeners to the input's tree and not the Root's because, when the input and its
-    // form are portaled into a shadow root, `submit` and `reset` fire there and never reach the
-    // Root's document.
+    // Attach the listeners to the input's tree and not the document because, when the input and
+    // its form are portaled into a shadow root, `submit` and `reset` fire there and never reach
+    // the document.
     const rootNode = inputRef.current?.getRootNode();
     if (!rootNode) {
       return undefined;
@@ -145,31 +130,23 @@ export const PasswordFieldRoot = React.forwardRef(function PasswordFieldRoot(
 
   const contextValue: PasswordFieldRootContext = React.useMemo(
     () => ({
-      visible,
+      state,
       setVisible,
       maskedForSubmit,
-      disabled,
       inputId,
       inputIdProp,
       setRenderedInputId,
       inputRef,
     }),
-    [visible, setVisible, maskedForSubmit, disabled, inputId, inputIdProp],
+    [state, setVisible, maskedForSubmit, inputId, inputIdProp],
   );
-
-  const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
-    state,
-    props: elementProps,
-    stateAttributesMapping,
-  });
 
   return (
     <PasswordFieldRootContext.Provider value={contextValue}>
-      {element}
+      {children}
     </PasswordFieldRootContext.Provider>
   );
-});
+}
 
 export interface PasswordFieldRootState extends FieldRootState {
   /**
@@ -178,10 +155,7 @@ export interface PasswordFieldRootState extends FieldRootState {
   visible: boolean;
 }
 
-export interface PasswordFieldRootProps extends BaseUIComponentProps<
-  'div',
-  PasswordFieldRootState
-> {
+export interface PasswordFieldRootProps {
   /**
    * The id of the input element.
    */
@@ -212,6 +186,10 @@ export interface PasswordFieldRootProps extends BaseUIComponentProps<
    * @default false
    */
   disabled?: boolean | undefined;
+  /**
+   * The parts of the password field.
+   */
+  children?: React.ReactNode;
 }
 
 export type PasswordFieldRootChangeEventReason =

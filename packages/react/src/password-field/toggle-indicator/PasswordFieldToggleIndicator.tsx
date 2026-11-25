@@ -25,7 +25,9 @@ export const PasswordFieldToggleIndicator = React.forwardRef(function PasswordFi
 ) {
   const { match, render, className, style, ...elementProps } = componentProps;
 
-  const { visible, disabled } = usePasswordFieldRootContext();
+  const {
+    state: { visible, disabled },
+  } = usePasswordFieldRootContext();
 
   // Without `match`, the indicator always renders and reflects the state through `data-visible`.
   const rendered = match === undefined || (match === 'on') === visible;
