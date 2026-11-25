@@ -24,7 +24,7 @@ const mixedStateAttributesMapping: StateAttributesMapping<TreeCheckboxItemState>
 
 /**
  * An item that toggles its selection like a checkbox, leaving the other items selected.
- * In an action tree, render `ActionTree.ItemCheckbox` in the item instead.
+ * In a tree grid, render `TreeGrid.RowCheckbox` in the item instead.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)

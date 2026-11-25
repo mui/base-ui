@@ -12,7 +12,7 @@ import type { TreeItemBaseState } from '../utils/useTreeItem';
 import { useActiveLink } from '../utils/useActiveLink';
 import { itemMapping } from '../utils/stateAttributesMapping';
 
-// Like a disabled `ActionTree.ItemLink`, a disabled item ignores the clicks that would
+// Like a disabled `TreeGrid.CellLink`, a disabled item ignores the clicks that would
 // follow it, including the one Enter dispatches. A middle-click opens the `href`
 // through `auxclick`, not `click`.
 function getDisabledLinkProps(props: React.ComponentPropsWithRef<'a'>) {
@@ -25,7 +25,7 @@ function preventDefault(event: React.MouseEvent) {
 
 /**
  * An item that links to another page. Enter and clicks follow the link.
- * In an action tree, render `ActionTree.ItemLink` in the item instead.
+ * In a tree grid, render `TreeGrid.CellLink` in the item instead.
  * Renders an `<a>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)

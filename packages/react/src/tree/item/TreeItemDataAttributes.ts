@@ -16,7 +16,7 @@ export const collapsed = 'data-collapsed';
  */
 export const selected = 'data-selected';
 /**
- * Present when the item is highlighted: it has focus, or, in an action tree, one of its controls does.
+ * Present when the item is highlighted: it has focus, or, in a tree grid, one of its controls does.
  */
 export const highlighted = 'data-highlighted';
 /**

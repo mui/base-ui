@@ -126,3 +126,22 @@ test('announces the selection count without repeating the state of the item', as
   await screenReader.press('Space');
   expect(await waitForPhrase(screenReader, /1 item selected/i)).not.toMatch(/resume/i);
 });
+
+test('announces the column of a cell and stays in the column', async ({ page, screenReader }) => {
+  await openFixture(page, screenReader, 'tree/Columns');
+  await tabToItem(screenReader, /documents/i);
+
+  // The row is expanded, so Right moves to its first cell, then to the next one.
+  await screenReader.press('ArrowRight');
+  await expect(page.getByRole('gridcell', { name: 'Documents' })).toBeFocused();
+  await screenReader.clearSpokenPhraseLog();
+  await screenReader.press('ArrowRight');
+  await expect(page.getByRole('gridcell', { name: '2 items' })).toBeFocused();
+  await waitForPhrase(screenReader, /2 items/i);
+  await waitForPhrase(screenReader, /size/i);
+
+  await screenReader.clearSpokenPhraseLog();
+  await screenReader.press('ArrowDown');
+  await expect(page.getByRole('gridcell', { name: '4 KB' })).toBeFocused();
+  await waitForPhrase(screenReader, /4 KB/i);
+});

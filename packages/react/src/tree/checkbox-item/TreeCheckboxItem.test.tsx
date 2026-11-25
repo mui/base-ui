@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Tree } from '..';
-import { ActionTree } from '../../action-tree';
+import { TreeGrid } from '../../tree-grid';
 
 const items: Tree.DefaultItem[] = [
   { id: 'documents', label: 'Documents', children: [{ id: 'resume', label: 'Resume' }] },
@@ -67,18 +67,18 @@ describe('<Tree.CheckboxItem />', () => {
     expect(screen.getByTestId('documents')).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByTestId('resume')).toHaveAttribute('aria-checked', 'true');
   });
-  it('throws in an ActionTree.Root', async () => {
+  it('throws in a TreeGrid.Root', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(
       render(
-        <ActionTree.Root items={[{ id: 'a', label: 'A' }]}>
-          <ActionTree.List>
+        <TreeGrid.Root items={[{ id: 'a', label: 'A' }]}>
+          <TreeGrid.Table>
             {(item) => <Tree.CheckboxItem itemId={item.id}>{item.label}</Tree.CheckboxItem>}
-          </ActionTree.List>
-        </ActionTree.Root>,
+          </TreeGrid.Table>
+        </TreeGrid.Root>,
       ),
     ).rejects.toThrow(
-      /<Tree\.CheckboxItem> cannot be placed in <ActionTree\.Root>.*<ActionTree\.ItemCheckbox>/,
+      /<Tree\.CheckboxItem> cannot be placed in <TreeGrid\.Root>.*<TreeGrid\.RowCheckbox>/,
     );
   });
 });

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ActionTree } from '@base-ui/react/action-tree';
+import { TreeGrid } from '@base-ui/react/tree-grid';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
@@ -8,7 +8,7 @@ import { contains, getTarget } from '@base-ui/utils/shadowDom';
 
 import styles from './tree-paint-selection.module.css';
 
-type Actions = ActionTree.Root.Actions;
+type Actions = TreeGrid.Root.Actions;
 
 /**
  * Paint selection built on the public Tree API: press a checkbox with a mouse or
@@ -26,20 +26,20 @@ export default function TreePaintSelection() {
 
   return (
     <div className={styles.Page}>
-      <ActionTree.Root
+      <TreeGrid.Root
         items={ITEMS}
         selectionMode="multiple"
         actionsRef={actionsRef}
         onSelectedItemsChange={() => setChangeCount((count) => count + 1)}
       >
-        <ActionTree.List
+        <TreeGrid.Table
           aria-label="Files"
           className={styles.Tree}
           onPointerDown={handlePointerDown}
         >
           {renderItem}
-        </ActionTree.List>
-      </ActionTree.Root>
+        </TreeGrid.Table>
+      </TreeGrid.Root>
       <p className={styles.Log}>
         <code>onSelectedItemsChange</code> calls: {changeCount}
       </p>
@@ -48,7 +48,7 @@ export default function TreePaintSelection() {
 }
 
 /**
- * Returns the `onPointerDown` handler of a `ActionTree.List` that paints the checkboxes
+ * Returns the `onPointerDown` handler of a `TreeGrid.Table` that paints the checkboxes
  * of its rows. Each painted checkbox goes through `actionsRef.setItemSelection()`,
  * so it calls `onSelectedItemsChange` on its own.
  */
@@ -84,12 +84,12 @@ function usePaintSelection(actionsRef: React.RefObject<Actions | null>) {
     // Retraced checkboxes return to their state from before the gesture.
     const original = actions.getSelectedItemIds();
     // The painted items, in the order the pointer crossed them.
-    const trail: ActionTree.ItemId[] = [];
+    const trail: TreeGrid.ItemId[] = [];
     const origin = { x: event.clientX, y: event.clientY };
     let previous = origin;
     let painting = false;
 
-    const paint = (itemId: ActionTree.ItemId) => {
+    const paint = (itemId: TreeGrid.ItemId) => {
       const index = trail.indexOf(itemId);
       if (index === -1) {
         trail.push(itemId);
@@ -198,22 +198,22 @@ function findCheckbox(list: HTMLElement, target: Element | null) {
   return { checkbox, itemId };
 }
 
-function renderItem(item: ActionTree.DefaultItem) {
+function renderItem(item: TreeGrid.DefaultItem) {
   return (
-    <ActionTree.Item itemId={item.id} className={styles.Item}>
-      <ActionTree.ItemContent className={styles.ItemContent}>
-        <ActionTree.ItemCheckbox className={styles.Checkbox}>
-          <ActionTree.ItemCheckboxIndicator className={styles.CheckboxIndicator} keepMounted>
+    <TreeGrid.Row itemId={item.id} className={styles.Item}>
+      <TreeGrid.Cell className={styles.ItemContent}>
+        <TreeGrid.RowCheckbox className={styles.Checkbox}>
+          <TreeGrid.RowCheckboxIndicator className={styles.CheckboxIndicator} keepMounted>
             <CheckIcon className={styles.CheckIcon} />
-          </ActionTree.ItemCheckboxIndicator>
-        </ActionTree.ItemCheckbox>
+          </TreeGrid.RowCheckboxIndicator>
+        </TreeGrid.RowCheckbox>
         <span className={styles.Label}>{item.label}</span>
-      </ActionTree.ItemContent>
-    </ActionTree.Item>
+      </TreeGrid.Cell>
+    </TreeGrid.Row>
   );
 }
 
-const ITEMS: ActionTree.DefaultItem[] = [
+const ITEMS: TreeGrid.DefaultItem[] = [
   { id: 'sunset', label: 'Sunset.jpg' },
   { id: 'mountains', label: 'Mountains.png' },
   { id: 'beach', label: 'Beach.jpg' },

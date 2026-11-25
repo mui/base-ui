@@ -406,7 +406,7 @@ type TreeListState = {
 
 ### Item
 
-An individual item in a hierarchical collection. Clicking it selects it and deselects other items.
+An individual item in a hierarchical collection, and a row in a tree grid. Clicking it selects it and deselects other items.
 Renders a `<div>` element.
 
 **Item Props:**
@@ -420,16 +420,16 @@ Renders a `<div>` element.
 
 **Item Data Attributes:**
 
-| Attribute         | Type     | Description                                                                                          |
-| :---------------- | :------- | :--------------------------------------------------------------------------------------------------- |
-| data-selected     | -        | Present when the item is selected.                                                                   |
-| data-highlighted  | -        | Present when the item is highlighted: it has focus, or, in an action tree, one of its controls does. |
-| data-disabled     | -        | Present when the item is disabled.                                                                   |
-| data-collapsed    | -        | Present when the item is collapsed.                                                                  |
-| data-expandable   | -        | Present when the item can be expanded.                                                               |
-| data-expanded     | -        | Present when the item is expanded.                                                                   |
-| data-filter-match | -        | Present when the item is an exact filter match.                                                      |
-| data-item-id      | `string` | The id of the item.                                                                                  |
+| Attribute         | Type     | Description                                                                                       |
+| :---------------- | :------- | :------------------------------------------------------------------------------------------------ |
+| data-selected     | -        | Present when the item is selected.                                                                |
+| data-highlighted  | -        | Present when the item is highlighted: it has focus, or, in a tree grid, one of its controls does. |
+| data-disabled     | -        | Present when the item is disabled.                                                                |
+| data-collapsed    | -        | Present when the item is collapsed.                                                               |
+| data-expandable   | -        | Present when the item can be expanded.                                                            |
+| data-expanded     | -        | Present when the item is expanded.                                                                |
+| data-filter-match | -        | Present when the item is an exact filter match.                                                   |
+| data-item-id      | `string` | The id of the item.                                                                               |
 
 **Item CSS Variables:**
 
@@ -455,7 +455,7 @@ type TreeItemState = {
   expandable: boolean;
   /** Whether the item is expandable and currently collapsed. */
   collapsed: boolean;
-  /** Whether the item is highlighted: it has focus, or, in an action tree, one of its controls does. */
+  /** Whether the item is highlighted: it has focus, or, in a tree grid, one of its controls does. */
   highlighted: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -598,7 +598,7 @@ type TreeEmptyState = {};
 ### CheckboxItem
 
 An item that toggles its selection like a checkbox, leaving the other items selected.
-In an action tree, render `ActionTree.ItemCheckbox` in the item instead.
+In a tree grid, render `TreeGrid.RowCheckbox` in the item instead.
 Renders a `<div>` element.
 
 **CheckboxItem Props:**
@@ -651,7 +651,7 @@ type TreeCheckboxItemState = {
   expandable: boolean;
   /** Whether the item is expandable and currently collapsed. */
   collapsed: boolean;
-  /** Whether the item is highlighted: it has focus, or, in an action tree, one of its controls does. */
+  /** Whether the item is highlighted: it has focus, or, in a tree grid, one of its controls does. */
   highlighted: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -978,7 +978,7 @@ type TreeItemIndentGuideState = {
 ### LinkItem
 
 An item that links to another page. Enter and clicks follow the link.
-In an action tree, render `ActionTree.ItemLink` in the item instead.
+In a tree grid, render `TreeGrid.CellLink` in the item instead.
 Renders an `<a>` element.
 
 **LinkItem Props:**
@@ -1031,7 +1031,7 @@ type TreeLinkItemState = {
   expandable: boolean;
   /** Whether the item is expandable and currently collapsed. */
   collapsed: boolean;
-  /** Whether the item is highlighted: it has focus, or, in an action tree, one of its controls does. */
+  /** Whether the item is highlighted: it has focus, or, in a tree grid, one of its controls does. */
   highlighted: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -1442,7 +1442,7 @@ declare namespace TreeItemDataAttributes {
   const collapsed: 'data-collapsed';
   /** Present when the item is selected. */
   const selected: 'data-selected';
-  /** Present when the item is highlighted: it has focus, or, in an action tree, one of its controls does. */
+  /** Present when the item is highlighted: it has focus, or, in a tree grid, one of its controls does. */
   const highlighted: 'data-highlighted';
   /** Present when the item is disabled. */
   const disabled: 'data-disabled';

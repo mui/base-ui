@@ -88,14 +88,33 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
-      if (isGrid && element?.querySelector('[role="gridcell"]') === null) {
+      const grid = store.grid;
+      if (grid == null || element == null) {
+        return;
+      }
+      if (element.querySelector('[role="gridcell"]') === null) {
         warn(
-          'An <ActionTree.Item> renders no cell.',
+          'A <TreeGrid.Row> renders no cell.',
           'Each row of the treegrid needs one for assistive technology to read its content.',
-          'Render the content of the item inside <ActionTree.ItemContent>.',
+          'Render the content of the item inside <TreeGrid.Cell>.',
+        );
+        return;
+      }
+      const { cells, headerCells } = grid.getCellCounts(itemId);
+      if (cells > 1 && headerCells === 0) {
+        warn(
+          'A <TreeGrid.Row> renders several cells, but the tree grid has no column headers.',
+          'Screen readers then cannot name the column of a cell.',
+          'Render a <TreeGrid.HeaderRow> with a <TreeGrid.HeaderCell> for each column, visually hidden if needed.',
+        );
+      } else if (headerCells > 0 && cells !== headerCells) {
+        warn(
+          `A <TreeGrid.Row> renders ${cells} cells, but the header row has ${headerCells}.`,
+          'Screen readers then announce the wrong column header for the cells after the gap.',
+          'Render a <TreeGrid.Cell> for each <TreeGrid.HeaderCell>, empty if needed.',
         );
       }
-    }, [isGrid, element]);
+    }, [element, store, itemId]);
   }
 
   // Restore focus when the focused row remounts. The virtualizer recycling an
@@ -181,7 +200,7 @@ export interface TreeItemBaseState {
    */
   collapsed: boolean;
   /**
-   * Whether the item is highlighted: it has focus, or, in an action tree, one of its controls does.
+   * Whether the item is highlighted: it has focus, or, in a tree grid, one of its controls does.
    */
   highlighted: boolean;
   /**
@@ -201,7 +220,7 @@ export interface TreeItemBaseState {
 interface UseTreeItemParameters {
   store: TreeStore<any, any>;
   itemId: TreeItemId;
-  /** The part the item renders as. Parts other than `Tree.Item` throw in an action tree. */
+  /** The part the item renders as. Parts other than `Tree.Item` throw in a tree grid. */
   kind?: TreeItemKind | undefined;
 }
 

@@ -383,6 +383,21 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }
   };
 
+  /**
+   * Focuses an element inside a row, such as a control or a cell, so the row's
+   * focus handler reports `reason`.
+   */
+  public focusElement(
+    element: HTMLElement,
+    reason: TreeRootHighlightEventReason,
+    event?: FocusCause['event'],
+  ) {
+    if (element !== activeElement(ownerDocument(element))) {
+      this.lastFocusCause = { reason, event };
+      element.focus({ preventScroll: true });
+    }
+  }
+
   public actions = {
     focusItem: (itemId: TreeItemId) => this.focusItem(itemId, REASONS.imperativeAction),
     getFocusedItemId: (): TreeItemId | null => selectors.focusedItemId(this.store.state),
@@ -529,7 +544,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       const expanded = selectors.isItemExpanded(this.store.state, itemId);
       if (!expanded && this.store.expansion.canToggleItemExpansion(itemId)) {
         this.store.expansion.setItemExpansion(itemId, true, REASONS.keyboard, event.nativeEvent);
-      } else if (!this.store.grid?.focusFirstControl(itemId) && expanded) {
+      } else if (!this.store.grid?.focusFirstStop(itemId) && expanded) {
         const firstFocusableChild = getFirstNavigableChild(this.store.state, itemId);
         if (firstFocusableChild != null) {
           this.focusItem(firstFocusableChild, REASONS.keyboard, event.nativeEvent);
@@ -856,7 +871,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         return;
       }
       if (kind === 'checkbox') {
-        // Like a click on `ActionTree.ItemCheckbox`.
+        // Like a click on `TreeGrid.RowCheckbox`.
         this.store.selection.setItemChecked(
           itemId,
           undefined,

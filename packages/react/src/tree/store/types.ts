@@ -495,7 +495,7 @@ export interface TreeState<TItem = any> extends TreeItemsState<TItem> {
    * Key: parent item ID, Value: animation direction and affected children.
    */
   animatingGroups: TreeItemKeyed<TreeAnimatingGroup>;
-  /** How many active `Tree.LinkItem` and `ActionTree.ItemLink` parts each item renders. */
+  /** How many active `Tree.LinkItem` and `TreeGrid.CellLink` parts each item renders. */
   activeLinkCounts: TreeItemKeyed<number>;
   /**
    * Whether the consumer passed `onItemsChange`. The store's context always holds
@@ -803,6 +803,6 @@ export type FlatListEntry =
 
 /**
  * The part an item renders as, which decides how a press acts on it:
- * `Tree.Item` (or `ActionTree.Item`), `Tree.CheckboxItem`, or `Tree.LinkItem`.
+ * `Tree.Item` (or `TreeGrid.Row`), `Tree.CheckboxItem`, or `Tree.LinkItem`.
  */
 export type TreeItemKind = 'item' | 'checkbox' | 'link';

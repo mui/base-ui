@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { ActionTree } from '@base-ui/react/action-tree';
+import { TreeGrid } from '@base-ui/react/tree-grid';
 import { closest } from '@base-ui/utils/shadowDom';
 import { useInterval } from '@base-ui/utils/useInterval';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -97,10 +97,10 @@ function TestRunnerSession(props: { testCount: number; settings: Settings }) {
     () => new TestRunner(suite, settings.results === RESULTS_IN_MODELS),
   );
   const [recorder] = React.useState(() => new PerformanceRecorder(runner));
-  const [selectedItemId, setSelectedItemId] = React.useState<ActionTree.ItemId | null>(null);
+  const [selectedItemId, setSelectedItemId] = React.useState<TreeGrid.ItemId | null>(null);
   const selectedNode = selectedItemId == null ? undefined : suite.nodes.get(String(selectedItemId));
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false);
-  const actionsRef = React.useRef<ActionTree.Root.Actions<TestItem>>(null);
+  const actionsRef = React.useRef<TreeGrid.Root.Actions<TestItem>>(null);
   const filterRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => recorder.start(), [recorder]);
@@ -212,9 +212,9 @@ const TestTree = React.memo(function TestTree(props: {
   runner: TestRunner;
   suite: Suite;
   settings: Settings;
-  actionsRef: React.RefObject<ActionTree.Root.Actions<TestItem> | null>;
+  actionsRef: React.RefObject<TreeGrid.Root.Actions<TestItem> | null>;
   filterRef: React.RefObject<HTMLInputElement | null>;
-  onSelectedItemChange: (itemId: ActionTree.ItemId | null) => void;
+  onSelectedItemChange: (itemId: TreeGrid.ItemId | null) => void;
   onRun: (itemId: string) => void;
 }) {
   const { runner, suite, settings, actionsRef, filterRef, onSelectedItemChange, onRun } = props;
@@ -250,18 +250,18 @@ const TestTree = React.memo(function TestTree(props: {
   const children = React.useMemo(
     () => (
       <React.Fragment>
-        <ActionTree.Input
+        <TreeGrid.Input
           ref={filterRef}
           className={styles.Filter}
           aria-label="Filter tests"
           aria-keyshortcuts={getAriaKeyShortcuts('filter')}
           placeholder="Filter tests"
         />
-        <ActionTree.List aria-label="Tests" className={styles.Tree}>
+        <TreeGrid.Table aria-label="Tests" className={styles.Tree}>
           {renderItem}
-        </ActionTree.List>
-        <ActionTree.Empty className={styles.Empty}>No tests match the filter.</ActionTree.Empty>
-        <ActionTree.Status className={styles.VisuallyHidden} />
+        </TreeGrid.Table>
+        <TreeGrid.Empty className={styles.Empty}>No tests match the filter.</TreeGrid.Empty>
+        <TreeGrid.Status className={styles.VisuallyHidden} />
         <RunStatus runner={runner} />
       </React.Fragment>
     ),
@@ -269,8 +269,8 @@ const TestTree = React.memo(function TestTree(props: {
   );
 
   return (
-    <ActionTree.FilterProvider>
-      <ActionTree.Root
+    <TreeGrid.FilterProvider>
+      <TreeGrid.Root
         items={mode === RESULTS_IN_MODELS ? items : undefined}
         defaultItems={suite.items}
         transactionThrottle={toInteger(settings.transactionThrottle, 0, 60_000, 0)}
@@ -279,8 +279,8 @@ const TestTree = React.memo(function TestTree(props: {
         onSelectedItemsChange={onSelectedItemChange}
       >
         {children}
-      </ActionTree.Root>
-    </ActionTree.FilterProvider>
+      </TreeGrid.Root>
+    </TreeGrid.FilterProvider>
   );
 });
 
@@ -293,11 +293,11 @@ function TestRow(props: {
   const { item, runner, resultsInStore, onRun } = props;
   const descriptionId = React.useId();
   return (
-    <ActionTree.Item itemId={item.id} className={styles.Item} aria-describedby={descriptionId}>
-      <ActionTree.ItemContent className={styles.ItemContent}>
-        <ActionTree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+    <TreeGrid.Row itemId={item.id} className={styles.Item} aria-describedby={descriptionId}>
+      <TreeGrid.Cell className={styles.ItemContent}>
+        <TreeGrid.RowExpansionTrigger className={styles.ExpansionTrigger}>
           <ChevronIcon className={styles.ChevronIcon} />
-        </ActionTree.ItemExpansionTrigger>
+        </TreeGrid.RowExpansionTrigger>
         {resultsInStore ? (
           <SubscribedItemResult
             runner={runner}
@@ -308,16 +308,16 @@ function TestRow(props: {
         ) : (
           <ItemResult result={item.result} label={item.label} descriptionId={descriptionId} />
         )}
-        <ActionTree.ItemButton
+        <TreeGrid.CellButton
           className={styles.RowButton}
           aria-label={`Run ${item.label}`}
           aria-keyshortcuts={getAriaKeyShortcuts('runFocused')}
           onClick={() => onRun(item.id)}
         >
           <PlayIcon />
-        </ActionTree.ItemButton>
-      </ActionTree.ItemContent>
-    </ActionTree.Item>
+        </TreeGrid.CellButton>
+      </TreeGrid.Cell>
+    </TreeGrid.Row>
   );
 }
 
@@ -467,7 +467,7 @@ function RunSummary(props: { runner: TestRunner }) {
   );
 }
 
-// A second `ActionTree.Status`, so the tree's own messages keep theirs.
+// A second `TreeGrid.Status`, so the tree's own messages keep theirs.
 function RunStatus(props: { runner: TestRunner }) {
   const { runner } = props;
   const [message, setMessage] = React.useState('');
@@ -488,7 +488,7 @@ function RunStatus(props: { runner: TestRunner }) {
     return interval.clear;
   }, [runId, runStatus, runner, interval]);
 
-  return <ActionTree.Status className={styles.VisuallyHidden}>{message}</ActionTree.Status>;
+  return <TreeGrid.Status className={styles.VisuallyHidden}>{message}</TreeGrid.Status>;
 }
 
 function NodeDetails(props: { runner: TestRunner; suite: Suite; node: TestItem }) {

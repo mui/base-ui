@@ -9,7 +9,7 @@ import { useIsTreeEmpty } from './useIsTreeEmpty';
 
 /**
  * Returns the DOM props and ref that should be applied to the element
- * with `role="tree"`, or `role="treegrid"` in an action tree.
+ * with `role="tree"`, or `role="treegrid"` in a tree grid.
  *
  * @param props The list's `id` and `render` props.
  */

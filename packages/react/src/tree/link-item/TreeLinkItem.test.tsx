@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Tree } from '..';
-import { ActionTree } from '../../action-tree';
+import { TreeGrid } from '../../tree-grid';
 
 const items: Tree.DefaultItem[] = [
   { id: 'docs', label: 'Docs', children: [{ id: 'intro', label: 'Intro' }] },
@@ -219,22 +219,22 @@ describe('<Tree.LinkItem />', () => {
     });
   });
 
-  it('throws in an ActionTree.Root', async () => {
+  it('throws in a TreeGrid.Root', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(
       render(
-        <ActionTree.Root items={[{ id: 'a', label: 'A' }]}>
-          <ActionTree.List>
+        <TreeGrid.Root items={[{ id: 'a', label: 'A' }]}>
+          <TreeGrid.Table>
             {(item) => (
               <Tree.LinkItem itemId={item.id} href="#a">
                 {item.label}
               </Tree.LinkItem>
             )}
-          </ActionTree.List>
-        </ActionTree.Root>,
+          </TreeGrid.Table>
+        </TreeGrid.Root>,
       ),
     ).rejects.toThrow(
-      /<Tree\.LinkItem> cannot be placed in <ActionTree\.Root>.*<ActionTree\.ItemLink>/,
+      /<Tree\.LinkItem> cannot be placed in <TreeGrid\.Root>.*<TreeGrid\.CellLink>/,
     );
   });
 });

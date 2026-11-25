@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { ActionTree } from '@base-ui/react/action-tree';
+import { TreeGrid } from '@base-ui/react/tree-grid';
 
-const items: ActionTree.DefaultItem[] = [
+const items: TreeGrid.DefaultItem[] = [
   {
     id: 'overview',
     label: 'Overview',
@@ -15,14 +15,14 @@ const items: ActionTree.DefaultItem[] = [
 
 export default function LinkItemsTree() {
   return (
-    <ActionTree.Root items={items} defaultExpandedItems={['overview']} selectionMode="none">
-      <ActionTree.List aria-label="Documentation">
-        {(item: ActionTree.DefaultItem) => (
-          <ActionTree.Item
+    <TreeGrid.Root items={items} defaultExpandedItems={['overview']} selectionMode="none">
+      <TreeGrid.Table aria-label="Documentation">
+        {(item: TreeGrid.DefaultItem) => (
+          <TreeGrid.Row
             itemId={item.id}
             aria-description={item.children ? undefined : 'Press Tab to reach the link'}
           >
-            <ActionTree.ItemContent
+            <TreeGrid.Cell
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -30,26 +30,26 @@ export default function LinkItemsTree() {
                 paddingInlineStart: 'calc((var(--tree-item-level) - 1) * 1.5rem)',
               }}
             >
-              <ActionTree.ItemExpansionTrigger>
+              <TreeGrid.RowExpansionTrigger>
                 <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
                   <path d="M4.5 2 8.5 6l-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" />
                 </svg>
-              </ActionTree.ItemExpansionTrigger>
+              </TreeGrid.RowExpansionTrigger>
               {item.children ? (
                 item.label
               ) : (
-                <ActionTree.ItemLink
+                <TreeGrid.CellLink
                   href={`/docs/${item.id}`}
                   active={item.id === 'accessibility'}
                   onClick={(event) => event.preventDefault()}
                 >
                   {item.label}
-                </ActionTree.ItemLink>
+                </TreeGrid.CellLink>
               )}
-            </ActionTree.ItemContent>
-          </ActionTree.Item>
+            </TreeGrid.Cell>
+          </TreeGrid.Row>
         )}
-      </ActionTree.List>
-    </ActionTree.Root>
+      </TreeGrid.Table>
+    </TreeGrid.Root>
   );
 }

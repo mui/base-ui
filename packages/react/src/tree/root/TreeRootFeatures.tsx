@@ -11,7 +11,7 @@ export type TreeRootFeatureState = Pick<TreeState, 'filterOptions'>;
 
 /**
  * What a provider wrapping the root adds to the tree, such as filtering, or what
- * `ActionTree.Root` adds to the `Tree.Root` it renders. Only the provider imports the feature's implementation, so trees that
+ * `TreeGrid.Root` adds to the `Tree.Root` it renders. Only the provider imports the feature's implementation, so trees that
  * don't render the provider don't bundle it.
  */
 export interface TreeRootFeature {
@@ -47,7 +47,7 @@ function warnMisplacedProvider(store: TreeStore<any, any>, name: string | undefi
   if (name === undefined) {
     return;
   }
-  const component = store.grid === undefined ? 'Tree' : 'ActionTree';
+  const component = store.grid === undefined ? 'Tree' : 'TreeGrid';
   warn(
     `<${component}.${name}> has no effect inside <${component}.Root>.`,
     'Providers configure the tree they wrap.',

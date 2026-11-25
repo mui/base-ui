@@ -15,7 +15,7 @@ import { DemoTreeHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Avoid when items contain controls**: A tree item is one focusable element that screen readers read as a whole, so it can't hold buttons, inputs, or links that keyboard users need to reach. Use [Action Tree](/react/components/action-tree) for those items instead.
+- **Avoid when items contain controls**: A tree item is one focusable element that screen readers read as a whole, so it can't hold buttons, inputs, or links that keyboard users need to reach. Use [Tree Grid](/react/components/tree-grid) for those items instead.
 - **Avoid trees for site navigation**: Prefer links grouped under disclosure buttons, such as [Collapsible](/react/components/collapsible). The [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) caution against trees for site navigation. If you use one, follow the [links](#links) example.
 - **Give the tree an accessible name**: Prefer `<Tree.Label>`, or provide an `aria-label` on `<Tree.List>` when no visible label is rendered.
 - **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`. An item is named by its `label`, so pass other visible content, such as a size, to `aria-describedby`. The expansion trigger and the clear button have English names, such as "Expand Documents" and "Clear filter": pass your own `aria-label` to translate them, based on `state.expanded` for the trigger.

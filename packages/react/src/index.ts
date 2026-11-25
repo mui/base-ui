@@ -1,5 +1,5 @@
 export * from './accordion';
-export * from './action-tree';
+export * from './tree-grid';
 export * from './alert-dialog';
 export * from './autocomplete';
 export * from './avatar';

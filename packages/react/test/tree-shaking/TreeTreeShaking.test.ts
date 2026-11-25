@@ -55,15 +55,15 @@ describe('Tree tree shaking', () => {
   });
 
   it.each([
-    { name: 'the action tree parts', pattern: /\/action-tree\// },
-    { name: 'the grid navigation', pattern: /\/action-tree\/plugins\/TreeGridPlugin\.ts$/ },
+    { name: 'the tree grid parts', pattern: /\/tree-grid\// },
+    { name: 'the grid navigation', pattern: /\/tree-grid\/plugins\/TreeGridPlugin\.ts$/ },
     { name: 'the Checkbox component', pattern: /\/src\/checkbox\// },
   ])('keeps $name out of a Tree', async ({ pattern }) => {
     // The item list renders `Tree.CheckboxItem`.
     const itemList = await buildFixture('tree-list.tsx');
-    const actionTree = await buildFixture('action-tree.tsx');
+    const treeGrid = await buildFixture('tree-grid.tsx');
     expect(includes(itemList, pattern)).toBe(false);
-    expect(includes(actionTree, pattern)).toBe(true);
+    expect(includes(treeGrid, pattern)).toBe(true);
   });
 
   it.each([

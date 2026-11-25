@@ -17,8 +17,8 @@ export function useTreeCheckboxItemContext(): TreeCheckboxItemContext {
     throw new Error(
       'Base UI: TreeCheckboxItemContext is missing. ' +
         '<Tree.CheckboxItemIndicator> reads the checked state of <Tree.CheckboxItem> and cannot ' +
-        'render outside it. Place it within <Tree.CheckboxItem>, or, in an action tree, render ' +
-        '<ActionTree.ItemCheckboxIndicator> inside <ActionTree.ItemCheckbox>.',
+        'render outside it. Place it within <Tree.CheckboxItem>, or, in a tree grid, render ' +
+        '<TreeGrid.RowCheckboxIndicator> inside <TreeGrid.RowCheckbox>.',
     );
   }
   return context;
