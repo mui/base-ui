@@ -4,13 +4,14 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../../internals/useRenderElement';
 import { useTreeRootProps } from '../utils/useTreeRootProps';
 import { useTreeListViewport } from './useTreeListViewport';
+import type { TreeListState } from './TreeList';
 
 /**
  * Renders the element with `role="tree"`, or `role="treegrid"` in a tree grid,
  * around `children`, and keeps the focused row in view.
  */
 export function useTreeListElement(
-  componentProps: UseRenderElementComponentProps<{ disabled: boolean; empty: boolean }> & {
+  componentProps: UseRenderElementComponentProps<TreeListState> & {
     id?: string | undefined;
   },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

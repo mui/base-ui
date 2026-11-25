@@ -2185,14 +2185,22 @@ describe('TreeGrid columns', () => {
     expect(screen.getByTestId('rename-music')).toHaveFocus();
   });
 
-  it('moves to the row when the next row has no cell in the column', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('moves to the row when its cell in the column is hidden', async () => {
     await render(
       <ColumnsTree
-        renderRow={(item, cells) => (item.id === 'music' ? cells.slice(0, 1) : cells)}
+        renderRow={(item, [name, size, actions]) => [
+          name,
+          item.id === 'music' ? (
+            <span key="size" style={{ display: 'none' }}>
+              {size}
+            </span>
+          ) : (
+            size
+          ),
+          actions,
+        ]}
       />,
     );
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('renders 1 cells'));
 
     const row = screen.getByTestId('row-cover-letter');
     act(() => row.focus());
@@ -2242,6 +2250,19 @@ describe('TreeGrid columns', () => {
     press(screen.getByTestId('name-resume'), 'Escape');
 
     expect(row).toHaveFocus();
+  });
+
+  it('warns when a row renders a different number of cells than the header row', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(
+      <ColumnsTree
+        renderRow={(item, cells) => (item.id === 'music' ? cells.slice(0, 1) : cells)}
+      />,
+    );
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('renders 1 cells, but the header row has 3'),
+    );
   });
 
   it('warns when rows of several cells have no column headers', async () => {

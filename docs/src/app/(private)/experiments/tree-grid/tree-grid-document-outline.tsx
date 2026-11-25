@@ -159,7 +159,7 @@ export default function TreeGridDocumentOutline() {
       case 'moveDown': {
         const up = command === 'moveUp';
         const siblingId = up ? position.previousId : position.nextId;
-        if (block.locked || siblingId == null) {
+        if (siblingId == null) {
           break;
         }
         void actions.applyTransaction((transaction) =>
@@ -183,9 +183,6 @@ export default function TreeGridDocumentOutline() {
         break;
       }
       case 'remove': {
-        if (block.locked) {
-          break;
-        }
         // The menu that ran the command leaves with the row, so focus goes to a neighbor first.
         const neighborId = position.nextId ?? position.previousId ?? position.parentId;
         if (neighborId != null) {

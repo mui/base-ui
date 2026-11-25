@@ -88,7 +88,7 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       if (element != null) {
-        store.grid?.warnAboutCells(itemId, element);
+        store.grid?.warnAboutCells(itemId);
       }
     }, [element, store, itemId]);
   }

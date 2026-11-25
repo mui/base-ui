@@ -2,6 +2,7 @@ import * as React from 'react';
 import axe from 'axe-core';
 import { describe, expect, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { TreeGrid } from '.';
 
@@ -67,9 +68,7 @@ describe.skipIf(isJSDOM)('TreeGrid axe checks', () => {
             <TreeGrid.HeaderCell>Name</TreeGrid.HeaderCell>
             <TreeGrid.HeaderCell>Kind</TreeGrid.HeaderCell>
             <TreeGrid.HeaderCell>
-              <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden' }}>
-                Actions
-              </span>
+              <span style={visuallyHidden}>Actions</span>
             </TreeGrid.HeaderCell>
           </TreeGrid.HeaderRow>
           <TreeGrid.Collection>

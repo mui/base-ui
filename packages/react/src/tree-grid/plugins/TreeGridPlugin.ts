@@ -1,7 +1,7 @@
 import type * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { activeElement, closest, contains } from '@base-ui/utils/shadowDom';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
 import { REASONS } from '../../internals/reasons';
 import type { TreeDefaultItem, TreeItemId, TreeSelectionMode } from '../../tree/store/types';
@@ -29,7 +29,7 @@ interface RegisteredControl {
  */
 interface Stop {
   element: HTMLElement;
-  control: RegisteredControl | null;
+  isCell: boolean;
 }
 
 /** The cells and stops of a row, read once per key press. */
@@ -69,7 +69,8 @@ function keepsHorizontalArrow(element: Element, key: string): boolean {
   if (selectionStart == null) {
     return false;
   }
-  if (selectionStart !== selectionEnd) {
+  // A selection, or a caret inside the text, keeps either arrow.
+  if (selectionStart !== selectionEnd || (selectionStart > 0 && selectionStart < value.length)) {
     return true;
   }
   // The caret follows the text's direction, which can differ from the tree's.
@@ -97,6 +98,9 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
   /** Cells registered by `TreeGrid.Cell`, keyed by item. */
   private cells = new Map<string, Set<HTMLElement>>();
 
+  /** The number of mounted `TreeGrid.HeaderCell` parts. */
+  private headerCellCount = 0;
+
   constructor(store: TreeStore<TreeSelectionMode | undefined, TItem>) {
     this.store = store;
   }
@@ -119,6 +123,14 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
   /** Registers a cell of an item's row. Returns the cleanup that unregisters it. */
   public registerCell = (itemId: TreeItemId, element: HTMLElement): (() => void) =>
     this.register(this.cells, itemId, element, element);
+
+  /** Counts a header cell. Returns the cleanup that uncounts it. */
+  public registerHeaderCell = (): (() => void) => {
+    this.headerCellCount += 1;
+    return () => {
+      this.headerCellCount -= 1;
+    };
+  };
 
   private register<T>(
     registry: Map<string, Set<T>>,
@@ -164,7 +176,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
    * Warns in development when screen readers can't read or name the cells of
    * an item's row.
    */
-  public warnAboutCells(itemId: TreeItemId, itemElement: HTMLElement) {
+  public warnAboutCells(itemId: TreeItemId) {
     if (process.env.NODE_ENV === 'production') {
       return;
     }
@@ -177,9 +189,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
       );
       return;
     }
-    const headerCells =
-      closest(itemElement, '[role="treegrid"]')?.querySelectorAll('[role="columnheader"]').length ??
-      0;
+    const headerCells = this.headerCellCount;
     if (cells > 1 && headerCells === 0) {
       warn(
         'A <TreeGrid.Row> renders several cells, but the tree grid has no column headers.',
@@ -196,10 +206,9 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
   }
 
   /** The focusable registered controls of an item, in composed tree order. */
-  private getControls(itemId: TreeItemId): RegisteredControl[] {
-    const itemElement = this.store.items.getItemDOMElement(itemId);
+  private getControls(itemId: TreeItemId, itemElement: HTMLElement): RegisteredControl[] {
     const itemControls = this.controls.get(getItemIdKey(itemId));
-    if (itemElement == null || itemControls == null) {
+    if (itemControls == null) {
       return [];
     }
     return sortInComposedOrder(
@@ -216,11 +225,12 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
     if (itemCells == null) {
       return [];
     }
+    const cells = Array.from(itemCells).filter(
+      (element) => element.isConnected && contains(itemElement, element),
+    );
     return sortInComposedOrder(
       itemElement,
-      Array.from(itemCells, (element) => ({ element })).filter(
-        ({ element }) => element.isConnected && contains(itemElement, element),
-      ),
+      cells.map((element) => ({ element })),
     ).map(({ element }) => element);
   }
 
@@ -233,21 +243,20 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
     if (itemElement == null) {
       return { cells: [], stops: [] };
     }
-    const controls = this.getControls(itemId);
-    const stops: Stop[] = controls.map((control) => ({ element: control.element, control }));
+    const controls = this.getControls(itemId, itemElement);
+    const stops: Stop[] = controls.map((control) => ({ element: control.element, isCell: false }));
     const cells = this.getCells(itemId, itemElement);
     if (cells.length < 2) {
       return { cells, stops };
     }
     const controlCount = stops.length;
     for (const cell of cells) {
-      // A hidden cell can't take focus, so it isn't a stop. It still counts
-      // as a column, which keeps column indexes aligned across rows.
+      // A hidden cell can't take focus, so it isn't a stop.
       if (
         isControlFocusable(cell, itemElement) &&
         !controls.some((control) => contains(cell, control.element))
       ) {
-        stops.push({ element: cell, control: null });
+        stops.push({ element: cell, isCell: true });
       }
     }
     return {
@@ -268,7 +277,11 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
 
   /** The link among an item's controls. */
   public getLink(itemId: TreeItemId): HTMLElement | undefined {
-    return this.getControls(itemId).find(
+    const itemElement = this.store.items.getItemDOMElement(itemId);
+    if (itemElement == null) {
+      return undefined;
+    }
+    return this.getControls(itemId, itemElement).find(
       (control) => control.element.localName === 'a' && control.element.hasAttribute('href'),
     )?.element;
   }
@@ -282,7 +295,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
     const element = stop.element;
     // A cell only takes focus while the keyboard is on it, so a click on its
     // text still focuses the row.
-    if (stop.control == null && !element.hasAttribute('tabindex')) {
+    if (stop.isCell && !element.hasAttribute('tabindex')) {
       element.setAttribute('tabindex', '-1');
       element.addEventListener('blur', () => element.removeAttribute('tabindex'), { once: true });
     }
@@ -353,7 +366,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
     }
     // A disabled control that stays focusable prevents every key to block its
     // activation. Navigation keys still apply to it.
-    const disabledFocusable = target.getAttribute('aria-disabled') === 'true';
+    const disabledFocusable = element.getAttribute('aria-disabled') === 'true';
     const columnEdgeKey =
       (event.key === 'Home' || event.key === 'End') &&
       (event.ctrlKey || event.metaKey) &&
@@ -385,7 +398,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
       case backwardKey: {
         if (
           keys.horizontal === 'control' ||
-          (!unavailable && keepsHorizontalArrow(target, event.key))
+          (!unavailable && keepsHorizontalArrow(element, event.key))
         ) {
           return false;
         }
@@ -396,12 +409,12 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
         // from the last one stays put.
         if (event.key === backwardKey) {
           if (index > 0) {
-            this.focusStop(stops[index - 1], event.nativeEvent);
+            this.focusStop(stops[index - 1]);
           } else {
             itemElement.focus({ preventScroll: true });
           }
         } else if (index < stops.length - 1) {
-          this.focusStop(stops[index + 1], event.nativeEvent);
+          this.focusStop(stops[index + 1]);
         }
         return false;
       }
