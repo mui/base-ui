@@ -83,7 +83,10 @@ export const TreeItemExpansionTrigger = fastComponentRef(function TreeItemExpans
   const ariaLabel = expanded ? `Collapse ${label}` : `Expand ${label}`;
 
   // A link can't contain a button, so inside one the trigger is a plain `<span>`
-  // with no role or name, as in the WAI-ARIA navigation tree example.
+  // with no role or name, as in the WAI-ARIA navigation tree example. Screen readers
+  // can't reach it, so a touch screen reader user's tap follows the link and can't
+  // expand the item. The APG accepts that gap:
+  // https://github.com/w3c/aria-practices/issues/2577
   return useRenderElement(inLink ? 'span' : 'button', componentProps, {
     state,
     ref: inLink ? forwardedRef : [forwardedRef, buttonRef],
