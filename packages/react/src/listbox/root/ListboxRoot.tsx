@@ -199,6 +199,7 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * - `'none'`: the highlight changed for another reason, such as an item receiving or losing focus.
    *
    * With `items`, the highlighted item may not be rendered yet, so scroll it into view.
+   * `eventDetails.index` is `-1` when no item is highlighted.
    */
   onItemHighlighted?:
     | ((itemValue: Value | undefined, eventDetails: ListboxRootHighlightEventDetails) => void)

@@ -118,9 +118,15 @@ import { DemoListboxGrouped } from './demos/grouped';
 
 For data in any other shape, create a collection with `Listbox.createItems()` and pass it to the `items` prop. Make sure `getValue` returns a unique primitive for each item, such as its ID, and give each `Listbox.Item` that value. The selection holds the same values, and `items.get()` returns the object for one.
 
-```jsx title="Custom data"
-function UserList({ users }) {
-  const [value, setValue] = React.useState(users[0].id);
+```tsx title="Custom data"
+interface User {
+  id: string;
+  name: string;
+  active: boolean;
+}
+
+function UserList({ users }: { users: User[] }) {
+  const [value, setValue] = React.useState<string | null>(users[0].id);
   const items = React.useMemo(
     () =>
       Listbox.createItems(users, {
@@ -149,14 +155,14 @@ function UserList({ users }) {
 }
 ```
 
-`items.map()` calls a function with each item in order, and its argument is typed from your data. `createItems()` also accepts an array of groups, each with an `items` array; an item can't have an `items` array property of its own.
+`items.map()` calls a function with each item in order, and its argument is typed from your data. `createItems()` also accepts an array of groups, each with an `items` array; an item can't have an `items` array property of its own. The collection holds the functions you pass, so create it in a Client Component.
 
 ### Virtualized
 
 Render large lists with a virtualization library such as `@tanstack/react-virtual`. Because only some of the items are rendered, a virtualized listbox needs the following:
 
 - **Pass every item to `items`**: The listbox can then reach items that aren't rendered with keyboard navigation, typeahead, and selection. Without it, arrow keys stop at the last rendered item.
-- **Scroll the highlighted item into view**: In `onItemHighlighted`, scroll to `eventDetails.index` unless the reason is `'pointer'`. The item receives focus once it renders.
+- **Scroll the highlighted item into view**: In `onItemHighlighted`, scroll to `eventDetails.index` unless the reason is `'pointer'`, or the index is `-1`, which means that no item is highlighted. The item receives focus once it renders.
 - **Set `aria-setsize` and `aria-posinset` on each item**: Assistive technology then announces an item's position in the whole list, not among the rendered items.
 - **Keep a focus indicator on the list**: `<Listbox.List>` holds focus while the highlighted item isn't rendered, so don't remove its focus style without showing one elsewhere.
 
@@ -188,14 +194,19 @@ With `multiple="opt-in"`, the selection follows focus:
 In both multiple modes:
 
 - <kbd>Shift</kbd>+arrow keys replace the selection with a range that starts at the focused item.
-  Pressing them again grows or shrinks the same range.
-- <kbd>Shift</kbd>+<kbd>Space</kbd> replaces the selection with the range from the item pressed last
-  to the focused item. When no item was pressed yet, the range starts at the first selected item, or
-  at the first item.
+  Right after a <kbd>Shift</kbd>+press or another <kbd>Shift</kbd>+arrow key, they grow or shrink
+  that range instead.
+- <kbd>Shift</kbd>+<kbd>Space</kbd> replaces the selection with the range from the anchor to the
+  focused item. The anchor is the item that was last pressed without <kbd>Shift</kbd>, or the start
+  of the last range made with <kbd>Shift</kbd>+arrow keys. With `multiple="opt-in"`, moving the
+  selection with the keyboard moves the anchor too. When there's no anchor yet, the range starts at
+  the first selected item, or at the first item.
 - <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Home</kbd> or <kbd>End</kbd> adds the items from the focused
   item to the first or last item to the selection. On macOS, use <kbd>Cmd</kbd> instead of
   <kbd>Ctrl</kbd>.
 - <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd> selects every item.
+
+None of these change a disabled item: a selected one stays selected, and the others are skipped.
 
 The listbox doesn't handle <kbd>Esc</kbd>, so a popup or dialog around it can close.
 
