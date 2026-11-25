@@ -117,7 +117,15 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   componentProps: DrawerPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    finalFocus,
+    initialFocus,
+    id: idProp,
+    ...elementProps
+  } = componentProps;
 
   const store = useDialogRootContext();
   const popupRef = store.context.popupRef;
@@ -147,7 +155,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const role = store.useState('role');
   const defaultPopupId = store.useState('defaultPopupId');
 
-  const popupId = elementProps.id ?? defaultPopupId;
+  const popupId = idProp ?? defaultPopupId;
 
   const swipe = useDrawerViewportContext();
   useDialogPortalContext();
