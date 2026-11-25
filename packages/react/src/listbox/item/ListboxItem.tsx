@@ -204,10 +204,10 @@ export const ListboxItem = React.memo(
           return;
         }
         const element = itemRef.current;
-        const focused = element != null && activeElement(ownerDocument(element)) === element;
+        const focusedElement = element ? activeElement(ownerDocument(element)) : null;
         // The pointer moved within the item that already has focus and the highlight.
         if (
-          focused &&
+          focusedElement === element &&
           store.state.multiple !== 'opt-in' &&
           store.state.hoveredIndex === null &&
           store.state.itemFocused &&
@@ -215,20 +215,20 @@ export const ListboxItem = React.memo(
         ) {
           return;
         }
-        store.hoverItem(index, event.nativeEvent);
 
         // Hovering only moves focus once focus is in the list, so it never takes focus from
         // another control. Until then, the hovered item is highlighted without focus. Opt-in mode
         // never moves focus on hover, since arrow keys move the selection from the focused item.
-        const listElement = store.state.listElement;
         if (
           store.state.multiple !== 'opt-in' &&
           element &&
-          contains(listElement, activeElement(ownerDocument(element)))
+          contains(store.state.listElement, focusedElement)
         ) {
           store.highlightItem(index, event.nativeEvent);
           // The pointer is already over the item, so the list doesn't scroll to it.
           element.focus({ preventScroll: true });
+        } else {
+          store.hoverItem(index, event.nativeEvent);
         }
       },
       onKeyDownCapture(event: BaseUIEvent<React.KeyboardEvent>) {

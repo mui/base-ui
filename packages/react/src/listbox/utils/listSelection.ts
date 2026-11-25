@@ -74,7 +74,8 @@ export class ListSelection<E = Event> {
     if (shiftKey && multiple && this.resolveAnchor(this.pressAnchor) === null) {
       this.pressAnchor = this.createAnchor(this.parameters.getDefaultAnchor());
     }
-    const anchorIndex = this.resolveAnchor(this.pressAnchor);
+    // A Shift+press always has an anchor, which is the pressed item at the least.
+    const anchorIndex = this.resolveAnchor(this.pressAnchor) ?? index;
     const { value, items } = this.read();
 
     let nextValue: any[];
@@ -83,10 +84,7 @@ export class ListSelection<E = Event> {
     if (shiftKey && multiple) {
       if (replaceOnPress && ctrlKey) {
         // Ctrl/Cmd+Shift adds the range to the existing selection.
-        nextValue =
-          anchorIndex === null
-            ? toggle(value, items, index)
-            : addRange(value, items, anchorIndex, index);
+        nextValue = addRange(value, items, anchorIndex, index);
       } else {
         nextValue = replaceWithRange(value, items, anchorIndex, index);
         keepsAnchor = true;
@@ -110,8 +108,8 @@ export class ListSelection<E = Event> {
   }
 
   /** Remembers the item at a position as an anchor. */
-  private createAnchor(index: number | null): ItemReference | null {
-    return index === null ? null : createItemReference(this.parameters.getItems(), index);
+  private createAnchor(index: number): ItemReference {
+    return createItemReference(this.parameters.getItems(), index);
   }
 
   /** Where an anchor's item is now, or `null` when there's no anchor or its item is gone. */
@@ -128,7 +126,7 @@ export class ListSelection<E = Event> {
    * item that set or kept it, so Shift+Arrow continues a range, and the focused item once focus
    * has moved another way, such as by typing or hovering.
    */
-  private getRangeAnchor(focusedIndex: number | null): number | null {
+  private getRangeAnchor(focusedIndex: number): number {
     const pressIndex = this.resolveAnchor(this.pressAnchor);
     return pressIndex !== null && this.resolveAnchor(this.anchorFocus) === focusedIndex
       ? pressIndex
@@ -161,7 +159,7 @@ export class ListSelection<E = Event> {
    * replacing the rest of the selection, so the range grows and shrinks as the item changes.
    * Shift+press extends from the same anchor.
    */
-  extendTo(index: number, focusedIndex: number | null, event: E) {
+  extendTo(index: number, focusedIndex: number, event: E) {
     const anchorIndex = this.getRangeAnchor(focusedIndex);
     const { value, items } = this.read();
     if (
@@ -236,25 +234,17 @@ function replaceWith(currentValue: any[], items: SelectionItems, values: any[]):
   if (!items.keepsDisabled || currentValue.length === 0) {
     return values;
   }
-  let selectedDisabled: any[];
-  if (currentValue.length < items.count) {
-    selectedDisabled = currentValue.filter((v) => {
-      const index = items.indexOfValue(v);
-      return index !== -1 && items.isDisabled(index);
-    });
-  } else {
-    // With most items selected, walking the items once is cheaper than looking each selected
-    // value up, which scans the list when it has no `items`.
-    const selected = new Set(currentValue);
-    selectedDisabled = [];
-    for (let i = 0; i < items.count; i += 1) {
-      const itemValue = items.getValue(i);
-      if (itemValue !== undefined && items.isDisabled(i) && selected.has(itemValue)) {
-        selectedDisabled.push(itemValue);
-      }
+  // Walks the items once rather than looking each selected value up, which scans the list when
+  // it has no `items`.
+  const selected = new Set(currentValue);
+  const nextValue = [...values];
+  for (let i = 0; i < items.count; i += 1) {
+    const itemValue = items.getValue(i);
+    if (itemValue !== undefined && items.isDisabled(i) && selected.has(itemValue)) {
+      nextValue.push(itemValue);
     }
   }
-  return selectedDisabled.length === 0 ? values : [...values, ...selectedDisabled];
+  return nextValue.length === values.length ? values : nextValue;
 }
 
 /** Makes an item the selection. Nothing changes when it can't be selected. */
@@ -268,22 +258,18 @@ function toggle(currentValue: any[], items: SelectionItems, index: number): any[
   if (itemValue === undefined) {
     return currentValue;
   }
-  if (currentValue.some((v) => Object.is(v, itemValue))) {
-    return currentValue.filter((v) => !Object.is(v, itemValue));
-  }
-  return [...currentValue, itemValue];
+  const nextValue = currentValue.filter((v) => !Object.is(v, itemValue));
+  return nextValue.length === currentValue.length ? [...currentValue, itemValue] : nextValue;
 }
 
-/** Makes the range from an anchor to an item the selection, or just the item without an anchor. */
+/** Makes the range from an anchor to an item the selection. */
 function replaceWithRange(
   currentValue: any[],
   items: SelectionItems,
-  anchorIndex: number | null,
+  anchorIndex: number,
   index: number,
 ): any[] {
-  return anchorIndex === null
-    ? select(currentValue, items, index)
-    : replaceWith(currentValue, items, enabledValuesBetween(items, anchorIndex, index));
+  return replaceWith(currentValue, items, enabledValuesBetween(items, anchorIndex, index));
 }
 
 /** Adds the items between two positions to the selection. */

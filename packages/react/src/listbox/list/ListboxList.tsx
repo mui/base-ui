@@ -68,7 +68,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
         }
         break;
       case 'extend': {
-        const focusedIndex = store.state.activeIndex;
+        // The command extends from the item that has focus, so there is one.
+        const focusedIndex = store.state.activeIndex as number;
         store.focus.moveTo(command.index, nativeEvent);
         store.selection.extendTo(command.index, focusedIndex, nativeEvent);
         break;

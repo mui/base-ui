@@ -20,11 +20,10 @@ export const ListboxGroup = React.forwardRef(function ListboxGroup(
 
   const contextValue: ListboxGroupContext = React.useMemo(
     () => ({
-      labelId,
       setLabelId,
       items,
     }),
-    [labelId, setLabelId, items],
+    [setLabelId, items],
   );
 
   const element = useRenderElement('div', componentProps, {

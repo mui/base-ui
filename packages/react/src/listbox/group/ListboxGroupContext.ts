@@ -2,7 +2,6 @@
 import * as React from 'react';
 
 export interface ListboxGroupContext {
-  labelId: string | undefined;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   /** The group's items, which a `Listbox.Collection` inside the group renders. */
   items: readonly any[] | undefined;

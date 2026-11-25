@@ -7,11 +7,6 @@ import { getHighlightedIndex } from '../store';
 import type { ListboxStore } from '../store';
 import type { ListboxRoot } from '../root/ListboxRoot';
 
-interface ResolvedHighlight<Value> {
-  index: number;
-  value: Value | undefined;
-}
-
 /**
  * Calls `onItemHighlighted` when the highlighted item changes.
  *
@@ -27,12 +22,12 @@ export function useHighlightChangeNotifier<Value>(params: {
 }): void {
   const { store, onItemHighlighted } = params;
 
-  const notify = useStableCallback((highlight: ResolvedHighlight<Value>) => {
+  const notify = useStableCallback((index: number, value: Value | undefined) => {
     const event = store.context.highlightEvent;
     onItemHighlighted?.(
-      highlight.value,
+      value,
       createGenericEventDetails(getHighlightReason(event), event, {
-        index: highlight.index,
+        index,
       }) as ListboxRoot.HighlightEventDetails,
     );
   });
@@ -44,24 +39,20 @@ export function useHighlightChangeNotifier<Value>(params: {
       return undefined;
     }
 
-    function resolveHighlight(): ResolvedHighlight<Value> {
-      const index = getHighlightedIndex(store.state);
-      return index == null
-        ? { index: -1, value: undefined }
-        : { index, value: store.getValueAt(index) as Value | undefined };
-    }
-
     // The item at a position can change without the position changing, so the value is compared
-    // too.
-    let last = resolveHighlight();
+    // too. Nothing is highlighted at position `-1`, which has no value.
+    let lastIndex = getHighlightedIndex(store.state) ?? -1;
+    let lastValue = store.getValueAt(lastIndex);
 
     return store.subscribe(() => {
-      const next = resolveHighlight();
-      if (last.index === next.index && Object.is(last.value, next.value)) {
+      const index = getHighlightedIndex(store.state) ?? -1;
+      const value = store.getValueAt(index);
+      if (index === lastIndex && Object.is(value, lastValue)) {
         return;
       }
-      last = next;
-      notify(next);
+      lastIndex = index;
+      lastValue = value;
+      notify(index, value);
     });
   }, [store, hasListener, notify]);
 }
