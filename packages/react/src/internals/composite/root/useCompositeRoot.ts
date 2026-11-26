@@ -113,13 +113,20 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       return;
     }
 
+    // An item can take focus before it registers, for example with `autoFocus`. Its focus handler
+    // reports index -1 then, so the tab stop moves to it here once the list resolves.
+    const focusedElement = activeElement(ownerDocument(rootRef.current));
+
     if (hasSetDefaultIndexRef.current) {
       const elements = elementsRef.current;
       // Items added or removed around the highlighted one shift its index, so the tab stop would
       // otherwise move to a different item and navigation would resume from the wrong position.
       const nextIndex = elements.indexOf(highlightedElementRef.current);
+      const focusedIndex = focusedElement ? elements.indexOf(focusedElement as HTMLElement) : -1;
 
-      if (nextIndex === -1) {
+      if (nextIndex === -1 && focusedIndex !== -1) {
+        onHighlightedIndexChange(focusedIndex);
+      } else if (nextIndex === -1) {
         // A replacement at the same index can keep the tab stop. Otherwise move it to an
         // eligible item so a missing, hidden, or disabled replacement does not take the
         // composite out of the tab order.
@@ -138,9 +145,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     hasSetDefaultIndexRef.current = true;
 
     const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
-    // An item can take focus before its list first resolves, for example with `autoFocus`. Its index
-    // cannot be resolved from the list in the focus handler then, so the tab stop starts on it here.
-    const focusedElement = activeElement(ownerDocument(rootRef.current));
     const activeItem =
       sortedElements.find((compositeElement) => compositeElement === focusedElement) ??
       sortedElements.find((compositeElement) =>
