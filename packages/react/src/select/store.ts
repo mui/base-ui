@@ -3,6 +3,7 @@ import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 import type { Group } from '../internals/resolveValueLabel';
 import { popupStoreSelectors } from '../utils/popups/store';
+import { isKeyboardOpen } from '../utils/isKeyboardOpen';
 import type { SelectRoot } from './root/SelectRoot';
 import { ValuePopupStore, valuePopupSelectors } from '../utils/popups/value-popup/ValuePopupStore';
 import type {
@@ -33,6 +34,13 @@ export type State = ValuePopupState & {
   scrollDownArrowVisible: boolean;
 
   hasScrollArrows: boolean;
+
+  // A filterable select keeps real focus on its input and navigates the list virtually.
+  keyboardOpen: boolean;
+  /** Whether list navigation can start from the selected option, which filtering moves. */
+  navigateFromSelected: boolean;
+  inputProps: HTMLProps;
+  highlightedItem: HTMLElement | undefined;
 };
 
 /**
@@ -54,12 +62,30 @@ export type SelectStoreContext = ValuePopupContext<SelectRoot.OpenChangeEventDet
   readonly selectedItemTextRef: React.RefObject<HTMLElement | null>;
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
+  /**
+   * Whether the select is wrapped in `Select.FilterProvider`, so real focus stays on
+   * `Select.Input` while the list is navigated with `aria-activedescendant`. Fixed for the store's
+   * lifetime.
+   */
+  readonly filterable: boolean;
 
   // Callbacks. Initialized when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
   isItemEqualToValue: State['isItemEqualToValue'];
-  setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  /** `toggledItem` is the item a multiple select's press adds or removes. */
+  setValue: (
+    nextValue: any,
+    eventDetails: SelectRoot.ChangeEventDetails,
+    toggledItem?: { value: unknown },
+  ) => void;
+  /** Called with the item a multiple select's press toggled, once the change is accepted. */
+  onItemToggle: (itemValue: unknown, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
+  /**
+   * Publishes the highlighted element for a filterable select, and reports the highlighted item
+   * through `onItemHighlighted` if it changed.
+   */
+  syncHighlight: () => void;
 };
 
 export const selectors = {
@@ -102,6 +128,11 @@ export const selectors = {
     // keep a previously selected item marked as selected.
     return compareItemEquality(itemValue, selectedValue, comparer);
   },
+  keyboardOpen: (state: State) => state.keyboardOpen,
+  navigateFromSelected: (state: State) => state.navigateFromSelected,
+  inputProps: (state: State) => state.inputProps,
+  highlightedItemId: (state: State) => state.highlightedItem?.id || undefined,
+
   isSelectedByFocus: (state: State, index: number) => {
     return state.selectedIndex === index;
   },
@@ -122,6 +153,10 @@ export class SelectStore extends ValuePopupStore<
 > {
   protected getAnchorElement(state: Readonly<State>) {
     return state.triggerElement;
+  }
+
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: SelectRoot.OpenChangeEventDetails) {
+    return { keyboardOpen: nextOpen && isKeyboardOpen(eventDetails.reason, eventDetails.event) };
   }
 
   protected prepareUnmount() {
