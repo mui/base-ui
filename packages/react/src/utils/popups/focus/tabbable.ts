@@ -8,7 +8,8 @@ export type FocusableElement = HTMLElement | SVGElement;
 const CANDIDATE_SELECTOR =
   'a[href],button,input,select,textarea,summary,details,iframe,object,embed,[tabindex],[contenteditable]:not([contenteditable="false"]),audio[controls],video[controls]';
 
-function getParentElement(element: Element) {
+/** The parent of `element` in the composed tree: its slot, parent, or shadow host. */
+export function getComposedParentElement(element: Element) {
   const assignedSlot = (
     element as Element & {
       assignedSlot?: HTMLSlotElement | null | undefined;
@@ -61,7 +62,11 @@ function isFocusableElement(element: Element | null): element is FocusableElemen
     return false;
   }
 
-  for (let current: Element | null = element; current; current = getParentElement(current)) {
+  for (
+    let current: Element | null = element;
+    current;
+    current = getComposedParentElement(current)
+  ) {
     const isAncestor = current !== element;
     const isSlot = getNodeName(current) === 'slot';
 
@@ -143,7 +148,8 @@ function isTabbableRadio(element: FocusableElement, candidates: FocusableElement
   );
 }
 
-function getComposedChildren(container: ParentNode): Element[] {
+/** The children of `container` in the composed tree, through slots and open shadow roots. */
+export function getComposedChildren(container: ParentNode): Element[] {
   if (isHTMLElement(container) && getNodeName(container) === 'slot') {
     const assignedElements = (container as HTMLSlotElement).assignedElements({ flatten: true });
     if (assignedElements.length > 0) {

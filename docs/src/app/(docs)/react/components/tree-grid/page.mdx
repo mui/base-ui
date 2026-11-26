@@ -1,0 +1,340 @@
+# Tree Grid
+
+<Subtitle>
+  A hierarchical list of rows that contain buttons, inputs, and links, in one or more columns.
+</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React tree grid component for hierarchical data whose rows contain columns, buttons, inputs, and links."
+/>
+
+> **Note:** Tree Grid is currently in preview. Its API may change before it becomes stable.
+
+import { DemoTreeGridHero } from './demos/hero';
+
+<DemoTreeGridHero />
+
+## Usage guidelines
+
+- **Avoid when rows hold no controls or columns**: Use [Tree](/react/components/tree) instead when each item is a single element, including items that toggle like a checkbox or link to another page. Screen readers read a tree item as a whole, and users need fewer key presses.
+- **Avoid for tabular data**: Tree Grid doesn't sort, resize, edit, or page through its rows. When users compare values across rows, use a data grid instead.
+- **Give the tree grid an accessible name**: Prefer `<TreeGrid.Label>`, or provide an `aria-label` on `<TreeGrid.Table>` when no visible label is rendered.
+- **Name every control**: Give each control inside a row a name that includes the item's label, such as "Remove Wireframes". Show what an input or a switch is for with visible text, such as a unit or a "Done" label, and keep that text in its name. Give `<TreeGrid.Input>` a visible `<label>`. The checkbox, expansion trigger, and clear button have English names, such as "Select Documents", "Expand Documents", and "Clear filter": pass your own `aria-label` to translate them, based on `state.expanded` for the trigger.
+- **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<TreeGrid.RowExpansionTrigger>`, and `<TreeGrid.RowCheckbox>` with checkbox selection, so they can expand and select rows by tapping.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { TreeGrid } from '@base-ui/react/tree-grid';
+
+<TreeGrid.FilterProvider>
+  <TreeGrid.Root>
+    <TreeGrid.Label />
+    <TreeGrid.Input />
+    <TreeGrid.Clear />
+    <TreeGrid.Status />
+    <TreeGrid.Empty />
+
+    <TreeGrid.Table>
+      <TreeGrid.HeaderRow>
+        <TreeGrid.HeaderCell />
+      </TreeGrid.HeaderRow>
+      <TreeGrid.Collection>
+        {(item) => (
+          <>
+            <TreeGrid.Row itemId={item.id}>
+              <TreeGrid.Cell>
+                <TreeGrid.RowIndentGuide />
+                <TreeGrid.RowExpansionTrigger />
+                <TreeGrid.RowCheckbox>
+                  <TreeGrid.RowCheckboxIndicator />
+                </TreeGrid.RowCheckbox>
+                <TreeGrid.RowGroupIndicator />
+                <TreeGrid.CellLink />
+                <TreeGrid.CellInput />
+                <TreeGrid.CellButton />
+                <TreeGrid.CellControl />
+              </TreeGrid.Cell>
+            </TreeGrid.Row>
+            <TreeGrid.GroupTransition />
+          </>
+        )}
+      </TreeGrid.Collection>
+    </TreeGrid.Table>
+  </TreeGrid.Root>
+</TreeGrid.FilterProvider>;
+```
+
+Without a header row, pass the render function to `<TreeGrid.Table>` directly instead of `<TreeGrid.Collection>`.
+
+## Item models
+
+To add fields to the standard item, extend `TreeGrid.DefaultItem` and redeclare `children` with your own type. For any other item model, use `TreeGrid.createItems()`, and supply `setChildren` for nested edits and managed reparenting.
+
+```tsx title="Custom item model"
+const items = TreeGrid.createItems(nodes, {
+  getId: (node) => node.key,
+  getLabel: (node) => node.name,
+  getChildren: (node) => node.nodes,
+  setChildren: (node, children) => ({ ...node, nodes: [...children] }),
+});
+
+<TreeGrid.Root items={items}>
+  <TreeGrid.Table<Node>>{(node) => <Row node={node} />}</TreeGrid.Table>
+</TreeGrid.Root>;
+```
+
+The root infers the item type from `items`. `<TreeGrid.Table>` and `<TreeGrid.Collection>` can't see it, so they type items as `any` unless you pass the type, as `<TreeGrid.Table<Node>>` does.
+
+## Controls inside rows
+
+Each item is a row of one or more `<TreeGrid.Cell>`. Render the content of the item inside them, and its controls with `<TreeGrid.CellButton>`, `<TreeGrid.CellInput>`, `<TreeGrid.CellLink>`, `<TreeGrid.RowCheckbox>`, or `<TreeGrid.CellControl>`.
+
+```tsx title="Controls inside a row"
+<TreeGrid.Root items={tasks}>
+  <TreeGrid.Table>
+    {(task) => (
+      <TreeGrid.Row itemId={task.id} aria-description="Press Tab to reach the task controls">
+        <TreeGrid.Cell>
+          <TreeGrid.CellLink href={task.url}>{task.label}</TreeGrid.CellLink>
+          <TreeGrid.CellInput aria-label={`Estimate for ${task.label}`} />
+          <TreeGrid.CellButton aria-label={`Remove ${task.label}`}>
+            <RemoveIcon />
+          </TreeGrid.CellButton>
+        </TreeGrid.Cell>
+      </TreeGrid.Row>
+    )}
+  </TreeGrid.Table>
+</TreeGrid.Root>
+```
+
+From a row, <kbd>Arrow Right</kbd> and <kbd>Tab</kbd> move to its controls, and <kbd>Escape</kbd> returns to the row.
+
+A focused row announces its label, not its controls or the rest of its content.
+
+- Describe how to reach the controls with `aria-description` on the rows that have them, or once on `<TreeGrid.Table>` when most rows do.
+- Pass secondary content, such as a count or a status, to `aria-describedby` on `<TreeGrid.Row>`, or render it in its own column.
+
+Base UI does not ship these strings. Translate them together with the rest of your interface.
+
+To use a popup trigger as a control, pass it to the `render` prop of `<TreeGrid.CellButton>`:
+
+```tsx title="Using popups with cell controls"
+<Menu.Root>
+  {/* @highlight */}
+  <TreeGrid.CellButton render={<Menu.Trigger />} aria-label={`Actions for ${item.label}`} />
+  <Menu.Portal>{/* Compose the rest of the menu */}</Menu.Portal>
+</Menu.Root>
+```
+
+Controls keep the keys they use, such as the caret keys of a text input or the up and down arrows of a popup trigger. Use the `controlKeys` prop to change which keys a control keeps. `<TreeGrid.CellControl>` keeps every key by default, so assign the key groups the tree should handle. For example, a custom rating widget that only uses the left and right arrows:
+
+```tsx title="Custom control"
+<TreeGrid.CellControl
+  render={<RatingInput />}
+  controlKeys={{ vertical: 'tree', homeEnd: 'tree', escape: 'tree' }}
+/>
+```
+
+The part must render the element that receives focus. Other focusable elements inside a row keep all of their keys, stay out of the row's navigation, and add a tab stop to every row.
+
+## Examples
+
+### Multiple selection
+
+Set `multiple` on `<TreeGrid.Root>` to let users select more than one row. A click or <kbd>Space</kbd> on a row adds or removes it, as does <kbd>Enter</kbd> on a row that can't expand, and the selected items are an array.
+
+Use `multiple="opt-in"` when users opt in to selecting more than one row by holding a modifier key. Without one, a click or moving focus with the keyboard moves the selection to a single row. The modifier keys are the same as in [Tree](/react/components/tree#opt-in-multiple-selection). On touch devices, a tap adds or removes a row, the same as `multiple`. A row with a checkbox always selects as with `multiple`.
+
+### Columns
+
+Render a `<TreeGrid.Cell>` for each column in every row, and name the columns with `<TreeGrid.HeaderCell>` inside `<TreeGrid.HeaderRow>`. Every row needs a cell for each header cell, empty if needed. When icons name the columns, visually hide the header row instead of leaving it out.
+
+import { DemoTreeGridColumns } from './demos/columns';
+
+<DemoTreeGridColumns />
+
+### Checkbox selection
+
+Render `<TreeGrid.RowCheckbox>` inside `<TreeGrid.Cell>` to select a row with a checkbox, and `<TreeGrid.RowCheckboxIndicator>` inside it to show the state. Set `multiple` on `<TreeGrid.Root>` to allow more than one row to be selected. A click on the row toggles it, like a click on its checkbox.
+
+The `checkboxSelectionPropagation` prop controls how a checkbox affects related rows. With `descendants`, checking a parent selects its whole branch. With `parents`, checking all of its selectable children selects the parent. Both are enabled by default with multiple selection. Use `TreeGrid.SELECTION_ALL` to select every selectable row without listing its ID.
+
+import { DemoTreeGridCheckboxSelection } from './demos/checkbox-selection';
+
+<DemoTreeGridCheckboxSelection />
+
+### Links
+
+Render `<TreeGrid.CellLink>` inside `<TreeGrid.Cell>` to link a row to another page, and set `active` on the current page's link.
+
+When a link is the only control of a row, use [`<Tree.LinkItem>`](/react/components/tree#links) instead.
+
+import { DemoTreeGridLinks } from './demos/links';
+
+<DemoTreeGridLinks />
+
+### Animated expansion
+
+Render `<TreeGrid.GroupTransition>` after each row, as in the anatomy, to animate expanding and collapsing branches. Use the `--tree-group-transition-height` CSS variable with the `data-starting-style` and `data-ending-style` attributes to animate the group's height.
+
+### Filtering
+
+Wrap `<TreeGrid.Root>` in `<TreeGrid.FilterProvider>` and add `<TreeGrid.Input>` inside the root.
+
+import { DemoTreeGridFiltering } from './demos/filtering';
+
+<DemoTreeGridFiltering />
+
+A match keeps its ancestors visible. Use `mode` to choose how the rows that don't match are shown.
+
+Rows match their label by default, ignoring case, accents, and punctuation, and receive a `data-filter-match` attribute. Screen readers don't announce it, so describe matches with `aria-description`, as the demo does. Use `filter` to replace the matching: it receives each item's label, the trimmed query, and the item. `TreeGrid.useFilter()` provides the same locale-aware comparisons:
+
+```jsx title="Locale-aware prefix matching"
+const { startsWith } = TreeGrid.useFilter();
+
+<TreeGrid.FilterProvider filter={startsWith}>
+  <TreeGrid.Root items={items}>{/* tree grid parts */}</TreeGrid.Root>
+</TreeGrid.FilterProvider>;
+```
+
+To match rows on a server, pass the matches to `filteredItems`. Every match must also be in the items. To render the results yourself, pass `filter={null}` and give the root the filtered items.
+
+### Status messages
+
+`<TreeGrid.Status>` politely announces the number of filter matches and of selected rows to screen readers. Keep it mounted and hide it visually, as the filtering demo does. The messages are in English. To translate them or write your own, pass the content as `children`, or a function that receives the latest `change` and its default `message`.
+
+### Updating items
+
+Use `actionsRef.current.applyTransaction()` to add, update, move, or remove items without rebuilding `items` yourself, as the remove buttons of the demos above do. The operations apply in order, as a single change, and `onItemsChange` lists them in `eventDetails.changes`. With a controlled `items`, inserted rows render only once the parent passes them back. Set `transactionThrottle` to commit the transactions of a short window together.
+
+## API reference
+
+import { TypesTreeGrid, TypesTreeGridAdditional } from './types';
+
+### FilterProvider
+
+<TypesTreeGrid.FilterProvider />
+
+### Root
+
+<TypesTreeGrid.Root />
+
+### Label
+
+<TypesTreeGrid.Label />
+
+### Input
+
+<TypesTreeGrid.Input />
+
+### Clear
+
+<TypesTreeGrid.Clear />
+
+### Status
+
+<TypesTreeGrid.Status />
+
+### Empty
+
+<TypesTreeGrid.Empty />
+
+### Table
+
+<TypesTreeGrid.Table />
+
+### HeaderRow
+
+<TypesTreeGrid.HeaderRow />
+
+### HeaderCell
+
+<TypesTreeGrid.HeaderCell />
+
+### Collection
+
+<TypesTreeGrid.Collection />
+
+### Row
+
+<TypesTreeGrid.Row />
+
+### Cell
+
+<TypesTreeGrid.Cell />
+
+### RowIndentGuide
+
+<TypesTreeGrid.RowIndentGuide />
+
+### RowExpansionTrigger
+
+<TypesTreeGrid.RowExpansionTrigger />
+
+### RowCheckbox
+
+<TypesTreeGrid.RowCheckbox />
+
+### RowCheckboxIndicator
+
+<TypesTreeGrid.RowCheckboxIndicator />
+
+### RowGroupIndicator
+
+<TypesTreeGrid.RowGroupIndicator />
+
+### CellLink
+
+<TypesTreeGrid.CellLink />
+
+### CellInput
+
+<TypesTreeGrid.CellInput />
+
+### CellButton
+
+<TypesTreeGrid.CellButton />
+
+### CellControl
+
+<TypesTreeGrid.CellControl />
+
+### GroupTransition
+
+<TypesTreeGrid.GroupTransition />
+
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+This hook is used when customizing how items match.
+Call its methods inside the `filter` prop of `<TreeGrid.FilterProvider>`.
+
+<TypesTreeGrid.useFilter hideDescription />
+
+## createItems
+
+Normalizes a custom item model into a collection for the `items` prop of `<TreeGrid.Root>`, deriving each item's ID, label, and children.
+Create static collections at module scope, and memoize dynamic collections by their data and every value their accessors read.
+
+<TypesTreeGrid.createItems hideDescription />
+
+## Additional types
+
+<TypesTreeGridAdditional />
+
+export const metadata = {
+  keywords: [
+    'React Tree Grid',
+    'Tree Grid Component',
+    'Accessible Treegrid',
+    'Hierarchical Table',
+    'Tree Table',
+    'Expandable Table Rows',
+    'Nested Rows',
+    'Outline View',
+  ],
+};

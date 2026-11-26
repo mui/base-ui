@@ -1,0 +1,538 @@
+/* The menu renders in a portal, outside `.Demo`, so it needs the palette too. */
+.Demo,
+.Positioner {
+  --bg: white;
+  --fg: oklch(14.5% 0 0deg);
+  --muted: oklch(55.6% 0 0deg);
+  --frame: oklch(92.2% 0 0deg);
+  --hover: oklch(97% 0 0deg);
+  --selected: oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    --bg: oklch(14.5% 0 0deg);
+    --fg: white;
+    --muted: oklch(70.8% 0 0deg);
+    --frame: oklch(37.1% 0 0deg);
+    --hover: oklch(26.9% 0 0deg);
+    --selected: oklch(37.1% 0 0deg);
+  }
+}
+
+.Demo {
+  width: min(100%, 64rem);
+  color: var(--fg);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.Panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--frame);
+}
+
+.Header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--frame);
+}
+
+.Title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.Filter {
+  display: flex;
+  align-items: center;
+  width: min(100%, 20rem);
+  border: 1px solid var(--frame);
+
+  &:focus-within {
+    border-color: var(--fg);
+    box-shadow: inset 0 0 0 1px var(--fg);
+
+    /* Forced colors drop the box shadow. */
+    @media (forced-colors: active) {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+  }
+}
+
+.FilterIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-inline-start: 0.625rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.FilterInput {
+  flex: 1;
+  width: 0;
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+
+  &::placeholder {
+    color: var(--muted);
+  }
+}
+
+.FilterClear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+
+  & svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      color: var(--fg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -4px;
+  }
+}
+
+.Toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.375rem 1rem;
+  border-bottom: 1px solid var(--frame);
+}
+
+.SelectedCount {
+  margin-inline-end: 0.5rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.Button {
+  height: 1.75rem;
+  padding: 0 0.625rem;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background: var(--hover);
+    }
+  }
+
+  &[data-disabled] {
+    border-color: var(--muted);
+    color: var(--muted);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+  }
+}
+
+.Status {
+  margin-inline-start: auto;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.Table {
+  --columns: minmax(18rem, 1fr) 6.5rem 9rem 12rem 9.5rem 3rem;
+  --header-height: 2.25rem;
+
+  max-height: 30rem;
+  overflow: auto;
+  /* Keeps rows focused while scrolling up clear of the sticky header. */
+  scroll-padding-top: var(--header-height);
+}
+
+.HeaderRow,
+.Row {
+  display: grid;
+  grid-template-columns: var(--columns);
+  /* Grows with the columns, so narrow viewports scroll the table horizontally. */
+  min-width: min-content;
+  /* The selected row marker, on the header row too so the columns line up. */
+  border-inline-start: 2px solid transparent;
+}
+
+.HeaderRow {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-sizing: border-box;
+  height: var(--header-height);
+  align-items: center;
+  background: var(--bg);
+  border-bottom: 1px solid var(--frame);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.HeaderCell {
+  padding-inline: 0.75rem;
+  white-space: nowrap;
+
+  &[data-align='end'] {
+    text-align: end;
+  }
+}
+
+.Row {
+  --indent: 1.25rem;
+  --trigger-width: 1.5rem;
+  --leaf-offset: 0rem;
+
+  align-items: center;
+  min-height: 2.5rem;
+  border-bottom: 1px solid var(--frame);
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+
+  &:not([data-expandable]) {
+    --leaf-offset: var(--trigger-width);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--hover);
+    }
+  }
+
+  &[data-selected] {
+    background: var(--selected);
+    border-inline-start-color: var(--fg);
+  }
+
+  &[data-filter-match] .Link {
+    font-weight: 600;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+
+  @media (forced-colors: active) {
+    border-inline-start-color: Canvas;
+
+    &[data-selected] {
+      border-inline-start-color: Highlight;
+    }
+  }
+}
+
+.NameCell,
+.Cell,
+.ActionsCell {
+  align-self: stretch;
+  min-width: 0;
+  padding-inline: 0.75rem;
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+}
+
+.NameCell {
+  display: flex;
+  align-items: center;
+  /* Keeps the checkbox and trigger hit areas apart. */
+  gap: 0.5rem;
+}
+
+/* A block, not a flex container, so `text-overflow` applies to the text. */
+.Cell {
+  display: block;
+  align-content: center;
+  overflow: hidden;
+  color: var(--muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  &[data-align='end'] {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.ActionsCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.Hierarchy {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  padding-inline-start: calc(var(--indent) * (var(--tree-item-level) - 1) + var(--leaf-offset));
+}
+
+.Checkbox {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.25rem;
+  }
+}
+
+.CheckboxIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+  color: var(--bg);
+
+  & svg {
+    display: none;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  &[data-checked],
+  &[data-indeterminate] {
+    background: var(--fg);
+  }
+}
+
+.CheckIcon {
+  .CheckboxIndicator[data-checked] & {
+    display: block;
+  }
+}
+
+.MinusIcon {
+  .CheckboxIndicator[data-indeterminate] & {
+    display: block;
+  }
+}
+
+.ExpansionTrigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--selected);
+      color: var(--fg);
+    }
+  }
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    transition: transform 150ms ease;
+  }
+
+  &[data-expanded] svg {
+    transform: rotate(90deg);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.125rem;
+  }
+}
+
+.Link {
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: currentcolor;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 1px;
+  }
+}
+
+.IconButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+
+  & svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--selected);
+      color: var(--fg);
+    }
+  }
+
+  &[data-popup-open] {
+    background: var(--selected);
+    color: var(--fg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+}
+
+.Empty {
+  color: var(--muted);
+
+  /* The live region stays mounted, so it only takes space while it shows the message. */
+  &:not(:empty) {
+    padding: 1rem;
+  }
+}
+
+.Positioner {
+  /* Above the sticky header row. */
+  z-index: 1;
+  outline: 0;
+}
+
+.Menu {
+  box-sizing: border-box;
+  min-width: 11rem;
+  padding-block: 0.25rem;
+  outline: 0;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 0.875rem;
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    box-shadow: none;
+  }
+}
+
+.MenuItem {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  padding: 0.5rem 1rem;
+  outline: 0;
+  line-height: 1rem;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    color: var(--bg);
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    background: var(--fg);
+  }
+
+  &[data-disabled] {
+    color: var(--muted);
+  }
+}
+
+.MenuSeparator {
+  height: 1px;
+  margin: 0.25rem 1rem;
+  background: var(--frame);
+}
+
+.VisuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,4 +1,5 @@
 export * from './accordion';
+export * from './tree-grid';
 export * from './alert-dialog';
 export * from './autocomplete';
 export * from './avatar';
@@ -39,6 +40,7 @@ export * from './toggle';
 export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
+export * from './tree';
 export * from './use-render';
 
 export type * from './types';

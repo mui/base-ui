@@ -112,6 +112,25 @@ describe(`stylelint rule ${ruleName}`, () => {
     expect(warnings[2]).toContain('Unexpected demo color "var(--accent)"');
   });
 
+  it('allows system colors only in forced colors mode', async () => {
+    const warnings = await lint(`
+      .Test {
+        border-color: Canvas;
+
+        @media (forced-colors: active) {
+          border-color: Canvas;
+
+          &[data-selected] {
+            border-color: Highlight;
+          }
+        }
+      }
+    `);
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('Unexpected demo color "canvas"');
+  });
+
   it('does not treat named non-color property values as colors', async () => {
     const warnings = await lint(`
       .Test {

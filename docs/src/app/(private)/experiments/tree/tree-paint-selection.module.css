@@ -1,0 +1,121 @@
+.Page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.Log {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.Tree {
+  --bg: white;
+  --fg: oklch(14.5% 0 0deg);
+  --muted: oklch(55.6% 0 0deg);
+  --frame: oklch(92.2% 0 0deg);
+  --hover: oklch(97% 0 0deg);
+  --selected: oklch(92.2% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    --bg: oklch(14.5% 0 0deg);
+    --fg: white;
+    --muted: oklch(70.8% 0 0deg);
+    --frame: oklch(37.1% 0 0deg);
+    --hover: oklch(26.9% 0 0deg);
+    --selected: oklch(37.1% 0 0deg);
+  }
+
+  list-style: none;
+  padding: 0.25rem;
+  margin: 0;
+  width: 16rem;
+  color: var(--fg);
+  border: 1px solid var(--frame);
+  background: var(--bg);
+}
+
+.Item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--fg);
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--hover);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -1px;
+  }
+
+  &[data-selected] {
+    background: var(--selected);
+  }
+
+  &[data-disabled] {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.CheckboxIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border: 1px solid var(--fg);
+  color: var(--bg);
+  background: var(--bg);
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    display: none;
+  }
+
+  &[data-checked] {
+    background: var(--fg);
+  }
+}
+
+.CheckIcon {
+  .CheckboxIndicator[data-checked] & {
+    display: block;
+  }
+}
+
+.Label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ItemContent {
+  display: flex;
+  align-items: inherit;
+  gap: inherit;
+  min-width: 0;
+  width: 100%;
+}
+
+.Checkbox {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}

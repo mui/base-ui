@@ -1,0 +1,303 @@
+.Panel,
+.Menu {
+  --bg: white;
+  --fg: oklch(14.5% 0 0deg);
+  --muted: oklch(55.6% 0 0deg);
+  --frame: oklch(92.2% 0 0deg);
+  --hover: oklch(97% 0 0deg);
+  --selected: oklch(92.2% 0 0deg);
+  --shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    --bg: oklch(14.5% 0 0deg);
+    --fg: white;
+    --muted: oklch(70.8% 0 0deg);
+    --frame: oklch(37.1% 0 0deg);
+    --hover: oklch(26.9% 0 0deg);
+    --selected: oklch(37.1% 0 0deg);
+    --shadow: none;
+  }
+
+  color: var(--fg);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.Panel {
+  display: flex;
+  flex-direction: column;
+  width: 24rem;
+  max-width: 100%;
+  max-height: 34rem;
+  background: var(--bg);
+  border: 1px solid var(--frame);
+}
+
+.Header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--frame);
+}
+
+.Title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.Selection {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  & strong {
+    font-weight: 600;
+  }
+}
+
+.SelectionType {
+  color: var(--muted);
+}
+
+.Table {
+  --columns: minmax(0, 1fr) 1.75rem 1.75rem 3.25rem 1.75rem;
+
+  flex: 1;
+  min-height: 0;
+  padding: 0.25rem;
+  overflow-y: auto;
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+}
+
+.Row {
+  --indent: 1rem;
+  --trigger-width: 1.25rem;
+  --leaf-offset: 0rem;
+
+  display: grid;
+  grid-template-columns: var(--columns);
+  align-items: stretch;
+  min-height: 2rem;
+  padding-inline: 0.25rem;
+  border-radius: 0.25rem;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+  cursor: default;
+
+  &:not([data-expandable]) {
+    --leaf-offset: var(--trigger-width);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--hover);
+    }
+  }
+
+  &[data-selected] {
+    background-color: var(--selected);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+
+  @media (forced-colors: active) {
+    &[data-selected] {
+      outline: 1px solid Highlight;
+      outline-offset: -1px;
+    }
+  }
+}
+
+.BlockCell,
+.ControlCell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border-radius: 0.25rem;
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+}
+
+.BlockCell {
+  gap: 0.375rem;
+  padding-inline-start: calc(var(--indent) * (var(--tree-item-level) - 1) + var(--leaf-offset));
+  padding-inline-end: 0.25rem;
+}
+
+.ControlCell {
+  justify-content: center;
+}
+
+/* Only the block dims, so the controls that bring it back stay readable. */
+.Row[data-dimmed] .BlockCell > :not(.ExpansionTrigger) {
+  opacity: 0.45;
+}
+
+.ExpansionTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--trigger-width);
+  height: 1.25rem;
+  margin-inline-end: -0.375rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: transform 100ms ease;
+    }
+  }
+
+  &[data-expanded] svg {
+    transform: rotate(90deg);
+  }
+}
+
+.BlockIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--muted);
+
+  & svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.Label,
+.BlockType {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.Label {
+  flex: 0 1 auto;
+}
+
+/* Truncates before the label does. */
+.BlockType {
+  flex: 0 100 auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.IconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.25rem;
+  background: none;
+  color: var(--muted);
+  outline: none;
+
+  & svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: var(--frame);
+      color: var(--fg);
+    }
+  }
+
+  &[aria-pressed='true'],
+  &[data-popup-open] {
+    color: var(--fg);
+  }
+
+  &[data-popup-open] {
+    background-color: var(--frame);
+  }
+
+  &[data-disabled] {
+    opacity: 0.35;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+}
+
+/*
+ * Mouse users see the controls of the row they point at. They stay visible while the
+ * row or one of its controls has focus, and while they show an active state.
+ */
+@media (hover: hover) {
+  .Row:not(:hover, :focus-within, [data-selected])
+    .IconButton:not([aria-pressed='true'], [data-popup-open]) {
+    opacity: 0;
+  }
+}
+
+.Menu {
+  min-width: 10rem;
+  padding-block: 0.25rem;
+  background: var(--bg);
+  border: 1px solid var(--fg);
+  box-shadow: var(--shadow);
+  outline: 0;
+}
+
+.MenuItem {
+  display: flex;
+  align-items: center;
+  height: 1.75rem;
+  padding-inline: 0.75rem;
+  cursor: default;
+  outline: 0;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    background-color: var(--fg);
+    color: var(--bg);
+  }
+
+  &[data-disabled] {
+    opacity: 0.4;
+  }
+}
+
+.MenuSeparator {
+  height: 1px;
+  margin-block: 0.25rem;
+  background-color: var(--frame);
+}

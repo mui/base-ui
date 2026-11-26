@@ -1,0 +1,117 @@
+import type { TreeDefaultItem, TreeItemId, TreeItemKind, TreeMultiple } from '../store/types';
+import type { TreeStore } from '../store/TreeStore';
+import { selectors } from '../store/selectors';
+import { buildItemsState } from '../store/itemIndex';
+import { getItemIdKey } from '../utils/itemIdKey';
+import { getRowsPerPage } from '../utils/viewport';
+import type { TreeViewport } from '../utils/viewport';
+
+export class TreeItemsPlugin<TItem = TreeDefaultItem> {
+  declare private store: TreeStore<TreeMultiple | undefined, TItem>;
+
+  private elements = new Map<string, { element: HTMLElement; kind: TreeItemKind }>();
+
+  /** The mounted list. */
+  private viewport: TreeViewport | null = null;
+
+  constructor(store: TreeStore<TreeMultiple | undefined, TItem>) {
+    this.store = store;
+  }
+
+  public getItemDOMElement(itemId: TreeItemId): HTMLElement | null {
+    return this.elements.get(getItemIdKey(itemId))?.element ?? null;
+  }
+
+  /** The part the item renders as. A grid row with a checkbox selects like `Tree.CheckboxItem`. */
+  public getItemKind(itemId: TreeItemId): TreeItemKind {
+    const kind = this.elements.get(getItemIdKey(itemId))?.kind ?? 'item';
+    return kind === 'item' && this.store.grid?.hasRowCheckbox(itemId) ? 'checkbox' : kind;
+  }
+
+  public registerItemDOMElement(
+    itemId: TreeItemId,
+    element: HTMLElement,
+    kind: TreeItemKind,
+  ): () => void {
+    const key = getItemIdKey(itemId);
+    const entry = { element, kind };
+    this.elements.set(key, entry);
+    return () => {
+      if (this.elements.get(key) === entry) {
+        this.elements.delete(key);
+      }
+    };
+  }
+
+  /**
+   * @internal Attaches the mounted list, which keeps the focused row in view
+   * until the returned function detaches it.
+   */
+  public attachViewport(viewport: TreeViewport): () => void {
+    this.viewport = viewport;
+    const unobserve = this.store.observe(selectors.focusedItemId, (itemId, previousItemId) => {
+      if (this.viewport === viewport && itemId != null && itemId !== previousItemId) {
+        this.revealItem(itemId);
+      }
+    });
+    return () => {
+      unobserve();
+      if (this.viewport === viewport) {
+        this.viewport = null;
+      }
+    };
+  }
+
+  /**
+   * Scrolls the row of an item into view. The browser's focus scrolling is
+   * suppressed, as it would also scroll every ancestor horizontally.
+   */
+  public revealItem(itemId: TreeItemId): void {
+    this.viewport?.scrollToItem(itemId);
+  }
+
+  /** Scrolls an element inside a row, such as a control, into view along both axes. */
+  public revealElement(element: HTMLElement): void {
+    this.viewport?.scrollElementIntoView(element);
+  }
+
+  /**
+   * How many rows from the row of `itemId` fit in the list: at least one, or `0`
+   * while rows can't be measured.
+   */
+  public getPageSize(itemId: TreeItemId): number {
+    const viewport = this.viewport;
+    return viewport == null
+      ? 0
+      : getRowsPerPage(viewport.getScrollportHeight(), viewport.getRowHeight(itemId));
+  }
+
+  /** Rebuilds all lookup tables from `state.items` and the current accessors. */
+  public rebuildItemsState(): void {
+    const { state } = this.store;
+    this.store.update(buildItemsState(state.items, state.itemCollection));
+  }
+
+  public actions = {
+    hasItem: (itemId: TreeItemId) => selectors.itemMeta(this.store.state, itemId) != null,
+    getItemModels: (itemIds: Iterable<TreeItemId>) => {
+      const models: TItem[] = [];
+      for (const id of itemIds) {
+        const model = selectors.itemModel(this.store.state, id);
+        if (model != null) {
+          models.push(model);
+        }
+      }
+      return models;
+    },
+    getItemIndex: (itemId: TreeItemId) => selectors.itemIndex(this.store.state, itemId),
+    isItemDisabled: (itemId: TreeItemId) => selectors.isItemDisabled(this.store.state, itemId),
+    getItemModel: (itemId: TreeItemId) => selectors.itemModel(this.store.state, itemId),
+    getChildIds: (itemId: TreeItemId | null) =>
+      selectors.itemOrderedChildrenIds(this.store.state, itemId).slice(),
+    getItemDOMElement: (itemId: TreeItemId) => this.getItemDOMElement(itemId),
+    getParentId: (itemId: TreeItemId) => selectors.itemParentId(this.store.state, itemId),
+    getAncestorIds: (itemId: TreeItemId): TreeItemId[] =>
+      selectors.ancestorIds(this.store.state, itemId).slice(),
+  };
+}

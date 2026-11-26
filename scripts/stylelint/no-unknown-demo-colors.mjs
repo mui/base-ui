@@ -191,6 +191,43 @@ const namedColors = new Set([
   'yellowgreen',
 ]);
 
+// CSS system colors, which forced colors mode restricts the page to.
+const systemColors = new Set([
+  'accentcolor',
+  'accentcolortext',
+  'activetext',
+  'buttonborder',
+  'buttonface',
+  'buttontext',
+  'canvas',
+  'canvastext',
+  'field',
+  'fieldtext',
+  'graytext',
+  'highlight',
+  'highlighttext',
+  'linktext',
+  'mark',
+  'marktext',
+  'selecteditem',
+  'selecteditemtext',
+  'visitedtext',
+]);
+
+function isInForcedColorsMedia(node) {
+  for (let parent = node.parent; parent; parent = parent.parent) {
+    if (
+      parent.type === 'atrule' &&
+      parent.name.toLowerCase() === 'media' &&
+      /forced-colors\s*:\s*active/i.test(parent.params)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 const hexColorRegex = /^#[\da-f]{3,8}$/i;
 const themeColorsCache = new Map();
 
@@ -418,11 +455,16 @@ const plugin = stylelint.createPlugin(ruleName, (primary, secondaryOptions = {})
 
     root.walkDecls((declaration) => {
       const reportedValues = new Set();
+      const allowSystemColors = isInForcedColorsMedia(declaration);
 
       walkColorUsages(declaration.value, declaration.prop, (color) => {
         const normalizedValue = normalizeColor(color);
 
-        if (reportedValues.has(normalizedValue) || isAllowedColor(color, themeColors)) {
+        if (
+          reportedValues.has(normalizedValue) ||
+          isAllowedColor(color, themeColors) ||
+          (allowSystemColors && systemColors.has(normalizedValue))
+        ) {
           return;
         }
 
