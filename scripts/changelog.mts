@@ -137,12 +137,7 @@ function renderDocsEntry(change: ChangelogChange) {
 }
 
 function getCreditedChanges({ changes }: ChangelogData) {
-  return changes.filter(
-    ({ labels, author, pullRequest }) =>
-      !labels.some((label) => EXCLUDED_LABELS.has(label)) &&
-      !author?.isBot &&
-      !pullRequest?.openedBy?.isBot,
-  );
+  return changes.filter(({ labels }) => !labels.some((label) => EXCLUDED_LABELS.has(label)));
 }
 
 function getListedChanges(data: ChangelogData) {
