@@ -17,7 +17,7 @@ import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
+import { usePopupTypeahead } from '../../utils/popups/interactions/usePopupTypeahead';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
@@ -102,7 +102,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const { reference: triggerTypeaheadProps } = useTypeahead(store.interactions, {
+  const { reference: triggerTypeaheadProps } = usePopupTypeahead(store.interactions, {
     // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
     // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',

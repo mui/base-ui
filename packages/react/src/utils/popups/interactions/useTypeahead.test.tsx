@@ -1,400 +1,117 @@
-import { vi, expect, beforeEach, describe, it } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-import { useTestInteractions } from '#test-utils';
-import { useClick } from './useClick';
+import { fireEvent, screen } from '@mui/internal-test-utils';
+import { createRenderer } from '#test-utils';
 import { useTypeahead } from './useTypeahead';
-import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import type { UseTypeaheadProps } from './useTypeahead';
+import type { UseTypeaheadProps, UseTypeaheadReturnValue } from './useTypeahead';
 
-beforeEach(() => {
-  vi.useFakeTimers({ shouldAdvanceTime: true });
-});
+const LABELS = ['ab', 'b', 'c'];
 
-interface MatchSpyProps {
-  onMatch?: ((index: number) => void) | undefined;
-}
-
-const useImpl = ({
-  addUseClick = false,
-  ...props
-}: MatchSpyProps &
-  Pick<UseTypeaheadProps, 'onTyping'> & {
-    list?: Array<string>;
-    open?: boolean;
-    onOpenChange?: (open: boolean) => void;
-    addUseClick?: boolean;
-  }) => {
-  const [open, setOpen] = React.useState(true);
-  const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
-  const { refs, context } = useFloating({
-    open: props.open ?? open,
-    onOpenChange: props.onOpenChange ?? setOpen,
-  });
-  const listRef = React.useRef(props.list ?? ['one', 'two', 'three']);
-  const typeahead = useTypeahead(context.rootStore, {
-    listRef,
-    activeIndex,
-    onMatch(index) {
-      setActiveIndex(index);
-      props.onMatch?.(index);
-    },
-    onTyping: props.onTyping,
-  });
-  const click = useClick(context.rootStore, {
-    enabled: addUseClick,
-  });
-
-  const { getReferenceProps, getFloatingProps } = useTestInteractions([typeahead, click]);
-
-  return {
-    activeIndex,
-    open,
-    getReferenceProps: (userProps?: React.HTMLProps<Element>) =>
-      getReferenceProps({
-        role: 'combobox',
-        ...userProps,
-        ref: refs.setReference,
-      }),
-    getFloatingProps: () =>
-      getFloatingProps({
-        role: 'listbox',
-        ref: refs.setFloating,
-      }),
-  };
-};
-
-function Combobox(
-  props: MatchSpyProps &
-    Pick<UseTypeaheadProps, 'onTyping'> & {
-      list?: Array<string>;
-      open?: boolean;
-    },
-) {
-  const { getReferenceProps, getFloatingProps } = useImpl(props);
-  return (
-    <React.Fragment>
-      <input {...getReferenceProps()} />
-      <div {...getFloatingProps()} />
-    </React.Fragment>
-  );
-}
-
-function ComboboxWithElementsRef(
-  props: MatchSpyProps & {
-    list?: Array<string>;
-    hiddenIndices?: Array<number>;
+function List(
+  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping' | 'enabled'> & {
+    actionsRef: React.RefObject<UseTypeaheadReturnValue | null>;
   },
 ) {
-  const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
-  const [open, setOpen] = React.useState(true);
-  const { refs, context } = useFloating({
-    open,
-    onOpenChange: setOpen,
+  const { actionsRef, ...typeaheadProps } = props;
+  const typeahead = useTypeahead({
+    getLabel: (index) => LABELS[index] ?? null,
+    getCount: () => LABELS.length,
+    activeIndex: null,
+    ...typeaheadProps,
   });
-  const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
-  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
-  const typeahead = useTypeahead(context.rootStore, {
-    listRef,
-    elementsRef,
-    activeIndex,
-    onMatch(index) {
-      setActiveIndex(index);
-      props.onMatch?.(index);
-    },
-  });
+  React.useImperativeHandle(actionsRef, () => typeahead, [typeahead]);
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([typeahead]);
-
-  return (
-    <React.Fragment>
-      <input {...getReferenceProps({ role: 'combobox', ref: refs.setReference })} />
-      {open && (
-        <div {...getFloatingProps({ role: 'listbox', ref: refs.setFloating })}>
-          {listRef.current.map((value, index) => (
-            <div
-              key={value}
-              role="option"
-              aria-selected={activeIndex === index}
-              style={props.hiddenIndices?.includes(index) ? { display: 'none' } : undefined}
-              {...getItemProps({
-                ref(node) {
-                  elementsRef.current[index] = node;
-                },
-              })}
-            >
-              {value}
-            </div>
-          ))}
-        </div>
-      )}
-    </React.Fragment>
-  );
+  return <div role="listbox" tabIndex={0} onKeyDown={typeahead.onKeyDown} />;
 }
 
 describe('useTypeahead', () => {
-  it('passes the matching keydown event to onMatch', async () => {
+  const { render } = createRenderer();
+
+  function renderList(props: Pick<UseTypeaheadProps, 'enabled'> = {}) {
     const onMatch = vi.fn();
-
-    function App() {
-      const { refs, context } = useFloating({ open: true });
-      const listRef = React.useRef(['one', 'two', 'three']);
-      const typeahead = useTypeahead(context.rootStore, { listRef, activeIndex: null, onMatch });
-      const { getReferenceProps } = useTestInteractions([typeahead]);
-      return <input {...getReferenceProps({ role: 'combobox', ref: refs.setReference })} />;
-    }
-
-    render(<App />);
-
-    await userEvent.click(screen.getByRole('combobox'));
-    await userEvent.keyboard('t');
-
-    expect(onMatch).toHaveBeenCalledTimes(1);
-    expect(onMatch.mock.lastCall?.[0]).toBe(1);
-    expect(onMatch.mock.lastCall?.[1].type).toBe('keydown');
-    expect(onMatch.mock.lastCall?.[1].key).toBe('t');
-  });
-
-  it('rapidly focuses list items when they start with the same letter', async () => {
-    const spy = vi.fn();
-    render(<Combobox onMatch={spy} />);
-
-    await userEvent.click(screen.getByRole('combobox'));
-
-    await userEvent.keyboard('t');
-    expect(spy).toHaveBeenCalledWith(1);
-
-    await userEvent.keyboard('t');
-    expect(spy).toHaveBeenCalledWith(2);
-
-    await userEvent.keyboard('t');
-    expect(spy).toHaveBeenCalledWith(1);
-  });
-
-  it('bails out of rapid focus of first letter if the list contains a string that starts with two of the same letter', async () => {
-    const spy = vi.fn();
-    render(<Combobox onMatch={spy} list={['apple', 'aaron', 'apricot']} />);
-
-    await userEvent.click(screen.getByRole('combobox'));
-
-    await userEvent.keyboard('a');
-    expect(spy).toHaveBeenCalledWith(0);
-
-    await userEvent.keyboard('a');
-    expect(spy).toHaveBeenCalledWith(0);
-  });
-
-  it.each([false, true])(
-    'starts from the current activeIndex and correctly loops (strict: %s)',
-    async (strict) => {
-      const spy = vi.fn();
-      const combobox = (
-        <Combobox onMatch={spy} list={['Toy Story 2', 'Toy Story 3', 'Toy Story 4']} />
-      );
-      render(strict ? <React.StrictMode>{combobox}</React.StrictMode> : combobox);
-
-      await userEvent.click(screen.getByRole('combobox'));
-
-      await userEvent.keyboard('t');
-      await userEvent.keyboard('o');
-      await userEvent.keyboard('y');
-      expect(spy).toHaveBeenCalledWith(0);
-
-      spy.mockReset();
-
-      await userEvent.keyboard('t');
-      await userEvent.keyboard('o');
-      await userEvent.keyboard('y');
-      expect(spy).not.toHaveBeenCalled();
-
-      vi.advanceTimersByTime(750);
-
-      await userEvent.keyboard('t');
-      await userEvent.keyboard('o');
-      await userEvent.keyboard('y');
-      expect(spy).toHaveBeenCalledWith(1);
-
-      vi.advanceTimersByTime(750);
-
-      await userEvent.keyboard('t');
-      await userEvent.keyboard('o');
-      await userEvent.keyboard('y');
-      expect(spy).toHaveBeenCalledWith(2);
-
-      vi.advanceTimersByTime(750);
-
-      await userEvent.keyboard('t');
-      await userEvent.keyboard('o');
-      await userEvent.keyboard('y');
-      expect(spy).toHaveBeenCalledWith(0);
-    },
-  );
-
-  it('capslock characters continue to match', async () => {
-    const spy = vi.fn();
-    render(<Combobox onMatch={spy} />);
-
-    await userEvent.click(screen.getByRole('combobox'));
-
-    await userEvent.keyboard('{CapsLock}t');
-    expect(spy).toHaveBeenCalledWith(1);
-  });
-
-  it('does not depend on locale-sensitive lowercasing', async () => {
-    const toLocaleLowerCase = String.prototype.toLocaleLowerCase;
-    const toLocaleLowerCaseSpy = vi
-      .spyOn(String.prototype, 'toLocaleLowerCase')
-      .mockImplementation(function lowerWithTurkishLocale(this: string) {
-        return toLocaleLowerCase.call(this, 'tr');
-      });
-
-    try {
-      const spy = vi.fn();
-      render(<Combobox onMatch={spy} list={['Istanbul']} />);
-
-      await userEvent.click(screen.getByRole('combobox'));
-
-      await userEvent.keyboard('i');
-      expect(spy).toHaveBeenCalledWith(0);
-    } finally {
-      toLocaleLowerCaseSpy.mockRestore();
-    }
-  });
-
-  function App1(props: MatchSpyProps & { list: Array<string> }) {
-    const { getReferenceProps, getFloatingProps, activeIndex, open } = useImpl(props);
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-    return (
-      <React.Fragment>
-        <div
-          {...getReferenceProps({
-            onClick: () => inputRef.current?.focus(),
-          })}
-        >
-          <input ref={inputRef} readOnly />
-        </div>
-        {open && (
-          <div {...getFloatingProps()}>
-            {props.list.map((value, i) => (
-              <div
-                key={value}
-                role="option"
-                tabIndex={i === activeIndex ? 0 : -1}
-                aria-selected={i === activeIndex}
-              >
-                {value}
-              </div>
-            ))}
-          </div>
-        )}
-      </React.Fragment>
-    );
+    const onTyping = vi.fn();
+    const actionsRef = React.createRef<UseTypeaheadReturnValue>();
+    return render(
+      <List actionsRef={actionsRef} onMatch={onMatch} onTyping={onTyping} {...props} />,
+    ).then(() => ({ onMatch, onTyping, actions: actionsRef.current! }));
   }
 
-  it('matches when focus is within reference', async () => {
-    const spy = vi.fn();
-    render(<App1 onMatch={spy} list={['one', 'two', 'three']} />);
+  function type(key: string) {
+    const list = screen.getByRole('listbox');
+    list.focus();
+    fireEvent.keyDown(list, { key });
+  }
 
-    await userEvent.click(screen.getByRole('combobox'));
+  describe('prop: enabled', () => {
+    it.each([
+      { name: 'matches', state: 'enabled', enabled: true, calls: 1 },
+      { name: 'does not match', state: 'disabled', enabled: false, calls: 0 },
+    ])('$name typed keys when $state', async ({ enabled, calls }) => {
+      const { onMatch } = await renderList({ enabled });
 
-    await userEvent.keyboard('t');
-    expect(spy).toHaveBeenCalledWith(1);
+      type('c');
+
+      expect(onMatch).toHaveBeenCalledTimes(calls);
+    });
   });
 
-  it('matches when focus is within floating', async () => {
-    const spy = vi.fn();
-    render(<App1 onMatch={spy} list={['one', 'two', 'three']} />);
+  it('adds keys typed in quick succession to one search', async () => {
+    const { onMatch } = await renderList();
 
-    await userEvent.click(screen.getByRole('combobox'));
+    type('a');
+    type('b');
 
-    await userEvent.keyboard('t');
-    const option = await screen.findByRole('option', { selected: true });
-    expect(option.textContent).toBe('two');
-    option.focus();
-    expect(option).toHaveFocus();
-
-    await userEvent.keyboard('h');
-    expect((await screen.findByRole('option', { selected: true })).textContent).toBe('three');
+    expect(onMatch.mock.calls.map(([index]) => index)).toEqual([0, 0]);
   });
 
-  it('onTyping is called with typing activity', async () => {
-    const spy = vi.fn();
-    render(<Combobox onTyping={spy} list={['one', 'two', 'three']} />);
+  describe('endSession', () => {
+    it('starts a new search with the next key', async () => {
+      const { onMatch, actions } = await renderList();
 
-    act(() => screen.getByRole('combobox').focus());
+      type('a');
+      actions.endSession();
+      type('b');
 
-    await userEvent.keyboard('t');
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(true);
+      expect(onMatch.mock.calls.map(([index]) => index)).toEqual([0, 1]);
+    });
 
-    vi.advanceTimersByTime(750);
-    expect(spy).toHaveBeenCalledTimes(2);
-    expect(spy).toHaveBeenCalledWith(false);
+    it('reports that typing stopped', async () => {
+      const { onTyping, actions } = await renderList();
+
+      actions.endSession();
+
+      expect(onTyping).toHaveBeenLastCalledWith(false);
+    });
   });
 
-  it('onTyping is called when the popup closes without moving focus', async () => {
-    const spy = vi.fn();
-    const { rerender } = render(<Combobox open onTyping={spy} />);
+  describe('reset', () => {
+    it('starts a new search with the next key', async () => {
+      const { onMatch, actions } = await renderList();
 
-    expect(spy).not.toHaveBeenCalled();
+      type('a');
+      actions.reset();
+      type('b');
 
-    act(() => screen.getByRole('combobox').focus());
-    await userEvent.keyboard('t');
-    expect(spy.mock.calls).toEqual([[true]]);
+      expect(onMatch.mock.calls.map(([index]) => index)).toEqual([0, 1]);
+    });
 
-    rerender(<Combobox open={false} onTyping={spy} />);
-    expect(spy.mock.calls).toEqual([[true], [false]]);
+    it('reports that typing stopped when a search was in progress', async () => {
+      const { onTyping, actions } = await renderList();
 
-    vi.advanceTimersByTime(750);
-    expect(spy.mock.calls).toEqual([[true], [false]]);
+      type('a');
+      onTyping.mockClear();
+      actions.reset();
 
-    rerender(<Combobox open onTyping={spy} />);
-    expect(spy.mock.calls).toEqual([[true], [false]]);
-  });
+      expect(onTyping).toHaveBeenCalledTimes(1);
+      expect(onTyping).toHaveBeenLastCalledWith(false);
+    });
 
-  it('skips hidden items when matching with elementsRef', async () => {
-    const spy = vi.fn();
-    render(<ComboboxWithElementsRef onMatch={spy} hiddenIndices={[0]} />);
+    it('does not report typing when no search was in progress', async () => {
+      const { onTyping, actions } = await renderList();
 
-    await userEvent.click(screen.getByRole('combobox'));
+      actions.reset();
 
-    await userEvent.keyboard('a');
-    expect(spy).toHaveBeenCalledWith(1);
-  });
-
-  it('does not let hidden double-letter items block rapid cycling with elementsRef', async () => {
-    const spy = vi.fn();
-    render(
-      <ComboboxWithElementsRef
-        onMatch={spy}
-        list={['aaron', 'apple', 'avocado']}
-        hiddenIndices={[0]}
-      />,
-    );
-
-    await userEvent.click(screen.getByRole('combobox'));
-
-    await userEvent.keyboard('a');
-    expect(spy).toHaveBeenLastCalledWith(1);
-
-    await userEvent.keyboard('a');
-    expect(spy).toHaveBeenLastCalledWith(2);
-  });
-
-  it('skips visibility:hidden items when matching with elementsRef', async () => {
-    const spy = vi.fn();
-    render(<ComboboxWithElementsRef onMatch={spy} />);
-
-    const apple = screen.getByRole('option', { name: 'apple' });
-
-    apple.style.visibility = 'hidden';
-
-    await userEvent.click(screen.getByRole('combobox'));
-
-    await userEvent.keyboard('a');
-    expect(spy).toHaveBeenCalledWith(1);
+      expect(onTyping).not.toHaveBeenCalled();
+    });
   });
 });
