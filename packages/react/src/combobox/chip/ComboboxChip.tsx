@@ -7,7 +7,7 @@ import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { ComboboxChipContext } from './ComboboxChipContext';
-import { stopEvent } from '../../utils/popups/event';
+import { getNavigationKey, stopEvent } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -38,6 +38,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     let nextIndex: number | undefined = index;
     const [previousChipKey, nextChipKey] = getChipNavigationKeys(direction);
+    const navigationKey = getNavigationKey(event);
 
     if (event.key === previousChipKey) {
       event.preventDefault();
@@ -74,7 +75,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     } else if (event.key === 'Enter' || event.key === ' ') {
       stopEvent(event);
       nextIndex = undefined;
-    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    } else if (navigationKey === 'ArrowDown' || navigationKey === 'ArrowUp') {
       stopEvent(event);
       // The input may mount when opening.
       ReactDOM.flushSync(() => {

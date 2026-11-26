@@ -11,7 +11,7 @@ import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
-import { stopEvent } from '../../utils/popups/event';
+import { getNavigationKey, stopEvent } from '../../utils/popups/event';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -242,7 +242,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
         onKeyDown(event) {
-          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          const key = getNavigationKey(event);
+          if (key === 'ArrowDown' || key === 'ArrowUp') {
             stopEvent(event);
             store.setOpen(
               true,

@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
+import { expect, vi, describe, beforeEach, afterEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import {
   act,
@@ -23,6 +23,8 @@ import {
   waitSingleFrame,
 } from '#test-utils';
 
+const platformOverride = vi.hoisted(() => ({ apple: undefined as boolean | undefined }));
+
 // Mainline tests assert the non-WebKit path; MenuFilterRoot.webkit.test.tsx covers its compatibility state.
 vi.mock('@base-ui/utils/platform', async () => {
   const actual =
@@ -31,6 +33,9 @@ vi.mock('@base-ui/utils/platform', async () => {
   return {
     platform: {
       ...actual.platform,
+      os: Object.defineProperty({ ...actual.platform.os }, 'apple', {
+        get: () => platformOverride.apple ?? actual.platform.os.apple,
+      }),
       engine: { ...actual.platform.engine, webkit: false },
       screenReader: { ...actual.platform.screenReader, voiceOver: false },
     },
@@ -3739,6 +3744,107 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
       return input;
     }
+
+    describe('Ctrl+N and Ctrl+P', () => {
+      afterEach(() => {
+        platformOverride.apple = undefined;
+      });
+
+      it('moves the highlight from the input on Apple platforms', async () => {
+        platformOverride.apple = true;
+        const { user } = await render(<KeyboardNavigationMenu />);
+        const input = await openWithKeyboard(user);
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+
+        await user.keyboard('{Control>}n{/Control}');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+
+        await user.keyboard('{Control>}p{/Control}');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+        expect(input).toHaveFocus();
+      });
+
+      it('moves the highlight while the input has a query on Apple platforms', async () => {
+        platformOverride.apple = true;
+        const { user } = await render(<KeyboardNavigationMenu />);
+        const input = await openWithKeyboard(user);
+
+        // Typing clears the highlight.
+        await user.keyboard('e');
+        await waitFor(() => {
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+        });
+
+        await user.keyboard('{Control>}n{/Control}');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+
+        await user.keyboard('{Control>}n{/Control}');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+        expect(input).toHaveValue('e');
+      });
+
+      it('relays from the trigger to the input on Apple platforms', async () => {
+        platformOverride.apple = true;
+        const { user } = await render(<KeyboardNavigationMenu />);
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await user.click(trigger);
+        const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+
+        await act(async () => {
+          trigger.focus();
+        });
+        await user.keyboard('{Control>}n{/Control}');
+
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+      });
+
+      it('is ignored on other platforms', async () => {
+        platformOverride.apple = false;
+        const { user } = await render(<KeyboardNavigationMenu />);
+        await openWithKeyboard(user);
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+
+        await user.keyboard('{Control>}n{/Control}');
+
+        expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+    });
 
     it('walks the list with the arrow keys and releases the highlight at the end', async () => {
       const { user } = await render(<KeyboardNavigationMenu />);

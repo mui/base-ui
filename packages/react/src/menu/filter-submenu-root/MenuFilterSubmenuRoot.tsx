@@ -20,7 +20,7 @@ import {
   isCrossOrientationOpenKey,
   isMainOrientationKey,
 } from '../../utils/popups/interactions/useListNavigation';
-import { stopEvent } from '../../utils/popups/event';
+import { getNavigationKey, stopEvent } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { moveHighlightFrom } from '../filter-root/moveHighlightFrom';
@@ -232,14 +232,15 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     if (
       !store.select('open') &&
       isHTMLElement(trigger) &&
-      isMainOrientationKey(event.key, parentOrientation)
+      isMainOrientationKey(getNavigationKey(event), parentOrientation)
     ) {
       moveInParent(trigger, event);
     }
   }
 
   const handleTriggerKeyDown = useStableCallback((event: TriggerKeyDownEvent) => {
-    if (isMainOrientationKey(event.key, parentOrientation)) {
+    const key = getNavigationKey(event);
+    if (isMainOrientationKey(key, parentOrientation)) {
       moveInParent(event.currentTarget, event);
       event.preventBaseUIHandler();
       stopEvent(event);
@@ -248,14 +249,14 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
 
     const open = store.select('open');
     const isRtl = direction === 'rtl';
-    const isCloseKey = isCrossOrientationCloseKey(event.key, orientation, isRtl, false);
+    const isCloseKey = isCrossOrientationCloseKey(key, orientation, isRtl, false);
 
     if (open && isCloseKey) {
       close(event);
       return;
     }
 
-    const isOpenKey = isCrossOrientationOpenKey(event.key, parentOrientation, isRtl);
+    const isOpenKey = isCrossOrientationOpenKey(key, parentOrientation, isRtl);
     if (!isOpenKey) {
       return;
     }
@@ -283,7 +284,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
       return;
     }
     const isCloseKey = isCrossOrientationCloseKey(
-      event.key,
+      getNavigationKey(event),
       orientation,
       direction === 'rtl',
       false,

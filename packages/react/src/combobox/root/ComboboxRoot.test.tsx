@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import * as ReactDOM from 'react-dom';
@@ -151,6 +151,23 @@ function isElementOrAncestorInert(element: HTMLElement) {
   }
   return false;
 }
+
+const platformOverride = vi.hoisted(() => ({ apple: undefined as boolean | undefined }));
+
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+
+  return {
+    ...actual,
+    platform: {
+      ...actual.platform,
+      os: Object.defineProperty({ ...actual.platform.os }, 'apple', {
+        get: () => platformOverride.apple ?? actual.platform.os.apple,
+      }),
+    },
+  };
+});
 
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
@@ -4291,6 +4308,151 @@ describe('<Combobox.Root />', () => {
       await user.keyboard('{Escape}');
 
       expect(onOuterKeyDown.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe('Ctrl+N and Ctrl+P', () => {
+    afterEach(() => {
+      platformOverride.apple = undefined;
+    });
+
+    function TestCombobox(props: Combobox.Root.Props<string>) {
+      return (
+        <Combobox.Root items={['apple', 'banana', 'cherry']} {...props}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    it('opens and navigates from the input on Apple platforms', async () => {
+      platformOverride.apple = true;
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<TestCombobox onItemHighlighted={onItemHighlighted} />);
+
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'apple' }).id,
+        );
+      });
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'banana' }).id,
+        );
+      });
+
+      await user.keyboard('{Control>}p{/Control}');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'apple' }).id,
+        );
+      });
+
+      const [value, eventDetails] = onItemHighlighted.mock.lastCall ?? [];
+      expect(value).toBe('apple');
+      expect(eventDetails.reason).toBe('keyboard');
+    });
+
+    it('reports a keyboard highlight after the pointer moved over the list', async () => {
+      platformOverride.apple = true;
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <TestCombobox defaultOpen onItemHighlighted={onItemHighlighted} />,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+
+      fireEvent.pointerMove(screen.getByRole('listbox'));
+      await user.keyboard('{Control>}n{/Control}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.mock.lastCall?.[0]).toBe('apple');
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('keyboard');
+    });
+
+    it('opens from the trigger on Apple platforms', async () => {
+      platformOverride.apple = true;
+      const { user } = await render(<TestCombobox />);
+
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('{Control>}n{/Control}');
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.toBe(null);
+      });
+    });
+
+    it('moves between rows in grid mode on Apple platforms', async () => {
+      platformOverride.apple = true;
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="1">1</Combobox.Item>
+                    <Combobox.Item value="2">2</Combobox.Item>
+                  </Combobox.Row>
+                  <Combobox.Row>
+                    <Combobox.Item value="3">3</Combobox.Item>
+                    <Combobox.Item value="4">4</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await act(async () => screen.getByTestId('input').focus());
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('3'));
+
+      await user.keyboard('{Control>}p{/Control}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
+    });
+
+    it('is ignored on other platforms', async () => {
+      platformOverride.apple = false;
+      const { user } = await render(<TestCombobox />);
+
+      await act(async () => screen.getByTestId('input').focus());
+      await user.keyboard('{Control>}n{/Control}');
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('{Control>}p{/Control}');
+
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
   });
 

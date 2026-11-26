@@ -21,6 +21,7 @@ import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { moveHighlightFrom } from './moveHighlightFrom';
 import { refocusOwner } from '../../filter-dropdown/utils/refocusOwner';
+import { getNavigationKey } from '../../utils/popups/event';
 
 /**
  * The list of a filterable menu: it takes the `menu` role while the popup is a dialog holding
@@ -47,13 +48,13 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
     // Keys the input forwards to its highlighted item arrive here while the input still holds
     // focus, and a nested popup's keys bubble through this React tree from outside the list.
     if (owner == null || ownerFocused || fromNestedPopup) {
+      const key = getNavigationKey(event);
+      const modified = event.shiftKey || event.ctrlKey || event.metaKey || event.altKey;
       if (
         event.which !== 229 &&
-        !event.shiftKey &&
-        !event.ctrlKey &&
-        !event.metaKey &&
-        !event.altKey &&
-        isMainOrientationKey(event.key, orientation)
+        // A shortcut that `getNavigationKey` maps to an arrow counts as that arrow.
+        (!modified || key !== event.key) &&
+        isMainOrientationKey(key, orientation)
       ) {
         // Keep main-axis keys from reaching this popup's own list navigation, which lost its
         // place while the nested popup held focus. A plain submenu that closes on the key hands

@@ -7,6 +7,7 @@ import {
 } from '../../internals/composite/listIndex';
 import { isMainOrientationToEndKey } from '../../utils/popups/interactions/useListNavigation';
 import { REASONS } from '../../internals/reasons';
+import { getNavigationKey } from '../../utils/popups/event';
 import type { MenuRoot } from '../root/MenuRoot';
 import type { MenuStore } from '../store/MenuStore';
 
@@ -25,7 +26,7 @@ export function moveHighlightFrom(
   const listRef = store.context.itemDomElements;
   const items = listRef.current;
   const { index } = getNextListIndex(items, items.indexOf(item), {
-    decrement: !isMainOrientationToEndKey(event.key, orientation, rtl),
+    decrement: !isMainOrientationToEndKey(getNavigationKey(event), orientation, rtl),
     loopFocus,
     allowEscape,
     // Match the menu's list navigation: `aria-disabled` items stay reachable.

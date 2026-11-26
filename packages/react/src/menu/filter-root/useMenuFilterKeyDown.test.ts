@@ -1,7 +1,24 @@
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi, afterEach } from 'vitest';
 import type * as React from 'react';
 import { getMenuFilterKeyAction } from './useMenuFilterKeyDown';
 import type { MenuFilterKeyAction } from './useMenuFilterKeyDown';
+
+const platformOverride = vi.hoisted(() => ({ apple: undefined as boolean | undefined }));
+
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+
+  return {
+    ...actual,
+    platform: {
+      ...actual.platform,
+      os: Object.defineProperty({ ...actual.platform.os }, 'apple', {
+        get: () => platformOverride.apple ?? actual.platform.os.apple,
+      }),
+    },
+  };
+});
 
 function key(value: string, init: Partial<React.KeyboardEvent> = {}) {
   return {
@@ -122,4 +139,57 @@ describe('getMenuFilterKeyAction', () => {
       ).toBe(expected);
     },
   );
+
+  describe('Ctrl+N and Ctrl+P', () => {
+    afterEach(() => {
+      platformOverride.apple = undefined;
+    });
+
+    const context = {
+      rtl: false,
+      activeItemOpensSubmenu: false,
+      caretAtStart: false,
+      caretAtEnd: false,
+    };
+
+    it.each<[string, React.KeyboardEvent, MenuFilterKeyAction]>([
+      ['Ctrl+N', key('n', { ctrlKey: true }), 'navigate'],
+      ['Ctrl+P', key('p', { ctrlKey: true }), 'navigate'],
+      ['Ctrl+Shift+N', key('N', { ctrlKey: true, shiftKey: true }), 'edit'],
+    ])('vertical on Apple platforms: %s in a non-empty input', (_, event, expected) => {
+      platformOverride.apple = true;
+      expect(
+        getMenuFilterKeyAction(event, {
+          ...context,
+          orientation: 'vertical',
+          hasActiveItem: true,
+          hasValue: true,
+        }),
+      ).toBe(expected);
+    });
+
+    it('horizontal on Apple platforms: Ctrl+N without a highlight enters the list', () => {
+      platformOverride.apple = true;
+      expect(
+        getMenuFilterKeyAction(key('n', { ctrlKey: true }), {
+          ...context,
+          orientation: 'horizontal',
+          hasActiveItem: false,
+          hasValue: true,
+        }),
+      ).toBe('enter-list');
+    });
+
+    it('edits on other platforms', () => {
+      platformOverride.apple = false;
+      expect(
+        getMenuFilterKeyAction(key('n', { ctrlKey: true }), {
+          ...context,
+          orientation: 'vertical',
+          hasActiveItem: true,
+          hasValue: true,
+        }),
+      ).toBe('edit');
+    });
+  });
 });
