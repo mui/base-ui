@@ -19,7 +19,7 @@ export default function ExamplePreventBaseUIHandler() {
   return (
     <div className={styles.Container}>
       <div className={styles.ToggleRow}>
-        <Toggle
+        <Toggle.Root
           aria-label="Favorite"
           pressed={pressed}
           onPressedChange={setPressed}

@@ -10,7 +10,7 @@ export default function ExampleToolbar() {
     <Toolbar.Root className={styles.Toolbar}>
       <ToggleGroup className={styles.Group} aria-label="Alignment">
         <Toolbar.Button
-          render={<Toggle />}
+          render={<Toggle.Root />}
           aria-label="Align left"
           value="align-left"
           className={styles.Button}
@@ -18,7 +18,7 @@ export default function ExampleToolbar() {
           Align Left
         </Toolbar.Button>
         <Toolbar.Button
-          render={<Toggle />}
+          render={<Toggle.Root />}
           aria-label="Align right"
           value="align-right"
           className={styles.Button}

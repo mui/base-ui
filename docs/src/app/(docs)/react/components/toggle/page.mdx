@@ -10,21 +10,53 @@ import { DemoToggleHero } from './demos/hero';
 
 <DemoToggleHero />
 
+## Usage guidelines
+
+- **Toggles must have an accessible name**: `Toggle.Indicator` is hidden from assistive technology so label the toggle with text children or `aria-label`. The text doesn't need to change because `aria-pressed` announces its state.
+
 ## Anatomy
 
-Import the component and use it as a single part:
+Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
 import { Toggle } from '@base-ui/react/toggle';
 
-<Toggle />;
+<Toggle.Root>
+  <Toggle.Indicator />
+</Toggle.Root>;
 ```
+
+## Examples
+
+### Animate icon path
+
+Without `match`, the indicator stays mounted and reflects the pressed state through `data-pressed`.
+Wrap an icon in it and use `data-pressed` to transition parts of the icon, such as the heart's filled path.
+
+import { DemoToggleAnimateIconPath } from './demos/animate-icon-path';
+
+<DemoToggleAnimateIconPath />
+
+### Animate between icons
+
+With `match`, each indicator mounts and unmounts as the pressed state changes.
+Use `data-starting-style` and `data-ending-style` to animate one icon out while the other animates in.
+
+import { DemoToggleAnimateBetweenIcons } from './demos/animate-between-icons';
+
+<DemoToggleAnimateBetweenIcons />
 
 ## API reference
 
 import { TypesToggle } from './types';
 
-<TypesToggle />
+### Root
+
+<TypesToggle.Root />
+
+### Indicator
+
+<TypesToggle.Indicator />
 
 export const metadata = {
   keywords: [
