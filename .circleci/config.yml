@@ -118,7 +118,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.65.0-noble
+      playwright-img-version: v1.65.1-noble
     steps:
       - checkout
       - code-infra/install-deps:
@@ -134,7 +134,7 @@ jobs:
     resource_class: medium+
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.65.0-noble
+      playwright-img-version: v1.65.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -148,7 +148,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.65.0-noble
+      playwright-img-version: v1.65.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -208,7 +208,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.65.0-noble
+      playwright-img-version: v1.65.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -225,7 +225,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.65.0-noble
+      playwright-img-version: v1.65.1-noble
     # Building both sides is most of the setup time, and more logical CPUs leave the browser less to
     # contend with while sampling. The `benchmark` CLI warns below 3.
     resource_class: large
