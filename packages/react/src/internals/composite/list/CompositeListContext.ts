@@ -12,7 +12,6 @@ export interface CompositeListRegistration<Metadata> {
   setIndex: (index: number) => void;
 }
 
-/** Its functions are not bound: call them as methods. */
 export interface CompositeListContextValue<Metadata> {
   register: (node: Element, registration: CompositeListRegistration<Metadata>) => void;
   unregister: (node: Element) => void;
