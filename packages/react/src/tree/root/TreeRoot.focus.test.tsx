@@ -26,7 +26,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
     it('should move DOM focus to a modifier-clicked item', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
       });
 
       act(() => view.getItemRoot('1').focus());
@@ -226,7 +226,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
         selectedItems: ['2', '3'],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
       });
 
       expect(view.getItemRoot('1').tabIndex).toBe(-1);
@@ -238,7 +238,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }, { id: '3' }],
         selectedItems: ['1.1', '3'],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
       });
 
       expect(view.getItemRoot('1').tabIndex).toBe(-1);
@@ -260,7 +260,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       const view = await render({
         items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }, { id: '2.2' }] }],
         selectedItems: ['2.1', '2.2'],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
       });
 
       expect(view.getItemRoot('1').tabIndex).toBe(0);

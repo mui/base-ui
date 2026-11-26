@@ -4,7 +4,7 @@ import { TreeRoot } from '../../tree/root/TreeRoot';
 import { TreeRootFeatureProvider } from '../../tree/root/TreeRootFeatures';
 import type { TreeRootFeature } from '../../tree/root/TreeRootFeatures';
 import { TreeGridPlugin } from '../plugins/TreeGridPlugin';
-import type { TreeDefaultItem, TreeSelectionMode } from '../../tree/store/types';
+import type { TreeDefaultItem } from '../../tree/store/types';
 
 const GRID_FEATURE: TreeRootFeature = { install: TreeGridPlugin.install };
 
@@ -16,13 +16,11 @@ const GRID_FEATURE: TreeRootFeature = { install: TreeGridPlugin.install };
  */
 export function TreeGridRoot<
   TItem = TreeDefaultItem,
-  Mode extends TreeSelectionMode | undefined = undefined,
->(props: TreeGridRoot.Props<TItem, Mode>): React.JSX.Element {
-  // The props are `Tree.Root`'s own, but TypeScript can't relate its conditional
-  // props type across the generic boundary.
+  Multiple extends boolean | 'opt-in' | undefined = false,
+>(props: TreeGridRoot.Props<TItem, Multiple>): React.JSX.Element {
   return (
     <TreeRootFeatureProvider feature={GRID_FEATURE}>
-      <TreeRoot {...(props as TreeRoot.Props)} />
+      <TreeRoot {...props} />
     </TreeRootFeatureProvider>
   );
 }
@@ -31,15 +29,15 @@ export type TreeGridRootState = TreeRoot.State;
 
 export type TreeGridRootProps<
   TItem = TreeDefaultItem,
-  Mode extends TreeSelectionMode | undefined = TreeSelectionMode | undefined,
-> = TreeRoot.Props<TItem, Mode>;
+  Multiple extends boolean | 'opt-in' | undefined = false,
+> = TreeRoot.Props<TItem, Multiple>;
 
 export namespace TreeGridRoot {
   export type State = TreeGridRootState;
   export type Props<
     TItem = TreeDefaultItem,
-    Mode extends TreeSelectionMode | undefined = TreeSelectionMode | undefined,
-  > = TreeGridRootProps<TItem, Mode>;
+    Multiple extends boolean | 'opt-in' | undefined = false,
+  > = TreeGridRootProps<TItem, Multiple>;
   export type Actions<TItem = TreeDefaultItem> = TreeRoot.Actions<TItem>;
   export type ExpansionChangeEventReason = TreeRoot.ExpansionChangeEventReason;
   export type ExpansionChangeEventDetails = TreeRoot.ExpansionChangeEventDetails;

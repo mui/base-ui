@@ -40,7 +40,7 @@ function TestTree(props: {
   const grid = (
     <TreeGrid.Root
       items={ITEMS}
-      selectionMode="multiple"
+      multiple="opt-in"
       defaultExpandedItems={props.defaultExpandedItems}
       onItemHighlighted={props.onItemHighlighted}
     >
@@ -118,7 +118,7 @@ describe('Tree', () => {
 
   it('lets aria-label replace the built-in control names', async () => {
     await render(
-      <TreeGrid.Root items={ITEMS} selectionMode="multiple">
+      <TreeGrid.Root items={ITEMS} multiple="opt-in">
         <TreeGrid.Table aria-label="Files">
           {(item) => (
             <TreeGrid.Row itemId={item.id}>
@@ -320,7 +320,7 @@ describe('Tree', () => {
             { id: 'documents', label: 'Documents', disabled },
             { id: 'music', label: 'Music' },
           ]}
-          selectionMode="multiple"
+          multiple="opt-in"
         >
           <TreeGrid.Table>
             {(item: TreeDefaultItem) => (
@@ -568,8 +568,13 @@ describe('Tree', () => {
   );
 
   it('skips a disabled checkbox, with the arrows and with Tab', async () => {
+    const unselectableItems = TreeGrid.createItems(FLAT_ITEMS, {
+      getId: (item) => item.id,
+      getLabel: (item) => item.label,
+      isSelectionDisabled: () => true,
+    });
     await render(
-      <TreeGrid.Root items={FLAT_ITEMS} selectionMode="none">
+      <TreeGrid.Root items={unselectableItems}>
         <TreeGrid.Table>
           {(item: Item) => (
             <TreeGrid.Row itemId={item.id} data-testid={`row-${item.id}`}>
@@ -1130,7 +1135,7 @@ describe('Tree', () => {
       return (
         <React.Fragment>
           <button type="button">Before</button>
-          <TreeGrid.Root items={ITEMS} selectionMode="multiple">
+          <TreeGrid.Root items={ITEMS} multiple="opt-in">
             <TreeGrid.Table aria-label="Files">
               {(item: Item) => (
                 <TreeGrid.Row itemId={item.id} data-testid={`tab-row-${item.id}`}>
@@ -1382,11 +1387,7 @@ describe('Tree', () => {
   it('ignores presses and focus in content a row portals elsewhere', async () => {
     const onItemHighlighted = vi.fn();
     await render(
-      <TreeGrid.Root
-        items={FLAT_ITEMS}
-        selectionMode="multiple"
-        onItemHighlighted={onItemHighlighted}
-      >
+      <TreeGrid.Root items={FLAT_ITEMS} multiple="opt-in" onItemHighlighted={onItemHighlighted}>
         <TreeGrid.Table>
           {(item: Item) => (
             <TreeGrid.Row itemId={item.id} data-testid={`row-${item.id}`}>
@@ -1420,7 +1421,7 @@ describe('Tree', () => {
     await render(
       <TreeGrid.Root
         items={[{ id: 'music', label: 'Music' }]}
-        selectionMode="multiple"
+        multiple="opt-in"
         onSelectedItemsChange={onSelectedItemsChange}
       >
         <TreeGrid.Table>
@@ -1504,7 +1505,7 @@ describe('Tree', () => {
     const inputRef = React.createRef<HTMLInputElement>();
     await render(
       <form data-testid="file-form">
-        <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="multiple">
+        <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} multiple="opt-in">
           <TreeGrid.Table>
             {(item: Item) => (
               <TreeGrid.Row itemId={item.id}>
@@ -1536,7 +1537,7 @@ describe('Tree', () => {
               { id: 'music', label: 'Music' },
               { id: 'photos', label: 'Photos' },
             ]}
-            selectionMode="multiple"
+            multiple="opt-in"
           >
             <TreeGrid.Table>
               {(item: Item) => (
@@ -1572,7 +1573,7 @@ describe('Tree', () => {
     const { rerender } = await render(
       <TreeGrid.Root
         items={selectionLockedItems}
-        selectionMode="multiple"
+        multiple="opt-in"
         onSelectedItemsChange={onSelectedItemsChange}
       >
         <TreeGrid.Table>
@@ -1595,25 +1596,7 @@ describe('Tree', () => {
     expect(onSelectedItemsChange).not.toHaveBeenCalled();
 
     await rerender(
-      <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="none">
-        <TreeGrid.Table>
-          {(item: Item) => (
-            <TreeGrid.Row itemId={item.id}>
-              <TreeGrid.Cell>
-                <TreeGrid.RowCheckbox />
-              </TreeGrid.Cell>
-            </TreeGrid.Row>
-          )}
-        </TreeGrid.Table>
-      </TreeGrid.Root>,
-    );
-    expect(screen.getByRole('checkbox', { name: 'Select Music' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
-
-    await rerender(
-      <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} selectionMode="multiple" disabled>
+      <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} multiple="opt-in" disabled>
         <TreeGrid.Table>
           {(item: Item) => (
             <TreeGrid.Row itemId={item.id}>
@@ -1642,7 +1625,7 @@ describe('Tree', () => {
               children: [{ id: 'child', label: 'Child' }],
             },
           ]}
-          selectionMode="multiple"
+          multiple="opt-in"
         >
           <TreeGrid.Table>
             {(item: Item) =>
@@ -1701,7 +1684,7 @@ describe('Tree', () => {
       <TreeGrid.FilterProvider value={filterValue}>
         <TreeGrid.Root
           items={[root]}
-          selectionMode="multiple"
+          multiple="opt-in"
           actionsRef={actionsRef}
           onSelectedItemsChange={onSelectedItemsChange}
         >
@@ -1740,7 +1723,7 @@ describe('checkbox keyboard selection', () => {
       const { user } = await render(
         <TreeGrid.Root
           items={ITEMS}
-          selectionMode="multiple"
+          multiple
           defaultSelectedItems={initial}
           checkboxSelectionPropagation={{ parents: true, descendants }}
           onSelectedItemsChange={onSelectedItemsChange}
@@ -1770,6 +1753,130 @@ describe('checkbox keyboard selection', () => {
   );
 });
 
+describe('checkbox click selection', () => {
+  it.each([
+    { target: 'row', multiple: true },
+    { target: 'checkbox', multiple: true },
+    { target: 'row', multiple: 'opt-in' },
+    { target: 'checkbox', multiple: 'opt-in' },
+  ] as const)(
+    'toggles the item with checkbox propagation on a click on its $target with multiple=$multiple',
+    async ({ target, multiple }) => {
+      const onSelectedItemsChange = vi.fn();
+      const { user } = await render(
+        <TreeGrid.Root
+          items={ITEMS}
+          multiple={multiple}
+          defaultSelectedItems={['music']}
+          onSelectedItemsChange={onSelectedItemsChange}
+        >
+          <TreeGrid.Table>
+            {(item) => (
+              <TreeGrid.Row itemId={item.id}>
+                <TreeGrid.Cell>
+                  <TreeGrid.RowCheckbox />
+                  {item.label}
+                </TreeGrid.Cell>
+              </TreeGrid.Row>
+            )}
+          </TreeGrid.Table>
+        </TreeGrid.Root>,
+      );
+      const element =
+        target === 'row'
+          ? screen.getByRole('row', { name: 'Documents' })
+          : screen.getByRole('checkbox', { name: 'Select Documents' });
+
+      await user.click(element);
+      expect(new Set(onSelectedItemsChange.mock.lastCall?.[0])).toEqual(
+        new Set(['documents', 'resume', 'cover-letter', 'music']),
+      );
+      await user.click(element);
+      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['music']);
+    },
+  );
+
+  it('replaces the selection on a click on a row without a checkbox with multiple="opt-in"', async () => {
+    const onSelectedItemsChange = vi.fn();
+    const { user } = await render(
+      <TreeGrid.Root
+        items={ITEMS}
+        multiple="opt-in"
+        defaultSelectedItems={['music']}
+        onSelectedItemsChange={onSelectedItemsChange}
+      >
+        <TreeGrid.Table>
+          {(item) => (
+            <TreeGrid.Row itemId={item.id}>
+              <TreeGrid.Cell>{item.label}</TreeGrid.Cell>
+            </TreeGrid.Row>
+          )}
+        </TreeGrid.Table>
+      </TreeGrid.Root>,
+    );
+
+    await user.click(screen.getByRole('row', { name: 'Documents' }));
+    expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['documents']);
+  });
+
+  it('toggles a row with a checkbox on Space with multiple="opt-in"', async () => {
+    const onSelectedItemsChange = vi.fn();
+    await render(
+      <TreeGrid.Root
+        items={FLAT_ITEMS}
+        multiple="opt-in"
+        defaultSelectedItems={['music']}
+        onSelectedItemsChange={onSelectedItemsChange}
+      >
+        <TreeGrid.Table>
+          {(item) => (
+            <TreeGrid.Row itemId={item.id}>
+              <TreeGrid.Cell>
+                <TreeGrid.RowCheckbox />
+                {item.label}
+              </TreeGrid.Cell>
+            </TreeGrid.Row>
+          )}
+        </TreeGrid.Table>
+      </TreeGrid.Root>,
+    );
+    const row = screen.getByRole('row', { name: 'Documents' });
+    act(() => row.focus());
+
+    fireEvent.keyDown(row, { key: ' ' });
+    expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['documents', 'music']);
+  });
+
+  it('keeps the selection when the arrow keys move focus to a row with a checkbox with multiple="opt-in"', async () => {
+    const onSelectedItemsChange = vi.fn();
+    await render(
+      <TreeGrid.Root
+        items={FLAT_ITEMS}
+        multiple="opt-in"
+        defaultSelectedItems={['documents']}
+        onSelectedItemsChange={onSelectedItemsChange}
+      >
+        <TreeGrid.Table>
+          {(item) => (
+            <TreeGrid.Row itemId={item.id}>
+              <TreeGrid.Cell>
+                <TreeGrid.RowCheckbox />
+                {item.label}
+              </TreeGrid.Cell>
+            </TreeGrid.Row>
+          )}
+        </TreeGrid.Table>
+      </TreeGrid.Root>,
+    );
+    const row = screen.getByRole('row', { name: 'Documents' });
+    act(() => row.focus());
+
+    fireEvent.keyDown(row, { key: 'ArrowDown' });
+    expect(screen.getByRole('row', { name: 'Music' })).toHaveFocus();
+    expect(onSelectedItemsChange).not.toHaveBeenCalled();
+  });
+});
+
 describe('TreeGrid.RowCheckbox', () => {
   it('passes the selection state of its item, without field state, to its state callbacks', async () => {
     const checkboxStates: TreeGrid.RowCheckbox.State[] = [];
@@ -1777,7 +1884,7 @@ describe('TreeGrid.RowCheckbox', () => {
     await render(
       <TreeGrid.Root
         items={[{ id: 'a', label: 'A' }]}
-        selectionMode="multiple"
+        multiple="opt-in"
         defaultSelectedItems={['a']}
       >
         <TreeGrid.Table>
@@ -1822,7 +1929,7 @@ describe('TreeGrid roles', () => {
 
   it('renders a treegrid whose rows have a cell named from its content', async () => {
     await render(
-      <TreeGrid.Root items={items} selectionMode="multiple">
+      <TreeGrid.Root items={items} multiple="opt-in">
         <TreeGrid.Table aria-label="Files">
           {(item) => (
             <TreeGrid.Row itemId={item.id}>
@@ -1881,7 +1988,7 @@ describe('TreeGrid roles', () => {
 });
 
 describe('TreeGrid.RowCheckbox interaction', () => {
-  it('only toggles the clicked checkbox when shift-clicking it', async () => {
+  it('selects a range when shift-clicking a checkbox', async () => {
     const onSelectedItemsChange = vi.fn();
     await render(
       <TreeGrid.Root
@@ -1891,7 +1998,7 @@ describe('TreeGrid.RowCheckbox interaction', () => {
           { id: '3', label: '3' },
           { id: '4', label: '4' },
         ]}
-        selectionMode="multiple"
+        multiple="opt-in"
         onSelectedItemsChange={onSelectedItemsChange}
       >
         <TreeGrid.Table>
@@ -1908,9 +2015,10 @@ describe('TreeGrid.RowCheckbox interaction', () => {
     );
 
     fireEvent.click(screen.getByTestId('checkbox-2'));
+    expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['2']);
     fireEvent.click(screen.getByTestId('checkbox-4'), { shiftKey: true });
 
-    expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['4', '2']);
+    expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['2', '3', '4']);
   });
 });
 
@@ -1980,7 +2088,7 @@ function nestedRow(itemId: string): HTMLElement {
 describe('TreeGrid controls nested in item content', () => {
   function TreeWithButtons(props: { onAction?: (() => void) | undefined }) {
     return (
-      <TreeGrid.Root items={NESTED_ITEMS} selectionMode="multiple">
+      <TreeGrid.Root items={NESTED_ITEMS} multiple="opt-in">
         <TreeGrid.Table>
           {(item: NestedItem) => (
             <TreeGrid.Row itemId={item.id} data-testid={`item-${item.id}`}>
@@ -2073,6 +2181,7 @@ const SIZES: Record<string, string> = {
 describe('TreeGrid columns', () => {
   function ColumnsTree(props: {
     header?: boolean | undefined;
+    multiple?: boolean | 'opt-in' | undefined;
     onItemHighlighted?: TreeGrid.Root.Props['onItemHighlighted'];
     renderRow?: ((item: Item, cells: React.ReactNode[]) => React.ReactNode[]) | undefined;
   }) {
@@ -2081,6 +2190,7 @@ describe('TreeGrid columns', () => {
       <TreeGrid.Root
         items={ITEMS}
         defaultExpandedItems={['documents']}
+        multiple={props.multiple}
         onItemHighlighted={props.onItemHighlighted}
       >
         <TreeGrid.Table aria-label="Files">
@@ -2228,6 +2338,28 @@ describe('TreeGrid columns', () => {
     expect(screen.getByTestId('size-cover-letter')).toHaveFocus();
     press(screen.getByTestId('size-cover-letter'), 'ArrowUp');
     expect(screen.getByTestId('size-resume')).toHaveFocus();
+  });
+
+  it('moves the selection with ArrowUp and ArrowDown on a cell with multiple="opt-in"', async () => {
+    await render(<ColumnsTree multiple="opt-in" />);
+
+    const row = screen.getByTestId('row-resume');
+    act(() => row.focus());
+    press(row, ' ');
+    press(row, 'ArrowRight');
+    press(screen.getByTestId('name-resume'), 'ArrowRight');
+    expect(screen.getByTestId('size-resume')).toHaveFocus();
+    expect(row).toHaveAttribute('aria-selected', 'true');
+
+    press(screen.getByTestId('size-resume'), 'ArrowDown');
+    expect(screen.getByTestId('size-cover-letter')).toHaveFocus();
+    expect(row).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByTestId('row-cover-letter')).toHaveAttribute('aria-selected', 'true');
+
+    press(screen.getByTestId('size-cover-letter'), 'ArrowUp');
+    expect(screen.getByTestId('size-resume')).toHaveFocus();
+    expect(row).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId('row-cover-letter')).toHaveAttribute('aria-selected', 'false');
   });
 
   it('moves to the control at the same position, or the last one before it', async () => {

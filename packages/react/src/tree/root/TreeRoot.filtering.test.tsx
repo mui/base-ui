@@ -183,7 +183,7 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
         { id: 'three', label: 'Match three' },
       ],
       filterValue: 'match',
-      selectionMode: 'multiple',
+      multiple: 'opt-in',
       onSelectedItemsChange,
     });
 
@@ -210,7 +210,7 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
         },
       ],
       filterValue: 'needle',
-      selectionMode: 'multiple',
+      multiple: 'opt-in',
       checkboxSelection: true,
       onSelectedItemsChange,
     });
@@ -219,7 +219,7 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
     expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['parent', 'match', 'hidden']);
   });
 
-  it('toggles only the enabled items the filter shows with Ctrl+A', async () => {
+  it('adds only the enabled items the filter shows with Ctrl+A, and keeps them on repeat', async () => {
     const onSelectedItemsChange = vi.fn();
     const view = await render({
       items: [
@@ -229,7 +229,7 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
         { id: 'apricot', label: 'Apricot' },
       ],
       filterValue: 'ap',
-      selectionMode: 'multiple',
+      multiple: 'opt-in',
       defaultSelectedItems: ['banana'],
       onSelectedItemsChange,
     });
@@ -239,7 +239,8 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
     expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['banana', 'apple', 'apricot']);
 
     fireEvent.keyDown(view.getItemRoot('apple'), { key: 'a', ctrlKey: true });
-    expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['banana']);
+    expect(onSelectedItemsChange).toHaveBeenCalledTimes(1);
+    expect(view.getItemRoot('apple')).toHaveAttribute('aria-selected', 'true');
   });
 
   it('recomputes matches when loaded items enter the canonical model', async () => {

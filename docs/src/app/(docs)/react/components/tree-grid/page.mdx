@@ -111,7 +111,7 @@ Each item is a row of one or more `<TreeGrid.Cell>`. Render the content of the i
 </TreeGrid.Root>
 ```
 
-As in a tree, <kbd>Arrow Up</kbd> and <kbd>Arrow Down</kbd> move between rows. <kbd>Arrow Right</kbd> and <kbd>Tab</kbd> move from a row to its controls, and on a collapsed row, <kbd>Arrow Right</kbd> expands it first. Between controls, <kbd>Arrow Left</kbd> and <kbd>Arrow Right</kbd> move to the previous or next control. <kbd>Arrow Left</kbd> on the first control, or <kbd>Escape</kbd> on any control, returns to the row.
+From a row, <kbd>Arrow Right</kbd> and <kbd>Tab</kbd> move to its controls, and <kbd>Escape</kbd> returns to the row.
 
 A focused row announces its label, not its controls or the rest of its content.
 
@@ -130,7 +130,7 @@ To use a popup trigger as a control, pass it to the `render` prop of `<TreeGrid.
 </Menu.Root>
 ```
 
-Controls keep the keys they use, such as the caret keys of a text input or the up and down arrows of a popup trigger. Typeahead characters, <kbd>Space</kbd>, and <kbd>Enter</kbd> always belong to the control. Use the `controlKeys` prop to change which keys a control keeps. `<TreeGrid.CellControl>` keeps every key by default, so assign the key groups the tree should handle. For example, a custom rating widget that only uses the left and right arrows:
+Controls keep the keys they use, such as the caret keys of a text input or the up and down arrows of a popup trigger. Use the `controlKeys` prop to change which keys a control keeps. `<TreeGrid.CellControl>` keeps every key by default, so assign the key groups the tree should handle. For example, a custom rating widget that only uses the left and right arrows:
 
 ```tsx title="Custom control"
 <TreeGrid.CellControl
@@ -143,11 +143,15 @@ The part must render the element that receives focus. Other focusable elements i
 
 ## Examples
 
+### Multiple selection
+
+Set `multiple` on `<TreeGrid.Root>` to let users select more than one row. A click or <kbd>Space</kbd> on a row adds or removes it, as does <kbd>Enter</kbd> on a row that can't expand, and the selected items are an array.
+
+Use `multiple="opt-in"` when users opt in to selecting more than one row by holding a modifier key. Without one, a click or moving focus with the keyboard moves the selection to a single row. The modifier keys are the same as in [Tree](/react/components/tree#opt-in-multiple-selection). On touch devices, a tap adds or removes a row, the same as `multiple`. A row with a checkbox always selects as with `multiple`.
+
 ### Columns
 
 Render a `<TreeGrid.Cell>` for each column in every row, and name the columns with `<TreeGrid.HeaderCell>` inside `<TreeGrid.HeaderRow>`. Every row needs a cell for each header cell, empty if needed. When icons name the columns, visually hide the header row instead of leaving it out.
-
-In a row of several cells, the arrow keys also stop at each cell without a control, so screen readers read every value with its column header. <kbd>Arrow Up</kbd> and <kbd>Arrow Down</kbd> stay in the column, and <kbd>Ctrl</kbd>+<kbd>Home</kbd> and <kbd>Ctrl</kbd>+<kbd>End</kbd> move to its first or last row.
 
 import { DemoTreeGridColumns } from './demos/columns';
 
@@ -155,11 +159,9 @@ import { DemoTreeGridColumns } from './demos/columns';
 
 ### Checkbox selection
 
-Render `<TreeGrid.RowCheckbox>` inside `<TreeGrid.Cell>` to select a row with a checkbox, and `<TreeGrid.RowCheckboxIndicator>` inside it to show the state. Set `selectionMode="multiple"` on `<TreeGrid.Root>` to allow more than one row to be selected.
+Render `<TreeGrid.RowCheckbox>` inside `<TreeGrid.Cell>` to select a row with a checkbox, and `<TreeGrid.RowCheckboxIndicator>` inside it to show the state. Set `multiple` on `<TreeGrid.Root>` to allow more than one row to be selected. A click on the row toggles it, like a click on its checkbox.
 
-A click on the checkbox toggles its row and keeps the other rows selected, while a click elsewhere on the row selects only that row.
-
-The `checkboxSelectionPropagation` prop controls how a checkbox affects related rows. With `descendants`, checking a parent selects its whole branch. With `parents`, checking all of its selectable children selects the parent. Both are enabled by default in multiple-selection mode. Use `TreeGrid.SELECTION_ALL` to select every selectable row without listing its ID.
+The `checkboxSelectionPropagation` prop controls how a checkbox affects related rows. With `descendants`, checking a parent selects its whole branch. With `parents`, checking all of its selectable children selects the parent. Both are enabled by default with multiple selection. Use `TreeGrid.SELECTION_ALL` to select every selectable row without listing its ID.
 
 import { DemoTreeGridCheckboxSelection } from './demos/checkbox-selection';
 
@@ -167,7 +169,7 @@ import { DemoTreeGridCheckboxSelection } from './demos/checkbox-selection';
 
 ### Links
 
-Render `<TreeGrid.CellLink>` inside `<TreeGrid.Cell>` to link a row to another page, and set `active` on the current page's link. It marks the link and its row with `aria-current="page"`. Tabbing into the tree grid focuses the current page's row, unless a row is selected or another row had focus before. With `selectionMode="none"`, <kbd>Enter</kbd> on a row follows its first link.
+Render `<TreeGrid.CellLink>` inside `<TreeGrid.Cell>` to link a row to another page, and set `active` on the current page's link.
 
 When a link is the only control of a row, use [`<Tree.LinkItem>`](/react/components/tree#links) instead.
 
@@ -182,8 +184,6 @@ Render `<TreeGrid.GroupTransition>` after each row, as in the anatomy, to animat
 ### Filtering
 
 Wrap `<TreeGrid.Root>` in `<TreeGrid.FilterProvider>` and add `<TreeGrid.Input>` inside the root.
-Type to narrow the rows, then press <kbd>Arrow Down</kbd> or <kbd>Enter</kbd> to focus the first match, or <kbd>Arrow Up</kbd> to focus the last one.
-Typing while a row has focus continues the query, but typing in a control doesn't. <kbd>Escape</kbd> in the input clears it.
 
 import { DemoTreeGridFiltering } from './demos/filtering';
 

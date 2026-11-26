@@ -37,7 +37,7 @@ export const TreeItem = fastComponentRef(function TreeItem(
       // Per WAI-ARIA, when selection is supported, all focusable rows must have
       // aria-selected set to true or false — a disabled row included, and a
       // *selected* disabled row above all. Only a row that cannot be selected at all
-      // (`selectionMode="none"`, or `isItemSelectionDisabled`) omits it.
+      // (`isItemSelectionDisabled`) omits it.
       selectionSupported ? { 'aria-selected': selected } : undefined,
       elementProps,
     ],

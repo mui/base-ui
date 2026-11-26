@@ -80,13 +80,7 @@ const ICON_LINK_CLASS =
 
 export default function ExampleTreeGridLinks() {
   return (
-    <TreeGrid.Root
-      items={items}
-      defaultExpandedItems={['overview']}
-      // @highlight-start
-      selectionMode="none"
-      // @highlight-end
-    >
+    <TreeGrid.Root items={items} defaultExpandedItems={['overview']}>
       <TreeGrid.Table
         aria-label="Documentation"
         className="box-content w-56 border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"

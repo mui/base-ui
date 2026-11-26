@@ -15,7 +15,7 @@ const items: TreeGrid.DefaultItem[] = [
 
 export default function LinkItemsTree() {
   return (
-    <TreeGrid.Root items={items} defaultExpandedItems={['overview']} selectionMode="none">
+    <TreeGrid.Root items={items} defaultExpandedItems={['overview']}>
       <TreeGrid.Table aria-label="Documentation">
         {(item: TreeGrid.DefaultItem) => (
           <TreeGrid.Row

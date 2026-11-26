@@ -15,7 +15,7 @@ const items: TreeGrid.DefaultItem[] = [
 
 export default function CheckboxSelectionTree() {
   return (
-    <TreeGrid.Root items={items} defaultExpandedItems={['documents']} selectionMode="multiple">
+    <TreeGrid.Root items={items} defaultExpandedItems={['documents']} multiple>
       <TreeGrid.Label>Files to share</TreeGrid.Label>
       <TreeGrid.Table>
         {(item: TreeGrid.DefaultItem) => (

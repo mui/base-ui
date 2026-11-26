@@ -23,7 +23,7 @@ export function useTreeRootProps(props: { id?: string | undefined; render?: unkn
   // An empty id on the `render` element leaves the list without one to reference.
   store.useSyncedValueWithCleanup('listId', resolveRenderedId(props, id) || undefined);
 
-  const selectionMode = useStore(store, (s) => s.selectionMode);
+  const multiple = useStore(store, (s) => s.multiple);
   const disabled = useStore(store, (s) => s.disabled);
   const empty = useIsTreeEmpty();
   const labelId = useStore(store, (s) => s.labelId);
@@ -48,7 +48,7 @@ export function useTreeRootProps(props: { id?: string | undefined; render?: unkn
     id,
     role: store.grid == null ? 'tree' : 'treegrid',
     'aria-labelledby': labelId,
-    'aria-multiselectable': (selectionMode === 'multiple' || undefined) as true | undefined,
+    'aria-multiselectable': (multiple !== false || undefined) as true | undefined,
     'aria-disabled': disabled || undefined,
     // The roving tab stop normally lives on a row. The container takes it when
     // there is no focusable row.

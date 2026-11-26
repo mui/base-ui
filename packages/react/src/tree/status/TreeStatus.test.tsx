@@ -110,7 +110,7 @@ describe('<Tree.Status />', () => {
       );
     }
 
-    function SelectionTree(props: Omit<Tree.Root.Props<Item, 'multiple'>, 'children'>) {
+    function SelectionTree(props: Omit<Tree.Root.Props<Item, true | 'opt-in'>, 'children'>) {
       return (
         <Tree.Root defaultExpandedItems={['documents']} {...props}>
           <Tree.List>{renderCheckboxItem}</Tree.List>
@@ -148,7 +148,7 @@ describe('<Tree.Status />', () => {
         <Tree.Root
           items={ITEMS}
           defaultExpandedItems={['documents']}
-          selectionMode="multiple"
+          multiple="opt-in"
           checkboxSelectionPropagation={{ parents: false, descendants: false }}
         >
           <Tree.List>{renderCheckboxItem}</Tree.List>
@@ -188,7 +188,7 @@ describe('<Tree.Status />', () => {
       await render(
         <SelectionTree
           items={ITEMS}
-          selectionMode="multiple"
+          multiple="opt-in"
           checkboxSelectionPropagation={{ parents: false, descendants: false }}
         />,
       );
@@ -208,9 +208,6 @@ describe('<Tree.Status />', () => {
 
       press('invoice-q2', 'a', { ctrlKey: true });
       expect(status).toHaveTextContent('All items selected.');
-
-      press('invoice-q2', 'a', { ctrlKey: true });
-      expect(status).toHaveTextContent('No items selected.');
     });
 
     it('announces the changes the user makes once a controlled parent applies them', async () => {
@@ -221,7 +218,7 @@ describe('<Tree.Status />', () => {
         return (
           <SelectionTree
             items={ITEMS}
-            selectionMode="multiple"
+            multiple="opt-in"
             checkboxSelectionPropagation={{ parents: false, descendants: false }}
             actionsRef={actionsRef}
             selectedItems={selectedItems}

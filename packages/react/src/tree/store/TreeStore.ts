@@ -9,7 +9,7 @@ import type {
   TreeDefaultItem,
   TreeItemId,
   TreeRootActions,
-  TreeSelectionMode,
+  TreeMultiple,
   TreeStoreParameters,
 } from './types';
 
@@ -32,7 +32,7 @@ import { buildItemsState } from './itemIndex';
 const ACCESSOR_REBUILD_WARNING_THRESHOLD = 20;
 
 export class TreeStore<
-  Mode extends TreeSelectionMode | undefined = undefined,
+  Multiple extends TreeMultiple | undefined = undefined,
   TItem = TreeDefaultItem,
 > extends ReactStore<TreeState<TItem>, TreeStoreContext<TItem>, typeof selectors> {
   public items = new TreeItemsPlugin<TItem>(this);
@@ -59,7 +59,7 @@ export class TreeStore<
   /** Whether the root is mounted. Asynchronous work checks it before changing the tree. */
   public mounted = false;
 
-  constructor(parameters: TreeStoreParameters<Mode, TItem>) {
+  constructor(parameters: TreeStoreParameters<Multiple, TItem>) {
     const {
       disabled,
       items,
@@ -73,7 +73,7 @@ export class TreeStore<
       defaultSelectedItems,
       onSelectedItemsChange,
       onItemSelectionToggle,
-      selectionMode,
+      multiple,
       disableEmptySelection,
       expandOnClick,
       checkboxSelectionPropagation,
@@ -98,12 +98,9 @@ export class TreeStore<
         expandedItemsProp: expandedItems,
         expandOnClick,
         transactionThrottle: 0,
-        selectedItems:
-          selectedItems ??
-          defaultSelectedItems ??
-          (selectionMode === 'multiple' ? EMPTY_ARRAY : null),
+        selectedItems: selectedItems ?? defaultSelectedItems ?? (multiple ? EMPTY_ARRAY : null),
         selectedItemsProp: selectedItems,
-        selectionMode,
+        multiple,
         disableEmptySelection,
         checkboxSelectionPropagation,
         focusedItemId: null,
@@ -186,8 +183,8 @@ export class TreeStore<
     );
 
     void this.observe(
-      (state: TreeState<TItem>) => state.selectionMode,
-      this.selection.handleSelectionModeChange,
+      (state: TreeState<TItem>) => state.multiple,
+      this.selection.handleMultipleChange,
     );
   }
 

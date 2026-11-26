@@ -13,22 +13,22 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         selectedItems: [],
         onSelectedItemsChange,
       });
       act(() => view.getItemRoot('1').focus());
       fireEvent.keyDown(view.getItemRoot('1'), { key: 'ArrowDown', shiftKey: true });
-      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['2']);
-      await view.setProps({ selectedItems: ['2'] });
+      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['1', '2']);
+      await view.setProps({ selectedItems: ['1', '2'] });
       fireEvent.keyDown(view.getItemRoot('2'), { key: 'ArrowDown', shiftKey: true });
-      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['2', '3']);
-      await view.setProps({ selectedItems: ['2', '3'] });
+      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['1', '2', '3']);
+      await view.setProps({ selectedItems: ['1', '2', '3'] });
       fireEvent.keyDown(view.getItemRoot('3'), { key: 'ArrowUp', shiftKey: true });
-      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['2']);
-      await view.setProps({ selectedItems: ['2'] });
+      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['1', '2']);
+      await view.setProps({ selectedItems: ['1', '2'] });
       fireEvent.keyDown(view.getItemRoot('2'), { key: 'ArrowUp', shiftKey: true });
-      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual([]);
+      expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['1']);
     });
 
     it('should not select items when no default state and no control state are defined', async () => {
@@ -72,7 +72,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       async (interaction) => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
           selectedItems: [],
           onSelectedItemsChange,
@@ -128,7 +128,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
 
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: '1' }, { id: '2' }],
         onSelectedItemsChange,
       });
@@ -144,7 +144,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
 
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: '1' }, { id: '2' }],
         onSelectedItemsChange,
         defaultSelectedItems: ['1'],
@@ -161,7 +161,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
 
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: '1' }, { id: '2' }],
         onSelectedItemsChange,
         defaultSelectedItems: ['1'],
@@ -250,7 +250,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           const onSelectedItemsChange = vi.fn();
 
           const view = await render({
-            selectionMode: 'multiple',
+            multiple: 'opt-in',
             items: [{ id: '1' }, { id: '2' }],
             selectedItems: ['1'],
             onSelectedItemsChange,
@@ -270,7 +270,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         const onSelectedItemsChange = vi.fn();
 
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '3' }],
           selectedItems: ['1'],
           onSelectedItemsChange,
@@ -288,7 +288,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should not use a rejected controlled proposal as the next range anchor', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }],
           selectedItems: ['1'],
           onSelectedItemsChange,
@@ -303,7 +303,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should reset the range anchor when the controlled selection is replaced externally', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }],
           selectedItems: ['1'],
           onSelectedItemsChange,
@@ -314,7 +314,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         await view.setProps({ selectedItems: ['5'] });
         fireEvent.click(view.getItemRoot('1'), { shiftKey: true });
 
-        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['5', '1', '2', '3', '4']);
+        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '2', '3', '4', '5']);
       });
 
       it.each(['click', 'keyboard'])(
@@ -322,7 +322,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         async (interaction) => {
           const onSelectedItemsChange = vi.fn();
           const view = await render({
-            selectionMode: 'multiple',
+            multiple: 'opt-in',
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
             selectedItems: [],
             onSelectedItemsChange,
@@ -350,7 +350,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('keeps the range anchor when the parent accepts a range in another order', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
           selectedItems: [],
           onSelectedItemsChange,
@@ -370,10 +370,10 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual(['3', '4']);
       });
 
-      it('restarts a controlled Shift+Arrow range at the focused item when the anchor is hidden', async () => {
+      it('starts a controlled Shift+Arrow range at the focused item when the anchor is hidden', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }, { id: '3' }],
           selectedItems: [],
           defaultExpandedItems: ['1'],
@@ -387,7 +387,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         act(() => view.getItemRoot('2').focus());
         fireEvent.keyDown(view.getItemRoot('2'), { key: 'ArrowDown', shiftKey: true });
 
-        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1.1', '2', '3']);
+        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['2', '3']);
       });
     });
   });
@@ -415,7 +415,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onItemSelectionToggle = vi.fn();
 
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: '1' }, { id: '2' }],
         defaultSelectedItems: ['1'],
         onItemSelectionToggle,
@@ -515,18 +515,6 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.isItemSelected('1')).toBe(true);
       });
 
-      it('should not select an item on click when selectionMode is none', async () => {
-        const onSelectedItemsChange = vi.fn();
-        const view = await render({
-          items: [{ id: '1' }, { id: '2' }],
-          selectionMode: 'none',
-          onSelectedItemsChange,
-        });
-
-        fireEvent.click(view.getItemRoot('1'));
-        expect(onSelectedItemsChange).not.toHaveBeenCalled();
-      });
-
       it('should not select an item when clicking on a disabled item', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true }, { id: '2' }],
@@ -548,9 +536,56 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     });
 
     describe('multi selection', () => {
+      it('should toggle an item and keep the other selected items when clicking on it with multiple', async () => {
+        const view = await render({
+          multiple: true,
+          items: [{ id: '1' }, { id: '2' }],
+          defaultSelectedItems: ['2'],
+        });
+
+        expect(view.getSelectedTreeItems()).toEqual(['2']);
+
+        fireEvent.click(view.getItemRoot('1'));
+        expect(view.getSelectedTreeItems()).toEqual(['1', '2']);
+
+        fireEvent.click(view.getItemRoot('1'));
+        expect(view.getSelectedTreeItems()).toEqual(['2']);
+      });
+
+      it.each([
+        {
+          name: 'multiple',
+          multiple: true as const,
+          modifiers: {},
+          expected: ['1', '1.1', '1.2', '2'],
+        },
+        {
+          name: 'multiple="opt-in" with Ctrl',
+          multiple: 'opt-in' as const,
+          modifiers: { ctrlKey: true },
+          expected: ['1', '1.1', '1.2', '2'],
+        },
+        { name: 'multiple="opt-in"', multiple: 'opt-in' as const, modifiers: {}, expected: ['1'] },
+      ])(
+        'should select $expected when clicking on a parent with $name',
+        async ({ multiple, modifiers, expected }) => {
+          const view = await render({
+            multiple,
+            items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }, { id: '2' }],
+            defaultExpandedItems: ['1'],
+            defaultSelectedItems: ['2'],
+          });
+
+          expect(view.getSelectedTreeItems()).toEqual(['2']);
+
+          fireEvent.click(view.getItemRoot('1'), modifiers);
+          expect(view.getSelectedTreeItems()).toEqual(expected);
+        },
+      );
+
       it('should select un-selected item and remove other selected items when clicking on an item', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['2'],
         });
@@ -561,9 +596,27 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual(['1']);
       });
 
+      it.each([
+        { pointerType: 'mouse', expected: ['1'] },
+        { pointerType: 'touch', expected: ['1', '2'] },
+      ])(
+        'should select $expected on a $pointerType tap with multiple="opt-in"',
+        async ({ pointerType, expected }) => {
+          const view = await render({
+            multiple: 'opt-in',
+            items: [{ id: '1' }, { id: '2' }],
+            defaultSelectedItems: ['2'],
+          });
+
+          fireEvent.pointerDown(view.getItemRoot('1'), { pointerType });
+          fireEvent.click(view.getItemRoot('1'), { detail: 1 });
+          expect(view.getSelectedTreeItems()).toEqual(expected);
+        },
+      );
+
       it('should not un-select selected item when clicking on an item', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1'],
         });
@@ -576,7 +629,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should un-select selected item when clicking on its content while holding Ctrl', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1', '2'],
         });
@@ -588,7 +641,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should un-select selected item when clicking on its content while holding Meta', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1', '2'],
         });
@@ -601,7 +654,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should not select an item when clicking on a disabled item', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1', disabled: true }, { id: '2' }],
         });
 
@@ -612,7 +665,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should select un-selected item when clicking on its content while holding Ctrl', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '3' }],
           defaultSelectedItems: ['1'],
         });
@@ -623,19 +676,51 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual(['1', '3']);
       });
 
-      it('should do nothing when clicking on an item on a fresh tree while holding Shift', async () => {
+      it('should replace the selection with the range when clicking on an item while holding Shift', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
+          items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }],
+        });
+
+        fireEvent.click(view.getItemRoot('1'));
+        fireEvent.click(view.getItemRoot('5'), { ctrlKey: true });
+        expect(view.getSelectedTreeItems()).toEqual(['1', '5']);
+
+        fireEvent.click(view.getItemRoot('3'), { shiftKey: true });
+        expect(view.getSelectedTreeItems()).toEqual(['3', '4', '5']);
+      });
+
+      it('should add the range to the selection when clicking on an item while holding Ctrl and Shift', async () => {
+        const view = await render({
+          multiple: 'opt-in',
+          items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }],
+        });
+
+        fireEvent.click(view.getItemRoot('1'));
+        fireEvent.click(view.getItemRoot('5'), { ctrlKey: true });
+        expect(view.getSelectedTreeItems()).toEqual(['1', '5']);
+
+        fireEvent.click(view.getItemRoot('3'), { ctrlKey: true, shiftKey: true });
+        expect(view.getSelectedTreeItems()).toEqual(['1', '3', '4', '5']);
+
+        // The clicked item becomes the anchor of the next range.
+        fireEvent.click(view.getItemRoot('2'), { shiftKey: true });
+        expect(view.getSelectedTreeItems()).toEqual(['2', '3']);
+      });
+
+      it('should select the range from the first item when clicking on an item on a fresh tree while holding Shift', async () => {
+        const view = await render({
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '2.1' }, { id: '3' }, { id: '4' }],
         });
 
         fireEvent.click(view.getItemRoot('3'), { shiftKey: true });
-        expect(view.getSelectedTreeItems()).toEqual([]);
+        expect(view.getSelectedTreeItems()).toEqual(['1', '2', '2.1', '3']);
       });
 
       it('should expand the selection range from a selection seeded by props', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '3' }],
           defaultSelectedItems: ['1'],
         });
@@ -649,7 +734,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should not select the hidden descendants of a collapsed folder in the range', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }, { id: '2.2' }] }, { id: '3' }],
           onSelectedItemsChange,
         });
@@ -657,15 +742,15 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         fireEvent.click(view.getItemRoot('1'));
         fireEvent.click(view.getItemRoot('3'), { shiftKey: true });
 
-        // `checkboxSelectionPropagation` is on by default but documents that it
-        // does not affect `Tree.Item` interactions: the range covers the rows the
-        // user dragged over, not the subtree hidden under a collapsed folder.
+        // `checkboxSelectionPropagation` is on by default but a range doesn't
+        // propagate: it covers the rows the user dragged over, not the subtree
+        // hidden under a collapsed folder.
         expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '2', '3']);
       });
 
       it('should expand the selection range when clicking on an item below the last selected item while holding Shift', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '2.1' }, { id: '3' }, { id: '4' }],
         });
 
@@ -678,7 +763,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should expand the selection range when clicking on an item above the last selected item while holding Shift', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '2.1' }, { id: '3' }, { id: '4' }],
         });
 
@@ -689,9 +774,9 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual(['2', '2.1', '3']);
       });
 
-      it('should expand the selection range when clicking on an item while holding Shift after un-selecting another item', async () => {
+      it('should replace the selection with the range from the last pressed item when clicking on an item while holding Shift', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }, { id: '2.1' }, { id: '3' }, { id: '4' }],
         });
 
@@ -705,12 +790,12 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual(['1']);
 
         fireEvent.click(view.getItemRoot('3'), { shiftKey: true });
-        expect(view.getSelectedTreeItems()).toEqual(['1', '2', '2.1', '3']);
+        expect(view.getSelectedTreeItems()).toEqual(['2', '2.1', '3']);
       });
 
-      it('should not expand the selection range when clicking on a disabled item then clicking on an item while holding Shift', async () => {
+      it('should start the range at the first item when clicking on a disabled item then clicking on an item while holding Shift', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [
             { id: '1' },
             { id: '2', disabled: true },
@@ -724,12 +809,12 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual([]);
 
         fireEvent.click(view.getItemRoot('3'), { shiftKey: true });
-        expect(view.getSelectedTreeItems()).toEqual([]);
+        expect(view.getSelectedTreeItems()).toEqual(['1', '2.1', '3']);
       });
 
       it('should not expand the selection range when clicking on an item then clicking a disabled item while holding Shift', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [
             { id: '1' },
             { id: '2' },
@@ -748,7 +833,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should not select disabled items that are part of the selected range', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
         });
 
@@ -761,7 +846,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should not crash when selecting multiple items in a deeply nested tree', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1', children: [{ id: '1.1', children: [{ id: '1.1.1' }] }] }, { id: '2' }],
           defaultExpandedItems: ['1', '1.1'],
         });
@@ -801,19 +886,6 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.isItemSelected('1')).toBe(false);
       });
 
-      it('should not select from the checkbox when selectionMode is none', async () => {
-        const onSelectedItemsChange = vi.fn();
-        const view = await render({
-          items: [{ id: '1' }, { id: '2' }],
-          selectionMode: 'none',
-          onSelectedItemsChange,
-          checkboxSelection: true,
-        });
-
-        fireEvent.click(view.getItemRoot('1'));
-        expect(onSelectedItemsChange).not.toHaveBeenCalled();
-      });
-
       it('should not select an item when clicking on a disabled checkbox item', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true }, { id: '2' }],
@@ -829,7 +901,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     describe('multi selection', () => {
       it('should select un-selected item and keep other items selected when clicking on a checkbox item', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['2'],
@@ -843,7 +915,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should un-select selected item when clicking on a checkbox item', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1'],
@@ -857,7 +929,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should not select an item when clicking on a disabled item', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', disabled: true }, { id: '2' }],
         });
@@ -867,9 +939,9 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.isItemSelected('1')).toBe(false);
       });
 
-      it('should expand the selection range when shift-clicking an item after un-checking another item', async () => {
+      it('should replace the selection with the range from the last un-checked item when shift-clicking an item', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1' }, { id: '2' }, { id: '2.1' }, { id: '3' }, { id: '4' }],
         });
@@ -884,13 +956,13 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual(['1']);
 
         fireEvent.click(view.getItemRoot('3'), { shiftKey: true });
-        expect(view.getSelectedTreeItems()).toEqual(['1', '2', '2.1', '3']);
+        expect(view.getSelectedTreeItems()).toEqual(['2', '2.1', '3']);
       });
 
       it('should keep the default propagation for the keys a partial checkboxSelectionPropagation omits', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1.2'],
@@ -905,7 +977,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should not select the parent when selecting all the children if checkboxSelectionPropagation.parents is false', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }, { id: '2' }],
           defaultSelectedItems: ['1.2'],
@@ -919,7 +991,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should set the checkbox item as indeterminate when all its children are selected but the parent is not (no propagation)', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1.1', '1.2'],
@@ -932,7 +1004,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should set the checkbox item as indeterminate when some of its descendants are selected but the parent is not', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [
             {
@@ -949,7 +1021,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should keep the checkbox item indeterminate after collapsing it and expanding another node', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [
             { id: '1', children: [{ id: '1.1' }, { id: '1.2' }] },
@@ -970,7 +1042,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should keep parent indeterminate (3 levels) after collapsing the parent and expanding a sibling node', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [
             {
@@ -998,7 +1070,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should update the indeterminate state of the parent when selecting a child', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }, { id: '2.2' }] }],
           defaultExpandedItems: ['2'],
@@ -1018,7 +1090,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     describe('multi selection with checkboxSelectionPropagation.descendants = true', () => {
       it('should select all the children when selecting a parent', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultExpandedItems: ['1'],
@@ -1032,7 +1104,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should deselect all the children when deselecting a parent', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1', '1.1', '1.2'],
@@ -1046,7 +1118,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should not select the parent when selecting all the children', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1.2'],
@@ -1060,7 +1132,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should not unselect the parent when unselecting a children', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1', '1.1', '1.2'],
@@ -1076,7 +1148,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     describe('multi selection with checkboxSelectionPropagation.parents = true', () => {
       it('should select all the parents when selecting a child', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1', children: [{ id: '1.1.1' }] }] }],
           defaultExpandedItems: ['1', '1.1'],
@@ -1089,7 +1161,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should deselect all the parents when deselecting a child', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1', children: [{ id: '1.1.1' }] }] }],
           defaultSelectedItems: ['1', '1.1', '1.1.1'],
@@ -1105,7 +1177,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     describe('selection propagation with disabled items', () => {
       it('should not select disabled descendants when selecting a parent', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [
             {
@@ -1125,7 +1197,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should not select non-selectable descendants when selecting a parent', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [
             {
@@ -1146,7 +1218,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should auto-select parent when all selectable children are selected (ignoring disabled children)', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [
             {
@@ -1166,7 +1238,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should auto-select parent when all selectable children are selected (ignoring non-selectable children)', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [
             {
@@ -1188,7 +1260,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should not auto-select a non-selectable parent even when all children are selected', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelection: true,
           items: [
             {
@@ -1230,7 +1302,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       try {
         await render({
           items: [{ id: '1', children: [{ id: '1.1' }] }],
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           checkboxSelectionPropagation: { descendants: true, parents: false },
         });
 
@@ -1251,7 +1323,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     });
 
     it('should have the attribute `aria-multiselectable=true if using multi select`', async () => {
-      const view = await render({ items: [{ id: '1' }, { id: '2' }], selectionMode: 'multiple' });
+      const view = await render({ items: [{ id: '1' }, { id: '2' }], multiple: 'opt-in' });
 
       expect(view.getRoot()).toHaveAttribute('aria-multiselectable', 'true');
     });
@@ -1291,7 +1363,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     describe('multi selection', () => {
       it('should have the attribute `aria-selected=false` if not selected', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
         });
 
@@ -1300,7 +1372,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should have the attribute `aria-selected=true` if selected', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1'],
         });
@@ -1308,18 +1380,9 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getItemRoot('1')).toHaveAttribute('aria-selected', 'true');
       });
 
-      it('should not have `aria-selected` if selectionMode is none', async () => {
-        const view = await render({
-          items: [{ id: '1' }, { id: '2' }],
-          selectionMode: 'none',
-        });
-
-        expect(view.getItemRoot('1')).not.toHaveAttribute('aria-selected');
-      });
-
       it('should keep `aria-selected` on a disabled item', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1', disabled: true }, { id: '2' }],
           defaultSelectedItems: ['1'],
         });
@@ -1377,7 +1440,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
     it('should not show indeterminate when all selectable descendants are selected and some are disabled', async () => {
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         checkboxSelection: true,
         items: [
           {
@@ -1396,7 +1459,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
     it('should not show indeterminate when all selectable descendants are selected via isItemSelectionDisabled', async () => {
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         checkboxSelection: true,
         items: [
           {
@@ -1416,7 +1479,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
     it('should correctly handle checkbox status with deeply nested disabled items', async () => {
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         checkboxSelection: true,
         items: [
           {
@@ -1443,7 +1506,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
     it('should keep `aria-checked` on a disabled item', async () => {
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: '1', disabled: true }, { id: '2' }],
         defaultSelectedItems: ['1'],
         checkboxSelection: true,
@@ -1490,52 +1553,16 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.isItemSelected('1')).toBe(false);
       });
 
-      it('should not select an item when disableSelection is true', async () => {
-        const onSelectedItemsChange = vi.fn();
-        const view = await render({
-          items: [{ id: '1' }, { id: '2' }],
-          selectionMode: 'none',
-          onSelectedItemsChange,
-        });
-
-        act(() => {
-          view.actionsRef.current!.setItemSelection('1', true);
-        });
-
-        expect(onSelectedItemsChange).not.toHaveBeenCalled();
-      });
-
-      it('should not un-select an item when disableSelection is true', async () => {
-        const onSelectedItemsChange = vi.fn();
-
-        const view = await render({
-          items: [{ id: '1' }, { id: '2' }],
-          defaultSelectedItems: ['1'],
-          selectionMode: 'none',
-          onSelectedItemsChange,
-        });
-
-        act(() => {
-          view.actionsRef.current!.setItemSelection('1', false);
-        });
-
-        // The selection change should be prevented
-        expect(onSelectedItemsChange.mock.calls.length).toBe(0);
-        // Re-enable selection to verify the item is still selected
-        await view.setProps({ selectionMode: 'single' });
-        expect(view.isItemSelected('1')).toBe(true);
-      });
-
       it('should normalize uncontrolled multiple selection when switching to single mode', async () => {
         const view = await render({
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1', '2'],
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
         });
 
         expect(view.getSelectedTreeItems()).toEqual(['1', '2']);
 
-        await view.setProps({ selectionMode: 'single' });
+        await view.setProps({ multiple: false });
 
         expect(view.getSelectedTreeItems()).toEqual(['1']);
       });
@@ -1546,7 +1573,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         const view = await render({
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['2'],
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
         });
 
         act(() => {
@@ -1560,7 +1587,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         const view = await render({
           items: [{ id: '1' }, { id: '2' }, { id: '3' }],
           defaultSelectedItems: ['1', '2', '3'],
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
         });
 
         act(() => {
@@ -1574,7 +1601,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         const view = await render({
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultExpandedItems: ['1'],
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
         });
 
         fireEvent.click(view.getItemRoot('1'));
@@ -1638,7 +1665,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     describe('multi selection', () => {
       it('should not un-select the last selected item when clicking on it with Ctrl', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1'],
           disableEmptySelection: true,
@@ -1651,7 +1678,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should allow un-selecting an item when another item is still selected', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1', '2'],
           disableEmptySelection: true,
@@ -1665,7 +1692,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should not un-select the last selected item via checkbox click', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1'],
           disableEmptySelection: true,
@@ -1681,7 +1708,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       it('should not un-select all items via setItemSelection imperative API', async () => {
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1'],
           disableEmptySelection: true,
@@ -1697,7 +1724,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should not count selected ids missing from the items as a remaining selection', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           items: [{ id: '1' }, { id: '2' }],
           defaultSelectedItems: ['1', '2'],
           disableEmptySelection: true,
@@ -1782,7 +1809,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
           items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }] }, { id: '3' }],
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
           isItemSelectionDisabled: (item: any) => !!item.children && item.children.length > 0,
           onSelectedItemsChange,
         });
@@ -1797,29 +1824,26 @@ describeTree('TreeRoot - Selection', ({ render }) => {
   });
 
   describe('select all ("all" sentinel)', () => {
-    it.each([{ disabled: true }, { selectionMode: 'none' }])(
-      'keeps the selected items of "all" while interaction is paused with %o',
-      async (paused) => {
-        const onSelectedItemsChange = vi.fn();
-        const view = await render({
-          items: [{ id: '1' }, { id: '2', disabled: true }],
-          selectionMode: 'multiple',
-          defaultSelectedItems: TREE_SELECTION_ALL,
-          onSelectedItemsChange,
-        });
+    it('keeps the selected items of "all" while the tree is disabled', async () => {
+      const onSelectedItemsChange = vi.fn();
+      const view = await render({
+        items: [{ id: '1' }, { id: '2', disabled: true }],
+        multiple: 'opt-in',
+        defaultSelectedItems: TREE_SELECTION_ALL,
+        onSelectedItemsChange,
+      });
 
-        await view.setProps(paused);
+      await view.setProps({ disabled: true });
 
-        expect([...view.actionsRef.current!.getSelectedItemIds()]).toEqual(['1']);
-        expect(view.actionsRef.current!.isItemSelected('1')).toBe(true);
-        expect(onSelectedItemsChange).not.toHaveBeenCalled();
-      },
-    );
+      expect([...view.actionsRef.current!.getSelectedItemIds()]).toEqual(['1']);
+      expect(view.actionsRef.current!.isItemSelected('1')).toBe(true);
+      expect(onSelectedItemsChange).not.toHaveBeenCalled();
+    });
 
     it('should render all items as selected when selectedItems="all"', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         selectedItems: TREE_SELECTION_ALL,
       });
 
@@ -1831,7 +1855,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     it('should render all items as selected when defaultSelectedItems="all"', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         defaultSelectedItems: TREE_SELECTION_ALL,
       });
 
@@ -1843,7 +1867,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     it('should not select disabled items when selectedItems="all"', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         selectedItems: TREE_SELECTION_ALL,
       });
 
@@ -1856,7 +1880,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         defaultSelectedItems: TREE_SELECTION_ALL,
         onSelectedItemsChange,
       });
@@ -1874,7 +1898,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onItemSelectionToggle = vi.fn();
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3', disabled: true }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         onItemSelectionToggle,
       });
 
@@ -1897,7 +1921,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
       const view = await render({
         items: [{ id: '1' }, { id: '2' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         selectedItems: [],
         onSelectedItemsChange,
       });
@@ -1912,7 +1936,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     it('should return true from actionsRef.isItemSelected for all items when "all"', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         selectedItems: TREE_SELECTION_ALL,
       });
 
@@ -1928,7 +1952,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           { id: '2' },
           { id: '3', children: [{ id: '3.1' }] },
         ],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         checkboxSelection: true,
         selectedItems: TREE_SELECTION_ALL,
         defaultExpandedItems: ['1', '3'],
@@ -1945,7 +1969,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     it('should select children revealed by expanding an item after Ctrl+A', async () => {
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }, { id: '2' }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
       });
 
       // Press Ctrl+A to select all visible items
@@ -1997,7 +2021,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     it('should support defaultSelectedItems with numeric ids (multiple selection)', async () => {
       const view = await render({
         items: [{ id: 1 }, { id: 2 }, { id: 3 }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         defaultSelectedItems: [1, 3],
       });
 
@@ -2011,7 +2035,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       const view = await render({
         items: [{ id: 1 }, { id: 2 }, { id: 3 }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         defaultSelectedItems: [1],
         onSelectedItemsChange,
       });
@@ -2026,7 +2050,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       const view = await render({
         items: [{ id: 1 }, { id: 2 }],
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         checkboxSelection: true,
         onSelectedItemsChange,
       });
@@ -2051,7 +2075,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
     it('should expand a Shift selection range across a parent with the numeric id 0', async () => {
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: 0, children: [{ id: 1 }] }, { id: 2 }],
         defaultExpandedItems: [0],
       });
@@ -2069,7 +2093,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     it('prunes removed items from the selection so they do not leak into later callbacks', async () => {
       const onSelectedItemsChange = vi.fn();
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
         defaultSelectedItems: ['a', 'b'],
         onSelectedItemsChange,
@@ -2090,7 +2114,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
 
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         checkboxSelection: true,
         items: [{ id: 1, children: [{ id: 11 }, { id: 12 }] }],
         defaultExpandedItems: [1],
@@ -2106,7 +2130,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
 
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         checkboxSelection: true,
         items: [{ id: 1, children: [{ id: 11 }] }],
         defaultExpandedItems: [1],
@@ -2122,7 +2146,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       const onSelectedItemsChange = vi.fn();
 
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }],
         onSelectedItemsChange,
       });
@@ -2138,10 +2162,10 @@ describeTree('TreeRoot - Selection', ({ render }) => {
   });
 
   describe('range selection with a hidden anchor (regression)', () => {
-    it('restarts the range when the Shift anchor was hidden by collapsing its ancestor', async () => {
+    it('starts the range at the first row when the Shift anchor was hidden by collapsing its ancestor', async () => {
       const onSelectedItemsChange = vi.fn();
       const view = await render({
-        selectionMode: 'multiple',
+        multiple: 'opt-in',
         items: [{ id: 'A' }, { id: 'B', children: [{ id: 'B1' }] }, { id: 'C' }],
         onSelectedItemsChange,
       });
@@ -2159,8 +2183,9 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       // error from the visible-only range walk reaching a hidden endpoint.
       fireEvent.click(view.getItemRoot('A'), { shiftKey: true });
 
-      // The range restarts at the clicked item, extending the selection.
-      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['A', 'B1']);
+      // Without a shown anchor or selected row, the range starts at the first row and
+      // replaces the selection.
+      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['A']);
     });
   });
 

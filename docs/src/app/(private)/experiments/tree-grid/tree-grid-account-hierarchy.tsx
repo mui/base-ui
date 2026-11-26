@@ -311,7 +311,7 @@ export default function TreeGridAccountHierarchy() {
           onItemsChange={setAccounts}
           expandedItems={expandedItems}
           onExpandedItemsChange={setExpandedItems}
-          selectionMode="multiple"
+          multiple
           selectedItems={selectedItems}
           onSelectedItemsChange={setSelectedItems}
           actionsRef={actionsRef}

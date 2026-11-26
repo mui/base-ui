@@ -46,13 +46,7 @@ const items: Page[] = [
 
 export default function ExampleTreeGridLinks() {
   return (
-    <TreeGrid.Root
-      items={items}
-      defaultExpandedItems={['overview']}
-      // @highlight-start
-      selectionMode="none"
-      // @highlight-end
-    >
+    <TreeGrid.Root items={items} defaultExpandedItems={['overview']}>
       <TreeGrid.Table aria-label="Documentation" className={styles.Table}>
         {(page: Page) => {
           if (page.href) {

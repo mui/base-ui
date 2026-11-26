@@ -78,7 +78,7 @@ export default function ExampleTreeGridCheckboxSelection() {
       items={items}
       defaultExpandedItems={['documents']}
       // @highlight-start
-      selectionMode="multiple"
+      multiple
       // @highlight-end
     >
       <TreeGrid.Table

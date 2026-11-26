@@ -34,7 +34,7 @@ describe.skipIf(isJSDOM)('TreeGrid axe checks', () => {
 
   it('item controls that show text', async () => {
     const { container } = await render(
-      <TreeGrid.Root items={items} selectionMode="multiple" defaultExpandedItems={['documents']}>
+      <TreeGrid.Root items={items} multiple="opt-in" defaultExpandedItems={['documents']}>
         <TreeGrid.Table aria-label="Files">
           {(item) => (
             <TreeGrid.Row itemId={item.id}>

@@ -4,7 +4,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
 import { REASONS } from '../../internals/reasons';
-import type { TreeDefaultItem, TreeItemId, TreeSelectionMode } from '../../tree/store/types';
+import type { TreeDefaultItem, TreeItemId, TreeMultiple } from '../../tree/store/types';
 import type { TreeStore } from '../../tree/store/TreeStore';
 import { selectors } from '../../tree/store/selectors';
 import { isControlFocusable, sortInComposedOrder } from '../../tree/utils/focusability';
@@ -75,7 +75,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
     store.grid = new TreeGridPlugin(store);
   }
 
-  declare private store: TreeStore<TreeSelectionMode | undefined, TItem>;
+  declare private store: TreeStore<TreeMultiple | undefined, TItem>;
 
   /** Controls registered by the cell parts, keyed by item. */
   private controls = new Map<string, Set<RegisteredControl>>();
@@ -86,7 +86,10 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
   /** The number of mounted `TreeGrid.HeaderCell` parts. */
   private headerCellCount = 0;
 
-  constructor(store: TreeStore<TreeSelectionMode | undefined, TItem>) {
+  /** The number of mounted `TreeGrid.RowCheckbox` parts, keyed by item. */
+  private rowCheckboxCounts = new Map<string, number>();
+
+  constructor(store: TreeStore<TreeMultiple | undefined, TItem>) {
     this.store = store;
   }
 
@@ -108,6 +111,25 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
   /** Registers a cell of an item's row. Returns the cleanup that unregisters it. */
   public registerCell = (itemId: TreeItemId, element: HTMLElement): (() => void) =>
     this.register(this.cells, itemId, element, element);
+
+  /** Counts a row's checkbox. Returns the cleanup that uncounts it. */
+  public registerRowCheckbox = (itemId: TreeItemId): (() => void) => {
+    const key = getItemIdKey(itemId);
+    this.rowCheckboxCounts.set(key, (this.rowCheckboxCounts.get(key) ?? 0) + 1);
+    return () => {
+      const count = this.rowCheckboxCounts.get(key)! - 1;
+      if (count === 0) {
+        this.rowCheckboxCounts.delete(key);
+      } else {
+        this.rowCheckboxCounts.set(key, count);
+      }
+    };
+  };
+
+  /** Whether an item's row renders a `TreeGrid.RowCheckbox`. */
+  public hasRowCheckbox(itemId: TreeItemId): boolean {
+    return this.rowCheckboxCounts.has(getItemIdKey(itemId));
+  }
 
   /** Counts a header cell. Returns the cleanup that uncounts it. */
   public registerHeaderCell = (): (() => void) => {
@@ -366,6 +388,13 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
         const targetItem = intent.row(this.store.state, itemId);
         if (targetItem != null && position != null) {
           this.moveInColumn(position, targetItem, event.nativeEvent);
+          // As on the row, the selection follows an unmodified vertical arrow with `multiple="opt-in"`.
+          if (
+            this.store.state.multiple === 'opt-in' &&
+            (event.key === 'ArrowDown' || event.key === 'ArrowUp')
+          ) {
+            this.store.selection.moveTo(targetItem, REASONS.keyboard, event.nativeEvent);
+          }
         }
         break;
       }

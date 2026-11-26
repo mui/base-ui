@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Checkbox } from '../../checkbox';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -54,9 +55,18 @@ export const TreeGridRowCheckbox = fastComponentRef(function TreeGridRowCheckbox
   const checked = status === 'checked';
   const indeterminate = status === 'indeterminate';
 
+  // The row selects like its checkbox, so both go through the same press.
+  useIsoLayoutEffect(() => store.grid?.registerRowCheckbox(itemId), [store, itemId]);
+
   const handleCheckedChange = useStableCallback<NonNullable<CheckboxRootProps['onCheckedChange']>>(
-    (nextChecked, details) => {
-      store.selection.setItemChecked(itemId, nextChecked, REASONS.itemPress, details.event);
+    (_nextChecked, details) => {
+      const event = details.event;
+      store.selection.press(
+        itemId,
+        { shiftKey: 'shiftKey' in event && event.shiftKey === true, toggle: true },
+        REASONS.itemPress,
+        event,
+      );
     },
   );
 

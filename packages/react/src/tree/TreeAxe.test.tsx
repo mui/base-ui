@@ -94,7 +94,7 @@ describe.skipIf(isJSDOM)('Tree axe checks', () => {
     const { container } = await render(
       <Tree.Root
         items={items}
-        selectionMode="multiple"
+        multiple="opt-in"
         defaultExpandedItems={['documents']}
         defaultSelectedItems={['resume']}
       >
@@ -141,7 +141,7 @@ describe.skipIf(isJSDOM)('Tree axe checks', () => {
 
   it('link items', async () => {
     const { container } = await render(
-      <Tree.Root items={items} selectionMode="none" defaultExpandedItems={['documents']}>
+      <Tree.Root items={items} defaultExpandedItems={['documents']}>
         <Tree.List aria-label="Files">
           {(item: Item) => (
             <Tree.LinkItem itemId={item.id} href={`#${item.id}`} active={item.id === 'resume'}>

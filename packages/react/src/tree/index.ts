@@ -39,7 +39,6 @@ export type * from './input/TreeInput';
 export type * from './clear/TreeClear';
 export type {
   TreeItemId,
-  TreeSelectionMode,
   TreeFilterMode,
   TreeFilterFunction,
   TreeDefaultItem,

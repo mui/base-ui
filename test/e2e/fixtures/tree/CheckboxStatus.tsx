@@ -27,7 +27,7 @@ const visuallyHidden: React.CSSProperties = {
 
 export default function CheckboxStatusTree() {
   return (
-    <TreeGrid.Root items={items} defaultExpandedItems={['documents']} selectionMode="multiple">
+    <TreeGrid.Root items={items} defaultExpandedItems={['documents']} multiple>
       <TreeGrid.Table aria-label="Files to share">
         {(item: TreeGrid.DefaultItem) => (
           <TreeGrid.Row itemId={item.id}>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Tree } from '..';
 import { TreeGrid } from '../../tree-grid';
@@ -18,7 +18,7 @@ describe('<Tree.CheckboxItem />', () => {
     await render(
       <Tree.Root
         items={items}
-        selectionMode="multiple"
+        multiple="opt-in"
         defaultSelectedItems={['resume']}
         defaultExpandedItems={['documents']}
         checkboxSelectionPropagation={{ parents: false, descendants: false }}
@@ -51,7 +51,7 @@ describe('<Tree.CheckboxItem />', () => {
 
   it('checks its descendants on a Ctrl click, like on a plain click', async () => {
     await render(
-      <Tree.Root items={items} selectionMode="multiple" defaultExpandedItems={['documents']}>
+      <Tree.Root items={items} multiple="opt-in" defaultExpandedItems={['documents']}>
         <Tree.List>
           {(item) => (
             <Tree.CheckboxItem itemId={item.id} data-testid={item.id}>
@@ -67,6 +67,31 @@ describe('<Tree.CheckboxItem />', () => {
     expect(screen.getByTestId('documents')).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByTestId('resume')).toHaveAttribute('aria-checked', 'true');
   });
+  it('keeps the selection when the arrow keys move focus to it with multiple="opt-in"', async () => {
+    const onSelectedItemsChange = vi.fn();
+    await render(
+      <Tree.Root
+        items={items}
+        multiple="opt-in"
+        defaultSelectedItems={['documents']}
+        onSelectedItemsChange={onSelectedItemsChange}
+      >
+        <Tree.List>
+          {(item) => (
+            <Tree.CheckboxItem itemId={item.id} data-testid={item.id}>
+              {item.label}
+            </Tree.CheckboxItem>
+          )}
+        </Tree.List>
+      </Tree.Root>,
+    );
+    act(() => screen.getByTestId('documents').focus());
+
+    fireEvent.keyDown(screen.getByTestId('documents'), { key: 'ArrowDown' });
+    expect(screen.getByTestId('music')).toHaveFocus();
+    expect(onSelectedItemsChange).not.toHaveBeenCalled();
+  });
+
   it('throws in a TreeGrid.Root', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     await expect(

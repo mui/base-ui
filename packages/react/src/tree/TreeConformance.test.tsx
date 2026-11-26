@@ -167,7 +167,7 @@ describe('Tree conformance', () => {
       refInstanceof: window.HTMLDivElement,
       render(node) {
         return render(
-          <Tree.Root items={ITEMS} selectionMode="multiple">
+          <Tree.Root items={ITEMS} multiple="opt-in">
             <Tree.List>{onlyRootRow(node)}</Tree.List>
           </Tree.Root>,
         );
@@ -181,7 +181,7 @@ describe('Tree conformance', () => {
       testRenderPropWith: 'span',
       render(node) {
         return render(
-          <Tree.Root items={ITEMS} selectionMode="multiple">
+          <Tree.Root items={ITEMS} multiple="opt-in">
             <Tree.List>
               {onlyRootRow(<Tree.CheckboxItem itemId="a">{node}</Tree.CheckboxItem>)}
             </Tree.List>

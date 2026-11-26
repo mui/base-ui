@@ -150,7 +150,7 @@ describe('Tree.createItems', () => {
       await render(
         <Tree.Root
           items={items as TreeItemInput}
-          selectionMode="multiple"
+          multiple="opt-in"
           selectedItems={['disabled']}
           onSelectedItemsChange={onSelectedItemsChange}
         >
@@ -531,7 +531,7 @@ describe('Tree.createItems writers', () => {
       isSelectionDisabled: (item) => item.locked ?? false,
     });
     await render(
-      <Tree.Root defaultItems={items} actionsRef={actionsRef} selectionMode="multiple">
+      <Tree.Root defaultItems={items} actionsRef={actionsRef} multiple="opt-in">
         <Tree.List<Node>>
           {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
@@ -565,7 +565,7 @@ describe('Tree.createItems writers', () => {
       isDisabled: (item) => item.name.startsWith('_'),
     });
     await render(
-      <Tree.Root defaultItems={items} actionsRef={actionsRef} selectionMode="multiple">
+      <Tree.Root defaultItems={items} actionsRef={actionsRef} multiple="opt-in">
         <Tree.List<Node>>
           {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>

@@ -15,7 +15,7 @@ const list = <Tree.List>{() => null}</Tree.List>;
 // Direct use keeps the narrow inference
 // ---------------------------------------------------------------------------
 
-// Without `selectionMode`, selection is the single-select scalar shape.
+// Without `multiple`, selection is the single-select scalar shape.
 <Tree.Root
   items={[] as FileItem[]}
   onSelectedItemsChange={(selected) => {
@@ -25,11 +25,11 @@ const list = <Tree.List>{() => null}</Tree.List>;
   {list}
 </Tree.Root>;
 
-// With `selectionMode="multiple"` it is the array shape (plus the select-all
-// sentinel, which is part of the multiple-mode model).
+// With `multiple` it is the array shape (plus the select-all sentinel, which is
+// part of the multiple-selection model), whether items toggle or opt in.
 <Tree.Root
   items={[] as FileItem[]}
-  selectionMode="multiple"
+  multiple
   onSelectedItemsChange={(selected) => {
     expectType<(string | number)[] | typeof Tree.SELECTION_ALL, typeof selected>(selected);
   }}
@@ -37,20 +37,87 @@ const list = <Tree.List>{() => null}</Tree.List>;
   {list}
 </Tree.Root>;
 
-// Disabling selection preserves either cardinality so a controlled tree can
-// switch between `none` and its previous mode without clearing the model.
 <Tree.Root
   items={[] as FileItem[]}
-  selectionMode="none"
-  selectedItems={['a']}
-  onSelectedItemsChange={(selected, details) => {
-    expectType<
-      string | number | null | (string | number)[] | typeof Tree.SELECTION_ALL,
-      typeof selected
-    >(selected);
-    void details;
+  multiple="opt-in"
+  onSelectedItemsChange={(selected) => {
+    expectType<(string | number)[] | typeof Tree.SELECTION_ALL, typeof selected>(selected);
   }}
 >
+  {list}
+</Tree.Root>;
+
+// A dynamic boolean accepts either selection shape, and handlers stay contextually typed.
+function DynamicMultipleTree(props: {
+  multiple: boolean;
+  selectedItems: Tree.ItemId[] | typeof Tree.SELECTION_ALL | Tree.ItemId | null;
+}) {
+  return (
+    <Tree.Root
+      items={[] as FileItem[]}
+      multiple={props.multiple}
+      selectedItems={props.selectedItems}
+      onSelectedItemsChange={(selected) => {
+        expectType<
+          (string | number)[] | typeof Tree.SELECTION_ALL | string | number | null,
+          typeof selected
+        >(selected);
+      }}
+    >
+      {list}
+    </Tree.Root>
+  );
+}
+void DynamicMultipleTree;
+
+// An optional boolean forwarded by a wrapper behaves the same.
+function OptionalMultipleTree(props: {
+  multiple?: boolean;
+  selectedItems: Tree.ItemId[] | typeof Tree.SELECTION_ALL | Tree.ItemId | null;
+}) {
+  return (
+    <Tree.Root
+      items={[] as FileItem[]}
+      multiple={props.multiple}
+      selectedItems={props.selectedItems}
+      onSelectedItemsChange={(selected) => {
+        expectType<
+          (string | number)[] | typeof Tree.SELECTION_ALL | string | number | null,
+          typeof selected
+        >(selected);
+      }}
+    >
+      {list}
+    </Tree.Root>
+  );
+}
+void OptionalMultipleTree;
+
+// So does a value that switches between single and opt-in selection.
+function OptInOrSingleTree(props: {
+  enabled: boolean;
+  selectedItems: Tree.ItemId[] | typeof Tree.SELECTION_ALL | Tree.ItemId | null;
+}) {
+  return (
+    <Tree.Root
+      items={[]}
+      multiple={props.enabled ? 'opt-in' : false}
+      selectedItems={props.selectedItems}
+      onSelectedItemsChange={(selected) => {
+        expectType<
+          (string | number)[] | typeof Tree.SELECTION_ALL | string | number | null,
+          typeof selected
+        >(selected);
+      }}
+    >
+      {list}
+    </Tree.Root>
+  );
+}
+void OptInOrSingleTree;
+
+// @ts-expect-error There's no mode without selection.
+<Tree.Root items={[] as FileItem[]} multiple="none">
   {list}
 </Tree.Root>;
 
@@ -63,7 +130,7 @@ function StateSetterHandlers() {
   return (
     <Tree.Root
       items={[] as FileItem[]}
-      selectionMode="multiple"
+      multiple="opt-in"
       expandedItems={expandedItems}
       onExpandedItemsChange={setExpandedItems}
       selectedItems={selectedItems}
@@ -163,53 +230,59 @@ type RemovedRootAccessorKeys = AssertNever<
 void (null! as RemovedRootAccessorKeys);
 
 // ---------------------------------------------------------------------------
-// A wrapper typed on the public alias accepts either mode
+// Wrappers pass the modes they accept as the type argument
 // ---------------------------------------------------------------------------
 
-// `Props<TItem>` deliberately leaves the mode broad: a wrapper is written once
-// and has to accept whatever its own consumer passes through. Narrowing the
-// default to `undefined` made this reject `selectionMode="multiple"` outright.
+// As with `Select.Root.Props`, the alias defaults to single selection.
 function FileTree(props: Tree.Root.Props<FileItem>) {
   return <Tree.Root {...props} />;
 }
 
-<FileTree items={[]}>{list}</FileTree>;
-<FileTree items={[]} selectionMode="multiple" selectedItems={['a']}>
-  {list}
-</FileTree>;
-<FileTree items={[]} selectionMode="single" selectedItems="a">
-  {list}
-</FileTree>;
-<FileTree items={[]} selectionMode="none">
+<FileTree items={[]} selectedItems="a">
   {list}
 </FileTree>;
 
-// Narrowing it explicitly still works for a wrapper that wants one mode only.
-function MultiFileTree(props: Tree.Root.Props<FileItem, 'multiple'>) {
+// @ts-expect-error the default alias only accepts single selection.
+<FileTree items={[]} multiple>
+  {list}
+</FileTree>;
+
+// @ts-expect-error single selection accepts one item id, not an array.
+<FileTree items={[]} selectedItems={['a', 'b']}>
+  {list}
+</FileTree>;
+
+function AnyModeFileTree(props: Tree.Root.Props<FileItem, boolean | 'opt-in'>) {
   return <Tree.Root {...props} />;
 }
 
-<MultiFileTree items={[]} selectionMode="multiple" selectedItems={['a']}>
+<AnyModeFileTree items={[]} multiple="opt-in" selectedItems={['a']}>
   {list}
-</MultiFileTree>;
-
-// @ts-expect-error single selection accepts one item id, not an array.
-<FileTree items={[]} selectionMode="single" selectedItems={['a', 'b']}>
+</AnyModeFileTree>;
+<AnyModeFileTree items={[]} multiple={false} selectedItems="a">
   {list}
-</FileTree>;
+</AnyModeFileTree>;
 
-// @ts-expect-error multiple selection accepts an array or Tree.SELECTION_ALL.
-<FileTree items={[]} selectionMode="multiple" selectedItems="a">
+function OptInFileTree(props: Tree.Root.Props<FileItem, 'opt-in'>) {
+  return <Tree.Root {...props} />;
+}
+
+<OptInFileTree items={[]} multiple="opt-in" selectedItems={['a']}>
   {list}
-</FileTree>;
+</OptInFileTree>;
 
-<MultiFileTree
+<OptInFileTree
   items={[]}
   // @ts-expect-error the narrowed wrapper only accepts its declared mode.
-  selectionMode="single"
+  multiple={false}
 >
   {list}
-</MultiFileTree>;
+</OptInFileTree>;
+
+// @ts-expect-error multiple selection accepts an array or Tree.SELECTION_ALL.
+<Tree.Root items={[] as FileItem[]} multiple="opt-in" selectedItems="a">
+  {list}
+</Tree.Root>;
 
 // ---------------------------------------------------------------------------
 // Parts infer the item type from their own props, or type the item as `any`

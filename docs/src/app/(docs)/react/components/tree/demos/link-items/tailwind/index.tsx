@@ -77,7 +77,6 @@ export default function ExampleTreeLinkItems() {
       items={items}
       defaultExpandedItems={['overview']}
       // @highlight-start
-      selectionMode="none"
       // @highlight-end
     >
       <Tree.List

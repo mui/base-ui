@@ -48,7 +48,7 @@ function getSelectionChange(
   const count = model === TREE_SELECTION_ALL ? 'all' : selected.length;
   const previousCount = previousModel === TREE_SELECTION_ALL ? 'all' : previous.length;
   const hasCount =
-    state.selectionMode === 'multiple' &&
+    state.multiple !== false &&
     (namedItem == null ||
       count === 'all' ||
       count > 1 ||

@@ -122,7 +122,7 @@ describe('TreeGrid conformance', () => {
     describeConformance(<TreeGrid.RowCheckbox />, () => ({
       refInstanceof: window.HTMLSpanElement,
       testRenderPropWith: 'span',
-      render: (node) => renderInCell(node, { selectionMode: 'multiple' }),
+      render: (node) => renderInCell(node, { multiple: 'opt-in' }),
     }));
   });
 
@@ -132,7 +132,7 @@ describe('TreeGrid conformance', () => {
       testRenderPropWith: 'span',
       render: (node) =>
         renderInCell(<TreeGrid.RowCheckbox>{node}</TreeGrid.RowCheckbox>, {
-          selectionMode: 'multiple',
+          multiple: 'opt-in',
         }),
     }));
   });

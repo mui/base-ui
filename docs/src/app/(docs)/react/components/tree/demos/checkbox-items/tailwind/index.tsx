@@ -73,7 +73,7 @@ export default function ExampleTreeCheckboxItems() {
       items={items}
       defaultExpandedItems={['documents']}
       // @highlight-start
-      selectionMode="multiple"
+      multiple
       // @highlight-end
     >
       <Tree.List

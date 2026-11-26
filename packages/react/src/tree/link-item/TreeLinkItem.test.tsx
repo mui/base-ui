@@ -14,8 +14,7 @@ function Example(props: {
   items?: Tree.DefaultItem[] | undefined;
   current?: string | undefined;
   onNavigate?: ((itemId: Tree.ItemId) => void) | undefined;
-  root?:
-    { selectionMode?: 'none' | 'single'; disabled?: boolean; expandOnClick?: boolean } | undefined;
+  root?: { disabled?: boolean; expandOnClick?: boolean } | undefined;
 }) {
   const { items: treeItems = items, current, onNavigate, root } = props;
   return (
@@ -88,7 +87,7 @@ describe('<Tree.LinkItem />', () => {
 
   it('selects the item it follows on click', async () => {
     const onNavigate = vi.fn();
-    await render(<Example onNavigate={onNavigate} root={{ selectionMode: 'single' }} />);
+    await render(<Example onNavigate={onNavigate} />);
 
     fireEvent.click(screen.getByTestId('about'));
 
@@ -99,7 +98,7 @@ describe('<Tree.LinkItem />', () => {
   it.each(['ctrlKey', 'metaKey', 'shiftKey'])(
     'leaves the selection alone on a click with %s, which opens the link elsewhere',
     async (modifier) => {
-      await render(<Example root={{ selectionMode: 'single' }} />);
+      await render(<Example />);
 
       fireEvent.click(screen.getByTestId('about'), { [modifier]: true });
 

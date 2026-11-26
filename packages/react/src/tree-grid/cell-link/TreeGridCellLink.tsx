@@ -96,7 +96,8 @@ export interface TreeGridCellLinkProps extends BaseUIComponentProps<
 > {
   /**
    * Whether the link is the currently active page.
-   * Marks the link and its item with `aria-current="page"`.
+   * Marks the link and its item with `aria-current="page"`, and gives the item the
+   * tree's tab stop when no item is selected and no other item had focus.
    * @default false
    */
   active?: boolean | undefined;

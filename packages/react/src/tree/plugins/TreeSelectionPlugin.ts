@@ -9,7 +9,7 @@ import type {
   TreeCheckboxSelectionPropagation,
   TreeItemId,
   TreeRootSelectionChangeEventReason,
-  TreeSelectionMode,
+  TreeMultiple,
   TreeDefaultItem,
   TreeState,
 } from '../store/types';
@@ -21,91 +21,49 @@ import {
   projectedChildrenLookupSelector,
   selectors,
 } from '../store/selectors';
+import { getFirstNavigableItem } from '../store/treeNavigation';
 import { forEachDescendant } from '../utils/forEachDescendant';
 import { collectAncestorIds } from '../utils/pruneDescendantIds';
 
+/** Which modifiers a press was made with. */
+export interface PressModifiers {
+  shiftKey?: boolean | undefined;
+  /** Ctrl, or Cmd on macOS. */
+  ctrlKey?: boolean | undefined;
+  /** Touch has no modifier keys, so opt-in multiple selection toggles on tap. */
+  touch?: boolean | undefined;
+  /** Whether the press is on the item's checkbox, which toggles it in every mode. */
+  toggle?: boolean | undefined;
+}
+
+/** The anchor a change sets once committed, and the item that has focus then. */
+interface SelectionAnchor {
+  itemId: TreeItemId | null;
+  focus: TreeItemId | null;
+}
+
 export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
-  declare private store: TreeStore<TreeSelectionMode | undefined, TItem>;
+  declare private store: TreeStore<TreeMultiple | undefined, TItem>;
 
-  private lastSelectedItem: TreeItemId | null = null;
+  /** The last pressed or selected item, which a Shift+press extends a range from. */
+  private anchor: TreeItemId | null = null;
 
-  private lastSelectedRange = new Set<TreeItemId>();
+  /** The item that had focus when `anchor` was last set or kept. */
+  private anchorFocus: TreeItemId | null = null;
 
   private pendingControlledAnchor: {
-    itemId: TreeItemId | null;
-    range?: Set<TreeItemId> | undefined;
+    anchor: SelectionAnchor;
     model: SelectionModel;
   } | null = null;
 
-  constructor(store: TreeStore<TreeSelectionMode | undefined, TItem>) {
+  constructor(store: TreeStore<TreeMultiple | undefined, TItem>) {
     this.store = store;
   }
 
-  public setItemSelection = ({
-    itemId,
-    keepExistingSelection = false,
-    shouldBeSelected,
-    shouldPropagate,
-    reason,
-    event,
-  }: {
-    itemId: TreeItemId;
-    keepExistingSelection?: boolean | undefined;
-    shouldBeSelected?: boolean | undefined;
-    /**
-     * Whether to propagate the selection change through the tree hierarchy.
-     * Defaults to `false`; callers pass `true` for checkbox/toggle interactions.
-     */
-    shouldPropagate?: boolean | undefined;
-    reason: TreeRootSelectionChangeEventReason;
-    event?: Event | undefined;
-  }) => {
-    if (this.store.state.selectionMode === 'none') {
-      return;
-    }
-
-    const isMulti = this.store.state.selectionMode === 'multiple';
-    let newSelected: TreeItemId[] | TreeItemId | null;
-
-    if (keepExistingSelection) {
-      const isSelectedBefore = selectors.isItemSelected(this.store.state, itemId);
-      const checked =
-        shouldPropagate && isMulti
-          ? selectors.checkboxSelectionStatus(this.store.state, itemId) === 'checked'
-          : isSelectedBefore;
-      const select = shouldBeSelected ?? !checked;
-      if (select) {
-        if (isSelectedBefore && !shouldPropagate) {
-          return;
-        }
-        // An item selected without propagation still propagates to its subtree now.
-        newSelected = isSelectedBefore
-          ? this.materializeSelectedItems().slice()
-          : [itemId, ...this.materializeSelectedItems()];
-      } else {
-        if (!isSelectedBefore && !shouldPropagate) {
-          return;
-        }
-        newSelected = this.materializeSelectedItems().filter((id) => id !== itemId);
-      }
-    } else if (
-      shouldBeSelected === false ||
-      (shouldBeSelected == null && selectors.isItemSelected(this.store.state, itemId))
-    ) {
-      newSelected = isMulti ? [] : null;
-    } else {
-      newSelected = isMulti ? [itemId] : itemId;
-    }
-
-    this.setSelectedItems(newSelected, reason, event, {
-      propagateFrom: shouldPropagate ? [itemId] : undefined,
-      anchor: { itemId },
-    });
-  };
-
   /**
    * Checks or unchecks an item's checkbox, or toggles it when `checked` is
-   * `undefined`, propagating the change through the hierarchy.
+   * `undefined`, propagating the change through the hierarchy. With multiple
+   * selection, the rest of the selection stays as it is.
    */
   public setItemChecked = (
     itemId: TreeItemId,
@@ -113,23 +71,145 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     reason: TreeRootSelectionChangeEventReason,
     event?: Event,
   ) => {
-    this.setItemSelection({
-      itemId,
-      keepExistingSelection: this.store.state.selectionMode === 'multiple',
-      shouldBeSelected: checked,
-      shouldPropagate: true,
-      reason,
-      event,
+    const { state } = this.store;
+    let newSelected: TreeItemId[] | TreeItemId | null;
+
+    if (state.multiple !== false) {
+      const isSelectedBefore = selectors.isItemSelected(state, itemId);
+      const select = checked ?? selectors.checkboxSelectionStatus(state, itemId) !== 'checked';
+      if (!select) {
+        newSelected = this.materializeSelectedItems().filter((id) => id !== itemId);
+      } else if (isSelectedBefore) {
+        // A selected item that isn't fully checked still propagates to its subtree now.
+        newSelected = this.materializeSelectedItems().slice();
+      } else {
+        newSelected = [itemId, ...this.materializeSelectedItems()];
+      }
+    } else {
+      const select = checked ?? !selectors.isItemSelected(state, itemId);
+      newSelected = select ? itemId : null;
+    }
+
+    this.setSelectedItems(newSelected, reason, event, {
+      propagateFrom: [itemId],
+      anchor: { itemId, focus: itemId },
     });
   };
 
-  /** Converts an uncontrolled selection to the shape of a new selection mode. */
-  public handleSelectionModeChange = (selectionMode: TreeSelectionMode | undefined) => {
-    const { selectedItems, selectedItemsProp } = this.store.state;
-    if (selectionMode === 'none' || selectedItemsProp !== undefined) {
+  /**
+   * A click, tap, or Space/Enter on an item, as the APG selection models describe:
+   * - Shift+press selects the range from the anchor, replacing the selection. With
+   *   `multiple="opt-in"`, Ctrl/Cmd+Shift+press adds the range instead.
+   * - `multiple` toggles the item on every press, and `multiple="opt-in"` does with
+   *   Ctrl/Cmd or on touch, which has no modifier keys.
+   * - Otherwise, the press makes the item the selection.
+   */
+  public press = (
+    itemId: TreeItemId,
+    modifiers: PressModifiers,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) => {
+    const { shiftKey = false, ctrlKey = false, touch = false, toggle = false } = modifiers;
+    const { multiple } = this.store.state;
+    const replaceOnPress = multiple === 'opt-in' && !touch;
+
+    if (shiftKey && multiple) {
+      const anchor = this.resolveAnchor() ?? this.getDefaultAnchor();
+      if (anchor == null) {
+        return;
+      }
+      if (replaceOnPress && ctrlKey && !toggle) {
+        this.setSelectedItems(this.addRange(anchor, itemId), reason, event, {
+          anchor: { itemId, focus: itemId },
+        });
+      } else {
+        // Extending a range keeps its anchor, so the next Shift+press extends from the same item.
+        this.setSelectedItems(this.replaceWithRange(anchor, itemId), reason, event, {
+          anchor: { itemId: anchor, focus: itemId },
+        });
+      }
       return;
     }
-    if (selectionMode === 'multiple') {
+
+    if (toggle || (multiple && (!replaceOnPress || ctrlKey))) {
+      this.setItemChecked(itemId, undefined, reason, event);
+      return;
+    }
+
+    if (!selectors.canItemBeSelected(this.store.state, itemId)) {
+      return;
+    }
+    this.setSelectedItems(multiple ? this.replaceWith([itemId]) : itemId, reason, event, {
+      anchor: { itemId, focus: itemId },
+    });
+  };
+
+  /**
+   * Moves the selection to an item, as focus moves to it with `multiple="opt-in"`. A disabled
+   * item can't be selected, so the selection stays where it was while focus is on one.
+   */
+  public moveTo = (
+    itemId: TreeItemId,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) => {
+    // An item with a checkbox only changes through it, as with `multiple`.
+    if (this.store.items.getItemKind(itemId) === 'checkbox') {
+      return;
+    }
+    const anchor = { itemId, focus: itemId };
+    if (!selectors.canItemBeSelected(this.store.state, itemId)) {
+      this.applyAnchor(anchor);
+      return;
+    }
+    this.setSelectedItems(this.replaceWith([itemId]), reason, event, { anchor });
+  };
+
+  /**
+   * Selects the range from the anchor to an item as focus moves to it from `focusedItemId`,
+   * replacing the rest of the selection, so the range grows and shrinks as focus moves.
+   */
+  public extendTo = (
+    itemId: TreeItemId,
+    focusedItemId: TreeItemId,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) => {
+    if (!this.store.state.multiple) {
+      return;
+    }
+    // The anchor holds while focus is still on the item that set or kept it. Once focus
+    // moved another way, such as by typing, the range starts at the focused item.
+    const anchor =
+      this.anchorFocus === focusedItemId ? (this.resolveAnchor() ?? focusedItemId) : focusedItemId;
+    this.setSelectedItems(this.replaceWithRange(anchor, itemId), reason, event, {
+      anchor: { itemId: anchor, focus: itemId },
+    });
+  };
+
+  /** Adds the rows from `itemId` to `edgeItemId`, such as the first or last row, to the selection. */
+  public selectRangeTo = (
+    itemId: TreeItemId,
+    edgeItemId: TreeItemId,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) => {
+    if (!this.store.state.multiple) {
+      return;
+    }
+    this.setSelectedItems(this.addRange(itemId, edgeItemId), reason, event, {
+      anchor: { itemId: edgeItemId, focus: edgeItemId },
+    });
+  };
+
+  /** Converts an uncontrolled selection to the shape of a new `multiple` value. */
+  public handleMultipleChange = (multiple: TreeMultiple) => {
+    const { selectedItems, selectedItemsProp } = this.store.state;
+    if (selectedItemsProp !== undefined) {
+      return;
+    }
+    if (multiple) {
       if (!Array.isArray(selectedItems) && selectedItems !== TREE_SELECTION_ALL) {
         this.store.set(
           'selectedItems',
@@ -147,14 +227,12 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     const pending = this.pendingControlledAnchor;
     this.pendingControlledAnchor = null;
     if (pending != null && selectionModelsHaveSameItems(pending.model, model)) {
-      this.lastSelectedItem = pending.itemId;
-      this.lastSelectedRange = pending.range ?? new Set();
+      this.applyAnchor(pending.anchor);
     } else {
       // The parent replaced the controlled model independently. Any anchor from
       // the previous model would make the next Shift interaction start from an
       // item that no longer anchors the selection.
-      this.lastSelectedItem = null;
-      this.lastSelectedRange = new Set();
+      this.applyAnchor({ itemId: null, focus: null });
     }
   }
 
@@ -170,165 +248,103 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       ? selectors.selectionAllItemIds(this.store.state)
       : normalizeSelectedItems(model);
 
-  /**
-   * Selects every item, or deselects them all when they already are.
-   * While filtering, only toggles the items the filter shows.
-   */
-  public toggleSelectAll = (reason: TreeRootSelectionChangeEventReason, event?: Event) => {
+  /** Selects every item. While filtering, adds the items the filter shows to the selection. */
+  public selectAll = (reason: TreeRootSelectionChangeEventReason, event?: Event) => {
     const state = this.store.state;
-    if (state.disabled || state.selectionMode !== 'multiple') {
+    if (state.disabled || !state.multiple) {
       return;
     }
-    if (selectors.isViewTransformed(state)) {
-      this.toggleShownItems(reason, event);
+    if (!selectors.isViewTransformed(state)) {
+      this.setSelectedItems(TREE_SELECTION_ALL, reason, event);
       return;
     }
-    const itemIds = selectors.selectionAllItemIds(state);
-    const allSelected =
-      state.selectedItems === TREE_SELECTION_ALL ||
-      (itemIds.length > 0 && itemIds.every((itemId) => selectors.isItemSelected(state, itemId)));
-    this.setSelectedItems(allSelected ? [] : TREE_SELECTION_ALL, reason, event, {
-      anchor: { itemId: null },
-    });
-  };
-
-  private toggleShownItems(reason: TreeRootSelectionChangeEventReason, event?: Event) {
-    const state = this.store.state;
     const shownIds: TreeItemId[] = [];
     forEachDescendant(projectedChildrenLookupSelector(state), null, (itemId) => {
       if (selectors.isItemInSelectionAll(state, itemId)) {
         shownIds.push(itemId);
       }
     });
-    if (shownIds.length === 0) {
-      return;
-    }
-    const shown = new Set(shownIds);
-    const selected = this.materializeSelectedItems();
-    const next = shownIds.every((itemId) => selectors.isItemSelected(state, itemId))
-      ? selected.filter((itemId) => !shown.has(itemId))
-      : [...new Set([...selected, ...shownIds])];
-    this.setSelectedItems(next, reason, event, { anchor: { itemId: null } });
-  }
-
-  public expandSelectionRange = (
-    itemId: TreeItemId,
-    reason: TreeRootSelectionChangeEventReason,
-    event?: Event,
-  ) => {
-    const anchor = this.lastSelectedItem ?? this.implicitRangeAnchor();
-    if (anchor == null) {
-      return;
-    }
-    // The anchor may have been hidden since it was set (e.g. an ancestor was
-    // collapsed), and a range to a hidden row is empty. Restart the range at the
-    // clicked item instead, which also moves the anchor there.
-    if (!this.isItemRendered(anchor) || !this.isItemRendered(itemId)) {
-      this.setItemSelection({
-        itemId,
-        keepExistingSelection: true,
-        shouldBeSelected: true,
-        reason,
-        event,
-      });
-      return;
-    }
-    this.selectRange([itemId, anchor], anchor, reason, event);
+    this.setSelectedItems(
+      [...new Set([...this.materializeSelectedItems(), ...shownIds])],
+      reason,
+      event,
+    );
   };
 
   private isItemRendered(itemId: TreeItemId): boolean {
     return selectors.flatListIndex(this.store.state, itemId) !== -1;
   }
 
-  /**
-   * Where a range starts when no pointer or keyboard selection set an anchor:
-   * the first selected item. A selection seeded by `defaultSelectedItems` /
-   * `selectedItems` never sets `lastSelectedItem`, and without this a Shift+Click
-   * on such a tree did nothing at all.
-   *
-   * Not the focused item: the click that opens the range focuses its own row
-   * first, so that would make every range degenerate. `null` on a tree with no
-   * selection, where a range genuinely has no other end.
-   */
-  private implicitRangeAnchor(): TreeItemId | null {
-    return this.materializeSelectedItems()[0] ?? null;
+  /** The anchor, or `null` when there's none or its row isn't shown, such as under a collapsed parent. */
+  private resolveAnchor(): TreeItemId | null {
+    return this.anchor != null && this.isItemRendered(this.anchor) ? this.anchor : null;
   }
 
-  /** Selects the rows from `itemId` to `edgeItemId`, such as the first or last row, keeping the anchor. */
-  public selectRangeTo = (
-    itemId: TreeItemId,
-    edgeItemId: TreeItemId,
-    reason: TreeRootSelectionChangeEventReason,
-    event?: Event,
-  ) => {
-    this.selectRange([itemId, edgeItemId], this.lastSelectedItem, reason, event);
-  };
-
-  public selectItemFromArrowNavigation = (
-    currentItem: TreeItemId,
-    nextItem: TreeItemId,
-    reason: TreeRootSelectionChangeEventReason,
-    event?: Event,
-  ) => {
-    if (this.store.state.selectionMode !== 'multiple') {
-      return;
-    }
-
-    // Seeded selections extend from their anchor.
-    const anchor =
-      this.lastSelectedItem ??
-      (this.lastSelectedRange.size === 0 ? this.implicitRangeAnchor() : null);
-    if (anchor != null) {
-      let rangeAnchor = anchor;
-      // Same as `expandSelectionRange`: an anchor hidden since it was set (e.g.
-      // under a collapsed ancestor) cannot bound a range over the visible rows,
-      // so the range restarts at the row the arrow key left.
-      if (!this.isItemRendered(rangeAnchor)) {
-        rangeAnchor = currentItem;
-        this.lastSelectedRange = new Set();
-      }
-      this.selectRange([rangeAnchor, nextItem], rangeAnchor, reason, event);
-      return;
-    }
-
-    // An empty selection starts at the destination; controlled range bookkeeping
-    // advances only when the prop accepts it.
-    let newSelectedItems = this.materializeSelectedItems().slice();
-    let nextSelectedRange = new Set(this.lastSelectedRange);
-
-    if (this.lastSelectedRange.size === 0) {
-      if (
-        selectors.canItemBeSelected(this.store.state, nextItem) &&
-        !newSelectedItems.includes(nextItem)
-      ) {
-        newSelectedItems.push(nextItem);
-      }
-      nextSelectedRange = new Set([currentItem, nextItem]);
-    } else {
-      if (!this.lastSelectedRange.has(currentItem)) {
-        nextSelectedRange = new Set();
-      }
-
-      if (nextSelectedRange.has(nextItem)) {
-        if (selectors.canItemBeSelected(this.store.state, currentItem)) {
-          newSelectedItems = newSelectedItems.filter((id) => id !== currentItem);
-        }
-        nextSelectedRange.delete(currentItem);
-      } else {
-        if (
-          selectors.canItemBeSelected(this.store.state, nextItem) &&
-          !newSelectedItems.includes(nextItem)
-        ) {
-          newSelectedItems.push(nextItem);
-        }
-        nextSelectedRange.add(nextItem);
+  /**
+   * Where a range starts when nothing was pressed or selected before it, such as with a
+   * selection from `defaultSelectedItems`: the first selected row, or the first row.
+   */
+  private getDefaultAnchor(): TreeItemId | null {
+    const state = this.store.state;
+    let anchor: TreeItemId | null = null;
+    let anchorIndex = Infinity;
+    for (const itemId of this.materializeSelectedItems()) {
+      const index = selectors.flatListIndex(state, itemId);
+      if (index !== -1 && index < anchorIndex) {
+        anchor = itemId;
+        anchorIndex = index;
       }
     }
+    return anchor ?? getFirstNavigableItem(state);
+  }
 
-    this.setSelectedItems(newSelectedItems, reason, event, {
-      anchor: { itemId: null, range: nextSelectedRange },
-    });
-  };
+  private applyAnchor(anchor: SelectionAnchor) {
+    this.anchor = anchor.itemId;
+    this.anchorFocus = anchor.focus;
+  }
+
+  /**
+   * Replaces the selection with `itemIds`. Selected items that can't be selected anymore,
+   * such as disabled ones, stay selected, since users can't deselect them.
+   */
+  private replaceWith(itemIds: TreeItemId[]): TreeItemId[] {
+    const state = this.store.state;
+    const replacement = new Set(itemIds);
+    const kept = this.materializeSelectedItems().filter(
+      (id) => !replacement.has(id) && !selectors.canItemBeSelected(state, id),
+    );
+    return kept.length === 0 ? itemIds : [...itemIds, ...kept];
+  }
+
+  /** The rows between two rows that can be selected, in tree order. */
+  private selectableRowsBetween(from: TreeItemId, to: TreeItemId): TreeItemId[] {
+    const state = this.store.state;
+    const flatList = selectors.flatList(state);
+    const indexA = selectors.flatListIndex(state, from);
+    const indexB = selectors.flatListIndex(state, to);
+    const rows: TreeItemId[] = [];
+    if (indexA === -1 || indexB === -1) {
+      return rows;
+    }
+    for (let index = Math.min(indexA, indexB); index <= Math.max(indexA, indexB); index += 1) {
+      if (selectors.canItemBeSelected(state, flatList[index])) {
+        rows.push(flatList[index]);
+      }
+    }
+    return rows;
+  }
+
+  /** Makes the range from an anchor to an item the selection. */
+  private replaceWithRange(anchor: TreeItemId, itemId: TreeItemId): TreeItemId[] {
+    return this.replaceWith(this.selectableRowsBetween(anchor, itemId));
+  }
+
+  /** Adds the rows between two rows to the selection. */
+  private addRange(from: TreeItemId, to: TreeItemId): TreeItemId[] {
+    return [
+      ...new Set([...this.materializeSelectedItems(), ...this.selectableRowsBetween(from, to)]),
+    ];
+  }
 
   public actions = {
     getSelectedItemIds: () => new Set(this.materializeSelectedItems()),
@@ -344,7 +360,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
   public reconcileSelectionAfterItemsMutation = (): void => {
     const { state } = this.store;
     if (
-      state.selectionMode !== 'multiple' ||
+      !state.multiple ||
       state.selectedItems === TREE_SELECTION_ALL ||
       (!state.checkboxSelectionPropagation.descendants &&
         !state.checkboxSelectionPropagation.parents)
@@ -447,7 +463,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
         }
       }
       if (fallback !== undefined) {
-        newSelected = state.selectionMode === 'multiple' ? [fallback] : fallback;
+        newSelected = state.multiple ? [fallback] : fallback;
       }
     }
     const pruned = newSelected;
@@ -487,7 +503,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
        * The range anchor the change sets once committed: at once while
        * uncontrolled, or once a controlled parent accepts the model.
        */
-      anchor?: { itemId: TreeItemId | null; range?: Set<TreeItemId> | undefined } | undefined;
+      anchor?: SelectionAnchor | undefined;
       /** Whether the tree makes the change on its own, so it isn't announced and can't be canceled. */
       automatic?: boolean | undefined;
     } = {},
@@ -497,7 +513,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     let cleanModel: TreeItemId[] | TreeItemId | null | typeof TREE_SELECTION_ALL;
     if (
       propagateFrom !== undefined &&
-      this.store.state.selectionMode === 'multiple' &&
+      this.store.state.multiple &&
       newModel !== TREE_SELECTION_ALL
     ) {
       cleanModel = this.propagateSelection(
@@ -512,8 +528,12 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
 
     // No-op guard: don't fire onSelectedItemsChange (or churn state) when the
     // resulting model is identical to the current one — e.g. re-clicking the
-    // already-selected item in single-select mode.
+    // already-selected item in single-select mode. The anchor still moves, as the
+    // gesture that made it would have.
     if (selectionModelsEqual(oldModel, cleanModel)) {
+      if (anchor !== undefined) {
+        this.applyAnchor(anchor);
+      }
       return false;
     }
 
@@ -530,11 +550,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     }
 
     if (this.store.state.selectedItemsProp !== undefined && anchor !== undefined) {
-      this.pendingControlledAnchor = {
-        itemId: anchor.itemId,
-        model: cleanModel,
-        range: anchor.range,
-      };
+      this.pendingControlledAnchor = { anchor, model: cleanModel };
     }
 
     const details = createChangeEventDetails(reason, event);
@@ -584,10 +600,9 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       }
     }
 
-    // A canceled, disallowed or no-op change leaves the anchor where it was.
+    // A canceled or disallowed change leaves the anchor where it was.
     if (anchor !== undefined && this.store.state.selectedItemsProp === undefined) {
-      this.lastSelectedItem = anchor.itemId;
-      this.lastSelectedRange = anchor.range ?? new Set();
+      this.applyAnchor(anchor);
     }
     return true;
   }
@@ -714,44 +729,6 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     }
 
     return flags.shouldRegenerateModel ? Array.from(newModelSet) : newModel;
-  }
-
-  private selectRange(
-    endpoints: [TreeItemId, TreeItemId],
-    anchor: TreeItemId | null,
-    reason: TreeRootSelectionChangeEventReason,
-    event?: Event,
-  ) {
-    if (this.store.state.selectionMode !== 'multiple') {
-      return;
-    }
-
-    const { state } = this.store;
-    // A range always produces a concrete item list, even from TREE_SELECTION_ALL,
-    // and replaces the range it extends. Items of that range that can't be
-    // selected anymore, such as disabled ones, keep their selection.
-    const newSelectedItems = this.materializeSelectedItems().filter(
-      (id) => !this.lastSelectedRange.has(id) || !selectors.canItemBeSelected(state, id),
-    );
-    const selectedItemsSet = new Set(newSelectedItems);
-
-    const flatList = selectors.flatList(state);
-    const indexA = selectors.flatListIndex(state, endpoints[0]);
-    const indexB = selectors.flatListIndex(state, endpoints[1]);
-    const range = new Set<TreeItemId>();
-    if (indexA !== -1 && indexB !== -1) {
-      for (let index = Math.min(indexA, indexB); index <= Math.max(indexA, indexB); index += 1) {
-        const id = flatList[index];
-        if (selectors.canItemBeSelected(state, id)) {
-          range.add(id);
-          if (!selectedItemsSet.has(id)) {
-            newSelectedItems.push(id);
-          }
-        }
-      }
-    }
-
-    this.setSelectedItems(newSelectedItems, reason, event, { anchor: { itemId: anchor, range } });
   }
 }
 

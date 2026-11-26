@@ -68,7 +68,7 @@ export default function ExampleTreeSelectionPropagation() {
       <Tree.Root
         items={items}
         defaultExpandedItems={['documents']}
-        selectionMode="multiple"
+        multiple
         // @highlight-start @focus @padding 2
         checkboxSelectionPropagation={{
           parents: propagateParents,

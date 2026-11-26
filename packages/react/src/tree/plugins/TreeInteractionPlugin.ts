@@ -2,6 +2,7 @@ import type * as React from 'react';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { platform } from '@base-ui/utils/platform';
 import { isElement } from '@floating-ui/utils/dom';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
@@ -11,7 +12,7 @@ import type { MaybeBaseUIEvent } from '../../internals/types';
 import type {
   TreeItemId,
   TreeRootHighlightEventReason,
-  TreeSelectionMode,
+  TreeMultiple,
   TreeDefaultItem,
   TreeState,
 } from '../store/types';
@@ -52,7 +53,7 @@ function isPrintableKey(key: string): boolean {
 }
 
 export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
-  declare private store: TreeStore<TreeSelectionMode | undefined, TItem>;
+  declare private store: TreeStore<TreeMultiple | undefined, TItem>;
 
   /**
    * What moves focus next: the reason, and the keydown or press behind it when
@@ -78,7 +79,10 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   /** The click a link item's expansion trigger handled, which its row ignores. */
   private triggerClick: Event | null = null;
 
-  constructor(store: TreeStore<TreeSelectionMode | undefined, TItem>) {
+  /** The pointer type of the last press on a row, so a touch tap can be told apart from a click. */
+  private lastPointerType: string | null = null;
+
+  constructor(store: TreeStore<TreeMultiple | undefined, TItem>) {
     this.store = store;
   }
 
@@ -447,13 +451,34 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   }
 
   private handleKeyDown(event: React.KeyboardEvent, itemId: TreeItemId) {
-    if (event.altKey) {
-      return;
-    }
-
     const ctrlPressed = event.ctrlKey || event.metaKey;
     const key = event.key;
-    const isMulti = this.store.state.selectionMode === 'multiple';
+    const { multiple } = this.store.state;
+    const mac = platform.os.mac;
+    // With multiple selection, Option+Space toggles the focused item on macOS, which
+    // reserves Ctrl+Space and Cmd+Space. Option+Space types a non-breaking space, so
+    // the physical key is matched.
+    const macToggle =
+      mac &&
+      multiple !== false &&
+      event.altKey &&
+      !ctrlPressed &&
+      event.nativeEvent.code === 'Space';
+    // With `multiple="opt-in"`, Ctrl+Arrow moves focus without moving the selection.
+    // macOS reserves Ctrl+Arrow, so Option+Arrow does it there.
+    const moveFocusOnly =
+      multiple === 'opt-in' &&
+      !event.shiftKey &&
+      (mac ? event.altKey && !ctrlPressed : ctrlPressed);
+    if (
+      event.altKey &&
+      !macToggle &&
+      !(moveFocusOnly && (key === 'ArrowDown' || key === 'ArrowUp'))
+    ) {
+      return;
+    }
+    // With `multiple="opt-in"`, the selection follows focus as the keyboard moves it.
+    const followFocus = multiple === 'opt-in' && !event.shiftKey && !ctrlPressed && !event.altKey;
     const isRtl = this.store.state.direction === 'rtl';
     const expandKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
     const collapseKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
@@ -461,29 +486,31 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     // Ignore OS key auto-repeat for the activation keys so holding Space/Enter
     // doesn't rapidly re-toggle selection or expansion. Navigation keys (arrows,
     // typeahead) are intentionally left repeatable below.
-    if (event.repeat && (key === ' ' || key === 'Enter')) {
+    if (event.repeat && (key === ' ' || key === 'Enter' || macToggle)) {
       event.preventDefault();
       return;
     }
 
     // Select the item when pressing "Space" — unless a typeahead is in progress,
-    // where the Space belongs to a multi-word label ("New Folder") and falls
-    // through to the typeahead branch below.
-    if (key === ' ' && this.typeaheadQuery === '') {
+    // where an unmodified Space belongs to a multi-word label ("New Folder") and
+    // falls through to the typeahead branch below. Ctrl+Space, and Shift+Space with
+    // multiple selection, never type.
+    const modifiedSpace = ctrlPressed || (event.shiftKey && multiple !== false);
+    if (macToggle || (key === ' ' && (modifiedSpace || this.typeaheadQuery === ''))) {
       // Always preventDefault, even for non-selectable items, so the page doesn't scroll.
       event.preventDefault();
       if (selectors.canItemBeSelected(this.store.state, itemId)) {
-        if (isMulti && event.shiftKey) {
-          this.store.selection.expandSelectionRange(itemId, REASONS.keyboard, event.nativeEvent);
-        } else {
-          // Activating a row is a press, whichever input does it.
-          this.store.selection.setItemChecked(
-            itemId,
-            undefined,
-            REASONS.itemPress,
-            event.nativeEvent,
-          );
-        }
+        // Activating a row is a press, whichever input does it.
+        this.store.selection.press(
+          itemId,
+          {
+            shiftKey: event.shiftKey,
+            ctrlKey: ctrlPressed || macToggle,
+            toggle: this.store.items.getItemKind(itemId) === 'checkbox',
+          },
+          REASONS.itemPress,
+          event.nativeEvent,
+        );
       }
     } else if (key === 'Enter' && this.store.items.getItemKind(itemId) !== 'link') {
       // A link item follows its link on Enter like any focused link, and the
@@ -491,22 +518,17 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       if (this.store.expansion.toggleItemExpansion(itemId, REASONS.itemPress, event.nativeEvent)) {
         event.preventDefault();
       } else if (selectors.canItemBeSelected(this.store.state, itemId)) {
-        if (isMulti) {
-          event.preventDefault();
-          this.store.selection.setItemSelection({
-            itemId,
-            keepExistingSelection: true,
-            reason: REASONS.itemPress,
-            event: event.nativeEvent,
-          });
-        } else if (!selectors.isItemSelected(this.store.state, itemId)) {
-          this.store.selection.setItemSelection({
-            itemId,
-            reason: REASONS.itemPress,
-            event: event.nativeEvent,
-          });
-          event.preventDefault();
-        }
+        event.preventDefault();
+        this.store.selection.press(
+          itemId,
+          {
+            shiftKey: event.shiftKey,
+            ctrlKey: ctrlPressed,
+            toggle: this.store.items.getItemKind(itemId) === 'checkbox',
+          },
+          REASONS.itemPress,
+          event.nativeEvent,
+        );
       } else if (!selectors.isItemDisabled(this.store.state, itemId)) {
         // Without another action, Enter follows the item's link, as on a link
         // that has focus itself. A disabled item doesn't forward it.
@@ -524,13 +546,10 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       );
       if (targetItem != null) {
         this.focusItem(targetItem, REASONS.keyboard, event.nativeEvent);
-        if (isMulti && event.shiftKey) {
-          this.store.selection.selectItemFromArrowNavigation(
-            itemId,
-            targetItem,
-            REASONS.keyboard,
-            event.nativeEvent,
-          );
+        if (multiple && event.shiftKey && !ctrlPressed) {
+          this.store.selection.extendTo(targetItem, itemId, REASONS.keyboard, event.nativeEvent);
+        } else if (followFocus) {
+          this.store.selection.moveTo(targetItem, REASONS.keyboard, event.nativeEvent);
         }
       }
     } else if (key === expandKey) {
@@ -543,7 +562,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       } else if (!this.store.grid?.focusFirstStop(itemId) && expanded) {
         const firstFocusableChild = getFirstNavigableChild(this.store.state, itemId);
         if (firstFocusableChild != null) {
-          this.focusItem(firstFocusableChild, REASONS.keyboard, event.nativeEvent);
+          this.navigateTo(firstFocusableChild, followFocus, event);
         }
       }
       event.preventDefault();
@@ -559,7 +578,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       } else {
         const parent = selectors.itemParentId(this.store.state, itemId);
         if (parent != null) {
-          this.focusItem(parent, REASONS.keyboard, event.nativeEvent);
+          this.navigateTo(parent, followFocus, event);
         }
       }
       event.preventDefault();
@@ -569,11 +588,10 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       );
       if (edgeItem != null) {
         // The range skips the rows that can't be selected, the focused one included.
-        if (!this.store.state.disabled && isMulti && ctrlPressed && event.shiftKey) {
+        if (!this.store.state.disabled && multiple && ctrlPressed && event.shiftKey) {
           this.store.selection.selectRangeTo(itemId, edgeItem, REASONS.keyboard, event.nativeEvent);
-        } else {
-          this.focusItem(edgeItem, REASONS.keyboard, event.nativeEvent);
         }
+        this.navigateTo(edgeItem, followFocus, event);
       }
       event.preventDefault();
     } else if ((key === 'PageDown' || key === 'PageUp') && !ctrlPressed && !event.shiftKey) {
@@ -590,14 +608,19 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
           }
           targetItem = nextItem;
         }
-        this.focusItem(targetItem, REASONS.keyboard, event.nativeEvent);
+        this.navigateTo(targetItem, followFocus, event);
         event.preventDefault();
       }
     } else if (key === '*') {
       this.store.expansion.expandAllSiblings(itemId, REASONS.keyboard, event.nativeEvent);
       event.preventDefault();
-    } else if (event.key.toUpperCase() === 'A' && ctrlPressed && isMulti) {
-      this.store.selection.toggleSelectAll(REASONS.keyboard, event.nativeEvent);
+    } else if (
+      ctrlPressed &&
+      multiple &&
+      // On a layout without Latin letters, the key in the position of A selects everything.
+      (key === 'a' || key === 'A' || (event.nativeEvent.code === 'KeyA' && !/^[a-z]$/i.test(key)))
+    ) {
+      this.store.selection.selectAll(REASONS.keyboard, event.nativeEvent);
       event.preventDefault();
     }
 
@@ -619,13 +642,25 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       }
       const matchingItem = this.getFirstItemMatchingTypeaheadQuery(itemId, key);
       if (matchingItem != null) {
-        this.focusItem(matchingItem, REASONS.keyboard, event.nativeEvent);
+        // A held Shift types an uppercase letter here, so the selection still follows.
+        this.navigateTo(matchingItem, multiple === 'opt-in', event);
         event.preventDefault();
       }
 
       this.store.timeoutManager.start('typeahead', TYPEAHEAD_RESET_MS, () => {
         this.typeaheadQuery = '';
       });
+    }
+  }
+
+  /**
+   * Moves focus to an item the keyboard navigated to. With `multiple="opt-in"`, the
+   * selection follows unless a modifier asked to move focus only.
+   */
+  private navigateTo(itemId: TreeItemId, followFocus: boolean, event: React.KeyboardEvent) {
+    this.focusItem(itemId, REASONS.keyboard, event.nativeEvent);
+    if (followFocus) {
+      this.store.selection.moveTo(itemId, REASONS.keyboard, event.nativeEvent);
     }
   }
 
@@ -837,7 +872,15 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     },
   };
 
+  private readonly handleItemPointerDown = (event: React.PointerEvent): void => {
+    this.lastPointerType = event.pointerType;
+  };
+
   private readonly handleItemClick = (event: React.MouseEvent): void => {
+    // A touch tap is a click made by a pointer (`detail` counts its presses) after a
+    // touch press. A click from the keyboard or assistive technology isn't one.
+    const touch = this.lastPointerType === 'touch' && event.detail > 0;
+    this.lastPointerType = null;
     if (this.isEventFromOutsideItem(event) || this.isEventFromInteractiveDescendant(event)) {
       return;
     }
@@ -857,36 +900,17 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }
 
     if (selectors.canItemBeSelected(this.store.state, itemId)) {
-      const isMulti = this.store.state.selectionMode === 'multiple';
-      // A checkbox item toggles on any other click, so Ctrl or Cmd changes nothing.
-      if (isMulti && (event.ctrlKey || event.metaKey) && kind !== 'checkbox') {
-        this.store.selection.setItemSelection({
-          itemId,
-          keepExistingSelection: true,
-          reason: REASONS.itemPress,
-          event: event.nativeEvent,
-        });
+      const { multiple } = this.store.state;
+      const ctrlKey = event.ctrlKey || event.metaKey;
+      this.store.selection.press(
+        itemId,
+        { shiftKey: event.shiftKey, ctrlKey, touch, toggle: kind === 'checkbox' },
+        REASONS.itemPress,
+        event.nativeEvent,
+      );
+      // A Shift or Ctrl/Cmd click edits the selection without also expanding the item.
+      if (multiple && (event.shiftKey || ctrlKey)) {
         return;
-      }
-      if (isMulti && event.shiftKey) {
-        this.store.selection.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);
-        return;
-      }
-      if (kind === 'checkbox') {
-        // Like a click on `TreeGrid.RowCheckbox`.
-        this.store.selection.setItemChecked(
-          itemId,
-          undefined,
-          REASONS.itemPress,
-          event.nativeEvent,
-        );
-      } else {
-        this.store.selection.setItemSelection({
-          itemId,
-          shouldBeSelected: true,
-          reason: REASONS.itemPress,
-          event: event.nativeEvent,
-        });
       }
     }
 
@@ -899,6 +923,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
 
   public readonly itemEventHandlers = {
     onMouseDown: this.handleItemMouseDown,
+    onPointerDown: this.handleItemPointerDown,
     onClick: this.handleItemClick,
     onFocus: this.handleItemFocus,
   };

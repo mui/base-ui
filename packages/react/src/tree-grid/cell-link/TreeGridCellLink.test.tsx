@@ -9,13 +9,19 @@ const items: TreeGrid.DefaultItem[] = [
   { id: 'about', label: 'About' },
 ];
 
+const unselectableItems = TreeGrid.createItems(items, {
+  getId: (item) => item.id,
+  getLabel: (item) => item.label,
+  getChildren: (item) => item.children,
+  isSelectionDisabled: () => true,
+});
+
 function Example(props: {
-  items?: TreeGrid.DefaultItem[] | undefined;
+  items?: TreeGrid.DefaultItem[] | TreeGrid.ItemCollection<TreeGrid.DefaultItem> | undefined;
   current?: string | undefined;
   onNavigate?: ((itemId: TreeGrid.ItemId) => void) | undefined;
   root?:
     | {
-        selectionMode?: 'none' | 'single' | undefined;
         disabled?: boolean;
         itemFocusableWhenDisabled?: boolean;
       }
@@ -74,9 +80,20 @@ describe('<TreeGrid.CellLink />', () => {
     expect(screen.getByTestId('intro')).toHaveAttribute('tabindex', '-1');
   });
 
-  it('follows the link when Enter has no other action on the item', async () => {
+  it('selects the item on Enter instead of following its link', async () => {
     const onNavigate = vi.fn();
-    await render(<Example onNavigate={onNavigate} root={{ selectionMode: 'none' }} />);
+    await render(<Example onNavigate={onNavigate} />);
+    const row = screen.getByTestId('about');
+    act(() => row.focus());
+    expect(row).toHaveAttribute('aria-selected', 'false');
+    fireEvent.keyDown(row, { key: 'Enter' });
+    expect(row).toHaveAttribute('aria-selected', 'true');
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
+  it('follows the link on Enter when the item cannot be selected', async () => {
+    const onNavigate = vi.fn();
+    await render(<Example onNavigate={onNavigate} items={unselectableItems} />);
     const row = screen.getByTestId('about');
     act(() => row.focus());
     fireEvent.keyDown(row, { key: 'Enter' });
@@ -86,7 +103,7 @@ describe('<TreeGrid.CellLink />', () => {
   it('does not follow the link of a disabled item on Enter', async () => {
     const onNavigate = vi.fn();
     await render(
-      <Example onNavigate={onNavigate} root={{ selectionMode: 'none', disabled: true }} />,
+      <Example onNavigate={onNavigate} items={unselectableItems} root={{ disabled: true }} />,
     );
     const row = screen.getByTestId('about');
     act(() => row.focus());
@@ -152,7 +169,7 @@ describe('<TreeGrid.CellLink />', () => {
 
   it('keeps Enter for expansion and selection', async () => {
     const onNavigate = vi.fn();
-    await render(<Example onNavigate={onNavigate} root={{ selectionMode: 'single' }} />);
+    await render(<Example onNavigate={onNavigate} />);
     const folder = screen.getByTestId('docs');
     act(() => folder.focus());
     fireEvent.keyDown(folder, { key: 'Enter' });

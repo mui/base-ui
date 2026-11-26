@@ -1,4 +1,4 @@
-import type { TreeDefaultItem, TreeItemId, TreeItemKind, TreeSelectionMode } from '../store/types';
+import type { TreeDefaultItem, TreeItemId, TreeItemKind, TreeMultiple } from '../store/types';
 import type { TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import { buildItemsState } from '../store/itemIndex';
@@ -7,14 +7,14 @@ import { getRowsPerPage } from '../utils/viewport';
 import type { TreeViewport } from '../utils/viewport';
 
 export class TreeItemsPlugin<TItem = TreeDefaultItem> {
-  declare private store: TreeStore<TreeSelectionMode | undefined, TItem>;
+  declare private store: TreeStore<TreeMultiple | undefined, TItem>;
 
   private elements = new Map<string, { element: HTMLElement; kind: TreeItemKind }>();
 
   /** The mounted list. */
   private viewport: TreeViewport | null = null;
 
-  constructor(store: TreeStore<TreeSelectionMode | undefined, TItem>) {
+  constructor(store: TreeStore<TreeMultiple | undefined, TItem>) {
     this.store = store;
   }
 
@@ -22,9 +22,10 @@ export class TreeItemsPlugin<TItem = TreeDefaultItem> {
     return this.elements.get(getItemIdKey(itemId))?.element ?? null;
   }
 
-  /** The part the item renders as. */
+  /** The part the item renders as. A grid row with a checkbox selects like `Tree.CheckboxItem`. */
   public getItemKind(itemId: TreeItemId): TreeItemKind {
-    return this.elements.get(getItemIdKey(itemId))?.kind ?? 'item';
+    const kind = this.elements.get(getItemIdKey(itemId))?.kind ?? 'item';
+    return kind === 'item' && this.store.grid?.hasRowCheckbox(itemId) ? 'checkbox' : kind;
   }
 
   public registerItemDOMElement(

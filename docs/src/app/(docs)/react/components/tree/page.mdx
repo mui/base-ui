@@ -19,7 +19,7 @@ import { DemoTreeHero } from './demos/hero';
 - **Avoid trees for site navigation**: Prefer links grouped under disclosure buttons, such as [Collapsible](/react/components/collapsible). The [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) caution against trees for site navigation. If you use one, follow the [links](#links) example.
 - **Give the tree an accessible name**: Prefer `<Tree.Label>`, or provide an `aria-label` on `<Tree.List>` when no visible label is rendered.
 - **Name every control**: Label `<Tree.Input>` with a visible label or an `aria-label`. An item is named by its `label`, so pass other visible content, such as a size, to `aria-describedby`. The expansion trigger and the clear button have English names, such as "Expand Documents" and "Clear filter": pass your own `aria-label` to translate them, based on `state.expanded` for the trigger.
-- **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<Tree.ItemExpansionTrigger>` so they can expand items by tapping. With multiple selection, render `<Tree.CheckboxItem>` so that tapping an item toggles it without clearing the others.
+- **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<Tree.ItemExpansionTrigger>` so they can expand items by tapping. With `multiple="opt-in"`, render `<Tree.CheckboxItem>` so that tapping an item toggles it without clearing the others.
 
 ## Anatomy
 
@@ -86,11 +86,26 @@ The root infers the item type from `items`. Parts outside the root's props, such
 
 ## Examples
 
+### Multiple selection
+
+Set `multiple` on `<Tree.Root>` to let users select more than one item. A click or <kbd>Space</kbd> adds or removes an item, as does <kbd>Enter</kbd> on an item that can't expand, and the selected items are an array.
+
+### Opt-in multiple selection
+
+Use `multiple="opt-in"` when users opt in to selecting more than one item by holding a modifier key. Without one, a click or moving focus with the keyboard moves the selection to a single item.
+
+- <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+click adds or removes an item.
+- <kbd>Shift</kbd>+click selects a range, as does <kbd>Shift</kbd>+<kbd>Arrow Up</kbd> or
+  <kbd>Arrow Down</kbd>.
+- <kbd>Ctrl</kbd>+<kbd>Arrow Up</kbd> or <kbd>Arrow Down</kbd> moves focus without changing the
+  selection, and <kbd>Ctrl</kbd>+<kbd>Space</kbd> adds or removes the focused item. On macOS, use
+  <kbd>Option</kbd> instead of <kbd>Ctrl</kbd>.
+
+On touch devices, which have no modifier keys, a tap adds or removes an item, the same as `multiple`. A `<Tree.CheckboxItem>` always selects as with `multiple`.
+
 ### Checkbox selection
 
-Render `<Tree.CheckboxItem>` in place of `<Tree.Item>` to select items like checkboxes, and `<Tree.CheckboxItemIndicator>` inside it to show the state. Set `selectionMode="multiple"` on `<Tree.Root>` to allow more than one item to be selected. In single selection, checking an item unchecks the others, so use `<Tree.Item>` there instead.
-
-A click toggles the item and keeps the other items selected. <kbd>Shift</kbd>+click selects a range. The item reports `aria-checked` instead of `aria-selected`, and `mixed` when only some of its descendants are selected.
+Render `<Tree.CheckboxItem>` in place of `<Tree.Item>` to select items like checkboxes, and `<Tree.CheckboxItemIndicator>` inside it to show the state. Set `multiple` on `<Tree.Root>` to allow more than one item to be selected. In single selection, checking an item unchecks the others, so use `<Tree.Item>` there instead.
 
 import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 
@@ -98,7 +113,7 @@ import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 
 ### Selection propagation
 
-The `checkboxSelectionPropagation` prop controls how checkbox selection affects related items. With `descendants`, selecting a parent selects its whole branch. With `parents`, selecting all selectable children selects their parent. Both are enabled by default in multiple-selection mode.
+The `checkboxSelectionPropagation` prop controls how checkbox selection affects related items. With `descendants`, selecting a parent selects its whole branch. With `parents`, selecting all selectable children selects their parent. Both are enabled by default with multiple selection.
 
 import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
 
@@ -106,19 +121,17 @@ import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
 
 ### Select all
 
-In multiple-selection mode, use `Tree.SELECTION_ALL` to select every selectable item without listing its ID.
+With multiple selection, use `Tree.SELECTION_ALL` to select every selectable item without listing its ID.
 
 ```tsx
-<Tree.Root items={items} selectionMode="multiple" defaultSelectedItems={Tree.SELECTION_ALL}>
+<Tree.Root items={items} multiple defaultSelectedItems={Tree.SELECTION_ALL}>
   <Tree.List>{renderItem}</Tree.List>
 </Tree.Root>
 ```
 
 ### Links
 
-Render `<Tree.LinkItem>` in place of `<Tree.Item>` to link an item to another page, and set `active` on the current page's item. The item renders an `<a>` element, as in the [navigation tree example](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/examples/treeview-navigation/) of the WAI-ARIA Authoring Practices.
-
-Clicks and <kbd>Enter</kbd> follow the link. A click with <kbd>Ctrl</kbd>, <kbd>Cmd</kbd>, or <kbd>Shift</kbd> opens it in a new tab or window and leaves the selection as it is. Tabbing into the tree focuses the current page's item, unless an item is selected or another item had focus before.
+Render `<Tree.LinkItem>` in place of `<Tree.Item>` to link an item to another page, and set `active` on the current page's item.
 
 import { DemoTreeLinkItems } from './demos/link-items';
 
@@ -135,8 +148,6 @@ import { DemoTreeAnimated } from './demos/animated';
 ### Filtering
 
 Wrap `<Tree.Root>` in `<Tree.FilterProvider>` and add `<Tree.Input>` inside the root.
-Type to narrow the items, then press <kbd>Arrow Down</kbd> or <kbd>Enter</kbd> to focus the first match, or <kbd>Arrow Up</kbd> to focus the last one.
-Typing while an item has focus continues the query, and <kbd>Escape</kbd> clears it.
 
 import { DemoTreeFiltering } from './demos/filtering';
 

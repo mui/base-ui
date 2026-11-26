@@ -8,7 +8,7 @@ import { REASONS } from '../../internals/reasons';
 import type {
   TreeItemId,
   TreeRootExpansionChangeEventReason,
-  TreeSelectionMode,
+  TreeMultiple,
   TreeDefaultItem,
   TreeState,
 } from '../store/types';
@@ -25,7 +25,7 @@ import { getItemIdKey } from '../utils/itemIdKey';
 import { forEachDescendant, getVisibleDescendants } from '../utils/forEachDescendant';
 
 export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
-  declare private store: TreeStore<TreeSelectionMode | undefined, TItem>;
+  declare private store: TreeStore<TreeMultiple | undefined, TItem>;
 
   /**
    * Mounted `Tree.GroupTransition` instances, counted per row item ID key. Only
@@ -37,7 +37,7 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
   /** The latest event whose expansion change called `eventDetails.allowPropagation()`. */
   private propagationAllowedEvent: Event | undefined = undefined;
 
-  constructor(store: TreeStore<TreeSelectionMode | undefined, TItem>) {
+  constructor(store: TreeStore<TreeMultiple | undefined, TItem>) {
     this.store = store;
   }
 

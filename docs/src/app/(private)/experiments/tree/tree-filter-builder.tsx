@@ -283,7 +283,6 @@ export default function TreeFilterBuilder() {
             }}
             actionsRef={actionsRef}
             expandedItems={expandedItems}
-            selectionMode="none"
           >
             <FilterList />
             <TreeGrid.Status className={styles.VisuallyHidden}>

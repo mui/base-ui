@@ -35,7 +35,6 @@ export type { TreeItemCollection as ItemCollection } from '../tree/items/itemCol
 export type {
   TreeDefaultItem as DefaultItem,
   TreeItemId as ItemId,
-  TreeSelectionMode as SelectionMode,
   TreeCheckboxSelectionPropagation as CheckboxSelectionPropagation,
   TreeFilterMode as FilterMode,
   TreeFilterFunction as FilterFunction,

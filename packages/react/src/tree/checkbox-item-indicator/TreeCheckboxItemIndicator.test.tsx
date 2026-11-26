@@ -27,7 +27,7 @@ function CheckboxTree(props: { keepMounted?: boolean | undefined; select?: strin
       />
       <Tree.Root
         defaultItems={items}
-        selectionMode="multiple"
+        multiple="opt-in"
         defaultExpandedItems={['a']}
         actionsRef={actionsRef}
       >
