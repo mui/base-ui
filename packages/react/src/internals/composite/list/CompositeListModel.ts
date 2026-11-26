@@ -35,10 +35,7 @@ export interface CompositeListModelParameters<Metadata> {
   requestFlush: () => void;
 }
 
-/**
- * The items of one composite list, kept ordered by index in `elementsRef` and `labelsRef`. The
- * model is the context value its items register through.
- */
+/** The items of one composite list, kept ordered by index in `elementsRef` and `labelsRef`. */
 export class CompositeListModel<Metadata> implements CompositeListContextValue<Metadata> {
   // Fields assigned in the constructor are declared rather than initialized, so they are not
   // defined twice: data grids construct one model per cell while rendering.
