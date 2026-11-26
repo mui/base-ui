@@ -19,7 +19,7 @@ const GENERAL_CHANGES = 'General changes';
 const BREAKING_CHANGE = '🚨 **Breaking change:**';
 const ALL_COMPONENTS_LABEL = 'scope: all components';
 
-const EXCLUDED_LABELS = [
+const EXCLUDED_LABELS = new Set([
   'dependencies',
   'docs',
   'examples',
@@ -32,10 +32,10 @@ const EXCLUDED_LABELS = [
   'scope: temporal',
   'test',
   'website',
-];
+]);
 
-const EXCLUDED_PREFIXES = ['utils', 'internals', 'example', 'examples', 'experiments'];
-const EXCLUDED_CONTRIBUTORS = ['Copilot'];
+const EXCLUDED_PREFIXES = new Set(['utils', 'internals', 'example', 'examples', 'experiments']);
+const EXCLUDED_CONTRIBUTORS = new Set(['Copilot']);
 
 /** Title prefixes of parts that have no section of their own. */
 const COMPONENT_OF = new Map([['radio', 'radio group']]);
@@ -125,7 +125,7 @@ function renderDocsEntry(change: ChangelogChange) {
 function getCreditedChanges({ changes }: ChangelogData) {
   return changes.filter(
     ({ labels, author, pullRequest }) =>
-      !labels.some((label) => EXCLUDED_LABELS.includes(label)) &&
+      !labels.some((label) => EXCLUDED_LABELS.has(label)) &&
       !author?.isBot &&
       !pullRequest?.openedBy?.isBot,
   );
@@ -133,12 +133,14 @@ function getCreditedChanges({ changes }: ChangelogData) {
 
 function getListedChanges(data: ChangelogData) {
   return getCreditedChanges(data).filter(
-    ({ title }) => !EXCLUDED_PREFIXES.includes(parseTitle(title).prefixes[0]),
+    ({ title }) => !EXCLUDED_PREFIXES.has(parseTitle(title).prefixes[0]),
   );
 }
 
 function renderContributors(data: ChangelogData) {
-  const { all } = creditAuthors(getCreditedChanges(data), { exclude: EXCLUDED_CONTRIBUTORS });
+  const { all } = creditAuthors(getCreditedChanges(data), {
+    exclude: Array.from(EXCLUDED_CONTRIBUTORS),
+  });
 
   if (all.length === 0) {
     return '';
