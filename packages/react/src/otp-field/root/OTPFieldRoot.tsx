@@ -21,6 +21,7 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { useFormReset } from '../../internals/useFormReset';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
@@ -284,6 +285,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     },
   );
 
+  // The hidden input carries the `form` attribute, unlike the slot inputs.
+  const [initialValue] = React.useState(value);
+  const resetRef = useFormReset((eventDetails) => {
+    setValue(initialValue, eventDetails);
+  });
+
   const reportValueInvalid = useStableCallback(
     (invalidValue: string, details: OTPFieldRoot.InvalidEventDetails) => {
       onValueInvalid?.(invalidValue, details);
@@ -411,7 +418,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     stateAttributesMapping: rootStateAttributesMapping,
   });
 
-  const hiddenInputRef = useMergedRefs(validation.inputRef, hiddenInputElementRef);
+  const hiddenInputRef = useMergedRefs(validation.inputRef, hiddenInputElementRef, resetRef);
 
   return (
     <CompositeList
@@ -633,7 +640,8 @@ export type OTPFieldRootChangeEventReason =
   | typeof REASONS.inputChange
   | typeof REASONS.inputClear
   | typeof REASONS.inputPaste
-  | typeof REASONS.keyboard;
+  | typeof REASONS.keyboard
+  | typeof REASONS.formReset;
 export type OTPFieldRootChangeEventDetails =
   BaseUIChangeEventDetails<OTPFieldRoot.ChangeEventReason>;
 

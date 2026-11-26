@@ -14,6 +14,7 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { useFormReset } from '../../internals/useFormReset';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -75,6 +76,32 @@ export const FieldControl = React.forwardRef(function FieldControl(
   // The DOM value is always a string, so dirty comparisons must serialize the controlled value.
   const serializedValue = value == null ? undefined : String(value);
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [initialValue] = React.useState(serializedValue);
+
+  const resetRef = useFormReset((eventDetails, [input]) => {
+    // React keeps a controlled input's `value` attribute in sync, so the browser won't restore it.
+    let nextValue = initialValue ?? '';
+    if (!isControlled) {
+      // A copy reads the sanitized value the browser restores, such as a range's midpoint.
+      const restored = input.cloneNode() as HTMLInputElement;
+      restored.value = input.defaultValue;
+      nextValue = restored.value;
+    }
+    if (nextValue !== input.value) {
+      onValueChange?.(
+        nextValue,
+        // The browser restores an uncontrolled input anyway, so canceling can't keep its value.
+        isControlled
+          ? eventDetails
+          : createChangeEventDetails(REASONS.formReset, eventDetails.event),
+      );
+    }
+    if (!isControlled) {
+      setFilled(nextValue !== '');
+    }
+  });
+
   const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
 
   useRegisterFieldControl(
@@ -104,12 +131,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
     validation.change(serializedValue);
   });
 
-  const inputRef = React.useRef<HTMLElement>(null);
   const setFocused = useSetFieldFocused(disabled, inputRef);
   const enterValidationTimeout = useTimeout();
 
   const element = useRenderElement('input', componentProps, {
-    ref: [forwardedRef, inputRef],
+    ref: [forwardedRef, inputRef, resetRef],
     state,
     props: [
       {
@@ -210,7 +236,7 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
   defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 
-export type FieldControlChangeEventReason = typeof REASONS.none;
+export type FieldControlChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 
 export type FieldControlChangeEventDetails =
   BaseUIChangeEventDetails<FieldControl.ChangeEventReason>;

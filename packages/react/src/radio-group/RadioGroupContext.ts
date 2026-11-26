@@ -19,6 +19,10 @@ export interface RadioGroupContext<Value> {
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   validation?: UseFieldValidationReturnValue | undefined;
   registerInputRef: (element: HTMLInputElement | null) => void;
+  /**
+   * Restores the group's value when the form is reset. Attached to each radio's input.
+   */
+  resetRef: (input: HTMLInputElement) => () => void;
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContext<any> | undefined>(undefined);

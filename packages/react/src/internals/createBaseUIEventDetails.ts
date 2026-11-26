@@ -42,6 +42,7 @@ interface ReasonToEventMap {
   [REASONS.missing]: Event;
   [REASONS.initial]: Event;
   [REASONS.imperativeAction]: Event;
+  [REASONS.formReset]: Event;
 
   [REASONS.windowResize]: UIEvent;
 }

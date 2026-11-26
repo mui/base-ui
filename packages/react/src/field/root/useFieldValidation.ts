@@ -89,6 +89,7 @@ export function useFieldValidation(
     shouldValidateOnChange,
     validationMode,
     registeredFieldIdRef,
+    resettingRef,
   } = params;
 
   const { controlId, getDescriptionProps } = useLabelableContext();
@@ -119,6 +120,15 @@ export function useFieldValidation(
     const element = findRepresentativeInput(registeredInputs, elementRef.current);
     return (element && registeredInputs.get(element)?.controlRef.current) || null;
   });
+
+  function clearCustomValidity() {
+    const record = customValidityRef.current;
+    customValidityRef.current = null;
+    // Replacement transfers ownership; barred controls hide `validationMessage`.
+    if (record && (!record[0].willValidate || record[0].validationMessage === record[1])) {
+      record[0].setCustomValidity(record[2]);
+    }
+  }
 
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
     validationCommitIdRef.current += 1;
@@ -170,15 +180,6 @@ export function useFieldValidation(
       const ownedMessage = message.replace(/\r\n?/g, '\n');
       element.setCustomValidity(ownedMessage);
       customValidityRef.current = [element, ownedMessage, displaced];
-    }
-
-    function clearCustomValidity() {
-      const record = customValidityRef.current;
-      customValidityRef.current = null;
-      // Replacement transfers ownership; barred controls hide `validationMessage`.
-      if (record && (!record[0].willValidate || record[0].validationMessage === record[1])) {
-        record[0].setCustomValidity(record[2]);
-      }
     }
 
     function publish(
@@ -349,7 +350,8 @@ export function useFieldValidation(
   const change = useStableCallback((value: unknown, cancelPending = false) => {
     timeout.clear();
     validationCommitIdRef.current += 1;
-    if (cancelPending) {
+    if (cancelPending || resettingRef.current) {
+      clearCustomValidity();
       return;
     }
 
@@ -403,6 +405,10 @@ export interface UseFieldValidationParameters {
   shouldValidateOnChange: () => boolean;
   validationMode: Form.ValidationMode;
   registeredFieldIdRef: React.RefObject<string | undefined>;
+  /**
+   * Whether a form reset is restoring the field, which skips validating the restored value.
+   */
+  resettingRef: React.RefObject<boolean>;
 }
 
 export interface UseFieldValidationReturnValue {

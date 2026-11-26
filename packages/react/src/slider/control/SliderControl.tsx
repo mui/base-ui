@@ -366,8 +366,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
       currentInteractionValueRef.current = null;
     }
 
-    if (currentInteractionValueRef.current != null) {
-      const commitReason = lastChangeReasonRef.current;
+    const commitReason = lastChangeReasonRef.current;
+    // A form reset during the press replaced the value, so there's nothing to commit.
+    if (currentInteractionValueRef.current != null && commitReason !== REASONS.formReset) {
       onValueCommitted(
         currentInteractionValueRef.current,
         createGenericEventDetails(commitReason, nativeEvent),

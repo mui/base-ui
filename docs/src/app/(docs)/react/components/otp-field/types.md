@@ -86,7 +86,8 @@ type OTPFieldRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type OTPFieldRootChangeEventReason = 'input-change' | 'input-clear' | 'input-paste' | 'keyboard';
+type OTPFieldRootChangeEventReason =
+  'input-change' | 'input-clear' | 'input-paste' | 'keyboard' | 'form-reset';
 ```
 
 ### Root.ChangeEventDetails
@@ -97,6 +98,7 @@ type OTPFieldRootChangeEventDetails = (
   | { reason: 'input-clear'; event: InputEvent | Event | FocusEvent }
   | { reason: 'input-paste'; event: ClipboardEvent }
   | { reason: 'keyboard'; event: KeyboardEvent }
+  | { reason: 'form-reset'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
