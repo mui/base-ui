@@ -154,8 +154,10 @@
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
+    "@types/luxon": "^3.0.0",
     "@types/react": "^17 || ^18 || ^19",
     "date-fns": "^4.0.0",
+    "luxon": "^3.0.0",
     "react": "^17 || ^18 || ^19",
     "react-dom": "^17 || ^18 || ^19"
   },
@@ -163,10 +165,16 @@
     "@date-fns/tz": {
       "optional": true
     },
+    "@types/luxon": {
+      "optional": true
+    },
     "@types/react": {
       "optional": true
     },
     "date-fns": {
+      "optional": true
+    },
+    "luxon": {
       "optional": true
     }
   },
