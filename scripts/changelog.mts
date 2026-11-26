@@ -36,6 +36,8 @@ const EXCLUDED_LABELS = new Set([
 
 const EXCLUDED_PREFIXES = new Set(['utils', 'internals', 'example', 'examples', 'experiments']);
 const EXCLUDED_CONTRIBUTORS = new Set(['Copilot']);
+const REVERT = /^Reverts #(\d+)/;
+const TEST = /\btests?\b/i;
 
 /** Title prefixes of parts that have no section of their own. */
 const COMPONENT_OF = new Map([['radio', 'radio group']]);
@@ -66,11 +68,8 @@ function createRouter(changes: ChangelogChange[]) {
   const known = new Set(changes.flatMap(({ labels }) => getComponents(labels)));
 
   return ({ labels, title }: ChangelogChange) => {
-    if (labels.includes(ALL_COMPONENTS_LABEL)) {
-      return GENERAL_CHANGES;
-    }
-
-    const labeled = getComponents(labels);
+    // A change to all components still goes to the component its prefix names, if any.
+    const labeled = labels.includes(ALL_COMPONENTS_LABEL) ? [] : getComponents(labels);
 
     const components =
       labeled.length > 0
@@ -140,9 +139,37 @@ function getCreditedChanges({ changes }: ChangelogData) {
   return changes.filter(({ labels }) => !labels.some((label) => EXCLUDED_LABELS.has(label)));
 }
 
-/** The credited changes without excluded prefixes, unless labeled with a component or all of them. */
+/** The changes a revert in the same release undoes, and the revert. */
+function getReverted(changes: ChangelogChange[]) {
+  const numbers = new Set(changes.map(({ pullRequest }) => pullRequest?.number));
+  const reverted = new Set<number>();
+
+  for (const { pullRequest } of changes) {
+    const target = Number(pullRequest?.body?.match(REVERT)?.[1]);
+
+    if (!pullRequest || !numbers.has(target)) {
+      continue;
+    }
+
+    reverted.add(target);
+    reverted.add(pullRequest.number);
+  }
+
+  return reverted;
+}
+
+/**
+ * The credited changes without tests and reverts, and without excluded prefixes unless labeled
+ * with a component or all of them.
+ */
 function getListedChanges(data: ChangelogData) {
-  return getCreditedChanges(data).filter(({ labels, title }) => {
+  const reverted = getReverted(data.changes);
+
+  return getCreditedChanges(data).filter(({ labels, title, pullRequest }) => {
+    if ((pullRequest && reverted.has(pullRequest.number)) || TEST.test(parseTitle(title).text)) {
+      return false;
+    }
+
     // A label says the change is for users, whatever the prefix: #5000 is `[utils]`.
     if (labels.includes(ALL_COMPONENTS_LABEL) || getComponents(labels).length > 0) {
       return true;
