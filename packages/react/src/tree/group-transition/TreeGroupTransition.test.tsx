@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { screen, fireEvent, waitFor, act } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { Tree } from '..';
+import { TreeGrid } from '../../tree-grid';
 
 const { render } = createRenderer();
 
@@ -183,5 +184,78 @@ describe.skipIf(isJSDOM)('<Tree.GroupTransition /> focus preservation', () => {
     await waitFor(() => expect(screen.queryByTestId('gt-parent')).toBeNull());
     expect(document.activeElement).toBe(screen.getByTestId('item-child-1'));
     expect(actionsRef.current!.getFocusedItemId()).toBe('child-1');
+  });
+  it('puts a child reached with the keyboard during the expand animation in its final place before focusing it', async () => {
+    const actionsRef = React.createRef<Tree.Root.Actions>();
+    await render(<AnimatedTree actionsRef={actionsRef} />);
+    const parent = screen.getByTestId('item-parent');
+    act(() => parent.focus());
+    fireEvent.keyDown(parent, { key: 'ArrowRight' });
+    expect(screen.getByTestId('gt-parent')).toContainElement(screen.getByTestId('item-child-1'));
+
+    fireEvent.keyDown(parent, { key: 'ArrowDown' });
+
+    const child = screen.getByTestId('item-child-1');
+    expect(child).toHaveFocus();
+    expect(screen.queryByTestId('gt-parent')).toBe(null);
+    let blurred = false;
+    child.addEventListener('focusout', () => {
+      blurred = true;
+    });
+    // Longer than the 500ms transition the group would have run.
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 600);
+      });
+    });
+    expect(child).toHaveFocus();
+    expect(blurred).toBe(false);
+  });
+
+  it('keeps an input of a row reached with the keyboard during the expand animation', async () => {
+    await render(
+      <TreeGrid.Root
+        items={[{ id: 'parent', label: 'Parent', children: [{ id: 'child', label: 'Child' }] }]}
+      >
+        <TreeGrid.Table aria-label="Files">
+          {(item: Item) => (
+            <React.Fragment>
+              <TreeGrid.Row itemId={item.id} data-testid={`row-${item.id}`}>
+                <TreeGrid.Cell>
+                  {item.label}
+                  <TreeGrid.CellInput
+                    aria-label={`Rename ${item.label}`}
+                    defaultValue={item.label}
+                    data-testid={`input-${item.id}`}
+                  />
+                </TreeGrid.Cell>
+              </TreeGrid.Row>
+              <TreeGrid.GroupTransition
+                className="TestGroupTransition"
+                data-testid={`gt-${item.id}`}
+              />
+            </React.Fragment>
+          )}
+        </TreeGrid.Table>
+      </TreeGrid.Root>,
+    );
+    const parent = screen.getByTestId('row-parent');
+    act(() => parent.focus());
+    fireEvent.keyDown(parent, { key: 'ArrowRight' });
+    expect(screen.getByTestId('gt-parent')).toContainElement(screen.getByTestId('row-child'));
+
+    fireEvent.keyDown(parent, { key: 'ArrowDown' });
+    const child = screen.getByTestId('row-child');
+    fireEvent.keyDown(child, { key: 'ArrowRight' });
+    const input = screen.getByTestId<HTMLInputElement>('input-child');
+    expect(input).toHaveFocus();
+    fireEvent.change(input, { target: { value: 'Child X' } });
+    await waitFor(() => {
+      expect(screen.queryByTestId('gt-parent')).toBe(null);
+    });
+
+    expect(screen.getByTestId('input-child')).toBe(input);
+    expect(input).toHaveFocus();
+    expect(input.value).toBe('Child X');
   });
 });

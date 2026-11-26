@@ -274,6 +274,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
 
   /** Focuses the first stop of an item. Returns whether the item has one. */
   public focusFirstStop(itemId: TreeItemId): boolean {
+    this.store.expansion.settleItem(itemId);
     const stops = this.getLayout(itemId).stops;
     if (stops.length === 0) {
       return false;
@@ -316,6 +317,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
    * in the cell, or the last one before it, or to the row when it has no stop there.
    */
   private moveInColumn(position: ColumnPosition, targetItem: TreeItemId, event: KeyboardEvent) {
+    this.store.expansion.settleItem(targetItem);
     const targetStops = selectors.isItemDisabled(this.store.state, targetItem)
       ? EMPTY_ARRAY
       : getCellStops(this.getLayout(targetItem), position.cellIndex);

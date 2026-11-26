@@ -415,6 +415,11 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     event?: FocusCause['event'],
   ) => {
     if (selectors.isItemFocusTarget(this.store.state, itemId)) {
+      // The keyboard can move faster than a group expands: put the row in its final
+      // place first, so it keeps focus once the transition ends.
+      if (reason === REASONS.keyboard) {
+        this.store.expansion.settleItem(itemId);
+      }
       const element = this.store.items.getItemDOMElement(itemId);
       if (element) {
         // The viewport brings the focused row into view (see `revealItem`).

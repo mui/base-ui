@@ -1,3 +1,4 @@
+import * as ReactDOM from 'react-dom';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { NOOP } from '@base-ui/utils/empty';
 import {
@@ -183,6 +184,27 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
     const rest = cloneLookup(this.store.state.animatingGroups);
     delete rest[getItemIdKey(parentId)];
     this.store.set('animatingGroups', rest);
+  };
+
+  /**
+   * Ends the expand transitions that render the row of `itemId`, so the row is in its
+   * final place before the keyboard moves focus to it or into it. Rows render inside
+   * the transition's wrapper and are replaced once it ends, which would move focus
+   * from a control back to its row and drop the unsaved value of an input.
+   * Call it from event handlers only: it renders the change synchronously.
+   */
+  public settleItem = (itemId: TreeItemId): void => {
+    const groups = Object.values(this.store.state.animatingGroups).filter(
+      (group) => group.type === 'expanding' && group.childIds.includes(itemId),
+    );
+    if (groups.length === 0) {
+      return;
+    }
+    ReactDOM.flushSync(() => {
+      for (const group of groups) {
+        this.completeGroupTransition(group.parentId);
+      }
+    });
   };
 
   public expandAllSiblings = (
