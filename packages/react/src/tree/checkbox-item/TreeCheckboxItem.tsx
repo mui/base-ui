@@ -51,6 +51,7 @@ export const TreeCheckboxItem = fastComponentRef(function TreeCheckboxItem(
 
   const element = useRenderElement('div', componentProps, {
     state,
+    enabled: !sharedItemResponse.hidden,
     ref: [forwardedRef, sharedItemResponse.ref],
     props: [
       sharedItemResponse.props,

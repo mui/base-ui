@@ -8,6 +8,7 @@ import { TreeGroupTransitionContext } from '../group-transition/TreeGroupTransit
 import type { TreeGroupTransitionContextValue } from '../group-transition/TreeGroupTransitionContext';
 import { TreeItemModelProvider } from '../utils/TreeItemModelProvider';
 import { getItemIdKey } from '../utils/itemIdKey';
+import { TreeRowsContext } from './TreeRowsContext';
 
 /**
  * Renders every visible row with `children`, for `Tree.List` and the parts of
@@ -66,7 +67,7 @@ export function TreeRows<TItem>(props: TreeRows.Props<TItem>): React.JSX.Element
     });
   }
 
-  return <React.Fragment>{rows}</React.Fragment>;
+  return <TreeRowsContext.Provider value={store}>{rows}</TreeRowsContext.Provider>;
 }
 
 export namespace TreeRows {

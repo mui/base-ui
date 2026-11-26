@@ -45,6 +45,7 @@ export const TreeLinkItem = fastComponentRef(function TreeLinkItem(
 
   const element = useRenderElement('a', componentProps, {
     state,
+    enabled: !sharedItemResponse.hidden,
     ref: [forwardedRef, sharedItemResponse.ref],
     props: [
       sharedItemResponse.props,

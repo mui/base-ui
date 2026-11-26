@@ -371,16 +371,16 @@ type TreeClearState = {
 Renders all tree items at once.
 Renders a `<div>` element.
 
-Render a group transition after each item to animate expand/collapse transitions.
+Render a group transition after each item of a function child to animate expand/collapse transitions.
 
 **List Props:**
 
-| Prop       | Type                                                                                    | Default | Description                                                                                                                                                                                   |
-| :--------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children\* | `((item: TItem) => React.ReactNode)`                                                    | -       | The render function for each tree item.&#xA;Pass the item type to `Tree.List` to type the `item` parameter.                                                                                   |
-| className  | `string \| ((state: Tree.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style      | `React.CSSProperties \| ((state: Tree.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render     | `ReactElement \| ((props: HTMLProps, state: Tree.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop       | Type                                                                                    | Default | Description                                                                                                                                                                                                                                                                                         |
+| :--------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children\* | `React.ReactNode \| ((item: TItem) => React.ReactNode)`                                 | -       | The items of the tree. A function renders each of the root's `items` in view, and receives&#xA;an item. Pass the item type to `Tree.List` to type it.&#xA;Otherwise, render an item part for each of the root's `items` as children, in order. Each&#xA;one renders nothing while it's out of view. |
+| className  | `string \| ((state: Tree.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                            |
+| style      | `React.CSSProperties \| ((state: Tree.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                         |
+| render     | `ReactElement \| ((props: HTMLProps, state: Tree.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                       |
 
 **List Data Attributes:**
 

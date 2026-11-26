@@ -2,7 +2,6 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useTreeRootContext } from '../../tree/root/TreeRootContext';
-import { TreeRows } from '../../tree/list/TreeRows';
 import { useTreeListElement } from '../../tree/list/useTreeListElement';
 import { assertTreeGrid } from '../../tree/utils/assertTreeKind';
 
@@ -21,12 +20,7 @@ export const TreeGridTable = React.forwardRef(function TreeGridTable<TItem = any
   const { children, className, render, style, ...elementProps } = componentProps;
   const store = useTreeRootContext();
   assertTreeGrid(store, 'Table');
-  return useTreeListElement(
-    componentProps,
-    forwardedRef,
-    elementProps,
-    typeof children === 'function' ? <TreeRows>{children}</TreeRows> : children,
-  );
+  return useTreeListElement(componentProps, forwardedRef, elementProps, children);
 }) as <TItem = any>(
   props: TreeGridTable.Props<TItem> & React.RefAttributes<HTMLDivElement>,
 ) => React.JSX.Element;

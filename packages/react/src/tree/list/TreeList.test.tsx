@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
-import { screen, act, fireEvent, waitFor } from '@mui/internal-test-utils';
+import { screen, act, fireEvent, waitFor, within } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { Tree } from '..';
 
@@ -517,5 +517,122 @@ describe('<Tree.List /> state', () => {
 
     await setProps({ disabled: false });
     expect(screen.getByTestId('list')).not.toHaveAttribute('data-disabled');
+  });
+});
+
+describe('<Tree.List /> prop: children', () => {
+  const ITEMS: Tree.DefaultItem[] = [
+    {
+      id: 'fruits',
+      label: 'Fruits',
+      children: [
+        { id: 'apple', label: 'Apple' },
+        { id: 'banana', label: 'Banana' },
+      ],
+    },
+    { id: 'vegetables', label: 'Vegetables' },
+  ];
+
+  type ItemPart = React.ElementType<{ itemId: Tree.ItemId; children?: React.ReactNode }>;
+
+  const PARTS: { name: string; Part: ItemPart }[] = [
+    { name: 'Tree.Item', Part: Tree.Item },
+    { name: 'Tree.CheckboxItem', Part: Tree.CheckboxItem },
+    { name: 'Tree.LinkItem', Part: Tree.LinkItem },
+  ];
+
+  function renderItems(items: readonly Tree.DefaultItem[], Part: ItemPart = Tree.Item) {
+    return items.map((item) => (
+      <React.Fragment key={item.id}>
+        <Part itemId={item.id}>
+          <Tree.ItemExpansionTrigger />
+          {item.label}
+        </Part>
+        {item.children && renderItems(item.children, Part)}
+      </React.Fragment>
+    ));
+  }
+
+  function getRenderedItemIds(container: HTMLElement = document.body) {
+    return within(container)
+      .getAllByRole('treeitem')
+      .map((item) => item.dataset.itemId);
+  }
+
+  it.each(PARTS)(
+    'renders the plain $name children of an item only while it is expanded',
+    async ({ Part }) => {
+      const { user } = await render(
+        <Tree.Root items={ITEMS}>
+          <Tree.List>{renderItems(ITEMS, Part)}</Tree.List>
+        </Tree.Root>,
+      );
+      expect(getRenderedItemIds()).toEqual(['fruits', 'vegetables']);
+
+      await act(async () => {
+        screen.getByRole('treeitem', { name: 'Fruits' }).focus();
+      });
+      await user.keyboard('{ArrowRight}');
+      expect(getRenderedItemIds()).toEqual(['fruits', 'apple', 'banana', 'vegetables']);
+
+      await user.keyboard('{ArrowLeft}');
+      expect(getRenderedItemIds()).toEqual(['fruits', 'vegetables']);
+    },
+  );
+
+  it('moves focus with the keyboard through the plain children of an item it expands', async () => {
+    const { user } = await render(
+      <Tree.Root items={ITEMS}>
+        <Tree.List>{renderItems(ITEMS)}</Tree.List>
+      </Tree.Root>,
+    );
+    await act(async () => {
+      screen.getByRole('treeitem', { name: 'Fruits' }).focus();
+    });
+
+    await user.keyboard('{ArrowRight}');
+    await user.keyboard('{ArrowDown}');
+    expect(document.activeElement).toBe(screen.getByRole('treeitem', { name: 'Apple' }));
+  });
+
+  it('renders nothing for the plain children that the filter hides', async () => {
+    await render(
+      <Tree.FilterProvider value="ban">
+        <Tree.Root items={ITEMS}>
+          <Tree.List>{renderItems(ITEMS)}</Tree.List>
+        </Tree.Root>
+      </Tree.FilterProvider>,
+    );
+    expect(getRenderedItemIds()).toEqual(['fruits', 'banana']);
+  });
+
+  it('reports an item in view that the plain children do not render', async () => {
+    const { user } = await render(
+      <Tree.Root items={ITEMS}>
+        <Tree.List>{renderItems(ITEMS.map(({ children, ...item }) => item))}</Tree.List>
+      </Tree.Root>,
+    );
+
+    await expect(() =>
+      user.click(screen.getByRole('button', { name: 'Expand Fruits' })),
+    ).toErrorDev('The item "apple" is in view, but the children of <Tree.List> don\'t render it');
+  });
+
+  it('hides the collapsed plain children of a tree nested in a row of a function child', async () => {
+    await render(
+      <Tree.Root items={[{ id: 'outer', label: 'Outer' }]}>
+        <Tree.List>
+          {(item: Tree.DefaultItem) => (
+            <Tree.Item itemId={item.id}>
+              {item.label}
+              <Tree.Root items={ITEMS}>
+                <Tree.List data-testid="nested">{renderItems(ITEMS)}</Tree.List>
+              </Tree.Root>
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>,
+    );
+    expect(getRenderedItemIds(screen.getByTestId('nested'))).toEqual(['fruits', 'vegetables']);
   });
 });

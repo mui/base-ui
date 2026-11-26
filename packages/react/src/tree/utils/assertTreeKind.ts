@@ -25,8 +25,9 @@ export function assertTreeGrid(
   }
 }
 
-// The `Tree` item parts, and the part a `TreeGrid` renders inside its cell instead.
-const PLAIN_ITEM_PARTS = {
+// The `Tree` item parts, and the part a `TreeGrid` renders instead.
+export const ITEM_PARTS = {
+  item: ['Item', 'Row'],
   checkbox: ['CheckboxItem', 'RowCheckbox'],
   link: ['LinkItem', 'CellLink'],
 } as const;
@@ -37,7 +38,7 @@ export function assertPlainTree(
   kind: Exclude<TreeItemKind, 'item'>,
 ): void {
   if (store.grid !== undefined) {
-    const [part, treeGridPart] = PLAIN_ITEM_PARTS[kind];
+    const [part, treeGridPart] = ITEM_PARTS[kind];
     throw new Error(
       `Base UI: <Tree.${part}> cannot be placed in <TreeGrid.Root>. ` +
         'Each item of a tree grid is a row that holds its controls in a cell, so the item ' +

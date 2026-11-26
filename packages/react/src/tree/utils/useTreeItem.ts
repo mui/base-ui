@@ -5,13 +5,15 @@ import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompar
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { error } from '@base-ui/utils/error';
 import type { TreeItemId, TreeItemKind, TreeState } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import { getItemIdKey } from './itemIdKey';
 import * as TreeItemCssVars from '../item/TreeItemCssVars';
-import { assertPlainTree } from './assertTreeKind';
+import { assertPlainTree, ITEM_PARTS } from './assertTreeKind';
+import { TreeRowsContext } from '../list/TreeRowsContext';
 
 /**
  * State and DOM registration for TreeItem.
@@ -25,10 +27,14 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
   if (kind !== 'item') {
     assertPlainTree(store, kind);
   }
+  // A function child only renders the rows in view, or animating out of it.
+  // Plain children render every item, so each one hides itself out of view.
+  const renderedByList = React.useContext(TreeRowsContext) === store;
   // Keep one snapshot per row instead of nesting memoized selectors. Store
   // notifications still check the values, but unchanged rows retain their snapshot.
   const selectItemState = React.useMemo(() => {
     const readState = (state: TreeState) => ({
+      hidden: !renderedByList && !selectors.isItemVisible(state, itemId),
       expanded: selectors.isItemExpanded(state, itemId),
       expandable: selectors.isItemExpandable(state, itemId),
       focused: selectors.isItemFocused(state, itemId),
@@ -49,16 +55,21 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
       if (state === previousState) {
         return previous!;
       }
-      const next = readState(state);
       previousState = state;
+      // A hidden item renders nothing, so its state can wait until it's back in view.
+      if (previous?.hidden && !selectors.isItemVisible(state, itemId)) {
+        return previous;
+      }
+      const next = readState(state);
       if (previous !== undefined && fastObjectShallowCompare(previous, next)) {
         return previous;
       }
       previous = next;
       return next;
     };
-  }, [store, itemId]);
+  }, [store, itemId, renderedByList]);
   const {
+    hidden,
     expanded,
     expandable,
     focused,
@@ -91,6 +102,21 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
         store.grid?.warnAboutCells(itemId);
       }
     }, [element, store, itemId]);
+    // Checked after the commit against the current items, which this render may not
+    // have seen yet when the items and the children change together.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (selectors.itemMeta(store.state, itemId) == null) {
+        const [treePart, treeGridPart] = ITEM_PARTS[kind];
+        const [tree, part] = store.grid ? ['TreeGrid', treeGridPart] : ['Tree', treePart];
+        error(
+          `A <${tree}.${part}> has the itemId ${JSON.stringify(itemId)}, which is not in the ` +
+            `\`items\` of <${tree}.Root>, so the tree can't show, focus or select it. ` +
+            `Give each <${tree}.${part}> the id of an item in \`items\`: its \`id\` field, or ` +
+            'what `getId` returns for it with `createItems()`.',
+        );
+      }
+    }, [store, itemId, kind, hidden]);
   }
 
   // Restore focus when the focused row remounts. The virtualizer recycling an
@@ -152,6 +178,7 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
     props,
     selected,
     selectionSupported,
+    hidden,
   };
 }
 
@@ -206,4 +233,6 @@ interface UseTreeItemReturnValue {
   props: React.HTMLAttributes<HTMLElement>;
   selected: boolean;
   selectionSupported: boolean;
+  /** Whether the item renders nothing, because it's a plain child of the list and out of view. */
+  hidden: boolean;
 }

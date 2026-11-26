@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { TreeRows } from './TreeRows';
 import { useTreeListElement } from './useTreeListElement';
 
 /**
  * Renders all tree items at once.
  * Renders a `<div>` element.
  *
- * Render a group transition after each item to animate expand/collapse transitions.
+ * Render a group transition after each item of a function child to animate expand/collapse transitions.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
@@ -17,12 +16,7 @@ export const TreeList = React.forwardRef(function TreeList<TItem = any>(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, className, render, style, ...elementProps } = componentProps;
-  return useTreeListElement(
-    componentProps,
-    forwardedRef,
-    elementProps,
-    <TreeRows>{children}</TreeRows>,
-  );
+  return useTreeListElement(componentProps, forwardedRef, elementProps, children);
 }) as <TItem = any>(
   props: TreeList.Props<TItem> & React.RefAttributes<HTMLDivElement>,
 ) => React.JSX.Element;
@@ -43,10 +37,12 @@ export interface TreeListProps<TItem = any> extends Omit<
   'children'
 > {
   /**
-   * The render function for each tree item.
-   * Pass the item type to `Tree.List` to type the `item` parameter.
+   * The items of the tree. A function renders each of the root's `items` in view, and receives
+   * an item. Pass the item type to `Tree.List` to type it.
+   * Otherwise, render an item part for each of the root's `items` as children, in order. Each
+   * one renders nothing while it's out of view.
    */
-  children: (item: TItem) => React.ReactNode;
+  children: React.ReactNode | ((item: TItem) => React.ReactNode);
 }
 
 export namespace TreeList {
