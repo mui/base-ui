@@ -107,18 +107,25 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
 
     const focusedId = newState.focusedItemId;
     if (focusedId == null) {
-      // Focus is outside the tree, so the removed row's tab stop goes to the
-      // neighbor that would have taken focus.
       const lastFocusedId = newState.lastFocusedItemId;
-      if (
-        lastFocusedId != null &&
-        newMetaLookup[getItemIdKey(lastFocusedId)] == null &&
-        previousMetaLookup[getItemIdKey(lastFocusedId)] != null
-      ) {
-        this.store.set(
-          'lastFocusedItemId',
-          this.getRemovedItemSuccessor(newState, previousState, lastFocusedId),
-        );
+      if (lastFocusedId != null) {
+        const removed =
+          newMetaLookup[getItemIdKey(lastFocusedId)] == null &&
+          previousMetaLookup[getItemIdKey(lastFocusedId)] != null;
+        // Focus is outside the tree, so the removed row's tab stop goes to the
+        // neighbor that would have taken focus.
+        if (removed) {
+          this.store.set(
+            'lastFocusedItemId',
+            this.getRemovedItemSuccessor(newState, previousState, lastFocusedId),
+          );
+        }
+        if (
+          selectors.isItemVisible(previousState, lastFocusedId) &&
+          !selectors.isItemVisible(newState, lastFocusedId)
+        ) {
+          this.recoverFocusLeavingWithItem(removed ? null : lastFocusedId);
+        }
       }
       this.recoverFocusFromContainer(newState, previousState);
       return;
@@ -209,6 +216,44 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       } else {
         this.clearFocusedItem();
         rootElement.focus({ preventScroll: true });
+      }
+    });
+  }
+
+  /**
+   * Puts focus back in the tree when the row that had it last leaves the view and
+   * takes the focus with it. Focus was outside the tree, such as in a menu opened
+   * from one of the row's controls: the menu unmounts with the row, so it can't
+   * return focus to its trigger, and focus would fall to `<body>`.
+   *
+   * `hiddenItemId` is the row when it stays in the collection, hidden by a collapse
+   * or a filter, and `null` when it was removed.
+   */
+  private recoverFocusLeavingWithItem(hiddenItemId: TreeItemId | null): void {
+    const rootElement = this.store.context.rootRef.current;
+    // Focus that was already lost before this update didn't leave with the row.
+    if (rootElement == null || this.getFocusLocation(rootElement) !== 'outside') {
+      return;
+    }
+    this.scheduleFocusRecovery((_rootElement, focusLocation) => {
+      // Focus that moved elsewhere, such as back to a trigger outside the tree, stays there.
+      if (focusLocation !== 'lost') {
+        return;
+      }
+      const state = this.store.state;
+      // As for a focused row, a collapse hands focus to the shallowest collapsed ancestor.
+      const ancestor =
+        hiddenItemId == null || selectors.isViewTransformed(state)
+          ? null
+          : (selectors
+              .ancestorIds(state, hiddenItemId)
+              .find((ancestorId) => !selectors.isItemExpanded(state, ancestorId)) ?? null);
+      const target =
+        ancestor != null && selectors.isItemFocusTarget(state, ancestor)
+          ? ancestor
+          : selectors.tabbableItemId(state);
+      if (target != null) {
+        this.focusItem(target);
       }
     });
   }

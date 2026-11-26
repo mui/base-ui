@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { describe, expect, it, vi } from 'vitest';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { DirectionProvider } from '../direction-provider';
 import { Field } from '../field';
@@ -2502,4 +2502,161 @@ describe('TreeGrid controls in a disabled row', () => {
       expect(control.ownerDocument.activeElement === control).toBe(rowFocusable);
     },
   );
+});
+
+describe('focus recovery from a popup opened on a row', () => {
+  interface MenuItem extends TreeDefaultItem {
+    children?: MenuItem[];
+  }
+
+  const MENU_ITEMS: MenuItem[] = [
+    { id: 'documents', label: 'Documents' },
+    { id: 'music', label: 'Music' },
+    { id: 'archive', label: 'Archive', children: [{ id: 'old', label: 'Old' }] },
+  ];
+
+  // Each row has an actions menu whose items remove the row or move it into the
+  // collapsed Archive folder, and the page has a menu outside the tree that removes
+  // the first row.
+  function MenuTree() {
+    const actionsRef = React.useRef<TreeGrid.Root.Actions<MenuItem>>(null);
+    return (
+      <React.Fragment>
+        <button type="button" data-testid="before">
+          Before
+        </button>
+        <TreeGrid.Root defaultItems={MENU_ITEMS} actionsRef={actionsRef}>
+          <Menu.Root>
+            <Menu.Trigger data-testid="page-menu">Page actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item
+                    onClick={() =>
+                      actionsRef.current?.applyTransaction((transaction) =>
+                        transaction.remove('documents'),
+                      )
+                    }
+                  >
+                    Delete Documents
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <TreeGrid.Table aria-label="Files">
+            {(item: MenuItem) => (
+              <TreeGrid.Row itemId={item.id} data-testid={`row-${item.id}`}>
+                <TreeGrid.Cell>
+                  {item.label}
+                  <Menu.Root>
+                    <TreeGrid.CellButton render={<Menu.Trigger />} data-testid={`menu-${item.id}`}>
+                      Actions
+                    </TreeGrid.CellButton>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item
+                            onClick={() =>
+                              actionsRef.current?.applyTransaction((transaction) =>
+                                transaction.remove(item.id),
+                              )
+                            }
+                          >
+                            Delete
+                          </Menu.Item>
+                          <Menu.Item
+                            onClick={() =>
+                              actionsRef.current?.applyTransaction((transaction) =>
+                                transaction.move(item.id, { parentId: 'archive' }),
+                              )
+                            }
+                          >
+                            Archive
+                          </Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.Root>
+                </TreeGrid.Cell>
+              </TreeGrid.Row>
+            )}
+          </TreeGrid.Table>
+        </TreeGrid.Root>
+      </React.Fragment>
+    );
+  }
+
+  it.each([
+    { name: 'Delete', target: 'row-music' },
+    { name: 'Archive', target: 'row-archive' },
+  ])(
+    'focuses $target when $name in the menu of a row takes the row out of view',
+    async ({ name, target }) => {
+      const { user } = await render(<MenuTree />);
+      act(() => screen.getByTestId('row-documents').focus());
+      await user.keyboard('{ArrowRight}{Enter}');
+      const menuItem = await screen.findByRole('menuitem', { name });
+      act(() => menuItem.focus());
+      expect(menuItem).toHaveFocus();
+
+      await user.keyboard('{Enter}');
+
+      expect(screen.queryByTestId('row-documents')).toBe(null);
+      await waitFor(() => {
+        expect(screen.getByTestId(target)).toHaveFocus();
+      });
+    },
+  );
+
+  it('leaves focus with a menu outside the tree that removes the row focused last', async () => {
+    const { user } = await render(<MenuTree />);
+    act(() => screen.getByTestId('row-documents').focus());
+    const pageMenu = screen.getByTestId('page-menu');
+    act(() => pageMenu.focus());
+    await user.keyboard('{Enter}');
+    const menuItem = await screen.findByRole('menuitem', { name: 'Delete Documents' });
+    act(() => menuItem.focus());
+
+    await user.keyboard('{Enter}');
+
+    expect(screen.queryByTestId('row-documents')).toBe(null);
+    await waitFor(() => {
+      expect(pageMenu).toHaveFocus();
+    });
+    await act(async () => {
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+    expect(pageMenu).toHaveFocus();
+  });
+
+  it('leaves focus on the body when the row focused last is removed after focus was lost', async () => {
+    const actionsRef = React.createRef<TreeGrid.Root.Actions<MenuItem>>();
+    await render(
+      <TreeGrid.Root defaultItems={MENU_ITEMS} actionsRef={actionsRef}>
+        <TreeGrid.Table aria-label="Files">
+          {(item: MenuItem) => (
+            <TreeGrid.Row itemId={item.id} data-testid={`row-${item.id}`}>
+              <TreeGrid.Cell>{item.label}</TreeGrid.Cell>
+            </TreeGrid.Row>
+          )}
+        </TreeGrid.Table>
+      </TreeGrid.Root>,
+    );
+    const row = screen.getByTestId('row-documents');
+    act(() => row.focus());
+    act(() => row.blur());
+    expect(document.body).toHaveFocus();
+
+    // A background update, such as new data, removes the row.
+    await act(async () => {
+      await actionsRef.current?.applyTransaction((transaction) => transaction.remove('documents'));
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+
+    expect(screen.queryByTestId('row-documents')).toBe(null);
+    expect(document.body).toHaveFocus();
+  });
 });
