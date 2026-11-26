@@ -517,6 +517,50 @@ export function popupConformanceTests(config: PopupTestConfig) {
       );
     });
 
+    describe('trigger DOM node', () => {
+      // A new node loses the listeners that were attached to the old one, such as the hover listeners.
+      function createTriggerNodeRecorder() {
+        const nodes = new Set<HTMLElement>();
+        const ref = (node: HTMLElement | null) => {
+          if (node) {
+            nodes.add(node);
+          }
+        };
+        return { nodes, ref };
+      }
+
+      // React 17 generates the id in an effect after the first commit.
+      it('keeps the same node from the first commit through open and close', async () => {
+        const recorder = createTriggerNodeRecorder();
+        const { user } = await render(prepareComponent({ trigger: { ref: recorder.ref } }));
+        expect(recorder.nodes.size).toBe(1);
+
+        await openWithTrigger(user);
+        await waitFor(() => {
+          expect(getTrigger()).toHaveAttribute('data-popup-open');
+        });
+        expect(getPopup()).toBeVisible();
+        expect(recorder.nodes.size).toBe(1);
+
+        await user.keyboard('[Escape]');
+        await waitFor(expectPopupClosed);
+        expect(recorder.nodes.size).toBe(1);
+        expect(recorder.nodes.has(getTrigger())).toBe(true);
+      });
+
+      it('keeps the same node when the `id` prop changes', async () => {
+        const recorder = createTriggerNodeRecorder();
+        const { rerender } = await render(
+          prepareComponent({ trigger: { id: 'trigger-a', ref: recorder.ref } }),
+        );
+        expect(getTrigger()).toHaveAttribute('id', 'trigger-a');
+
+        await rerender(prepareComponent({ trigger: { id: 'trigger-b', ref: recorder.ref } }));
+        expect(getTrigger()).toHaveAttribute('id', 'trigger-b');
+        expect(recorder.nodes.size).toBe(1);
+      });
+    });
+
     if (expectedPopupRole || triggerMouseAction === 'click') {
       describe('ARIA attributes', () => {
         if (expectedPopupRole) {
@@ -919,6 +963,8 @@ interface RootProps {
 interface TriggerProps {
   'data-testid'?: string;
   delay?: number;
+  id?: string;
+  ref?: React.RefCallback<HTMLElement>;
 }
 
 interface PopupProps {

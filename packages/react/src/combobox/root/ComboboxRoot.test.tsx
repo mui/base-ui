@@ -251,7 +251,7 @@ describe('<Combobox.Root />', () => {
   popupConformanceTests({
     createComponent: (props) => (
       <Combobox.Root {...props.root}>
-        <Combobox.Input data-testid="trigger" />
+        <Combobox.Input {...props.trigger} />
         <Combobox.Portal {...props.portal}>
           <Combobox.Positioner>
             <Combobox.Popup>
