@@ -199,6 +199,20 @@
   }
 }
 
+.Estimate {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.SwitchLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
 .Switch {
   position: relative;
   box-sizing: border-box;

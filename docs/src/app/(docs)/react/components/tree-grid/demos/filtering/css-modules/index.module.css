@@ -6,6 +6,22 @@
   gap: 0.75rem;
 }
 
+.FilterField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.FilterLabel {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
 .Panel {
   color: oklch(14.5% 0 0deg);
   border: 1px solid oklch(92.2% 0 0deg);

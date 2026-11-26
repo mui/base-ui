@@ -41,6 +41,7 @@ const items: TreeGrid.DefaultItem[] = [
 ];
 
 export default function ExampleTreeGridFiltering() {
+  const inputId = React.useId();
   const actionsRef = React.useRef<TreeGrid.Root.Actions>(null);
 
   return (
@@ -50,56 +51,57 @@ export default function ExampleTreeGridFiltering() {
       <TreeGrid.FilterProvider defaultValue="invoice">
         {/* @highlight-end */}
         <TreeGrid.Root defaultItems={items} actionsRef={actionsRef}>
-          <div className={styles.Panel}>
-            <div className={styles.InputContainer}>
-              {/* @highlight-start */}
-              <TreeGrid.Input
-                className={styles.Input}
-                aria-label="Filter files"
-                placeholder="e.g. invoice"
-              />
-              <TreeGrid.Clear className={styles.Clear}>
-                <ClearIcon />
-              </TreeGrid.Clear>
-              {/* @highlight-end */}
-              {/* @focus-end */}
-            </div>
-            <TreeGrid.Table aria-label="File system" className={styles.Table}>
-              {(item: TreeGrid.DefaultItem) => (
-                <TreeGrid.Row
-                  itemId={item.id}
-                  className={styles.Row}
-                  // Screen readers don't announce `data-filter-match`, so describe matches.
-                  render={(props, state) => (
-                    <div {...props} aria-description={describeItem(item, state.filterMatch)} />
-                  )}
-                >
-                  <TreeGrid.Cell className={styles.Cell}>
-                    <TreeGrid.RowExpansionTrigger className={styles.ExpansionTrigger}>
-                      <ChevronIcon />
-                    </TreeGrid.RowExpansionTrigger>
-                    <span className={styles.Label}>{item.label}</span>
-                    {item.children ? null : (
-                      <TreeGrid.CellButton
-                        aria-label={`Remove ${item.label}`}
-                        className={styles.RemoveButton}
-                        onClick={() =>
-                          actionsRef.current?.applyTransaction((transaction) =>
-                            transaction.remove(item.id),
-                          )
-                        }
-                      >
-                        <RemoveIcon />
-                      </TreeGrid.CellButton>
+          <div className={styles.FilterField}>
+            <label htmlFor={inputId} className={styles.FilterLabel}>
+              Filter files
+            </label>
+            <div className={styles.Panel}>
+              <div className={styles.InputContainer}>
+                {/* @highlight-start */}
+                <TreeGrid.Input id={inputId} className={styles.Input} placeholder="e.g. invoice" />
+                <TreeGrid.Clear className={styles.Clear}>
+                  <ClearIcon />
+                </TreeGrid.Clear>
+                {/* @highlight-end */}
+                {/* @focus-end */}
+              </div>
+              <TreeGrid.Table aria-label="File system" className={styles.Table}>
+                {(item: TreeGrid.DefaultItem) => (
+                  <TreeGrid.Row
+                    itemId={item.id}
+                    className={styles.Row}
+                    // Screen readers don't announce `data-filter-match`, so describe matches.
+                    render={(props, state) => (
+                      <div {...props} aria-description={describeItem(item, state.filterMatch)} />
                     )}
-                  </TreeGrid.Cell>
-                </TreeGrid.Row>
-              )}
-            </TreeGrid.Table>
-            <TreeGrid.Status className={styles.VisuallyHidden} />
-            {/* @highlight-start */}
-            <TreeGrid.Empty className={styles.Empty}>No files found.</TreeGrid.Empty>
-            {/* @highlight-end */}
+                  >
+                    <TreeGrid.Cell className={styles.Cell}>
+                      <TreeGrid.RowExpansionTrigger className={styles.ExpansionTrigger}>
+                        <ChevronIcon />
+                      </TreeGrid.RowExpansionTrigger>
+                      <span className={styles.Label}>{item.label}</span>
+                      {item.children ? null : (
+                        <TreeGrid.CellButton
+                          aria-label={`Remove ${item.label}`}
+                          className={styles.RemoveButton}
+                          onClick={() =>
+                            actionsRef.current?.applyTransaction((transaction) =>
+                              transaction.remove(item.id),
+                            )
+                          }
+                        >
+                          <RemoveIcon />
+                        </TreeGrid.CellButton>
+                      )}
+                    </TreeGrid.Cell>
+                  </TreeGrid.Row>
+                )}
+              </TreeGrid.Table>
+              <TreeGrid.Status className={styles.VisuallyHidden} />
+              {/* @highlight-start */}
+              <TreeGrid.Empty className={styles.Empty}>No files found.</TreeGrid.Empty>
+              {/* @highlight-end */}
+            </div>
           </div>
         </TreeGrid.Root>
       </TreeGrid.FilterProvider>

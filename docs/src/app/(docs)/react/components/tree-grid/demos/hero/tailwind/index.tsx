@@ -118,23 +118,29 @@ export default function ExampleTreeGridHero() {
                   >
                     {task.label}
                   </TreeGrid.CellLink>
-                  <TreeGrid.CellInput
-                    defaultValue={task.estimate}
-                    aria-label={`Estimate for ${task.label}, in hours`}
-                    className={INPUT_CLASS}
-                  />
-                  <TreeGrid.CellControl
-                    controlKeys={SWITCH_CONTROL_KEYS}
-                    render={
-                      <Switch.Root
-                        defaultChecked={task.done}
-                        aria-label={`Mark ${task.label} as done`}
-                        className={SWITCH_CLASS}
-                      />
-                    }
-                  >
-                    <Switch.Thumb className={THUMB_CLASS} />
-                  </TreeGrid.CellControl>
+                  <span className="flex shrink-0 items-center gap-1">
+                    <TreeGrid.CellInput
+                      defaultValue={task.estimate}
+                      aria-label={`Estimate for ${task.label}, in hours`}
+                      className={INPUT_CLASS}
+                    />
+                    <span aria-hidden="true">h</span>
+                  </span>
+                  <label className="flex shrink-0 items-center gap-1.5">
+                    <TreeGrid.CellControl
+                      controlKeys={SWITCH_CONTROL_KEYS}
+                      render={
+                        <Switch.Root
+                          defaultChecked={task.done}
+                          aria-label={`Mark ${task.label} as done`}
+                          className={SWITCH_CLASS}
+                        />
+                      }
+                    >
+                      <Switch.Thumb className={THUMB_CLASS} />
+                    </TreeGrid.CellControl>
+                    Done
+                  </label>
                   <TreeGrid.CellButton
                     aria-label={`Remove ${task.label}`}
                     className={`${ICON_BUTTON_CLASS} [&_svg]:size-3.5`}

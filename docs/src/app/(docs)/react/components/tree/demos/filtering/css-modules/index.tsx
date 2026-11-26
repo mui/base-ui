@@ -41,6 +41,7 @@ const items: Tree.DefaultItem[] = [
 ];
 
 export default function ExampleTreeFiltering() {
+  const inputId = React.useId();
   const [mode, setMode] = React.useState<Tree.FilterMode>('hide-non-matches');
 
   return (
@@ -62,41 +63,42 @@ export default function ExampleTreeFiltering() {
       <Tree.FilterProvider defaultValue="invoice" mode={mode}>
         {/* @highlight-end */}
         <Tree.Root items={items}>
-          <div className={styles.Panel}>
-            <div className={styles.InputContainer}>
+          <div className={styles.FilterField}>
+            <label htmlFor={inputId} className={styles.FilterLabel}>
+              Filter files
+            </label>
+            <div className={styles.Panel}>
+              <div className={styles.InputContainer}>
+                {/* @highlight-start */}
+                <Tree.Input id={inputId} className={styles.Input} placeholder="e.g. invoice" />
+                <Tree.Clear className={styles.Clear}>
+                  <ClearIcon />
+                </Tree.Clear>
+                {/* @highlight-end */}
+                {/* @focus-end */}
+              </div>
+              <Tree.List aria-label="File system" className={styles.Tree}>
+                {(item: Tree.DefaultItem) => (
+                  <Tree.Item
+                    itemId={item.id}
+                    className={styles.Item}
+                    // Screen readers don't announce `data-filter-match`, so describe matches.
+                    render={(props, state) => (
+                      <div {...props} aria-description={state.filterMatch ? 'Match' : undefined} />
+                    )}
+                  >
+                    <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                      <ChevronIcon />
+                    </Tree.ItemExpansionTrigger>
+                    <span className={styles.Label}>{item.label}</span>
+                  </Tree.Item>
+                )}
+              </Tree.List>
+              <Tree.Status className={styles.VisuallyHidden} />
               {/* @highlight-start */}
-              <Tree.Input
-                className={styles.Input}
-                aria-label="Filter files"
-                placeholder="e.g. invoice"
-              />
-              <Tree.Clear className={styles.Clear}>
-                <ClearIcon />
-              </Tree.Clear>
+              <Tree.Empty className={styles.Empty}>No files found.</Tree.Empty>
               {/* @highlight-end */}
-              {/* @focus-end */}
             </div>
-            <Tree.List aria-label="File system" className={styles.Tree}>
-              {(item: Tree.DefaultItem) => (
-                <Tree.Item
-                  itemId={item.id}
-                  className={styles.Item}
-                  // Screen readers don't announce `data-filter-match`, so describe matches.
-                  render={(props, state) => (
-                    <div {...props} aria-description={state.filterMatch ? 'Match' : undefined} />
-                  )}
-                >
-                  <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                    <ChevronIcon />
-                  </Tree.ItemExpansionTrigger>
-                  <span className={styles.Label}>{item.label}</span>
-                </Tree.Item>
-              )}
-            </Tree.List>
-            <Tree.Status className={styles.VisuallyHidden} />
-            {/* @highlight-start */}
-            <Tree.Empty className={styles.Empty}>No files found.</Tree.Empty>
-            {/* @highlight-end */}
           </div>
         </Tree.Root>
       </Tree.FilterProvider>

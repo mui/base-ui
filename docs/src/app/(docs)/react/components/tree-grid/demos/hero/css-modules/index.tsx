@@ -66,23 +66,29 @@ export default function ExampleTreeGridHero() {
                   >
                     {task.label}
                   </TreeGrid.CellLink>
-                  <TreeGrid.CellInput
-                    defaultValue={task.estimate}
-                    aria-label={`Estimate for ${task.label}, in hours`}
-                    className={styles.Input}
-                  />
-                  <TreeGrid.CellControl
-                    controlKeys={SWITCH_CONTROL_KEYS}
-                    render={
-                      <Switch.Root
-                        defaultChecked={task.done}
-                        aria-label={`Mark ${task.label} as done`}
-                        className={styles.Switch}
-                      />
-                    }
-                  >
-                    <Switch.Thumb className={styles.Thumb} />
-                  </TreeGrid.CellControl>
+                  <span className={styles.Estimate}>
+                    <TreeGrid.CellInput
+                      defaultValue={task.estimate}
+                      aria-label={`Estimate for ${task.label}, in hours`}
+                      className={styles.Input}
+                    />
+                    <span aria-hidden="true">h</span>
+                  </span>
+                  <label className={styles.SwitchLabel}>
+                    <TreeGrid.CellControl
+                      controlKeys={SWITCH_CONTROL_KEYS}
+                      render={
+                        <Switch.Root
+                          defaultChecked={task.done}
+                          aria-label={`Mark ${task.label} as done`}
+                          className={styles.Switch}
+                        />
+                      }
+                    >
+                      <Switch.Thumb className={styles.Thumb} />
+                    </TreeGrid.CellControl>
+                    Done
+                  </label>
                   <TreeGrid.CellButton
                     aria-label={`Remove ${task.label}`}
                     className={styles.RemoveButton}

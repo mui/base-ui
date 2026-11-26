@@ -103,12 +103,12 @@
 }
 
 .Cell {
-  color: oklch(55.6% 0 0deg);
+  color: oklch(43.9% 0 0deg);
   text-align: end;
   font-variant-numeric: tabular-nums;
 
   @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
+    color: oklch(87% 0 0deg);
   }
 }
 

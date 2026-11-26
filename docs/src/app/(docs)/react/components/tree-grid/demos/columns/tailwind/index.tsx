@@ -51,7 +51,7 @@ const NAME_CELL_CLASS =
   `${FOCUS_CLASS} ms-[calc(1.5rem*(var(--tree-item-level)-1))] flex min-w-0 items-center ` +
   'gap-2 ps-[var(--leaf-offset)]';
 
-const CELL_CLASS = `${FOCUS_CLASS} text-end tabular-nums text-neutral-500 dark:text-neutral-400`;
+const CELL_CLASS = `${FOCUS_CLASS} text-end tabular-nums text-neutral-600 dark:text-neutral-300`;
 
 const HEADER_CELL_CLASS = 'not-first:text-end';
 

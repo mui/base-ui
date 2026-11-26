@@ -76,6 +76,7 @@ const INPUT_CLASS =
   'placeholder:text-neutral-500 dark:placeholder:text-neutral-400';
 
 export default function ExampleTreeFiltering() {
+  const inputId = React.useId();
   const [mode, setMode] = React.useState<Tree.FilterMode>('hide-non-matches');
 
   return (
@@ -97,46 +98,50 @@ export default function ExampleTreeFiltering() {
       <Tree.FilterProvider defaultValue="invoice" mode={mode}>
         {/* @highlight-end */}
         <Tree.Root items={items}>
-          <div className="border border-neutral-200 bg-white text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white">
-            <div className={INPUT_CONTAINER_CLASS}>
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor={inputId}
+              className="text-[0.8125rem]/[1.5] text-neutral-500 dark:text-neutral-400"
+            >
+              Filter files
+            </label>
+            <div className="border border-neutral-200 bg-white text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white">
+              <div className={INPUT_CONTAINER_CLASS}>
+                {/* @highlight-start */}
+                <Tree.Input id={inputId} className={INPUT_CLASS} placeholder="e.g. invoice" />
+                <Tree.Clear className="flex size-8 items-center justify-center border-0 bg-transparent p-0 text-inherit outline-0 [&_svg]:size-4">
+                  <ClearIcon />
+                </Tree.Clear>
+                {/* @highlight-end */}
+                {/* @focus-end */}
+              </div>
+              <Tree.List aria-label="File system" className="box-border w-full p-1">
+                {(item: Tree.DefaultItem) => (
+                  <Tree.Item
+                    itemId={item.id}
+                    className={ITEM_CLASS}
+                    // Screen readers don't announce `data-filter-match`, so describe matches.
+                    render={(props, state) => (
+                      <div {...props} aria-description={state.filterMatch ? 'Match' : undefined} />
+                    )}
+                  >
+                    <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
+                      <ChevronIcon />
+                    </Tree.ItemExpansionTrigger>
+                    <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  </Tree.Item>
+                )}
+              </Tree.List>
+              {/* The live region stays mounted, so it only takes space while it shows the message. */}
+              <Tree.Status className="sr-only" />
               {/* @highlight-start */}
-              <Tree.Input
-                className={INPUT_CLASS}
-                aria-label="Filter files"
-                placeholder="e.g. invoice"
-              />
-              <Tree.Clear className="flex size-8 items-center justify-center border-0 bg-transparent p-0 text-inherit outline-0 [&_svg]:size-4">
-                <ClearIcon />
-              </Tree.Clear>
+              <Tree.Empty className="text-sm/[1.5] text-neutral-500 not-empty:p-3 dark:text-neutral-400">
+                No files found.
+              </Tree.Empty>
               {/* @highlight-end */}
-              {/* @focus-end */}
             </div>
-            <Tree.List aria-label="File system" className="box-border w-full p-1">
-              {(item: Tree.DefaultItem) => (
-                <Tree.Item
-                  itemId={item.id}
-                  className={ITEM_CLASS}
-                  // Screen readers don't announce `data-filter-match`, so describe matches.
-                  render={(props, state) => (
-                    <div {...props} aria-description={state.filterMatch ? 'Match' : undefined} />
-                  )}
-                >
-                  <Tree.ItemExpansionTrigger className={TRIGGER_CLASS}>
-                    <ChevronIcon />
-                  </Tree.ItemExpansionTrigger>
-                  <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                    {item.label}
-                  </span>
-                </Tree.Item>
-              )}
-            </Tree.List>
-            {/* The live region stays mounted, so it only takes space while it shows the message. */}
-            <Tree.Status className="sr-only" />
-            {/* @highlight-start */}
-            <Tree.Empty className="text-sm/[1.5] text-neutral-500 not-empty:p-3 dark:text-neutral-400">
-              No files found.
-            </Tree.Empty>
-            {/* @highlight-end */}
           </div>
         </Tree.Root>
       </Tree.FilterProvider>
