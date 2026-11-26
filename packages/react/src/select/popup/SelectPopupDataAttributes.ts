@@ -26,3 +26,8 @@ export const side = CommonPopupDataAttributes.side;
  * @type {'start' | 'center' | 'end'}
  */
 export const align = CommonPopupDataAttributes.align;
+/**
+ * Present if animations should be instant.
+ * @type {'click' | 'dismiss'}
+ */
+export const instant = 'data-instant';

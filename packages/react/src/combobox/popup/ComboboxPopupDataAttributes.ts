@@ -34,3 +34,8 @@ export const anchorHidden = CommonPopupDataAttributes.anchorHidden;
  * Present when the items list is empty.
  */
 export const empty = 'data-empty';
+/**
+ * Present if animations should be instant.
+ * @type {'click' | 'dismiss'}
+ */
+export const instant = 'data-instant';

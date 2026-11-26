@@ -396,6 +396,9 @@ export abstract class BasePopupStore<
   // Replaced on every open, so a close can tell whether the popup has opened again since.
   private openSession = {};
 
+  // The `open` prop the store last applied, starting with the one it was created with.
+  private appliedOpenProp = this.state.openProp;
+
   override setState(newState: Readonly<State>): void {
     // A request or an `open` prop that opens the popup starts a new open session. An open request
     // a controlled `open` prop hasn't applied doesn't, so a close waiting on the parent keeps its
@@ -527,6 +530,33 @@ export abstract class BasePopupStore<
   }
 
   /**
+   * Applies the controlled `open` prop. A prop that matches the last request is the parent
+   * accepting it, so what the request committed stays. Any other change of the prop comes from the
+   * parent alone: it drops the request and what the store keeps about it, such as why its
+   * transition is instant. The prop a popup mounts with is not a change.
+   */
+  applyOpenProp(openProp: boolean | undefined): void {
+    const changed = openProp !== this.appliedOpenProp;
+    this.appliedOpenProp = openProp;
+
+    if (openProp === undefined || openProp === this.state.open) {
+      return;
+    }
+
+    this.update({
+      ...(changed ? this.prepareOpenPropChange() : undefined),
+      ...(openProp ? undefined : { open: false }),
+    } as Pick<State, keyof State>);
+  }
+
+  /**
+   * Returns the state to reset when the `open` prop changes the popup without a matching request.
+   */
+  protected prepareOpenPropChange(): PopupOpenChangeState<State> {
+    return {};
+  }
+
+  /**
    * Returns whether to commit an open change synchronously. Hover changes are, so
    * `node.getAnimations()` sees the new state.
    */
@@ -581,6 +611,36 @@ export function getHoverPopupInstantType(
     return { instantType: undefined };
   }
   return {};
+}
+
+/**
+ * Whether a press comes from the keyboard or assistive technology. Those produce `detail === 0`
+ * clicks, while mouse-gesture clicks (including the drag-release click a menu item synthesizes)
+ * carry `detail >= 1`.
+ */
+export function isKeyboardClick(reason: string | null, event: Event | undefined): boolean {
+  return (
+    (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
+    (event as MouseEvent | undefined)?.detail === 0
+  );
+}
+
+/**
+ * The `instantType` of a popup that opens on press, such as a menu or a select. A keyboard press on
+ * the trigger or an item and a close with Escape skip the transition.
+ */
+export function getPressPopupInstantType(
+  nextOpen: boolean,
+  reason: string | null,
+  event: Event | undefined,
+): 'click' | 'dismiss' | undefined {
+  if (isKeyboardClick(reason, event)) {
+    return 'click';
+  }
+  if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
+    return 'dismiss';
+  }
+  return undefined;
 }
 
 /**

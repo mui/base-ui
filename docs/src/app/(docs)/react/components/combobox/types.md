@@ -572,6 +572,7 @@ Renders a `<div>` element.
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-empty         | -                                                                          | Present when the items list is empty.                                 |
+| data-instant       | `'click' \| 'dismiss'`                                                     | Present if animations should be instant.                              |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 **Positioner CSS Variables:**
@@ -602,6 +603,8 @@ type ComboboxPositionerState = {
   anchorHidden: boolean;
   /** Whether there are no items to display. */
   empty: boolean;
+  /** Whether CSS transitions should be disabled. */
+  instant: 'click' | 'dismiss' | undefined;
 };
 ```
 
@@ -629,6 +632,7 @@ Renders a `<div>` element.
 | data-anchor-hidden  | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-empty          | -                                                                          | Present when the items list is empty.                                 |
+| data-instant        | `'click' \| 'dismiss'`                                                     | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
@@ -653,6 +657,8 @@ type ComboboxPopupState = {
   transitionStatus: TransitionStatus;
   /** Whether there are no items to display. */
   empty: boolean;
+  /** Whether transitions should be skipped. */
+  instant: 'click' | 'dismiss' | undefined;
 };
 ```
 
@@ -1436,6 +1442,11 @@ declare namespace ComboboxPopupDataAttributes {
   const anchorHidden: 'data-anchor-hidden';
   /** Present when the items list is empty. */
   const empty: 'data-empty';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss'
+   */
+  const instant: 'data-instant';
 }
 ```
 
@@ -1497,6 +1508,11 @@ declare namespace ComboboxPositionerDataAttributes {
   const align: 'data-align';
   /** Present when the items list is empty. */
   const empty: 'data-empty';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss'
+   */
+  const instant: 'data-instant';
 }
 ```
 

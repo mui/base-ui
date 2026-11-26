@@ -389,6 +389,56 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     });
   });
 
+  it('marks a submenu that mounts with `open` set as instant when its parent opened instantly', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const submenuInstantTracker = trackSelector(
+      '[data-testid="submenu-popup"][data-instant="click"]',
+    );
+
+    await render(
+      <Menu.Root>
+        <Menu.Trigger>Trigger</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="menu-popup">
+              <Menu.Item>Item</Menu.Item>
+              <Menu.SubmenuRoot open>
+                <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu-popup">
+                      <Menu.Item>Sub item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await act(async () => {
+      trigger.focus();
+    });
+    await userEvent.keyboard('[Enter]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+    expect(screen.getByTestId('menu-popup')).toHaveAttribute('data-instant', 'click');
+    // The submenu carries the inherited value during its enter frames only: it is cleared once
+    // the initial reveal settles, so it cannot suppress later transitions.
+    await waitFor(() => {
+      expect(submenuInstantTracker.seen()).toBe(true);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
+    });
+  });
+
   it('clears the inherited instant type after the initial open', async () => {
     // The inherited `instantType` must not outlive the initial reveal: controlled `open` flips
     // bypass `setOpen`, so a value that stuck around would render `[data-instant]` on every
