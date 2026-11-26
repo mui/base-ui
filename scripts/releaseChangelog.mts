@@ -6,7 +6,7 @@ const HELP = `Prints the changelog of a release.
 
 Options:
   --lastRelease     Git reference (tag/commit) of the last release. Defaults to the last version tag.
-  --release         Git reference (tag/commit) of the new release. Defaults to the current commit.
+  --release         Git reference (tag/commit) of the new release. Defaults to master on GitHub.
   --releaseVersion  Version of the new release. Defaults to the version \`--release\` is a tag of, else
                     to the version of the root package.json.
   --cwd             Directory of the checkout. Defaults to the current one.
@@ -25,7 +25,7 @@ function print(text: string) {
 const { values } = parseArgs({
   options: {
     lastRelease: { type: 'string' },
-    release: { type: 'string' },
+    release: { type: 'string', default: 'master' },
     releaseVersion: { type: 'string' },
     cwd: { type: 'string' },
     format: { type: 'string', default: 'changelog' },
