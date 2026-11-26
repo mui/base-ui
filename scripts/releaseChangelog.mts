@@ -14,10 +14,10 @@ Options:
   --format          "changelog" (default), or "docs" for the release page of the docs.
   --help            Show this help.`;
 
-const RENDERERS: Record<string, (data: ChangelogData) => string> = {
-  changelog: renderChangelog,
-  docs: renderDocsPage,
-};
+const RENDERERS = new Map<string, (data: ChangelogData) => string>([
+  ['changelog', renderChangelog],
+  ['docs', renderDocsPage],
+]);
 
 function print(text: string) {
   process.stdout.write(`${text}\n`);
@@ -41,11 +41,11 @@ async function run() {
     return;
   }
 
-  const render = RENDERERS[values.format];
+  const render = RENDERERS.get(values.format);
 
   if (!render) {
     throw new Error(
-      `Unknown format "${values.format}". Use one of: ${Object.keys(RENDERERS).join(', ')}.`,
+      `Unknown format "${values.format}". Use one of: ${[...RENDERERS.keys()].join(', ')}.`,
     );
   }
 
