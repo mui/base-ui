@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useBaseUiId } from '../src/internals/useBaseUiId';
 import { resolvePopupLabel } from '../src/internals/resolvePopupLabel';
 import { mergeProps } from '../src/merge-props';
-import { useMenuFilterPopup } from '../src/menu/filter-root/useMenuFilterPopup';
+import { useFilterDropdownPopup } from '../src/filter-dropdown/popup/useFilterDropdownPopup';
 import { useFilterDropdownRootContext } from '../src/filter-dropdown/root/FilterDropdownRootContext';
 import { FilterDropdownList } from '../src/filter-dropdown/list/FilterDropdownList';
 
@@ -16,7 +16,7 @@ export function Popup(props: React.ComponentProps<'div'>) {
   const { id: idProp, ...otherProps } = props;
   const id = useBaseUiId(idProp);
   const { triggerId } = useFilterDropdownRootContext();
-  const interactionProps = useMenuFilterPopup('vertical');
+  const interactionProps = useFilterDropdownPopup('vertical', 'Menu');
   return (
     <div
       {...mergeProps(
