@@ -1085,9 +1085,7 @@ describe('Composite', () => {
             <button type="button">Before</button>
             <CompositeRoot>
               <CompositeItem tag="button">First</CompositeItem>
-              <CompositeItem tag="button" autoFocus>
-                Second
-              </CompositeItem>
+              <CompositeItem render={<button type="button" autoFocus />}>Second</CompositeItem>
             </CompositeRoot>
           </React.Fragment>
         ),
@@ -1112,9 +1110,7 @@ describe('Composite', () => {
             <CompositeRoot>
               <CompositeItem tag="button">First</CompositeItem>
               {showSecond && (
-                <CompositeItem tag="button" autoFocus>
-                  Second
-                </CompositeItem>
+                <CompositeItem render={<button type="button" autoFocus />}>Second</CompositeItem>
               )}
             </CompositeRoot>
           </React.Fragment>
