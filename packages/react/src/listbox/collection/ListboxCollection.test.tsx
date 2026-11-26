@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import { Listbox } from '@base-ui/react/listbox';
+import { ListboxPreview as Listbox } from '@base-ui/react/listbox';
 import { screen, within } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 

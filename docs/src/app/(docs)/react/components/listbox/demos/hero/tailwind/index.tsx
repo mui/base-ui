@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Listbox } from '@base-ui/react/listbox';
+import { ListboxPreview as Listbox } from '@base-ui/react/listbox';
 
 const genres = [
   {

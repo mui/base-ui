@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import { fireEvent, screen } from '@mui/internal-test-utils';
-import { Listbox } from '@base-ui/react/listbox';
+import { ListboxPreview as Listbox } from '@base-ui/react/listbox';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Listbox.Label />', () => {

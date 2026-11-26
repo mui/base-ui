@@ -1,6 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { Listbox } from '@base-ui/react/listbox';
+import { ListboxPreview as Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';

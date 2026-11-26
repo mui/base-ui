@@ -15,11 +15,11 @@ Doesn't render its own HTML element.
 | :------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | defaultValue         | `Value[] \| Value \| null`                                                                                                                                       | -            | The uncontrolled value of the listbox when it's initially rendered. To render a controlled listbox, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | value                | `Value[] \| Value \| null`                                                                                                                                       | -            | The value of the listbox. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| onValueChange        | `((value: Value[] \| Value \| null, eventDetails: Listbox.Root.ChangeEventDetails) => void)`                                                                     | -            | Event handler called when the value of the listbox changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| onValueChange        | `((value: Value[] \| Value \| null, eventDetails: ListboxRootChangeEventDetails) => void)`                                                                       | -            | Event handler called when the value of the listbox changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | highlightItemOnHover | `boolean`                                                                                                                                                        | `true`       | Whether moving the pointer over an item highlights it.&#xA;While focus is in the listbox, the item also receives focus, except with `multiple="opt-in"`,&#xA;where moving focus can change the selection. The pointer never takes focus from outside the&#xA;listbox.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | items                | `readonly Value[] \| readonly ListboxItemObject<Value>[] \| readonly ListboxItemGroup<Value \| ListboxItemObject<Value>>[] \| ListboxItemCollection<any, Value>` | -            | Every item in the list, including those that aren't rendered. Pass them when the list is&#xA;virtualized, so keyboard navigation, typeahead and selection can reach items that aren't&#xA;rendered. Pass one of the following: An array of primitives, such as strings or numbers, each of which is an item's value and&#xA;label.An array of `{ value, label, disabled }` objects.An array of groups, each with an `items` array of either of the above.A collection created with `Listbox.createItems()` for any other data. Give each `Listbox.Item` its value, which with a collection is what `getValue` returns for&#xA;the item. Pass the same array or collection on every render, by defining it outside the component or&#xA;memoizing it, since a new one makes every item render again. |
 | multiple             | `boolean \| 'opt-in'`                                                                                                                                            | `false`      | Whether multiple items can be selected, and how selecting an item affects the current selection. `false`: only one item can be selected.`true`: each item is toggled independently.`'opt-in'`: selecting an item moves the current selection to it, and users hold a modifier key&#xA;to select more than one item. On touch devices, where there are no modifier keys, it behaves&#xA;like `true`.                                                                                                                                                                                                                                                                                                                                                                                                 |
-| onItemHighlighted    | `((itemValue: Value \| undefined, eventDetails: Listbox.Root.HighlightEventDetails) => void)`                                                                    | -            | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation or typeahead.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`&#xA;rather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as an item receiving or losing focus. With `items`, the highlighted item may not be rendered yet, so scroll it into view.&#xA;`eventDetails.index` is `-1` when no item is highlighted.                                                                                 |
+| onItemHighlighted    | `((itemValue: Value \| undefined, eventDetails: ListboxRootHighlightEventDetails) => void)`                                                                      | -            | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation or typeahead.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`&#xA;rather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as an item receiving or losing focus. With `items`, the highlighted item may not be rendered yet, so scroll it into view.&#xA;`eventDetails.index` is `-1` when no item is highlighted.                                                                                 |
 | disabled             | `boolean`                                                                                                                                                        | `false`      | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | orientation          | `'vertical' \| 'horizontal'`                                                                                                                                     | `'vertical'` | The orientation of the listbox for keyboard navigation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | children             | `React.ReactNode`                                                                                                                                                | -            | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -31,19 +31,19 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type ListboxRootState = {};
+type ListboxPreviewRootState = {};
 ```
 
 ### Root.ChangeEventReason
 
 ```typescript
-type ListboxRootChangeEventReason = 'item-press' | 'list-navigation';
+type ListboxPreviewRootChangeEventReason = 'item-press' | 'list-navigation';
 ```
 
 ### Root.ChangeEventDetails
 
 ```typescript
-type ListboxRootChangeEventDetails = (
+type ListboxPreviewRootChangeEventDetails = (
   | { reason: 'item-press'; event: MouseEvent | KeyboardEvent | PointerEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
 ) & {
@@ -68,13 +68,13 @@ type ListboxRootChangeEventDetails = (
 ### Root.HighlightEventReason
 
 ```typescript
-type ListboxRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';
+type ListboxPreviewRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';
 ```
 
 ### Root.HighlightEventDetails
 
 ```typescript
-type ListboxRootHighlightEventDetails =
+type ListboxPreviewRootHighlightEventDetails =
   | { reason: 'none'; event: Event; index: number }
   | { reason: 'keyboard'; event: KeyboardEvent; index: number }
   | { reason: 'pointer'; event: MouseEvent | PointerEvent; index: number };
@@ -87,12 +87,12 @@ Renders a `<div>` element.
 
 **List Props:**
 
-| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
-| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `React.ReactNode \| ((item: any, index: number) => React.ReactNode)`                       | -       | The items of the list. A function renders each of the root's `items`: it receives an item, or&#xA;a group when the items are grouped, and its index.                                          |
-| className | `string \| ((state: Listbox.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Listbox.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Listbox.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `React.ReactNode \| ((item: any, index: number) => React.ReactNode)`                     | -       | The items of the list. A function renders each of the root's `items`: it receives an item, or&#xA;a group when the items are grouped, and its index.                                          |
+| className | `string \| ((state: ListboxListState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: ListboxListState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: ListboxListState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **List Data Attributes:**
 
@@ -108,7 +108,7 @@ Re-export of [List](#list) props.
 ### List.State
 
 ```typescript
-type ListboxListState = {
+type ListboxPreviewListState = {
   /** Whether the listbox is disabled. */
   disabled: boolean;
   /** The orientation of the listbox. */
@@ -123,16 +123,16 @@ Renders a `<div>` element.
 
 **Item Props:**
 
-| Prop         | Type                                                                                       | Default | Description                                                                                                                                                                                                                                                                   |
-| :----------- | :----------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                   | -       | Specifies the text label to use when the item is matched during keyboard text navigation. Defaults to the item text content if not provided. Ignored when the root has `items`. Use the item's `label` field or the `getLabel` option of&#xA;`Listbox.createItems()` instead. |
-| value\*      | `any`                                                                                      | -       | A unique value that identifies this listbox item.                                                                                                                                                                                                                             |
-| nativeButton | `boolean`                                                                                  | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                                                          |
-| disabled     | `boolean`                                                                                  | `false` | Whether the component should ignore user interaction. Ignored when the root has `items`. Use the item's `disabled` field or the `getDisabled`&#xA;option of `Listbox.createItems()` instead.                                                                                  |
-| children     | `React.ReactNode`                                                                          | -       | -                                                                                                                                                                                                                                                                             |
-| className    | `string \| ((state: Listbox.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                      |
-| style        | `React.CSSProperties \| ((state: Listbox.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: Listbox.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                 |
+| Prop         | Type                                                                                     | Default | Description                                                                                                                                                                                                                                                                   |
+| :----------- | :--------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| label        | `string`                                                                                 | -       | Specifies the text label to use when the item is matched during keyboard text navigation. Defaults to the item text content if not provided. Ignored when the root has `items`. Use the item's `label` field or the `getLabel` option of&#xA;`Listbox.createItems()` instead. |
+| value\*      | `any`                                                                                    | -       | A unique value that identifies this listbox item.                                                                                                                                                                                                                             |
+| nativeButton | `boolean`                                                                                | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                                                          |
+| disabled     | `boolean`                                                                                | `false` | Whether the component should ignore user interaction. Ignored when the root has `items`. Use the item's `disabled` field or the `getDisabled`&#xA;option of `Listbox.createItems()` instead.                                                                                  |
+| children     | `React.ReactNode`                                                                        | -       | -                                                                                                                                                                                                                                                                             |
+| className    | `string \| ((state: ListboxItemState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                      |
+| style        | `React.CSSProperties \| ((state: ListboxItemState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: ListboxItemState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                 |
 
 **Item Data Attributes:**
 
@@ -149,7 +149,7 @@ Re-export of [Item](#item) props.
 ### Item.State
 
 ```typescript
-type ListboxItemState = {
+type ListboxPreviewItemState = {
   /** Whether the item should ignore user interaction. */
   disabled: boolean;
   /** Whether the item is selected. */
@@ -166,12 +166,12 @@ Renders a `<div>` element.
 
 **Group Props:**
 
-| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| items     | `any[]`                                                                                     | -       | The items of this group.&#xA;When provided, a `Listbox.Collection` inside the group renders these items.                                                                                      |
-| className | `string \| ((state: Listbox.Group.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Listbox.Group.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Listbox.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| items     | `any[]`                                                                                   | -       | The items of this group.&#xA;When provided, a `Listbox.Collection` inside the group renders these items.                                                                                      |
+| className | `string \| ((state: ListboxGroupState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: ListboxGroupState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: ListboxGroupState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Group.Props
 
@@ -180,7 +180,7 @@ Re-export of [Group](#group) props.
 ### Group.State
 
 ```typescript
-type ListboxGroupState = {};
+type ListboxPreviewGroupState = {};
 ```
 
 ### GroupLabel
@@ -190,11 +190,11 @@ Renders a `<div>` element.
 
 **GroupLabel Props:**
 
-| Prop      | Type                                                                                             | Default | Description                                                                                                                                                                                   |
-| :-------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Listbox.GroupLabel.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Listbox.GroupLabel.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Listbox.GroupLabel.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: ListboxGroupLabelState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: ListboxGroupLabelState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: ListboxGroupLabelState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### GroupLabel.Props
 
@@ -203,7 +203,7 @@ Re-export of [GroupLabel](#grouplabel) props.
 ### GroupLabel.State
 
 ```typescript
-type ListboxGroupLabelState = {};
+type ListboxPreviewGroupLabelState = {};
 ```
 
 ### Label
@@ -213,11 +213,11 @@ Renders a `<div>` element.
 
 **Label Props:**
 
-| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Listbox.Label.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Listbox.Label.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Listbox.Label.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: ListboxLabelState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: ListboxLabelState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: ListboxLabelState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Label.Props
 
@@ -226,7 +226,7 @@ Re-export of [Label](#label) props.
 ### Label.State
 
 ```typescript
-type ListboxLabelState = {};
+type ListboxPreviewLabelState = {};
 ```
 
 ### Collection
@@ -250,7 +250,7 @@ Re-export of [Collection](#collection) props.
 ### Collection.State
 
 ```typescript
-type ListboxCollectionState = {};
+type ListboxPreviewCollectionState = {};
 ```
 
 ### ItemIndicator
@@ -260,13 +260,13 @@ Renders a `<span>` element.
 
 **ItemIndicator Props:**
 
-| Prop        | Type                                                                                                | Default | Description                                                                                                                                                                                   |
-| :---------- | :-------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children    | `React.ReactNode`                                                                                   | -       | -                                                                                                                                                                                             |
-| className   | `string \| ((state: Listbox.ItemIndicator.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `React.CSSProperties \| ((state: Listbox.ItemIndicator.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| keepMounted | `boolean`                                                                                           | `false` | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                                    |
-| render      | `ReactElement \| ((props: HTMLProps, state: Listbox.ItemIndicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                              | Default | Description                                                                                                                                                                                   |
+| :---------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children    | `React.ReactNode`                                                                                 | -       | -                                                                                                                                                                                             |
+| className   | `string \| ((state: ListboxItemIndicatorState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: ListboxItemIndicatorState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| keepMounted | `boolean`                                                                                         | `false` | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                                    |
+| render      | `ReactElement \| ((props: HTMLProps, state: ListboxItemIndicatorState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **ItemIndicator Data Attributes:**
 
@@ -282,7 +282,7 @@ Re-export of [ItemIndicator](#itemindicator) props.
 ### ItemIndicator.State
 
 ```typescript
-type ListboxItemIndicatorState = {
+type ListboxPreviewItemIndicatorState = {
   /** Whether the item is selected. */
   selected: boolean;
   /** The transition status of the component. */
@@ -362,19 +362,88 @@ type CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveValue> = {
 };
 ```
 
-### ListboxItemDataAttributes
-
-Data attributes of [Item](#item).
+### ListboxCollectionProps
 
 ```typescript
-declare namespace ListboxItemDataAttributes {
-  /** Present when the listbox item is selected. */
-  const selected: 'data-selected';
-  /** Present when the listbox item is highlighted. */
-  const highlighted: 'data-highlighted';
-  /** Present when the listbox item is disabled. */
-  const disabled: 'data-disabled';
-}
+type ListboxCollectionProps = {
+  /**
+   * A function that renders an item. Outside a group, with grouped `items`, it receives each
+   * group instead.
+   */
+  children: (item: any, index: number) => React.ReactNode;
+};
+```
+
+### ListboxCollectionState
+
+```typescript
+type ListboxCollectionState = {};
+```
+
+### ListboxGroupLabelProps
+
+```typescript
+type ListboxGroupLabelProps = {
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: ListboxGroupLabelState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: ListboxGroupLabelState) => ReactElement);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?:
+    React.CSSProperties | ((state: ListboxGroupLabelState) => React.CSSProperties | undefined);
+};
+```
+
+### ListboxGroupLabelState
+
+```typescript
+type ListboxGroupLabelState = {};
+```
+
+### ListboxGroupProps
+
+```typescript
+type ListboxGroupProps = {
+  /**
+   * The items of this group.
+   * When provided, a `Listbox.Collection` inside the group renders these items.
+   */
+  items?: any[];
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: ListboxGroupState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: ListboxGroupState) => ReactElement);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?: React.CSSProperties | ((state: ListboxGroupState) => React.CSSProperties | undefined);
+};
+```
+
+### ListboxGroupState
+
+```typescript
+type ListboxGroupState = {};
 ```
 
 ### ListboxItemGroup
@@ -386,17 +455,46 @@ It can carry any other fields, such as a label to render.
 type ListboxItemGroup<Item> = { items: Item[] };
 ```
 
-### ListboxItemIndicatorDataAttributes
-
-Data attributes of [ItemIndicator](#itemindicator).
+### ListboxItemIndicatorProps
 
 ```typescript
-declare namespace ListboxItemIndicatorDataAttributes {
-  /** Present when the indicator begins animating in. */
-  const startingStyle: 'data-starting-style';
-  /** Present when the indicator is animating out. */
-  const endingStyle: 'data-ending-style';
-}
+type ListboxItemIndicatorProps = {
+  children?: React.ReactNode;
+  /**
+   * Whether to keep the HTML element in the DOM when the item is not selected.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: ListboxItemIndicatorState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: ListboxItemIndicatorState) => ReactElement);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?:
+    React.CSSProperties | ((state: ListboxItemIndicatorState) => React.CSSProperties | undefined);
+};
+```
+
+### ListboxItemIndicatorState
+
+```typescript
+type ListboxItemIndicatorState = {
+  /** Whether the item is selected. */
+  selected: boolean;
+  /** The transition status of the component. */
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### ListboxItemObject
@@ -417,12 +515,174 @@ type ListboxItemObject<Value> = {
 };
 ```
 
-### ListboxListDataAttributes
+### ListboxItemProps
+
+```typescript
+type ListboxItemProps = {
+  children?: React.ReactNode;
+  /** A unique value that identifies this listbox item. */
+  value: any;
+  /**
+   * Whether the component should ignore user interaction.
+   *
+   * Ignored when the root has `items`. Use the item's `disabled` field or the `getDisabled`
+   * option of `Listbox.createItems()` instead.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   *
+   * Defaults to the item text content if not provided.
+   *
+   * Ignored when the root has `items`. Use the item's `label` field or the `getLabel` option of
+   * `Listbox.createItems()` instead.
+   */
+  label?: string;
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `true` if the rendered element is a native button.
+   * @default false
+   */
+  nativeButton?: boolean;
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: ListboxItemState) => string | undefined);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?: React.CSSProperties | ((state: ListboxItemState) => React.CSSProperties | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: ListboxItemState) => ReactElement);
+};
+```
+
+### ListboxItemState
+
+```typescript
+type ListboxItemState = {
+  /** Whether the item should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the item is selected. */
+  selected: boolean;
+  /** Whether the item is highlighted. */
+  highlighted: boolean;
+};
+```
+
+### ListboxLabelProps
+
+```typescript
+type ListboxLabelProps = {
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: ListboxLabelState) => string | undefined);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?: React.CSSProperties | ((state: ListboxLabelState) => React.CSSProperties | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: ListboxLabelState) => ReactElement);
+};
+```
+
+### ListboxLabelState
+
+```typescript
+type ListboxLabelState = {};
+```
+
+### ListboxListProps
+
+```typescript
+type ListboxListProps = {
+  /**
+   * The items of the list. A function renders each of the root's `items`: it receives an item, or
+   * a group when the items are grouped, and its index.
+   */
+  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: ListboxListState) => string | undefined);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?: React.CSSProperties | ((state: ListboxListState) => React.CSSProperties | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: ListboxListState) => ReactElement);
+};
+```
+
+### ListboxListState
+
+```typescript
+type ListboxListState = {
+  /** Whether the listbox is disabled. */
+  disabled: boolean;
+  /** The orientation of the listbox. */
+  orientation: 'vertical' | 'horizontal';
+};
+```
+
+### ListboxPreviewItemDataAttributes
+
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace ListboxPreviewItemDataAttributes {
+  /** Present when the listbox item is selected. */
+  const selected: 'data-selected';
+  /** Present when the listbox item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the listbox item is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### ListboxPreviewItemIndicatorDataAttributes
+
+Data attributes of [ItemIndicator](#itemindicator).
+
+```typescript
+declare namespace ListboxPreviewItemIndicatorDataAttributes {
+  /** Present when the indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### ListboxPreviewListDataAttributes
 
 Data attributes of [List](#list).
 
 ```typescript
-declare namespace ListboxListDataAttributes {
+declare namespace ListboxPreviewListDataAttributes {
   /** Present when the listbox is disabled. */
   const disabled: 'data-disabled';
   /** Indicates the orientation of the listbox. */
@@ -436,43 +696,155 @@ declare namespace ListboxListDataAttributes {
 type ListboxPrimitiveValue = string | number | bigint | boolean;
 ```
 
+### ListboxRootChangeEventDetails
+
+```typescript
+type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
+```
+
+### ListboxRootChangeEventReason
+
+```typescript
+type ListboxRootChangeEventReason = 'item-press' | 'list-navigation';
+```
+
+### ListboxRootHighlightEventDetails
+
+```typescript
+type ListboxRootHighlightEventDetails = BaseUIHighlightEventDetails<
+  ListboxRootHighlightEventReason,
+  { index: number }
+>;
+```
+
+### ListboxRootHighlightEventReason
+
+```typescript
+type ListboxRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';
+```
+
+### ListboxRootProps
+
+```typescript
+type ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | undefined = false> = {
+  children?: React.ReactNode;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether multiple items can be selected, and how selecting an item affects the current selection.
+   * - `false`: only one item can be selected.
+   * - `true`: each item is toggled independently.
+   * - `'opt-in'`: selecting an item moves the current selection to it, and users hold a modifier key
+   *   to select more than one item. On touch devices, where there are no modifier keys, it behaves
+   *   like `true`.
+   * @default false
+   */
+  multiple?: boolean | 'opt-in' | undefined;
+  /**
+   * The orientation of the listbox for keyboard navigation.
+   * @default 'vertical'
+   */
+  orientation?: 'vertical' | 'horizontal';
+  /**
+   * Whether moving the pointer over an item highlights it.
+   * While focus is in the listbox, the item also receives focus, except with `multiple="opt-in"`,
+   * where moving focus can change the selection. The pointer never takes focus from outside the
+   * listbox.
+   * @default true
+   */
+  highlightItemOnHover?: boolean;
+  /**
+   * The uncontrolled value of the listbox when it's initially rendered.
+   *
+   * To render a controlled listbox, use the `value` prop instead.
+   */
+  defaultValue?: Value[] | Value | null;
+  /** The value of the listbox. Use when controlled. */
+  value?: Value[] | Value | null;
+  /** Event handler called when the value of the listbox changes. */
+  onValueChange?: (
+    value: Value[] | Value | null,
+    eventDetails: ListboxRootChangeEventDetails,
+  ) => void;
+  /**
+   * Callback fired when an item is highlighted or unhighlighted.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation or typeahead.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'none'`: the highlight changed for another reason, such as an item receiving or losing focus.
+   *
+   * With `items`, the highlighted item may not be rendered yet, so scroll it into view.
+   * `eventDetails.index` is `-1` when no item is highlighted.
+   */
+  onItemHighlighted?: (
+    itemValue: Value | undefined,
+    eventDetails: ListboxRootHighlightEventDetails,
+  ) => void;
+  /**
+   * Every item in the list, including those that aren't rendered. Pass them when the list is
+   * virtualized, so keyboard navigation, typeahead and selection can reach items that aren't
+   * rendered.
+   *
+   * Pass one of the following:
+   * - An array of primitives, such as strings or numbers, each of which is an item's value and
+   *   label.
+   * - An array of `{ value, label, disabled }` objects.
+   * - An array of groups, each with an `items` array of either of the above.
+   * - A collection created with `Listbox.createItems()` for any other data.
+   *
+   * Give each `Listbox.Item` its value, which with a collection is what `getValue` returns for
+   * the item.
+   *
+   * Pass the same array or collection on every render, by defining it outside the component or
+   * memoizing it, since a new one makes every item render again.
+   * @type readonly Value[] | readonly ListboxItemObject<Value>[] | readonly ListboxItemGroup<Value | ListboxItemObject<Value>>[] | ListboxItemCollection<any, Value>
+   */
+  items?:
+    | ((Value & string) | (Value & number) | (Value & bigint) | (Value & false) | (Value & true))[]
+    | ListboxItemObject<
+        (Value & string) | (Value & number) | (Value & bigint) | (Value & false) | (Value & true)
+      >[]
+    | ListboxItemGroupInput<
+        | (Value & string)
+        | (Value & number)
+        | (Value & bigint)
+        | (Value & false)
+        | (Value & true)
+        | ListboxItemObject<
+            | (Value & string)
+            | (Value & number)
+            | (Value & bigint)
+            | (Value & false)
+            | (Value & true)
+          >
+      >[]
+    | ListboxItemCollection<any, Value>;
+};
+```
+
+### ListboxRootState
+
+```typescript
+type ListboxRootState = {};
+```
+
 ## Export Groups
 
-- `Listbox.Root`: `Listbox.Root`, `Listbox.Root.Props`, `Listbox.Root.State`, `Listbox.Root.ChangeEventReason`, `Listbox.Root.ChangeEventDetails`, `Listbox.Root.HighlightEventReason`, `Listbox.Root.HighlightEventDetails`
-- `Listbox.Label`: `Listbox.Label`, `Listbox.Label.State`, `Listbox.Label.Props`
-- `Listbox.List`: `Listbox.List`, `Listbox.List.Props`, `Listbox.List.State`
-- `Listbox.Item`: `Listbox.Item`, `Listbox.Item.State`, `Listbox.Item.Props`
-- `Listbox.ItemIndicator`: `Listbox.ItemIndicator`, `Listbox.ItemIndicator.State`, `Listbox.ItemIndicator.Props`
-- `Listbox.Group`: `Listbox.Group`, `Listbox.Group.State`, `Listbox.Group.Props`
-- `Listbox.GroupLabel`: `Listbox.GroupLabel`, `Listbox.GroupLabel.State`, `Listbox.GroupLabel.Props`
-- `Listbox.Collection`: `Listbox.Collection`, `Listbox.Collection.State`, `Listbox.Collection.Props`
-- `Listbox.createItems`
-- `Default`: `CreateListboxItemsOptions`, `ListboxItemCollection`, `ListboxItemGroup`, `ListboxPrimitiveValue`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxItemIndicatorDataAttributes`, `ListboxRootProps`, `ListboxItemObject`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`, `ListboxCollectionState`, `ListboxCollectionProps`
-
-## Canonical Types
-
-Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
-
-- `Listbox.Root.Props`: `ListboxRootProps`
-- `Listbox.Root.State`: `ListboxRootState`
-- `Listbox.Root.ChangeEventReason`: `ListboxRootChangeEventReason`
-- `Listbox.Root.ChangeEventDetails`: `ListboxRootChangeEventDetails`
-- `Listbox.Root.HighlightEventReason`: `ListboxRootHighlightEventReason`
-- `Listbox.Root.HighlightEventDetails`: `ListboxRootHighlightEventDetails`
-- `Listbox.Label.State`: `ListboxLabelState`
-- `Listbox.Label.Props`: `ListboxLabelProps`
-- `Listbox.List.Props`: `ListboxListProps`
-- `Listbox.List.State`: `ListboxListState`
-- `Listbox.Item.State`: `ListboxItemState`
-- `Listbox.Item.Props`: `ListboxItemProps`
-- `Listbox.ItemIndicator.State`: `ListboxItemIndicatorState`
-- `Listbox.ItemIndicator.Props`: `ListboxItemIndicatorProps`
-- `Listbox.Group.State`: `ListboxGroupState`
-- `Listbox.Group.Props`: `ListboxGroupProps`
-- `Listbox.GroupLabel.State`: `ListboxGroupLabelState`
-- `Listbox.GroupLabel.Props`: `ListboxGroupLabelProps`
-- `Listbox.Collection.State`: `ListboxCollectionState`
-- `Listbox.Collection.Props`: `ListboxCollectionProps`
+- `ListboxPreview.Root`: `ListboxPreview.Root`, `ListboxPreview.Root.Props`, `ListboxPreview.Root.State`, `ListboxPreview.Root.ChangeEventReason`, `ListboxPreview.Root.ChangeEventDetails`, `ListboxPreview.Root.HighlightEventReason`, `ListboxPreview.Root.HighlightEventDetails`
+- `ListboxPreview.Label`: `ListboxPreview.Label`, `ListboxPreview.Label.State`, `ListboxPreview.Label.Props`
+- `ListboxPreview.List`: `ListboxPreview.List`, `ListboxPreview.List.Props`, `ListboxPreview.List.State`
+- `ListboxPreview.Item`: `ListboxPreview.Item`, `ListboxPreview.Item.State`, `ListboxPreview.Item.Props`
+- `ListboxPreview.ItemIndicator`: `ListboxPreview.ItemIndicator`, `ListboxPreview.ItemIndicator.State`, `ListboxPreview.ItemIndicator.Props`
+- `ListboxPreview.Group`: `ListboxPreview.Group`, `ListboxPreview.Group.State`, `ListboxPreview.Group.Props`
+- `ListboxPreview.GroupLabel`: `ListboxPreview.GroupLabel`, `ListboxPreview.GroupLabel.State`, `ListboxPreview.GroupLabel.Props`
+- `ListboxPreview.Collection`: `ListboxPreview.Collection`, `ListboxPreview.Collection.State`, `ListboxPreview.Collection.Props`
+- `ListboxPreview.createItems`
+- `Default`: `CreateListboxItemsOptions`, `ListboxItemCollection`, `ListboxItemGroup`, `ListboxPrimitiveValue`, `ListboxPreviewListDataAttributes`, `ListboxPreviewItemDataAttributes`, `ListboxPreviewItemIndicatorDataAttributes`, `ListboxRootProps`, `ListboxItemObject`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxRootHighlightEventReason`, `ListboxRootHighlightEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`, `ListboxCollectionState`, `ListboxCollectionProps`
 
 ## External Type Links
 

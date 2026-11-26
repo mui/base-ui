@@ -1,4 +1,4 @@
-export * as Listbox from './index.parts';
+export * as ListboxPreview from './index.parts';
 
 export type * from './root/ListboxRoot';
 export type * from './label/ListboxLabel';
@@ -15,6 +15,6 @@ export type {
   ListboxPrimitiveValue,
 } from './items/createItems';
 
-export * as ListboxListDataAttributes from './list/ListboxListDataAttributes';
-export * as ListboxItemDataAttributes from './item/ListboxItemDataAttributes';
-export * as ListboxItemIndicatorDataAttributes from './item-indicator/ListboxItemIndicatorDataAttributes';
+export * as ListboxPreviewListDataAttributes from './list/ListboxListDataAttributes';
+export * as ListboxPreviewItemDataAttributes from './item/ListboxItemDataAttributes';
+export * as ListboxPreviewItemIndicatorDataAttributes from './item-indicator/ListboxItemIndicatorDataAttributes';
