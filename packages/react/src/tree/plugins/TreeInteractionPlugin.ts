@@ -905,14 +905,17 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       }
     },
     onKeyDown: (event: MaybeBaseUIEvent<React.KeyboardEvent>) => {
-      const focusedId = this.store.state.focusedItemId;
       // A row or control handler that calls `preventBaseUIHandler()` opts out of
       // the tree's handling, which is delegated to the root.
-      if (focusedId == null || event.baseUIHandlerPrevented) {
+      if (event.baseUIHandlerPrevented) {
         return;
       }
       const target = getTarget(event.nativeEvent);
-      if (!isElement(target)) {
+      if (!isElement(target) || this.handleExpansionAction(event, target)) {
+        return;
+      }
+      const focusedId = this.store.state.focusedItemId;
+      if (focusedId == null) {
         return;
       }
       const itemElement = this.store.items.getItemDOMElement(focusedId);
@@ -932,6 +935,49 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       }
     },
   };
+
+  /**
+   * Handles the Expand and Collapse actions of TalkBack, which Chrome sends to a row as
+   * an Arrow Right or Arrow Left key press without focusing it, whatever the text
+   * direction. A key press from a keyboard goes to the focused element, so one on a
+   * row that doesn't have focus is such an action. On the focused row, the two can't
+   * be told apart, so the keys follow the text direction there.
+   */
+  private handleExpansionAction(event: React.KeyboardEvent, target: Element): boolean {
+    if (
+      (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey
+    ) {
+      return false;
+    }
+    const itemKey = target.getAttribute(ITEM_KEY_ATTRIBUTE);
+    if (itemKey == null || target === activeElement(ownerDocument(target))) {
+      return false;
+    }
+    const itemId = selectors.itemMetaLookup(this.store.state)[itemKey]?.id;
+    // A nested tree's row is handled by its own root.
+    if (itemId == null || this.store.items.getItemDOMElement(itemId) !== target) {
+      return false;
+    }
+    event.preventDefault();
+    const expand = event.key === 'ArrowRight';
+    if (
+      this.store.expansion.canToggleItemExpansion(itemId) &&
+      selectors.isItemExpanded(this.store.state, itemId) !== expand
+    ) {
+      this.store.expansion.setItemExpansion(itemId, expand, REASONS.keyboard, event.nativeEvent);
+    }
+    // Focus follows the screen reader to the row, unless it is outside the tree, such
+    // as in a filter input.
+    const rootElement = this.store.context.rootRef.current;
+    if (rootElement != null && this.getFocusLocation(rootElement) !== 'outside') {
+      this.focusItem(itemId, REASONS.keyboard, event.nativeEvent);
+    }
+    return true;
+  }
 
   private readonly handleItemPointerDown = (event: React.PointerEvent): void => {
     this.lastPointerType = event.pointerType;

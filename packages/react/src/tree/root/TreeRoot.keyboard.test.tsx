@@ -2105,3 +2105,76 @@ describe('TreeRoot - Keyboard (RTL)', () => {
     expect(getItemRoot('1')).toHaveFocus();
   });
 });
+
+// TalkBack's Expand and Collapse actions reach the tree as Arrow Right and Arrow Left
+// on the item, without focusing it first, whatever the text direction.
+describe('TreeRoot - Expand and Collapse actions on an item without focus', () => {
+  const ITEMS = [
+    { id: '1', label: 'One', children: [{ id: '1.1', label: 'One one' }] },
+    { id: '2', label: 'Two' },
+  ];
+
+  function ActionTree(props: { direction: 'ltr' | 'rtl'; defaultExpandedItems?: string[] }) {
+    return (
+      <DirectionProvider direction={props.direction}>
+        <input aria-label="Outside" data-testid="outside" />
+        <Tree.Root items={ITEMS} defaultExpandedItems={props.defaultExpandedItems}>
+          <Tree.List aria-label="Items">
+            {(item: any) => <Tree.Item itemId={item.id}>{item.label}</Tree.Item>}
+          </Tree.List>
+        </Tree.Root>
+      </DirectionProvider>
+    );
+  }
+
+  function getItemRoot(id: string) {
+    return document.querySelector(`[data-item-id="${id}"]`) as HTMLElement;
+  }
+
+  // Chrome dispatches the key on the item itself, which `fireEvent` refuses for an
+  // element without focus.
+  function sendAction(element: HTMLElement, key: 'ArrowRight' | 'ArrowLeft') {
+    act(() => {
+      element.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    });
+  }
+
+  it.each([{ direction: 'ltr' as const }, { direction: 'rtl' as const }])(
+    'expands the item on Arrow Right and focuses it ($direction)',
+    async ({ direction }) => {
+      await renderElement(<ActionTree direction={direction} />);
+      act(() => getItemRoot('2').focus());
+      expect(getItemRoot('1')).toHaveAttribute('aria-expanded', 'false');
+
+      sendAction(getItemRoot('1'), 'ArrowRight');
+
+      expect(getItemRoot('1')).toHaveAttribute('aria-expanded', 'true');
+      expect(getItemRoot('1')).toHaveFocus();
+    },
+  );
+
+  it.each([{ direction: 'ltr' as const }, { direction: 'rtl' as const }])(
+    'collapses the item on Arrow Left and focuses it ($direction)',
+    async ({ direction }) => {
+      await renderElement(<ActionTree direction={direction} defaultExpandedItems={['1']} />);
+      act(() => getItemRoot('2').focus());
+      expect(getItemRoot('1')).toHaveAttribute('aria-expanded', 'true');
+
+      sendAction(getItemRoot('1'), 'ArrowLeft');
+
+      expect(getItemRoot('1')).toHaveAttribute('aria-expanded', 'false');
+      expect(getItemRoot('1')).toHaveFocus();
+    },
+  );
+
+  it('expands the item but leaves focus outside the tree where it is', async () => {
+    await renderElement(<ActionTree direction="ltr" />);
+    const outside = document.querySelector<HTMLInputElement>('[data-testid="outside"]')!;
+    act(() => outside.focus());
+
+    sendAction(getItemRoot('1'), 'ArrowRight');
+
+    expect(getItemRoot('1')).toHaveAttribute('aria-expanded', 'true');
+    expect(outside).toHaveFocus();
+  });
+});
