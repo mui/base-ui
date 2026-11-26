@@ -1316,6 +1316,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // An inline list is permanently expanded (see `ComboboxStore.interactions`).
   const expanded = open || inline;
   const ariaExpanded = expanded ? 'true' : 'false';
+  const ariaControls = expanded ? listElement?.id : undefined;
 
   const role: ElementProps = React.useMemo(() => {
     const isPlainInput = inputElement?.tagName === 'INPUT';
@@ -1339,7 +1340,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       reference.role = 'combobox';
       reference['aria-expanded'] = ariaExpanded;
       reference['aria-haspopup'] = ariaHasPopup;
-      reference['aria-controls'] = expanded ? listElement?.id : undefined;
+      reference['aria-controls'] = ariaControls;
       // `readOnly` accepts no input, so no completion of any kind is offered.
       reference['aria-autocomplete'] = readOnly ? 'none' : autoComplete;
     }
@@ -1348,7 +1349,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       reference,
       floating: { role: 'presentation' },
     };
-  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete, readOnly]);
+  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, ariaControls, autoComplete, readOnly]);
 
   // `readOnly` locks the value, not the interaction: the popup opens and can be browsed.
   // Value changes stay blocked in `ComboboxItem`, `ComboboxInput`'s keydown, `ComboboxTrigger`'s

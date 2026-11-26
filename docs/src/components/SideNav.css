@@ -125,6 +125,7 @@
 
   .SideNavItem {
     display: flex;
+    scroll-margin-block: 3rem;
   }
 
   .SideNavLink {
