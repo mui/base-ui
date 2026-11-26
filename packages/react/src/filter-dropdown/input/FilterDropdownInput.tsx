@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, closest } from '@base-ui/utils/shadowDom';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -12,6 +15,8 @@ import {
   useFilterDropdownValueContext,
 } from '../root/FilterDropdownRootContext';
 import { refocusOwner, isRefocusingOwner } from '../utils/refocusOwner';
+
+const NO_FORM_ID = 'base-ui-filter-input-no-form';
 
 /**
  * @internal
@@ -41,6 +46,33 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   // IME text isn't committed until the composition ends, so filtering waits for it.
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
+
+  const arrowKeyPressedRef = React.useRef(false);
+  const previousActiveItemIdRef = React.useRef(activeItemId);
+
+  // An arrow key that steps off the list back to the input only removes `aria-activedescendant`,
+  // which Safari VoiceOver doesn't follow: its cursor stays on the option. Focus passing through
+  // the popup, whose focus handler hands it straight back, moves the cursor to the input.
+  useIsoLayoutEffect(() => {
+    const previousActiveItemId = previousActiveItemIdRef.current;
+    previousActiveItemIdRef.current = activeItemId;
+    const arrowKeyPressed = arrowKeyPressedRef.current;
+    arrowKeyPressedRef.current = false;
+
+    const input = context.focusOwnerRef.current;
+    if (
+      !platform.engine.webkit ||
+      !arrowKeyPressed ||
+      previousActiveItemId == null ||
+      activeItemId != null ||
+      input == null ||
+      activeElement(ownerDocument(input)) !== input
+    ) {
+      return;
+    }
+    closest<HTMLElement>(input.parentNode, '[role="dialog"]')?.focus({ preventScroll: true });
+    refocusOwner(input);
+  }, [activeItemId, context.focusOwnerRef]);
 
   function commitValue(nextValue: string, nativeEvent: Event) {
     // The input keeps focus until the popup unmounts. The query is held in place while it
@@ -101,8 +133,9 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           }
           commitValue(event.currentTarget.value, event.nativeEvent);
         },
-        onKeyDown() {
+        onKeyDown(event) {
           context.setKeyboardModality(true);
+          arrowKeyPressedRef.current = event.key.startsWith('Arrow');
         },
         onPointerDown() {
           context.setKeyboardModality(false);
@@ -134,6 +167,15 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         },
       },
       elementProps,
+      {
+        // Safari ignores `autocomplete="off"` for contacts AutoFill and guesses from the page whether
+        // this is a contact field. A "search" token in the name is the one signal it respects, and it
+        // decides when the input first gets focus, so the name is set from the first render.
+        name: 'search',
+        // The query is UI state, not a form value. A `form` that names no element takes the input
+        // out of any surrounding form, so it's never submitted and Enter never submits that form.
+        form: NO_FORM_ID,
+      },
     ],
   });
 });
@@ -146,9 +188,10 @@ export interface FilterDropdownInputState {
   highlighted: boolean;
 }
 
-export interface FilterDropdownInputProps extends BaseUIComponentProps<
-  'input',
-  FilterDropdownInputState
+// The input always renders its own `name` and `form`.
+export interface FilterDropdownInputProps extends Omit<
+  BaseUIComponentProps<'input', FilterDropdownInputState>,
+  'name' | 'form'
 > {}
 
 interface FilterDropdownInputHostProps extends FilterDropdownInputProps {
