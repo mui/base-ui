@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, describe, it } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -317,6 +318,50 @@ describe('<Toolbar.Root />', () => {
       await user.keyboard('[ArrowRight]');
       expect(input).not.toHaveFocus();
       expect(button2).toHaveFocus();
+    });
+  });
+
+  describe('tab stop', () => {
+    function FocusedInMountEffect() {
+      const zoomIn = React.useRef<HTMLButtonElement>(null);
+      React.useEffect(() => {
+        zoomIn.current?.focus();
+      }, []);
+      return (
+        <React.Fragment>
+          <button type="button">Before</button>
+          <Toolbar.Root>
+            <Toolbar.Button>Zoom out</Toolbar.Button>
+            <Toolbar.Button ref={zoomIn}>Zoom in</Toolbar.Button>
+          </Toolbar.Root>
+        </React.Fragment>
+      );
+    }
+
+    it.each([
+      { name: 'in a mount effect', element: <FocusedInMountEffect /> },
+      {
+        name: 'with autoFocus',
+        element: (
+          <React.Fragment>
+            <button type="button">Before</button>
+            <Toolbar.Root>
+              <Toolbar.Button>Zoom out</Toolbar.Button>
+              <Toolbar.Button autoFocus>Zoom in</Toolbar.Button>
+            </Toolbar.Root>
+          </React.Fragment>
+        ),
+      },
+    ])('keeps the tab stop on an item focused $name', async ({ element }) => {
+      const { user } = await render(element);
+
+      const zoomIn = screen.getByRole('button', { name: 'Zoom in' });
+      expect(zoomIn).toHaveFocus();
+      expect(zoomIn).toHaveAttribute('tabindex', '0');
+
+      screen.getByRole('button', { name: 'Before' }).focus();
+      await user.keyboard('[Tab]');
+      expect(zoomIn).toHaveFocus();
     });
   });
 });

@@ -5,7 +5,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { getTarget } from '@base-ui/utils/shadowDom';
+import { activeElement, getTarget } from '@base-ui/utils/shadowDom';
+import { ownerDocument } from '@base-ui/utils/owner';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -137,10 +138,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     hasSetDefaultIndexRef.current = true;
 
     const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
+    // An item can take focus before its list first resolves, for example with `autoFocus`. Its index
+    // cannot be resolved from the list in the focus handler then, so the tab stop starts on it here.
+    const focusedElement = activeElement(ownerDocument(rootRef.current));
     const activeItem =
+      sortedElements.find((compositeElement) => compositeElement === focusedElement) ??
       sortedElements.find((compositeElement) =>
         compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-      ) ?? null;
+      ) ??
+      null;
     // Set the default highlighted index of an arbitrary composite item. The map value carries
     // the item's own index, which is not its position among the keys once a list mixes explicit
     // and automatic indexes and leaves gaps.
@@ -321,6 +327,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onFocus(event) {
       const element = rootRef.current;
       const target = getTarget(event.nativeEvent);
+      // A focused item reports its own index, but until it re-renders with the index its list
+      // delivered, that index is -1, for example when the item is focused in a mount effect. The
+      // tab stop would then be on no item, so the item is resolved from the list instead.
+      const focusedIndex = elementsRef.current.findIndex((item) => item === target);
+      if (focusedIndex !== -1) {
+        onHighlightedIndexChange(focusedIndex);
+      }
+
       if (!element || target == null || !isNativeInput(target)) {
         return;
       }
