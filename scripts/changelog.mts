@@ -140,11 +140,16 @@ function getCreditedChanges({ changes }: ChangelogData) {
   return changes.filter(({ labels }) => !labels.some((label) => EXCLUDED_LABELS.has(label)));
 }
 
+/** The credited changes without excluded prefixes, unless labeled with a component or all of them. */
 function getListedChanges(data: ChangelogData) {
-  return getCreditedChanges(data).filter(
-    ({ title }) =>
-      !parseTitle(title).prefixes.some((prefix) => matchPrefix(prefix, EXCLUDED_PREFIXES)),
-  );
+  return getCreditedChanges(data).filter(({ labels, title }) => {
+    // A label says the change is for users, whatever the prefix: #5000 is `[utils]`.
+    if (labels.includes(ALL_COMPONENTS_LABEL) || getComponents(labels).length > 0) {
+      return true;
+    }
+
+    return !parseTitle(title).prefixes.some((prefix) => matchPrefix(prefix, EXCLUDED_PREFIXES));
+  });
 }
 
 function renderContributors(data: ChangelogData) {
