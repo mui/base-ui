@@ -235,7 +235,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (rootElement == null || this.getFocusLocation(rootElement) !== 'outside') {
       return;
     }
-    this.scheduleFocusRecovery((_rootElement, focusLocation) => {
+    this.scheduleFocusRecovery((rootElement, focusLocation) => {
       // Focus that moved elsewhere, such as back to a trigger outside the tree, stays there.
       if (focusLocation !== 'lost') {
         return;
@@ -254,6 +254,9 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
           : selectors.tabbableItemId(state);
       if (target != null) {
         this.focusItem(target);
+      } else {
+        // No row is left, so the empty tree container takes focus.
+        rootElement.focus({ preventScroll: true });
       }
     });
   }

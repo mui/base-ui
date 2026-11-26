@@ -2588,14 +2588,14 @@ describe('focus recovery from a popup opened on a row', () => {
   // Each row has an actions menu whose items remove the row or move it into the
   // collapsed Archive folder, and the page has a menu outside the tree that removes
   // the first row.
-  function MenuTree() {
+  function MenuTree({ items = MENU_ITEMS }: { items?: MenuItem[] }) {
     const actionsRef = React.useRef<TreeGrid.Root.Actions<MenuItem>>(null);
     return (
       <React.Fragment>
         <button type="button" data-testid="before">
           Before
         </button>
-        <TreeGrid.Root defaultItems={MENU_ITEMS} actionsRef={actionsRef}>
+        <TreeGrid.Root defaultItems={items} actionsRef={actionsRef}>
           <Menu.Root>
             <Menu.Trigger data-testid="page-menu">Page actions</Menu.Trigger>
             <Menu.Portal>
@@ -2678,6 +2678,22 @@ describe('focus recovery from a popup opened on a row', () => {
       });
     },
   );
+
+  it('focuses the tree container when Delete in the menu of the last row empties the tree', async () => {
+    const { user } = await render(<MenuTree items={[{ id: 'documents', label: 'Documents' }]} />);
+    act(() => screen.getByTestId('row-documents').focus());
+    await user.keyboard('{ArrowRight}{Enter}');
+    const menuItem = await screen.findByRole('menuitem', { name: 'Delete' });
+    act(() => menuItem.focus());
+    expect(menuItem).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+
+    expect(screen.queryByTestId('row-documents')).toBe(null);
+    await waitFor(() => {
+      expect(screen.getByRole('treegrid')).toHaveFocus();
+    });
+  });
 
   it('leaves focus with a menu outside the tree that removes the row focused last', async () => {
     const { user } = await render(<MenuTree />);
