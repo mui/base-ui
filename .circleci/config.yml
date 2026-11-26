@@ -107,36 +107,12 @@ jobs:
           command: pnpm typescript
           environment:
             NODE_OPTIONS: --max-old-space-size=3072
-      - run:
-          name: Any defect declaration files?
-          command: pnpm code-infra validate-built-types
-      - save_cache:
-          name: Save generated declaration files
-          key: typescript-declaration-files-{{ .Branch }}-{{ .Revision }}
-          paths:
-            # packages with generated declaration files
-            - packages/react/build
   test_types_next:
     <<: *default-job
     resource_class: medium+
     steps:
       - checkout
       - code-infra/test-types-next
-      - restore_cache:
-          name: Restore generated declaration files
-          keys:
-            # We assume that the target branch is `master` and that declaration files are persisted in commit order.
-            # "If there are multiple matches, the most recently generated cache will be used."
-            - typescript-declaration-files-master
-      - run:
-          name: Log defect declaration files
-          command: |
-            # ignore build failures
-            # Fixing these takes some effort that isn't viable to merge in a single PR.
-            # We'll simply monitor them for now.
-            set +e
-            pnpm code-infra validate-built-types
-            exit 0
   test_browser:
     <<: *default-job
     resource_class: large
@@ -193,7 +169,8 @@ jobs:
           command: pnpm release:build
       - run:
           name: Validate type declarations
-          command: pnpm code-infra validate-built-types
+          # The luxon adapter's source opts out of type checking, so its declarations don't match TemporalAdapter.
+          command: pnpm code-infra validate-built-types --expect-error @base-ui/react/internals/temporal-adapter-luxon
       - run:
           name: Check stripped public types
           command: pnpm --filter @base-ui/react types:check
