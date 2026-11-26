@@ -37,6 +37,27 @@ describe.skipIf(isJSDOM)('Tree demo interactions', () => {
   it.each([
     ['css-modules', UpdatingItemsCSS],
     ['tailwind', UpdatingItemsTailwind],
+  ])(
+    'keeps focus on Delete and announces the deletion in the %s updating demo',
+    async (_, Demo) => {
+      const { user } = await render(<Demo />);
+      await user.click(screen.getByRole('treeitem', { name: 'Resume.pdf' }));
+      const deleteButton = screen.getByRole('button', { name: 'Delete' });
+      act(() => deleteButton.focus());
+      expect(deleteButton).toHaveFocus();
+
+      await user.keyboard('{Enter}');
+
+      expect(screen.queryByRole('treeitem', { name: 'Resume.pdf' })).toBe(null);
+      expect(deleteButton).toHaveAttribute('aria-disabled', 'true');
+      expect(deleteButton).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent('Deleted Resume.pdf');
+    },
+  );
+
+  it.each([
+    ['css-modules', UpdatingItemsCSS],
+    ['tailwind', UpdatingItemsTailwind],
   ])('applies each toolbar action as a transaction in the %s updating demo', async (_, Demo) => {
     await render(<Demo />);
     const rowNames = () => screen.getAllByRole('treeitem').map((row) => row.textContent);

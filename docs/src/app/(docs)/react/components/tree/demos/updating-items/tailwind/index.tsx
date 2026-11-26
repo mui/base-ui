@@ -50,6 +50,8 @@ export default function ExampleTreeUpdatingItems() {
   const actionsRef = React.useRef<Tree.Root.Actions>(null);
   const [items, setItems] = React.useState(INITIAL_ITEMS);
   const [selected, setSelected] = React.useState<Tree.ItemId | null>('documents');
+  // Screen readers don't see the tree change, so a status message confirms each action.
+  const [status, setStatus] = React.useState('');
   // Where each archived item was, so Unarchive can put it back.
   const origins = React.useRef(
     new Map<Tree.ItemId, { parentId: Tree.ItemId | null; index: number }>(),
@@ -77,6 +79,7 @@ export default function ExampleTreeUpdatingItems() {
       actions.setItemExpansion(selected, true);
     }
     setSelected(file.id);
+    setStatus(`Added ${file.label}`);
   };
 
   const sortFolder = () => {
@@ -96,6 +99,7 @@ export default function ExampleTreeUpdatingItems() {
       // Replaces the folder, children included.
       transaction.set({ ...folder, children });
     });
+    setStatus(`Sorted ${folder.label}`);
   };
 
   const archive = () => {
@@ -117,6 +121,7 @@ export default function ExampleTreeUpdatingItems() {
     });
     // @highlight-end
     actions.setItemExpansion('archive', true);
+    setStatus(`Archived ${actions.getItemModel(selected)?.label}`);
   };
 
   const unarchive = () => {
@@ -139,31 +144,52 @@ export default function ExampleTreeUpdatingItems() {
         transaction.remove('archive');
       }
     });
+    setStatus(`Unarchived ${actions.getItemModel(selected)?.label}`);
   };
 
   const remove = () => {
-    if (selected != null) {
-      void actionsRef.current?.applyTransaction((transaction) => transaction.remove(selected));
+    const actions = actionsRef.current;
+    if (actions == null || selected == null) {
+      return;
     }
+    const label = actions.getItemModel(selected)?.label;
+    void actions.applyTransaction((transaction) => transaction.remove(selected));
+    setStatus(`Deleted ${label}`);
   };
 
   return (
     <div className="flex flex-col items-start gap-3">
       <div className="flex flex-wrap gap-2">
-        <Button className={BUTTON_CLASS} disabled={selected == null} onClick={addFile}>
+        <Button
+          className={BUTTON_CLASS}
+          focusableWhenDisabled
+          disabled={selected == null}
+          onClick={addFile}
+        >
           New file
         </Button>
-        <Button className={BUTTON_CLASS} disabled={selected == null} onClick={sortFolder}>
+        <Button
+          className={BUTTON_CLASS}
+          focusableWhenDisabled
+          disabled={selected == null}
+          onClick={sortFolder}
+        >
           Sort
         </Button>
         <Button
           className={BUTTON_CLASS}
+          focusableWhenDisabled
           disabled={selected == null || selected === 'archive'}
           onClick={isArchived ? unarchive : archive}
         >
           {isArchived ? 'Unarchive' : 'Archive'}
         </Button>
-        <Button className={BUTTON_CLASS} disabled={selected == null} onClick={remove}>
+        <Button
+          className={BUTTON_CLASS}
+          focusableWhenDisabled
+          disabled={selected == null}
+          onClick={remove}
+        >
           Delete
         </Button>
       </div>
@@ -198,6 +224,9 @@ export default function ExampleTreeUpdatingItems() {
           )}
         </Tree.List>
       </Tree.Root>
+      <div role="status" className="sr-only">
+        {status}
+      </div>
     </div>
   );
 }
