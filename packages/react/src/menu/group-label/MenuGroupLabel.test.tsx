@@ -218,4 +218,44 @@ describe('<Menu.GroupLabel />', () => {
       expect(group).toHaveAttribute('aria-labelledby', 'new-label');
     });
   });
+
+  describe('prop: render', () => {
+    it('labels the group with the id of the render element', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Group>
+                  <Menu.GroupLabel render={<div id="custom" />}>Test group</Menu.GroupLabel>
+                </Menu.Group>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByText('Test group')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Group>
+                  <Menu.GroupLabel render={<div id={undefined} />}>Test group</Menu.GroupLabel>
+                </Menu.Group>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByText('Test group')).not.toHaveAttribute('id');
+      expect(screen.getByRole('group')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

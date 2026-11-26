@@ -3,6 +3,7 @@ import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -19,7 +20,8 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
 
   const store = usePopoverRootContext();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = resolveRenderedId(componentProps, defaultId) || undefined;
 
   store.useSyncedValueWithCleanup('descriptionElementId', id);
 

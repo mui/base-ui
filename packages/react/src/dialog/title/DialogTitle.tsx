@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
@@ -19,7 +20,8 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
 
   const store = useDialogRootContext();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = resolveRenderedId(componentProps, defaultId) || undefined;
 
   store.useSyncedValueWithCleanup('titleElementId', id);
 

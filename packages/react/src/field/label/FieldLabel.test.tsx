@@ -186,4 +186,30 @@ describe('<Field.Label />', () => {
       }
     });
   });
+
+  describe('prop: render', () => {
+    it('labels the control with the id of the render element', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Label render={<label id="custom" />}>Label</Field.Label>
+        </Field.Root>,
+      );
+
+      expect(screen.getByText('Label')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Label render={<label id={undefined} />}>Label</Field.Label>
+        </Field.Root>,
+      );
+
+      expect(screen.getByText('Label')).not.toHaveAttribute('id');
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

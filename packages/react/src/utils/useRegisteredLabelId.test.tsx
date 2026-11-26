@@ -16,7 +16,7 @@ describe('useRegisteredLabelId', () => {
     setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
     children: React.ReactNode;
   }) {
-    const registeredId = useRegisteredLabelId(id, setLabelId);
+    const registeredId = useRegisteredLabelId({ id }, setLabelId);
     return <span id={registeredId}>{children}</span>;
   }
 

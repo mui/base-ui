@@ -62,4 +62,30 @@ describe('<Field.Description />', () => {
 
     expect(screen.getByTestId('description')).toHaveAttribute('data-disabled');
   });
+
+  describe('prop: render', () => {
+    it('describes the control with the id of the render element', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Description render={<p id="custom" />}>Message</Field.Description>
+        </Field.Root>,
+      );
+
+      expect(screen.getByText('Message')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-describedby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Description render={<p id={undefined} />}>Message</Field.Description>
+        </Field.Root>,
+      );
+
+      expect(screen.getByText('Message')).not.toHaveAttribute('id');
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-describedby');
+    });
+  });
 });

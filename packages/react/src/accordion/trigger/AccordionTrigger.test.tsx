@@ -150,4 +150,38 @@ describe('<Accordion.Trigger />', () => {
     expect(trigger).toHaveAttribute('data-panel-open');
     expect(trigger).not.toHaveAttribute('data-open');
   });
+
+  describe('prop: render', () => {
+    it('labels the panel with the id of the render element', async () => {
+      await render(
+        <Accordion.Root defaultValue={['one']}>
+          <Accordion.Item value="one">
+            <Accordion.Header>
+              <Accordion.Trigger render={<button id="custom" />}>Trigger</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>Panel</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute('id', 'custom');
+      expect(screen.getByText('Panel')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Accordion.Root defaultValue={['one']}>
+          <Accordion.Item value="one">
+            <Accordion.Header>
+              <Accordion.Trigger render={<button id={undefined} />}>Trigger</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>Panel</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      expect(screen.getByRole('button', { name: 'Trigger' })).not.toHaveAttribute('id');
+      expect(screen.getByText('Panel')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

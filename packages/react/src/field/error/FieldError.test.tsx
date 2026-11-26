@@ -421,4 +421,34 @@ describe('<Field.Error />', () => {
       });
     });
   });
+
+  describe('prop: render', () => {
+    it('describes the control with the id of the render element', async () => {
+      await render(
+        <Field.Root invalid>
+          <Field.Control />
+          <Field.Error match render={<div id="custom" />}>
+            Message
+          </Field.Error>
+        </Field.Root>,
+      );
+
+      expect(screen.getByText('Message')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-describedby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Field.Root invalid>
+          <Field.Control />
+          <Field.Error match render={<div id={undefined} />}>
+            Message
+          </Field.Error>
+        </Field.Root>,
+      );
+
+      expect(screen.getByText('Message')).not.toHaveAttribute('id');
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-describedby');
+    });
+  });
 });

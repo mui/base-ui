@@ -165,4 +165,34 @@ describe('<Slider.Label />', () => {
 
     expect(document.body).toHaveFocus();
   });
+
+  describe('prop: render', () => {
+    it('labels the thumb with the id of the render element', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Label render={<div id="custom" />}>Volume</Slider.Label>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByText('Volume')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('slider')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Label render={<div id={undefined} />}>Volume</Slider.Label>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByText('Volume')).not.toHaveAttribute('id');
+      expect(screen.getByRole('slider')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

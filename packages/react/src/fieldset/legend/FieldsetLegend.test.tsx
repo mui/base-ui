@@ -116,4 +116,28 @@ describe('<Fieldset.Legend />', () => {
       });
     },
   );
+
+  describe('prop: render', () => {
+    it('labels the fieldset with the id of the render element', async () => {
+      await render(
+        <Fieldset.Root>
+          <Fieldset.Legend render={<div id="custom" />}>Legend</Fieldset.Legend>
+        </Fieldset.Root>,
+      );
+
+      expect(screen.getByText('Legend')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Fieldset.Root>
+          <Fieldset.Legend render={<div id={undefined} />}>Legend</Fieldset.Legend>
+        </Fieldset.Root>,
+      );
+
+      expect(screen.getByText('Legend')).not.toHaveAttribute('id');
+      expect(screen.getByRole('group')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

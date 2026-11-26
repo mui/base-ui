@@ -10,6 +10,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
@@ -32,7 +33,8 @@ export const FieldError = React.forwardRef(function FieldError(
 ) {
   const { render, id: idProp, className, match, style, ...elementProps } = componentProps;
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = resolveRenderedId(componentProps, defaultId) || undefined;
 
   const { validityData, state: fieldState, name } = useFieldRootContext(false);
   const { setMessageIds } = useLabelableContext();

@@ -78,4 +78,42 @@ describe('<Popover.Description />', () => {
       expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', description.id);
     });
   });
+
+  describe('prop: render', () => {
+    it('describes the popup with the id of the render element', async () => {
+      await render(
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Description render={<p id="custom" />}>Description</Popover.Description>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(screen.getByText('Description')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Description render={<p id={undefined} />}>Description</Popover.Description>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      expect(screen.getByText('Description')).not.toHaveAttribute('id');
+      expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-describedby');
+    });
+  });
 });

@@ -4,6 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 
 /**
  * A heading that labels the popover.
@@ -19,7 +20,8 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 
   const store = usePopoverRootContext();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = resolveRenderedId(componentProps, defaultId) || undefined;
 
   store.useSyncedValueWithCleanup('titleElementId', id);
 

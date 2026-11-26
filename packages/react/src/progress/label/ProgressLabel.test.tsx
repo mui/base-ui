@@ -57,4 +57,28 @@ describe('<Progress.Label />', () => {
       errorSpy.mockRestore();
     }
   });
+
+  describe('prop: render', () => {
+    it('labels the progressbar with the id of the render element', async () => {
+      await render(
+        <Progress.Root value={30}>
+          <Progress.Label render={<span id="custom" />}>Upload</Progress.Label>
+        </Progress.Root>,
+      );
+
+      expect(screen.getByText('Upload')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('progressbar')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Progress.Root value={30}>
+          <Progress.Label render={<span id={undefined} />}>Upload</Progress.Label>
+        </Progress.Root>,
+      );
+
+      expect(screen.getByText('Upload')).not.toHaveAttribute('id');
+      expect(screen.getByRole('progressbar')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

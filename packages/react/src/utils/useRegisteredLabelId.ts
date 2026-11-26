@@ -2,12 +2,14 @@
 import type * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../internals/useBaseUiId';
+import { resolveRenderedId } from '../internals/resolveRenderedId';
 
 export function useRegisteredLabelId(
-  idProp: string | undefined,
+  props: { id?: string | undefined; render?: unknown },
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>,
 ): string | undefined {
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(props.id);
+  const id = resolveRenderedId(props, defaultId) || undefined;
 
   useIsoLayoutEffect(() => {
     setLabelId(id);

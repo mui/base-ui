@@ -42,6 +42,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   const labelRef = React.useRef<HTMLElement | null>(null);
   const labelProps = useLabel({
     id: labelId ?? idProp,
+    render,
     native: nativeLabel,
   });
 

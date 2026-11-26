@@ -2,6 +2,7 @@
 import type * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { hasRenderableChildren } from './isRenderableNode';
 
@@ -11,16 +12,16 @@ import { hasRenderableChildren } from './isRenderableNode';
  * the pieces each part passes to `useRenderElement` and `useToastLabelElement`.
  */
 export function useToastLabelPart(
-  idProp: string | undefined,
-  childrenProp: React.ReactNode,
+  props: { id?: string | undefined; render?: unknown; children?: React.ReactNode },
   part: 'title' | 'description',
 ) {
   const { toast, setTitleId, setDescriptionId } = useToastRootContext();
 
   const setId = part === 'title' ? setTitleId : setDescriptionId;
-  const children = childrenProp ?? (part === 'title' ? toast.title : toast.description);
+  const children = props.children ?? (part === 'title' ? toast.title : toast.description);
 
-  const id = useId(idProp);
+  const defaultId = useId(props.id);
+  const id = resolveRenderedId(props, defaultId) || undefined;
 
   return { id, children, type: toast.type, setId };
 }

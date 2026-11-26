@@ -138,6 +138,20 @@ describe('useToastLabelPart', () => {
         );
       });
 
+      it(`wires ${attribute} to the id of the render element`, async () => {
+        await renderInRoot(<Part render={<div id="custom">render prop content</div>} />);
+
+        expect(screen.getByText('render prop content')).toHaveAttribute('id', 'custom');
+        expect(screen.getByTestId('root')).toHaveAttribute(attribute, 'custom');
+      });
+
+      it(`does not add ${attribute} when the render element removes the id`, async () => {
+        await renderInRoot(<Part render={<div id={undefined}>render prop content</div>} />);
+
+        expect(screen.getByText('render prop content')).not.toHaveAttribute('id');
+        expect(screen.getByTestId('root')).not.toHaveAttribute(attribute);
+      });
+
       it(`renders the toast ${field} through a childless render prop`, async () => {
         await renderInRoot(<Part render={<div />} />, { id: 'test', [field]: 'Toast content' });
 

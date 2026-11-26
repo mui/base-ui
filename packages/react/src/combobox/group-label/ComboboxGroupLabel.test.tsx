@@ -126,4 +126,44 @@ describe('<Combobox.GroupLabel />', () => {
       expect(group).toHaveAttribute('aria-labelledby', 'new-label');
     });
   });
+
+  describe('prop: render', () => {
+    it('labels the group with the id of the render element', async () => {
+      await render(
+        <Combobox.Root open>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Group>
+                  <Combobox.GroupLabel render={<div id="custom" />}>Label</Combobox.GroupLabel>
+                </Combobox.Group>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByText('Label')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Combobox.Root open>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Group>
+                  <Combobox.GroupLabel render={<div id={undefined} />}>Label</Combobox.GroupLabel>
+                </Combobox.Group>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByText('Label')).not.toHaveAttribute('id');
+      expect(screen.getByRole('group')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

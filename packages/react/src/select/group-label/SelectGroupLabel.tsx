@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 
@@ -20,14 +19,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   const { setLabelId } = useSelectGroupContext();
 
-  const id = useBaseUiId(idProp);
-
-  useIsoLayoutEffect(() => {
-    setLabelId(id);
-    return () => {
-      setLabelId((currentId) => (currentId === id ? undefined : currentId));
-    };
-  }, [id, setLabelId]);
+  const id = useRegisteredLabelId(componentProps, setLabelId);
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,

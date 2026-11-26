@@ -282,4 +282,38 @@ describe('<Tabs.Tab />', () => {
       ).toBe(true);
     });
   });
+
+  describe('prop: render', () => {
+    it('labels the panel with the id of the render element', async () => {
+      await render(
+        <Tabs.Root defaultValue="one">
+          <Tabs.List>
+            <Tabs.Tab value="one" render={<button id="custom" />}>
+              Tab
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="one">Panel</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      expect(screen.getByRole('tab')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Tabs.Root defaultValue="one">
+          <Tabs.List>
+            <Tabs.Tab value="one" render={<button id={undefined} />}>
+              Tab
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="one">Panel</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      expect(screen.getByRole('tab')).not.toHaveAttribute('id');
+      expect(screen.getByRole('tabpanel')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

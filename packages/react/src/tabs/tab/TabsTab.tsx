@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { useBaseUiId } from '../../internals/useBaseUiId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
@@ -52,7 +53,8 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   const { highlightedIndex, onHighlightedIndexChange } = useCompositeRootContext();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = resolveRenderedId(componentProps, defaultId) || undefined;
 
   const tabMetadata = React.useMemo(() => ({ disabled, id, value }), [disabled, id, value]);
 

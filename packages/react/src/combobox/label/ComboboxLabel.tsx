@@ -54,6 +54,7 @@ export const ComboboxLabel = React.forwardRef(function ComboboxLabel(
 
   const labelProps = useLabel({
     id: defaultLabelId,
+    render,
     fallbackControlId: localControlId,
     setLabelId(nextLabelId) {
       const resolvedLabelId =
