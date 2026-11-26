@@ -43,7 +43,6 @@ const HEADINGS = new Map([['otp field', 'OTP Field']]);
 
 // Pinned, so that the order doesn't depend on the locale of the machine.
 const COLLATOR = new Intl.Collator('en');
-const SORTED_LAST = '\uFFFF';
 
 function getHeading(component: string) {
   if (component !== component.toLowerCase()) {
@@ -55,6 +54,12 @@ function getHeading(component: string) {
 
 function getComponents(labels: string[]) {
   return [...labelValues(labels, 'component'), ...labelValues(labels, 'hook')];
+}
+
+function getPart(prefix: string) {
+  const part = matchPrefix(prefix, COMPONENT_OF.keys());
+
+  return (part && COMPONENT_OF.get(part)) ?? prefix;
 }
 
 function createRouter(changes: ChangelogChange[]) {
@@ -70,24 +75,33 @@ function createRouter(changes: ChangelogChange[]) {
     const components =
       labeled.length > 0
         ? labeled
-        : parseTitle(title).prefixes.flatMap(
-            (prefix) => matchPrefix(COMPONENT_OF.get(prefix) ?? prefix, known) ?? [],
-          );
+        : parseTitle(title).prefixes.flatMap((prefix) => matchPrefix(getPart(prefix), known) ?? []);
 
     return components.length > 0 ? components.map(getHeading) : GENERAL_CHANGES;
   };
 }
 
-function getSortKey({ title }: ChangelogChange) {
-  const { prefixes } = parseTitle(title);
+/** Prefix by prefix, and changes without prefixes last. */
+function comparePrefixes(a: string[], b: string[]) {
+  if (a.length === 0 || b.length === 0) {
+    return b.length - a.length;
+  }
 
-  return prefixes.length > 0 ? prefixes.join('\0').toLowerCase() : SORTED_LAST;
+  for (let index = 0; index < Math.min(a.length, b.length); index += 1) {
+    const order = COLLATOR.compare(a[index].toLowerCase(), b[index].toLowerCase());
+
+    if (order !== 0) {
+      return order;
+    }
+  }
+
+  return a.length - b.length;
 }
 
 /** By prefixes, then in the order they were merged. */
 function compareChanges(a: ChangelogChange, b: ChangelogChange) {
   return (
-    COLLATOR.compare(getSortKey(a), getSortKey(b)) ||
+    comparePrefixes(parseTitle(a.title).prefixes, parseTitle(b.title).prefixes) ||
     Date.parse(a.mergedAt ?? '') - Date.parse(b.mergedAt ?? '')
   );
 }
@@ -133,7 +147,8 @@ function getCreditedChanges({ changes }: ChangelogData) {
 
 function getListedChanges(data: ChangelogData) {
   return getCreditedChanges(data).filter(
-    ({ title }) => !EXCLUDED_PREFIXES.has(parseTitle(title).prefixes[0]),
+    ({ title }) =>
+      !parseTitle(title).prefixes.some((prefix) => matchPrefix(prefix, EXCLUDED_PREFIXES)),
   );
 }
 
