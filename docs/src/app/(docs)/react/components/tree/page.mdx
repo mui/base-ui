@@ -149,20 +149,22 @@ To render the items, pass a function to `Tree.List`. It's called with each item 
 A function can't be passed from a Server Component, so a tree rendered this way must be in a Client Component. You can also map over the data yourself and render an item part for each item as children, which works in either:
 
 ```jsx title="Rendering items as children"
-function renderItems(items) {
+function TreeItems({ items }) {
   return items.map((item) => (
     <React.Fragment key={item.id}>
       <Tree.Item itemId={item.id}>
         <Tree.ItemExpansionTrigger />
         {item.label}
       </Tree.Item>
-      {item.children && renderItems(item.children)}
+      {item.children && <TreeItems items={item.children} />}
     </React.Fragment>
   ));
 }
 
 <Tree.Root items={items}>
-  <Tree.List>{renderItems(items)}</Tree.List>
+  <Tree.List>
+    <TreeItems items={items} />
+  </Tree.List>
 </Tree.Root>;
 ```
 

@@ -541,14 +541,20 @@ describe('<Tree.List /> prop: children', () => {
     { name: 'Tree.LinkItem', Part: Tree.LinkItem },
   ];
 
-  function renderItems(items: readonly Tree.DefaultItem[], Part: ItemPart = Tree.Item) {
+  function TreeItems({
+    items,
+    Part = Tree.Item,
+  }: {
+    items: readonly Tree.DefaultItem[];
+    Part?: ItemPart | undefined;
+  }) {
     return items.map((item) => (
       <React.Fragment key={item.id}>
         <Part itemId={item.id}>
           <Tree.ItemExpansionTrigger />
           {item.label}
         </Part>
-        {item.children && renderItems(item.children, Part)}
+        {item.children && <TreeItems items={item.children} Part={Part} />}
       </React.Fragment>
     ));
   }
@@ -564,7 +570,9 @@ describe('<Tree.List /> prop: children', () => {
     async ({ Part }) => {
       const { user } = await render(
         <Tree.Root items={ITEMS}>
-          <Tree.List>{renderItems(ITEMS, Part)}</Tree.List>
+          <Tree.List>
+            <TreeItems items={ITEMS} Part={Part} />
+          </Tree.List>
         </Tree.Root>,
       );
       expect(getRenderedItemIds()).toEqual(['fruits', 'vegetables']);
@@ -583,7 +591,9 @@ describe('<Tree.List /> prop: children', () => {
   it('moves focus with the keyboard through the plain children of an item it expands', async () => {
     const { user } = await render(
       <Tree.Root items={ITEMS}>
-        <Tree.List>{renderItems(ITEMS)}</Tree.List>
+        <Tree.List>
+          <TreeItems items={ITEMS} />
+        </Tree.List>
       </Tree.Root>,
     );
     await act(async () => {
@@ -599,7 +609,9 @@ describe('<Tree.List /> prop: children', () => {
     await render(
       <Tree.FilterProvider value="ban">
         <Tree.Root items={ITEMS}>
-          <Tree.List>{renderItems(ITEMS)}</Tree.List>
+          <Tree.List>
+            <TreeItems items={ITEMS} />
+          </Tree.List>
         </Tree.Root>
       </Tree.FilterProvider>,
     );
@@ -609,7 +621,9 @@ describe('<Tree.List /> prop: children', () => {
   it('reports an item in view that the plain children do not render', async () => {
     const { user } = await render(
       <Tree.Root items={ITEMS}>
-        <Tree.List>{renderItems(ITEMS.map(({ children, ...item }) => item))}</Tree.List>
+        <Tree.List>
+          <TreeItems items={ITEMS.map(({ children, ...item }) => item)} />
+        </Tree.List>
       </Tree.Root>,
     );
 
@@ -626,7 +640,9 @@ describe('<Tree.List /> prop: children', () => {
             <Tree.Item itemId={item.id}>
               {item.label}
               <Tree.Root items={ITEMS}>
-                <Tree.List data-testid="nested">{renderItems(ITEMS)}</Tree.List>
+                <Tree.List data-testid="nested">
+                  <TreeItems items={ITEMS} />
+                </Tree.List>
               </Tree.Root>
             </Tree.Item>
           )}
