@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
-import { fetchChangelogData  } from '@mui/internal-code-infra/changelog';
-import type {ChangelogData} from '@mui/internal-code-infra/changelog';
+import { fetchChangelogData } from '@mui/internal-code-infra/changelog';
+import type { ChangelogData } from '@mui/internal-code-infra/changelog';
 import { renderChangelog, renderDocsPage } from './changelog.mts';
 
 const HELP = `Prints the changelog of a release.
