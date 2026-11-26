@@ -146,7 +146,7 @@ To render the items, pass a function to `Tree.List`. It's called with each item 
 </Tree.Root>
 ```
 
-A function can't be passed from a Server Component, so a tree rendered this way must be in a Client Component. You can also map over the data yourself and render an item part for each item as children, which works in either. Render each item's children right after it, in the order of `items`:
+A function can't be passed from a Server Component, so a tree rendered this way must be in a Client Component. You can also map over the data yourself and render an item part for each item as children, which works in either:
 
 ```jsx title="Rendering items as children"
 function renderItems(items) {
@@ -166,11 +166,12 @@ function renderItems(items) {
 </Tree.Root>;
 ```
 
-An item part rendered as a child renders nothing while one of its ancestors is collapsed or the filter hides it. It hides only itself, so make it the outer element of each item, and use its `render` prop to change the element.
+An item part rendered as a child renders nothing while one of its ancestors is collapsed or the filter hides it. When you render the items this way:
 
-The tree renders every item this way, collapsed ones included, and can't animate branches with `<Tree.GroupTransition>`. Prefer a function for large or animated trees.
-
-Render the same data you pass to `items`. With `defaultItems`, the items that `actionsRef` adds aren't in your data, so they don't render.
+- **Render every item, in order**: Render an item part for each item in `items`, collapsed ones included, with its children right after it. Keyboard navigation can't reach an item that isn't rendered.
+- **Make the item part the outer element**: Only the item part hides, so content around it stays visible. Use its `render` prop to change the element instead.
+- **Render the data you pass to `items`**: With `defaultItems`, the items that [`actionsRef`](#updating-items) adds aren't in your data, so they don't render. Pass `items` and update it in `onItemsChange` instead.
+- **Prefer a function for large or animated trees**: A function renders only the items in view, and only a function can animate branches with `<Tree.GroupTransition>`.
 
 ### Links
 
