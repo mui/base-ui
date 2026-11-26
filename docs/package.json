@@ -2,8 +2,8 @@
   "name": "docs",
   "private": true,
   "scripts": {
-    "build": "rimraf ./export && cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=8192 next build --webpack && pnpm link-check",
-    "build:clean": "rimraf .next && pnpm build",
+    "build": "node -e \"fs.rmSync('./export', { recursive: true, force: true })\" && cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=8192 next build --webpack && pnpm link-check",
+    "build:clean": "node -e \"fs.rmSync('.next', { recursive: true, force: true })\" && pnpm build",
     "dev": "next dev --port 3005",
     "deploy": "git fetch upstream master && git push -f upstream FETCH_HEAD:docs-v1",
     "serve": "serve ./export -l 3010",
@@ -67,7 +67,6 @@
     "motion": "14.14.0",
     "prettier": "3.10.1",
     "remark-stringify": "11.0.0",
-    "rimraf": "6.1.4",
     "serve": "14.2.8",
     "tailwindcss": "4.3.5",
     "typescript": "npm:@typescript/typescript6@6.0.2",
