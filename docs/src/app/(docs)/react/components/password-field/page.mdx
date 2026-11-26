@@ -15,7 +15,7 @@ import { DemoPasswordFieldHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: It can be created using a `<PasswordField.Label>` or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -25,7 +25,6 @@ Import the component and assemble its parts:
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 
 <PasswordField.Root>
-  <PasswordField.Label />
   <PasswordField.Group>
     <PasswordField.Input />
     <PasswordField.Toggle>
@@ -62,10 +61,6 @@ import { TypesPasswordField } from './types';
 ### Root
 
 <TypesPasswordField.Root />
-
-### Label
-
-<TypesPasswordField.Label />
 
 ### Group
 

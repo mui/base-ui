@@ -4,10 +4,13 @@ import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-f
 import styles from './index.module.css';
 
 export default function ExamplePasswordFieldAnimateBetweenIcons() {
+  const id = React.useId();
   return (
     <div className={styles.Field}>
-      <PasswordField.Root>
-        <PasswordField.Label className={styles.Label}>Password</PasswordField.Label>
+      <PasswordField.Root id={id}>
+        <label htmlFor={id} className={styles.Label}>
+          Password
+        </label>
         <PasswordField.Group className={styles.Group}>
           <PasswordField.Input className={styles.Input} placeholder="Enter your password" />
           <PasswordField.Toggle className={styles.Toggle} aria-label="Show password">

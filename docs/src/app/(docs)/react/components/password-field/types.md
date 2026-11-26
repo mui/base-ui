@@ -295,57 +295,6 @@ type PasswordFieldPreviewGroupState = {
 };
 ```
 
-### Label
-
-An accessible label that is automatically associated with the password input.
-Renders a `<label>` element.
-
-**Label Props:**
-
-| Prop      | Type                                                                                            | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PasswordFieldLabelState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: PasswordFieldLabelState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: PasswordFieldLabelState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Label Data Attributes:**
-
-| Attribute     | Type | Description                                                                 |
-| :------------ | :--- | :-------------------------------------------------------------------------- |
-| data-revealed | -    | Present when the password is revealed as plain text.                        |
-| data-disabled | -    | Present when the field is disabled.                                         |
-| data-valid    | -    | Present when the field is in a valid state (when wrapped in Field.Root).    |
-| data-invalid  | -    | Present when the field is in an invalid state (when wrapped in Field.Root). |
-| data-dirty    | -    | Present when the field's value has changed (when wrapped in Field.Root).    |
-| data-touched  | -    | Present when the field has been touched (when wrapped in Field.Root).       |
-| data-filled   | -    | Present when the field is filled (when wrapped in Field.Root).              |
-| data-focused  | -    | Present when the field is focused (when wrapped in Field.Root).             |
-
-### Label.Props
-
-Re-export of [Label](#label) props.
-
-### Label.State
-
-```typescript
-type PasswordFieldPreviewLabelState = {
-  /** Whether the password is currently revealed as plain text. */
-  revealed: boolean;
-  /** Whether the component should ignore user interaction. */
-  disabled: boolean;
-  /** Whether the field has been touched. */
-  touched: boolean;
-  /** Whether the field value has changed from its initial value. */
-  dirty: boolean;
-  /** Whether the field is valid. */
-  valid: boolean | null;
-  /** Whether the field has a value. */
-  filled: boolean;
-  /** Whether the field is focused. */
-  focused: boolean;
-};
-```
-
 ## Additional Types
 
 ### PasswordFieldGroupProps
@@ -488,52 +437,6 @@ type PasswordFieldInputState = {
 };
 ```
 
-### PasswordFieldLabelProps
-
-```typescript
-type PasswordFieldLabelProps = {
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component's state.
-   */
-  className?: string | ((state: PasswordFieldLabelState) => string | undefined);
-  /**
-   * Style applied to the element, or a function that
-   * returns a style object based on the component's state.
-   */
-  style?:
-    React.CSSProperties | ((state: PasswordFieldLabelState) => React.CSSProperties | undefined);
-  /**
-   * Allows you to replace the component's HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render?: ReactElement | ((props: HTMLProps, state: PasswordFieldLabelState) => ReactElement);
-};
-```
-
-### PasswordFieldLabelState
-
-```typescript
-type PasswordFieldLabelState = {
-  /** Whether the password is currently revealed as plain text. */
-  revealed: boolean;
-  /** Whether the component should ignore user interaction. */
-  disabled: boolean;
-  /** Whether the field has been touched. */
-  touched: boolean;
-  /** Whether the field value has changed from its initial value. */
-  dirty: boolean;
-  /** Whether the field is valid. */
-  valid: boolean | null;
-  /** Whether the field has a value. */
-  filled: boolean;
-  /** Whether the field is focused. */
-  focused: boolean;
-};
-```
-
 ### PasswordFieldPreviewGroupDataAttributes
 
 Data attributes of [Group](#group).
@@ -580,31 +483,6 @@ declare namespace PasswordFieldPreviewInputDataAttributes {
   /** Present when the input is filled (when wrapped in Field.Root). */
   const filled: 'data-filled';
   /** Present when the input is focused (when wrapped in Field.Root). */
-  const focused: 'data-focused';
-}
-```
-
-### PasswordFieldPreviewLabelDataAttributes
-
-Data attributes of [Label](#label).
-
-```typescript
-declare namespace PasswordFieldPreviewLabelDataAttributes {
-  /** Present when the password is revealed as plain text. */
-  const revealed: 'data-revealed';
-  /** Present when the field is disabled. */
-  const disabled: 'data-disabled';
-  /** Present when the field is in a valid state (when wrapped in Field.Root). */
-  const valid: 'data-valid';
-  /** Present when the field is in an invalid state (when wrapped in Field.Root). */
-  const invalid: 'data-invalid';
-  /** Present when the field has been touched (when wrapped in Field.Root). */
-  const touched: 'data-touched';
-  /** Present when the field's value has changed (when wrapped in Field.Root). */
-  const dirty: 'data-dirty';
-  /** Present when the field is filled (when wrapped in Field.Root). */
-  const filled: 'data-filled';
-  /** Present when the field is focused (when wrapped in Field.Root). */
   const focused: 'data-focused';
 }
 ```
@@ -808,12 +686,11 @@ type PasswordFieldToggleState = {
 ## Export Groups
 
 - `PasswordFieldPreview.Root`: `PasswordFieldPreview.Root`, `PasswordFieldPreview.Root.State`, `PasswordFieldPreview.Root.Props`, `PasswordFieldPreview.Root.ChangeEventReason`, `PasswordFieldPreview.Root.ChangeEventDetails`
-- `PasswordFieldPreview.Label`: `PasswordFieldPreview.Label`, `PasswordFieldPreview.Label.State`, `PasswordFieldPreview.Label.Props`
 - `PasswordFieldPreview.Group`: `PasswordFieldPreview.Group`, `PasswordFieldPreview.Group.State`, `PasswordFieldPreview.Group.Props`
 - `PasswordFieldPreview.Input`: `PasswordFieldPreview.Input`, `PasswordFieldPreview.Input.State`, `PasswordFieldPreview.Input.Props`, `PasswordFieldPreview.Input.ChangeEventReason`, `PasswordFieldPreview.Input.ChangeEventDetails`
 - `PasswordFieldPreview.Toggle`: `PasswordFieldPreview.Toggle`, `PasswordFieldPreview.Toggle.State`, `PasswordFieldPreview.Toggle.Props`
 - `PasswordFieldPreview.ToggleIndicator`: `PasswordFieldPreview.ToggleIndicator`, `PasswordFieldPreview.ToggleIndicator.State`, `PasswordFieldPreview.ToggleIndicator.Props`
-- `Default`: `PasswordFieldPreviewLabelDataAttributes`, `PasswordFieldPreviewGroupDataAttributes`, `PasswordFieldPreviewInputDataAttributes`, `PasswordFieldPreviewToggleDataAttributes`, `PasswordFieldPreviewToggleIndicatorDataAttributes`, `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldLabelState`, `PasswordFieldLabelProps`, `PasswordFieldGroupState`, `PasswordFieldGroupProps`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`, `PasswordFieldToggleIndicatorState`, `PasswordFieldToggleIndicatorProps`
+- `Default`: `PasswordFieldPreviewGroupDataAttributes`, `PasswordFieldPreviewInputDataAttributes`, `PasswordFieldPreviewToggleDataAttributes`, `PasswordFieldPreviewToggleIndicatorDataAttributes`, `PasswordFieldRootState`, `PasswordFieldRootProps`, `PasswordFieldRootChangeEventReason`, `PasswordFieldRootChangeEventDetails`, `PasswordFieldGroupState`, `PasswordFieldGroupProps`, `PasswordFieldInputState`, `PasswordFieldInputProps`, `PasswordFieldInputChangeEventReason`, `PasswordFieldInputChangeEventDetails`, `PasswordFieldToggleState`, `PasswordFieldToggleProps`, `PasswordFieldToggleIndicatorState`, `PasswordFieldToggleIndicatorProps`
 
 ## Canonical Types
 
