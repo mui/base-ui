@@ -70,9 +70,9 @@ export class TreeItemsPlugin<TItem = TreeDefaultItem> {
     this.viewport?.scrollToItem(itemId);
   }
 
-  /** Scrolls an element inside a row into view along the horizontal axis. */
-  public revealHorizontally(element: HTMLElement): void {
-    this.viewport?.scrollIntoViewHorizontally(element);
+  /** Scrolls an element inside a row, such as a control, into view along both axes. */
+  public revealElement(element: HTMLElement): void {
+    this.viewport?.scrollElementIntoView(element);
   }
 
   /**

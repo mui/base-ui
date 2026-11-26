@@ -13,8 +13,8 @@ export interface TreeViewport {
   getScrollportHeight: () => number;
   /** Scrolls the row of `itemId` into view along the vertical axis. */
   scrollToItem: (itemId: TreeItemId) => void;
-  /** Scrolls an element inside a row into view along the horizontal axis. */
-  scrollIntoViewHorizontally: (element: HTMLElement) => void;
+  /** Scrolls an element inside a row, such as a control, into view along both axes. */
+  scrollElementIntoView: (element: HTMLElement) => void;
 }
 
 /** How many rows of `rowHeight` fit in `height`: at least one, or `0` while unmeasured. */
@@ -101,13 +101,15 @@ export function scrollIntoContainerView(
     marginEnd -
     (scrollportEnd - paddingEnd);
 
-  // Align to the nearest edge, preferring the start when the element is larger
-  // than the visible band (matches native `scroll-into-view` "nearest" behavior).
+  // Align with the nearest edge, as native `scrollIntoView` "nearest" does: when one
+  // edge is out of view, an element that fits aligns that edge, and one larger than
+  // the visible band aligns the other, so the part already in view stays.
+  const larger = endGap > startGap;
   let delta = 0;
-  if (startGap < 0) {
-    delta = startGap;
-  } else if (endGap > 0) {
-    delta = endGap;
+  if (startGap < 0 && endGap <= 0) {
+    delta = larger ? endGap : startGap;
+  } else if (endGap > 0 && startGap >= 0) {
+    delta = larger ? startGap : endGap;
   }
   if (delta === 0) {
     return 0;

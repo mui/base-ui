@@ -439,7 +439,18 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     // next genuine focus.
     if (element !== activeElement(ownerDocument(element))) {
       this.lastFocusCause = { reason, event };
+      const previousFocusedItemId = this.store.state.focusedItemId;
       element.focus({ preventScroll: true });
+      // The viewport reveals a row when focus moves to another one. Focus coming
+      // back to the row from inside it, such as from a control, keeps the same
+      // focused item, so the row is revealed here, in case it was scrolled away.
+      if (
+        previousFocusedItemId != null &&
+        this.store.state.focusedItemId === previousFocusedItemId &&
+        this.store.items.getItemDOMElement(previousFocusedItemId) === element
+      ) {
+        this.store.items.revealItem(previousFocusedItemId);
+      }
     }
   }
 

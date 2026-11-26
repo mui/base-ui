@@ -295,8 +295,9 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
 
   /**
    * Focuses a stop without the browser's focus scroll, which scrolls every
-   * ancestor. The list only scrolls rows into view vertically, so bring the
-   * stop into view horizontally.
+   * ancestor. The list only reveals a row when focus moves to another one, so
+   * bring the stop itself into view: it can sit outside the visible part of its
+   * row, or the row may have been scrolled away.
    */
   private focusStop(stop: Stop, event?: KeyboardEvent) {
     const element = stop.element;
@@ -307,7 +308,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
       element.addEventListener('blur', () => element.removeAttribute('tabindex'), { once: true });
     }
     this.store.interaction.focusElement(element, REASONS.keyboard, event);
-    this.store.items.revealHorizontally(element);
+    this.store.items.revealElement(element);
   }
 
   /**

@@ -20,7 +20,7 @@ function createViewport(rowsPerPage: number) {
     getRowHeight: () => 20,
     getScrollportHeight: () => rowsPerPage * 20,
     scrollToItem: vi.fn(),
-    scrollIntoViewHorizontally: vi.fn(),
+    scrollElementIntoView: vi.fn(),
   } satisfies TreeViewport;
 }
 

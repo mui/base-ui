@@ -39,8 +39,10 @@ export function useTreeListViewport(listRef: React.RefObject<HTMLElement | null>
           store.items.getItemDOMElement(itemId),
           'vertical',
         ),
-      scrollIntoViewHorizontally: (element) =>
-        scrollIntoContainersView(horizontalScrollContainers, element, 'horizontal'),
+      scrollElementIntoView: (element) => {
+        scrollIntoContainersView(scrollContainers, element, 'vertical');
+        scrollIntoContainersView(horizontalScrollContainers, element, 'horizontal');
+      },
     });
   }, [store, listRef]);
 }

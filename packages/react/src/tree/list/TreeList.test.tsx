@@ -105,6 +105,43 @@ describe.skipIf(isJSDOM)('<Tree.List /> keyboard scroll-into-view', () => {
     expect(rowIsWithinViewport(focusedRow(), scroller)).toBe(true);
   });
 
+  it('shows the start of a row taller than the list when focus moves to it', async () => {
+    await render(
+      <Tree.Root items={ITEMS.slice(0, 3)}>
+        <Tree.List
+          data-testid="list"
+          style={{ height: VIEWPORT_HEIGHT, width: 240, overflow: 'auto' }}
+        >
+          {(item: Item) => (
+            <Tree.Item
+              itemId={item.id}
+              style={{
+                height: item.id === 'item1' ? 3 * VIEWPORT_HEIGHT : ROW_HEIGHT,
+                boxSizing: 'border-box',
+                margin: 0,
+                padding: 0,
+                border: 0,
+              }}
+            >
+              {item.label}
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>,
+    );
+    const scroller = screen.getByTestId('list');
+    act(() => screen.getByRole('treeitem', { name: 'Item 0' }).focus());
+
+    await press('ArrowDown');
+
+    const tallRow = screen.getByRole('treeitem', { name: 'Item 1' });
+    expect(tallRow).toHaveFocus();
+    expect(tallRow.getBoundingClientRect().top).toBeCloseTo(
+      scroller.getBoundingClientRect().top,
+      0,
+    );
+  });
+
   it('keeps the focused row visible while navigating back up with ArrowUp', async () => {
     const { scroller } = await renderTree();
     await settle();

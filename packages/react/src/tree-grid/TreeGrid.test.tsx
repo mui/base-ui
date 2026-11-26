@@ -806,6 +806,76 @@ describe('Tree', () => {
     },
   );
 
+  describe.skipIf(isJSDOM)('when the focused row was scrolled out of view', () => {
+    const MANY_ITEMS: Item[] = Array.from({ length: 20 }, (_, index) => ({
+      id: `file-${index}`,
+      label: `File ${index}`,
+    }));
+
+    function isInScrollport(element: HTMLElement, scroller: HTMLElement) {
+      const rect = element.getBoundingClientRect();
+      const top = scroller.getBoundingClientRect().top + scroller.clientTop;
+      return rect.bottom > top && rect.top < top + scroller.clientHeight;
+    }
+
+    async function renderScrolledAwayGrid() {
+      await render(
+        <TreeGrid.Root items={MANY_ITEMS}>
+          <div data-testid="scroller" style={{ height: 100, overflow: 'auto' }}>
+            <TreeGrid.Table aria-label="Files">
+              {(item: Item) => (
+                <TreeGrid.Row itemId={item.id} data-testid={`row-${item.id}`}>
+                  <TreeGrid.Cell style={{ display: 'flex', height: 28 }}>
+                    {item.label}
+                    <TreeGrid.CellButton data-testid={`action-${item.id}`}>
+                      Info
+                    </TreeGrid.CellButton>
+                  </TreeGrid.Cell>
+                </TreeGrid.Row>
+              )}
+            </TreeGrid.Table>
+          </div>
+        </TreeGrid.Root>,
+      );
+      return { scroller: screen.getByTestId('scroller'), row: screen.getByTestId('row-file-0') };
+    }
+
+    // The wheel or the scrollbar scrolls without moving focus.
+    function scrollAway(element: HTMLElement, scroller: HTMLElement) {
+      scroller.scrollTop = 300;
+      expect(isInScrollport(element, scroller)).toBe(false);
+    }
+
+    it('scrolls the control reached with Arrow Right into view', async () => {
+      const { scroller, row } = await renderScrolledAwayGrid();
+      act(() => row.focus());
+      scrollAway(row, scroller);
+
+      press(row, 'ArrowRight');
+
+      const action = screen.getByTestId('action-file-0');
+      expect(action).toHaveFocus();
+      expect(isInScrollport(action, scroller)).toBe(true);
+    });
+
+    it.each([{ key: 'ArrowLeft' }, { key: 'Escape' }])(
+      'scrolls the row into view when $key moves focus back to it from a control',
+      async ({ key }) => {
+        const { scroller, row } = await renderScrolledAwayGrid();
+        act(() => row.focus());
+        press(row, 'ArrowRight');
+        const action = screen.getByTestId('action-file-0');
+        expect(action).toHaveFocus();
+        scrollAway(action, scroller);
+
+        press(action, key);
+
+        expect(row).toHaveFocus();
+        expect(isInScrollport(row, scroller)).toBe(true);
+      },
+    );
+  });
+
   describe('TreeGrid.CellInput', () => {
     it.each([
       ['ltr', 'ArrowRight', 'ArrowLeft'],
