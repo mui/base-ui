@@ -12,9 +12,8 @@ import { DemoComboboxHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Combobox is an input with predefined items**: Use Combobox when the input is the form control and its value is restricted to a set of predefined selectable items that are filtered as the user types. To add a search field inside a select's popup instead, use a [filterable Select](/react/components/select#filtering).
+- **Button-triggered popups**: Use a [filterable Select](/react/components/select#filtering) when you want a button to trigger the popup with an input inside the popup.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
-- **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
 - **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. See the [forms guide](/react/handbook/forms).
 - **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
