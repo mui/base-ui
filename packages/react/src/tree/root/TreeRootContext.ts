@@ -9,8 +9,8 @@ export function useTreeRootContext(): TreeStore<any, any> {
   if (context === undefined) {
     throw new Error(
       'Base UI: TreeRootContext is missing. ' +
-        'Tree parts read their state from <Tree.Root> and cannot render outside it. ' +
-        'Place Tree parts within <Tree.Root>.',
+        'The parts of a tree or tree grid read their state from its root and cannot render ' +
+        'outside it. Place them within <Tree.Root> or <TreeGrid.Root>.',
     );
   }
   return context;

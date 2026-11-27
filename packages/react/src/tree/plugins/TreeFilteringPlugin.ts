@@ -482,8 +482,9 @@ export class TreeFilteringPlugin<TItem = TreeDefaultItem> {
     if (process.env.NODE_ENV === 'production' || unknownIds.length === 0) {
       return;
     }
+    const component = this.store.grid === undefined ? 'Tree' : 'TreeGrid';
     warn(
-      'Tree.FilterProvider received `filteredItems` containing item IDs that do not exist ' +
+      `${component}.FilterProvider received \`filteredItems\` containing item IDs that do not exist ` +
         `in the tree: ${unknownIds.map(String).join(', ')}. These matches are ignored ` +
         'because filtered items must first exist in `items` or `defaultItems`.',
     );

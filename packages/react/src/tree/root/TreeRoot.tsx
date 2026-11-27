@@ -243,7 +243,7 @@ interface TreeRootOwnProps<TItem> {
   actionsRef?: React.RefObject<TreeRootActions<TItem> | null> | undefined;
   /**
    * The controlled item data. Pass a standard item array, or a collection returned by
-   * `Tree.createItems()` for a custom item model.
+   * `createItems()` for a custom item model.
    * A model that extends the standard item must redeclare `children` with its own type.
    */
   items?: TreeRootItems<TItem> | undefined;
@@ -279,8 +279,8 @@ interface TreeRootOwnProps<TItem> {
    */
   disableEmptySelection?: boolean | undefined;
   /**
-   * Controls how checking an item propagates through the hierarchy: with its checkbox, on a
-   * `Tree.CheckboxItem` or a row with a `TreeGrid.RowCheckbox`, or with `setItemSelection()`.
+   * Controls how checking an item, with its checkbox or with `setItemSelection()`, propagates
+   * through the hierarchy.
    * Pressing an item without a checkbox, replacing the selection, or selecting a range
    * doesn't propagate.
    *

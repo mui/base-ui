@@ -49,7 +49,7 @@ export function recordItemsTransaction<TItem>(
   const record = (createOperation: () => TreeItemsOperation<TItem>) => {
     if (!recording) {
       throw new Error(
-        'Base UI: A Tree items transaction was used after its callback returned. ' +
+        'Base UI: An items transaction was used after its callback returned. ' +
           'The transaction is applied when the callback returns, so this change would be lost. ' +
           'Record every change synchronously within the callback, and apply a new transaction for changes that come later.',
       );

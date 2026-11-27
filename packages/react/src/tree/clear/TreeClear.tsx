@@ -10,7 +10,7 @@ import { useTreeFilterPart } from '../filter-provider/TreeFilterContext';
 
 /**
  * A button that clears the input text.
- * Requires the tree to be wrapped in `Tree.FilterProvider`.
+ * Requires the root to be wrapped in `FilterProvider`.
  * Renders a `<button>` element when the input has text.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)

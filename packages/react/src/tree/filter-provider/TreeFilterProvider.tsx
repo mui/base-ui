@@ -13,7 +13,7 @@ import { TreeFilterContext } from './TreeFilterContext';
 
 /**
  * Enables filtering for the tree it wraps.
- * Add `Tree.Input` inside `Tree.Root` to edit the query.
+ * Add an `Input` inside the root to edit the query.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
@@ -35,7 +35,7 @@ export function TreeFilterProvider<TItem = any>(
   const [value, setValue] = useControlled({
     controlled: valueProp,
     default: defaultValue,
-    name: 'Tree.FilterProvider',
+    name: 'FilterProvider',
     state: 'value',
   });
 

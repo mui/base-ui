@@ -10,8 +10,8 @@ export function useTreeItemContext(): TreeItemId {
   if (context === undefined) {
     throw new Error(
       'Base UI: TreeItemContext is missing. ' +
-        'Tree item parts read their item from <Tree.Item> and cannot render outside it. ' +
-        'Place Tree item parts within <Tree.Item>.',
+        'This part reads its item from the item or row it renders in, and cannot render ' +
+        'outside one. Place it within <Tree.Item> or <TreeGrid.Row>.',
     );
   }
   return context;

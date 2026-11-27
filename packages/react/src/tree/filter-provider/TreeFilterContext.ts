@@ -15,18 +15,20 @@ export const TreeFilterContext = React.createContext<TreeFilterContext | null>(n
 
 /**
  * Returns the query and the filtering plugin of the tree a filter part renders
- * in, throwing when the tree is not wrapped in `Tree.FilterProvider`.
+ * in, throwing when the tree is not wrapped in a filter provider.
  */
 export function useTreeFilterPart(part: string) {
   const store = useTreeRootContext();
   const context = React.useContext(TreeFilterContext);
   const filtering = store.filtering;
   if (context === null || filtering === undefined) {
+    const [component, page] =
+      store.grid === undefined ? ['Tree', 'tree'] : ['TreeGrid', 'tree-grid'];
     throw new Error(
-      `Base UI: <Tree.${part}> must be placed in a tree wrapped in <Tree.FilterProvider>. ` +
+      `Base UI: <${component}.${part}> must be placed in a tree wrapped in <${component}.FilterProvider>. ` +
         'It reads the filter query from the provider, which a plain tree does not have. ' +
-        'Wrap the <Tree.Root> it belongs to in <Tree.FilterProvider>. ' +
-        'See https://base-ui.com/react/components/tree#filtering',
+        `Wrap the <${component}.Root> it belongs to in <${component}.FilterProvider>. ` +
+        `See https://base-ui.com/react/components/${page}#filtering`,
     );
   }
   return { store, filtering, value: context.value, onValueChange: context.onValueChange };

@@ -11,7 +11,7 @@ export interface CreateTreeItemsOptions<TItem> {
   getId: (item: TItem) => TreeItemId;
   /**
    * Returns the item's text label, used as its accessible name and for typeahead and filtering.
-   * Visible row content is rendered by the `Tree.List` children.
+   * The row displays its children, not this label.
    */
   getLabel: (item: TItem) => string;
   /** Returns an item's children. Items are treated as leaves when omitted. */

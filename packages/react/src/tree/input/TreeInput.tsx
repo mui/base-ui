@@ -12,7 +12,7 @@ import { useTreeFilterPart } from '../filter-provider/TreeFilterContext';
 
 /**
  * A search field that filters the tree.
- * Requires the tree to be wrapped in `Tree.FilterProvider`.
+ * Requires the root to be wrapped in `FilterProvider`.
  * Renders an `<input>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)

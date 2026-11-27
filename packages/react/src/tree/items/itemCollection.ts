@@ -3,7 +3,7 @@ import type { TreeItemId } from '../store/types';
 const TREE_ITEM_COLLECTION = Symbol('TreeItemCollection');
 
 /**
- * An opaque collection created by `Tree.createItems()`.
+ * An opaque collection created by `createItems()`.
  *
  * It carries the source item type so the root can infer it for its props, callbacks, and actions.
  * Pass it directly to the root component; it has no public members.
@@ -83,7 +83,7 @@ export function normalizeTreeItemCollection<TItem>(
     throw new Error(
       'Base UI: the `items` or `defaultItems` prop received an object that is not a valid item collection, ' +
         'so its items and accessors cannot be read. Pass a standard item array or the result of ' +
-        '`Tree.createItems()`. ' +
+        '`createItems()`. ' +
         'See https://base-ui.com/react/components/tree#createitems',
     );
   }

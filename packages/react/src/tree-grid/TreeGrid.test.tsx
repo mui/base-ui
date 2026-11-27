@@ -2087,6 +2087,36 @@ describe('TreeGrid roles', () => {
   });
 });
 
+describe('TreeGrid filter parts', () => {
+  const items: TreeGrid.DefaultItem[] = [{ id: 'music', label: 'Music' }];
+
+  it.each([
+    { name: 'Input', part: <TreeGrid.Input /> },
+    { name: 'Clear', part: <TreeGrid.Clear /> },
+  ])('names the TreeGrid parts when TreeGrid.$name has no provider', async ({ name, part }) => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(render(<TreeGrid.Root items={items}>{part}</TreeGrid.Root>)).rejects.toThrow(
+      new RegExp(
+        `<TreeGrid\\.${name}> must be placed in a tree wrapped in <TreeGrid\\.FilterProvider>\\. ` +
+          '.*Wrap the <TreeGrid\\.Root> it belongs to in <TreeGrid\\.FilterProvider>\\. ' +
+          'See https://base-ui\\.com/react/components/tree-grid#filtering',
+      ),
+    );
+  });
+
+  it('names TreeGrid.FilterProvider when filteredItems has an unknown ID', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await render(
+      <TreeGrid.FilterProvider value="music" filteredItems={['missing']}>
+        <TreeGrid.Root items={items} />
+      </TreeGrid.FilterProvider>,
+    );
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('TreeGrid.FilterProvider received `filteredItems`'),
+    );
+  });
+});
+
 describe('TreeGrid.RowCheckbox interaction', () => {
   it('selects a range when shift-clicking a checkbox', async () => {
     const onSelectedItemsChange = vi.fn();
