@@ -672,17 +672,19 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       }
     }
 
-    // Once an ancestor is cleared, so is every ancestor above it.
-    const clearedAncestors = new Set<TreeItemId>();
+    // The ancestors of a deselected item are deselected too, except the ones that can't be
+    // selected, which stay selected as descendants do. The walk goes on above those, since the
+    // item is under every ancestor, so once an ancestor is visited, so is every one above it.
+    const visitedAncestors = new Set<TreeItemId>();
     for (const removedItemId of removed) {
       if (checkboxSelectionPropagation.parents) {
         for (
           let parentId = selectors.itemParentId(state, removedItemId);
-          parentId != null && !clearedAncestors.has(parentId);
+          parentId != null && !visitedAncestors.has(parentId);
           parentId = selectors.itemParentId(state, parentId)
         ) {
-          clearedAncestors.add(parentId);
-          if (newModelSet.delete(parentId)) {
+          visitedAncestors.add(parentId);
+          if (canBeSelected(parentId) && newModelSet.delete(parentId)) {
             flags.shouldRegenerateModel = true;
           }
         }

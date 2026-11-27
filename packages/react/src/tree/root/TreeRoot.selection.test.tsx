@@ -1271,6 +1271,26 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual(['1.2']);
       });
 
+      it('should keep a selected disabled ancestor and deselect the ancestors above it when deselecting an item', async () => {
+        const onSelectedItemsChange = vi.fn();
+        const view = await render({
+          multiple: true,
+          items: [
+            { id: '1', children: [{ id: '1.1', disabled: true, children: [{ id: '1.1.1' }] }] },
+          ],
+          defaultSelectedItems: ['1', '1.1', '1.1.1'],
+          checkboxSelectionPropagation: { parents: true, descendants: false },
+          onSelectedItemsChange,
+        });
+
+        // `1.1.1` is disabled through its parent, so only the action can deselect it.
+        act(() => {
+          view.actionsRef.current!.setItemSelection('1.1.1', false);
+        });
+
+        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1.1']);
+      });
+
       it('should not select non-selectable descendants when selecting a parent', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({
