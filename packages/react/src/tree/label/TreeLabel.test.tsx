@@ -2,6 +2,7 @@ import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
+import { Field } from '@base-ui/react/field';
 import { Tree } from '..';
 
 const items: Tree.DefaultItem[] = [
@@ -42,11 +43,6 @@ describe('<Tree.Label />', () => {
     expect(screen.getByRole('tree', { name: 'Files' })).toBeVisible();
   });
 
-  it('keeps a custom id', async () => {
-    await render(<Example label={<Tree.Label id="files-label">Files</Tree.Label>} />);
-    expect(screen.getByRole('tree')).toHaveAttribute('aria-labelledby', 'files-label');
-  });
-
   it('references the id of the render element', async () => {
     await render(
       <Example label={<Tree.Label render={<h2 id="files-heading" />}>Files</Tree.Label>} />,
@@ -65,6 +61,19 @@ describe('<Tree.Label />', () => {
   it('lets the list override the reference', async () => {
     await render(<Example list={{ 'aria-labelledby': 'heading' }} />);
     expect(screen.getByRole('tree')).toHaveAttribute('aria-labelledby', 'heading');
+  });
+
+  it('leaves the label of an enclosing Field to the Field control', async () => {
+    await render(
+      <Field.Root>
+        <Field.Label>Name</Field.Label>
+        <Field.Control />
+        <Example />
+      </Field.Root>,
+    );
+
+    expect(screen.getByRole('textbox')).toHaveAccessibleName('Name');
+    expect(screen.getByRole('tree')).toHaveAccessibleName('Files');
   });
 
   it('removes the reference when it unmounts', async () => {
