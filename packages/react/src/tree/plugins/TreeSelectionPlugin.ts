@@ -22,6 +22,7 @@ import {
 } from '../store/selectors';
 import { getFirstNavigableItem } from '../store/treeNavigation';
 import { forEachDescendant } from '../utils/forEachDescendant';
+import { haveSameMembers } from '../utils/haveSameMembers';
 import { collectAncestorIds, isInSubtreeOf } from '../utils/pruneDescendantIds';
 
 /** Which modifiers a press was made with. */
@@ -241,7 +242,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
   public handleControlledSelectedItemsChange(model: SelectionModel): void {
     const pending = this.pendingControlledAnchor;
     this.pendingControlledAnchor = null;
-    if (pending != null && selectionModelsHaveSameItems(pending.model, model)) {
+    if (pending != null && haveSameMembers(pending.model, model)) {
       this.applyAnchor(pending.anchor);
     } else {
       // The parent replaced the controlled model independently. Any anchor from
@@ -364,6 +365,12 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       this.setItemSelected(itemId, selected, true, REASONS.imperativeAction),
   };
 
+  /** Whether a checkbox press spreads through the hierarchy. It never does with single selection. */
+  public canPropagate(): boolean {
+    const { descendants, parents } = selectors.checkboxSelectionPropagation(this.store.state);
+    return Boolean(descendants || parents);
+  }
+
   /**
    * Re-establish checkbox propagation around the parents whose children an items
    * change changed. The rest of the selection may come from presses that don't
@@ -373,17 +380,11 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     changedParentKeys: ReadonlySet<TreeItemLookupKey>,
   ): void => {
     const { state } = this.store;
-    const { descendants, parents } = state.checkboxSelectionPropagation;
-    if (!state.multiple || (!descendants && !parents)) {
-      return;
-    }
-
-    const selectedItems = normalizeSelectedItems(state.selectedItems);
+    const selectedSet = selectors.selectedItemsSet(state);
     // Propagation only ever adds items next to existing ones.
-    if (selectedItems.length === 0) {
+    if (!this.canPropagate() || selectedSet.size === 0) {
       return;
     }
-    const selectedSet = new Set(selectedItems);
 
     // A removed parent has no meta anymore.
     const changedParentIds: TreeItemId[] = [];
@@ -397,11 +398,19 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       return;
     }
 
+    const { descendants, parents } = selectors.checkboxSelectionPropagation(state);
+    const added = new Set<TreeItemId>();
+    const selection: SelectionDraft = {
+      has: (itemId) => selectedSet.has(itemId) || added.has(itemId),
+      add: (itemId) => added.add(itemId),
+    };
+    // The changed parents now selected with their whole subtree.
+    const walkedIds = new Set<TreeItemId>();
     if (descendants) {
-      const childrenLookup = state.itemOrderedChildrenIdsLookup;
       // Shallowest first, so a walk covers the changed parents below it.
-      changedParentIds.sort((a, b) => getItemLevel(state, a) - getItemLevel(state, b));
-      const walkedIds = new Set<TreeItemId>();
+      changedParentIds.sort(
+        (a, b) => selectors.itemLevel(state, a) - selectors.itemLevel(state, b),
+      );
       for (const parentId of changedParentIds) {
         if (isInSubtreeOf(state, parentId, walkedIds)) {
           continue;
@@ -411,13 +420,9 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
         while (ownerId != null && !selectors.canItemBeSelected(state, ownerId)) {
           ownerId = selectors.itemParentId(state, ownerId);
         }
-        if (ownerId != null && selectedSet.has(ownerId)) {
+        if (ownerId != null && selection.has(ownerId)) {
           walkedIds.add(parentId);
-          forEachDescendant(childrenLookup, parentId, (descendantId) => {
-            if (selectors.canItemBeSelected(state, descendantId)) {
-              selectedSet.add(descendantId);
-            }
-          });
+          selectDescendants(state, selection, parentId);
         }
       }
     }
@@ -426,12 +431,21 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       // A changed parent can become fully selected, and so can its ancestors.
       selectFullySelectedParents(
         state,
-        selectedSet,
+        selection,
         new Set([...changedParentIds, ...collectAncestorIds(state, changedParentIds)]),
+        walkedIds,
       );
     }
 
-    this.setSelectedItems(Array.from(selectedSet), REASONS.none, undefined, { automatic: true });
+    if (added.size === 0) {
+      return;
+    }
+    this.setSelectedItems(
+      [...normalizeSelectedItems(state.selectedItems), ...added],
+      REASONS.none,
+      undefined,
+      { automatic: true },
+    );
   };
 
   /**
@@ -589,74 +603,74 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     toggledItemId: TreeItemId,
     selected: boolean,
   ): TreeItemId[] {
-    const { state } = this.store;
-    const checkboxSelectionPropagation = selectors.checkboxSelectionPropagation(state);
-    if (!checkboxSelectionPropagation.descendants && !checkboxSelectionPropagation.parents) {
+    if (!this.canPropagate()) {
       return newModel;
     }
-
-    const flags = { shouldRegenerateModel: false };
+    const { state } = this.store;
+    const { descendants, parents } = selectors.checkboxSelectionPropagation(state);
     const newModelSet = new Set(newModel);
-    const added = selected ? [toggledItemId] : [];
-    const removed = selected ? [] : [toggledItemId];
+    let changed = false;
 
-    const childrenLookup = state.itemOrderedChildrenIdsLookup;
-    const canBeSelected = (itemId: TreeItemId) => selectors.canItemBeSelected(state, itemId);
-    // Items selected with their whole subtree, which the parent check skips.
-    const fullySelectedIds = new Set<TreeItemId>();
-
-    if (checkboxSelectionPropagation.descendants) {
-      for (const addedItemId of added) {
-        // A non-selectable folder is skipped but still walked, so a selectable
-        // subtree under it is not.
-        forEachDescendant(childrenLookup, addedItemId, (itemId) => {
-          if (canBeSelected(itemId)) {
-            flags.shouldRegenerateModel = true;
-            newModelSet.add(itemId);
-          }
-        });
-        fullySelectedIds.add(addedItemId);
+    if (selected) {
+      // Items selected with their whole subtree, which the parent check skips.
+      const fullySelectedIds = new Set<TreeItemId>();
+      if (descendants) {
+        changed = selectDescendants(state, newModelSet, toggledItemId);
+        fullySelectedIds.add(toggledItemId);
       }
-    }
-
-    if (
-      checkboxSelectionPropagation.parents &&
-      selectFullySelectedParents(
-        state,
-        newModelSet,
-        collectAncestorIds(state, added),
-        fullySelectedIds,
-      )
-    ) {
-      flags.shouldRegenerateModel = true;
-    }
-
-    if (checkboxSelectionPropagation.parents) {
-      // Deselecting an item deselects its selectable ancestors.
-      for (const ancestorId of collectAncestorIds(state, removed)) {
-        if (canBeSelected(ancestorId) && newModelSet.delete(ancestorId)) {
-          flags.shouldRegenerateModel = true;
+      if (parents) {
+        changed =
+          selectFullySelectedParents(
+            state,
+            newModelSet,
+            collectAncestorIds(state, [toggledItemId]),
+            fullySelectedIds,
+          ) || changed;
+      }
+    } else {
+      if (parents) {
+        // Deselecting an item deselects its selectable ancestors.
+        for (const ancestorId of collectAncestorIds(state, [toggledItemId])) {
+          if (selectors.canItemBeSelected(state, ancestorId) && newModelSet.delete(ancestorId)) {
+            changed = true;
+          }
         }
       }
-    }
-
-    if (checkboxSelectionPropagation.descendants) {
-      for (const removedItemId of removed) {
+      if (descendants) {
         // Selected items that can't be selected, such as disabled ones, stay selected.
-        forEachDescendant(childrenLookup, removedItemId, (itemId) => {
-          if (canBeSelected(itemId) && newModelSet.delete(itemId)) {
-            flags.shouldRegenerateModel = true;
+        forEachDescendant(state.itemOrderedChildrenIdsLookup, toggledItemId, (itemId) => {
+          if (selectors.canItemBeSelected(state, itemId) && newModelSet.delete(itemId)) {
+            changed = true;
           }
         });
       }
     }
 
-    return flags.shouldRegenerateModel ? Array.from(newModelSet) : newModel;
+    return changed ? Array.from(newModelSet) : newModel;
   }
 }
 
-function getItemLevel(state: TreeState, itemId: TreeItemId): number {
-  return selectors.itemMeta(state, itemId)?.level ?? 0;
+/** The selection a propagation adds to. */
+interface SelectionDraft {
+  has(itemId: TreeItemId): boolean;
+  add(itemId: TreeItemId): void;
+}
+
+/** Selects every descendant of `itemId` that can be selected. Returns whether it selected any. */
+function selectDescendants(
+  state: TreeState,
+  selection: SelectionDraft,
+  itemId: TreeItemId,
+): boolean {
+  let changed = false;
+  // A non-selectable folder is skipped but still walked, so a selectable subtree under it is not.
+  forEachDescendant(state.itemOrderedChildrenIdsLookup, itemId, (descendantId) => {
+    if (!selection.has(descendantId) && selectors.canItemBeSelected(state, descendantId)) {
+      selection.add(descendantId);
+      changed = true;
+    }
+  });
+  return changed;
 }
 
 /**
@@ -668,18 +682,18 @@ function getItemLevel(state: TreeState, itemId: TreeItemId): number {
  */
 function selectFullySelectedParents(
   state: TreeState,
-  selectedSet: Set<TreeItemId>,
+  selection: SelectionDraft,
   parentIds: Iterable<TreeItemId>,
-  fullySelectedIds = new Set<TreeItemId>(),
+  fullySelectedIds: Set<TreeItemId>,
 ): boolean {
   const childrenLookup = state.itemOrderedChildrenIdsLookup;
   // A non-selectable item is exempt itself, but its descendants still count, so a
   // selectable subtree under a non-selectable folder isn't treated as complete.
   const isSelectedOrExempt = (itemId: TreeItemId) =>
     fullySelectedIds.has(itemId) ||
-    selectedSet.has(itemId) ||
+    selection.has(itemId) ||
     !selectors.canItemBeSelected(state, itemId);
-  // Only `true` is cached: `selectedSet` only grows, so a full subtree stays full.
+  // Only `true` is cached: the selection only grows, so a full subtree stays full.
   const isFullySelected = (itemId: TreeItemId): boolean => {
     if (fullySelectedIds.has(itemId)) {
       return true;
@@ -699,21 +713,34 @@ function selectFullySelectedParents(
     return result;
   };
   const hasSelectedDescendant = (itemId: TreeItemId) =>
-    !forEachDescendant(childrenLookup, itemId, (descendantId) => !selectedSet.has(descendantId));
+    !forEachDescendant(childrenLookup, itemId, (descendantId) => !selection.has(descendantId));
 
   let changed = false;
-  const byDepth = [...parentIds].sort((a, b) => getItemLevel(state, b) - getItemLevel(state, a));
+  // The ancestors of a selectable parent left unselected can't be fully selected.
+  const blockedIds = new Set<TreeItemId>();
+  const byDepth = [...parentIds].sort(
+    (a, b) => selectors.itemLevel(state, b) - selectors.itemLevel(state, a),
+  );
   for (const parentId of byDepth) {
-    const children = selectors.itemOrderedChildrenIds(state, parentId);
     if (
-      !selectedSet.has(parentId) &&
-      children.length > 0 &&
-      selectors.canItemBeSelected(state, parentId) &&
-      children.every(isFullySelected) &&
-      hasSelectedDescendant(parentId)
+      blockedIds.has(parentId) ||
+      selection.has(parentId) ||
+      !selectors.canItemBeSelected(state, parentId)
     ) {
-      selectedSet.add(parentId);
+      continue;
+    }
+    const children = selectors.itemOrderedChildrenIds(state, parentId);
+    if (children.length > 0 && children.every(isFullySelected) && hasSelectedDescendant(parentId)) {
+      selection.add(parentId);
       changed = true;
+    } else {
+      for (
+        let id = selectors.itemParentId(state, parentId);
+        id != null && !blockedIds.has(id);
+        id = selectors.itemParentId(state, id)
+      ) {
+        blockedIds.add(id);
+      }
     }
   }
   return changed;
@@ -759,19 +786,4 @@ function filterSelectionModel(
     return kept.length === model.length ? model : kept;
   }
   return keep(model as TreeItemId) ? model : null;
-}
-
-/**
- * Whether two models select the same items, whatever order they store the ids
- * in, such as a proposal and the value a controlled parent accepted for it.
- */
-export function selectionModelsHaveSameItems(a: SelectionModel, b: SelectionModel): boolean {
-  if (a === b) {
-    return true;
-  }
-  if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) {
-    return false;
-  }
-  const items = new Set(a);
-  return b.every((id) => items.has(id));
 }

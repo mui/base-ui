@@ -2,7 +2,7 @@ import type { TreeItemId, TreeState } from '../store/types';
 import type { TreeStore } from '../store/TreeStore';
 import type { TreeStatusChange, TreeStatusSelectionChange } from '../status/TreeStatus';
 import { normalizeSelectedItems, selectors } from '../store/selectors';
-import { selectionModelsHaveSameItems } from './TreeSelectionPlugin';
+import { haveSameMembers } from '../utils/haveSameMembers';
 import type { SelectionModel } from './TreeSelectionPlugin';
 
 /** The selectable items of the tree a selection model selects. */
@@ -127,7 +127,7 @@ export class TreeStatusPlugin {
     const userSelection = this.userSelection;
     // Any other change supersedes the proposal, which a controlled parent ignored.
     this.userSelection = undefined;
-    if (userSelection !== undefined && selectionModelsHaveSameItems(userSelection, model)) {
+    if (userSelection !== undefined && haveSameMembers(userSelection, model)) {
       const change = getSelectionChange(state, previousModel, model);
       if (change != null) {
         this.setChange(change);

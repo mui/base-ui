@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { TreeGrid } from '@base-ui/react/tree-grid';
 import { Switch } from '@base-ui/react/switch';
-import styles from './index.module.css';
+import styles from '../../_index.module.css';
+import controlStyles from './index.module.css';
 
 interface Task extends TreeGrid.DefaultItem {
   estimate?: string;
@@ -64,30 +65,30 @@ export default function ExampleTreeGridHero() {
                     <TreeGrid.CellLink
                       href="#"
                       onClick={(event) => event.preventDefault()}
-                      className={styles.Link}
+                      className={controlStyles.Link}
                     >
                       {task.label}
                     </TreeGrid.CellLink>
-                    <span className={styles.Estimate}>
+                    <span className={controlStyles.Estimate}>
                       <TreeGrid.CellInput
                         defaultValue={task.estimate}
                         aria-label={`Estimate for ${task.label}, in hours`}
-                        className={styles.Input}
+                        className={controlStyles.Input}
                       />
                       <span aria-hidden="true">h</span>
                     </span>
-                    <label className={styles.SwitchLabel}>
+                    <label className={controlStyles.SwitchLabel}>
                       <TreeGrid.CellControl
                         controlKeys={SWITCH_CONTROL_KEYS}
                         render={
                           <Switch.Root
                             defaultChecked={task.done}
                             aria-label={`Mark ${task.label} as done`}
-                            className={styles.Switch}
+                            className={controlStyles.Switch}
                           />
                         }
                       >
-                        <Switch.Thumb className={styles.Thumb} />
+                        <Switch.Thumb className={controlStyles.Thumb} />
                       </TreeGrid.CellControl>
                       Done
                     </label>

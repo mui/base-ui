@@ -1,4 +1,3 @@
-import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { error } from '@base-ui/utils/error';
 import type {
@@ -18,6 +17,7 @@ import { selectors } from './selectors';
 import { cloneLookup, createLookup } from '../utils/lookup';
 import { getItemIdKey, getParentKey } from '../utils/itemIdKey';
 import { forEachDescendant } from '../utils/forEachDescendant';
+import { haveSameMembers } from '../utils/haveSameMembers';
 import {
   collectAncestorIds,
   getIndexAfterRemoval,
@@ -97,26 +97,11 @@ export function getChangedParentKeys(
   for (const key of keys) {
     const before = previous[key];
     const after = next[key];
-    if (before !== after && !haveSameMembers(before, after)) {
+    if (!haveSameMembers(before, after)) {
       changed.add(key);
     }
   }
   return changed;
-}
-
-function haveSameMembers(
-  before: readonly TreeItemId[] | undefined,
-  after: readonly TreeItemId[] | undefined,
-): boolean {
-  if (before == null || after == null || before.length !== after.length) {
-    return false;
-  }
-  if (areArraysEqual(before, after)) {
-    return true;
-  }
-  // The IDs of siblings are unique.
-  const members = new Set(before);
-  return after.every((itemId) => members.has(itemId));
 }
 
 /** Whether an item can be expanded: it has inline children. */

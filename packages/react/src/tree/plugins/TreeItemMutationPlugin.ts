@@ -233,13 +233,11 @@ export class TreeItemMutationPlugin<TItem> {
    * items next to selected ones, following checkbox propagation.
    */
   private canReconcileSelection(itemsControlled: boolean): boolean {
-    const { state } = this.store;
-    const { descendants, parents } = state.checkboxSelectionPropagation;
-    if (!state.multiple || (!descendants && !parents)) {
-      return false;
-    }
     // The selection can change while a controlled parent decides on the items.
-    return itemsControlled || normalizeSelectedItems(state.selectedItems).length > 0;
+    return (
+      this.store.selection.canPropagate() &&
+      (itemsControlled || normalizeSelectedItems(this.store.state.selectedItems).length > 0)
+    );
   }
 
   /**

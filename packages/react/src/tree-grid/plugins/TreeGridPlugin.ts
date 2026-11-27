@@ -390,7 +390,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
         const targetItem = intent.row(this.store.state, itemId);
         if (targetItem != null && position != null) {
           this.moveInColumn(position, targetItem, event.nativeEvent);
-          // As on the row: the move focused a cell, so only the selection is left.
+          // The selection follows the cell move, as on a row.
           this.store.interaction.moveSelectionWithFocus(targetItem, event);
         }
         break;

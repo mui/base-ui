@@ -5,7 +5,6 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
 import { isElement } from '@floating-ui/utils/dom';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
-import { focusElementWithVisible } from '../../internals/labelable-provider/useLabel';
 import { REASONS } from '../../internals/reasons';
 import type { MaybeBaseUIEvent } from '../../internals/types';
 import { getHighlightReason } from '../../utils/getHighlightReason';
@@ -226,7 +225,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (rootElement == null || this.getFocusLocation(rootElement) !== 'outside') {
       return;
     }
-    this.scheduleFocusRecovery((_rootElement, focusLocation) => {
+    this.scheduleFocusRecovery((root, focusLocation) => {
       // Focus that moved elsewhere, such as back to a trigger outside the tree, stays there.
       if (focusLocation !== 'lost') {
         return;
@@ -241,8 +240,8 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
               .find((ancestorId) => !selectors.isItemExpanded(state, ancestorId)) ?? null);
       if (ancestor != null && selectors.isItemFocusTarget(state, ancestor)) {
         this.focusItem(ancestor);
-      } else {
-        this.focusTabStop();
+      } else if (!this.focusTabStop()) {
+        root.focus({ preventScroll: true });
       }
     });
   }
@@ -398,27 +397,14 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }, this.controlRecoveryFrame);
   }
 
-  /**
-   * Focuses the row with the tab stop, or else the tree container. `event` is the press
-   * that moves focus, when there's one: the container then shows its focus, as a control
-   * does when its label is clicked. Focus recovery passes none, so the container doesn't
-   * scroll into view.
-   */
-  public focusTabStop(event?: Event): void {
+  /** Focuses the row with the tab stop, and returns `false` when there's none. */
+  public focusTabStop(event?: Event): boolean {
     const tabbableItemId = selectors.tabbableItemId(this.store.state);
-    if (tabbableItemId != null) {
-      this.focusItem(tabbableItemId, event);
-      return;
+    if (tabbableItemId == null) {
+      return false;
     }
-    const rootElement = this.store.context.rootRef.current;
-    if (rootElement == null) {
-      return;
-    }
-    if (event == null) {
-      rootElement.focus({ preventScroll: true });
-    } else {
-      focusElementWithVisible(rootElement);
-    }
+    this.focusItem(tabbableItemId, event);
+    return true;
   }
 
   /** Focuses a row. `event` is the keydown or press that moves focus, when there's one. */
@@ -569,7 +555,16 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         itemId,
       );
       if (targetItem != null) {
-        this.navigateTo(targetItem, event, { extendFrom: itemId });
+        this.navigateTo(targetItem, event);
+        // Shift extends the range from the item focus left.
+        if (multiple && event.shiftKey && !ctrlPressed) {
+          this.store.selection.extendTo(
+            targetItem,
+            itemId,
+            REASONS.listNavigation,
+            event.nativeEvent,
+          );
+        }
       }
     } else if (key === expandKey) {
       if (ctrlPressed) {
@@ -719,35 +714,23 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   }
 
   /** Moves focus to an item the keyboard navigated to, and the selection with it. */
-  private navigateTo(
-    itemId: TreeItemId,
-    event: React.KeyboardEvent,
-    options: { extendFrom?: TreeItemId | undefined } = {},
-  ) {
+  private navigateTo(itemId: TreeItemId, event: React.KeyboardEvent) {
     this.focusItem(itemId, event.nativeEvent);
-    this.moveSelectionWithFocus(itemId, event, options);
+    this.moveSelectionWithFocus(itemId, event);
   }
 
   /**
-   * Moves the selection to an item the keyboard moved focus to. Shift extends the range
-   * from `extendFrom`, the item focus left. With `multiple="opt-in"`, the selection
-   * follows unless a modifier asked to move focus only.
+   * Moves the selection to an item the keyboard moved focus to, with `multiple="opt-in"`,
+   * unless a modifier asked to move focus only.
    */
-  public moveSelectionWithFocus(
-    itemId: TreeItemId,
-    event: React.KeyboardEvent,
-    options: { extendFrom?: TreeItemId | undefined } = {},
-  ) {
-    const { multiple } = this.store.state;
+  public moveSelectionWithFocus(itemId: TreeItemId, event: React.KeyboardEvent) {
     const ctrlPressed = event.ctrlKey || event.metaKey;
-    if (options.extendFrom != null && multiple && event.shiftKey && !ctrlPressed) {
-      this.store.selection.extendTo(
-        itemId,
-        options.extendFrom,
-        REASONS.listNavigation,
-        event.nativeEvent,
-      );
-    } else if (multiple === 'opt-in' && !event.shiftKey && !ctrlPressed && !event.altKey) {
+    if (
+      this.store.state.multiple === 'opt-in' &&
+      !event.shiftKey &&
+      !ctrlPressed &&
+      !event.altKey
+    ) {
       this.store.selection.moveTo(itemId, REASONS.listNavigation, event.nativeEvent);
     }
   }

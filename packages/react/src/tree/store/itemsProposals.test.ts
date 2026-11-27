@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TreeItemsProposals } from './itemsProposals';
+import { EMPTY_SET } from './selectors';
 import type { TreeItemLookupKey, TreeState } from './types';
 
 type Item = { id: string };
@@ -26,7 +27,7 @@ function propose(
   current: TreeState<Item>,
   {
     removedIds = undefined as ReadonlySet<string> | undefined,
-    changedParentKeys = new Set<TreeItemLookupKey>() as ReadonlySet<TreeItemLookupKey>,
+    changedParentKeys = EMPTY_SET as ReadonlySet<TreeItemLookupKey>,
   } = {},
 ) {
   // The lookups the proposal prepared, with the readers of the state it was made on.

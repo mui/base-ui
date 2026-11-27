@@ -4,6 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { resolveRenderedId } from '../../internals/resolveRenderedId';
+import { focusElementWithVisible } from '../../internals/labelable-provider/useLabel';
 import { useTreeRootContext } from '../root/TreeRootContext';
 
 /**
@@ -35,9 +36,15 @@ export const TreeLabel = React.forwardRef(function TreeLabel(
           // A click without a press, such as from assistive technology, has no pointer behind it.
           const pressEvent = event.detail > 0 ? pressEventRef.current : null;
           pressEventRef.current = null;
-          // A disabled tree has no tab stop to focus.
-          if (!store.state.disabled) {
-            store.interaction.focusTabStop(pressEvent ?? event.nativeEvent);
+          // A disabled tree has no tab stop. Without a row to hold it, the container does.
+          if (
+            !store.state.disabled &&
+            !store.interaction.focusTabStop(pressEvent ?? event.nativeEvent)
+          ) {
+            const rootElement = store.context.rootRef.current;
+            if (rootElement != null) {
+              focusElementWithVisible(rootElement);
+            }
           }
         },
         onPointerDown(event: React.PointerEvent) {
