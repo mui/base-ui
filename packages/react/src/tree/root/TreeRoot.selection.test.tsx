@@ -1596,6 +1596,22 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.isItemSelected('1')).toBe(false);
       });
 
+      it('should keep the selection when deselecting an item that is not selected', async () => {
+        const onSelectedItemsChange = vi.fn();
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+          defaultSelectedItems: '2',
+          onSelectedItemsChange,
+        });
+
+        act(() => {
+          view.actionsRef.current!.setItemSelection('1', false);
+        });
+
+        expect(view.isItemSelected('2')).toBe(true);
+        expect(onSelectedItemsChange).not.toHaveBeenCalled();
+      });
+
       it('should normalize uncontrolled multiple selection when switching to single mode', async () => {
         const view = await render({
           items: [{ id: '1' }, { id: '2' }],

@@ -86,6 +86,10 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       }
     } else {
       const select = checked ?? !selectors.isItemSelected(state, itemId);
+      // Deselecting another item than the selected one leaves the selection as it is.
+      if (!select && state.selectedItems !== itemId) {
+        return;
+      }
       newSelected = select ? itemId : null;
     }
 
