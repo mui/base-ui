@@ -11,15 +11,13 @@ import { useTreeListElement } from './useTreeListElement';
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export const TreeList = React.forwardRef(function TreeList<TItem = any>(
-  componentProps: TreeList.Props<TItem>,
+export const TreeList = React.forwardRef(function TreeList(
+  componentProps: TreeList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, className, render, style, ...elementProps } = componentProps;
   return useTreeListElement(componentProps, forwardedRef, elementProps, children);
-}) as <TItem = any>(
-  props: TreeList.Props<TItem> & React.RefAttributes<HTMLDivElement>,
-) => React.JSX.Element;
+});
 
 export interface TreeListState {
   /**
@@ -32,20 +30,20 @@ export interface TreeListState {
   empty: boolean;
 }
 
-export interface TreeListProps<TItem = any> extends Omit<
+export interface TreeListProps extends Omit<
   BaseUIComponentProps<'div', TreeListState>,
   'children'
 > {
   /**
    * The items of the tree. A function renders each of the root's `items` in view, and receives
-   * an item. Pass the item type to `Tree.List` to type it.
+   * an item. Annotate its parameter to type it.
    * Otherwise, render an item part for each of the root's `items` as children, in order. Each
    * one renders nothing while it's out of view.
    */
-  children?: React.ReactNode | ((item: TItem) => React.ReactNode);
+  children?: React.ReactNode | ((item: any) => React.ReactNode);
 }
 
 export namespace TreeList {
-  export type Props<TItem = any> = TreeListProps<TItem>;
+  export type Props = TreeListProps;
   export type State = TreeListState;
 }

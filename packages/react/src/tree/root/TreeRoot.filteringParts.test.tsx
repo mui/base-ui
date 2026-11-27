@@ -158,10 +158,10 @@ describe('Tree filtering parts', () => {
     function CustomTree() {
       const { startsWith } = Tree.useFilter({ sensitivity: 'base' });
       return (
-        <Tree.FilterProvider<Item> defaultValue="res" filter={startsWith}>
+        <Tree.FilterProvider defaultValue="res" filter={startsWith}>
           <Tree.Root items={collection}>
-            <Tree.List<Item>>
-              {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
+            <Tree.List>
+              {(item: Item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
             </Tree.List>
           </Tree.Root>
         </Tree.FilterProvider>
@@ -186,9 +186,9 @@ describe('Tree filtering parts', () => {
     ];
 
     await render(
-      <Tree.FilterProvider<Item>
+      <Tree.FilterProvider
         defaultValue="finance"
-        filter={(text, query, item) => text.includes(query) || !!item.tags?.includes(query)}
+        filter={(text, query, item: Item) => text.includes(query) || !!item.tags?.includes(query)}
       >
         <Tree.Root items={taggedItems}>
           <Tree.List>{renderItem}</Tree.List>
@@ -229,8 +229,8 @@ describe('Tree filtering parts', () => {
         filter={filter}
       >
         <Tree.Root items={collection}>
-          <Tree.List<Item>>
-            {(item) => (
+          <Tree.List>
+            {(item: Item) => (
               <Tree.Item itemId={item.key} data-source-name={item.name}>
                 {item.name}
               </Tree.Item>

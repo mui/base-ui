@@ -83,11 +83,11 @@ const items = TreeGrid.createItems(nodes, {
 });
 
 <TreeGrid.Root items={items}>
-  <TreeGrid.Table<Node>>{(node) => <Row node={node} />}</TreeGrid.Table>
+  <TreeGrid.Table>{(node: Node) => <Row node={node} />}</TreeGrid.Table>
 </TreeGrid.Root>;
 ```
 
-The root infers the item type from `items`. `<TreeGrid.Table>` and `<TreeGrid.Collection>` can't see it, so they type items as `any` unless you pass the type, as `<TreeGrid.Table<Node>>` does.
+The root infers the item type from `items`. `<TreeGrid.Table>` and `<TreeGrid.Collection>` can't see it and type items as `any`. Annotate the parameter of the render function, as `(node: Node)` does.
 
 ## Controls inside rows
 

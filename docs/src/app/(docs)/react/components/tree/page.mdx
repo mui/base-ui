@@ -78,11 +78,11 @@ const items = Tree.createItems(nodes, {
 });
 
 <Tree.Root items={items}>
-  <Tree.List<Node>>{(node) => <Row node={node} />}</Tree.List>
+  <Tree.List>{(node: Node) => <Row node={node} />}</Tree.List>
 </Tree.Root>;
 ```
 
-The root infers the item type from `items`. Parts outside the root's props, such as `<Tree.List>` and the providers, can't see it, so they type items as `any` unless you pass the type, as `<Tree.List<Node>>` does.
+The root infers the item type from `items`. Other parts, such as `<Tree.List>` and the providers, can't see it and type items as `any`. Annotate the parameter of the function you pass them, as `(node: Node)` does.
 
 ## Examples
 

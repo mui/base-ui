@@ -18,9 +18,7 @@ import { TreeFilterContext } from './TreeFilterContext';
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export function TreeFilterProvider<TItem = any>(
-  props: TreeFilterProvider.Props<TItem>,
-): React.JSX.Element {
+export function TreeFilterProvider(props: TreeFilterProvider.Props): React.JSX.Element {
   const {
     children,
     value: valueProp,
@@ -75,7 +73,7 @@ export function TreeFilterProvider<TItem = any>(
   );
 }
 
-export interface TreeFilterProviderProps<TItem = any> {
+export interface TreeFilterProviderProps {
   children?: React.ReactNode;
   /**
    * The filter query.
@@ -100,7 +98,7 @@ export interface TreeFilterProviderProps<TItem = any> {
    * punctuation. A new function matches every item again, so keep it stable across renders.
    * Pass `null` when rendering filtered items yourself.
    */
-  filter?: TreeFilterFunction<TItem> | null | undefined;
+  filter?: TreeFilterFunction<any> | null | undefined;
   /**
    * Locale used when comparing an item against the query.
    * Defaults to the runtime's default locale.
@@ -111,7 +109,7 @@ export interface TreeFilterProviderProps<TItem = any> {
    * on a server. Replaces `filter` when set, and an empty array matches nothing.
    * Each item must also be in the tree's items.
    */
-  filteredItems?: readonly TItem[] | undefined;
+  filteredItems?: readonly any[] | undefined;
   /**
    * How the tree presents the items that don't match.
    * - `'hide-non-matches'`: shows only the matches, their ancestors, and their descendants.
@@ -137,7 +135,7 @@ export interface TreeFilterProviderState {}
 
 export namespace TreeFilterProvider {
   export type State = TreeFilterProviderState;
-  export type Props<TItem = any> = TreeFilterProviderProps<TItem>;
+  export type Props = TreeFilterProviderProps;
   export type ChangeEventReason = TreeFilterProviderChangeEventReason;
   export type ChangeEventDetails = TreeFilterProviderChangeEventDetails;
 }

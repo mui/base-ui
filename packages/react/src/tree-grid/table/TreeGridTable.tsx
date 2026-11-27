@@ -13,17 +13,15 @@ import { assertTreeGrid } from '../../tree/utils/assertTreeKind';
  *
  * Documentation: [Base UI Tree Grid](https://base-ui.com/react/components/tree-grid)
  */
-export const TreeGridTable = React.forwardRef(function TreeGridTable<TItem = any>(
-  componentProps: TreeGridTable.Props<TItem>,
+export const TreeGridTable = React.forwardRef(function TreeGridTable(
+  componentProps: TreeGridTable.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, className, render, style, ...elementProps } = componentProps;
   const store = useTreeRootContext();
   assertTreeGrid(store, 'Table');
   return useTreeListElement(componentProps, forwardedRef, elementProps, children);
-}) as <TItem = any>(
-  props: TreeGridTable.Props<TItem> & React.RefAttributes<HTMLDivElement>,
-) => React.JSX.Element;
+});
 
 export interface TreeGridTableState {
   /**
@@ -36,19 +34,19 @@ export interface TreeGridTableState {
   empty: boolean;
 }
 
-export interface TreeGridTableProps<TItem = any> extends Omit<
+export interface TreeGridTableProps extends Omit<
   BaseUIComponentProps<'div', TreeGridTableState>,
   'children'
 > {
   /**
    * The render function for the row of each item, or the header row and the
    * collection of rows.
-   * Pass the item type to `TreeGrid.Table` to type the `item` parameter.
+   * Annotate the `item` parameter to type it.
    */
-  children?: React.ReactNode | ((item: TItem) => React.ReactNode);
+  children?: React.ReactNode | ((item: any) => React.ReactNode);
 }
 
 export namespace TreeGridTable {
-  export type Props<TItem = any> = TreeGridTableProps<TItem>;
+  export type Props = TreeGridTableProps;
   export type State = TreeGridTableState;
 }

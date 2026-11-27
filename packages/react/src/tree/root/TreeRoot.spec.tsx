@@ -188,7 +188,7 @@ customCollection.data;
     expectType<CustomItem[], typeof items>(items);
   }}
 >
-  <Tree.List<CustomItem>>{(item) => item.name}</Tree.List>
+  <Tree.List>{(item: CustomItem) => item.name}</Tree.List>
 </Tree.Root>;
 
 // @ts-expect-error Arbitrary custom models must be wrapped with Tree.createItems().
@@ -296,18 +296,18 @@ function OptInFileTree(props: Tree.Root.Props<FileItem, 'opt-in'>) {
 </Tree.Root>;
 
 // ---------------------------------------------------------------------------
-// Parts infer the item type from their own props, or type the item as `any`
+// Parts type the item as `any`, so renderers annotate it
 // ---------------------------------------------------------------------------
 
 const customActionsRef = React.createRef<Tree.Root.Actions<CustomItem> | null>();
 <Tree.Root items={customCollection} actionsRef={customActionsRef}>
-  <Tree.List<CustomItem>>{(item) => item.name}</Tree.List>
+  <Tree.List>{(item: CustomItem) => item.name}</Tree.List>
 </Tree.Root>;
 
-// Item renderers expose the model passed as a type argument.
+// An annotated parameter types the item.
 <Tree.Root items={[] as FileItem[]}>
-  <Tree.List<FileItem>>
-    {(item) => {
+  <Tree.List>
+    {(item: FileItem) => {
       expectType<FileItem, typeof item>(item);
       return item.size;
     }}

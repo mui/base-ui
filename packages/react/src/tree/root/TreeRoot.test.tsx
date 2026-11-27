@@ -549,8 +549,8 @@ describe('TreeRoot uncontrolled items', () => {
         defaultItems={Tree.createItems([{ key: 'a', name: props.name }], { getId, getLabel })}
         data-version={props.version}
       >
-        <Tree.List<Node>>
-          {(item) => (
+        <Tree.List>
+          {(item: Node) => (
             <Tree.Item itemId={item.key} data-testid={item.key}>
               {item.name}
             </Tree.Item>

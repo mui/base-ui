@@ -37,8 +37,8 @@ function TestTree(props: {
       onItemsChange={props.onItemsChange}
       defaultExpandedItems={['parent']}
     >
-      <Tree.List<Node>>
-        {(item) => (
+      <Tree.List>
+        {(item: Node) => (
           <Tree.Item itemId={item.key} data-testid={item.key}>
             {item.name}
           </Tree.Item>
@@ -154,8 +154,8 @@ describe('Tree.createItems', () => {
           selectedItems={['disabled']}
           onSelectedItemsChange={onSelectedItemsChange}
         >
-          <Tree.List<Node>>
-            {(item) => {
+          <Tree.List>
+            {(item: Node) => {
               const id = kind === 'collection' ? item.key : (item as unknown as { id: string }).id;
               const label =
                 kind === 'collection' ? item.name : (item as unknown as { label: string }).label;
@@ -288,8 +288,8 @@ describe('Tree.createItems', () => {
         items={createNodeCollection(undefined)}
         defaultItems={createNodeCollection([{ key: 'default', name: 'Default' }])}
       >
-        <Tree.List<Node>>
-          {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
+        <Tree.List>
+          {(item: Node) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
       </Tree.Root>,
     );
@@ -300,8 +300,8 @@ describe('Tree.createItems', () => {
         items={createNodeCollection([{ key: 'a', name: 'A' }])}
         defaultItems={createNodeCollection([{ key: 'default', name: 'Default' }])}
       >
-        <Tree.List<Node>>
-          {(item) => (
+        <Tree.List>
+          {(item: Node) => (
             <Tree.Item itemId={item.key} data-testid={item.key}>
               {item.name}
             </Tree.Item>
@@ -373,8 +373,8 @@ describe('Tree.createItems', () => {
             onItemsChange={setItems}
             actionsRef={actionsRef}
           >
-            <Tree.List<Node>>
-              {(item) => (
+            <Tree.List>
+              {(item: Node) => (
                 <Tree.Item itemId={item.key} data-testid={item.key}>
                   {item.name}
                 </Tree.Item>
@@ -496,8 +496,8 @@ describe('Tree.createItems writers', () => {
     );
     await render(
       <Tree.Root defaultItems={rootItems} actionsRef={actionsRef}>
-        <Tree.List<Node>>
-          {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
+        <Tree.List>
+          {(item: Node) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
       </Tree.Root>,
     );
@@ -532,8 +532,8 @@ describe('Tree.createItems writers', () => {
     });
     await render(
       <Tree.Root defaultItems={items} actionsRef={actionsRef} multiple="opt-in">
-        <Tree.List<Node>>
-          {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
+        <Tree.List>
+          {(item: Node) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
       </Tree.Root>,
     );
@@ -566,8 +566,8 @@ describe('Tree.createItems writers', () => {
     });
     await render(
       <Tree.Root defaultItems={items} actionsRef={actionsRef} multiple="opt-in">
-        <Tree.List<Node>>
-          {(item) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
+        <Tree.List>
+          {(item: Node) => <Tree.Item itemId={item.key}>{item.name}</Tree.Item>}
         </Tree.List>
       </Tree.Root>,
     );
