@@ -12,7 +12,6 @@ export const ordering = {
     'data-list-empty',
     'data-pressed',
     'data-revealed',
-    'data-visible',
     'data-selected',
     'data-highlighted',
     'data-dragging',

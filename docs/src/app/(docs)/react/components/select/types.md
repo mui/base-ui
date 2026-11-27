@@ -912,9 +912,9 @@ Renders a `<div>` element.
 
 | Attribute           | Type                                                                                 | Description                                                           |
 | :------------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
 | data-direction      | `'up'`                                                                               | Indicates the direction of the scroll arrow.                          |
 | data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+| data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
 | data-starting-style | -                                                                                    | Present when the scroll arrow begins animating in.                    |
 | data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
 
@@ -946,9 +946,9 @@ Renders a `<div>` element.
 
 | Attribute           | Type                                                                                 | Description                                                           |
 | :------------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
 | data-direction      | `'down'`                                                                             | Indicates the direction of the scroll arrow.                          |
 | data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+| data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
 | data-starting-style | -                                                                                    | Present when the scroll arrow begins animating in.                    |
 | data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
 

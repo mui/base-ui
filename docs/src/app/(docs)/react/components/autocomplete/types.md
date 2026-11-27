@@ -370,8 +370,8 @@ Renders a `<button>` element.
 | Attribute           | Type | Description                                   |
 | :------------------ | :--- | :-------------------------------------------- |
 | data-popup-open     | -    | Present when the corresponding popup is open. |
-| data-visible        | -    | Present when the clear button is visible.     |
 | data-disabled       | -    | Present when the button is disabled.          |
+| data-visible        | -    | Present when the clear button is visible.     |
 | data-starting-style | -    | Present when the button begins animating in.  |
 | data-ending-style   | -    | Present when the button is animating out.     |
 
