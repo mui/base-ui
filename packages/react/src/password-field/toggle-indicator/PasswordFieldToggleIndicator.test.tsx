@@ -1,4 +1,4 @@
-import { expect, describe, it, afterEach } from 'vitest';
+import { expect, describe, it, afterEach, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
@@ -13,6 +13,18 @@ describe('<PasswordField.ToggleIndicator />', () => {
       return render(<PasswordField.Root>{node}</PasswordField.Root>);
     },
   }));
+
+  it('throws a descriptive error when rendered outside <PasswordField.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<PasswordField.ToggleIndicator />)).rejects.toThrow(
+        'Base UI: PasswordFieldRootContext is missing. PasswordField parts must be placed within <PasswordField.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('is hidden from assistive technology', async () => {
     await render(
@@ -96,6 +108,28 @@ describe('<PasswordField.ToggleIndicator />', () => {
   describe.skipIf(isJSDOM)('animations', () => {
     afterEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('applies data-starting-style when mounting', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      await render(
+        <PasswordField.Root>
+          <PasswordField.Toggle />
+          <PasswordField.ToggleIndicator data-testid="indicator" match="on" />
+        </PasswordField.Root>,
+      );
+
+      expect(screen.queryByTestId('indicator')).toBe(null);
+
+      // Synchronous, so the transient starting-style render is observable.
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-starting-style');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('indicator')).not.toHaveAttribute('data-starting-style');
+      });
     });
 
     it('applies data-ending-style before unmount', async () => {
