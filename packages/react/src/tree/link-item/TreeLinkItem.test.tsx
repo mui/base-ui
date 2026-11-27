@@ -85,6 +85,18 @@ describe('<Tree.LinkItem />', () => {
     expect(folder).toHaveAttribute('aria-expanded', 'true');
   });
 
+  it('selects the item on Space without following the link', async () => {
+    const onNavigate = vi.fn();
+    await render(<Example onNavigate={onNavigate} />);
+    const item = screen.getByTestId('about');
+    act(() => item.focus());
+
+    fireEvent.keyDown(item, { key: ' ' });
+
+    expect(item).toHaveAttribute('aria-selected', 'true');
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
   it('selects the item it follows on click', async () => {
     const onNavigate = vi.fn();
     await render(<Example onNavigate={onNavigate} />);

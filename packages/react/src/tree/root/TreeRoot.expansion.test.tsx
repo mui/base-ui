@@ -188,6 +188,21 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       expect(onItemExpansionToggle.mock.calls.at(-1)![1]).toHaveProperty('reason', 'trigger-press');
     });
 
+    it('should select the item without expanding it on Space (expandOnClick)', async () => {
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        expandOnClick: true,
+      });
+
+      act(() => {
+        view.getItemRoot('1').focus();
+      });
+      fireEvent.keyDown(view.getItemRoot('1'), { key: ' ' });
+
+      expect(view.isItemSelected('1')).toBe(true);
+      expect(view.isItemExpanded('1')).toBe(false);
+    });
+
     it('should report the intended toggle when clicking the item (expandOnClick) while controlled', async () => {
       const onExpandedItemsChange = vi.fn();
       const onItemExpansionToggle = vi.fn();

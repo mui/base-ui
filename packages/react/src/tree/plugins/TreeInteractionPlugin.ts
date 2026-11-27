@@ -9,6 +9,7 @@ import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MaybeBaseUIEvent } from '../../internals/types';
 import { stopEvent } from '../../utils/popups/event';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseTypeaheadReturnValue } from '../../utils/popups/interactions/useTypeahead';
 import type {
   TreeItemId,
@@ -70,6 +71,9 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
 
   /** The pointer type of the last press on a row, so a touch tap can be told apart from a click. */
   private lastPointerType: string | null = null;
+
+  /** Whether the click a row is handling comes from Space or Enter. */
+  private keyboardClick = false;
 
   constructor(store: TreeStore<TreeMultiple | undefined, TItem>) {
     this.store = store;
@@ -531,20 +535,28 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     // multiple selection, never type.
     const modifiedSpace = ctrlPressed || (event.shiftKey && multiple !== false);
     if (macToggle || (key === ' ' && (modifiedSpace || !this.typing))) {
+      const prevented = event.defaultPrevented;
       // Always preventDefault, even for non-selectable items, so the page doesn't scroll.
       event.preventDefault();
       if (selectors.canItemBeSelected(this.store.state, itemId)) {
-        // Activating a row is a press, whichever input does it.
-        this.store.selection.press(
-          itemId,
-          {
-            shiftKey: event.shiftKey,
-            ctrlKey: ctrlPressed || macToggle,
-            toggle: this.store.items.getItemKind(itemId) === 'checkbox',
-          },
-          REASONS.itemPress,
-          event.nativeEvent,
-        );
+        const kind = this.store.items.getItemKind(itemId);
+        // A click on a link item would follow the link, and a click can't carry
+        // Option+Space's toggle, so those select from the key.
+        if (macToggle || kind === 'link') {
+          this.store.selection.press(
+            itemId,
+            {
+              shiftKey: event.shiftKey,
+              ctrlKey: ctrlPressed || macToggle,
+              toggle: kind === 'checkbox',
+            },
+            REASONS.itemPress,
+            event.nativeEvent,
+          );
+        } else if (!prevented) {
+          // As on a button, a keydown whose default was prevented doesn't press.
+          this.clickItem(itemId, event);
+        }
       }
     } else if (key === 'Enter' && this.store.items.getItemKind(itemId) !== 'link') {
       // A link item follows its link on Enter like any focused link, and the
@@ -552,17 +564,11 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       if (this.store.expansion.toggleItemExpansion(itemId, REASONS.itemPress, event.nativeEvent)) {
         event.preventDefault();
       } else if (selectors.canItemBeSelected(this.store.state, itemId)) {
-        event.preventDefault();
-        this.store.selection.press(
-          itemId,
-          {
-            shiftKey: event.shiftKey,
-            ctrlKey: ctrlPressed,
-            toggle: this.store.items.getItemKind(itemId) === 'checkbox',
-          },
-          REASONS.itemPress,
-          event.nativeEvent,
-        );
+        // As on a button, a keydown whose default was prevented doesn't press.
+        if (!event.defaultPrevented) {
+          event.preventDefault();
+          this.clickItem(itemId, event);
+        }
       } else if (!selectors.isItemDisabled(this.store.state, itemId)) {
         // Without another action, Enter follows the item's link, as on a link
         // that has focus itself. A disabled item doesn't forward it.
@@ -675,6 +681,23 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         this.typing = true;
       }
       this.typeahead?.onKeyDown(event);
+    }
+  }
+
+  /**
+   * Presses the row with Space or Enter through its click, as a button does, so the
+   * item's `onClick` runs first and can call `preventBaseUIHandler()`.
+   */
+  private clickItem(itemId: TreeItemId, event: React.KeyboardEvent) {
+    const element = this.store.items.getItemDOMElement(itemId);
+    if (element == null) {
+      return;
+    }
+    this.keyboardClick = true;
+    try {
+      dispatchClickWithModifiers(element, event);
+    } finally {
+      this.keyboardClick = false;
     }
   }
 
@@ -984,8 +1007,14 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }
 
     // The second click of a double-click must not toggle the row straight back.
-    // A link item's click navigates instead.
-    if (this.store.state.expandOnClick && kind !== 'link' && event.detail <= 1) {
+    // A link item's click navigates instead. Space only selects, and Enter tried
+    // to expand before it clicked.
+    if (
+      this.store.state.expandOnClick &&
+      kind !== 'link' &&
+      event.detail <= 1 &&
+      !this.keyboardClick
+    ) {
       this.store.expansion.toggleItemExpansion(itemId, REASONS.itemPress, event.nativeEvent);
     }
   };

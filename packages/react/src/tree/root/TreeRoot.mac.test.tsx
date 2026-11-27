@@ -48,6 +48,22 @@ describeTree('TreeRoot - Keyboard on macOS', ({ render }) => {
       expect(view.getSelectedTreeItems()).toEqual(['1']);
     });
 
+    it('checks the descendants of a checkbox item on Option+Space, like on a click', async () => {
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
+        multiple: 'opt-in',
+        checkboxSelection: true,
+        defaultExpandedItems: ['1'],
+      });
+
+      act(() => {
+        view.getItemRoot('1').focus();
+      });
+      fireEvent.keyDown(view.getItemRoot('1'), { key: ' ', code: 'Space', altKey: true });
+
+      expect(view.getSelectedTreeItems()).toEqual(['1', '1.1']);
+    });
+
     it('toggles the focused item on Option+Space while a type-ahead query is in progress', async () => {
       const view = await render({
         items: [

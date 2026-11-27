@@ -67,6 +67,34 @@ describe('<Tree.CheckboxItem />', () => {
     expect(screen.getByTestId('documents')).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByTestId('resume')).toHaveAttribute('aria-checked', 'true');
   });
+  it.each([
+    { name: 'Space', key: ' ' },
+    { name: 'Enter', key: 'Enter' },
+  ])('checks its parent on $name, like on a click', async ({ key }) => {
+    const onSelectedItemsChange = vi.fn();
+    await render(
+      <Tree.Root
+        items={items}
+        multiple="opt-in"
+        defaultExpandedItems={['documents']}
+        onSelectedItemsChange={onSelectedItemsChange}
+      >
+        <Tree.List>
+          {(item) => (
+            <Tree.CheckboxItem itemId={item.id} data-testid={item.id}>
+              {item.label}
+            </Tree.CheckboxItem>
+          )}
+        </Tree.List>
+      </Tree.Root>,
+    );
+    act(() => screen.getByTestId('resume').focus());
+
+    fireEvent.keyDown(screen.getByTestId('resume'), { key });
+
+    expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['resume', 'documents']);
+  });
+
   it('keeps the selection when the arrow keys move focus to it with multiple="opt-in"', async () => {
     const onSelectedItemsChange = vi.fn();
     await render(
