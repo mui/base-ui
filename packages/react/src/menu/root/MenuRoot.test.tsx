@@ -2468,6 +2468,145 @@ describe('<Menu.Root />', () => {
     });
 
     describe('prop: openOnHover', () => {
+      function HoverFocusMenu() {
+        return (
+          <React.Fragment>
+            <input data-testid="field" />
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={0}>
+                Actions
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>One</Menu.Item>
+                    <Menu.Item>Two</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>
+        );
+      }
+
+      async function settleHoverFocus() {
+        await act(async () => {
+          await waitSingleFrame();
+          await waitSingleFrame();
+        });
+        await flushMicrotasks();
+      }
+
+      it('opens on hover without taking focus from a text field', async () => {
+        const { user } = await render(<HoverFocusMenu />);
+        const input = screen.getByTestId<HTMLInputElement>('field');
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+
+        await act(async () => {
+          input.focus();
+        });
+
+        enterWithMouse(trigger);
+
+        await waitFor(() => {
+          expect(screen.getByRole('menu')).toBeVisible();
+        });
+        await settleHoverFocus();
+
+        expect(input).toHaveFocus();
+        expect(screen.getByRole('menu')).not.toHaveFocus();
+
+        await user.keyboard('z');
+        expect(input).toHaveValue('z');
+        expect(input).toHaveFocus();
+      });
+
+      it('leaves the text field focused after a hover-opened menu closes', async () => {
+        const { user } = await render(<HoverFocusMenu />);
+        const input = screen.getByTestId<HTMLInputElement>('field');
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+
+        await act(async () => {
+          input.focus();
+        });
+        enterWithMouse(trigger);
+
+        await waitFor(() => {
+          expect(screen.getByRole('menu')).toBeVisible();
+        });
+        await settleHoverFocus();
+        await user.keyboard('z');
+
+        moveMouse(trigger, document.body);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).toBe(null);
+        });
+        await settleHoverFocus();
+
+        expect(input).toHaveFocus();
+        expect(input).toHaveValue('z');
+      });
+
+      it('still moves focus into the menu when the trigger is clicked', async () => {
+        const { user } = await render(<HoverFocusMenu />);
+        const input = screen.getByTestId('field');
+
+        await act(async () => {
+          input.focus();
+        });
+        await user.click(screen.getByRole('button', { name: 'Actions' }));
+
+        await waitFor(() => {
+          expect(screen.getByRole('menu')).toHaveFocus();
+        });
+        expect(input).not.toHaveFocus();
+      });
+
+      it('still moves focus to the first item when opened from the keyboard', async () => {
+        const { user } = await render(<HoverFocusMenu />);
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+
+        await act(async () => {
+          trigger.focus();
+        });
+        await user.keyboard('{ArrowDown}');
+
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+        });
+      });
+
+      it.skipIf(isJSDOM)(
+        'still moves focus to the first item after a screen reader press',
+        async () => {
+          await render(<HoverFocusMenu />);
+          const input = screen.getByTestId('field');
+          const trigger = screen.getByRole('button', { name: 'Actions' });
+
+          await act(async () => {
+            input.focus();
+          });
+
+          fireEvent.pointerDown(trigger, {
+            pointerType: 'mouse',
+            buttons: 0,
+            width: 1,
+            height: 1,
+            pressure: 0,
+          });
+          fireEvent.mouseDown(trigger, { detail: 1 });
+          fireEvent.pointerUp(trigger, { pointerType: 'mouse', width: 1, height: 1, pressure: 0 });
+          fireEvent.mouseUp(trigger, { detail: 1 });
+          fireEvent.click(trigger, { detail: 1 });
+
+          await waitFor(() => {
+            expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+          });
+          expect(input).not.toHaveFocus();
+        },
+      );
+
       it('opens when the trigger is hovered and closes when it is no longer hovered', async () => {
         await render(<TestMenu triggerProps={{ openOnHover: true, delay: 0 }} />);
 
