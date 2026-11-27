@@ -157,10 +157,7 @@ export type TreeRootSelectionChangeEventDetails =
   BaseUIChangeEventDetails<TreeRootSelectionChangeEventReason>;
 
 export type TreeRootHighlightEventReason =
-  | typeof REASONS.itemPress
-  | typeof REASONS.keyboard
-  | typeof REASONS.imperativeAction
-  | typeof REASONS.none;
+  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
 
 export type TreeRootHighlightEventDetails =
   BaseUIHighlightEventDetails<TreeRootHighlightEventReason>;
@@ -628,8 +625,9 @@ export interface TreeStoreParameters<
    * Receives the highlighted item's id, or `undefined` when no item is highlighted anymore,
    * such as when focus leaves the tree.
    *
-   * The event `reason` is `'none'` when nothing in the tree caused it, such as tabbing
-   * into or out of the tree, or focus moving away from a removed item.
+   * The event `reason` is `'keyboard'` when a key press moved focus, `'pointer'` when a press
+   * did, and `'none'` otherwise, such as when tabbing into or out of the tree, calling
+   * `actionsRef.focusItem()`, or when focus moves away from a removed item.
    */
   onItemHighlighted?:
     | ((itemId: TreeItemId | undefined, eventDetails: TreeRootHighlightEventDetails) => void)

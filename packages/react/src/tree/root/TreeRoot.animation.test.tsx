@@ -354,6 +354,21 @@ describe.skipIf(isJSDOM)('Tree.List group transition lifecycle', () => {
     expect(screen.queryByTestId('item-d')).toBeNull();
   });
 
+  it('completes an expanding group when the keyboard moves focus into it', async () => {
+    document.documentElement.style.setProperty('--test-duration', '10s');
+    await render(<AnimatedTree />);
+    const documentsItem = screen.getByTestId('item-documents');
+    act(() => documentsItem.focus());
+    fireEvent.keyDown(documentsItem, { key: 'ArrowRight' });
+    expect(screen.getByTestId('gt-documents')).toHaveAttribute('data-expanding');
+
+    fireEvent.keyDown(documentsItem, { key: 'ArrowDown' });
+
+    // The row leaves the wrapper before it takes focus, so the wrapper unmounting can't take it.
+    expect(screen.queryByTestId('gt-documents')).toBeNull();
+    expect(screen.getByTestId('item-resume')).toHaveFocus();
+  });
+
   it('animates expansion changes driven by the controlled prop', async () => {
     const { rerender } = await render(<AnimatedTree expandedItems={[]} />);
 

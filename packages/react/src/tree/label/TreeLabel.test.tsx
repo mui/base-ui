@@ -74,13 +74,32 @@ describe('<Tree.Label />', () => {
     expect(screen.getByRole('treeitem', { name: 'B' })).toHaveFocus();
   });
 
-  it('reports the click as the cause of the focus', async () => {
+  it('reports the focus a press moves with the pointer reason', async () => {
     const onItemHighlighted = vi.fn();
-    await render(<Example onItemHighlighted={onItemHighlighted} />);
-    fireEvent.click(screen.getByText('Files'));
+    const { user } = await render(<Example onItemHighlighted={onItemHighlighted} />);
+    await user.click(screen.getByText('Files'));
     expect(onItemHighlighted).toHaveBeenCalledWith(
       'b',
-      expect.objectContaining({ reason: 'item-press', event: expect.any(MouseEvent) }),
+      expect.objectContaining({
+        reason: 'pointer',
+        event: expect.objectContaining({ type: 'pointerdown' }),
+      }),
+    );
+  });
+
+  it('reports the focus a click without a press moves with the none reason', async () => {
+    const onItemHighlighted = vi.fn();
+    await render(<Example onItemHighlighted={onItemHighlighted} />);
+    const label = screen.getByText('Files');
+    // A press that ended outside the label, then a click from assistive technology.
+    fireEvent.pointerDown(label);
+    fireEvent.click(label);
+    expect(onItemHighlighted).toHaveBeenCalledWith(
+      'b',
+      expect.objectContaining({
+        reason: 'none',
+        event: expect.objectContaining({ type: 'click' }),
+      }),
     );
   });
 });

@@ -4,7 +4,6 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { resolveRenderedId } from '../../internals/resolveRenderedId';
-import { REASONS } from '../../internals/reasons';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { selectors } from '../store/selectors';
 
@@ -25,6 +24,8 @@ export const TreeLabel = React.forwardRef(function TreeLabel(
   const id = useBaseUiId(idProp);
   // An empty id on the `render` element leaves the label without one to reference.
   store.useSyncedValueWithCleanup('labelId', resolveRenderedId(componentProps, id) || undefined);
+  // The press behind a click, so the highlight reports the focus it moves as a pointer one.
+  const pressEventRef = React.useRef<PointerEvent | null>(null);
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,
@@ -32,12 +33,16 @@ export const TreeLabel = React.forwardRef(function TreeLabel(
       {
         id,
         onClick(event: React.MouseEvent) {
+          // A click without a press, such as from assistive technology, has no pointer behind it.
+          const pressEvent = event.detail > 0 ? pressEventRef.current : null;
+          pressEventRef.current = null;
           const tabbableItemId = selectors.tabbableItemId(store.state);
           if (tabbableItemId != null) {
-            store.interaction.focusItem(tabbableItemId, REASONS.itemPress, event.nativeEvent);
+            store.interaction.focusItem(tabbableItemId, pressEvent ?? event.nativeEvent);
           }
         },
         onPointerDown(event: React.PointerEvent) {
+          pressEventRef.current = event.nativeEvent;
           // Keep focus where it is until the click moves it into the tree.
           event.preventDefault();
         },

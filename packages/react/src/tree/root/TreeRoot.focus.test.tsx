@@ -412,14 +412,15 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       expect(onItemHighlighted.mock.calls.length).toBe(1);
       expect(onItemHighlighted.mock.calls.at(-1)![0]).toBe('1');
       expect(onItemHighlighted.mock.calls.at(-1)![1]).toHaveProperty('reason', 'none');
-      expect(onItemHighlighted.mock.calls.at(-1)![1]).toHaveProperty('event');
+      // The focus event itself, as nothing in the tree moved focus.
+      expect(onItemHighlighted.mock.calls.at(-1)![1].event).toBeInstanceOf(FocusEvent);
     });
 
     it.each([
       { input: 'an arrow key', reason: 'keyboard', eventType: 'keydown' },
-      { input: 'a press', reason: 'item-press', eventType: 'mousedown' },
-      { input: 'actionsRef.focusItem()', reason: 'imperative-action', eventType: 'base-ui' },
-      { input: 'the removal of the focused item', reason: 'none', eventType: 'base-ui' },
+      { input: 'a press', reason: 'pointer', eventType: 'mousedown' },
+      { input: 'actionsRef.focusItem()', reason: 'none', eventType: 'focusin' },
+      { input: 'the removal of the focused item', reason: 'none', eventType: 'focusin' },
     ])('passes the event that moved focus with $input', async ({ input, reason, eventType }) => {
       const onItemHighlighted = vi.fn();
       const view = await render({ items: [{ id: '1' }, { id: '2' }], onItemHighlighted });
@@ -454,10 +455,10 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       expect(details.event.type).toBe(eventType);
     });
 
-    it('should not report item-press after a prevented press on a disabled item', async () => {
-      // The press reason is latched on mousedown, before the disabled handling
+    it('should not report pointer after a prevented press on a disabled item', async () => {
+      // The press is latched on mousedown, before the disabled handling
       // prevents focus from moving at all. Nothing reset it, so the *next* focus
-      // — a Tab to a different row — reported `item-press`.
+      // — a Tab to a different row — reported `pointer`.
       const onItemHighlighted = vi.fn();
 
       const view = await render({
@@ -488,7 +489,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
         view.getItemRoot('1').focus();
       });
       fireEvent.click(view.getItemRoot('1'));
-      expect(onItemHighlighted.mock.calls.at(-1)![1]).toHaveProperty('reason', 'item-press');
+      expect(onItemHighlighted.mock.calls.at(-1)![1]).toHaveProperty('reason', 'pointer');
 
       act(() => {
         view.getItemRoot('1').blur();
@@ -574,7 +575,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       expect(view.getFocusedItemId()).toBe('1');
     });
 
-    it('should report item-press when the chevron focuses the treeitem', async () => {
+    it('should report pointer when the chevron focuses the treeitem', async () => {
       const onItemHighlighted = vi.fn();
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }],
@@ -585,7 +586,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
 
       expect(onItemHighlighted).toHaveBeenCalledWith(
         '1',
-        expect.objectContaining({ reason: 'item-press' }),
+        expect.objectContaining({ reason: 'pointer' }),
       );
     });
   });

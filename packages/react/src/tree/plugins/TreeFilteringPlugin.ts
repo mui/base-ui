@@ -7,7 +7,6 @@ import { TREE_VIEW_ROOT_PARENT_ID } from '../store/types';
 import type {
   TreeDefaultItem,
   TreeFilterMode,
-  TreeRootHighlightEventReason,
   TreeItemId,
   TreeParentKeyed,
   TreeParentLookupKey,
@@ -438,11 +437,7 @@ export class TreeFilteringPlugin<TItem = TreeDefaultItem> {
    *
    * @returns Whether a row received focus.
    */
-  public focusTree(
-    from: 'first' | 'last',
-    reason: TreeRootHighlightEventReason,
-    event?: KeyboardEvent,
-  ): boolean {
+  public focusTree(from: 'first' | 'last', event?: KeyboardEvent): boolean {
     const { state } = this.store;
     const target = filterResultSelector(state).active
       ? this.getFocusableMatch(state, from)
@@ -450,7 +445,7 @@ export class TreeFilteringPlugin<TItem = TreeDefaultItem> {
     if (target == null) {
       return false;
     }
-    this.store.interaction.focusItem(target, reason, event);
+    this.store.interaction.focusItem(target, event);
     return true;
   }
 

@@ -118,7 +118,7 @@ export const TreeInput = React.forwardRef(function TreeInput(
               return;
             }
             const from = event.key === 'ArrowUp' ? 'last' : 'first';
-            if (filtering.focusTree(from, REASONS.keyboard, event.nativeEvent)) {
+            if (filtering.focusTree(from, event.nativeEvent)) {
               event.preventDefault();
             }
           } else if (event.key === 'Escape' && value !== '' && !event.currentTarget.readOnly) {

@@ -147,7 +147,7 @@ describe('Tree', () => {
     expect(trigger).toHaveAccessibleName('Réduire Documents');
   });
 
-  it('reports pointer focus on an item control as an item press', async () => {
+  it('reports pointer focus on an item control with the pointer reason', async () => {
     const onItemHighlighted = vi.fn();
     await render(<TestTree onItemHighlighted={onItemHighlighted} />);
 
@@ -161,11 +161,11 @@ describe('Tree', () => {
 
     expect(onItemHighlighted).toHaveBeenCalledWith(
       'music',
-      expect.objectContaining({ reason: 'item-press' }),
+      expect.objectContaining({ reason: 'pointer' }),
     );
   });
 
-  it('does not leak an item-press reason after pointer focus returns to the same row', async () => {
+  it('does not leak a pointer reason after pointer focus returns to the same row', async () => {
     const onItemHighlighted = vi.fn();
     await render(
       <TestTree onItemHighlighted={onItemHighlighted} defaultExpandedItems={['documents']} />,

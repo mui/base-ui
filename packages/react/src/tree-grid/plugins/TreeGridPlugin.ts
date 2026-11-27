@@ -308,7 +308,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
       element.setAttribute('tabindex', '-1');
       element.addEventListener('blur', () => element.removeAttribute('tabindex'), { once: true });
     }
-    this.store.interaction.focusElement(element, REASONS.keyboard, event);
+    this.store.interaction.focusElement(element, event);
     this.store.items.revealElement(element);
   }
 
@@ -322,7 +322,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
       ? EMPTY_ARRAY
       : getCellStops(this.getLayout(targetItem), position.cellIndex);
     if (targetStops.length === 0) {
-      this.store.interaction.focusItem(targetItem, REASONS.keyboard, event);
+      this.store.interaction.focusItem(targetItem, event);
     } else {
       this.focusStop(targetStops[Math.min(position.index, targetStops.length - 1)], event);
     }
@@ -385,7 +385,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
         if (intent.stopPropagation) {
           event.stopPropagation();
         }
-        this.store.interaction.focusElement(itemElement, REASONS.keyboard, event.nativeEvent);
+        this.store.interaction.focusElement(itemElement, event.nativeEvent);
         break;
       case 'column': {
         const targetItem = intent.row(this.store.state, itemId);

@@ -51,7 +51,7 @@ export const TreeItemExpansionTrigger = fastComponentRef(function TreeItemExpans
     // Keep pointer focus on the row that owns the roving tab stop.
     onPointerDown: (event: React.PointerEvent) => {
       event.preventDefault();
-      store.interaction.focusItem(itemId, REASONS.itemPress, event.nativeEvent);
+      store.interaction.focusItem(itemId, event.nativeEvent);
     },
     onClick: (event: React.MouseEvent) => {
       if (inLink) {

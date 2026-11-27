@@ -5,19 +5,13 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
 import { isElement } from '@floating-ui/utils/dom';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
-import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MaybeBaseUIEvent } from '../../internals/types';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { stopEvent } from '../../utils/popups/event';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseTypeaheadReturnValue } from '../../utils/popups/interactions/useTypeahead';
-import type {
-  TreeItemId,
-  TreeRootHighlightEventReason,
-  TreeMultiple,
-  TreeDefaultItem,
-  TreeState,
-} from '../store/types';
+import type { TreeItemId, TreeMultiple, TreeDefaultItem, TreeState } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
@@ -45,11 +39,11 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   declare private store: TreeStore<TreeMultiple | undefined, TItem>;
 
   /**
-   * What moves focus next: the reason, and the keydown or press behind it when
-   * there is one. `none` when nothing the tree saw caused it, such as tabbing
-   * into the tree or focus recovery.
+   * The keydown or press that moves focus next, which the highlight reason derives
+   * from. `undefined` when nothing the tree saw caused it, such as tabbing into the
+   * tree or focus recovery, so the focus event itself is reported.
    */
-  private lastFocusCause: FocusCause = { reason: REASONS.none };
+  private focusCause: Event | undefined = undefined;
 
   /** The typeahead of the element with the tree role, which `useTreeRootProps` sets up. */
   private typeahead: TreeTypeahead | null = null;
@@ -408,41 +402,34 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }, this.controlRecoveryFrame);
   }
 
-  public focusItem = (
-    itemId: TreeItemId,
-    reason: TreeRootHighlightEventReason = REASONS.none,
-    event?: FocusCause['event'],
-  ) => {
+  /** Focuses a row. `event` is the keydown or press that moves focus, when there's one. */
+  public focusItem = (itemId: TreeItemId, event?: Event) => {
     if (selectors.isItemFocusTarget(this.store.state, itemId)) {
       // The keyboard can move faster than a group expands: put the row in its final
       // place first, so it keeps focus once the transition ends.
-      if (reason === REASONS.keyboard) {
+      if (getHighlightReason(event) === REASONS.keyboard) {
         this.store.expansion.settleItem(itemId);
       }
       const element = this.store.items.getItemDOMElement(itemId);
       if (element) {
         // The viewport brings the focused row into view (see `revealItem`).
-        this.focusElement(element, reason, event);
+        this.focusElement(element, event);
       }
     }
   };
 
   /**
    * Focuses a row, or an element inside it such as a control or a cell, so the
-   * row's focus handler reports `reason`.
+   * row's focus handler reports `event` as the cause.
    */
-  public focusElement(
-    element: HTMLElement,
-    reason: TreeRootHighlightEventReason,
-    event?: FocusCause['event'],
-  ) {
+  public focusElement(element: HTMLElement, event?: Event) {
     // Calling .focus() synchronously triggers the onFocus handler, which updates
     // focusedItemId and calls onItemHighlighted with the cause set here — but only
     // when focus actually moves. A no-op focus() on the already active element
-    // fires no onFocus event, so setting the reason would leave it stale for the
+    // fires no onFocus event, so setting the cause would leave it stale for the
     // next genuine focus.
     if (element !== activeElement(ownerDocument(element))) {
-      this.lastFocusCause = { reason, event };
+      this.focusCause = event;
       const previousFocusedItemId = this.store.state.focusedItemId;
       element.focus({ preventScroll: true });
       // The viewport reveals a row when focus moves to another one. Focus coming
@@ -459,7 +446,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   }
 
   public actions = {
-    focusItem: (itemId: TreeItemId) => this.focusItem(itemId, REASONS.imperativeAction),
+    focusItem: (itemId: TreeItemId) => this.focusItem(itemId),
     getFocusedItemId: (): TreeItemId | null => selectors.focusedItemId(this.store.state),
   };
 
@@ -565,7 +552,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         itemId,
       );
       if (targetItem != null) {
-        this.focusItem(targetItem, REASONS.keyboard, event.nativeEvent);
+        this.focusItem(targetItem, event.nativeEvent);
         if (multiple && event.shiftKey && !ctrlPressed) {
           this.store.selection.extendTo(targetItem, itemId, REASONS.keyboard, event.nativeEvent);
         } else if (followFocus) {
@@ -709,7 +696,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
    * selection follows unless a modifier asked to move focus only.
    */
   private navigateTo(itemId: TreeItemId, followFocus: boolean, event: React.KeyboardEvent) {
-    this.focusItem(itemId, REASONS.keyboard, event.nativeEvent);
+    this.focusItem(itemId, event.nativeEvent);
     if (followFocus) {
       this.store.selection.moveTo(itemId, REASONS.keyboard, event.nativeEvent);
     }
@@ -782,11 +769,11 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (itemId == null || this.isEventFromOutsideItem(event)) {
       return;
     }
-    const { reason, event: cause } = this.lastFocusCause;
+    const cause = this.focusCause ?? event.nativeEvent;
     // A focus event consumes the pending cause even when focus only moved from
-    // a control back to its existing row. Otherwise that pointer reason leaks
-    // into the next item reached with the keyboard.
-    this.lastFocusCause = { reason: REASONS.none };
+    // a control back to its existing row. Otherwise that press leaks into the
+    // next item reached with the keyboard.
+    this.focusCause = undefined;
 
     if (
       selectors.canItemBeFocused(this.store.state, itemId) &&
@@ -794,21 +781,24 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     ) {
       this.focusHandover = null;
       this.store.set('focusedItemId', itemId);
-      this.store.context.onItemHighlighted?.(itemId, createGenericEventDetails(reason, cause));
+      this.store.context.onItemHighlighted?.(
+        itemId,
+        createGenericEventDetails(getHighlightReason(cause), cause),
+      );
     }
   };
 
   /**
-   * Reports the focus a press moves as `item-press`. Cleared after the event
+   * Reports the focus a press moves as `pointer`. Cleared after the event
    * turn, since a press can move no focus at all (a row that already has it, a
    * disabled control, a prevented default), and the next focus, such as
    * tabbing back into the tree, would then be misreported as a press.
    */
   private setPressFocusCause(event: MouseEvent): void {
-    this.lastFocusCause = { reason: REASONS.itemPress, event };
+    this.focusCause = event;
     this.store.timeoutManager.start('press-focus-reason', 0, () => {
-      if (this.lastFocusCause.reason === REASONS.itemPress) {
-        this.lastFocusCause = { reason: REASONS.none };
+      if (this.focusCause === event) {
+        this.focusCause = undefined;
       }
     });
   }
@@ -821,13 +811,13 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     const itemDisabled = selectors.isItemDisabled(this.store.state, itemId);
 
     // `mousedown` fires before the native focus event, so record the press
-    // reason here. Setting it in `onClick` (which runs after focus) would make
-    // `onItemHighlighted` report `keyboard` for a mouse click. Native focus on a
-    // nested Tree control bubbles through the row too.
+    // here. Setting it in `onClick` (which runs after focus) would be too late
+    // for `onItemHighlighted`. Native focus on a nested Tree control bubbles
+    // through the row too.
     //
     // Not for a disabled row: the press below is `preventDefault`ed, so no focus
-    // follows it, and the latched reason would then be read by whatever moved
-    // focus next — tabbing to another row reported `item-press`.
+    // follows it, and the latched press would then be read by whatever moved
+    // focus next — tabbing to another row reported `pointer`.
     if (!itemDisabled) {
       this.setPressFocusCause(event.nativeEvent);
     }
@@ -974,7 +964,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     // as in a filter input.
     const rootElement = this.store.context.rootRef.current;
     if (rootElement != null && this.getFocusLocation(rootElement) !== 'outside') {
-      this.focusItem(itemId, REASONS.keyboard, event.nativeEvent);
+      this.focusItem(itemId, event.nativeEvent);
     }
     return true;
   }
@@ -1032,9 +1022,4 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     onClick: this.handleItemClick,
     onFocus: this.handleItemFocus,
   };
-}
-
-interface FocusCause {
-  reason: TreeRootHighlightEventReason;
-  event?: ReasonToEvent<TreeRootHighlightEventReason> | undefined;
 }
