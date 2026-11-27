@@ -143,17 +143,29 @@ export function scrollIntoViewIfNeeded(
   });
 }
 
+// Returns the element's offset from the ancestor's padding edge. Both are measured from the top of
+// their `offsetParent` chains, since a static ancestor never appears in the element's chain.
 function getOffset(ancestor: HTMLElement, element: HTMLElement, side: 'left' | 'top') {
-  const propName = side === 'left' ? 'offsetLeft' : 'offsetTop';
+  const borderProp = side === 'left' ? 'clientLeft' : 'clientTop';
+  return (
+    getCumulativeOffset(element, side) - getCumulativeOffset(ancestor, side) - ancestor[borderProp]
+  );
+}
+
+function getCumulativeOffset(element: HTMLElement, side: 'left' | 'top') {
+  const offsetProp = side === 'left' ? 'offsetLeft' : 'offsetTop';
+  const borderProp = side === 'left' ? 'clientLeft' : 'clientTop';
 
   let result = 0;
+  let currentElement: HTMLElement | null = element;
 
-  while (element.offsetParent) {
-    result += element[propName];
-    if (element.offsetParent === ancestor) {
-      break;
+  while (currentElement != null) {
+    result += currentElement[offsetProp];
+    const offsetParent = currentElement.offsetParent as HTMLElement | null;
+    if (offsetParent != null) {
+      result += offsetParent[borderProp];
     }
-    element = element.offsetParent as HTMLElement;
+    currentElement = offsetParent;
   }
 
   return result;
