@@ -671,9 +671,10 @@ export function useListNavigation(
         return;
       }
 
+      const held = event.repeat && !isIndexOutOfListBounds(listRef.current, currentIndex);
       const { index, wrapped } = getNextListIndex(listRef.current, currentIndex, {
         decrement: !isMainOrientationToEndKey(event.key, orientation, rtl),
-        loopFocus,
+        loopFocus: loopFocus && !held,
         allowEscape,
         disabledIndices,
         minIndex,
