@@ -70,7 +70,15 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const highlightedWhileOpen = store.useState('highlightedWhileOpen', highlighted);
 
-  const isContextMenu = contextMenuContext !== undefined;
+  // A ContextMenu.Root context can also sit above an ordinary Menu placed inside
+  // ContextMenu.Trigger, so follow the menu's own parent chain up to its root to tell them apart.
+  let rootParent = rootContext.parent;
+  while (rootParent.type === 'menu') {
+    rootParent = rootParent.store.state.parent;
+  }
+  const isContextMenu =
+    contextMenuContext !== undefined &&
+    (rootParent.type === 'context-menu' || rootParent.type === 'nested-context-menu');
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
   const tabIndex = !virtualFocus && highlightedWhileOpen ? 0 : -1;
 
