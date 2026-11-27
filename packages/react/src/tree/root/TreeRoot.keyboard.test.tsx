@@ -8,6 +8,13 @@ import { describeTree } from '../../../test/describeTree';
 import { selectors } from '../store/selectors';
 import { Tree } from '..';
 
+// The opt-in focus-only gesture is Option+Arrow on macOS, which TreeRoot.mac.test.tsx covers.
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+  return { platform: { ...actual.platform, os: { ...actual.platform.os, mac: false } } };
+});
+
 const { render: renderElement } = createRenderer();
 
 // Keys typed after a pause start a new search. Call under fake timers, which the
@@ -275,6 +282,37 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         expect(fireEvent.keyDown(view.getItemRoot('1'), { key: 'ArrowUp' })).toBe(false);
         expect(view.getFocusedItemId()).toBe('1');
       });
+    });
+
+    describe('key: Ctrl/Cmd + ArrowDown', () => {
+      it.each([
+        { name: 'Ctrl', multiple: false, modifiers: { ctrlKey: true } },
+        { name: 'Cmd', multiple: true, modifiers: { metaKey: true } },
+        { name: 'Ctrl+Shift', multiple: true, modifiers: { ctrlKey: true, shiftKey: true } },
+        { name: 'Ctrl+Shift', multiple: 'opt-in', modifiers: { ctrlKey: true, shiftKey: true } },
+        { name: 'Ctrl+Alt', multiple: 'opt-in', modifiers: { ctrlKey: true, altKey: true } },
+      ] as const)(
+        'leaves $name+ArrowDown to the browser with multiple=$multiple',
+        async ({ multiple, modifiers }) => {
+          const view = await render({
+            items: [{ id: '1' }, { id: '2' }],
+            multiple,
+            defaultSelectedItems: multiple ? ['1'] : '1',
+          });
+
+          act(() => {
+            view.getItemRoot('1').focus();
+          });
+          const notPrevented = fireEvent.keyDown(view.getItemRoot('1'), {
+            key: 'ArrowDown',
+            ...modifiers,
+          });
+
+          expect(notPrevented).toBe(true);
+          expect(view.getFocusedItemId()).toBe('1');
+          expect(view.getSelectedTreeItems()).toEqual(['1']);
+        },
+      );
     });
 
     describe('key: ArrowRight', () => {

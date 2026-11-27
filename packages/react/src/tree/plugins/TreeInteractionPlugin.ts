@@ -502,7 +502,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     const moveFocusOnly =
       multiple === 'opt-in' &&
       !event.shiftKey &&
-      (mac ? event.altKey && !ctrlPressed : ctrlPressed);
+      (mac ? event.altKey && !ctrlPressed : ctrlPressed && !event.altKey);
     if (
       event.altKey &&
       !macToggle &&
@@ -549,6 +549,10 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         }
       }
     } else if (key === 'ArrowDown' || key === 'ArrowUp') {
+      // Ctrl/Cmd+Arrow is left to the browser unless it's the opt-in gesture above.
+      if (ctrlPressed && !moveFocusOnly) {
+        return;
+      }
       event.preventDefault();
       const targetItem = (key === 'ArrowDown' ? getNextNavigableItem : getPreviousNavigableItem)(
         this.store.state,

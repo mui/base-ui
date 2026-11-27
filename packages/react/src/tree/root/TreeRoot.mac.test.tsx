@@ -29,6 +29,28 @@ describeTree('TreeRoot - Keyboard on macOS', ({ render }) => {
     });
 
     it.each([
+      { name: 'Cmd', modifiers: { metaKey: true } },
+      { name: 'Ctrl', modifiers: { ctrlKey: true } },
+    ])('leaves $name+ArrowDown to the browser', async ({ modifiers }) => {
+      const view = await render({
+        items: [{ id: '1' }, { id: '2' }],
+        multiple: 'opt-in',
+        defaultSelectedItems: ['1'],
+      });
+
+      act(() => {
+        view.getItemRoot('1').focus();
+      });
+      const notPrevented = fireEvent.keyDown(view.getItemRoot('1'), {
+        key: 'ArrowDown',
+        ...modifiers,
+      });
+
+      expect(notPrevented).toBe(true);
+      expect(view.getFocusedItemId()).toBe('1');
+    });
+
+    it.each([
       { name: 'a space', key: ' ' },
       { name: 'a non-breaking space', key: ' ' },
     ])('toggles the focused item on Option+Space reported as $name', async ({ key }) => {
