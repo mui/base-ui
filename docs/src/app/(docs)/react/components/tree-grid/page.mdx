@@ -211,6 +211,35 @@ To match rows on a server, pass the matches to `filteredItems`. Every match must
 
 Use `actionsRef.current.applyTransaction()` to add, update, move, or remove items without rebuilding `items` yourself, as the remove buttons of the demos above do. The operations apply in order, as a single change, and `onItemsChange` lists them in `eventDetails.changes`. With a controlled `items`, inserted rows render only once the parent passes them back. Set `transactionThrottle` to commit the transactions of a short window together.
 
+## Keyboard interactions
+
+The stops of a row are its controls and, in a row of several cells, the cells without a control. On a row, the keys work as in [Tree](/react/components/tree#keyboard-interactions), except:
+
+- <kbd>Arrow Right</kbd> expands a collapsed row. On any other row, it moves focus to the first
+  stop, or to the first child of an expanded row without stops.
+- <kbd>Tab</kbd> moves focus from the row through its controls, then out of the tree grid.
+  <kbd>Shift</kbd>+<kbd>Tab</kbd> from the first control moves back to the row.
+- On a row with a `<TreeGrid.RowCheckbox>`, <kbd>Space</kbd> checks or unchecks the row, as does <kbd>Enter</kbd> when it can't expand.
+- <kbd>Enter</kbd> follows the `<TreeGrid.CellLink>` of a row that can't expand or be selected.
+
+On a control or a cell, for the keys the control doesn't keep:
+
+- <kbd>Arrow Right</kbd> and <kbd>Arrow Left</kbd> move focus to the next and previous stops.
+  <kbd>Arrow Left</kbd> on the first stop moves back to the row. In a text input, they move the
+  caret until it reaches the start or end of the text.
+- <kbd>Arrow Down</kbd> and <kbd>Arrow Up</kbd> move focus to the next and previous rows. In a row
+  of several cells, focus stays in the same column. With `multiple="opt-in"`, the selection follows.
+- <kbd>Home</kbd> and <kbd>End</kbd> move focus to the first and last stops of the row. With
+  <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>, in a row of several cells, they move to the same column in the
+  first and last rows.
+- <kbd>Esc</kbd> moves focus back to the row, and doesn't reach a popup or dialog around the tree
+  grid.
+- <kbd>Space</kbd> on a cell selects the row, as on the row.
+
+<kbd>Space</kbd>, <kbd>Enter</kbd>, and typed characters always belong to the control. To choose
+which of the other keys it keeps, see [Controls inside rows](#controls-inside-rows). In
+right-to-left layouts, <kbd>Arrow Right</kbd> and <kbd>Arrow Left</kbd> swap.
+
 ## API reference
 
 import { TypesTreeGrid, TypesTreeGridAdditional } from './types';

@@ -274,6 +274,66 @@ import { DemoTreeHighFrequencyUpdates } from './demos/high-frequency-updates';
 
 <DemoTreeHighFrequencyUpdates />
 
+## Keyboard interactions
+
+In every selection mode:
+
+- <kbd>Arrow Down</kbd> and <kbd>Arrow Up</kbd> move focus to the next and previous rows. Focus
+  stops at the first and last rows.
+- <kbd>Arrow Right</kbd> expands a collapsed row, and moves focus to the first child of an expanded
+  one.
+- <kbd>Arrow Left</kbd> collapses an expanded row, and moves focus to the parent of any other row.
+- <kbd>Home</kbd> and <kbd>End</kbd> move focus to the first and last rows.
+- <kbd>Page Up</kbd> and <kbd>Page Down</kbd> move focus by as many rows as fit in the scroll
+  container.
+- <kbd>\*</kbd> expands every sibling of the focused row.
+- Typing characters moves focus to the next row whose label starts with them, ignoring case. A space typed during the search is part of it, so "New folder" can match. The search ends after a pause, or when focus leaves the tree. With a `<Tree.Input>`, the characters go to the input instead.
+- <kbd>Space</kbd> selects the focused row.
+- <kbd>Enter</kbd> expands or collapses a row that can expand, and selects any other row. It follows the link of a `<Tree.LinkItem>` and selects the row.
+- <kbd>Tab</kbd> moves focus into the tree and out of it. Focus returns to the row that had it last,
+  or else to the first selected row, the row that links to the current page, or the first row.
+
+With `multiple`, each row toggles on its own:
+
+- <kbd>Space</kbd> adds or removes the focused row, as does <kbd>Enter</kbd> on a row that can't
+  expand.
+
+With `multiple="opt-in"`, the selection follows focus:
+
+- Arrow keys, <kbd>Home</kbd>, <kbd>End</kbd>, <kbd>Page Up</kbd>, <kbd>Page Down</kbd> and typing move the selection to the row they move focus to. On a disabled row or a `<Tree.CheckboxItem>`, the selection stays where it was.
+- <kbd>Space</kbd> makes the focused row the only selected row, as does <kbd>Enter</kbd> on a row
+  that can't expand.
+- See [Opt-in multiple selection](#opt-in-multiple-selection) for the keys that move focus without the selection, and that add or remove single rows.
+
+In both multiple modes:
+
+- <kbd>Shift</kbd>+<kbd>Arrow Down</kbd> or <kbd>Arrow Up</kbd> moves focus, and replaces the
+  selection with the rows from the focused row to the one it moves to. Right after a press with
+  <kbd>Shift</kbd> or another <kbd>Shift</kbd>+arrow key, it grows or shrinks that range instead.
+- <kbd>Shift</kbd>+<kbd>Space</kbd> replaces the selection with the range from the anchor to the
+  focused row. The anchor is the row that was last pressed without <kbd>Shift</kbd>, or the start of
+  the last range. With `multiple="opt-in"`, moving the selection with the keyboard moves the anchor
+  too. When there's no anchor, or it's under a collapsed parent, the range starts at the first
+  selected row, or at the first row.
+- <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Home</kbd> or <kbd>End</kbd> adds the rows from the focused
+  row to the first or last row to the selection. On macOS, use <kbd>Cmd</kbd> instead of
+  <kbd>Ctrl</kbd>.
+- <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd> selects every item, as [Select all](#select-all)
+  describes.
+
+<kbd>Space</kbd> checks or unchecks a `<Tree.CheckboxItem>`, as does <kbd>Enter</kbd> when it can't expand. With `multiple="opt-in"`, it behaves as with `multiple`.
+
+None of these keys expand, collapse, or select a disabled row. It still takes focus unless `itemFocusableWhenDisabled` is `false`, ranges and <kbd>Ctrl</kbd>+<kbd>A</kbd> skip it, and a selected one stays selected. A disabled tree leaves the tab order.
+
+In `<Tree.Input>`:
+
+- <kbd>Arrow Down</kbd> and <kbd>Arrow Up</kbd> move focus to the first and last matches. While the
+  tree isn't filtered, they move it to the row <kbd>Tab</kbd> would reach.
+- <kbd>Enter</kbd> moves focus to the first match.
+- <kbd>Esc</kbd> clears the query.
+
+In right-to-left layouts, <kbd>Arrow Right</kbd> and <kbd>Arrow Left</kbd> swap. The tree doesn't handle <kbd>Esc</kbd> on a row, so a popup or dialog around it can close.
+
 ## API reference
 
 import { TypesTree, TypesTreeAdditional } from './types';
