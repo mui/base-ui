@@ -195,24 +195,6 @@ const selectableDescendantCountsSelector = createSelectorMemoized(
   },
 );
 
-/**
- * The items that can be selected while the tree is enabled, in tree order, under
- * collapsed parents too. While filtering, only the ones the filter keeps.
- */
-const selectableItemIdsSelector = createSelectorMemoized(
-  projectedChildrenLookupSelector,
-  itemMetaLookupSelector,
-  (childrenLookup, metaLookup): TreeItemId[] => {
-    const itemIds: TreeItemId[] = [];
-    forEachDescendant(childrenLookup, null, (itemId) => {
-      if (isMetaCheckable(metaLookup[getItemIdKey(itemId)])) {
-        itemIds.push(itemId);
-      }
-    });
-    return itemIds;
-  },
-);
-
 /** Aggregate the union of selected ancestor paths so shared paths are walked once. */
 const selectedDescendantCountsSelector = createSelectorMemoized(
   selectedItemsSetSelector,
@@ -353,6 +335,16 @@ function isMetaInView(
   );
 }
 
+/** Whether focus can move to an item while the tree is enabled: it is in the view and focusable. */
+function isMetaFocusTarget(
+  view: TreeView,
+  metaLookup: TreeItemKeyed<TreeItemMeta>,
+  meta: TreeItemMeta | undefined,
+  focusableWhenDisabled: boolean,
+): meta is TreeItemMeta {
+  return isMetaFocusable(meta, focusableWhenDisabled) && isMetaInView(view, metaLookup, meta);
+}
+
 /** Whether an item belongs to the current projected, effectively expanded view. */
 const isItemVisibleSelector = (state: TreeState, itemId: TreeItemId): boolean => {
   const metaLookup = itemMetaLookupSelector(state);
@@ -375,73 +367,54 @@ const flatListIndexLookupSelector = createSelectorMemoized(flatListSelector, bui
 
 /**
  * The selected row that comes first in the view, whatever the order of the selection.
- * With `focusable`, the first one that can take focus while the tree is enabled.
+ * With `isEligible`, the first one it accepts.
  */
-const firstSelectedRowSelector = createSelectorMemoized(
-  selectedItemsSetSelector,
-  flatListSelector,
-  viewSelector,
-  itemMetaLookupSelector,
-  (state: TreeState) => state.itemFocusableWhenDisabled,
-  (
-    selectedSet,
-    flatList,
-    view,
-    metaLookup,
-    focusableWhenDisabled,
-    focusable: boolean,
-  ): TreeItemId | null => {
-    if (selectedSet.size === 0) {
-      return null;
+function firstSelectedRow(
+  state: TreeState,
+  isEligible?: (itemId: TreeItemId) => boolean,
+): TreeItemId | null {
+  const selectedItems = normalizeSelectedItems(state.selectedItems);
+  // Spares building the row index when nothing is selected.
+  if (selectedItems.length === 0) {
+    return null;
+  }
+  const indexLookup = flatListIndexLookupSelector(state);
+  let first: TreeItemId | null = null;
+  let firstIndex = Infinity;
+  for (const itemId of selectedItems) {
+    const index = indexLookup[getItemIdKey(itemId)];
+    if (index !== undefined && index < firstIndex && (isEligible == null || isEligible(itemId))) {
+      first = itemId;
+      firstIndex = index;
     }
-    const isCandidate = (itemId: TreeItemId) =>
-      !focusable || isMetaFocusable(metaLookup[getItemIdKey(itemId)], focusableWhenDisabled);
-    if (selectedSet.size === 1) {
-      const [itemId] = selectedSet;
-      const meta = metaLookup[getItemIdKey(itemId)];
-      return meta != null && isMetaInView(view, metaLookup, meta) && isCandidate(itemId)
-        ? itemId
-        : null;
-    }
-    return flatList.find((itemId) => selectedSet.has(itemId) && isCandidate(itemId)) ?? null;
-  },
-);
+  }
+  return first;
+}
 
+/**
+ * The tab stop while no row had focus: the first selected row, then the row linking
+ * to the current page, as in the APG navigation tree view, then the first row. Every
+ * row reads it, so it is computed once per state.
+ */
 const defaultFocusableItemIdSelector = createSelectorMemoized(
-  (state: TreeState) => state.disabled,
-  (state: TreeState) => firstSelectedRowSelector(state, true),
-  (state: TreeState) => state.activeLinkCounts,
-  viewSelector,
-  itemMetaLookupSelector,
-  (state: TreeState) => state.itemFocusableWhenDisabled,
-  (
-    treeDisabled,
-    firstSelectedRow,
-    activeLinkCounts,
-    view,
-    metaLookup,
-    focusableWhenDisabled,
-  ): TreeItemId | null => {
-    if (treeDisabled) {
-      return null;
+  (state: TreeState): TreeItemId | null => {
+    const selectedRow = firstSelectedRow(state, (itemId) =>
+      canItemBeFocusedSelector(state, itemId),
+    );
+    if (selectedRow != null) {
+      return selectedRow;
     }
-    if (firstSelectedRow != null) {
-      return firstSelectedRow;
-    }
-    const isFocusable = (meta: TreeItemMeta | undefined): meta is TreeItemMeta =>
-      isMetaFocusable(meta, focusableWhenDisabled);
-
-    // Then the row linking to the current page, as in the APG navigation tree view.
-    for (const itemKey of Object.keys(activeLinkCounts)) {
+    const view = viewSelector(state);
+    const metaLookup = itemMetaLookupSelector(state);
+    for (const itemKey of Object.keys(state.activeLinkCounts)) {
       const meta = metaLookup[itemKey];
-      if (isFocusable(meta) && isMetaInView(view, metaLookup, meta)) {
+      if (isMetaFocusTarget(view, metaLookup, meta, state.itemFocusableWhenDisabled)) {
         return meta.id;
       }
     }
-
     return (
       (view.childrenLookup[TREE_VIEW_ROOT_PARENT_ID] ?? EMPTY_ARRAY).find((itemId) =>
-        isFocusable(metaLookup[getItemIdKey(itemId)]),
+        isMetaFocusable(metaLookup[getItemIdKey(itemId)], state.itemFocusableWhenDisabled),
       ) ?? null
     );
   },
@@ -457,20 +430,23 @@ const focusedTabbableItemIdSelector = createSelectorMemoized(
   itemMetaLookupSelector,
   viewSelector,
   (state: TreeState) => state.itemFocusableWhenDisabled,
-  (state: TreeState) => state.disabled,
-  (focusedItemId, metaLookup, view, disabledFocusable, treeDisabled): TreeItemId | null => {
-    if (focusedItemId == null || treeDisabled) {
-      return null;
-    }
-    const meta = metaLookup[getItemIdKey(focusedItemId)];
-    return isMetaFocusable(meta, disabledFocusable) && isMetaInView(view, metaLookup, meta)
+  (focusedItemId, metaLookup, view, focusableWhenDisabled): TreeItemId | null =>
+    focusedItemId != null &&
+    isMetaFocusTarget(
+      view,
+      metaLookup,
+      metaLookup[getItemIdKey(focusedItemId)],
+      focusableWhenDisabled,
+    )
       ? focusedItemId
-      : null;
-  },
+      : null,
 );
 
+/** Nothing in a disabled tree can take focus, so it has no tab stop. */
 const tabbableItemIdSelector = (state: TreeState): TreeItemId | null =>
-  focusedTabbableItemIdSelector(state) ?? defaultFocusableItemIdSelector(state);
+  state.disabled
+    ? null
+    : (focusedTabbableItemIdSelector(state) ?? defaultFocusableItemIdSelector(state));
 
 const isItemDefaultFocusableSelector = (state: TreeState, itemId: TreeItemId): boolean =>
   tabbableItemIdSelector(state) === itemId;
@@ -562,6 +538,9 @@ export const selectors = {
   itemMetaLookup: itemMetaLookupSelector,
   itemMeta: (state: TreeState, itemId: TreeItemId | null): TreeItemMeta | null =>
     itemId == null ? null : (itemMetaLookupSelector(state)[getItemIdKey(itemId)] ?? null),
+  /** Whether the tree has an item with this id. */
+  hasItem: (state: TreeState, itemId: TreeItemId): boolean =>
+    itemMetaLookupSelector(state)[getItemIdKey(itemId)] != null,
   itemModel: (state: TreeState, itemId: TreeItemId) =>
     itemModelLookupSelector(state)[getItemIdKey(itemId)],
   itemOrderedChildrenIds: itemOrderedChildrenIdsSelector,
@@ -598,8 +577,7 @@ export const selectors = {
   flatListWithGroupTransitions: flatListWithGroupTransitionsSelector,
   isViewTransformed: (state: TreeState): boolean => viewSelector(state).transformed,
   selectedItemsSet: selectedItemsSetSelector,
-  firstSelectedRow: firstSelectedRowSelector,
-  selectableItemIds: selectableItemIdsSelector,
+  firstSelectedRow,
   isItemSelected: isItemSelectedSelector,
   canItemBeSelected: canItemBeSelectedSelector,
   isItemSelectionSupported: isItemSelectionSupportedSelector,

@@ -93,7 +93,7 @@ export class TreeItemsPlugin<TItem = TreeDefaultItem> {
   }
 
   public actions = {
-    hasItem: (itemId: TreeItemId) => selectors.itemMeta(this.store.state, itemId) != null,
+    hasItem: (itemId: TreeItemId) => selectors.hasItem(this.store.state, itemId),
     getItemModels: (itemIds: Iterable<TreeItemId>) => {
       const models: TItem[] = [];
       for (const id of itemIds) {

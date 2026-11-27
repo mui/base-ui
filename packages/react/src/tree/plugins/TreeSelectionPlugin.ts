@@ -6,7 +6,6 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type {
-  TreeCheckboxSelectionPropagation,
   TreeItemId,
   TreeRootSelectionChangeEventReason,
   TreeMultiple,
@@ -15,7 +14,11 @@ import type {
 } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
-import { normalizeSelectedItems, selectors } from '../store/selectors';
+import {
+  normalizeSelectedItems,
+  projectedChildrenLookupSelector,
+  selectors,
+} from '../store/selectors';
 import { getFirstNavigableItem } from '../store/treeNavigation';
 import { forEachDescendant } from '../utils/forEachDescendant';
 import { collectAncestorIds } from '../utils/pruneDescendantIds';
@@ -54,39 +57,42 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
   }
 
   /**
-   * Selects or deselects an item, or toggles it when `checked` is `undefined`. With
+   * Selects or deselects an item, or toggles it when `selected` is `undefined`. With
    * multiple selection, the rest of the selection stays as it is. With `propagate`, as
    * for a checkbox, the change spreads through the hierarchy following
    * `checkboxSelectionPropagation`.
    */
-  public setItemChecked = (
+  public setItemSelected = (
     itemId: TreeItemId,
-    checked: boolean | undefined,
+    selected: boolean | undefined,
+    propagate: boolean,
     reason: TreeRootSelectionChangeEventReason,
     event?: Event,
-    propagate = true,
   ) => {
     const { state } = this.store;
     let newSelected: TreeItemId[] | TreeItemId | null;
 
     if (state.multiple !== false) {
-      const selected = normalizeSelectedItems(state.selectedItems);
+      const selectedIds = normalizeSelectedItems(state.selectedItems);
       const isSelectedBefore = selectors.isItemSelected(state, itemId);
       // A checkbox toggles from its own state, which its descendants can make checked.
       const isChecked = propagate
         ? selectors.checkboxSelectionStatus(state, itemId) === 'checked'
         : isSelectedBefore;
-      const select = checked ?? !isChecked;
+      const select = selected ?? !isChecked;
       if (!select) {
-        newSelected = selected.filter((id) => id !== itemId);
+        newSelected = selectedIds.filter((id) => id !== itemId);
       } else if (isSelectedBefore) {
         // A selected item that isn't fully checked still propagates to its subtree now.
-        newSelected = selected.slice();
+        newSelected = selectedIds.slice();
       } else {
-        newSelected = [...selected, itemId];
+        newSelected = [...selectedIds, itemId];
+      }
+      if (propagate) {
+        newSelected = this.propagateSelection(newSelected, itemId, select);
       }
     } else {
-      const select = checked ?? !selectors.isItemSelected(state, itemId);
+      const select = selected ?? !selectors.isItemSelected(state, itemId);
       // Deselecting another item than the selected one leaves the selection as it is.
       if (!select && state.selectedItems !== itemId) {
         return;
@@ -95,7 +101,6 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     }
 
     this.setSelectedItems(newSelected, reason, event, {
-      propagateFrom: propagate ? [itemId] : undefined,
       anchor: { itemId, focus: itemId },
     });
   };
@@ -110,13 +115,18 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
    *
    * A press on a checkbox toggles its item in every mode, and only that press
    * propagates through the hierarchy.
+   *
+   * Returns `false` when the item can't be selected, and the press does nothing.
    */
   public press = (
     itemId: TreeItemId,
     modifiers: PressModifiers,
     reason: TreeRootSelectionChangeEventReason,
     event?: Event,
-  ) => {
+  ): boolean => {
+    if (!selectors.canItemBeSelected(this.store.state, itemId)) {
+      return false;
+    }
     const { shiftKey = false, ctrlKey = false, touch = false } = modifiers;
     const { multiple } = this.store.state;
     const toggle = this.store.items.getItemKind(itemId) === 'checkbox';
@@ -125,7 +135,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     if (shiftKey && multiple) {
       const anchor = this.resolveAnchor() ?? this.getDefaultAnchor();
       if (anchor == null) {
-        return;
+        return true;
       }
       if (replaceOnPress && ctrlKey && !toggle) {
         this.setSelectedItems(this.addRange(anchor, itemId), reason, event, {
@@ -137,20 +147,18 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
           anchor: { itemId: anchor, focus: itemId },
         });
       }
-      return;
+      return true;
     }
 
     if (toggle || (multiple && (!replaceOnPress || ctrlKey))) {
-      this.setItemChecked(itemId, undefined, reason, event, toggle);
-      return;
+      this.setItemSelected(itemId, undefined, toggle, reason, event);
+      return true;
     }
 
-    if (!selectors.canItemBeSelected(this.store.state, itemId)) {
-      return;
-    }
     this.setSelectedItems(multiple ? this.replaceWith([itemId]) : itemId, reason, event, {
       anchor: { itemId, focus: itemId },
     });
+    return true;
   };
 
   /**
@@ -252,36 +260,28 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     if (state.disabled || !state.multiple) {
       return;
     }
-    const selected = normalizeSelectedItems(state.selectedItems);
-    const selectable = selectors.selectableItemIds(state);
-    if (selectors.isViewTransformed(state)) {
-      // Select all replaces the selection, so it drops the ids the tree doesn't know.
-      const itemIds = new Set<TreeItemId>();
-      for (const itemId of selected) {
-        if (isItemKnown(state, itemId)) {
-          itemIds.add(itemId);
+    if (!selectors.isViewTransformed(state)) {
+      const selectedSet = selectors.selectedItemsSet(state);
+      const itemIds: TreeItemId[] = [];
+      forEachDescendant(state.itemOrderedChildrenIdsLookup, null, (itemId) => {
+        if (selectedSet.has(itemId) || selectors.canItemBeSelected(state, itemId)) {
+          itemIds.push(itemId);
         }
-      }
-      for (const itemId of selectable) {
-        itemIds.add(itemId);
-      }
-      this.setSelectedItems(Array.from(itemIds), reason, event);
+      });
+      this.setSelectedItems(itemIds, reason, event);
       return;
     }
-    if (!selected.some((itemId) => staysSelected(state, itemId))) {
-      // The memoized array, so a repeated select-all finds the same one and skips comparing ids.
-      this.setSelectedItems(selectable, reason, event);
-      return;
-    }
-    // The selected items that can't be selected keep their place in tree order.
-    const selectedSet = selectors.selectedItemsSet(state);
-    const itemIds: TreeItemId[] = [];
-    forEachDescendant(state.itemOrderedChildrenIdsLookup, null, (itemId) => {
-      if (selectedSet.has(itemId) || selectors.canItemBeSelected(state, itemId)) {
-        itemIds.push(itemId);
+    // Select all replaces the selection, so it drops the ids the tree doesn't know.
+    const knownIds = normalizeSelectedItems(state.selectedItems).filter((id) =>
+      selectors.hasItem(state, id),
+    );
+    const shownIds: TreeItemId[] = [];
+    forEachDescendant(projectedChildrenLookupSelector(state), null, (itemId) => {
+      if (selectors.canItemBeSelected(state, itemId)) {
+        shownIds.push(itemId);
       }
     });
-    this.setSelectedItems(itemIds, reason, event);
+    this.setSelectedItems([...new Set([...knownIds, ...shownIds])], reason, event);
   };
 
   private isItemRendered(itemId: TreeItemId): boolean {
@@ -299,7 +299,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
    */
   private getDefaultAnchor(): TreeItemId | null {
     const state = this.store.state;
-    return selectors.firstSelectedRow(state, false) ?? getFirstNavigableItem(state);
+    return selectors.firstSelectedRow(state) ?? getFirstNavigableItem(state);
   }
 
   private applyAnchor(anchor: SelectionAnchor) {
@@ -314,8 +314,8 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
    */
   private replaceWith(itemIds: TreeItemId[]): TreeItemId[] {
     const state = this.store.state;
-    const kept = normalizeSelectedItems(state.selectedItems).filter((id) =>
-      staysSelected(state, id),
+    const kept = normalizeSelectedItems(state.selectedItems).filter(
+      (id) => selectors.hasItem(state, id) && !selectors.canItemBeSelected(state, id),
     );
     if (kept.length === 0) {
       return itemIds;
@@ -365,7 +365,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     // the selection alone. Single mode has nothing to keep — selecting one item
     // there does replace the selection.
     setItemSelection: (itemId: TreeItemId, selected: boolean) =>
-      this.setItemChecked(itemId, selected, REASONS.imperativeAction),
+      this.setItemSelected(itemId, selected, true, REASONS.imperativeAction),
   };
 
   /** Re-establish checkbox propagation after the item hierarchy changes. */
@@ -506,11 +506,6 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     event?: Event,
     options: {
       /**
-       * The items whose checkbox toggled, to propagate the change through the
-       * hierarchy from. Range selection does not select hidden descendants.
-       */
-      propagateFrom?: TreeItemId[] | undefined;
-      /**
        * The range anchor the change sets once committed: at once while
        * uncontrolled, or once a controlled parent accepts the model.
        */
@@ -519,24 +514,14 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       automatic?: boolean | undefined;
     } = {},
   ): boolean {
-    const { propagateFrom, anchor, automatic = false } = options;
+    const { anchor, automatic = false } = options;
     const oldModel = this.store.state.selectedItems;
-    let cleanModel: TreeItemId[] | TreeItemId | null;
-    if (propagateFrom !== undefined && this.store.state.multiple) {
-      cleanModel = this.propagateSelection(
-        newModel as TreeItemId[],
-        selectors.checkboxSelectionPropagation(this.store.state),
-        propagateFrom,
-      );
-    } else {
-      cleanModel = newModel;
-    }
 
     // No-op guard: don't fire onSelectedItemsChange (or churn state) when the
     // resulting model is identical to the current one — e.g. re-clicking the
     // already-selected item in single-select mode. The anchor still moves, as the
     // gesture that made it would have.
-    if (selectionModelsEqual(oldModel, cleanModel)) {
+    if (selectionModelsEqual(oldModel, newModel)) {
       if (anchor !== undefined) {
         this.applyAnchor(anchor);
       }
@@ -547,42 +532,42 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     // are not a selection the user still has.
     if (
       this.store.state.disableEmptySelection &&
-      !normalizeSelectedItems(cleanModel).some(
-        (id) => selectors.itemMeta(this.store.state, id)?.selectable,
+      !normalizeSelectedItems(newModel).some((id) =>
+        selectors.isItemSelectionSupported(this.store.state, id),
       )
     ) {
       return false;
     }
 
     if (this.store.state.selectedItemsProp !== undefined && anchor !== undefined) {
-      this.pendingControlledAnchor = { anchor, model: cleanModel };
+      this.pendingControlledAnchor = { anchor, model: newModel };
     }
 
     const details = createChangeEventDetails(reason, event);
     // Recorded before the callback, which a controlled parent can apply synchronously.
     const { status } = this.store;
     status?.handleSelectionProposal(
-      automatic || reason === REASONS.imperativeAction ? undefined : cleanModel,
+      automatic || reason === REASONS.imperativeAction ? undefined : newModel,
     );
     // Reports the model the tree stores, so controlled and uncontrolled trees agree.
-    this.store.context.onSelectedItemsChange?.(copySelectionModel(cleanModel), details);
+    this.store.context.onSelectedItemsChange?.(copySelectionModel(newModel), details);
     if (details.isCanceled && !automatic) {
-      if (this.pendingControlledAnchor?.model === cleanModel) {
+      if (this.pendingControlledAnchor?.model === newModel) {
         this.pendingControlledAnchor = null;
       }
-      status?.discardUserSelection(cleanModel);
+      status?.discardUserSelection(newModel);
       return false;
     }
     // Only persist internally when uncontrolled; when `selectedItems` is
     // controlled the prop drives the state (synced by the store observer).
     if (this.store.state.selectedItemsProp === undefined) {
-      this.store.set('selectedItems', cleanModel);
+      this.store.set('selectedItems', newModel);
     }
 
     // Fire onItemSelectionToggle for each item whose selection state changed
     if (this.store.state.hasItemSelectionToggleHandler) {
       const normalizedOld = new Set(normalizeSelectedItems(oldModel));
-      const normalizedNew = new Set(normalizeSelectedItems(cleanModel));
+      const normalizedNew = new Set(normalizeSelectedItems(newModel));
       const selectionDetails = createGenericEventDetails(reason, event);
       for (const itemId of normalizedNew) {
         if (!normalizedOld.has(itemId)) {
@@ -603,39 +588,25 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     return true;
   }
 
-  /** Applies checkbox propagation to the items a new model adds or removes. */
+  /**
+   * Spreads the toggle of an item's checkbox through the hierarchy of `newModel`, which
+   * selects or deselects the item as `selected` says.
+   */
   private propagateSelection(
     newModel: TreeItemId[],
-    checkboxSelectionPropagation: TreeCheckboxSelectionPropagation,
-    additionalItemsToPropagate?: TreeItemId[],
+    toggledItemId: TreeItemId,
+    selected: boolean,
   ): TreeItemId[] {
+    const { state } = this.store;
+    const checkboxSelectionPropagation = selectors.checkboxSelectionPropagation(state);
     if (!checkboxSelectionPropagation.descendants && !checkboxSelectionPropagation.parents) {
       return newModel;
     }
 
-    const { state } = this.store;
     const flags = { shouldRegenerateModel: false };
     const newModelSet = new Set(newModel);
-
-    const oldModelSet = selectors.selectedItemsSet(state);
-    const added = newModel.filter((id) => !oldModelSet.has(id));
-    const removed = normalizeSelectedItems(state.selectedItems).filter(
-      (id) => !newModelSet.has(id),
-    );
-
-    const addedSet = new Set(added);
-    const removedSet = new Set(removed);
-    additionalItemsToPropagate?.forEach((itemId) => {
-      if (newModelSet.has(itemId)) {
-        if (!addedSet.has(itemId)) {
-          addedSet.add(itemId);
-          added.push(itemId);
-        }
-      } else if (!removedSet.has(itemId)) {
-        removedSet.add(itemId);
-        removed.push(itemId);
-      }
-    });
+    const added = selected ? [toggledItemId] : [];
+    const removed = selected ? [] : [toggledItemId];
 
     const childrenLookup = state.itemOrderedChildrenIdsLookup;
     const canBeSelected = (itemId: TreeItemId) => selectors.canItemBeSelected(state, itemId);
@@ -752,20 +723,6 @@ export type SelectionModel = readonly TreeItemId[] | TreeItemId | null;
 function copySelectionModel(model: SelectionModel): TreeItemId[] | TreeItemId | null {
   // Only an array is an object: the other models are ids or `null`.
   return model !== null && typeof model === 'object' ? [...model] : model;
-}
-
-/** Whether the tree has an item with this id. */
-function isItemKnown(state: TreeState, itemId: TreeItemId): boolean {
-  return selectors.itemMeta(state, itemId) != null;
-}
-
-/**
- * Whether a selected item stays selected when users replace the selection: the tree
- * has it, but it can't be selected now, such as a disabled one, so they can't deselect it.
- */
-function staysSelected(state: TreeState, itemId: TreeItemId): boolean {
-  const meta = selectors.itemMeta(state, itemId);
-  return meta != null && (state.disabled || !meta.selectable || meta.resolvedDisabled);
 }
 
 /**

@@ -538,7 +538,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     // multiple selection, never type.
     const modifiedSpace = ctrlPressed || (event.shiftKey && multiple !== false);
     if (macToggle || (key === ' ' && (modifiedSpace || !this.typing))) {
-      this.activateItem(itemId, event, macToggle);
+      this.activateItem(itemId, event, ctrlPressed, macToggle);
       // Even on an item that can't be selected, so the page doesn't scroll.
       event.preventDefault();
     } else if (key === 'Enter' && this.store.items.getItemKind(itemId) !== 'link') {
@@ -547,7 +547,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       if (this.store.expansion.toggleItemExpansion(itemId, REASONS.itemPress, event.nativeEvent)) {
         event.preventDefault();
       } else if (
-        !this.activateItem(itemId, event) &&
+        !this.activateItem(itemId, event, ctrlPressed) &&
         !selectors.isItemDisabled(this.store.state, itemId)
       ) {
         // Without another action, Enter follows the item's link, as on a link
@@ -666,7 +666,12 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
    * Selects the item with Space or Enter, and returns whether it can be selected. As
    * on a button, a keydown whose default was prevented doesn't activate it.
    */
-  private activateItem(itemId: TreeItemId, event: React.KeyboardEvent, macToggle = false) {
+  private activateItem(
+    itemId: TreeItemId,
+    event: React.KeyboardEvent,
+    ctrlPressed: boolean,
+    macToggle = false,
+  ) {
     if (!selectors.canItemBeSelected(this.store.state, itemId)) {
       return false;
     }
@@ -679,31 +684,24 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (macToggle || this.store.items.getItemKind(itemId) === 'link') {
       this.store.selection.press(
         itemId,
-        { shiftKey: event.shiftKey, ctrlKey: event.ctrlKey || event.metaKey || macToggle },
+        { shiftKey: event.shiftKey, ctrlKey: ctrlPressed || macToggle },
         REASONS.itemPress,
         event.nativeEvent,
       );
-    } else {
-      this.clickItem(itemId, event);
+      return true;
+    }
+    // Otherwise the key presses the row through its click, as on a button, so the
+    // item's `onClick` runs first and can call `preventBaseUIHandler()`.
+    const element = this.store.items.getItemDOMElement(itemId);
+    if (element != null) {
+      this.keyboardClick = true;
+      try {
+        dispatchClickWithModifiers(element, event);
+      } finally {
+        this.keyboardClick = false;
+      }
     }
     return true;
-  }
-
-  /**
-   * Presses the row with Space or Enter through its click, as a button does, so the
-   * item's `onClick` runs first and can call `preventBaseUIHandler()`.
-   */
-  private clickItem(itemId: TreeItemId, event: React.KeyboardEvent) {
-    const element = this.store.items.getItemDOMElement(itemId);
-    if (element == null) {
-      return;
-    }
-    this.keyboardClick = true;
-    try {
-      dispatchClickWithModifiers(element, event);
-    } finally {
-      this.keyboardClick = false;
-    }
   }
 
   /**
@@ -771,6 +769,14 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     return this.isEventFromOutsideItem(event) || this.isEventFromInteractiveDescendant(event);
   }
 
+  /** Whether a press on a link item opens it in a new tab or window, as modifier keys do. */
+  private isBrowserLinkPress(itemId: TreeItemId, event: React.MouseEvent): boolean {
+    return (
+      this.store.items.getItemKind(itemId) === 'link' &&
+      (event.shiftKey || event.ctrlKey || event.metaKey)
+    );
+  }
+
   private readonly handleItemFocus = (event: React.FocusEvent) => {
     const itemId = this.getItemIdFromEvent(event);
     if (itemId == null || this.isEventFromOutsideItem(event)) {
@@ -812,7 +818,6 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (itemId == null || this.isEventFromOutsideItem(event)) {
       return;
     }
-    const kind = this.store.items.getItemKind(itemId);
     const itemDisabled = selectors.isItemDisabled(this.store.state, itemId);
 
     // `mousedown` fires before the native focus event, so record the press
@@ -840,7 +845,8 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }
 
     // On a link, modifier keys open it in a new tab or window instead.
-    const hasModifier = kind !== 'link' && (event.shiftKey || event.ctrlKey || event.metaKey);
+    const hasModifier =
+      (event.shiftKey || event.ctrlKey || event.metaKey) && !this.isBrowserLinkPress(itemId, event);
 
     // Prevent text selection when using modifier keys for multi-select.
     // Also prevent default for disabled items to avoid browser focus.
@@ -989,24 +995,22 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (itemId == null) {
       return;
     }
-    const kind = this.store.items.getItemKind(itemId);
-    if (kind === 'link' && (event.shiftKey || event.ctrlKey || event.metaKey)) {
-      // The link opens in a new tab or window, so the tree stays as it is.
+    // The link opens in a new tab or window, so the tree stays as it is.
+    if (this.isBrowserLinkPress(itemId, event)) {
       return;
     }
-    if (selectors.canItemBeSelected(this.store.state, itemId)) {
-      const { multiple } = this.store.state;
-      const ctrlKey = event.ctrlKey || event.metaKey;
-      this.store.selection.press(
-        itemId,
-        { shiftKey: event.shiftKey, ctrlKey, touch },
-        REASONS.itemPress,
-        event.nativeEvent,
-      );
-      // A Shift or Ctrl/Cmd click edits the selection without also expanding the item.
-      if (multiple && (event.shiftKey || ctrlKey)) {
-        return;
-      }
+    const kind = this.store.items.getItemKind(itemId);
+    const { multiple } = this.store.state;
+    const ctrlKey = event.ctrlKey || event.metaKey;
+    const pressed = this.store.selection.press(
+      itemId,
+      { shiftKey: event.shiftKey, ctrlKey, touch },
+      REASONS.itemPress,
+      event.nativeEvent,
+    );
+    // A Shift or Ctrl/Cmd click edits the selection without also expanding the item.
+    if (pressed && multiple && (event.shiftKey || ctrlKey)) {
+      return;
     }
 
     // The second click of a double-click must not toggle the row straight back.

@@ -1,4 +1,6 @@
 'use client';
+import * as React from 'react';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -9,6 +11,7 @@ import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { useWarnMisplacedTreeRootFeatures } from '../root/TreeRootFeatures';
 import { selectors } from '../store/selectors';
+import type { TreeItemId } from '../store/types';
 import { useIsTreeEmpty } from './useIsTreeEmpty';
 
 /**
@@ -48,18 +51,23 @@ export function useTreeRootProps(props: { id?: string | undefined; render?: unkn
     tabIndex = -1;
   }
 
+  // The rows a typeahead scan reads. Each scan calls `getCount` first, which refreshes them.
+  const typeaheadRows = React.useRef<readonly TreeItemId[]>(EMPTY_ARRAY);
   // Like Select, Menu and Listbox: keys typed in quick succession build one search through
   // the rows in view, which resets after a pause. The tree's key handler sends it typed keys.
   const typeahead = useTypeahead({
-    getLabel: (index) => selectors.itemLabel(store.state, selectors.flatList(store.state)[index]),
-    getCount: () => selectors.flatList(store.state).length,
+    getLabel: (index) => selectors.itemLabel(store.state, typeaheadRows.current[index]),
+    getCount: () => {
+      typeaheadRows.current = selectors.flatList(store.state);
+      return typeaheadRows.current.length;
+    },
     getActiveIndex: () => {
       const focusedItemId = store.state.focusedItemId;
       return focusedItemId == null ? null : selectors.flatListIndex(store.state, focusedItemId);
     },
     // A disabled row matches while it stays focusable.
     disabledIndices: (index) =>
-      !selectors.canItemBeFocused(store.state, selectors.flatList(store.state)[index]),
+      !selectors.canItemBeFocused(store.state, typeaheadRows.current[index]),
     resetMs: TYPEAHEAD_RESET_MS,
     onTyping: store.interaction.setTyping,
     onMatch: store.interaction.handleTypeaheadMatch,

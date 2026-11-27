@@ -469,9 +469,7 @@ function StatusMessage({ change }: { change: TreeGrid.Status.State['change'] }) 
   }
   if (change?.type === 'selection' && change.count != null) {
     return (
-      <span
-        className={styles.VisuallyHidden}
-      >{`${formatAccountCount(change.count)} selected.`}</span>
+      <span className={styles.VisuallyHidden}>{formatAccountCount(change.count)} selected.</span>
     );
   }
   return null;

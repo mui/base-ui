@@ -7,7 +7,9 @@ import type { SelectionModel } from './TreeSelectionPlugin';
 
 /** The selectable items of the tree a selection model selects. */
 function getSelectedItemIds(state: TreeState, model: SelectionModel): readonly TreeItemId[] {
-  return normalizeSelectedItems(model).filter((id) => selectors.itemMeta(state, id)?.selectable);
+  return normalizeSelectedItems(model).filter((id) =>
+    selectors.isItemSelectionSupported(state, id),
+  );
 }
 
 /**

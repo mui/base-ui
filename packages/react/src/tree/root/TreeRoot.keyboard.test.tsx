@@ -1648,10 +1648,6 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       });
       // Each key is a search of its own. Timers are real while the items change, as
       // the tree recovers focus on the next frame.
-      onTestFinished(() => {
-        vi.useRealTimers();
-      });
-
       vi.useFakeTimers();
       fireEvent.keyDown(view.getItemRoot('1'), { key: '4' });
       expect(view.getFocusedItemId()).toBe('4');
