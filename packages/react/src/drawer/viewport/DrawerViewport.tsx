@@ -187,6 +187,13 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     setSwipeRelease(null);
   });
 
+  useIsoLayoutEffect(() => {
+    backdropRef.current?.style.setProperty(
+      DrawerPopupCssVars.swipeStrength,
+      `${swipeRelease ?? 1}`,
+    );
+  }, [backdropRef, swipeRelease]);
+
   const finishNestedSwipe = useStableCallback(() => {
     if (!nestedSwipeActiveRef.current) {
       return;
