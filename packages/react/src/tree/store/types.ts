@@ -30,25 +30,11 @@ export type TreeFilterMode = 'hide-non-matches' | 'collapse-non-matches' | 'expa
 export type TreeFilterFunction<TItem> = (text: string, query: string, item: TItem) => boolean;
 
 /**
- * Sentinel value representing "all selectable items are selected".
- * When used as the value of `selectedItems`, every item that supports selection and is
- * not disabled is considered selected — including items added after the value is set.
- *
- * Use it when multiple items can be selected. A `disabled` tree keeps it. Deselecting an
- * item replaces it with an array of the remaining selected IDs. Exposed as `Tree.SELECTION_ALL`.
- *
- * It is a unique symbol rather than a string, so it never collides with an item
- * `id` and cannot be accidentally matched by `selectedItems.includes(...)`.
- */
-export const TREE_SELECTION_ALL: unique symbol = Symbol('Base UI: Tree.SELECTION_ALL');
-
-/**
  * Conditional type that narrows the selected items type based on the `multiple` prop.
- * With multiple selection, the type is `readonly TreeItemId[]` or `typeof TREE_SELECTION_ALL`.
  */
 export type TreeSelectedItemsType<Multiple extends TreeMultiple | undefined> = Multiple extends
   true | 'opt-in'
-  ? readonly TreeItemId[] | typeof TREE_SELECTION_ALL
+  ? readonly TreeItemId[]
   : TreeItemId;
 
 /**
@@ -56,7 +42,7 @@ export type TreeSelectedItemsType<Multiple extends TreeMultiple | undefined> = M
  * mutable arrays the tree doesn't keep.
  */
 export type TreeSelectedItemsChangeValue<Multiple extends TreeMultiple | undefined> =
-  Multiple extends true | 'opt-in' ? TreeItemId[] | typeof TREE_SELECTION_ALL : TreeItemId;
+  Multiple extends true | 'opt-in' ? TreeItemId[] : TreeItemId;
 
 /**
  * The shape of an item as provided by the user in the `items` prop.
@@ -438,16 +424,15 @@ export interface TreeState<TItem = any> extends TreeItemsState<TItem> {
   /**
    * Currently selected items.
    * - `TreeItemId | null` with single selection
-   * - `TreeItemId[]`, or the `TREE_SELECTION_ALL` sentinel, with multiple selection
+   * - `TreeItemId[]` with multiple selection
    */
-  selectedItems: TreeItemId | null | readonly TreeItemId[] | typeof TREE_SELECTION_ALL;
+  selectedItems: TreeItemId | null | readonly TreeItemId[];
   /**
    * The controlled `selectedItems` prop, or `undefined` when uncontrolled.
    * Internal selection state is only mutated when this is `undefined`; otherwise
    * the prop drives `selectedItems` (synced via an observer in the store).
    */
-  selectedItemsProp:
-    TreeItemId | null | readonly TreeItemId[] | typeof TREE_SELECTION_ALL | undefined;
+  selectedItemsProp: TreeItemId | null | readonly TreeItemId[] | undefined;
   /**
    * Whether multiple items can be selected, and how a press affects the selection.
    */
@@ -507,7 +492,7 @@ export interface TreeStoreContext<TItem> {
     | undefined;
   onSelectedItemsChange:
     | ((
-        selectedItems: TreeItemId | null | TreeItemId[] | typeof TREE_SELECTION_ALL,
+        selectedItems: TreeItemId | null | TreeItemId[],
         eventDetails: TreeRootSelectionChangeEventDetails,
       ) => void)
     | undefined;

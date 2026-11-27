@@ -15,7 +15,6 @@ import type {
 } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
-import { TREE_SELECTION_ALL } from '../store/types';
 import {
   normalizeSelectedItems,
   projectedChildrenLookupSelector,
@@ -78,12 +77,12 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       const isSelectedBefore = selectors.isItemSelected(state, itemId);
       const select = checked ?? selectors.checkboxSelectionStatus(state, itemId) !== 'checked';
       if (!select) {
-        newSelected = this.materializeSelectedItems().filter((id) => id !== itemId);
+        newSelected = this.getSelectedIds().filter((id) => id !== itemId);
       } else if (isSelectedBefore) {
         // A selected item that isn't fully checked still propagates to its subtree now.
-        newSelected = this.materializeSelectedItems().slice();
+        newSelected = this.getSelectedIds().slice();
       } else {
-        newSelected = [itemId, ...this.materializeSelectedItems()];
+        newSelected = [itemId, ...this.getSelectedIds()];
       }
     } else {
       const select = checked ?? !selectors.isItemSelected(state, itemId);
@@ -210,20 +209,18 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       return;
     }
     if (multiple) {
-      if (!Array.isArray(selectedItems) && selectedItems !== TREE_SELECTION_ALL) {
+      if (!Array.isArray(selectedItems)) {
         this.store.set(
           'selectedItems',
           selectedItems == null ? EMPTY_ARRAY : [selectedItems as TreeItemId],
         );
       }
-    } else if (selectedItems === TREE_SELECTION_ALL || Array.isArray(selectedItems)) {
-      this.store.set('selectedItems', this.materializeSelectedItems()[0] ?? null);
+    } else if (Array.isArray(selectedItems)) {
+      this.store.set('selectedItems', this.getSelectedIds()[0] ?? null);
     }
   };
 
-  public handleControlledSelectedItemsChange(
-    model: readonly TreeItemId[] | TreeItemId | null | typeof TREE_SELECTION_ALL,
-  ): void {
+  public handleControlledSelectedItemsChange(model: SelectionModel): void {
     const pending = this.pendingControlledAnchor;
     this.pendingControlledAnchor = null;
     if (pending != null && selectionModelsHaveSameItems(pending.model, model)) {
@@ -236,39 +233,41 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     }
   }
 
-  /**
-   * Returns the items a selection model selects, the current one by default, as
-   * a plain array. Expands the "all" sentinel into the items it selects, and
-   * normalizes single-item / null values into an array.
-   */
-  public materializeSelectedItems = (
+  /** The ids of a selection model, the current one by default, as an array. */
+  private getSelectedIds(
     model: SelectionModel = this.store.state.selectedItems,
-  ): readonly TreeItemId[] =>
-    model === TREE_SELECTION_ALL
-      ? selectors.selectionAllItemIds(this.store.state)
-      : normalizeSelectedItems(model);
+  ): readonly TreeItemId[] {
+    return normalizeSelectedItems(model);
+  }
 
-  /** Selects every item. While filtering, adds the items the filter shows to the selection. */
+  /**
+   * Selects every item, in tree order, including the ones under collapsed parents. Items
+   * that can't be selected keep their state, so the selected disabled ones stay selected.
+   * While filtering, adds the items the filter shows to the selection instead.
+   */
   public selectAll = (reason: TreeRootSelectionChangeEventReason, event?: Event) => {
     const state = this.store.state;
     if (state.disabled || !state.multiple) {
       return;
     }
     if (!selectors.isViewTransformed(state)) {
-      this.setSelectedItems(TREE_SELECTION_ALL, reason, event);
+      const selected = new Set(this.getSelectedIds());
+      const allIds: TreeItemId[] = [];
+      forEachDescendant(state.itemOrderedChildrenIdsLookup, null, (itemId) => {
+        if (selected.has(itemId) || selectors.canItemBeSelected(state, itemId)) {
+          allIds.push(itemId);
+        }
+      });
+      this.setSelectedItems(allIds, reason, event);
       return;
     }
     const shownIds: TreeItemId[] = [];
     forEachDescendant(projectedChildrenLookupSelector(state), null, (itemId) => {
-      if (selectors.isItemInSelectionAll(state, itemId)) {
+      if (selectors.canItemBeSelected(state, itemId)) {
         shownIds.push(itemId);
       }
     });
-    this.setSelectedItems(
-      [...new Set([...this.materializeSelectedItems(), ...shownIds])],
-      reason,
-      event,
-    );
+    this.setSelectedItems([...new Set([...this.getSelectedIds(), ...shownIds])], reason, event);
   };
 
   private isItemRendered(itemId: TreeItemId): boolean {
@@ -288,7 +287,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     const state = this.store.state;
     let anchor: TreeItemId | null = null;
     let anchorIndex = Infinity;
-    for (const itemId of this.materializeSelectedItems()) {
+    for (const itemId of this.getSelectedIds()) {
       const index = selectors.flatListIndex(state, itemId);
       if (index !== -1 && index < anchorIndex) {
         anchor = itemId;
@@ -310,7 +309,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
   private replaceWith(itemIds: TreeItemId[]): TreeItemId[] {
     const state = this.store.state;
     const replacement = new Set(itemIds);
-    const kept = this.materializeSelectedItems().filter(
+    const kept = this.getSelectedIds().filter(
       (id) => !replacement.has(id) && !selectors.canItemBeSelected(state, id),
     );
     return kept.length === 0 ? itemIds : [...itemIds, ...kept];
@@ -341,13 +340,11 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
 
   /** Adds the rows between two rows to the selection. */
   private addRange(from: TreeItemId, to: TreeItemId): TreeItemId[] {
-    return [
-      ...new Set([...this.materializeSelectedItems(), ...this.selectableRowsBetween(from, to)]),
-    ];
+    return [...new Set([...this.getSelectedIds(), ...this.selectableRowsBetween(from, to)])];
   }
 
   public actions = {
-    getSelectedItemIds: () => new Set(this.materializeSelectedItems()),
+    getSelectedItemIds: () => new Set(this.getSelectedIds()),
     isItemSelected: (itemId: TreeItemId) => selectors.isItemSelected(this.store.state, itemId),
     // Toggle this one item: in multiple mode the action must leave the rest of
     // the selection alone. Single mode has nothing to keep — selecting one item
@@ -361,14 +358,13 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     const { state } = this.store;
     if (
       !state.multiple ||
-      state.selectedItems === TREE_SELECTION_ALL ||
       (!state.checkboxSelectionPropagation.descendants &&
         !state.checkboxSelectionPropagation.parents)
     ) {
       return;
     }
 
-    const selectedItems = this.materializeSelectedItems();
+    const selectedItems = this.getSelectedIds();
     // Propagation only ever adds items next to existing ones.
     if (selectedItems.length === 0) {
       return;
@@ -490,7 +486,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
    * `onSelectedItemsChange`, or a `disableEmptySelection` block.
    */
   public setSelectedItems(
-    newModel: TreeItemId[] | TreeItemId | null | typeof TREE_SELECTION_ALL,
+    newModel: TreeItemId[] | TreeItemId | null,
     reason: TreeRootSelectionChangeEventReason,
     event?: Event,
     options: {
@@ -510,15 +506,11 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
   ): boolean {
     const { propagateFrom, anchor, automatic = false } = options;
     const oldModel = this.store.state.selectedItems;
-    let cleanModel: TreeItemId[] | TreeItemId | null | typeof TREE_SELECTION_ALL;
-    if (
-      propagateFrom !== undefined &&
-      this.store.state.multiple &&
-      newModel !== TREE_SELECTION_ALL
-    ) {
+    let cleanModel: TreeItemId[] | TreeItemId | null;
+    if (propagateFrom !== undefined && this.store.state.multiple) {
       cleanModel = this.propagateSelection(
         newModel as TreeItemId[],
-        this.materializeSelectedItems(),
+        this.getSelectedIds(),
         selectors.checkboxSelectionPropagation(this.store.state),
         propagateFrom,
       );
@@ -540,7 +532,6 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     // Ids the tree no longer knows are retained for when they return, but they
     // are not a selection the user still has.
     if (
-      cleanModel !== TREE_SELECTION_ALL &&
       this.store.state.disableEmptySelection &&
       !normalizeSelectedItems(cleanModel).some(
         (id) => selectors.itemMeta(this.store.state, id)?.selectable,
@@ -585,8 +576,8 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
 
     // Fire onItemSelectionToggle for each item whose selection state changed
     if (this.store.state.hasItemSelectionToggleHandler) {
-      const normalizedOld = new Set(this.materializeSelectedItems(oldModel));
-      const normalizedNew = new Set(this.materializeSelectedItems(cleanModel));
+      const normalizedOld = new Set(this.getSelectedIds(oldModel));
+      const normalizedNew = new Set(this.getSelectedIds(cleanModel));
       const selectionDetails = createGenericEventDetails(reason, event);
       for (const itemId of normalizedNew) {
         if (!normalizedOld.has(itemId)) {
@@ -733,15 +724,11 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
 }
 
 /**
- * Structural equality for selection models, treating the `TREE_SELECTION_ALL`
- * sentinel, scalar/null single-selection values, and ordered arrays. Two arrays
- * are equal only when they hold the same ids in the same order (conservative —
- * a reorder is reported as a change).
+ * Structural equality for selection models: scalar/null single-selection values,
+ * and ordered arrays. Two arrays are equal only when they hold the same ids in the
+ * same order (conservative — a reorder is reported as a change).
  */
-function selectionModelsEqual(
-  a: readonly TreeItemId[] | TreeItemId | null | typeof TREE_SELECTION_ALL,
-  b: readonly TreeItemId[] | TreeItemId | null | typeof TREE_SELECTION_ALL,
-): boolean {
+function selectionModelsEqual(a: SelectionModel, b: SelectionModel): boolean {
   if (a === b) {
     return true;
   }
@@ -751,26 +738,24 @@ function selectionModelsEqual(
   return false;
 }
 
-export type SelectionModel = readonly TreeItemId[] | TreeItemId | null | typeof TREE_SELECTION_ALL;
+export type SelectionModel = readonly TreeItemId[] | TreeItemId | null;
 
 /** Copies an array model, so a change handler can't mutate the tree's own array. */
-function copySelectionModel(
-  model: SelectionModel,
-): TreeItemId[] | TreeItemId | null | typeof TREE_SELECTION_ALL {
-  // Only an array is an object: the other models are ids, `null` or the select-all symbol.
+function copySelectionModel(model: SelectionModel): TreeItemId[] | TreeItemId | null {
+  // Only an array is an object: the other models are ids or `null`.
   return model !== null && typeof model === 'object' ? [...model] : model;
 }
 
 /**
  * The model without the ids `keep` rejects, keeping its shape: an array stays an
- * array, and a rejected single id becomes `null`. `TREE_SELECTION_ALL` is a
- * sentinel, not ids. Returns the same model when it keeps every id.
+ * array, and a rejected single id becomes `null`. Returns the same model when it
+ * keeps every id.
  */
 function filterSelectionModel(
   model: SelectionModel,
   keep: (itemId: TreeItemId) => boolean,
 ): SelectionModel {
-  if (model === TREE_SELECTION_ALL || model == null) {
+  if (model == null) {
     return model;
   }
   if (Array.isArray(model)) {

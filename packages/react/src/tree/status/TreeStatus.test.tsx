@@ -168,7 +168,7 @@ describe('<Tree.Status />', () => {
       expect(status.textContent).toBe('1 item selected.');
 
       press('invoice-q1', 'a', { ctrlKey: true });
-      expect(status.textContent).toBe('All items selected.');
+      expect(status.textContent).toBe('4 items selected.');
     });
 
     it('leaves a single selection to the screen reader', async () => {
@@ -207,7 +207,7 @@ describe('<Tree.Status />', () => {
       expect(status).toHaveTextContent('Invoice Q2 selected. 2 items selected.');
 
       press('invoice-q2', 'a', { ctrlKey: true });
-      expect(status).toHaveTextContent('All items selected.');
+      expect(status).toHaveTextContent('4 items selected.');
     });
 
     it('announces the changes the user makes once a controlled parent applies them', async () => {

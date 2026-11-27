@@ -25,13 +25,12 @@ const list = <Tree.List>{() => null}</Tree.List>;
   {list}
 </Tree.Root>;
 
-// With `multiple` it is the array shape (plus the select-all sentinel, which is
-// part of the multiple-selection model), whether items toggle or opt in.
+// With `multiple` it is the array shape, whether items toggle or opt in.
 <Tree.Root
   items={[] as FileItem[]}
   multiple
   onSelectedItemsChange={(selected) => {
-    expectType<(string | number)[] | typeof Tree.SELECTION_ALL, typeof selected>(selected);
+    expectType<(string | number)[], typeof selected>(selected);
   }}
 >
   {list}
@@ -41,7 +40,7 @@ const list = <Tree.List>{() => null}</Tree.List>;
   items={[] as FileItem[]}
   multiple="opt-in"
   onSelectedItemsChange={(selected) => {
-    expectType<(string | number)[] | typeof Tree.SELECTION_ALL, typeof selected>(selected);
+    expectType<(string | number)[], typeof selected>(selected);
   }}
 >
   {list}
@@ -50,7 +49,7 @@ const list = <Tree.List>{() => null}</Tree.List>;
 // A dynamic boolean accepts either selection shape, and handlers stay contextually typed.
 function DynamicMultipleTree(props: {
   multiple: boolean;
-  selectedItems: Tree.ItemId[] | typeof Tree.SELECTION_ALL | Tree.ItemId | null;
+  selectedItems: Tree.ItemId[] | Tree.ItemId | null;
 }) {
   return (
     <Tree.Root
@@ -58,10 +57,7 @@ function DynamicMultipleTree(props: {
       multiple={props.multiple}
       selectedItems={props.selectedItems}
       onSelectedItemsChange={(selected) => {
-        expectType<
-          (string | number)[] | typeof Tree.SELECTION_ALL | string | number | null,
-          typeof selected
-        >(selected);
+        expectType<(string | number)[] | string | number | null, typeof selected>(selected);
       }}
     >
       {list}
@@ -73,7 +69,7 @@ void DynamicMultipleTree;
 // An optional boolean forwarded by a wrapper behaves the same.
 function OptionalMultipleTree(props: {
   multiple?: boolean;
-  selectedItems: Tree.ItemId[] | typeof Tree.SELECTION_ALL | Tree.ItemId | null;
+  selectedItems: Tree.ItemId[] | Tree.ItemId | null;
 }) {
   return (
     <Tree.Root
@@ -81,10 +77,7 @@ function OptionalMultipleTree(props: {
       multiple={props.multiple}
       selectedItems={props.selectedItems}
       onSelectedItemsChange={(selected) => {
-        expectType<
-          (string | number)[] | typeof Tree.SELECTION_ALL | string | number | null,
-          typeof selected
-        >(selected);
+        expectType<(string | number)[] | string | number | null, typeof selected>(selected);
       }}
     >
       {list}
@@ -96,7 +89,7 @@ void OptionalMultipleTree;
 // So does a value that switches between single and opt-in selection.
 function OptInOrSingleTree(props: {
   enabled: boolean;
-  selectedItems: Tree.ItemId[] | typeof Tree.SELECTION_ALL | Tree.ItemId | null;
+  selectedItems: Tree.ItemId[] | Tree.ItemId | null;
 }) {
   return (
     <Tree.Root
@@ -104,10 +97,7 @@ function OptInOrSingleTree(props: {
       multiple={props.enabled ? 'opt-in' : false}
       selectedItems={props.selectedItems}
       onSelectedItemsChange={(selected) => {
-        expectType<
-          (string | number)[] | typeof Tree.SELECTION_ALL | string | number | null,
-          typeof selected
-        >(selected);
+        expectType<(string | number)[] | string | number | null, typeof selected>(selected);
       }}
     >
       {list}
@@ -124,9 +114,7 @@ void OptInOrSingleTree;
 // The handlers receive mutable arrays, so a `useState` setter can be passed as is.
 function StateSetterHandlers() {
   const [expandedItems, setExpandedItems] = React.useState<Tree.ItemId[]>([]);
-  const [selectedItems, setSelectedItems] = React.useState<
-    Tree.ItemId[] | typeof Tree.SELECTION_ALL
-  >([]);
+  const [selectedItems, setSelectedItems] = React.useState<Tree.ItemId[]>([]);
   return (
     <Tree.Root
       items={[] as FileItem[]}
@@ -279,7 +267,7 @@ function OptInFileTree(props: Tree.Root.Props<FileItem, 'opt-in'>) {
   {list}
 </OptInFileTree>;
 
-// @ts-expect-error multiple selection accepts an array or Tree.SELECTION_ALL.
+// @ts-expect-error multiple selection accepts an array.
 <Tree.Root items={[] as FileItem[]} multiple="opt-in" selectedItems="a">
   {list}
 </Tree.Root>;

@@ -43,4 +43,3 @@ export type {
   TreeItemTransaction as ItemTransaction,
   TreeItemChange as ItemChange,
 } from '../tree/store/types';
-export { TREE_SELECTION_ALL as SELECTION_ALL } from '../tree/store/types';

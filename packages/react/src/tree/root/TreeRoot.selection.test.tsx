@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { describeTree } from '../../../test/describeTree';
-import { TREE_SELECTION_ALL } from '../store/types';
 
 /**
  * All tests related to keyboard navigation (e.g.: selection using "Space")
@@ -1823,78 +1822,8 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     });
   });
 
-  describe('select all ("all" sentinel)', () => {
-    it('keeps the selected items of "all" while the tree is disabled', async () => {
-      const onSelectedItemsChange = vi.fn();
-      const view = await render({
-        items: [{ id: '1' }, { id: '2', disabled: true }],
-        multiple: 'opt-in',
-        defaultSelectedItems: TREE_SELECTION_ALL,
-        onSelectedItemsChange,
-      });
-
-      await view.setProps({ disabled: true });
-
-      expect([...view.actionsRef.current!.getSelectedItemIds()]).toEqual(['1']);
-      expect(view.actionsRef.current!.isItemSelected('1')).toBe(true);
-      expect(onSelectedItemsChange).not.toHaveBeenCalled();
-    });
-
-    it('should render all items as selected when selectedItems="all"', async () => {
-      const view = await render({
-        items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        multiple: 'opt-in',
-        selectedItems: TREE_SELECTION_ALL,
-      });
-
-      expect(view.isItemSelected('1')).toBe(true);
-      expect(view.isItemSelected('2')).toBe(true);
-      expect(view.isItemSelected('3')).toBe(true);
-    });
-
-    it('should render all items as selected when defaultSelectedItems="all"', async () => {
-      const view = await render({
-        items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        multiple: 'opt-in',
-        defaultSelectedItems: TREE_SELECTION_ALL,
-      });
-
-      expect(view.isItemSelected('1')).toBe(true);
-      expect(view.isItemSelected('2')).toBe(true);
-      expect(view.isItemSelected('3')).toBe(true);
-    });
-
-    it('should not select disabled items when selectedItems="all"', async () => {
-      const view = await render({
-        items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
-        multiple: 'opt-in',
-        selectedItems: TREE_SELECTION_ALL,
-      });
-
-      expect(view.isItemSelected('1')).toBe(true);
-      expect(view.isItemSelected('2')).toBe(false);
-      expect(view.isItemSelected('3')).toBe(true);
-    });
-
-    it('should materialize "all" into explicit IDs when deselecting an item via Ctrl+click', async () => {
-      const onSelectedItemsChange = vi.fn();
-      const view = await render({
-        items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        multiple: 'opt-in',
-        defaultSelectedItems: TREE_SELECTION_ALL,
-        onSelectedItemsChange,
-      });
-
-      fireEvent.click(view.getItemRoot('2'), { ctrlKey: true });
-
-      expect(onSelectedItemsChange.mock.calls.length).toBe(1);
-      const newSelection = onSelectedItemsChange.mock.calls[0][0] as string[];
-      expect(newSelection).toContain('1');
-      expect(newSelection).toContain('3');
-      expect(newSelection).not.toContain('2');
-    });
-
-    it('reports per-item toggles when selecting and materializing all items', async () => {
+  describe('select all', () => {
+    it('reports per-item toggles when selecting all items', async () => {
       const onItemSelectionToggle = vi.fn();
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3', disabled: true }],
@@ -1908,86 +1837,25 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         { itemId: '1', selected: true },
         { itemId: '2', selected: true },
       ]);
-
-      onItemSelectionToggle.mockClear();
-      fireEvent.click(view.getItemRoot('2'), { ctrlKey: true });
-      expect(onItemSelectionToggle).toHaveBeenCalledWith(
-        { itemId: '2', selected: false },
-        expect.objectContaining({ reason: 'item-press' }),
-      );
     });
 
-    it('does not echo a controlled switch to "all" through onSelectedItemsChange', async () => {
+    it('selects the items under collapsed parents, in tree order, on Ctrl+A', async () => {
       const onSelectedItemsChange = vi.fn();
-      const view = await render({
-        items: [{ id: '1' }, { id: '2' }],
-        multiple: 'opt-in',
-        selectedItems: [],
-        onSelectedItemsChange,
-      });
-
-      await view.setProps({ selectedItems: TREE_SELECTION_ALL });
-
-      expect(view.isItemSelected('1')).toBe(true);
-      expect(view.isItemSelected('2')).toBe(true);
-      expect(onSelectedItemsChange).not.toHaveBeenCalled();
-    });
-
-    it('should return true from actionsRef.isItemSelected for all items when "all"', async () => {
-      const view = await render({
-        items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        multiple: 'opt-in',
-        selectedItems: TREE_SELECTION_ALL,
-      });
-
-      expect(view.actionsRef.current!.isItemSelected('1')).toBe(true);
-      expect(view.actionsRef.current!.isItemSelected('2')).toBe(true);
-      expect(view.actionsRef.current!.isItemSelected('3')).toBe(true);
-    });
-
-    it('should show all checkbox items as checked when selectedItems="all"', async () => {
-      const view = await render({
-        items: [
-          { id: '1', children: [{ id: '1.1' }, { id: '1.2' }] },
-          { id: '2' },
-          { id: '3', children: [{ id: '3.1' }] },
-        ],
-        multiple: 'opt-in',
-        checkboxSelection: true,
-        selectedItems: TREE_SELECTION_ALL,
-        defaultExpandedItems: ['1', '3'],
-        isItemSelectionDisabled: (item: any) => item.id === '3',
-      });
-
-      for (const id of ['1', '1.1', '1.2', '2', '3.1']) {
-        expect(view.getItemRoot(id)).toHaveAttribute('aria-checked', 'true');
-      }
-      // Not selectable itself, so it isn't checkable.
-      expect(view.getItemRoot('3')).not.toHaveAttribute('aria-checked');
-    });
-
-    it('should select children revealed by expanding an item after Ctrl+A', async () => {
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }, { id: '2' }],
         multiple: 'opt-in',
+        onSelectedItemsChange,
       });
 
-      // Press Ctrl+A to select all visible items
       act(() => {
         view.getItemRoot('1').focus();
       });
-      fireEvent.keyDown(view.getItemRoot('1'), {
-        key: 'a',
-        keyCode: 65,
-        ctrlKey: true,
-      });
+      fireEvent.keyDown(view.getItemRoot('1'), { key: 'a', ctrlKey: true });
+      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '1.1', '1.2', '2']);
 
-      // Expand item 1 to reveal its children
       act(() => {
         view.actionsRef.current!.setItemExpansion('1', true);
       });
-
-      // Children should be selected because state is "all"
       expect(view.isItemSelected('1.1')).toBe(true);
       expect(view.isItemSelected('1.2')).toBe(true);
     });

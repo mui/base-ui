@@ -41,9 +41,6 @@ function getStatusMessage(change: TreeStatusChange | null) {
     case 'selection':
       // Screen readers announce the new state of the item the user acted on, so naming
       // it would repeat that: "Resume selected. Selected".
-      if (change.count === 'all') {
-        return 'All items selected.';
-      }
       return change.count == null ? '' : getSelectedCountMessage(change.count);
     default:
       return '';
@@ -123,11 +120,11 @@ export interface TreeStatusSelectionChange {
    */
   item: { itemId: TreeItemId; label: string; selected: boolean } | null;
   /**
-   * The number of selected items, `'all'` when every item is selected, or `null`
-   * when the state of the item is enough: in single selection mode, and when the
-   * change selects the first item or deselects the last one.
+   * The number of selected items, or `null` when the state of the item is enough:
+   * in single selection mode, and when the change selects the first item or
+   * deselects the last one.
    */
-  count: number | 'all' | null;
+  count: number | null;
 }
 
 export type TreeStatusChange = TreeStatusFilterChange | TreeStatusSelectionChange;

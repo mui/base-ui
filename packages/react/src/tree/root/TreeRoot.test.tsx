@@ -340,22 +340,6 @@ describeTree('TreeRoot - Items', ({ render }) => {
         consoleError.mockRestore();
       }
     });
-
-    it('should allow an item with id="all" (no longer reserved)', async () => {
-      // The "select all" sentinel is a unique symbol, so the string `"all"` is a
-      // regular item id: selecting it selects that row only.
-      const onSelectedItemsChange = vi.fn();
-      const view = await render({
-        items: [{ id: 'all' }, { id: 'other' }],
-        multiple: 'opt-in',
-        onSelectedItemsChange,
-      });
-
-      fireEvent.click(view.getItemRoot('all'));
-
-      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['all']);
-      expect(view.getSelectedTreeItems()).toEqual(['all']);
-    });
   });
 
   describe('deep trees', () => {

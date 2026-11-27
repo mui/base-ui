@@ -121,13 +121,7 @@ import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
 
 ### Select all
 
-With multiple selection, use `Tree.SELECTION_ALL` to select every selectable item without listing its ID.
-
-```tsx
-<Tree.Root items={items} multiple defaultSelectedItems={Tree.SELECTION_ALL}>
-  <Tree.List>{renderItem}</Tree.List>
-</Tree.Root>
-```
+With multiple selection, <kbd>Ctrl</kbd>+<kbd>A</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd> selects every item, including the ones under collapsed parents, and `onSelectedItemsChange` receives their IDs in tree order. Disabled items keep their state: a selected one stays selected, and the others stay unselected. While the tree is filtered, the shortcut adds the items the filter shows to the selection and keeps the rest of it.
 
 ### Rendering items
 

@@ -224,9 +224,7 @@ export default function TreeGridAccountHierarchy() {
     'velmora-logistics',
     'brindlewood',
   ]);
-  const [selectedItems, setSelectedItems] = React.useState<
-    TreeGrid.ItemId[] | typeof TreeGrid.SELECTION_ALL
-  >([]);
+  const [selectedItems, setSelectedItems] = React.useState<TreeGrid.ItemId[]>([]);
   const [announcement, setAnnouncement] = React.useState('');
   const actionsRef = React.useRef<TreeGrid.Root.Actions<Account>>(null);
   // The row the actions menu returns focus to, when its trigger was added or removed.
@@ -240,8 +238,7 @@ export default function TreeGridAccountHierarchy() {
     [filter],
   );
 
-  const selectedCount =
-    selectedItems === TreeGrid.SELECTION_ALL ? countAccounts(accounts) : selectedItems.length;
+  const selectedCount = selectedItems.length;
 
   const addChildAccount = (parent: Account) => {
     newAccountCountRef.current += 1;
@@ -474,11 +471,9 @@ function StatusMessage({ change }: { change: TreeGrid.Status.State['change'] }) 
   }
   if (change?.type === 'selection' && change.count != null) {
     return (
-      <span className={styles.VisuallyHidden}>
-        {change.count === 'all'
-          ? 'All accounts selected.'
-          : `${formatAccountCount(change.count)} selected.`}
-      </span>
+      <span
+        className={styles.VisuallyHidden}
+      >{`${formatAccountCount(change.count)} selected.`}</span>
     );
   }
   return null;
@@ -486,10 +481,6 @@ function StatusMessage({ change }: { change: TreeGrid.Status.State['change'] }) 
 
 function formatAccountCount(count: number) {
   return count === 1 ? '1 account' : `${count} accounts`;
-}
-
-function countAccounts(accounts: readonly Account[]): number {
-  return accounts.reduce((count, account) => count + 1 + countAccounts(account.children ?? []), 0);
 }
 
 /** The account and its descendants that have subsidiaries. */

@@ -1,4 +1,3 @@
-import { TREE_SELECTION_ALL } from '../store/types';
 import type { TreeItemId, TreeState } from '../store/types';
 import type { TreeStore } from '../store/TreeStore';
 import type { TreeStatusChange, TreeStatusSelectionChange } from '../status/TreeStatus';
@@ -8,9 +7,6 @@ import type { SelectionModel } from './TreeSelectionPlugin';
 
 /** The selectable items of the tree a selection model selects. */
 function getSelectedItemIds(state: TreeState, model: SelectionModel): readonly TreeItemId[] {
-  if (model === TREE_SELECTION_ALL) {
-    return selectors.selectionAllItemIds(state);
-  }
   return normalizeSelectedItems(model).filter((id) => selectors.itemMeta(state, id)?.selectable);
 }
 
@@ -33,27 +29,19 @@ function getSelectionChange(
   const removed = previous.filter((id) => !selectedSet.has(id));
 
   let item: { itemId: TreeItemId; selected: boolean } | null = null;
-  if (model !== TREE_SELECTION_ALL) {
-    if (added.length === 1 && removed.length === 0) {
-      item = { itemId: added[0], selected: true };
-    } else if (removed.length === 1 && added.length === 0) {
-      item = { itemId: removed[0], selected: false };
-    } else if (selected.length === 1) {
-      item = { itemId: selected[0], selected: true };
-    }
+  if (added.length === 1 && removed.length === 0) {
+    item = { itemId: added[0], selected: true };
+  } else if (removed.length === 1 && added.length === 0) {
+    item = { itemId: removed[0], selected: false };
+  } else if (selected.length === 1) {
+    item = { itemId: selected[0], selected: true };
   }
   const label = item == null ? '' : selectors.itemLabel(state, item.itemId);
   const namedItem = item == null || label === '' ? null : { ...item, label };
 
-  const count = model === TREE_SELECTION_ALL ? 'all' : selected.length;
-  const previousCount = previousModel === TREE_SELECTION_ALL ? 'all' : previous.length;
+  const count = selected.length;
   const hasCount =
-    state.multiple !== false &&
-    (namedItem == null ||
-      count === 'all' ||
-      count > 1 ||
-      previousCount === 'all' ||
-      previousCount > 1);
+    state.multiple !== false && (namedItem == null || count > 1 || previous.length > 1);
   if (namedItem == null && !hasCount) {
     return null;
   }

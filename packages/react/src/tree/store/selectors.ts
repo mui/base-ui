@@ -11,7 +11,7 @@ import type {
   TreeView,
 } from './types';
 
-import { TREE_VIEW_ROOT_PARENT_ID, TREE_SELECTION_ALL } from './types';
+import { TREE_VIEW_ROOT_PARENT_ID } from './types';
 import { buildChildrenIndexes, createLookup, getChildrenIndexes } from '../utils/lookup';
 import { getItemIdKey, getParentKey } from '../utils/itemIdKey';
 import { forEachDescendant, getVisibleDescendants } from '../utils/forEachDescendant';
@@ -119,10 +119,7 @@ const projectedItemIndexSelector = (state: TreeState, itemId: TreeItemId): numbe
 const isItemExpandedSelector = (state: TreeState, itemId: TreeItemId): boolean =>
   effectiveExpandedItemsSetSelector(state).has(itemId);
 
-/**
- * Converts a raw selectedItems value to a plain array.
- * Does NOT handle the "all" sentinel — use `materializeSelectedItems()` for that.
- */
+/** Converts a raw selectedItems value to a plain array. */
 export function normalizeSelectedItems(
   raw: TreeItemId | null | readonly TreeItemId[],
 ): TreeItemId[] {
@@ -137,8 +134,7 @@ export function normalizeSelectedItems(
 
 const selectedItemsSetSelector = createSelectorMemoized(
   (state: TreeState) => state.selectedItems,
-  (raw): Set<TreeItemId> | typeof TREE_SELECTION_ALL =>
-    raw === TREE_SELECTION_ALL ? raw : new Set(normalizeSelectedItems(raw)),
+  (raw): Set<TreeItemId> => new Set(normalizeSelectedItems(raw)),
 );
 
 /**
@@ -157,42 +153,17 @@ const canItemBeSelectedSelector = (state: TreeState, itemId: TreeItemId): boolea
   isItemSelectionSupportedSelector(state, itemId) && !isItemDisabledSelector(state, itemId);
 
 /**
- * Whether `TREE_SELECTION_ALL` selects the item: it supports selection and is not
- * disabled on its own or through an ancestor. The tree-wide `disabled` state only
- * pauses interaction, so it keeps the selection as is.
+ * Whether a checkbox counts the item: it supports selection and is not disabled
+ * on its own or through an ancestor. The tree-wide `disabled` state only pauses
+ * interaction, so the checkboxes keep showing the selection.
  */
-function isMetaInSelectionAll(meta: TreeItemMeta | undefined): boolean {
+function isMetaCheckable(meta: TreeItemMeta | undefined): boolean {
   return meta != null && meta.selectable && !meta.resolvedDisabled;
 }
 
-const isItemInSelectionAllSelector = (state: TreeState, itemId: TreeItemId): boolean =>
-  isMetaInSelectionAll(itemMetaLookupSelector(state)[getItemIdKey(itemId)]);
-
-/** The items `TREE_SELECTION_ALL` selects, in tree order. */
-const selectionAllItemIdsSelector = createSelectorMemoized(
-  itemOrderedChildrenIdsLookupSelector,
-  itemMetaLookupSelector,
-  (childrenLookup, metaLookup): readonly TreeItemId[] => {
-    const result: TreeItemId[] = [];
-    forEachDescendant(childrenLookup, null, (itemId) => {
-      if (isMetaInSelectionAll(metaLookup[getItemIdKey(itemId)])) {
-        result.push(itemId);
-      }
-    });
-    return result;
-  },
-);
-
-const isItemSelectedSelector = (state: TreeState, itemId: TreeItemId): boolean => {
-  const selectedSet = selectedItemsSetSelector(state);
-  if (selectedSet === TREE_SELECTION_ALL) {
-    return isItemInSelectionAllSelector(state, itemId);
-  }
-  return (
-    selectedSet.has(itemId) &&
-    (itemMetaLookupSelector(state)[getItemIdKey(itemId)]?.selectable ?? false)
-  );
-};
+const isItemSelectedSelector = (state: TreeState, itemId: TreeItemId): boolean =>
+  selectedItemsSetSelector(state).has(itemId) &&
+  (itemMetaLookupSelector(state)[getItemIdKey(itemId)]?.selectable ?? false);
 
 export type CheckboxSelectionStatus = 'checked' | 'indeterminate' | 'empty';
 
@@ -218,7 +189,7 @@ const selectableDescendantCountsSelector = createSelectorMemoized(
         descendantCounts[parentKey] =
           (descendantCounts[parentKey] ?? 0) +
           (descendantCounts[key] ?? 0) +
-          (isMetaInSelectionAll(meta) ? 1 : 0);
+          (isMetaCheckable(meta) ? 1 : 0);
       }
     }
     return descendantCounts;
@@ -229,17 +200,14 @@ const selectableDescendantCountsSelector = createSelectorMemoized(
 const selectedDescendantCountsSelector = createSelectorMemoized(
   selectedItemsSetSelector,
   itemMetaLookupSelector,
-  (selectedSet, metaLookup): TreeParentKeyed<number> | null => {
-    if (selectedSet === TREE_SELECTION_ALL) {
-      return null;
-    }
+  (selectedSet, metaLookup): TreeParentKeyed<number> => {
     const counts: TreeParentKeyed<number> = createLookup();
     const paths = new Map<
       TreeItemId,
       { parentId: TreeItemId | null; selected: number; children: number; total: number }
     >();
     for (const itemId of selectedSet) {
-      if (!isMetaInSelectionAll(metaLookup[getItemIdKey(itemId)])) {
+      if (!isMetaCheckable(metaLookup[getItemIdKey(itemId)])) {
         continue;
       }
       let id: TreeItemId | null = itemId;
@@ -291,8 +259,7 @@ const checkboxSelectionStatusSelector = (
     return 'empty';
   }
 
-  const selectedCounts = selectedDescendantCountsSelector(state);
-  const selected = selectedCounts == null ? total : (selectedCounts[getItemIdKey(itemId)] ?? 0);
+  const selected = selectedDescendantCountsSelector(state)[getItemIdKey(itemId)] ?? 0;
 
   const hasSelectedDescendant = selected > 0;
   const hasUnSelectedDescendant = selected < total;
@@ -406,16 +373,14 @@ const defaultFocusableItemIdSelector = createSelectorMemoized(
     const isFocusable = (itemId: TreeItemId) =>
       isMetaFocusable(metaLookup[getItemIdKey(itemId)], treeDisabled, disabledFocusable);
 
-    if (selectedItems !== TREE_SELECTION_ALL) {
-      // Focus the first selected item whose ancestors are all expanded.
-      for (const selectedId of normalizeSelectedItems(selectedItems)) {
-        const meta = metaLookup[getItemIdKey(selectedId)];
-        if (
-          isMetaFocusable(meta, treeDisabled, disabledFocusable) &&
-          isMetaInView(view, metaLookup, meta)
-        ) {
-          return selectedId;
-        }
+    // Focus the first selected item whose ancestors are all expanded.
+    for (const selectedId of normalizeSelectedItems(selectedItems)) {
+      const meta = metaLookup[getItemIdKey(selectedId)];
+      if (
+        isMetaFocusable(meta, treeDisabled, disabledFocusable) &&
+        isMetaInView(view, metaLookup, meta)
+      ) {
+        return selectedId;
       }
     }
 
@@ -586,8 +551,6 @@ export const selectors = {
   flatListWithGroupTransitions: flatListWithGroupTransitionsSelector,
   isViewTransformed: (state: TreeState): boolean => viewSelector(state).transformed,
   isItemSelected: isItemSelectedSelector,
-  isItemInSelectionAll: isItemInSelectionAllSelector,
-  selectionAllItemIds: selectionAllItemIdsSelector,
   canItemBeSelected: canItemBeSelectedSelector,
   isItemSelectionSupported: isItemSelectionSupportedSelector,
   checkboxSelectionStatus: checkboxSelectionStatusSelector,

@@ -4,7 +4,6 @@ import { act, fireEvent } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { DirectionProvider } from '../../direction-provider';
 import { describeTree } from '../../../test/describeTree';
-import { TREE_SELECTION_ALL } from '../store/types';
 import { selectors } from '../store/selectors';
 import { Tree } from '..';
 
@@ -1291,10 +1290,10 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
             ctrlKey: true,
           });
           expect(view.getSelectedTreeItems()).toEqual(['1', '2', '3', '4']);
-          expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toBe(TREE_SELECTION_ALL);
+          expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '2', '3', '4']);
         });
 
-        it('should keep every item selected when Ctrl + A is pressed and they are all selected', async () => {
+        it('should not report a change when Ctrl + A is pressed and every item is already selected', async () => {
           const onSelectedItemsChange = vi.fn();
           const view = await render({
             items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
@@ -1308,10 +1307,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           });
           fireEvent.keyDown(view.getItemRoot('1'), { key: 'a', ctrlKey: true });
           expect(view.getSelectedTreeItems()).toEqual(['1', '3']);
-
-          fireEvent.keyDown(view.getItemRoot('1'), { key: 'a', ctrlKey: true });
-          expect(view.getSelectedTreeItems()).toEqual(['1', '3']);
-          expect(onSelectedItemsChange).toHaveBeenCalledTimes(1);
+          expect(onSelectedItemsChange).not.toHaveBeenCalled();
         });
 
         it('should keep the selection on Escape and leave the key to the containing UI', async () => {
@@ -1341,9 +1337,12 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
             multiple: 'opt-in',
-            onSelectedItemsChange: (value: unknown, details: { cancel: () => void }) => {
-              if (value === TREE_SELECTION_ALL) {
-                details.cancel();
+            onSelectedItemsChange: (
+              _value: unknown,
+              eventDetails: { reason: string; cancel: () => void },
+            ) => {
+              if (eventDetails.reason === 'keyboard') {
+                eventDetails.cancel();
               }
             },
           });
@@ -1352,20 +1351,24 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           fireEvent.click(view.getItemRoot('3'), { shiftKey: true });
           expect(view.getSelectedTreeItems()).toEqual(['1', '2', '3']);
           fireEvent.keyDown(view.getItemRoot('3'), { key: 'a', ctrlKey: true });
+          expect(view.getSelectedTreeItems()).toEqual(['1', '2', '3']);
           fireEvent.click(view.getItemRoot('2'), { shiftKey: true });
 
           expect(view.getSelectedTreeItems()).toEqual(['1', '2']);
         });
 
-        it('should not select disabled items when Ctrl + A is pressed', async () => {
+        it('should keep the state of disabled items when Ctrl + A is pressed', async () => {
+          const onSelectedItemsChange = vi.fn();
           const view = await render({
             items: [
               { id: '1' },
               { id: '2', disabled: true, children: [{ id: '2.1' }] },
               { id: '3' },
-              { id: '4' },
+              { id: '4', disabled: true },
             ],
             multiple: 'opt-in',
+            defaultSelectedItems: ['4'],
+            onSelectedItemsChange,
           });
 
           act(() => {
@@ -1377,6 +1380,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
             ctrlKey: true,
           });
           expect(view.getSelectedTreeItems()).toEqual(['1', '3', '4']);
+          expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '3', '4']);
         });
       });
 
