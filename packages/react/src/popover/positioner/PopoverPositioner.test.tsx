@@ -293,6 +293,90 @@ describe('<Popover.Positioner />', () => {
     },
   );
 
+  describe('backdrop cutout', () => {
+    function ModalPopover(props: { className?: string; triggerWidth?: number }) {
+      return (
+        <Popover.Root modal defaultOpen>
+          <Trigger
+            data-testid="trigger"
+            style={{ ...triggerStyle, width: props.triggerWidth ?? anchorWidth, margin: 50 }}
+          >
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" className={props.className}>
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    function getBackdrop() {
+      return screen.getByTestId('positioner').previousElementSibling as HTMLElement;
+    }
+
+    // The hole is the last rectangle of the backdrop's `clip-path` polygon.
+    function getCutout(backdrop: HTMLElement) {
+      const [left, top, , bottom, right] = Array.from(
+        backdrop.style.clipPath.matchAll(/(-?[\d.]+)px/g),
+        (match) => Number(match[1]),
+      );
+      return { left, top, right, bottom };
+    }
+
+    it('does not measure the trigger when the positioner re-renders', async () => {
+      const { setPropsAsync } = await render(<ModalPopover />);
+      await waitFor(() => {
+        expect(getBackdrop().style.pointerEvents).not.toBe('none');
+      });
+      await act(async () => {
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
+
+      const getBoundingClientRect = vi.spyOn(
+        screen.getByTestId('trigger'),
+        'getBoundingClientRect',
+      );
+      await setPropsAsync({ className: 'rerendered' });
+
+      expect(screen.getByTestId('positioner')).toHaveClass('rerendered');
+      expect(getBoundingClientRect).not.toHaveBeenCalled();
+    });
+
+    it.skipIf(isJSDOM)('cuts the trigger out of the backdrop and follows it', async () => {
+      const { setPropsAsync } = await render(<ModalPopover />);
+      const trigger = screen.getByTestId('trigger');
+      const backdrop = getBackdrop();
+
+      await waitFor(() => {
+        expect(backdrop.style.clipPath).not.toBe('');
+      });
+      expect(backdrop.style.pointerEvents).toBe('');
+      const initialRect = trigger.getBoundingClientRect();
+      expect(getCutout(backdrop)).toEqual({
+        left: initialRect.left,
+        top: initialRect.top,
+        right: initialRect.right,
+        bottom: initialRect.bottom,
+      });
+
+      await setPropsAsync({ triggerWidth: anchorWidth + 40 });
+
+      await waitFor(() => {
+        expect(getCutout(backdrop).right).toBe(initialRect.right + 40);
+      });
+      const resizedRect = trigger.getBoundingClientRect();
+      expect(getCutout(backdrop)).toEqual({
+        left: resizedRect.left,
+        top: resizedRect.top,
+        right: resizedRect.right,
+        bottom: resizedRect.bottom,
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('transform origin', () => {
     function getTransformOrigin() {
       return screen.getByTestId('positioner').style.getPropertyValue('--transform-origin');
