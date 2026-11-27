@@ -170,9 +170,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true });
       fireEvent.compositionEnd(textbox);
 
-      // Wait for the compositionend timeout tick due to Safari
+      // Wait for the window that `compositionend` opens after a composing Escape
       await new Promise((resolve) => {
-        setTimeout(resolve, 0);
+        setTimeout(resolve, 5);
       });
 
       expect(onClose).toHaveBeenCalledTimes(0);
@@ -180,6 +180,28 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.keyDown(textbox, { key: 'Escape' });
 
       expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not dismiss with the escape key re-sent after compositionend on macOS', async () => {
+      const onClose = vi.fn();
+
+      render(<App onClose={onClose} escapeKey />);
+
+      const textbox = screen.getByRole('textbox');
+
+      await act(async () => {
+        textbox.focus();
+      });
+
+      // Chrome's order when Escape ends a dead-key composition; the keyup balances the 229 keydown.
+      fireEvent.compositionStart(textbox);
+      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true, keyCode: 229 });
+      fireEvent.compositionEnd(textbox);
+      fireEvent.keyUp(textbox, { key: 'Escape', keyCode: 27 });
+      fireEvent.keyDown(textbox, { key: 'Escape', keyCode: 27 });
+
+      expect(onClose).toHaveBeenCalledTimes(0);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
     test('does not dismiss with escape key while a composition spans a reopen', async () => {
@@ -212,35 +234,22 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
-    test('does not dismiss with the escape key that ends a composition spanning a reopen', async () => {
-      function PersistentDismiss() {
-        const [open, setOpen] = React.useState(true);
-        const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-        const { getReferenceProps, getFloatingProps } = useTestInteractions([
-          useDismiss(context.rootStore),
-        ]);
+    test('dismisses with escape key pressed right after a composition ends', async () => {
+      const onClose = vi.fn();
 
-        return (
-          <React.Fragment>
-            <button {...getReferenceProps({ ref: refs.setReference })} />
-            <button onClick={() => setOpen(true)}>open</button>
-            <button onClick={() => setOpen(false)}>close</button>
-            {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
-          </React.Fragment>
-        );
-      }
+      render(<App onClose={onClose} escapeKey />);
 
-      render(<PersistentDismiss />);
+      const textbox = screen.getByRole('textbox');
 
-      fireEvent.compositionStart(document.body);
-      fireEvent.click(screen.getByRole('button', { name: 'close' }));
-      fireEvent.click(screen.getByRole('button', { name: 'open' }));
+      await act(async () => {
+        textbox.focus();
+      });
 
-      // Safari fires `compositionend` before the `keydown` that ends the composition.
-      fireEvent.compositionEnd(document.body);
-      fireEvent.keyDown(document.body, { key: 'Escape' });
-      await flushMicrotasks();
-      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      fireEvent.compositionStart(textbox);
+      fireEvent.compositionEnd(textbox);
+      fireEvent.keyDown(textbox, { key: 'Escape' });
+
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
 
     test('dismisses with escape key after closing during IME composition', async () => {
