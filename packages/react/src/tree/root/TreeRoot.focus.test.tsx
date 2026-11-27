@@ -490,6 +490,24 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       expect(onItemHighlighted.mock.calls.at(-1)![1]).toHaveProperty('reason', 'none');
     });
 
+    it('reports the focus that follows a click that moved none', async () => {
+      const onItemHighlighted = vi.fn();
+      const view = await render({ items: [{ id: '1' }, { id: '2' }], onItemHighlighted });
+
+      // Assistive technology or code can click a row without focusing it.
+      act(() => view.getItemRoot('2').click());
+      expect(view.isItemSelected('2')).toBe(true);
+      expect(view.getItemRoot('2')).not.toHaveAttribute('data-highlighted');
+
+      act(() => view.getItemRoot('2').focus());
+
+      expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      expect(onItemHighlighted).toHaveBeenCalledWith(
+        '2',
+        expect.objectContaining({ reason: 'none' }),
+      );
+    });
+
     it('reports undefined when focus leaves the tree', async () => {
       const onItemHighlighted = vi.fn();
       const view = await render({ items: [{ id: '1' }], onItemHighlighted });

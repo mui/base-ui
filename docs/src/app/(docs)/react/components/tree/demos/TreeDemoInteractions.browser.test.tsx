@@ -170,6 +170,8 @@ describe.skipIf(isJSDOM)('Tree demo interactions', () => {
       await waitFor(() => expect(pinnedLabels()).toEqual(['Level 1', 'Level 2', 'Level 3']));
       const rows = screen.getAllByRole('treeitem');
       const level3Index = rows.findIndex((row) => row.textContent === 'Level 3');
+      // A press focuses the row on mousedown, which a fired click doesn't do.
+      act(() => rows[level3Index + 4].focus({ preventScroll: true }));
       fireEvent.click(rows[level3Index + 4]);
       await waitFor(() => expect(rows[level3Index + 4]).toHaveFocus());
       for (let i = 4; i > 0; i -= 1) {

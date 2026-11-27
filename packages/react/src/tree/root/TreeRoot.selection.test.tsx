@@ -76,6 +76,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           selectedItems: [],
           onSelectedItemsChange,
         });
+        act(() => view.getItemRoot('1').focus());
         fireEvent.click(view.getItemRoot('1'));
         await view.setProps({ selectedItems: onSelectedItemsChange.mock.calls.at(-1)![0] });
         if (interaction === 'click') {
@@ -373,6 +374,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           const acceptLastChange = () =>
             view.setProps({ selectedItems: onSelectedItemsChange.mock.calls.at(-1)![0] });
 
+          act(() => view.getItemRoot('4').focus());
           fireEvent.click(view.getItemRoot('4'));
           await acceptLastChange();
           if (interaction === 'click') {

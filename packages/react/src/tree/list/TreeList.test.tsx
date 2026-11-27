@@ -454,7 +454,7 @@ it('exposes the row level through aria-level only', async () => {
     </Tree.Root>,
   );
 
-  fireEvent.click(screen.getByRole('treeitem', { name: 'A' }));
+  act(() => screen.getByRole('treeitem', { name: 'A' }).focus());
   fireEvent.keyDown(screen.getByRole('treeitem', { name: 'A' }), { key: 'ArrowRight' });
 
   const child = screen.getByRole('treeitem', { name: 'A1' });

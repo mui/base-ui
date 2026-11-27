@@ -450,14 +450,16 @@ describeTree('TreeRoot - Items', ({ render }) => {
   });
 
   describe('falsy item ids (id: 0)', () => {
-    it('should focus and select an item with id 0 when clicked', async () => {
+    it('should highlight and select an item with id 0 when it is pressed', async () => {
       const view = await render({
         items: [{ id: 0 }, { id: 1 }],
       });
 
+      fireEvent.mouseDown(view.getItemRoot(0));
+      act(() => view.getItemRoot(0).focus());
       fireEvent.click(view.getItemRoot(0));
 
-      expect(view.getFocusedItemId()).toBe('0');
+      expect(view.getItemRoot(0)).toHaveAttribute('data-highlighted');
       expect(view.actionsRef.current!.isItemSelected(0)).toBe(true);
     });
 

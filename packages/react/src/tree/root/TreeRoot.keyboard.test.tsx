@@ -1348,6 +1348,8 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           });
 
           fireEvent.click(view.getItemRoot('1'));
+          // A modifier press focuses the row on mousedown.
+          fireEvent.mouseDown(view.getItemRoot('3'), { shiftKey: true });
           fireEvent.click(view.getItemRoot('3'), { shiftKey: true });
           expect(view.getSelectedTreeItems()).toEqual(['1', '2', '3']);
           fireEvent.keyDown(view.getItemRoot('3'), { key: 'a', ctrlKey: true });

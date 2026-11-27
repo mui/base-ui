@@ -1003,12 +1003,8 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       // The link opens in a new tab or window, so the tree stays as it is.
       return;
     }
-    // Disabled items are never focused by mouse click, even when
-    // itemFocusableWhenDisabled is true (that only affects keyboard focus).
-    if (!selectors.isItemDisabled(this.store.state, itemId)) {
-      this.store.set('focusedItemId', itemId);
-    }
-
+    // The highlight follows focus, which the press moved on mousedown. A click that
+    // moves no focus, such as `click()` from assistive technology, doesn't highlight.
     if (selectors.canItemBeSelected(this.store.state, itemId)) {
       const { multiple } = this.store.state;
       const ctrlKey = event.ctrlKey || event.metaKey;
