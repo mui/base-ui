@@ -13,6 +13,22 @@ const table = <TreeGrid.Table aria-label="Files">{() => null}</TreeGrid.Table>;
   {table}
 </TreeGrid.Root>;
 
+// With `multiple`, `null` selects nothing, and the handler still receives an array.
+<TreeGrid.Root
+  items={[]}
+  multiple
+  selectedItems={null}
+  onSelectedItemsChange={(selected) => {
+    expectType<(string | number)[], typeof selected>(selected);
+  }}
+>
+  {table}
+</TreeGrid.Root>;
+
+<TreeGrid.Root items={[]} multiple="opt-in" defaultSelectedItems={null}>
+  {table}
+</TreeGrid.Root>;
+
 // A dynamic boolean accepts either selection shape, and handlers stay contextually typed.
 function DynamicMultipleTreeGrid(props: {
   multiple: boolean;

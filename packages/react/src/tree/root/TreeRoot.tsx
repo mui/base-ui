@@ -18,7 +18,6 @@ import type {
   TreeRootSelectionChangeEventReason,
   TreeRootSelectionChangeEventDetails,
   TreeMultiple,
-  TreeState,
   TreeStoreContext,
   TreeRootHighlightEventReason,
   TreeRootHighlightEventDetails,
@@ -126,6 +125,9 @@ export function TreeRoot<
     }
   }
 
+  // With multiple selection, `null` selects nothing, so the tree stores it as `[]`.
+  const selectedItemsProp = multiple && selectedItems === null ? EMPTY_ARRAY : selectedItems;
+
   const rootRef = React.useRef<HTMLElement>(null);
   const features = React.useContext(TreeRootFeaturesContext);
   const featureState: TreeRootFeatureState = {};
@@ -144,7 +146,7 @@ export function TreeRoot<
       expandOnClick,
       onExpandedItemsChange,
       onItemExpansionToggle,
-      selectedItems,
+      selectedItems: selectedItemsProp,
       defaultSelectedItems,
       onSelectedItemsChange,
       onItemSelectionToggle,
@@ -187,7 +189,7 @@ export function TreeRoot<
     ...featureState,
   });
   store.useControlledProp('expandedItemsProp', expandedItems);
-  store.useControlledProp('selectedItemsProp', selectedItems as TreeState['selectedItemsProp']);
+  store.useControlledProp('selectedItemsProp', selectedItemsProp);
 
   store.useContextCallback('onExpandedItemsChange', onExpandedItemsChange);
   store.useContextCallback('onItemExpansionToggle', onItemExpansionToggle);

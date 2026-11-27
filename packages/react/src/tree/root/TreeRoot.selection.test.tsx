@@ -319,6 +319,25 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         },
       );
 
+      it('should treat a null selectedItems as an empty selection', async () => {
+        const onSelectedItemsChange = vi.fn();
+        const view = await render({
+          multiple: true,
+          items: [{ id: '1' }, { id: '2' }],
+          selectedItems: ['1'],
+          onSelectedItemsChange,
+        });
+        await view.setProps({ selectedItems: null });
+        expect(view.getSelectedTreeItems()).toEqual([]);
+
+        // Deselecting an item that isn't selected leaves an empty selection as it is.
+        act(() => {
+          view.actionsRef.current!.setItemSelection('1', false);
+        });
+
+        expect(onSelectedItemsChange).not.toHaveBeenCalled();
+      });
+
       it('should not change the selection when shift-clicking another item while controlled', async () => {
         const onSelectedItemsChange = vi.fn();
 

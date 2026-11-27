@@ -585,20 +585,18 @@ export interface TreeStoreParameters<
       ) => void)
     | undefined;
   /**
-   * The selected items.
+   * The selected items. With multiple selection, `null` is the same as `[]`.
    *
    * To render an uncontrolled component, use the `defaultSelectedItems` prop instead.
    */
-  selectedItems?:
-    TreeSelectedItemsType<Multiple> | (Multiple extends true | 'opt-in' ? never : null) | undefined;
+  selectedItems?: TreeSelectedItemsType<Multiple> | null | undefined;
   /**
-   * The items that are initially selected.
+   * The items that are initially selected. With multiple selection, `null` is the same as `[]`.
    * Defaults to `null` with single selection and `[]` with multiple selection.
    *
    * To render a controlled component, use the `selectedItems` prop instead.
    */
-  defaultSelectedItems?:
-    TreeSelectedItemsType<Multiple> | (Multiple extends true | 'opt-in' ? never : null) | undefined;
+  defaultSelectedItems?: TreeSelectedItemsType<Multiple> | null | undefined;
   /**
    * Event handler called when the selected items change.
    *

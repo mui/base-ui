@@ -46,6 +46,29 @@ const list = <Tree.List>{() => null}</Tree.List>;
   {list}
 </Tree.Root>;
 
+// With `multiple`, `null` selects nothing, as with Select, and the handler still receives an array.
+function NullableMultipleTree() {
+  const [selectedItems, setSelectedItems] = React.useState<Tree.ItemId[] | null>(null);
+  return (
+    <Tree.Root
+      items={[] as FileItem[]}
+      multiple="opt-in"
+      selectedItems={selectedItems}
+      onSelectedItemsChange={(selected) => {
+        expectType<(string | number)[], typeof selected>(selected);
+        setSelectedItems(selected);
+      }}
+    >
+      {list}
+    </Tree.Root>
+  );
+}
+void NullableMultipleTree;
+
+<Tree.Root items={[] as FileItem[]} multiple defaultSelectedItems={null}>
+  {list}
+</Tree.Root>;
+
 // A dynamic boolean accepts either selection shape, and handlers stay contextually typed.
 function DynamicMultipleTree(props: {
   multiple: boolean;
