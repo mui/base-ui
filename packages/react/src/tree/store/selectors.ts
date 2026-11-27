@@ -576,6 +576,9 @@ export const selectors = {
     flatListIndexLookupSelector(state)[getItemIdKey(itemId)] ?? -1,
   flatListWithGroupTransitions: flatListWithGroupTransitionsSelector,
   isViewTransformed: (state: TreeState): boolean => viewSelector(state).transformed,
+  /** Whether the filter hides the item, as opposed to a collapsed ancestor. */
+  isItemFilteredOut: (state: TreeState, itemId: TreeItemId): boolean =>
+    viewSelector(state).transformed && projectedItemIndexSelector(state, itemId) === -1,
   selectedItemsSet: selectedItemsSetSelector,
   firstSelectedRow,
   isItemSelected: isItemSelectedSelector,

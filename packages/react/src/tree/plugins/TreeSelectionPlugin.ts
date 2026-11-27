@@ -251,37 +251,24 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
   }
 
   /**
-   * Selects every item, in tree order, including the ones under collapsed parents. Items
-   * that can't be selected keep their state, so the selected disabled ones stay selected.
-   * While filtering, adds the items the filter shows to the selection instead.
+   * Selects every item, in tree order, including the ones under collapsed parents. While
+   * filtering, selects the items the filter shows. As with any change that replaces the
+   * selection, selected items that users can't deselect stay selected.
    */
   public selectAll = (reason: TreeRootSelectionChangeEventReason, event?: Event) => {
     const state = this.store.state;
     if (state.disabled || !state.multiple) {
       return;
     }
-    if (!selectors.isViewTransformed(state)) {
-      const selectedSet = selectors.selectedItemsSet(state);
-      const itemIds: TreeItemId[] = [];
-      forEachDescendant(state.itemOrderedChildrenIdsLookup, null, (itemId) => {
-        if (selectedSet.has(itemId) || selectors.canItemBeSelected(state, itemId)) {
-          itemIds.push(itemId);
-        }
-      });
-      this.setSelectedItems(itemIds, reason, event);
-      return;
-    }
-    // Select all replaces the selection, so it drops the ids the tree doesn't know.
-    const knownIds = normalizeSelectedItems(state.selectedItems).filter((id) =>
-      selectors.hasItem(state, id),
-    );
-    const shownIds: TreeItemId[] = [];
+    const selectedSet = selectors.selectedItemsSet(state);
+    const itemIds: TreeItemId[] = [];
+    // Selected items that can't be selected keep their place in tree order.
     forEachDescendant(projectedChildrenLookupSelector(state), null, (itemId) => {
-      if (selectors.canItemBeSelected(state, itemId)) {
-        shownIds.push(itemId);
+      if (selectedSet.has(itemId) || selectors.canItemBeSelected(state, itemId)) {
+        itemIds.push(itemId);
       }
     });
-    this.setSelectedItems([...new Set([...knownIds, ...shownIds])], reason, event);
+    this.setSelectedItems(this.replaceWith(itemIds), reason, event);
   };
 
   private isItemRendered(itemId: TreeItemId): boolean {
@@ -308,14 +295,16 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
   }
 
   /**
-   * Replaces the selection with `itemIds`. Selected items that can't be selected anymore,
-   * such as disabled ones, stay selected, since users can't deselect them. Ids the tree
-   * doesn't know are dropped.
+   * Replaces the selection with `itemIds`. Selected items that users can't deselect stay
+   * selected: the ones that can't be selected anymore, such as disabled ones, and the ones
+   * the filter hides. Ids the tree doesn't know are dropped.
    */
   private replaceWith(itemIds: TreeItemId[]): TreeItemId[] {
     const state = this.store.state;
     const kept = normalizeSelectedItems(state.selectedItems).filter(
-      (id) => selectors.hasItem(state, id) && !selectors.canItemBeSelected(state, id),
+      (id) =>
+        selectors.hasItem(state, id) &&
+        (!selectors.canItemBeSelected(state, id) || selectors.isItemFilteredOut(state, id)),
     );
     if (kept.length === 0) {
       return itemIds;

@@ -236,12 +236,72 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
 
     act(() => view.getItemRoot('apple').focus());
     fireEvent.keyDown(view.getItemRoot('apple'), { key: 'a', ctrlKey: true });
-    expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['banana', 'apple', 'apricot']);
+    expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['apple', 'apricot', 'banana']);
 
     fireEvent.keyDown(view.getItemRoot('apple'), { key: 'a', ctrlKey: true });
     expect(onSelectedItemsChange).toHaveBeenCalledTimes(1);
     expect(view.getItemRoot('apple')).toHaveAttribute('aria-selected', 'true');
   });
+
+  it.each([
+    {
+      name: 'a press',
+      replaceSelection: () => fireEvent.click(screen.getByRole('treeitem', { name: 'Apricot' })),
+      expected: ['apricot', 'banana'],
+    },
+    {
+      name: 'a Shift+click range',
+      replaceSelection: () =>
+        fireEvent.click(screen.getByRole('treeitem', { name: 'Apricot' }), { shiftKey: true }),
+      expected: ['apple', 'apricot', 'banana'],
+    },
+    {
+      name: 'a Shift+Arrow Down range',
+      replaceSelection: () =>
+        fireEvent.keyDown(screen.getByRole('treeitem', { name: 'Apple' }), {
+          key: 'ArrowDown',
+          shiftKey: true,
+        }),
+      expected: ['apple', 'apricot', 'banana'],
+    },
+    {
+      name: 'moving the selection with Arrow Down',
+      replaceSelection: () =>
+        fireEvent.keyDown(screen.getByRole('treeitem', { name: 'Apple' }), { key: 'ArrowDown' }),
+      expected: ['apricot', 'banana'],
+    },
+    {
+      name: 'Ctrl+A',
+      replaceSelection: () =>
+        fireEvent.keyDown(screen.getByRole('treeitem', { name: 'Apple' }), {
+          key: 'a',
+          ctrlKey: true,
+        }),
+      expected: ['apple', 'apricot', 'banana'],
+    },
+  ])(
+    'keeps the selected items the filter hides when $name replaces the selection',
+    async ({ replaceSelection, expected }) => {
+      const onSelectedItemsChange = vi.fn();
+      const view = await render({
+        items: [
+          { id: 'apple', label: 'Apple' },
+          { id: 'banana', label: 'Banana' },
+          { id: 'apricot', label: 'Apricot' },
+        ],
+        filterValue: 'ap',
+        multiple: 'opt-in',
+        defaultSelectedItems: ['banana'],
+        onSelectedItemsChange,
+      });
+      expect(view.getAllTreeItemIds()).toEqual(['apple', 'apricot']);
+
+      act(() => view.getItemRoot('apple').focus());
+      replaceSelection();
+
+      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(expected);
+    },
+  );
 
   it('recomputes matches when loaded items enter the canonical model', async () => {
     const view = await render({ items: [{ id: 'one', label: 'One' }], filterValue: 'needle' });
