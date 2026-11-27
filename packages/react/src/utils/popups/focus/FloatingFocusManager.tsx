@@ -167,6 +167,8 @@ export interface FloatingFocusManagerProps {
    * @default false
    */
   disabled?: boolean | undefined;
+  /** Whether initial focus should run without waiting for an animation frame. */
+  initialFocusSync?: boolean | undefined;
   /**
    * Determines the element to focus when the floating element is opened.
    *
@@ -266,6 +268,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     children,
     disabled = false,
     initialFocus = true,
+    initialFocusSync = false,
     returnFocus = true,
     explicitReturnFocus,
     restoreFocus = false,
@@ -296,6 +299,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
   const initialFocusRef = useValueAsRef(initialFocus);
+  const initialFocusSyncRef = useValueAsRef(initialFocusSync);
   const returnFocusRef = useValueAsRef(returnFocus);
   // Read through a ref so a mid-open change can't re-run the return-focus effect, whose cleanup
   // would move focus while the floating element is still open.
@@ -742,7 +746,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
       void enqueueFocus(elToFocus, {
-        sync: openedByVirtualPress,
+        sync: initialFocusSyncRef.current || openedByVirtualPress,
         preventScroll: elToFocus === floatingFocusElement,
         shouldFocus() {
           // If the floating element has closed before this runs — e.g. tabbing out of a
@@ -771,6 +775,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     getTabbableContent,
     initialFocusRef,
+    initialFocusSyncRef,
     openInteractionTypeRef,
     openRef,
     storeContext,

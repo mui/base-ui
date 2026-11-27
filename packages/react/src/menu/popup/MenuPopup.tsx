@@ -195,6 +195,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       returnFocus={finalFocus ?? dynamicReturnFocus ?? returnFocus}
       explicitReturnFocus={finalFocus === undefined && dynamicReturnFocus ? false : undefined}
       initialFocus={initialFocus}
+      initialFocusSync={parent.type === undefined && lastOpenChangeReason === REASONS.triggerPress}
       restoreFocus
       getInsideElements={
         parent.type === undefined
