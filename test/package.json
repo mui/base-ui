@@ -9,7 +9,7 @@
     "@base-ui/utils": "workspace:*",
     "@playwright/test": "1.65.1",
     "@testing-library/dom": "10.4.2",
-    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/jest-dom": "8.0.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "docs": "workspace:^",
