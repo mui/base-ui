@@ -75,3 +75,43 @@ export type {
   TreeClearProps as TreeGridClearProps,
   TreeClearState as TreeGridClearState,
 } from '../tree/clear/TreeClear';
+export type {
+  TreeStatusChange as TreeGridStatusChange,
+  TreeStatusFilterChange as TreeGridStatusFilterChange,
+  TreeStatusSelectionChange as TreeGridStatusSelectionChange,
+} from '../tree/status/TreeStatus';
+export type {
+  TreeFilterProviderChangeEventReason as TreeGridFilterProviderChangeEventReason,
+  TreeFilterProviderChangeEventDetails as TreeGridFilterProviderChangeEventDetails,
+} from '../tree/filter-provider/TreeFilterProvider';
+export type {
+  TreeFilter as TreeGridFilter,
+  TreeFilterOptions as TreeGridFilterOptions,
+} from '../tree/utils/useTreeFilter';
+export type { TreeCreateItemsOptions as TreeGridCreateItemsOptions } from '../tree/items/createItems';
+export type { TreeItemCollection as TreeGridItemCollection } from '../tree/items/itemCollection';
+export type { TreeRootItems as TreeGridRootItems } from '../tree/root/TreeRoot';
+export type {
+  TreeItemId as TreeGridItemId,
+  TreeFilterMode as TreeGridFilterMode,
+  TreeFilterFunction as TreeGridFilterFunction,
+  TreeDefaultItem as TreeGridDefaultItem,
+  TreeCheckboxSelectionPropagation as TreeGridCheckboxSelectionPropagation,
+  TreeRootActions as TreeGridRootActions,
+  TreeRootExpansionChangeEventReason as TreeGridRootExpansionChangeEventReason,
+  TreeRootExpansionChangeEventDetails as TreeGridRootExpansionChangeEventDetails,
+  TreeRootSelectionChangeEventReason as TreeGridRootSelectionChangeEventReason,
+  TreeRootSelectionChangeEventDetails as TreeGridRootSelectionChangeEventDetails,
+  TreeRootHighlightEventReason as TreeGridRootHighlightEventReason,
+  TreeRootHighlightEventDetails as TreeGridRootHighlightEventDetails,
+  TreeRootItemExpansionToggleEventDetails as TreeGridRootItemExpansionToggleEventDetails,
+  TreeRootItemExpansionToggleValue as TreeGridRootItemExpansionToggleValue,
+  TreeRootItemSelectionToggleEventDetails as TreeGridRootItemSelectionToggleEventDetails,
+  TreeRootItemSelectionToggleValue as TreeGridRootItemSelectionToggleValue,
+  TreeRootItemsChangeEventReason as TreeGridRootItemsChangeEventReason,
+  TreeRootItemsChangeEventDetails as TreeGridRootItemsChangeEventDetails,
+  TreeItemChange as TreeGridItemChange,
+  TreeItemDestination as TreeGridItemDestination,
+  TreeItemPosition as TreeGridItemPosition,
+  TreeItemTransaction as TreeGridItemTransaction,
+} from '../tree/store/types';
