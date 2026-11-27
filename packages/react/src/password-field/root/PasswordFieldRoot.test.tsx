@@ -551,6 +551,36 @@ describe('<PasswordField.Root />', () => {
       expect(input).toHaveAttribute('type', 'password');
     });
 
+    it('masks on submit and restores on reset for an input mounted after the Root', async () => {
+      let showInput!: () => void;
+      function App() {
+        const [inputShown, setInputShown] = React.useState(false);
+        showInput = () => setInputShown(true);
+        return (
+          <form onSubmit={(event) => event.preventDefault()}>
+            <PasswordField.Root>
+              {inputShown && <PasswordField.Input />}
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      await act(async () => showInput());
+      const input = document.querySelector('input')!;
+      await reveal();
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.submit(input.form!);
+      expect(input).toHaveAttribute('type', 'password');
+      await unmaskAfterSubmit();
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.reset(input.form!);
+      expect(input).toHaveAttribute('type', 'password');
+    });
+
     it('masks the input on submit when the form and input are portaled into a shadow root', async () => {
       const host = document.createElement('div');
       document.body.appendChild(host);

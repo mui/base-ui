@@ -1,19 +1,14 @@
 'use client';
 import * as React from 'react';
-import { addEventListener } from '@base-ui/utils/addEventListener';
-import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { NOOP } from '../../internals/noop';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { REASONS } from '../../internals/reasons';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { PasswordFieldRootContext } from './PasswordFieldRootContext';
 
@@ -74,56 +69,6 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // Masks the input while its form submits, without changing `revealed`.
-  const [maskedForSubmit, setMaskedForSubmit] = React.useState(false);
-  const unmaskTimeout = useTimeout();
-
-  const handleSubmit = useStableCallback((event: Event) => {
-    const input = inputRef.current;
-    if (!revealed || !input || event.target !== input.form) {
-      return;
-    }
-
-    // The form data is built right after this event is dispatched, possibly before React
-    // commits, so the DOM is masked directly. The state keeps a re-render that React commits
-    // first, such as a form handler's update, from rendering `text` again.
-    input.type = 'password';
-    setMaskedForSubmit(true);
-    // The form data has been built by the next task. A prevented submit unmasks then too.
-    unmaskTimeout.start(0, () => {
-      setMaskedForSubmit(false);
-    });
-  });
-
-  useIsoLayoutEffect(() => {
-    // Attach the listeners to the input's tree and not the document because, when the input and
-    // its form are portaled into a shadow root, `submit` and `reset` fire there and never reach
-    // the document.
-    const rootNode = inputRef.current?.getRootNode();
-    if (!rootNode) {
-      return undefined;
-    }
-
-    // Both listen in the capture phase, before any form handler can stop their propagation.
-    // The input's form is read when the events fire, so a late or changed form owner is followed.
-    return mergeCleanups(
-      addEventListener(
-        rootNode,
-        'reset',
-        (event) => {
-          if (event.target === inputRef.current?.form) {
-            setRevealed(initialRevealed, createChangeEventDetails(REASONS.formReset, event));
-          }
-        },
-        true,
-      ),
-      // Always mask on submit, with no way to cancel it: a revealed input is plain text, so
-      // browsers could save the password to autofill history and password managers may not
-      // recognize it.
-      addEventListener(rootNode, 'submit', handleSubmit, true),
-    );
-  }, [initialRevealed, setRevealed, handleSubmit]);
-
   const state: PasswordFieldRoot.State = React.useMemo(
     () => ({ ...fieldState, disabled, revealed }),
     [fieldState, disabled, revealed],
@@ -133,13 +78,13 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
     () => ({
       state,
       setRevealed,
-      maskedForSubmit,
+      initialRevealed,
       inputId,
       inputIdProp,
       setRenderedInputId,
       inputRef,
     }),
-    [state, setRevealed, maskedForSubmit, inputId, inputIdProp],
+    [state, setRevealed, initialRevealed, inputId, inputIdProp],
   );
 
   return (

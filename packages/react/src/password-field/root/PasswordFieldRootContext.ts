@@ -13,9 +13,9 @@ export interface PasswordFieldRootContext {
    */
   setRevealed: (revealed: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void;
   /**
-   * Whether the input is masked while its form submits, regardless of `revealed`.
+   * The visibility on mount, which a reset of the input's form restores.
    */
-  maskedForSubmit: boolean;
+  initialRevealed: boolean;
   /**
    * The id the input renders with, used by the toggle's `aria-controls`.
    */
