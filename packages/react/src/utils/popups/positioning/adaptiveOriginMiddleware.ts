@@ -1,5 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSide } from '@floating-ui/utils';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import type { Middleware } from '@floating-ui/react-dom';
 import { DEFAULT_SIDES } from './adaptiveOriginConstants';
 
@@ -17,35 +18,25 @@ export const adaptiveOrigin: Middleware = {
     } = state;
 
     const win = ownerWindow(floating);
-    const styles = win.getComputedStyle(floating);
-    const hasTransition = styles.transitionDuration !== '0s' && styles.transitionDuration !== '';
-
-    if (!hasTransition) {
-      return {
-        x: rawX,
-        y: rawY,
-        data: DEFAULT_SIDES,
-      };
-    }
-
+    // Keep the anchor-facing inset stable when position transitions are toggled.
+    // Switching between top/left and bottom/right would make the next move jump.
     const offsetParent = await platform.getOffsetParent?.(floating);
 
     let offsetDimensions = { width: 0, height: 0 };
 
-    // For fixed strategy, prefer visualViewport if available
-    if (strategy === 'fixed' && win?.visualViewport) {
+    if (isHTMLElement(offsetParent)) {
+      // Insets use the containing block's padding box, including for fixed popups.
       offsetDimensions = {
-        width: win.visualViewport.width,
-        height: win.visualViewport.height,
+        width: offsetParent.clientWidth,
+        height: offsetParent.clientHeight,
       };
     } else if (offsetParent === win) {
       const doc = ownerDocument(floating);
+      const viewport = strategy === 'fixed' ? win.visualViewport : null;
       offsetDimensions = {
-        width: doc.documentElement.clientWidth,
-        height: doc.documentElement.clientHeight,
+        width: viewport?.width ?? doc.documentElement.clientWidth,
+        height: viewport?.height ?? doc.documentElement.clientHeight,
       };
-    } else if (await platform.isElement?.(offsetParent)) {
-      offsetDimensions = await platform.getDimensions(offsetParent);
     }
 
     const currentSide = getSide(placement);
