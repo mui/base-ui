@@ -238,8 +238,6 @@ export default function TreeGridAccountHierarchy() {
     [filter],
   );
 
-  const selectedCount = selectedItems.length;
-
   const addChildAccount = (parent: Account) => {
     newAccountCountRef.current += 1;
     const child: Account = {
@@ -330,13 +328,13 @@ export default function TreeGridAccountHierarchy() {
             </div>
             <div className={styles.Toolbar}>
               <span className={styles.SelectedCount}>
-                {selectedCount === 0
+                {selectedItems.length === 0
                   ? 'No accounts selected'
-                  : `${formatAccountCount(selectedCount)} selected`}
+                  : `${formatAccountCount(selectedItems.length)} selected`}
               </span>
               <Button
                 className={styles.Button}
-                disabled={selectedCount === 0}
+                disabled={selectedItems.length === 0}
                 focusableWhenDisabled
                 onClick={clearSelection}
               >
@@ -344,7 +342,7 @@ export default function TreeGridAccountHierarchy() {
               </Button>
               <Button
                 className={styles.Button}
-                disabled={selectedCount === 0}
+                disabled={selectedItems.length === 0}
                 focusableWhenDisabled
                 onClick={deleteSelected}
               >

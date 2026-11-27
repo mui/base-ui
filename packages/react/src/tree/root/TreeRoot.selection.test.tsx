@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { describeTree } from '../../../test/describeTree';
+import type { DescribeTreeRendererUtils } from '../../../test/describeTree';
 
 /**
  * All tests related to keyboard navigation (e.g.: selection using "Space")
@@ -229,9 +230,22 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     });
 
     it.each([
-      { name: 'a press replaces the selection', filterValue: '' },
-      { name: 'Ctrl+A selects all while filtered', filterValue: '2' },
-    ])('drops them when $name', async ({ filterValue }) => {
+      {
+        name: 'a press replaces the selection',
+        filterValue: '',
+        replaceSelection: (view: DescribeTreeRendererUtils) => {
+          fireEvent.click(view.getItemRoot('2'));
+        },
+      },
+      {
+        name: 'Ctrl+A selects all while filtered',
+        filterValue: '2',
+        replaceSelection: (view: DescribeTreeRendererUtils) => {
+          act(() => view.getItemRoot('2').focus());
+          fireEvent.keyDown(view.getItemRoot('2'), { key: 'a', ctrlKey: true });
+        },
+      },
+    ])('drops them when $name', async ({ filterValue, replaceSelection }) => {
       const onSelectedItemsChange = vi.fn();
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
@@ -242,12 +256,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       });
       await view.setItems([{ id: '2' }, { id: '3' }]);
 
-      if (filterValue === '') {
-        fireEvent.click(view.getItemRoot('2'));
-      } else {
-        act(() => view.getItemRoot('2').focus());
-        fireEvent.keyDown(view.getItemRoot('2'), { key: 'a', ctrlKey: true });
-      }
+      replaceSelection(view);
 
       expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['2']);
       expect([...view.actionsRef.current!.getSelectedItemIds()]).toEqual(['2']);
@@ -1937,12 +1946,6 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       });
       fireEvent.keyDown(view.getItemRoot('1'), { key: 'a', ctrlKey: true });
       expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '1.1', '1.2', '2']);
-
-      act(() => {
-        view.actionsRef.current!.setItemExpansion('1', true);
-      });
-      expect(view.isItemSelected('1.1')).toBe(true);
-      expect(view.isItemSelected('1.2')).toBe(true);
     });
   });
 

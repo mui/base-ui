@@ -10,7 +10,8 @@ import { Tree } from '..';
 
 const { render: renderElement } = createRenderer();
 
-// Keys typed after a pause start a new search. Call under fake timers.
+// Keys typed after a pause start a new search. Call under fake timers, which the
+// shared test setup restores after each test.
 function waitForSearchReset() {
   act(() => {
     vi.advanceTimersByTime(TYPEAHEAD_RESET_MS);
@@ -1502,23 +1503,22 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
   });
 
   describe('Type-ahead', () => {
-    it('should move the focus to the next item with a name that starts with the typed character', async () => {
-      const view = await render({
-        items: [
-          { id: '1', label: 'one' },
-          { id: '2', label: 'two' },
-          { id: '3', label: 'three' },
-          { id: '4', label: 'four' },
-        ],
-      });
+    it.each([
+      { name: 'lowercase', labels: ['one', 'two', 'three', 'four'] },
+      { name: 'capitalized', labels: ['One', 'Two', 'Three', 'Four'] },
+    ])(
+      'should move the focus to the next item with a $name label that starts with the typed character',
+      async ({ labels }) => {
+        const view = await render({
+          items: labels.map((label, index) => ({ id: String(index + 1), label })),
+        });
 
-      act(() => {
-        view.getItemRoot('1').focus();
-      });
-      expect(view.getFocusedItemId()).toBe('1');
+        act(() => {
+          view.getItemRoot('1').focus();
+        });
+        expect(view.getFocusedItemId()).toBe('1');
 
-      vi.useFakeTimers();
-      try {
+        vi.useFakeTimers();
         fireEvent.keyDown(view.getItemRoot('1'), { key: 't' });
         expect(view.getFocusedItemId()).toBe('2');
 
@@ -1532,10 +1532,8 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         waitForSearchReset();
         fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
         expect(view.getFocusedItemId()).toBe('1');
-      } finally {
-        vi.useRealTimers();
-      }
-    });
+      },
+    );
 
     it('should move to the next item in the displayed order when typing the same starting character', async () => {
       const view = await render({
@@ -1558,41 +1556,6 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
 
       fireEvent.keyDown(view.getItemRoot('B2'), { key: 'b' });
       expect(view.getFocusedItemId()).toBe('B1');
-    });
-
-    it('should work with capitalized label', async () => {
-      const view = await render({
-        items: [
-          { id: '1', label: 'One' },
-          { id: '2', label: 'Two' },
-          { id: '3', label: 'Three' },
-          { id: '4', label: 'Four' },
-        ],
-      });
-
-      act(() => {
-        view.getItemRoot('1').focus();
-      });
-      expect(view.getFocusedItemId()).toBe('1');
-
-      vi.useFakeTimers();
-      try {
-        fireEvent.keyDown(view.getItemRoot('1'), { key: 't' });
-        expect(view.getFocusedItemId()).toBe('2');
-
-        waitForSearchReset();
-        fireEvent.keyDown(view.getItemRoot('2'), { key: 'f' });
-        expect(view.getFocusedItemId()).toBe('4');
-
-        fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
-        expect(view.getFocusedItemId()).toBe('4');
-
-        waitForSearchReset();
-        fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
-        expect(view.getFocusedItemId()).toBe('1');
-      } finally {
-        vi.useRealTimers();
-      }
     });
 
     it('should type a space as part of a multi-word label', async () => {
@@ -1899,21 +1862,19 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       });
 
       vi.useFakeTimers();
-      try {
-        fireEvent.keyDown(view.getItemRoot('3'), { key: 'a' });
-        expect(view.getFocusedItemId()).toBe('1');
-        fireEvent.keyDown(view.getItemRoot('1'), { key: 'p' });
-        expect(view.getFocusedItemId()).toBe('1');
-        fireEvent.keyDown(view.getItemRoot('1'), { key: 'r' });
-        expect(view.getFocusedItemId()).toBe('2');
+      fireEvent.keyDown(view.getItemRoot('3'), { key: 'a' });
+      expect(view.getFocusedItemId()).toBe('1');
+      fireEvent.keyDown(view.getItemRoot('1'), { key: 'p' });
+      expect(view.getFocusedItemId()).toBe('1');
+      fireEvent.keyDown(view.getItemRoot('1'), { key: 'r' });
+      expect(view.getFocusedItemId()).toBe('2');
 
-        waitForSearchReset();
-        fireEvent.keyDown(view.getItemRoot('2'), { key: 'a' });
-        expect(view.getFocusedItemId()).toBe('1');
-        waitForSearchReset();
-      } finally {
-        vi.useRealTimers();
-      }
+      waitForSearchReset();
+      fireEvent.keyDown(view.getItemRoot('2'), { key: 'a' });
+      expect(view.getFocusedItemId()).toBe('1');
+      waitForSearchReset();
+      // The tree recovers focus on the next frame once the items change.
+      vi.useRealTimers();
 
       await view.setItems([
         { id: '1', label: 'apple' },
@@ -1943,18 +1904,14 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         view.getItemRoot('1').focus();
       });
       vi.useFakeTimers();
-      try {
-        fireEvent.keyDown(view.getItemRoot('1'), { key: 'b' });
-        expect(view.getFocusedItemId()).toBe('2');
+      fireEvent.keyDown(view.getItemRoot('1'), { key: 'b' });
+      expect(view.getFocusedItemId()).toBe('2');
 
-        act(() => {
-          vi.advanceTimersByTime(delay);
-        });
-        fireEvent.keyDown(view.getItemRoot('2'), { key: 'a' });
-        expect(view.getFocusedItemId()).toBe(expectedItemId);
-      } finally {
-        vi.useRealTimers();
-      }
+      act(() => {
+        vi.advanceTimersByTime(delay);
+      });
+      fireEvent.keyDown(view.getItemRoot('2'), { key: 'a' });
+      expect(view.getFocusedItemId()).toBe(expectedItemId);
     });
   });
 

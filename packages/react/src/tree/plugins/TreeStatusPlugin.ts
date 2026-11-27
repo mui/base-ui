@@ -39,13 +39,12 @@ function getSelectionChange(
   const label = item == null ? '' : selectors.itemLabel(state, item.itemId);
   const namedItem = item == null || label === '' ? null : { ...item, label };
 
-  const count = selected.length;
   const hasCount =
-    state.multiple !== false && (namedItem == null || count > 1 || previous.length > 1);
+    state.multiple !== false && (namedItem == null || selected.length > 1 || previous.length > 1);
   if (namedItem == null && !hasCount) {
     return null;
   }
-  return { type: 'selection', item: namedItem, count: hasCount ? count : null };
+  return { type: 'selection', item: namedItem, count: hasCount ? selected.length : null };
 }
 
 /**

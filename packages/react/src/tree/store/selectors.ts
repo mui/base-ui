@@ -134,7 +134,7 @@ export function normalizeSelectedItems(
 
 const selectedItemsSetSelector = createSelectorMemoized(
   (state: TreeState) => state.selectedItems,
-  (raw): Set<TreeItemId> => new Set(normalizeSelectedItems(raw)),
+  (raw): ReadonlySet<TreeItemId> => new Set(normalizeSelectedItems(raw)),
 );
 
 /**
@@ -162,8 +162,7 @@ function isMetaCheckable(meta: TreeItemMeta | undefined): boolean {
 }
 
 const isItemSelectedSelector = (state: TreeState, itemId: TreeItemId): boolean =>
-  selectedItemsSetSelector(state).has(itemId) &&
-  (itemMetaLookupSelector(state)[getItemIdKey(itemId)]?.selectable ?? false);
+  selectedItemsSetSelector(state).has(itemId) && isItemSelectionSupportedSelector(state, itemId);
 
 export type CheckboxSelectionStatus = 'checked' | 'indeterminate' | 'empty';
 
@@ -193,6 +192,24 @@ const selectableDescendantCountsSelector = createSelectorMemoized(
       }
     }
     return descendantCounts;
+  },
+);
+
+/**
+ * The items that can be selected while the tree is enabled, in tree order, under
+ * collapsed parents too. While filtering, only the ones the filter keeps.
+ */
+const selectableItemIdsSelector = createSelectorMemoized(
+  projectedChildrenLookupSelector,
+  itemMetaLookupSelector,
+  (childrenLookup, metaLookup): TreeItemId[] => {
+    const itemIds: TreeItemId[] = [];
+    forEachDescendant(childrenLookup, null, (itemId) => {
+      if (isMetaCheckable(metaLookup[getItemIdKey(itemId)])) {
+        itemIds.push(itemId);
+      }
+    });
+    return itemIds;
   },
 );
 
@@ -285,21 +302,24 @@ const isItemFocusedSelector = (state: TreeState, itemId: TreeItemId): boolean =>
   state.focusedItemId === itemId;
 
 /**
- * Whether an item can take focus. Nothing in a disabled tree can, as in a disabled
- * RadioGroup or ToggleGroup. `focusableWhenDisabled` only applies to disabled items.
+ * Whether an item can take focus while the tree is enabled. `focusableWhenDisabled`
+ * only applies to disabled items.
  */
 function isMetaFocusable(
   meta: TreeItemMeta | undefined,
-  treeDisabled: boolean,
   focusableWhenDisabled: boolean,
 ): meta is TreeItemMeta {
-  return meta != null && !treeDisabled && (focusableWhenDisabled || !meta.resolvedDisabled);
+  return meta != null && (focusableWhenDisabled || !meta.resolvedDisabled);
 }
 
+/**
+ * Whether an item can take focus. Nothing in a disabled tree can, as in a disabled
+ * RadioGroup or ToggleGroup.
+ */
 const canItemBeFocusedSelector = (state: TreeState, itemId: TreeItemId): boolean =>
+  !state.disabled &&
   isMetaFocusable(
     itemMetaLookupSelector(state)[getItemIdKey(itemId)],
-    state.disabled,
     state.itemFocusableWhenDisabled,
   );
 
@@ -353,55 +373,77 @@ export const flatListSelector = createSelectorMemoized(
 
 const flatListIndexLookupSelector = createSelectorMemoized(flatListSelector, buildChildrenIndexes);
 
-const defaultFocusableItemIdSelector = createSelectorMemoized(
-  (state: TreeState) => state.selectedItems,
-  (state: TreeState) => state.activeLinkCounts,
+/**
+ * The selected row that comes first in the view, whatever the order of the selection.
+ * With `focusable`, the first one that can take focus while the tree is enabled.
+ */
+const firstSelectedRowSelector = createSelectorMemoized(
+  selectedItemsSetSelector,
+  flatListSelector,
   viewSelector,
-  flatListIndexLookupSelector,
   itemMetaLookupSelector,
   (state: TreeState) => state.itemFocusableWhenDisabled,
-  (state: TreeState) => state.disabled,
   (
-    selectedItems,
+    selectedSet,
+    flatList,
+    view,
+    metaLookup,
+    focusableWhenDisabled,
+    focusable: boolean,
+  ): TreeItemId | null => {
+    if (selectedSet.size === 0) {
+      return null;
+    }
+    const isCandidate = (itemId: TreeItemId) =>
+      !focusable || isMetaFocusable(metaLookup[getItemIdKey(itemId)], focusableWhenDisabled);
+    if (selectedSet.size === 1) {
+      const [itemId] = selectedSet;
+      const meta = metaLookup[getItemIdKey(itemId)];
+      return meta != null && isMetaInView(view, metaLookup, meta) && isCandidate(itemId)
+        ? itemId
+        : null;
+    }
+    return flatList.find((itemId) => selectedSet.has(itemId) && isCandidate(itemId)) ?? null;
+  },
+);
+
+const defaultFocusableItemIdSelector = createSelectorMemoized(
+  (state: TreeState) => state.disabled,
+  (state: TreeState) => firstSelectedRowSelector(state, true),
+  (state: TreeState) => state.activeLinkCounts,
+  viewSelector,
+  itemMetaLookupSelector,
+  (state: TreeState) => state.itemFocusableWhenDisabled,
+  (
+    treeDisabled,
+    firstSelectedRow,
     activeLinkCounts,
     view,
-    flatListIndexLookup,
     metaLookup,
-    disabledFocusable,
-    treeDisabled,
+    focusableWhenDisabled,
   ): TreeItemId | null => {
     if (treeDisabled) {
       return null;
     }
-    const isFocusable = (itemId: TreeItemId) =>
-      isMetaFocusable(metaLookup[getItemIdKey(itemId)], treeDisabled, disabledFocusable);
-
-    // Focus the selected row that comes first in the view, whatever the order of the selection.
-    let selectedTabStop: TreeItemId | null = null;
-    let selectedTabStopIndex = Infinity;
-    for (const selectedId of normalizeSelectedItems(selectedItems)) {
-      const index = flatListIndexLookup[getItemIdKey(selectedId)];
-      if (index !== undefined && index < selectedTabStopIndex && isFocusable(selectedId)) {
-        selectedTabStop = selectedId;
-        selectedTabStopIndex = index;
-      }
+    if (firstSelectedRow != null) {
+      return firstSelectedRow;
     }
-    if (selectedTabStop != null) {
-      return selectedTabStop;
-    }
+    const isFocusable = (meta: TreeItemMeta | undefined): meta is TreeItemMeta =>
+      isMetaFocusable(meta, focusableWhenDisabled);
 
     // Then the row linking to the current page, as in the APG navigation tree view.
     for (const itemKey of Object.keys(activeLinkCounts)) {
       const meta = metaLookup[itemKey];
-      if (
-        isMetaFocusable(meta, treeDisabled, disabledFocusable) &&
-        isMetaInView(view, metaLookup, meta)
-      ) {
-        return meta!.id;
+      if (isFocusable(meta) && isMetaInView(view, metaLookup, meta)) {
+        return meta.id;
       }
     }
 
-    return (view.childrenLookup[TREE_VIEW_ROOT_PARENT_ID] ?? EMPTY_ARRAY).find(isFocusable) ?? null;
+    return (
+      (view.childrenLookup[TREE_VIEW_ROOT_PARENT_ID] ?? EMPTY_ARRAY).find((itemId) =>
+        isFocusable(metaLookup[getItemIdKey(itemId)]),
+      ) ?? null
+    );
   },
 );
 
@@ -417,12 +459,11 @@ const focusedTabbableItemIdSelector = createSelectorMemoized(
   (state: TreeState) => state.itemFocusableWhenDisabled,
   (state: TreeState) => state.disabled,
   (focusedItemId, metaLookup, view, disabledFocusable, treeDisabled): TreeItemId | null => {
-    if (focusedItemId == null) {
+    if (focusedItemId == null || treeDisabled) {
       return null;
     }
     const meta = metaLookup[getItemIdKey(focusedItemId)];
-    return isMetaFocusable(meta, treeDisabled, disabledFocusable) &&
-      isMetaInView(view, metaLookup, meta)
+    return isMetaFocusable(meta, disabledFocusable) && isMetaInView(view, metaLookup, meta)
       ? focusedItemId
       : null;
   },
@@ -556,6 +597,9 @@ export const selectors = {
     flatListIndexLookupSelector(state)[getItemIdKey(itemId)] ?? -1,
   flatListWithGroupTransitions: flatListWithGroupTransitionsSelector,
   isViewTransformed: (state: TreeState): boolean => viewSelector(state).transformed,
+  selectedItemsSet: selectedItemsSetSelector,
+  firstSelectedRow: firstSelectedRowSelector,
+  selectableItemIds: selectableItemIdsSelector,
   isItemSelected: isItemSelectedSelector,
   canItemBeSelected: canItemBeSelectedSelector,
   isItemSelectionSupported: isItemSelectionSupportedSelector,

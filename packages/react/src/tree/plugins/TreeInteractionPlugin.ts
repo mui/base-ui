@@ -34,6 +34,9 @@ import {
 /** Where DOM focus sits relative to the tree container. */
 export type FocusLocation = 'lost' | 'inside' | 'outside';
 
+/** The part of the typeahead that the tree's key handler uses. */
+type TreeTypeahead = Pick<UseTypeaheadReturnValue, 'onKeyDown' | 'endSession'>;
+
 function isPrintableKey(key: string): boolean {
   return key.length === 1 && !!key.match(/\S/);
 }
@@ -49,7 +52,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   private lastFocusCause: FocusCause = { reason: REASONS.none };
 
   /** The typeahead of the element with the tree role, which `useTreeRootProps` sets up. */
-  private typeahead: Pick<UseTypeaheadReturnValue, 'onKeyDown' | 'endSession'> | null = null;
+  private typeahead: TreeTypeahead | null = null;
 
   /** Whether a typeahead search is in progress, in which Space continues it. */
   private typing = false;
@@ -461,7 +464,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   };
 
   /** Gives the tree the typeahead that its key handler sends typed keys to. */
-  public registerTypeahead(typeahead: Pick<UseTypeaheadReturnValue, 'onKeyDown' | 'endSession'>) {
+  public registerTypeahead(typeahead: TreeTypeahead) {
     this.typeahead = typeahead;
     return () => {
       if (this.typeahead === typeahead) {
@@ -535,41 +538,18 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     // multiple selection, never type.
     const modifiedSpace = ctrlPressed || (event.shiftKey && multiple !== false);
     if (macToggle || (key === ' ' && (modifiedSpace || !this.typing))) {
-      const prevented = event.defaultPrevented;
-      // Always preventDefault, even for non-selectable items, so the page doesn't scroll.
+      this.activateItem(itemId, event, macToggle);
+      // Even on an item that can't be selected, so the page doesn't scroll.
       event.preventDefault();
-      if (selectors.canItemBeSelected(this.store.state, itemId)) {
-        const kind = this.store.items.getItemKind(itemId);
-        // A click on a link item would follow the link, and a click can't carry
-        // Option+Space's toggle, so those select from the key.
-        if (macToggle || kind === 'link') {
-          this.store.selection.press(
-            itemId,
-            {
-              shiftKey: event.shiftKey,
-              ctrlKey: ctrlPressed || macToggle,
-              toggle: kind === 'checkbox',
-            },
-            REASONS.itemPress,
-            event.nativeEvent,
-          );
-        } else if (!prevented) {
-          // As on a button, a keydown whose default was prevented doesn't press.
-          this.clickItem(itemId, event);
-        }
-      }
     } else if (key === 'Enter' && this.store.items.getItemKind(itemId) !== 'link') {
       // A link item follows its link on Enter like any focused link, and the
       // click that follows selects it.
       if (this.store.expansion.toggleItemExpansion(itemId, REASONS.itemPress, event.nativeEvent)) {
         event.preventDefault();
-      } else if (selectors.canItemBeSelected(this.store.state, itemId)) {
-        // As on a button, a keydown whose default was prevented doesn't press.
-        if (!event.defaultPrevented) {
-          event.preventDefault();
-          this.clickItem(itemId, event);
-        }
-      } else if (!selectors.isItemDisabled(this.store.state, itemId)) {
+      } else if (
+        !this.activateItem(itemId, event) &&
+        !selectors.isItemDisabled(this.store.state, itemId)
+      ) {
         // Without another action, Enter follows the item's link, as on a link
         // that has focus itself. A disabled item doesn't forward it.
         const link = this.store.grid?.getLink(itemId);
@@ -670,18 +650,43 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     //
     // A Space reaches here only mid-query, where it is the separator in a
     // multi-word label ("New Folder"); an idle Space was taken as selection above.
-    else if (!ctrlPressed && (isPrintableKey(key) || (key === ' ' && this.typing))) {
+    else if (!ctrlPressed && (isPrintableKey(key) || key === ' ')) {
       // With a filter input, typing on a row continues the query instead: focus
       // moves before the key's default action, which then types into the input.
       if (isPrintableKey(key) && this.store.filtering?.focusInput()) {
         return;
       }
-      // The typeahead reports when the search ends.
-      if (key !== ' ') {
-        this.typing = true;
-      }
+      // The hook only reports a search start with `stopTypingKeys`, which the tree leaves off.
+      this.typing = true;
       this.typeahead?.onKeyDown(event);
     }
+  }
+
+  /**
+   * Selects the item with Space or Enter, and returns whether it can be selected. As
+   * on a button, a keydown whose default was prevented doesn't activate it.
+   */
+  private activateItem(itemId: TreeItemId, event: React.KeyboardEvent, macToggle = false) {
+    if (!selectors.canItemBeSelected(this.store.state, itemId)) {
+      return false;
+    }
+    if (event.defaultPrevented) {
+      return true;
+    }
+    event.preventDefault();
+    // A click on a link item would follow the link, and a click can't carry
+    // Option+Space's toggle, so those select from the key.
+    if (macToggle || this.store.items.getItemKind(itemId) === 'link') {
+      this.store.selection.press(
+        itemId,
+        { shiftKey: event.shiftKey, ctrlKey: event.ctrlKey || event.metaKey || macToggle },
+        REASONS.itemPress,
+        event.nativeEvent,
+      );
+    } else {
+      this.clickItem(itemId, event);
+    }
+    return true;
   }
 
   /**
@@ -989,14 +994,12 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       // The link opens in a new tab or window, so the tree stays as it is.
       return;
     }
-    // The highlight follows focus, which the press moved on mousedown. A click that
-    // moves no focus, such as `click()` from assistive technology, doesn't highlight.
     if (selectors.canItemBeSelected(this.store.state, itemId)) {
       const { multiple } = this.store.state;
       const ctrlKey = event.ctrlKey || event.metaKey;
       this.store.selection.press(
         itemId,
-        { shiftKey: event.shiftKey, ctrlKey, touch, toggle: kind === 'checkbox' },
+        { shiftKey: event.shiftKey, ctrlKey, touch },
         REASONS.itemPress,
         event.nativeEvent,
       );

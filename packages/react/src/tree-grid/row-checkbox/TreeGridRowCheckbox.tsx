@@ -63,7 +63,7 @@ export const TreeGridRowCheckbox = fastComponentRef(function TreeGridRowCheckbox
       const event = details.event;
       store.selection.press(
         itemId,
-        { shiftKey: 'shiftKey' in event && event.shiftKey === true, toggle: true },
+        { shiftKey: 'shiftKey' in event && event.shiftKey === true },
         REASONS.itemPress,
         event,
       );
