@@ -6,10 +6,13 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { Field } from '../../field';
+import { useFieldControl } from '../../field/control/useFieldControl';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useRenderedId } from '../../internals/resolveRenderedId';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type {
   InputChangeEventDetails,
   InputChangeEventReason,
@@ -28,7 +31,13 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
   componentProps: PasswordFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    disabled: disabledProp = false,
+    render,
+    className,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const {
     state: { revealed, disabled: rootDisabled },
@@ -40,11 +49,7 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
   } = usePasswordFieldRootContext();
 
   // Only the render element's id can override the Root's; a spread `id` is still ignored.
-  const [id, registerIdRef] = useRenderedId(
-    { render: elementProps.render },
-    inputIdProp,
-    setRenderedInputId,
-  );
+  const [id, registerIdRef] = useRenderedId({ render }, inputIdProp, setRenderedInputId);
 
   const mergedRef = useMergedRefs(forwardedRef, inputRef, registerIdRef);
 
@@ -106,28 +111,46 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
     );
   }, [inputRef, handleReset, handleSubmit]);
 
-  return (
-    <Field.Control
-      // Password-friendly defaults; consumer props below override them.
-      autoComplete="current-password"
-      autoCapitalize="off"
-      autoCorrect="off"
-      spellCheck={false}
-      {...elementProps}
-      ref={mergedRef}
-      // The Root owns `type` so switching can't break, and `id` resolves through the Root so the
-      // toggle's `aria-controls` and a Field's label follow a render element's id.
-      id={id}
-      disabled={rootDisabled || disabledProp}
-      type={revealed && !maskedForSubmit ? 'text' : 'password'}
-      data-revealed={revealed ? '' : undefined}
-    />
-  );
+  const control = useFieldControl({
+    ...elementProps,
+    // `id` resolves through the Root so the toggle's `aria-controls` and a Field's label follow
+    // a render element's id.
+    id,
+    disabled: rootDisabled || disabledProp,
+  });
+
+  const state: PasswordFieldInput.State = { ...control.state, revealed };
+
+  return useRenderElement('input', componentProps, {
+    ref: [mergedRef, control.ref],
+    state,
+    props: [
+      // Password-friendly defaults; consumer props override them.
+      {
+        autoComplete: 'current-password',
+        autoCapitalize: 'off',
+        autoCorrect: 'off',
+        spellCheck: false,
+      },
+      ...control.props,
+      // The Root owns `type` so switching can't break.
+      { type: revealed && !maskedForSubmit ? 'text' : 'password' },
+    ],
+    stateAttributesMapping: fieldValidityMapping,
+  });
 });
 
-export interface PasswordFieldInputState extends InputState {}
+export interface PasswordFieldInputState extends InputState {
+  /**
+   * Whether the password is currently revealed as plain text.
+   */
+  revealed: boolean;
+}
 
-export interface PasswordFieldInputProps extends Omit<InputProps, 'id' | 'type'> {
+export interface PasswordFieldInputProps
+  extends
+    Omit<InputProps, 'id' | 'type' | 'className' | 'style' | 'render'>,
+    Pick<BaseUIComponentProps<'input', PasswordFieldInputState>, 'className' | 'style' | 'render'> {
   /**
    * Whether the input should ignore user interaction.
    * Use the `disabled` prop on `PasswordField.Root` to disable the toggle as well.

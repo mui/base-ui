@@ -15,6 +15,24 @@ describe('<PasswordField.Input />', () => {
     },
   }));
 
+  it('passes the visibility to its state callbacks', async () => {
+    const { user } = await render(
+      <PasswordField.Root>
+        <PasswordField.Input className={(state) => (state.revealed ? 'revealed' : 'masked')} />
+        <PasswordField.Toggle />
+      </PasswordField.Root>,
+    );
+
+    const input = document.querySelector('input')!;
+    expect(input).toHaveClass('masked');
+    expect(input).not.toHaveAttribute('data-revealed');
+
+    await user.click(screen.getByRole('button'));
+
+    expect(input).toHaveClass('revealed');
+    expect(input).toHaveAttribute('data-revealed');
+  });
+
   it('applies password-friendly defaults', async () => {
     await render(
       <PasswordField.Root>

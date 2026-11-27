@@ -116,6 +116,8 @@ Re-export of [Input](#input) props.
 
 ```typescript
 type PasswordFieldPreviewInputState = {
+  /** Whether the password is currently revealed as plain text. */
+  revealed: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
   /** Whether the field has been touched. */
@@ -393,29 +395,30 @@ type PasswordFieldInputProps = {
    * @default 'current-password'
    */
   autoComplete?: React.HTMLInputAutoCompleteAttribute;
+  /** The default value of the input. Use when uncontrolled. */
+  defaultValue?: string | number | string[];
+  /** The value of the input. Use when controlled. */
+  value?: string | string[] | number;
+  /** Callback fired when the `value` changes. Use when controlled. */
+  onValueChange?: (value: string, eventDetails: Input.ChangeEventDetails) => void;
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.
    */
-  className?: string | ((state: InputState) => string | undefined);
-  /** The default value of the input. Use when uncontrolled. */
-  defaultValue?: string | number | string[];
+  className?: string | ((state: PasswordFieldInputState) => string | undefined);
   /**
    * Style applied to the element, or a function that
    * returns a style object based on the component's state.
    */
-  style?: React.CSSProperties | ((state: InputState) => React.CSSProperties | undefined);
+  style?:
+    React.CSSProperties | ((state: PasswordFieldInputState) => React.CSSProperties | undefined);
   /**
    * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?: ReactElement | ((props: HTMLProps, state: InputState) => ReactElement);
-  /** The value of the input. Use when controlled. */
-  value?: string | string[] | number;
-  /** Callback fired when the `value` changes. Use when controlled. */
-  onValueChange?: (value: string, eventDetails: Input.ChangeEventDetails) => void;
+  render?: ReactElement | ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement);
 };
 ```
 
@@ -423,6 +426,8 @@ type PasswordFieldInputProps = {
 
 ```typescript
 type PasswordFieldInputState = {
+  /** Whether the password is currently revealed as plain text. */
+  revealed: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
   /** Whether the field has been touched. */
