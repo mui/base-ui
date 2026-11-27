@@ -165,6 +165,52 @@ describe('e2e', () => {
     });
   });
 
+  describe('<Combobox />', () => {
+    it.each([
+      { name: 'selects a new value', initialValue: null },
+      { name: 'reselects the current value', initialValue: 'Apple' },
+    ])('$name with the mouse during IME composition', async ({ initialValue }) => {
+      const query = new URLSearchParams();
+      if (initialValue !== null) {
+        query.set('value', initialValue);
+      }
+      await renderFixture(`combobox/ImeComposition?${query}`);
+
+      const input = page.getByRole('combobox');
+      const selected = page.getByTestId('selected');
+      await expect(input).toHaveValue(initialValue ?? '');
+      await expect(selected).toHaveText(initialValue ?? 'null');
+      await input.focus();
+      await input.selectText();
+
+      const session = await page.context().newCDPSession(page);
+      try {
+        for (const text of ['A', 'Ap', 'App']) {
+          // eslint-disable-next-line no-await-in-loop
+          await session.send('Input.imeSetComposition', {
+            text,
+            selectionStart: text.length,
+            selectionEnd: text.length,
+          });
+        }
+
+        const option = page.getByRole('option', { name: 'Apple' });
+        await expect(option).toBeVisible();
+        await expect(input).toHaveValue('App');
+        await expect(selected).toHaveText(initialValue ?? 'null');
+        await expect(input).toBeFocused();
+
+        await option.click();
+
+        await expect(input).toHaveValue('Apple');
+        await expect(selected).toHaveText('Apple');
+        await expect(input).toBeFocused();
+      } finally {
+        await session.detach();
+      }
+    });
+  });
+
   describe('<Radio />', () => {
     it('loops focus by default', async () => {
       await renderFixture('Radio');
