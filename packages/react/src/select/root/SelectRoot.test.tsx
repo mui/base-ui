@@ -69,10 +69,10 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
       });
-      // A closed select keeps its list mounted and hidden, as after any other close.
-      expect(screen.getByRole('listbox', { hidden: true })).not.toHaveAttribute(
-        'data-ending-style',
-      );
+      // The popup never showed, so focus stays where it was rather than moving to the trigger,
+      // whose focus would force-mount the list.
+      expect(screen.getByTestId('trigger')).not.toHaveFocus();
+      expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
     });
 
     it('finishes closing when a layout effect closes it right after a press opens it', async () => {
