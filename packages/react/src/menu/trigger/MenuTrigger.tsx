@@ -285,6 +285,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.
+  // The keys are constant because the generated id changes after the first commit on React 17.
 
   if (isOpenedByThisTrigger) {
     return (
@@ -292,19 +293,19 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         <FocusGuard
           ref={store.context.beforeTriggerFocusGuardRef}
           onFocus={handlePreFocusGuardFocus}
-          key={`${thisTriggerId}-pre-focus-guard`}
+          key="pre-focus-guard"
         />
-        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
+        <React.Fragment key="trigger">{element}</React.Fragment>
         <FocusGuard
           ref={store.context.triggerFocusTargetRef}
           onFocus={handleFocusTargetFocus}
-          key={`${thisTriggerId}-post-focus-guard`}
+          key="post-focus-guard"
         />
       </React.Fragment>
     );
   }
 
-  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
+  return <React.Fragment key="trigger">{element}</React.Fragment>;
 }) as MenuTrigger;
 
 export interface MenuTrigger {

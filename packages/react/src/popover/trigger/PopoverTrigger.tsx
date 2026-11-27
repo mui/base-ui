@@ -153,7 +153,8 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.
-  const keyedElement = <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
+  // The key is constant because the generated id changes after the first commit on React 17.
+  const keyedElement = <React.Fragment key="trigger">{element}</React.Fragment>;
 
   if (hasFocusGuards) {
     return (
