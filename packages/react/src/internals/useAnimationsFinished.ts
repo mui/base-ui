@@ -86,7 +86,7 @@ const flushBeforePaint = createFlushBeforePaint();
  * @returns A function that takes a callback to execute once all animations have finished, and an optional AbortSignal to abort the callback
  */
 export function useAnimationsFinished(
-  elementOrRef: React.RefObject<HTMLElement | null> | HTMLElement | null,
+  elementOrRef: React.RefObject<Element | null> | Element | null,
   waitForStartingStyleRemoved = false,
   batch = false,
 ) {

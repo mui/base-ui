@@ -20,7 +20,8 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
   const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles, instant } =
+    useMenuPositionerContext();
   const open = store.useState('open');
 
   const state: MenuArrowState = {
@@ -28,6 +29,7 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
     side,
     align,
     uncentered: arrowUncentered,
+    instant,
   };
 
   return useRenderElement('div', componentProps, {
@@ -59,6 +61,10 @@ export interface MenuArrowState {
    * Whether the arrow cannot be centered on the anchor.
    */
   uncentered: boolean;
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: string | undefined;
 }
 
 export interface MenuArrowProps extends BaseUIComponentProps<'div', MenuArrowState> {}

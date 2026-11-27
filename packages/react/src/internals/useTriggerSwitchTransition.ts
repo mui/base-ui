@@ -1,112 +1,169 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useAnimationsFinished } from './useAnimationsFinished';
+
+interface TriggerSwitchStore {
+  select(key: 'open'): boolean;
+  observe(key: 'viewportTransitioning', listener: (transitioning: boolean) => void): () => void;
+}
 
 /**
  * Popover and Menu declare different `instantType` unions, so only the members
  * this hook touches are typed.
  */
-interface TriggerSwitchStore {
+export interface TriggerChangeStore {
   /**
    * Read raw, because the `instantType` selector deliberately hides
    * `trigger-change` while closed — which is exactly when it has to be cleared.
    */
   readonly state: { readonly instantType: string | undefined };
   set(key: 'instantType', value: 'trigger-change' | undefined): void;
-  select(key: 'open'): boolean;
 }
 
 export interface UseTriggerSwitchTransitionParameters {
   store: TriggerSwitchStore;
-  /**
-   * The trigger element that currently owns the popup.
-   */
+  /** Menu and Popover also coordinate Popup transitions through the shared store. */
+  instantTypeStore?: TriggerChangeStore | undefined;
   domReference: Element | null;
   positionerElement: HTMLElement | null;
+  popupElement: HTMLElement | null;
+  arrowElementRef: React.RefObject<Element | null>;
+  /**
+   * Measures the anchor again, so a stable virtual anchor moves with the trigger.
+   */
+  updatePosition: () => void;
+  /**
+   * Runs before a scroll or resize repositions the popup.
+   */
+  onAnchorTracking: { current: (() => void) | null };
   open: boolean;
 }
 
 /**
- * Lets the positioner animate while a popup moves between detached triggers.
+ * Tracks whether a popup is moving between detached triggers, so the positioner can animate the
+ * move and keep anchor tracking instant otherwise.
  *
- * The positioner is normally marked instant, so a hand-off from one trigger to
- * another would teleport. Clearing `instantType` for the duration of the move
- * lets it transition, and `trigger-change` is restored once the move finishes.
- *
- * The restoration is deferred until the move's animations finish, so it can
- * outlive the move that scheduled it. The trigger element is retained through
- * the exit transition, so a close alone does not change `domReference` and
- * nothing would otherwise re-run this effect to abort it — a popup that closes
- * and reopens on the same trigger mid-exit would inherit the stale callback and
- * lose its own transition. Closing therefore cancels the pending restoration
- * explicitly.
- *
- * Applying `trigger-change` to a closed popup is prevented separately, by the
- * stores' `instantType` selector, since a controlled `open={false}` commit
- * reaches the popup without passing through `setOpen`.
+ * The move ends when the positioner, popup, and arrow animations finish and the popup's own
+ * viewport stops its content transition, or earlier when a scroll or resize repositions the popup.
+ * It continues if the popup closes during the move.
  */
-export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitionParameters): void {
-  const { store, domReference, positionerElement, open } = parameters;
+export function useTriggerSwitchTransition(
+  parameters: UseTriggerSwitchTransitionParameters,
+): boolean {
+  const {
+    store,
+    instantTypeStore,
+    domReference,
+    positionerElement,
+    popupElement,
+    arrowElementRef,
+    updatePosition,
+    onAnchorTracking,
+    open,
+  } = parameters;
 
+  const [isSwitching, setIsSwitching] = React.useState(false);
   const previousTriggerRef = React.useRef<Element | null>(null);
-  const pendingSwitchRef = React.useRef<AbortController | null>(null);
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
+  const closeCountRef = React.useRef(0);
+  const runOncePositionerFinishes = useAnimationsFinished(positionerElement);
+  const runOncePopupFinishes = useAnimationsFinished(popupElement);
+  const runOnceArrowFinishes = useAnimationsFinished(arrowElementRef);
+
+  const waitForMove = useStableCallback((signal: AbortSignal, endMove: () => void) => {
+    updatePosition();
+
+    // Viewport content can transition under an ancestor `[data-instant]`, so the move waits for it.
+    function waitForViewport() {
+      const unsubscribe = store.observe('viewportTransitioning', (transitioning) => {
+        if (!transitioning) {
+          endMove();
+        }
+      });
+      if (signal.aborted) {
+        unsubscribe();
+      } else {
+        signal.addEventListener('abort', unsubscribe, { once: true });
+      }
+    }
+
+    const waits = [
+      positionerElement ? runOncePositionerFinishes : null,
+      popupElement ? runOncePopupFinishes : null,
+      arrowElementRef.current ? runOnceArrowFinishes : null,
+    ].filter((wait) => wait != null);
+    let pendingParts = waits.length;
+    if (pendingParts === 0) {
+      waitForViewport();
+      return;
+    }
+    waits.forEach((wait) =>
+      wait(() => {
+        pendingParts -= 1;
+        if (pendingParts === 0) {
+          waitForViewport();
+        }
+      }, signal),
+    );
+  });
 
   useIsoLayoutEffect(() => {
     if (open) {
       return;
     }
 
-    pendingSwitchRef.current?.abort();
-    pendingSwitchRef.current = null;
+    closeCountRef.current += 1;
 
-    // `trigger-change` belongs to the open cycle that scheduled it. The selector
-    // stops a closed popup from rendering it, but the value has to be dropped
-    // too: a controlled reopen changes only `openProp`, so neither this effect
-    // nor `setOpen` would run again to replace it, and the selector would start
-    // exposing the old value against the new cycle.
-    if (store.state.instantType === 'trigger-change') {
-      store.set('instantType', undefined);
+    // The selector masks trigger-change while closed; clear its stored value too so a
+    // controlled reopen cannot inherit it and skip the Popup's enter transition.
+    if (instantTypeStore?.state.instantType === 'trigger-change') {
+      instantTypeStore.set('instantType', undefined);
     }
-  }, [open, store]);
+  }, [open, instantTypeStore]);
 
   useIsoLayoutEffect(() => {
-    const currentTrigger = domReference;
     const previousTrigger = previousTriggerRef.current;
+    previousTriggerRef.current = domReference;
 
-    if (currentTrigger) {
-      previousTriggerRef.current = currentTrigger;
-    }
-
-    if (!previousTrigger || !currentTrigger || currentTrigger === previousTrigger) {
+    // A cleared anchor, such as for a disabled Tooltip, or a change while closing does not move.
+    if (
+      !previousTrigger ||
+      !domReference ||
+      previousTrigger === domReference ||
+      !store.select('open')
+    ) {
+      setIsSwitching(false);
       return undefined;
     }
 
-    // The trigger element can also change while the popup is closing, when a
-    // trigger is replaced by a new element. There is no move to animate, and
-    // the cancellation effect above has already run for this commit, so a
-    // restoration scheduled here would survive into whatever opens next.
-    if (!store.select('open')) {
-      return undefined;
-    }
+    setIsSwitching(true);
+    instantTypeStore?.set('instantType', undefined);
 
-    store.set('instantType', undefined);
-
+    const closeCount = closeCountRef.current;
     const abortController = new AbortController();
-    pendingSwitchRef.current = abortController;
-
-    runOnceAnimationsFinish(() => {
-      // The abort above covers a committed close, but the animations can finish
-      // in the same frame the close commits. Writing `trigger-change` then would
-      // leave stale state behind for the next open to inherit.
-      if (store.select('open')) {
-        store.set('instantType', 'trigger-change');
+    function endMove() {
+      if (abortController.signal.aborted) {
+        return;
       }
-    }, abortController.signal);
+      abortController.abort();
+      onAnchorTracking.current = null;
+      setIsSwitching(false);
+      // A popup that closed during the move must not get trigger-change, even after it reopens.
+      if (closeCountRef.current === closeCount && store.select('open')) {
+        instantTypeStore?.set('instantType', 'trigger-change');
+      }
+    }
+
+    onAnchorTracking.current = () => ReactDOM.flushSync(endMove);
+    waitForMove(abortController.signal, endMove);
 
     return () => {
       abortController.abort();
+      onAnchorTracking.current = null;
     };
-  }, [domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, store, instantTypeStore, onAnchorTracking, waitForMove]);
+
+  return isSwitching;
 }

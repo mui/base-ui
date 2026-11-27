@@ -248,6 +248,7 @@ Renders a `<div>` element.
 | data-closed        | -                                                                          | Present when the preview card is closed.                              |
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-instant       | `'dismiss' \| 'focus' \| 'trigger-change'`                                 | Present when position transitions should be skipped.                  |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 **Positioner CSS Variables:**
@@ -279,7 +280,7 @@ type PreviewCardPositionerState = {
   /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
   /** Whether transitions should be skipped. */
-  instant: 'dismiss' | 'focus' | undefined;
+  instant: 'dismiss' | 'focus' | 'trigger-change' | undefined;
 };
 ```
 
@@ -349,6 +350,7 @@ Renders a `<div>` element.
 | data-closed     | -                                                                          | Present when the preview card is closed.                              |
 | data-uncentered | -                                                                          | Present when the preview card arrow is uncentered.                    |
 | data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-instant    | `'dismiss' \| 'focus' \| 'trigger-change'`                                 | Present when position transitions should be skipped.                  |
 | data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 ### Arrow.Props
@@ -367,6 +369,8 @@ type PreviewCardArrowState = {
   align: Align;
   /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
+  /** Whether transitions should be skipped. */
+  instant: string | undefined;
 };
 ```
 
@@ -487,6 +491,11 @@ declare namespace PreviewCardArrowDataAttributes {
   const align: 'data-align';
   /** Present when the preview card arrow is uncentered. */
   const uncentered: 'data-uncentered';
+  /**
+   * Present when position transitions should be skipped.
+   * @type 'dismiss' | 'focus' | 'trigger-change'
+   */
+  const instant: 'data-instant';
 }
 ```
 
@@ -602,6 +611,11 @@ declare namespace PreviewCardPositionerDataAttributes {
    * @type 'start' | 'center' | 'end'
    */
   const align: 'data-align';
+  /**
+   * Present when position transitions should be skipped.
+   * @type 'dismiss' | 'focus' | 'trigger-change'
+   */
+  const instant: 'data-instant';
 }
 ```
 

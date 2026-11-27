@@ -6,7 +6,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
 import type { Dimensions } from '@floating-ui/react-dom';
 import { useAnimationsFinished } from '../../../internals/useAnimationsFinished';
@@ -197,6 +197,12 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     setShowStartingStyleAttribute(true);
 
     cleanupFrame.request(() => {
+      // Compute the starting style before it is removed. Without a style read since it was set,
+      // Firefox skips it and the content does not transition.
+      const container = currentContainerRef.current;
+      if (container) {
+        ownerWindow(container).getComputedStyle(container).getPropertyValue('opacity');
+      }
       ReactDOM.flushSync(() => {
         setShowStartingStyleAttribute(false);
       });
@@ -227,6 +233,15 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   });
 
   const isTransitioning = previousContentNode != null;
+
+  // A trigger switch keeps the positioner's transitions while this content transition runs.
+  useIsoLayoutEffect(() => {
+    store.set('viewportTransitioning', isTransitioning);
+    return () => {
+      store.set('viewportTransitioning', false);
+    };
+  }, [store, isTransitioning]);
+
   let childrenToRender: React.ReactNode;
   if (!isTransitioning) {
     childrenToRender = (
