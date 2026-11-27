@@ -80,7 +80,7 @@
     "@next/eslint-plugin-next": "16.4.6",
     "@playwright/test": "1.65.1",
     "@tailwindcss/postcss": "4.3.5",
-    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/jest-dom": "8.0.0",
     "@types/node": "22.20.5",
     "@types/react": "19.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
