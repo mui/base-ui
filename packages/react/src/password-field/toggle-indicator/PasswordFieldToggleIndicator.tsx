@@ -5,13 +5,8 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
-
-const stateAttributesMapping: StateAttributesMapping<PasswordFieldToggleIndicatorState> = {
-  ...transitionStatusMapping,
-};
 
 /**
  * Indicates whether the password is revealed or hidden.
@@ -56,7 +51,7 @@ export const PasswordFieldToggleIndicator = React.forwardRef(function PasswordFi
     enabled: mounted,
     ref: [forwardedRef, indicatorRef],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: transitionStatusMapping,
     props: [{ 'aria-hidden': true }, elementProps],
   });
 });
