@@ -38,76 +38,79 @@ export default function ExampleTreeGridHero() {
   const actionsRef = React.useRef<TreeGrid.Root.Actions<Task>>(null);
 
   return (
-    // @focus-start
-    <TreeGrid.Root
-      defaultItems={items}
-      defaultExpandedItems={['website', 'mobile-app']}
-      actionsRef={actionsRef}
-    >
-      <TreeGrid.Table aria-label="Projects" className={styles.Table}>
-        {(task: Task) => (
-          <TreeGrid.Row
-            itemId={task.id}
-            className={styles.Row}
-            aria-description={task.children ? undefined : 'Press Tab to reach the task controls'}
-          >
-            <TreeGrid.Cell className={styles.Cell}>
-              <TreeGrid.RowExpansionTrigger className={styles.ExpansionTrigger}>
-                <ChevronIcon />
-              </TreeGrid.RowExpansionTrigger>
-              {task.children ? (
-                <span className={styles.Label}>{task.label}</span>
-              ) : (
-                <React.Fragment>
-                  <TreeGrid.CellLink
-                    href="#"
-                    onClick={(event) => event.preventDefault()}
-                    className={styles.Link}
-                  >
-                    {task.label}
-                  </TreeGrid.CellLink>
-                  <span className={styles.Estimate}>
-                    <TreeGrid.CellInput
-                      defaultValue={task.estimate}
-                      aria-label={`Estimate for ${task.label}, in hours`}
-                      className={styles.Input}
-                    />
-                    <span aria-hidden="true">h</span>
-                  </span>
-                  <label className={styles.SwitchLabel}>
-                    <TreeGrid.CellControl
-                      controlKeys={SWITCH_CONTROL_KEYS}
-                      render={
-                        <Switch.Root
-                          defaultChecked={task.done}
-                          aria-label={`Mark ${task.label} as done`}
-                          className={styles.Switch}
-                        />
+    <div className={styles.Field}>
+      {/* @focus-start */}
+      <TreeGrid.Root
+        defaultItems={items}
+        defaultExpandedItems={['website', 'mobile-app']}
+        actionsRef={actionsRef}
+      >
+        <TreeGrid.Label className={styles.Label}>Projects</TreeGrid.Label>
+        <TreeGrid.Table className={styles.Table}>
+          {(task: Task) => (
+            <TreeGrid.Row
+              itemId={task.id}
+              className={styles.Row}
+              aria-description={task.children ? undefined : 'Press Tab to reach the task controls'}
+            >
+              <TreeGrid.Cell className={styles.Cell}>
+                <TreeGrid.RowExpansionTrigger className={styles.ExpansionTrigger}>
+                  <ChevronIcon />
+                </TreeGrid.RowExpansionTrigger>
+                {task.children ? (
+                  <span className={styles.RowLabel}>{task.label}</span>
+                ) : (
+                  <React.Fragment>
+                    <TreeGrid.CellLink
+                      href="#"
+                      onClick={(event) => event.preventDefault()}
+                      className={styles.Link}
+                    >
+                      {task.label}
+                    </TreeGrid.CellLink>
+                    <span className={styles.Estimate}>
+                      <TreeGrid.CellInput
+                        defaultValue={task.estimate}
+                        aria-label={`Estimate for ${task.label}, in hours`}
+                        className={styles.Input}
+                      />
+                      <span aria-hidden="true">h</span>
+                    </span>
+                    <label className={styles.SwitchLabel}>
+                      <TreeGrid.CellControl
+                        controlKeys={SWITCH_CONTROL_KEYS}
+                        render={
+                          <Switch.Root
+                            defaultChecked={task.done}
+                            aria-label={`Mark ${task.label} as done`}
+                            className={styles.Switch}
+                          />
+                        }
+                      >
+                        <Switch.Thumb className={styles.Thumb} />
+                      </TreeGrid.CellControl>
+                      Done
+                    </label>
+                    <TreeGrid.CellButton
+                      aria-label={`Remove ${task.label}`}
+                      className={styles.RemoveButton}
+                      onClick={() =>
+                        actionsRef.current?.applyTransaction((transaction) =>
+                          transaction.remove(task.id),
+                        )
                       }
                     >
-                      <Switch.Thumb className={styles.Thumb} />
-                    </TreeGrid.CellControl>
-                    Done
-                  </label>
-                  <TreeGrid.CellButton
-                    aria-label={`Remove ${task.label}`}
-                    className={styles.RemoveButton}
-                    onClick={() =>
-                      actionsRef.current?.applyTransaction((transaction) =>
-                        transaction.remove(task.id),
-                      )
-                    }
-                  >
-                    <RemoveIcon />
-                  </TreeGrid.CellButton>
-                </React.Fragment>
-              )}
-            </TreeGrid.Cell>
-          </TreeGrid.Row>
-        )}
-      </TreeGrid.Table>
-    </TreeGrid.Root>
-    // @focus-end
+                      <RemoveIcon />
+                    </TreeGrid.CellButton>
+                  </React.Fragment>
+                )}
+              </TreeGrid.Cell>
+            </TreeGrid.Row>
+          )}
+        </TreeGrid.Table>
+      </TreeGrid.Root>
+      {/* @focus-end */}
+    </div>
   );
 }
 

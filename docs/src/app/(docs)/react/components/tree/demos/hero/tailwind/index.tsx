@@ -41,30 +41,32 @@ const CONTROL_CLASS =
 
 export default function ExampleTreeHero() {
   return (
-    // @focus-start
-    <Tree.Root items={items} defaultExpandedItems={['documents']}>
-      <Tree.List
-        aria-label="File system"
-        className="box-content w-68 border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
-      >
-        {(item: Tree.DefaultItem) => (
-          <Tree.Item itemId={item.id} className={ITEM_CLASS}>
-            <Tree.ItemExpansionTrigger
-              className={`${CONTROL_CLASS} data-expanded:[&_svg]:rotate-90`}
-            >
-              <ChevronIcon />
-            </Tree.ItemExpansionTrigger>
-            <Tree.ItemGroupIndicator className="inline-flex shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-4">
-              <FolderIcon />
-            </Tree.ItemGroupIndicator>
-            <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-              {item.label}
-            </span>
-          </Tree.Item>
-        )}
-      </Tree.List>
-    </Tree.Root>
-    // @focus-end
+    <div className="flex flex-col items-start gap-1">
+      {/* @focus-start */}
+      <Tree.Root items={items} defaultExpandedItems={['documents']}>
+        <Tree.Label className="cursor-default text-sm font-bold text-neutral-950 dark:text-white">
+          File system
+        </Tree.Label>
+        <Tree.List className="box-content w-68 border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white">
+          {(item: Tree.DefaultItem) => (
+            <Tree.Item itemId={item.id} className={ITEM_CLASS}>
+              <Tree.ItemExpansionTrigger
+                className={`${CONTROL_CLASS} data-expanded:[&_svg]:rotate-90`}
+              >
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <Tree.ItemGroupIndicator className="inline-flex shrink-0 text-neutral-500 dark:text-neutral-400 [&_svg]:size-4">
+                <FolderIcon />
+              </Tree.ItemGroupIndicator>
+              <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                {item.label}
+              </span>
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>
+      {/* @focus-end */}
+    </div>
   );
 }
 

@@ -83,83 +83,85 @@ export default function ExampleTreeGridHero() {
   const actionsRef = React.useRef<TreeGrid.Root.Actions<Task>>(null);
 
   return (
-    // @focus-start
-    <TreeGrid.Root
-      defaultItems={items}
-      defaultExpandedItems={['website', 'mobile-app']}
-      actionsRef={actionsRef}
-    >
-      <TreeGrid.Table
-        aria-label="Projects"
-        className="box-border w-96 max-w-full border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
+    <div className="flex flex-col items-start gap-1">
+      {/* @focus-start */}
+      <TreeGrid.Root
+        defaultItems={items}
+        defaultExpandedItems={['website', 'mobile-app']}
+        actionsRef={actionsRef}
       >
-        {(task: Task) => (
-          <TreeGrid.Row
-            itemId={task.id}
-            className={ROW_CLASS}
-            aria-description={task.children ? undefined : 'Press Tab to reach the task controls'}
-          >
-            <TreeGrid.Cell className={CELL_CLASS}>
-              <TreeGrid.RowExpansionTrigger
-                className={`${ICON_BUTTON_CLASS} data-expanded:[&_svg]:rotate-90 [&_svg]:size-3`}
-              >
-                <ChevronIcon />
-              </TreeGrid.RowExpansionTrigger>
-              {task.children ? (
-                <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                  {task.label}
-                </span>
-              ) : (
-                <React.Fragment>
-                  <TreeGrid.CellLink
-                    href="#"
-                    onClick={(event) => event.preventDefault()}
-                    className={LINK_CLASS}
-                  >
+        <TreeGrid.Label className="cursor-default text-sm font-bold text-neutral-950 dark:text-white">
+          Projects
+        </TreeGrid.Label>
+        <TreeGrid.Table className="box-border w-96 max-w-full border border-neutral-200 bg-white p-1 text-neutral-950 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white">
+          {(task: Task) => (
+            <TreeGrid.Row
+              itemId={task.id}
+              className={ROW_CLASS}
+              aria-description={task.children ? undefined : 'Press Tab to reach the task controls'}
+            >
+              <TreeGrid.Cell className={CELL_CLASS}>
+                <TreeGrid.RowExpansionTrigger
+                  className={`${ICON_BUTTON_CLASS} data-expanded:[&_svg]:rotate-90 [&_svg]:size-3`}
+                >
+                  <ChevronIcon />
+                </TreeGrid.RowExpansionTrigger>
+                {task.children ? (
+                  <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                     {task.label}
-                  </TreeGrid.CellLink>
-                  <span className="flex shrink-0 items-center gap-1">
-                    <TreeGrid.CellInput
-                      defaultValue={task.estimate}
-                      aria-label={`Estimate for ${task.label}, in hours`}
-                      className={INPUT_CLASS}
-                    />
-                    <span aria-hidden="true">h</span>
                   </span>
-                  <label className="flex shrink-0 items-center gap-1.5">
-                    <TreeGrid.CellControl
-                      controlKeys={SWITCH_CONTROL_KEYS}
-                      render={
-                        <Switch.Root
-                          defaultChecked={task.done}
-                          aria-label={`Mark ${task.label} as done`}
-                          className={SWITCH_CLASS}
-                        />
+                ) : (
+                  <React.Fragment>
+                    <TreeGrid.CellLink
+                      href="#"
+                      onClick={(event) => event.preventDefault()}
+                      className={LINK_CLASS}
+                    >
+                      {task.label}
+                    </TreeGrid.CellLink>
+                    <span className="flex shrink-0 items-center gap-1">
+                      <TreeGrid.CellInput
+                        defaultValue={task.estimate}
+                        aria-label={`Estimate for ${task.label}, in hours`}
+                        className={INPUT_CLASS}
+                      />
+                      <span aria-hidden="true">h</span>
+                    </span>
+                    <label className="flex shrink-0 items-center gap-1.5">
+                      <TreeGrid.CellControl
+                        controlKeys={SWITCH_CONTROL_KEYS}
+                        render={
+                          <Switch.Root
+                            defaultChecked={task.done}
+                            aria-label={`Mark ${task.label} as done`}
+                            className={SWITCH_CLASS}
+                          />
+                        }
+                      >
+                        <Switch.Thumb className={THUMB_CLASS} />
+                      </TreeGrid.CellControl>
+                      Done
+                    </label>
+                    <TreeGrid.CellButton
+                      aria-label={`Remove ${task.label}`}
+                      className={`${ICON_BUTTON_CLASS} [&_svg]:size-3.5`}
+                      onClick={() =>
+                        actionsRef.current?.applyTransaction((transaction) =>
+                          transaction.remove(task.id),
+                        )
                       }
                     >
-                      <Switch.Thumb className={THUMB_CLASS} />
-                    </TreeGrid.CellControl>
-                    Done
-                  </label>
-                  <TreeGrid.CellButton
-                    aria-label={`Remove ${task.label}`}
-                    className={`${ICON_BUTTON_CLASS} [&_svg]:size-3.5`}
-                    onClick={() =>
-                      actionsRef.current?.applyTransaction((transaction) =>
-                        transaction.remove(task.id),
-                      )
-                    }
-                  >
-                    <RemoveIcon />
-                  </TreeGrid.CellButton>
-                </React.Fragment>
-              )}
-            </TreeGrid.Cell>
-          </TreeGrid.Row>
-        )}
-      </TreeGrid.Table>
-    </TreeGrid.Root>
-    // @focus-end
+                      <RemoveIcon />
+                    </TreeGrid.CellButton>
+                  </React.Fragment>
+                )}
+              </TreeGrid.Cell>
+            </TreeGrid.Row>
+          )}
+        </TreeGrid.Table>
+      </TreeGrid.Root>
+      {/* @focus-end */}
+    </div>
   );
 }
 

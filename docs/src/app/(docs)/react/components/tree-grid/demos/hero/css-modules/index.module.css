@@ -1,3 +1,22 @@
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+  cursor: default;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
 .Table {
   box-sizing: border-box;
   width: 24rem;
@@ -129,7 +148,7 @@
   transform: rotate(90deg);
 }
 
-.Label {
+.RowLabel {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;

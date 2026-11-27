@@ -25,23 +25,26 @@ const items: Tree.DefaultItem[] = [
 
 export default function ExampleTreeHero() {
   return (
-    // @focus-start
-    <Tree.Root items={items} defaultExpandedItems={['documents']}>
-      <Tree.List aria-label="File system" className={styles.Tree}>
-        {(item: Tree.DefaultItem) => (
-          <Tree.Item itemId={item.id} className={styles.Item}>
-            <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-              <ChevronIcon />
-            </Tree.ItemExpansionTrigger>
-            <Tree.ItemGroupIndicator className={styles.GroupIndicator}>
-              <FolderIcon />
-            </Tree.ItemGroupIndicator>
-            <span className={styles.Label}>{item.label}</span>
-          </Tree.Item>
-        )}
-      </Tree.List>
-    </Tree.Root>
-    // @focus-end
+    <div className={styles.Field}>
+      {/* @focus-start */}
+      <Tree.Root items={items} defaultExpandedItems={['documents']}>
+        <Tree.Label className={styles.Label}>File system</Tree.Label>
+        <Tree.List className={styles.Tree}>
+          {(item: Tree.DefaultItem) => (
+            <Tree.Item itemId={item.id} className={styles.Item}>
+              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <Tree.ItemGroupIndicator className={styles.GroupIndicator}>
+                <FolderIcon />
+              </Tree.ItemGroupIndicator>
+              <span className={styles.ItemLabel}>{item.label}</span>
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>
+      {/* @focus-end */}
+    </div>
   );
 }
 

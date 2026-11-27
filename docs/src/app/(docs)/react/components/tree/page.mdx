@@ -90,6 +90,10 @@ The root infers the item type from `items`. Parts outside the root's props, such
 
 Set `multiple` on `<Tree.Root>` to let users select more than one item. A click or <kbd>Space</kbd> adds or removes an item, as does <kbd>Enter</kbd> on an item that can't expand, and the selected items are an array.
 
+import { DemoTreeMultipleSelection } from './demos/multiple-selection';
+
+<DemoTreeMultipleSelection />
+
 ### Opt-in multiple selection
 
 Use `multiple="opt-in"` when users opt in to selecting more than one item by holding a modifier key. Without one, a click or moving focus with the keyboard moves the selection to a single item.
@@ -102,6 +106,10 @@ Use `multiple="opt-in"` when users opt in to selecting more than one item by hol
   <kbd>Option</kbd> instead of <kbd>Ctrl</kbd>.
 
 On touch devices, which have no modifier keys, a tap adds or removes an item, the same as `multiple`. A `<Tree.CheckboxItem>` always selects as with `multiple`.
+
+import { DemoTreeOptInSelection } from './demos/opt-in-selection';
+
+<DemoTreeOptInSelection />
 
 ### Checkbox selection
 

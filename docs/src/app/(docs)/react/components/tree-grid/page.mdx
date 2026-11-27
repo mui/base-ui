@@ -147,7 +147,17 @@ The part must render the element that receives focus. Other focusable elements i
 
 Set `multiple` on `<TreeGrid.Root>` to let users select more than one row. A click or <kbd>Space</kbd> on a row adds or removes it, as does <kbd>Enter</kbd> on a row that can't expand, and the selected items are an array.
 
+import { DemoTreeGridMultipleSelection } from './demos/multiple-selection';
+
+<DemoTreeGridMultipleSelection />
+
+### Opt-in multiple selection
+
 Use `multiple="opt-in"` when users opt in to selecting more than one row by holding a modifier key. Without one, a click or moving focus with the keyboard moves the selection to a single row. The modifier keys are the same as in [Tree](/react/components/tree#opt-in-multiple-selection). On touch devices, a tap adds or removes a row, the same as `multiple`. A row with a checkbox always selects as with `multiple`.
+
+import { DemoTreeGridOptInSelection } from './demos/opt-in-selection';
+
+<DemoTreeGridOptInSelection />
 
 ### Columns
 
