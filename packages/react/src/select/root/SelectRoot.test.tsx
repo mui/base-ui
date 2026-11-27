@@ -1096,7 +1096,7 @@ describe('<Select.Root />', () => {
       const handleValueChange = vi.fn();
 
       function App() {
-        const [value, setValue] = React.useState<string | null>('');
+        const [value, setValue] = React.useState<string | null>(null);
 
         return (
           <Select.Root
@@ -5179,6 +5179,184 @@ describe('<Select.Root />', () => {
       const options = await screen.findAllByRole('option');
       options.forEach((opt) => {
         expect(opt).not.toHaveAttribute('data-selected');
+      });
+    });
+
+    it('resets the value when the selected item is missing on first mount', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b']);
+
+        return (
+          <div>
+            <Select.Root defaultValue="b" onValueChange={onValueChange}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              data-testid="remove-b"
+              onClick={() => setItems((prev) => prev.filter((item) => item !== 'b'))}
+            >
+              Remove B
+            </button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveTextContent('b');
+
+      // The items have never mounted, so nothing reconciles the removal yet.
+      fireEvent.click(screen.getByTestId('remove-b'));
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(trigger).toHaveTextContent('b');
+
+      // Focusing the trigger mounts the items for the first time.
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+      });
+
+      expect(trigger).not.toHaveTextContent('b');
+    });
+
+    it('resets a controlled value missing on first mount through onValueChange', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b']);
+        const [value, setValue] = React.useState<string | null>('b');
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              onValueChange={(next) => {
+                setValue(next);
+                onValueChange(next);
+              }}
+            >
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              data-testid="remove-b"
+              onClick={() => setItems((prev) => prev.filter((item) => item !== 'b'))}
+            >
+              Remove B
+            </button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveTextContent('b');
+
+      fireEvent.click(screen.getByTestId('remove-b'));
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+      });
+
+      expect(trigger).not.toHaveTextContent('b');
+    });
+
+    it('filters missing selections out of a multiple value on first mount', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+
+        return (
+          <div>
+            <Select.Root multiple defaultValue={['b', 'c']} onValueChange={onValueChange}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              data-testid="remove-c"
+              onClick={() => setItems((prev) => prev.filter((item) => item !== 'c'))}
+            >
+              Remove C
+            </button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.click(screen.getByTestId('remove-c'));
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toEqual(['b']);
       });
     });
 
