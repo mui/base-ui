@@ -20,6 +20,7 @@ export { waitForPositioned } from './waitForPositioned';
 
 // Shared suites
 export { describeConformance } from './describeConformance';
+export { fieldControlConformanceTests } from './fieldControlConformanceTests';
 export { detachedTriggersConformanceTests } from './detachedTriggersConformanceTests';
 export { dialogRootSharedTests } from './dialogRootSharedTests';
 export { hiddenInputSizeTests } from './hiddenInputSizeTests';

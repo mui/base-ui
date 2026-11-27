@@ -3,7 +3,12 @@ import { expect, vi, describe, it } from 'vitest';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  fieldControlConformanceTests,
+  isJSDOM,
+} from '#test-utils';
 
 describe('<Field.Control />', () => {
   const { render, renderToString } = createRenderer();
@@ -15,6 +20,11 @@ describe('<Field.Control />', () => {
       return render(<Field.Root>{node}</Field.Root>);
     },
   }));
+
+  fieldControlConformanceTests({
+    render,
+    createComponent: (props) => <Field.Control {...props} />,
+  });
 
   it('avoids rerendering for uncontrolled input changes', async () => {
     const renderCountRef = { current: 0 };

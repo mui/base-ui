@@ -3,7 +3,7 @@ import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { Field } from '@base-ui/react/field';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, fieldControlConformanceTests } from '#test-utils';
 
 describe('<PasswordField.Input />', () => {
   const { render } = createRenderer();
@@ -14,6 +14,15 @@ describe('<PasswordField.Input />', () => {
       return render(<PasswordField.Root>{node}</PasswordField.Root>);
     },
   }));
+
+  fieldControlConformanceTests({
+    render,
+    createComponent: (props) => (
+      <PasswordField.Root>
+        <PasswordField.Input {...props} />
+      </PasswordField.Root>
+    ),
+  });
 
   it('passes the visibility to its state callbacks', async () => {
     const { user } = await render(

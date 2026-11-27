@@ -1,6 +1,6 @@
 import { describe } from 'vitest';
 import { Input } from '@base-ui/react/input';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, fieldControlConformanceTests } from '#test-utils';
 
 describe('<Input />', () => {
   const { render } = createRenderer();
@@ -9,4 +9,6 @@ describe('<Input />', () => {
     refInstanceof: window.HTMLInputElement,
     render,
   }));
+
+  fieldControlConformanceTests({ render, createComponent: (props) => <Input {...props} /> });
 });
