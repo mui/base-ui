@@ -9392,6 +9392,60 @@ describe('<Combobox.Root />', () => {
         },
       );
 
+      it.each(['items', 'filteredItems'] as const)(
+        'highlights the first candidate when results refill through an empty list with %s',
+        async (dataProp) => {
+          const onValueChange = vi.fn();
+          const { user, setProps } = await render(
+            <AsyncCombobox
+              dataProp={dataProp}
+              items={['31', '32', '33']}
+              onValueChange={onValueChange}
+            />,
+          );
+          const input = screen.getByRole('combobox');
+          await user.type(input, '32');
+          expect(screen.getByRole('option', { name: '31' })).toHaveAttribute('data-highlighted');
+
+          await setProps({ items: [] });
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+
+          await setProps({ items: ['32', '320'] });
+          const option = screen.getByRole('option', { name: '32' });
+          expect(option).toHaveAttribute('data-highlighted');
+          expect(input).toHaveAttribute('aria-activedescendant', option.id);
+
+          await user.keyboard('{Enter}');
+          expect(onValueChange).toHaveBeenCalledExactlyOnceWith('32', expect.anything());
+        },
+      );
+
+      it('does not highlight the first item when results refill through an empty list without typing', async () => {
+        const onValueChange = vi.fn();
+        const { user, setProps } = await render(
+          <AsyncCombobox
+            items={['31', '32', '33']}
+            defaultValue="32"
+            onValueChange={onValueChange}
+          />,
+        );
+        const input = screen.getByRole('combobox');
+        expect(input).toHaveValue('32');
+        await user.click(screen.getByTestId('trigger'));
+        // A trigger press opens on the frame after `mousedown`, which `user.click` can beat.
+        const selected = await screen.findByRole('option', { name: '32' });
+        await waitFor(() => {
+          expect(selected).toHaveAttribute('data-highlighted');
+        });
+
+        await setProps({ items: [] });
+        await setProps({ items: ['31', '32', '33'] });
+        expect(screen.getByRole('option', { name: '31' })).not.toHaveAttribute('data-highlighted');
+
+        await user.keyboard('{Enter}');
+        expect(onValueChange).not.toHaveBeenCalled();
+      });
+
       it('waits for a controlled popup to open', async () => {
         const { user, setProps } = await render(<AsyncCombobox items={['32']} open={false} />);
         await user.type(screen.getByRole('combobox'), '32');

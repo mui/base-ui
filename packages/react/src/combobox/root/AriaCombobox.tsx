@@ -1189,6 +1189,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
 
     if (storeActiveIndex >= candidateItems.length) {
+      // Results that empty while a typed query is active (such as a loading state) invalidate
+      // the highlight, not the query it was placed for. Request it again for the next results.
+      if (
+        candidateItems.length === 0 &&
+        autoHighlightMode &&
+        (hasItems || hasFilteredItemsProp) &&
+        queryChangedAfterOpen &&
+        String(inputValue).trim() !== ''
+      ) {
+        pendingQueryHighlightRef.current = { hasQuery: true };
+      }
       emitHighlight(undefined, -1, REASONS.none);
       store.set('activeIndex', null);
       return;
@@ -1216,6 +1227,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     flatFilteredValues,
     inline,
     open,
+    queryChangedAfterOpen,
     resolvedPopupRef,
     store,
     // Reruns the effect when the query changes without affecting the deps above, such as
