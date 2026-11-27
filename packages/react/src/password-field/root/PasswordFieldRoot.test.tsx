@@ -327,31 +327,85 @@ describe('<PasswordField.Root />', () => {
       {
         name: 'stops its propagation',
         onReset: (event: React.FormEvent) => event.stopPropagation(),
+        restores: true,
+        expectedType: 'password',
       },
       {
-        name: 'prevents it',
+        name: 'cancels it',
         onReset: (event: React.FormEvent) => event.preventDefault(),
+        restores: false,
+        expectedType: 'text',
       },
-    ])('restores the initial visibility when an onReset handler $name', async ({ onReset }) => {
-      const onRevealedChange = vi.fn();
-      await render(
-        <form onReset={onReset}>
-          <PasswordField.Root onRevealedChange={onRevealedChange}>
-            <PasswordField.Input />
-            <PasswordField.Toggle />
-          </PasswordField.Root>
-        </form>,
-      );
+      {
+        name: 'cancels it and stops its propagation',
+        onReset: (event: React.FormEvent) => {
+          event.preventDefault();
+          event.stopPropagation();
+        },
+        restores: false,
+        expectedType: 'text',
+      },
+    ])(
+      'leaves type="$expectedType" when an onReset handler $name',
+      async ({ onReset, restores, expectedType }) => {
+        const onRevealedChange = vi.fn();
+        await render(
+          <form onReset={onReset}>
+            <PasswordField.Root onRevealedChange={onRevealedChange}>
+              <PasswordField.Input />
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+          </form>,
+        );
 
-      const input = document.querySelector('input')!;
-      await reveal();
-      expect(input).toHaveAttribute('type', 'text');
+        const input = document.querySelector('input')!;
+        await reveal();
+        expect(input).toHaveAttribute('type', 'text');
 
-      fireEvent.reset(input.form!);
+        fireEvent.reset(input.form!);
+        // A reset whose propagation is stopped is decided after the dispatch.
+        await act(async () => {
+          await wait(0);
+        });
 
-      expect(input).toHaveAttribute('type', 'password');
-      expect(onRevealedChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
-    });
+        expect(input).toHaveAttribute('type', expectedType);
+        expect(onRevealedChange.mock.calls.length).toBe(restores ? 2 : 1);
+        expect(onRevealedChange.mock.lastCall?.[1].reason).toBe(
+          restores ? REASONS.formReset : REASONS.none,
+        );
+      },
+    );
+
+    // A real click dispatches with an empty stack, so microtasks run between listeners and
+    // `defaultPrevented` isn't final until the form's handlers have run.
+    it.skipIf(isJSDOM)(
+      'keeps the visibility when a click on a reset button is canceled',
+      async () => {
+        await render(
+          <form onReset={(event) => event.preventDefault()}>
+            <PasswordField.Root>
+              <PasswordField.Input defaultValue="hunter2" />
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+            <button type="reset">Reset</button>
+          </form>,
+        );
+
+        const input = document.querySelector('input')!;
+        await act(async () => {
+          document.querySelector<HTMLButtonElement>('button[aria-pressed]')!.click();
+        });
+        expect(input).toHaveAttribute('type', 'text');
+
+        const { userEvent } = await import('vitest/browser');
+        await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
+        await act(async () => {
+          await wait(10);
+        });
+
+        expect(input).toHaveAttribute('type', 'text');
+      },
+    );
 
     it('resets a controlled visibility through onRevealedChange', async () => {
       function App() {

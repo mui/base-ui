@@ -86,9 +86,34 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
     unmaskTimeout.start(0, unmask);
   });
 
-  const handleReset = useStableCallback((event: Event) => {
-    if (event.target === inputRef.current?.form) {
+  // A reset of the owning form restores the initial visibility, unless it's canceled: then the
+  // browser keeps the value, so the visibility stays too. `defaultPrevented` is only final once
+  // the form's handlers have run, so the capture listener notes the reset and the bubble
+  // listener, which runs after them, decides.
+  const pendingResetRef = React.useRef<Event | null>(null);
+  const resetTimeout = useTimeout();
+
+  const commitReset = useStableCallback(() => {
+    const event = pendingResetRef.current;
+    pendingResetRef.current = null;
+    resetTimeout.clear();
+    if (event && !event.defaultPrevented) {
       setRevealed(initialRevealed, createChangeEventDetails(REASONS.formReset, event));
+    }
+  });
+
+  const handleResetCapture = useStableCallback((event: Event) => {
+    if (event.target === inputRef.current?.form) {
+      pendingResetRef.current = event;
+      // A form handler that stops propagation keeps the bubble listener from running, so the
+      // reset is decided once the dispatch is over instead.
+      resetTimeout.start(0, commitReset);
+    }
+  });
+
+  const handleResetBubble = useStableCallback((event: Event) => {
+    if (event === pendingResetRef.current) {
+      commitReset();
     }
   });
 
@@ -102,16 +127,17 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
       return undefined;
     }
 
-    // Both listen in the capture phase, before any form handler can stop their propagation.
+    // The capture listeners run before any form handler can stop the event's propagation.
     // The input's form is read when the events fire, so a late or changed form owner is followed.
     return mergeCleanups(
-      addEventListener(rootNode, 'reset', handleReset, true),
+      addEventListener(rootNode, 'reset', handleResetCapture, true),
+      addEventListener(rootNode, 'reset', handleResetBubble),
       // Always mask on submit, with no way to cancel it: a revealed input is plain text, so
       // browsers could save the password to autofill history and password managers may not
       // recognize it.
       addEventListener(rootNode, 'submit', handleSubmit, true),
     );
-  }, [inputRef, handleReset, handleSubmit]);
+  }, [inputRef, handleResetCapture, handleResetBubble, handleSubmit]);
 
   const { nonce, disableStyleElements } = useCSPContext();
 
