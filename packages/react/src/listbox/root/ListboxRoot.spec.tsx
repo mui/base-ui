@@ -78,7 +78,7 @@ const fruits = Listbox.createItems([{ id: 'a', name: 'Apple' }], {
     return fruit.id;
   },
   getLabel: (fruit) => fruit.name,
-  getDisabled: () => false,
+  isDisabled: () => false,
 });
 
 // The value is what `getValue` returns.

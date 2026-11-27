@@ -77,7 +77,7 @@ const items = Listbox.createItems(tracks, {
   getValue: (track) => track.id,
   getLabel: (track) => track.title,
   // For the demo, every tenth track is disabled.
-  getDisabled: (track) => track.id % 10 === 0,
+  isDisabled: (track) => track.id % 10 === 0,
 });
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {

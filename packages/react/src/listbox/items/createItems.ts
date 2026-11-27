@@ -36,7 +36,7 @@ export interface CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveVal
    * one either.
    * @default () => false
    */
-  getDisabled?: ((item: Item) => boolean) | undefined;
+  isDisabled?: ((item: Item) => boolean) | undefined;
 }
 
 /**
@@ -72,7 +72,7 @@ export interface ListboxItems<Item = any, Key extends ListboxPrimitiveValue = an
   /** The label of the item at a position. */
   getLabel: (index: number) => string | null;
   /** Whether the item at a position is disabled. */
-  getDisabled: (index: number) => boolean;
+  isDisabled: (index: number) => boolean;
   /** Calls a function for each item, in order. */
   map: <Result>(callback: (item: Item, index: number) => Result) => Result[];
   /** Every item, in order, without the groups. */
@@ -110,7 +110,7 @@ export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
   data: readonly Item[] | readonly ListboxItemGroup<Item>[] | undefined,
   options: CreateListboxItemsOptions<Item, Key>,
 ): ListboxItemCollection<Item, Key> {
-  const { getValue, getLabel, getDisabled } = options;
+  const { getValue, getLabel, isDisabled } = options;
   const groups = isGroupedItems(data) ? (data as readonly ListboxItemGroup<Item>[]) : undefined;
   let source: readonly Item[] = [];
   if (groups) {
@@ -178,8 +178,8 @@ export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
       }
       return label == null ? null : String(label);
     },
-    getDisabled: (index) =>
-      getDisabled != null && isInRange(index) ? getDisabled(source[index]) : false,
+    isDisabled: (index) =>
+      isDisabled != null && isInRange(index) ? isDisabled(source[index]) : false,
     map: (callback) => source.map((item, index) => callback(item, index)),
     list: source,
     groups,

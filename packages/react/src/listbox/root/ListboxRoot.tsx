@@ -54,7 +54,7 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
   const isReadable = Array.isArray(itemsProp)
     ? typeof itemsProp[0] !== 'object'
     : typeof itemsProp === 'object' &&
-      typeof (itemsProp as Partial<ListboxItems>).getDisabled === 'function';
+      typeof (itemsProp as Partial<ListboxItems>).isDisabled === 'function';
 
   if (itemsProp != null && !isReadable) {
     throw new Error(
@@ -85,6 +85,20 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     name: 'Listbox',
     state: 'value',
   });
+
+  // An uncontrolled value changes shape with `multiple`: a single value becomes the only selected
+  // one, and the first of the selected values stays selected.
+  const [previousMultiple, setPreviousMultiple] = React.useState(multiple);
+  if (previousMultiple !== multiple) {
+    setPreviousMultiple(multiple);
+    if (valueProp === undefined) {
+      if (multiple) {
+        setValueUnwrapped(value == null ? EMPTY_ARRAY : [value]);
+      } else if (Array.isArray(value)) {
+        setValueUnwrapped(value[0] ?? null);
+      }
+    }
+  }
 
   // Internally, selection is always tracked as an array of selected values.
   const selectedValues: any[] = React.useMemo(() => {

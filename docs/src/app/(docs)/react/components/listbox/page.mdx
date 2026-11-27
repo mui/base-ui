@@ -96,7 +96,7 @@ const fonts = ['Sans-serif', 'Serif', 'Monospace'];
 
 A function can't be passed from a Server Component, so a list rendered this way must be in a Client Component. You can also map over the data yourself and render `Listbox.Item` parts as children, which works in either. To render other content next to the items, place the function in `Listbox.Collection` instead of `Listbox.List`.
 
-When `items` is set, disabled items and the labels used for keyboard text navigation come from the data. The `disabled` and `label` props of `Listbox.Item` are ignored. An array of strings or numbers has no disabled items, so to disable some, create a collection with `Listbox.createItems()` and pass it `getDisabled`.
+When `items` is set, disabled items and the labels used for keyboard text navigation come from the data. The `disabled` and `label` props of `Listbox.Item` are ignored. An array of strings or numbers has no disabled items, so to disable some, create a collection with `Listbox.createItems()` and pass it `isDisabled`.
 
 Filter the data before you pass it to `items`. Selecting everything with <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd>, or a range with <kbd>Shift</kbd>, replaces the selection with items from the current `items`, so selected items that a filter has removed are deselected.
 
@@ -128,7 +128,7 @@ function UserList({ users }: { users: User[] }) {
       Listbox.createItems(users, {
         getValue: (user) => user.id,
         getLabel: (user) => user.name,
-        getDisabled: (user) => !user.active,
+        isDisabled: (user) => !user.active,
       }),
     [users],
   );

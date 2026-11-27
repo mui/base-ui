@@ -933,6 +933,57 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-highlighted');
       expect(handleValueChange).not.toHaveBeenCalled();
     });
+
+    describe('when it changes with an uncontrolled value', () => {
+      function TestListbox(props: {
+        multiple: boolean;
+        defaultValue: string | string[];
+        onValueChange: (value: any) => void;
+      }) {
+        return (
+          <Listbox.Root<string, boolean> {...props}>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b">b</Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      it('keeps the selected item selected when set to true', async () => {
+        const handleValueChange = vi.fn();
+        const { setProps, user } = await render(
+          <TestListbox multiple={false} defaultValue="a" onValueChange={handleValueChange} />,
+        );
+        expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('aria-selected', 'true');
+
+        await setProps({ multiple: true });
+
+        expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('aria-selected', 'true');
+
+        await user.click(screen.getByRole('option', { name: 'b' }));
+
+        expect(handleValueChange.mock.lastCall?.[0]).toEqual(['a', 'b']);
+      });
+
+      it('keeps the first selected item selected when set to false', async () => {
+        const handleValueChange = vi.fn();
+        const { setProps, user } = await render(
+          <TestListbox multiple defaultValue={['b', 'c']} onValueChange={handleValueChange} />,
+        );
+        expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('aria-selected', 'true');
+
+        await setProps({ multiple: false });
+
+        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('aria-selected', 'false');
+
+        await user.click(screen.getByRole('option', { name: 'a' }));
+
+        expect(handleValueChange.mock.lastCall?.[0]).toBe('a');
+      });
+    });
   });
 
   describe('prop: multiple="opt-in"', () => {
@@ -3214,7 +3265,7 @@ describe('<Listbox.Root />', () => {
           Listbox.createItems(names, {
             getValue: (name) => name,
             getLabel: (name) => name,
-            getDisabled: disabledNames ? (name) => disabledNames.includes(name) : undefined,
+            isDisabled: disabledNames ? (name) => disabledNames.includes(name) : undefined,
           }),
         [names, disabledNames],
       );
@@ -3579,7 +3630,7 @@ describe('<Listbox.Root />', () => {
       const items = Listbox.createItems(['a', 'b', 'c'], {
         getValue: (item) => item,
         getLabel: (item) => item,
-        getDisabled: (item) => item === 'b',
+        isDisabled: (item) => item === 'b',
       });
 
       // Renders only the first item, and moves focus to the list for the item at `index`.
@@ -3662,7 +3713,7 @@ describe('<Listbox.Root />', () => {
         {
           getValue: (fruit) => fruit.id,
           getLabel: (fruit) => fruit.name,
-          getDisabled: (fruit) => fruit.unavailable === true,
+          isDisabled: (fruit) => fruit.unavailable === true,
         },
       );
 
@@ -3739,7 +3790,7 @@ describe('<Listbox.Root />', () => {
         {
           getValue: (item) => item,
           getLabel: (item) => item,
-          getDisabled: (item) => item === 'Daikon',
+          isDisabled: (item) => item === 'Daikon',
         },
       );
 
@@ -3985,12 +4036,12 @@ describe('<Listbox.Root />', () => {
     describe('item props', () => {
       const names = ['Item 0', 'Item 1', 'Item 2'];
 
-      it('takes the disabled state from `getDisabled`, ignoring the `disabled` prop', async () => {
+      it('takes the disabled state from `isDisabled`, ignoring the `disabled` prop', async () => {
         const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         const items = Listbox.createItems(names, {
           getValue: (name) => name,
           getLabel: (name) => name,
-          getDisabled: (name) => name === 'Item 0',
+          isDisabled: (name) => name === 'Item 0',
         });
 
         try {

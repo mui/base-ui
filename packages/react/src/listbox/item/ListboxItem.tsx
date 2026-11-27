@@ -71,7 +71,7 @@ export const ListboxItem = React.memo(
     const hasRegistered = index !== -1;
     // With `items`, the data decides whether an item is disabled, so the answer doesn't depend on
     // whether the item is rendered.
-    const itemDisabled = items ? hasRegistered && items.getDisabled(index) : ownDisabled;
+    const itemDisabled = items ? hasRegistered && items.isDisabled(index) : ownDisabled;
     const disabled = rootDisabled || itemDisabled;
 
     if (process.env.NODE_ENV !== 'production') {
@@ -80,7 +80,7 @@ export const ListboxItem = React.memo(
           '<Listbox.Item> ignores the `disabled` and `label` props when <Listbox.Root> has `items`, ' +
             "because the list must know every item's state and label, including those that aren't " +
             'rendered. Set them in the data instead: the `disabled` and `label` fields of an item, ' +
-            'or the `getDisabled` and `getLabel` options of `Listbox.createItems()`.',
+            'or the `isDisabled` and `getLabel` options of `Listbox.createItems()`.',
         );
       }
       // Checked after the commit against the root's current `items`, which this render may not
@@ -340,7 +340,7 @@ export interface ListboxItemProps
   /**
    * Whether the component should ignore user interaction.
    *
-   * Ignored when the root has `items`. Use the item's `disabled` field or the `getDisabled`
+   * Ignored when the root has `items`. Use the item's `disabled` field or the `isDisabled`
    * option of `Listbox.createItems()` instead.
    * @default false
    */

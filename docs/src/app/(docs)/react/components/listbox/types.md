@@ -128,7 +128,7 @@ Renders a `<div>` element.
 | label        | `string`                                                                                          | -       | Specifies the text label to use when the item is matched during keyboard text navigation. Defaults to the item text content if not provided. Ignored when the root has `items`. Use the item's `label` field or the `getLabel` option of&#xA;`Listbox.createItems()` instead. |
 | value\*      | `any`                                                                                             | -       | A unique value that identifies this listbox item.                                                                                                                                                                                                                             |
 | nativeButton | `boolean`                                                                                         | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                                                          |
-| disabled     | `boolean`                                                                                         | `false` | Whether the component should ignore user interaction. Ignored when the root has `items`. Use the item's `disabled` field or the `getDisabled`&#xA;option of `Listbox.createItems()` instead.                                                                                  |
+| disabled     | `boolean`                                                                                         | `false` | Whether the component should ignore user interaction. Ignored when the root has `items`. Use the item's `disabled` field or the `isDisabled`&#xA;option of `Listbox.createItems()` instead.                                                                                   |
 | children     | `React.ReactNode`                                                                                 | -       | -                                                                                                                                                                                                                                                                             |
 | className    | `string \| ((state: ListboxPreview.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                      |
 | style        | `React.CSSProperties \| ((state: ListboxPreview.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                   |
@@ -359,7 +359,7 @@ type CreateListboxItemsOptions<Item, Key extends ListboxPrimitiveValue> = {
    * one either.
    * @default () => false
    */
-  getDisabled?: (item: Item) => boolean;
+  isDisabled?: (item: Item) => boolean;
 };
 ```
 

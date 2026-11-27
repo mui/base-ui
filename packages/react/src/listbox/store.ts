@@ -212,7 +212,7 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     const { items, disabled } = this.state;
     return (
       disabled ||
-      (items ? items.getDisabled(index) : (this.context.disabledItemsRef.current[index] ?? false))
+      (items ? items.isDisabled(index) : (this.context.disabledItemsRef.current[index] ?? false))
     );
   }
 
