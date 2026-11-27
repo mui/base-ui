@@ -312,20 +312,59 @@ export const DemoButtonHero = createDemoWithVariants(import.meta.url, { CssModul
 ### Page structure conventions
 
 - The page **title** is derived from the `# h1` heading at the top of the `page.mdx`.
-- The page **description** is derived from the `<Subtitle>` component immediately after the h1.
-- Next.js `export const metadata = {}` should be placed at the **end** of the `page.mdx` file. It is typically used for SEO keywords. To hide a page from search engines, add `robots: { index: false }`.
+- The page **description** comes from the `<Subtitle>` component immediately after the h1 and the `<Meta name="description">` after it (see [Descriptions](#descriptions)).
+- Next.js `export const metadata = {}` should be placed at the **end** of the `page.mdx` file. It holds the page `keywords` (see [Keywords](#keywords)). To hide a page from search engines, add `robots: { index: false }`.
 
 ```mdx
-# Toggle
+# Toast
 
-<Subtitle>A two-state button that can be on or off.</Subtitle>
+<Subtitle>Show brief notifications that stack and dismiss on their own.</Subtitle>
+<Meta
+  name="description"
+  content="Show toast notifications in React that stack, swipe away, and update from a promise, with undo actions and screen reader announcements."
+/>
 
 [//]: # 'page content'
 
 export const metadata = {
-  keywords: ['React Toggle', 'Toggle Button Component'],
+  keywords: ['Snackbar', 'Notification', 'Flash message'],
 };
 ```
+
+### Descriptions
+
+Every page has two descriptions, and both matter:
+
+- The `<Subtitle>` is shown on the page, and the docs search and the generated section index pages use it.
+- The `<Meta name="description" content="…" />` after it becomes the page's `<meta name="description">`, which search engines may show as the snippet under the page title and link previews show under the link. It is also the page's description in `llms.txt` and in the front matter of its markdown copy for AI tools. Every page needs one: without it, the page's `llms.txt` entry has no description.
+
+The `<Meta>` description can copy the subtitle. Make it longer than the subtitle when a good subtitle can't say enough for someone who hasn't opened the page yet. Google doesn't use the description to rank pages, but it decides whether people click.
+
+- Say what the reader can do with the page, in one or two sentences. Keep the `<Meta>` description between 110 and 160 characters, with the main point in the first 120: Google cuts snippets to fit the screen, shorter on mobile, and writes its own when the description doesn't describe the page well.
+- Use the words a reader would use, such as "toast notifications" or "dropdown", even when the component has a different name.
+- Be specific to the page. "A high-quality, unstyled React checkbox component" could describe any component library; name what makes the page worth reading, such as an indeterminate state, form integration, or keyboard support.
+- Don't start with the page title or "This page". The title is already shown next to the description.
+
+### Keywords
+
+Keywords are for the docs search, not for SEO: Google doesn't use the `<meta name="keywords">` tag Next.js renders from them. The generated section index pages list each page's keywords, and the docs search reads them from there and adds them to every result from that page (the page itself, its sections, and its API parts).
+
+The title, headings, and API names (parts, props, data attributes, CSS variables) are already indexed. A keyword is only useful when it brings people searching for a word that appears in none of them.
+
+Good keywords:
+
+- Other names for the page's topic: `Snackbar` on the toast page, `Bottom sheet` on the drawer page, `Typeahead` on the autocomplete page.
+- Ideas the page covers under different words: `Tri-state` on the checkbox page, `Framer Motion` on the animation page.
+- APIs or data attributes the page explains only in prose, with no parts table to index them: `data-starting-style` on the animation page.
+
+Bad keywords:
+
+- Words that fit every page, such as `Base UI` and `Headless React Components`. They match every result equally, so they add noise and help no one find anything.
+- The page title, in any form. Don't add `React Toast` or `Toast Component` to the toast page. The search already matches the title, more strongly than a keyword, on the page's result and on every section and part result from it. The same goes for headings, such as `Snap points` on the drawer page. Add a different word for the same thing instead, such as `Snackbar`.
+- Generic terms, such as `Props`, `Component`, or `Accessible`.
+- Another page's topic, unless this page really answers that search. `Combo Box` on the select page makes Select compete with the Combobox page for a search it can't answer.
+
+Ask of each keyword: "if someone searched for only this word, should this page be a top result, and would they miss it without the keyword?" Keep it only if both answers are yes. A few specific keywords are better than a long list, and a page with nothing to add can leave `keywords` out.
 
 ### Troubleshooting
 
