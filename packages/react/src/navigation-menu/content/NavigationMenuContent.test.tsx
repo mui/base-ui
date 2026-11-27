@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
-import { fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<NavigationMenu.Content />', () => {
@@ -217,5 +217,43 @@ describe('<NavigationMenu.Content />', () => {
     });
 
     expect(viewport.contains(screen.getByTestId('content-1'))).toBe(true);
+  });
+
+  // Content is portaled into the viewport but still bubbles React events up to the List. With a
+  // single link, Content's own composite can't move focus, so only the List could take the key.
+  it('does not move focus to the next trigger with arrow keys pressed inside the content', async () => {
+    const { user } = await render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item value="item-1">
+            <NavigationMenu.Trigger>Item 1</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item value="item-2">
+            <NavigationMenu.Trigger>Item 2</NavigationMenu.Trigger>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner>
+            <NavigationMenu.Popup>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Item 1' }));
+    const link = await screen.findByRole('link', { name: 'Link 1' });
+    await act(async () => link.focus());
+    expect(link).toHaveFocus();
+
+    await user.keyboard('[ArrowRight]');
+    await flushMicrotasks();
+
+    expect(link).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Item 2' })).not.toHaveFocus();
   });
 });
