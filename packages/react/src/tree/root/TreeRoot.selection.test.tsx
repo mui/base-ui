@@ -1242,6 +1242,26 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).toEqual(['1', '1.1', '1.3']);
       });
 
+      it('should keep selected disabled descendants when deselecting a parent', async () => {
+        const view = await render({
+          multiple: 'opt-in',
+          checkboxSelection: true,
+          items: [
+            {
+              id: '1',
+              children: [{ id: '1.1' }, { id: '1.2', disabled: true }, { id: '1.3' }],
+            },
+          ],
+          defaultSelectedItems: ['1', '1.1', '1.2', '1.3'],
+          defaultExpandedItems: ['1'],
+          checkboxSelectionPropagation: { descendants: true, parents: false },
+        });
+
+        expect(view.getSelectedTreeItems()).toEqual(['1', '1.1', '1.2', '1.3']);
+        fireEvent.click(view.getItemRoot('1'));
+        expect(view.getSelectedTreeItems()).toEqual(['1.2']);
+      });
+
       it('should not select non-selectable descendants when selecting a parent', async () => {
         const onSelectedItemsChange = vi.fn();
         const view = await render({

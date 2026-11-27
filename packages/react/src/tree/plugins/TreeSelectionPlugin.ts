@@ -724,9 +724,11 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       }
 
       if (checkboxSelectionPropagation.descendants) {
+        // Selected items that can't be selected, such as disabled ones, stay selected.
         forEachDescendant(childrenLookup, removedItemId, (itemId) => {
-          flags.shouldRegenerateModel = true;
-          newModelSet.delete(itemId);
+          if (canBeSelected(itemId) && newModelSet.delete(itemId)) {
+            flags.shouldRegenerateModel = true;
+          }
         });
       }
     }
