@@ -323,3 +323,13 @@ const customActionsRef = React.createRef<Tree.Root.Actions<CustomItem> | null>()
     }}
   </Tree.List>
 </Tree.Root>;
+
+// ---------------------------------------------------------------------------
+// The root and the list render without children
+// ---------------------------------------------------------------------------
+
+<Tree.Root items={[] as FileItem[]} />;
+
+<Tree.Root items={[] as FileItem[]}>
+  <Tree.List aria-label="Files" />
+</Tree.Root>;

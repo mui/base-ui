@@ -45,7 +45,7 @@ export interface TreeGridTableProps<TItem = any> extends Omit<
    * collection of rows.
    * Pass the item type to `TreeGrid.Table` to type the `item` parameter.
    */
-  children: React.ReactNode | ((item: TItem) => React.ReactNode);
+  children?: React.ReactNode | ((item: TItem) => React.ReactNode);
 }
 
 export namespace TreeGridTable {

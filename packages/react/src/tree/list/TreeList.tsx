@@ -42,7 +42,7 @@ export interface TreeListProps<TItem = any> extends Omit<
    * Otherwise, render an item part for each of the root's `items` as children, in order. Each
    * one renders nothing while it's out of view.
    */
-  children: React.ReactNode | ((item: TItem) => React.ReactNode);
+  children?: React.ReactNode | ((item: TItem) => React.ReactNode);
 }
 
 export namespace TreeList {

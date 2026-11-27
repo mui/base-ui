@@ -236,7 +236,7 @@ interface TreeRootOwnProps<TItem> {
   /**
    * The children of the component.
    */
-  children: React.ReactNode;
+  children?: React.ReactNode;
   /**
    * A ref to imperative actions on the tree.
    */

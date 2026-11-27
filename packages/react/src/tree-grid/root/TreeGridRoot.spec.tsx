@@ -88,3 +88,10 @@ function OptInOrSingleTreeGrid(props: {
   );
 }
 void OptInOrSingleTreeGrid;
+
+// The root and the table render without children.
+<TreeGrid.Root items={[]} />;
+
+<TreeGrid.Root items={[]}>
+  <TreeGrid.Table aria-label="Files" />
+</TreeGrid.Root>;
