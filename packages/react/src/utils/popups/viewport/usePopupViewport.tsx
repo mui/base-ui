@@ -11,6 +11,8 @@ import type { ReactStore } from '@base-ui/utils/store';
 import type { Dimensions } from '@floating-ui/react-dom';
 import { useAnimationsFinished } from '../../../internals/useAnimationsFinished';
 import type { StateAttributesMapping } from '../../../internals/getStateAttributesProps';
+import type { BaseUIComponentProps } from '../../../internals/types';
+import { useRenderElement } from '../../../internals/useRenderElement';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import type { Side } from '../../../internals/useAnchorPositioning';
 import { useDirection } from '../../../direction-provider';
@@ -18,7 +20,7 @@ import { adaptiveOrigin } from '../positioning/adaptiveOriginMiddleware';
 import * as CommonPopupCssVars from './CommonPopupCssVars';
 import * as CommonViewportDataAttributes from './CommonViewportDataAttributes';
 
-export const popupViewportStateMapping: StateAttributesMapping<{
+const popupViewportStateMapping: StateAttributesMapping<{
   activationDirection: string | undefined;
 }> = {
   activationDirection: (value) =>
@@ -38,11 +40,17 @@ export interface PopupViewportState {
    * Whether the viewport is currently transitioning between contents.
    */
   transitioning: boolean;
+  /**
+   * Present if animations should be instant.
+   */
+  instant: string | undefined;
 }
 
 type PopupViewportStore = Pick<ReactStore<any, any, any>, 'useState' | 'set'>;
 
 export interface UsePopupViewportParameters {
+  componentProps: BaseUIComponentProps<'div', any>;
+  forwardedRef: React.ForwardedRef<HTMLDivElement>;
   /**
    * Popup store instance for accessing shared popup state.
    */
@@ -51,29 +59,15 @@ export interface UsePopupViewportParameters {
    * Side of the positioner relative to the trigger.
    */
   side: Side;
-  /**
-   * Viewport children to render in the current container.
-   */
-  children?: React.ReactNode;
-}
-
-export interface UsePopupViewportResult {
-  /**
-   * The viewport children wrapped in current/previous containers as needed.
-   */
-  children: React.ReactNode;
-  /**
-   * Viewport state used for data attributes and render prop styling.
-   */
-  state: PopupViewportState;
 }
 
 /**
  * Builds morphing viewport containers for popups that animate between trigger-based content.
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
-export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
-  const { store, side, children } = parameters;
+export function usePopupViewport(parameters: UsePopupViewportParameters): React.ReactElement {
+  const { componentProps, forwardedRef, store, side } = parameters;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const direction = useDirection();
 
@@ -84,6 +78,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const mounted = store.useState('mounted');
   const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
+  const instantType = store.useState('instantType');
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
   // Remount current content on trigger changes (and once more when payload lags) to avoid DOM reuse flashes.
@@ -117,15 +112,17 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   }, [store]);
 
   const handleMeasureLayout = useStableCallback(() => {
-    currentContainerRef.current?.style.setProperty('animation', 'none');
-    currentContainerRef.current?.style.setProperty('transition', 'none');
+    const currentStyle = currentContainerRef.current?.style;
+    currentStyle?.setProperty('animation', 'none');
+    currentStyle?.setProperty('transition', 'none');
 
     previousContainerRef.current?.style.setProperty('display', 'none');
   });
 
   const handleMeasureLayoutComplete = useStableCallback((previousDimensions: Dimensions | null) => {
-    currentContainerRef.current?.style.removeProperty('animation');
-    currentContainerRef.current?.style.removeProperty('transition');
+    const currentStyle = currentContainerRef.current?.style;
+    currentStyle?.removeProperty('animation');
+    currentStyle?.removeProperty('transition');
 
     previousContainerRef.current?.style.removeProperty('display');
 
@@ -291,9 +288,15 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const state: PopupViewportState = {
     activationDirection: getActivationDirection(newTriggerOffset),
     transitioning: isTransitioning,
+    instant: instantType,
   };
 
-  return { children: childrenToRender, state };
+  return useRenderElement('div', componentProps, {
+    state,
+    ref: forwardedRef,
+    props: [elementProps, { children: childrenToRender }],
+    stateAttributesMapping: popupViewportStateMapping,
+  });
 }
 
 export type Offset = {
@@ -349,18 +352,9 @@ export function calculateRelativePosition(from: Element, to: Element): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();
 
-  const fromCenter = {
-    x: fromRect.left + fromRect.width / 2,
-    y: fromRect.top + fromRect.height / 2,
-  };
-  const toCenter = {
-    x: toRect.left + toRect.width / 2,
-    y: toRect.top + toRect.height / 2,
-  };
-
   return {
-    horizontal: toCenter.x - fromCenter.x,
-    vertical: toCenter.y - fromCenter.y,
+    horizontal: toRect.left + toRect.width / 2 - (fromRect.left + fromRect.width / 2),
+    vertical: toRect.top + toRect.height / 2 - (fromRect.top + fromRect.height / 2),
   };
 }
 

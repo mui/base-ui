@@ -3,11 +3,7 @@ import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useRenderElement } from '../../internals/useRenderElement';
-import {
-  popupViewportStateMapping,
-  usePopupViewport,
-} from '../../utils/popups/viewport/usePopupViewport';
+import { usePopupViewport } from '../../utils/popups/viewport/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -21,30 +17,14 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   componentProps: PopoverViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, ...elementProps } = componentProps;
-
   const store = usePopoverRootContext();
   const { side } = usePopoverPositionerContext();
 
-  const instantType = store.useState('instantType');
-
-  const { children: childrenToRender, state: viewportState } = usePopupViewport({
+  return usePopupViewport({
+    componentProps,
+    forwardedRef,
     store,
     side,
-    children,
-  });
-
-  const state: PopoverViewportState = {
-    activationDirection: viewportState.activationDirection,
-    transitioning: viewportState.transitioning,
-    instant: instantType,
-  };
-
-  return useRenderElement('div', componentProps, {
-    state,
-    ref: forwardedRef,
-    props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping: popupViewportStateMapping,
   });
 });
 

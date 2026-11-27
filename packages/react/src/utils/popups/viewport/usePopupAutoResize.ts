@@ -59,39 +59,22 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     // Measure the rendered size to enable transitions:
     setPopupCssSize(popupElement, 'auto');
 
-    const restorePopupPosition = overrideElementStyle(popupElement, 'position', 'static');
-    const restorePopupTransform = overrideElementStyle(popupElement, 'transform', 'none');
-    const restorePopupScale = overrideElementStyle(popupElement, 'scale', '1');
+    const restorePopupOverrides = applyElementStyles(popupElement, {
+      position: 'static',
+      transform: 'none',
+      scale: '1',
+    });
     const restorePositionerAvailableSize = applyElementStyles(positionerElement, {
       [CommonPositionerCssVars.availableWidth]: 'max-content',
       [CommonPositionerCssVars.availableHeight]: 'max-content',
     });
 
     function restoreMeasurementOverrides() {
-      restorePopupPosition();
-      restorePopupTransform();
+      restorePopupOverrides();
       restorePositionerAvailableSize();
-      restorePopupScale();
     }
 
     onMeasureLayout?.();
-
-    // Initial render (for each time the popup opens).
-    if (committedDimensionsRef.current === null) {
-      setPositionerCssSize(positionerElement, 'max-content');
-
-      const dimensions = getCssDimensions(popupElement);
-
-      committedDimensionsRef.current = dimensions;
-
-      setPositionerCssSize(positionerElement, dimensions);
-      restoreMeasurementOverrides();
-      onMeasureLayoutComplete?.(null, dimensions);
-
-      return restoreAnchoringStyles;
-    }
-
-    // Subsequent renders while open (when `content` changes).
     setPositionerCssSize(positionerElement, 'max-content');
 
     const previousDimensions = committedDimensionsRef.current;
@@ -100,6 +83,16 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     // Commit immediately so future content changes have a stable previous size.
     committedDimensionsRef.current = newDimensions;
 
+    // Initial render (for each time the popup opens).
+    if (previousDimensions === null) {
+      setPositionerCssSize(positionerElement, newDimensions);
+      restoreMeasurementOverrides();
+      onMeasureLayoutComplete?.(null, newDimensions);
+
+      return restoreAnchoringStyles;
+    }
+
+    // Subsequent renders while open (when `content` changes).
     setPopupCssSize(popupElement, previousDimensions);
     restoreMeasurementOverrides();
     onMeasureLayoutComplete?.(previousDimensions, newDimensions);
@@ -112,8 +105,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       setPopupCssSize(popupElement, newDimensions);
 
       runOnceAnimationsFinish(() => {
-        popupElement.style.setProperty(CommonPopupCssVars.popupWidth, 'auto');
-        popupElement.style.setProperty(CommonPopupCssVars.popupHeight, 'auto');
+        setPopupCssSize(popupElement, 'auto');
       }, abortController.signal);
     });
 
@@ -210,16 +202,25 @@ function applyElementStyles(element: HTMLElement, styles: Record<string, string>
     : NOOP;
 }
 
+function setCssSize(
+  element: HTMLElement,
+  widthVar: string,
+  heightVar: string,
+  size: Dimensions | string,
+) {
+  element.style.setProperty(widthVar, typeof size === 'string' ? size : `${size.width}px`);
+  element.style.setProperty(heightVar, typeof size === 'string' ? size : `${size.height}px`);
+}
+
 function setPopupCssSize(popupElement: HTMLElement, size: Dimensions | 'auto') {
-  const width = size === 'auto' ? 'auto' : `${size.width}px`;
-  const height = size === 'auto' ? 'auto' : `${size.height}px`;
-  popupElement.style.setProperty(CommonPopupCssVars.popupWidth, width);
-  popupElement.style.setProperty(CommonPopupCssVars.popupHeight, height);
+  setCssSize(popupElement, CommonPopupCssVars.popupWidth, CommonPopupCssVars.popupHeight, size);
 }
 
 function setPositionerCssSize(positionerElement: HTMLElement, size: Dimensions | 'max-content') {
-  const width = size === 'max-content' ? 'max-content' : `${size.width}px`;
-  const height = size === 'max-content' ? 'max-content' : `${size.height}px`;
-  positionerElement.style.setProperty(CommonPositionerCssVars.positionerWidth, width);
-  positionerElement.style.setProperty(CommonPositionerCssVars.positionerHeight, height);
+  setCssSize(
+    positionerElement,
+    CommonPositionerCssVars.positionerWidth,
+    CommonPositionerCssVars.positionerHeight,
+    size,
+  );
 }

@@ -15,16 +15,7 @@ interface TriggerSwitchStore {
   readonly state: { readonly instantType: string | undefined };
   set(key: 'instantType', value: 'trigger-change' | undefined): void;
   select(key: 'open'): boolean;
-}
-
-export interface UseTriggerSwitchTransitionParameters {
-  store: TriggerSwitchStore;
-  /**
-   * The trigger element that currently owns the popup.
-   */
-  domReference: Element | null;
-  positionerElement: HTMLElement | null;
-  open: boolean;
+  useState(key: 'anchorElement'): Element | null;
 }
 
 /**
@@ -46,8 +37,12 @@ export interface UseTriggerSwitchTransitionParameters {
  * stores' `instantType` selector, since a controlled `open={false}` commit
  * reaches the popup without passing through `setOpen`.
  */
-export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitionParameters): void {
-  const { store, domReference, positionerElement, open } = parameters;
+export function useTriggerSwitchTransition(
+  store: TriggerSwitchStore,
+  positionerElement: HTMLElement | null,
+  open: boolean,
+): void {
+  const domReference = store.useState('anchorElement');
 
   const previousTriggerRef = React.useRef<Element | null>(null);
   const pendingSwitchRef = React.useRef<AbortController | null>(null);

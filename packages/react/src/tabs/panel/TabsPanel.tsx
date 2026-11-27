@@ -60,8 +60,10 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
   };
 
   const panelRef = React.useRef<HTMLDivElement | null>(null);
+  const shouldRender = keepMounted || mounted;
 
   const element = useRenderElement('div', componentProps, {
+    enabled: shouldRender,
     state,
     ref: [forwardedRef, listItemRef, panelRef],
     props: [
@@ -94,17 +96,12 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
     // On React 17 `useId` resolves in a passive effect, so `id` is still
     // undefined during this layout effect on the first commit. Skip the
     // registration until the effect re-runs with the resolved id.
-    if (id == null || (hidden && !keepMounted)) {
+    if (id == null || !shouldRender) {
       return undefined;
     }
 
     return registerMountedTabPanel(value, id);
-  }, [hidden, keepMounted, value, id, registerMountedTabPanel]);
-
-  const shouldRender = keepMounted || mounted;
-  if (!shouldRender) {
-    return null;
-  }
+  }, [shouldRender, value, id, registerMountedTabPanel]);
 
   return element;
 });
