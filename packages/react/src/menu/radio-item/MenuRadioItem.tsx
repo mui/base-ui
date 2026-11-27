@@ -42,7 +42,7 @@ const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
   const id = useBaseUiId(idProp);
 
   const highlighted = store.useState('isActive', listItem.index);
-  const nodeId = store.useState('floatingNodeId');
+  const nodeId = store.useState('popupNodeId');
   const itemProps = store.useState('itemProps');
   const rootDisabled = store.useState('disabled');
 

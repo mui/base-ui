@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
+import { PopupTree } from '../../utils/popups/tree/PopupTree';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
 import type { PopoverHandle } from '../store/PopoverHandle';
@@ -27,6 +27,7 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
     props,
     (initialState, defaultPopupId) =>
       new PopoverStore<Payload>({ ...initialState, modal }, defaultPopupId),
+    { ownsTreeNode: true },
   );
 
   // Dispose the patient-click timeout held in the store's context on unmount.
@@ -76,9 +77,9 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
   }
 
   return (
-    <FloatingTree>
+    <PopupTree>
       <PopoverRootComponent props={props} />
-    </FloatingTree>
+    </PopupTree>
   );
 }
 

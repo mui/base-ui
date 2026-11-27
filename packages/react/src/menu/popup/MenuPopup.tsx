@@ -23,6 +23,7 @@ import { useRenderedId } from '../../internals/resolveRenderedId';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { MenuFilterImplContext, useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import type { MenuFilterParentHandoff } from '../filter-root/MenuFilterContext';
+import { getMenuTreeEvents } from '../utils/menuTreeEvents';
 
 interface MenuPopupPlainProps extends MenuPopup.Props {
   /** A filter root's own initial focus target; the plain default focuses the popup or its list. */
@@ -61,7 +62,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const floatingTreeRoot = store.useState('popupTree');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
@@ -109,12 +110,13 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
-    floatingTreeRoot.events.on('close', handleClose);
+    const menuEvents = getMenuTreeEvents(floatingTreeRoot);
+    menuEvents.on('treeClose', handleClose);
 
     return () => {
-      floatingTreeRoot.events.off('close', handleClose);
+      menuEvents.off('treeClose', handleClose);
     };
-  }, [floatingTreeRoot.events, store]);
+  }, [floatingTreeRoot, store]);
 
   useHoverPopupInteraction(store, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
@@ -201,7 +203,6 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
           ? () => [store.context.beforeTriggerFocusGuardRef.current]
           : undefined
       }
-      externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
       nextFocusableElement={
         parent.type === undefined ? store.context.triggerFocusTargetRef : undefined

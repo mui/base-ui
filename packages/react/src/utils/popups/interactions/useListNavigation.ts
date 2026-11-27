@@ -10,8 +10,6 @@ import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import {
   getMaxListIndex,
@@ -213,10 +211,6 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * External FloatingTree to use when the one provided by context can't be used.
-   */
-  externalTree?: FloatingTreeStore | undefined;
-  /**
    * Focus target used when a nested list returns to a virtually focused parent.
    */
   nestedReturnFocusRef?: React.RefObject<HTMLElement | null> | undefined;
@@ -260,7 +254,6 @@ export function useListNavigation(
     parentOrientation,
     id,
     resetOnPointerLeave = true,
-    externalTree,
     nestedReturnFocusRef,
     grid: navigateGrid,
     closeOnTab = false,
@@ -298,8 +291,7 @@ export function useListNavigation(
 
   const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
-  const parentId = useFloatingParentNodeId();
-  const tree = useFloatingTree(externalTree);
+  const tree = store.useState('popupTree');
 
   const focusItemOnOpenRef = React.useRef(focusItemOnOpen);
   const indexRef = React.useRef(selectedIndex ?? -1);
@@ -507,20 +499,19 @@ export function useListNavigation(
       return;
     }
 
-    const nodes = tree.nodesRef.current;
-    const parent = nodes.find((node) => node.id === parentId)?.context?.elements.floating;
+    const parent = tree.getNode(store.select('popupParentNodeId'))?.context?.elements.floating;
     // `positionerElement` is null here (see the guard above), so resolve the owner document
     // from an in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling
     // back to the parent floating element when the reference is virtual (`anchorElement` is null).
     const activeEl = activeElement(ownerDocument(anchorElement ?? parent ?? null));
-    const treeContainsActiveEl = nodes.some(
-      (node) => node.context && contains(node.context.elements.floating, activeEl),
+    const treeContainsActiveEl = tree.nodes.some((node) =>
+      contains(node.context?.elements.floating, activeEl),
     );
 
     if (parent && !treeContainsActiveEl && isPointerModalityRef.current) {
       parent.focus({ preventScroll: true });
     }
-  }, [enabled, positionerElement, anchorElement, tree, parentId, virtual]);
+  }, [enabled, positionerElement, anchorElement, tree, store, virtual]);
 
   useIsoLayoutEffect(() => {
     previousOpenRef.current = open;
@@ -544,8 +535,7 @@ export function useListNavigation(
   const getParentOrientation = useStableCallback(() => {
     return (
       parentOrientation ??
-      tree?.nodesRef.current.find((node) => node.id === parentId)?.context?.rootStore.context
-        .orientation
+      tree?.getNode(store.select('popupParentNodeId'))?.context?.rootStore.context.orientation
     );
   });
 

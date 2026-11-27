@@ -4,7 +4,8 @@ import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { createEventEmitter } from './createEventEmitter';
 import { dispatchOpenChange } from './floating-root/dispatchOpenChange';
-import type { PopupEvents, PopupInteractionContext, ReferenceType } from './types';
+import type { PopupEventMap, PopupEvents, PopupInteractionContext, ReferenceType } from './types';
+import type { PopupTreeRegistry } from './tree/PopupTreeRegistry';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
@@ -42,6 +43,18 @@ export type PopupStoreState<Payload> = {
    * Number of trigger elements currently registered for this popup.
    */
   triggerCount: number;
+  /**
+   * The popup tree the popup belongs to or reads, if any.
+   */
+  popupTree: PopupTreeRegistry | null;
+  /**
+   * The id of the popup's own node in its popup tree. Only tree members have one.
+   */
+  popupNodeId: string | undefined;
+  /**
+   * The id of the node the popup is nested in, if any.
+   */
+  popupParentNodeId: string | null;
   /**
    * Whether to prevent unmounting the popup when closed.
    * Useful for interacting with JS animation libraries that control unmounting themselves.
@@ -120,6 +133,9 @@ export function createInitialPopupStoreState<Payload>(
     transitionStatus: undefined,
     defaultPopupId,
     triggerCount: 0,
+    popupTree: null,
+    popupNodeId: undefined,
+    popupParentNodeId: null,
     preventUnmountingOnClose: false,
     payload: undefined,
     activeTriggerId: null,
@@ -158,10 +174,6 @@ export type PopupStoreContext<ChangeEventDetails> = PopupInteractionContext & {
    * Internal events for the interaction hooks, such as `openchange`.
    */
   readonly events: PopupEvents;
-  /**
-   * Whether the popup has a parent in the floating tree.
-   */
-  nested: boolean;
 };
 
 /**
@@ -173,8 +185,7 @@ export function createPopupStoreContext() {
     triggerElements: new PopupTriggerMap(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
-    events: createEventEmitter(),
-    nested: false,
+    events: createEventEmitter<PopupEventMap>(),
   };
 }
 
@@ -220,6 +231,9 @@ export const popupStoreSelectors = {
   transitionStatus: (state: S) =>
     openSelector(state) && !state.mounted ? 'starting' : state.transitionStatus,
   triggerCount: (state: S) => state.triggerCount,
+  popupTree: (state: S) => state.popupTree,
+  popupNodeId: (state: S) => state.popupNodeId,
+  popupParentNodeId: (state: S) => state.popupParentNodeId,
   preventUnmountingOnClose: (state: S) => state.preventUnmountingOnClose,
   payload: (state: S) => state.payload,
 
@@ -434,7 +448,7 @@ export abstract class BasePopupStore<
     // is dropped only when both are closed. A hover open may still be pending, so the hover
     // interaction hears about the dropped close to cancel it.
     if (!nextOpen && !this.state.open && !this.state.openProp) {
-      this.context.events.emit('droppedclose');
+      this.context.events.emit('droppedClose', undefined);
       return;
     }
 

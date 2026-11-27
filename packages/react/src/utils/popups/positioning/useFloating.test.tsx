@@ -30,7 +30,6 @@ test('uses the supplied root store while preserving DOM and position references'
       positionerElement,
       triggerElements: new PopupTriggerMap(),
       defaultPopupId: undefined,
-      nested: false,
       onOpenChange: vi.fn(),
     });
     let floating: UseFloatingReturn | undefined;

@@ -5,7 +5,7 @@ import { useTestInteractions } from '#test-utils';
 import { flip, offset, shift } from '@floating-ui/react-dom';
 import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
-import { FloatingNode, useFloatingNodeId } from '../../src/utils/popups/tree/FloatingTree';
+import { PopupTreeNode, usePopupNodeId } from '../../src/utils/popups/tree/PopupTree';
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
@@ -47,7 +47,7 @@ export const NavigationItem = React.forwardRef<
   const hasChildren = !!children;
   const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
 
-  const nodeId = useFloatingNodeId();
+  const nodeId = usePopupNodeId();
 
   const { floatingStyles, refs, context } = useFloating({
     open,
@@ -77,7 +77,7 @@ export const NavigationItem = React.forwardRef<
   const mergedReferenceRef = useMergedRefs(ref, refs.setReference);
 
   return (
-    <FloatingNode id={nodeId}>
+    <PopupTreeNode id={nodeId}>
       <li>
         <a
           href={href}
@@ -106,7 +106,7 @@ export const NavigationItem = React.forwardRef<
           </FloatingFocusManager>
         )}
       </FloatingPortal>
-    </FloatingNode>
+    </PopupTreeNode>
   );
 });
 

@@ -13,7 +13,7 @@ import { closest, contains } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
-import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
+import { usePopupTree } from '../../utils/popups/tree/PopupTree';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { getHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import {
@@ -99,7 +99,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
-  const tree = useFloatingTree();
+  const tree = usePopupTree();
   const dismissProps = useNavigationMenuDismissContext();
   const direction = useDirection();
 
@@ -473,6 +473,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       anchor: triggerElement,
       positionerElement: hoverPopupElement,
     },
+    nodeId,
   });
 
   const hoverIntent = getHoverIntent(floatingRootStore);
@@ -493,7 +494,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return null;
     }
 
-    return getHandleCloseContext(triggerElementRef.current, hoverPopupElement, nodeId);
+    return getHandleCloseContext(triggerElementRef.current, hoverPopupElement);
   });
 
   function getScope() {
@@ -826,7 +827,6 @@ function getPlacementFromElements(
 function getHandleCloseContext(
   anchorElement: Element,
   positionerElement: HTMLElement,
-  nodeId: string | undefined,
 ): HandleCloseContextBase {
   return {
     placement: getPlacementFromElements(anchorElement, positionerElement),
@@ -834,6 +834,5 @@ function getHandleCloseContext(
       domReference: anchorElement,
       floating: positionerElement,
     },
-    nodeId,
   };
 }

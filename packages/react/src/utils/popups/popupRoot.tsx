@@ -5,7 +5,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useFloatingParentNodeId } from './tree/FloatingTree';
+import { usePopupParentNodeId, usePopupTree } from './tree/PopupTree';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -61,6 +61,12 @@ export interface UsePopupRootOptions {
    * @default false
    */
   disabled?: boolean | undefined;
+  /**
+   * Whether the Root creates the id of the popup's node in the popup tree. Its Positioner
+   * registers the node under that id.
+   * @default false
+   */
+  ownsTreeNode?: boolean | undefined;
 }
 
 /**
@@ -121,6 +127,7 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
     closeOnActiveTriggerUnmount = false,
     animateInitialOpen = false,
     disabled = false,
+    ownsTreeNode,
   } = options;
 
   const store = usePopupRootStore(
@@ -130,6 +137,7 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
         initialPopupId,
       ),
     defaultPopupId,
+    ownsTreeNode,
   );
 
   const transitionOpen = usePopupRootOpenState(store, props, disabled);
@@ -276,22 +284,33 @@ interface PopupRootStoreHandle<Store> {
 /**
  * Creates and owns a popup store on behalf of a Root part. The store is created exactly once, with
  * controlled props and root state synced separately after creation. Keeps the default popup id and
- * whether the popup is nested current, and returns the store.
+ * the popup's place in the popup tree current, and returns the store.
  *
  * @param createStore Factory that builds the store. Called exactly once, receiving the default
  * popup id resolved on the first render.
  * @param defaultPopupId The default popup id, or `undefined` to leave the popup without one.
+ * @param ownsTreeNode Whether the Root creates the id of the popup's node in the popup tree.
  */
 function usePopupRootStore<Store extends PopupRootStore>(
   createStore: (defaultPopupId: string | undefined) => Store,
   defaultPopupId: string | undefined,
+  ownsTreeNode?: boolean,
 ): Store {
-  const nested = useFloatingParentNodeId() != null;
+  const popupTree = usePopupTree();
+  const popupParentNodeId = usePopupParentNodeId();
+  // An id override skips the extra render React 17 needs to generate an id.
+  const popupNodeId = useId(ownsTreeNode ? undefined : '') || undefined;
 
-  const store = useRefWithInit(() => createStore(defaultPopupId)).current;
+  const store = useRefWithInit(() => {
+    const createdStore = createStore(defaultPopupId);
+    // Nothing subscribes to a store that was just created, so this notifies no one, and the
+    // first render already reads the popup's place in the tree.
+    createdStore.update({ popupTree, popupNodeId, popupParentNodeId });
+    return createdStore;
+  }).current;
 
   store.useSyncedValue('defaultPopupId', defaultPopupId);
-  store.context.nested = nested;
+  store.useSyncedValues({ popupTree, popupNodeId, popupParentNodeId });
 
   return store;
 }

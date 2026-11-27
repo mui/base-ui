@@ -6,11 +6,11 @@ import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
 import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
-  FloatingNode,
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../../src/utils/popups/tree/FloatingTree';
+  PopupTreeNode,
+  PopupTree,
+  usePopupNodeId,
+  usePopupParentNodeId,
+} from '../../src/utils/popups/tree/PopupTree';
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
@@ -107,7 +107,7 @@ function PopoverComponent({
 }: Props) {
   const [open, setOpen] = React.useState(false);
 
-  const nodeId = useFloatingNodeId();
+  const nodeId = usePopupNodeId();
   const { floatingStyles, refs, context } = useFloating({
     nodeId,
     open,
@@ -139,7 +139,7 @@ function PopoverComponent({
   ]);
 
   return (
-    <FloatingNode id={nodeId}>
+    <PopupTreeNode id={nodeId}>
       {React.isValidElement(children) &&
         React.cloneElement(
           children,
@@ -174,20 +174,20 @@ function PopoverComponent({
           </FloatingFocusManager>
         )}
       </FloatingPortal>
-    </FloatingNode>
+    </PopupTreeNode>
   );
 }
 
 /** @internal */
 export function Popover(props: Props) {
-  const parentId = useFloatingParentNodeId();
+  const parentId = usePopupParentNodeId();
 
   // This is a root, so we wrap it with the tree
   if (parentId === null) {
     return (
-      <FloatingTree>
+      <PopupTree>
         <PopoverComponent {...props} />
-      </FloatingTree>
+      </PopupTree>
     );
   }
 

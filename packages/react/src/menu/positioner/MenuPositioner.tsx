@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
+import { PopupTreeNode } from '../../utils/popups/tree/PopupTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -19,7 +19,8 @@ import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../i
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { MenuOpenEventDetails } from '../utils/types';
+import { getMenuTreeEvents } from '../utils/menuTreeEvents';
+import type { MenuNodeOpenChangeDetails } from '../utils/menuTreeEvents';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
@@ -39,14 +40,15 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const floatingTreeRoot = store.useState('popupTree');
+  const menuEvents = getMenuTreeEvents(floatingTreeRoot);
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const floatingNodeId = store.useState('floatingNodeId');
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
+  const floatingNodeId = store.useState('popupNodeId');
+  const floatingParentNodeId = store.useState('popupParentNodeId');
   const domReference = store.useState('anchorElement');
 
   const { side } = componentProps;
@@ -97,21 +99,19 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       align: computedAlign,
       alignOffset,
       arrowPadding: contextMenu ? 0 : componentProps.arrowPadding,
-      nodeId: floatingNodeId,
       shift: contextMenu
         ? {
             crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
             rootBoundary: 'layoutViewport',
           }
         : undefined,
-      externalTree: floatingTreeRoot,
       lazyFlip: virtualFocus ? 'placement' : false,
     },
     state: { nested: parent.type === 'menu' },
   });
 
   React.useEffect(() => {
-    function onMenuOpenChange(details: MenuOpenEventDetails) {
+    function onMenuOpenChange(details: MenuNodeOpenChangeDetails) {
       if (details.open) {
         if (details.parentNodeId === floatingNodeId) {
           store.set('hoverEnabled', false);
@@ -120,7 +120,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         // a hover open it has pending. This mirrors the drop rule in `setOpen`.
         if (
           details.nodeId !== floatingNodeId &&
-          details.parentNodeId === store.select('floatingParentNodeId') &&
+          details.parentNodeId === store.select('popupParentNodeId') &&
           (store.state.open || store.state.openProp)
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
@@ -128,20 +128,20 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('menuopenchange', onMenuOpenChange);
+    menuEvents.on('nodeOpenChange', onMenuOpenChange);
 
     return () => {
-      floatingTreeRoot.events.off('menuopenchange', onMenuOpenChange);
+      menuEvents.off('nodeOpenChange', onMenuOpenChange);
     };
-  }, [store, floatingTreeRoot.events, floatingNodeId]);
+  }, [store, menuEvents, floatingNodeId]);
 
   React.useEffect(() => {
-    if (store.select('floatingParentNodeId') == null) {
+    if (store.select('popupParentNodeId') == null) {
       return undefined;
     }
 
-    function onParentClose(details: MenuOpenEventDetails) {
-      if (details.open || details.nodeId !== store.select('floatingParentNodeId')) {
+    function onParentClose(details: MenuNodeOpenChangeDetails) {
+      if (details.open || details.nodeId !== store.select('popupParentNodeId')) {
         return;
       }
 
@@ -149,12 +149,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
-    floatingTreeRoot.events.on('menuopenchange', onParentClose);
+    menuEvents.on('nodeOpenChange', onParentClose);
 
     return () => {
-      floatingTreeRoot.events.off('menuopenchange', onParentClose);
+      menuEvents.off('nodeOpenChange', onParentClose);
     };
-  }, [floatingTreeRoot.events, store]);
+  }, [menuEvents, store]);
 
   const closeTimeout = useTimeout();
 
@@ -170,7 +170,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
       // If an item within our parent menu is hovered, and this menu's trigger is not that item,
       // close this submenu. This ensures hovering a different item in the parent closes other branches.
-      if (!open || event.nodeId !== store.select('floatingParentNodeId')) {
+      if (!open || event.nodeId !== store.select('popupParentNodeId')) {
         return;
       }
 
@@ -191,22 +191,22 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('itemhover', onItemHover);
+    menuEvents.on('nodeItemHover', onItemHover);
     return () => {
-      floatingTreeRoot.events.off('itemhover', onItemHover);
+      menuEvents.off('nodeItemHover', onItemHover);
     };
-  }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
+  }, [menuEvents, open, triggerElement, store, closeTimeout]);
 
   React.useEffect(() => {
-    const eventDetails: MenuOpenEventDetails = {
+    const eventDetails: MenuNodeOpenChangeDetails = {
       open,
       nodeId: floatingNodeId,
       parentNodeId: floatingParentNodeId,
       reason: store.select('lastOpenChangeReason'),
     };
 
-    floatingTreeRoot.events.emit('menuopenchange', eventDetails);
-  }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
+    menuEvents.emit('nodeOpenChange', eventDetails);
+  }, [menuEvents, open, store, floatingNodeId, floatingParentNodeId]);
 
   useTriggerSwitchTransition({
     store,
@@ -252,7 +252,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           cutout={backdropCutout}
         />
       )}
-      <FloatingNode id={floatingNodeId}>
+      <PopupTreeNode id={floatingNodeId}>
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
@@ -260,7 +260,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         >
           {element}
         </CompositeList>
-      </FloatingNode>
+      </PopupTreeNode>
     </MenuPositionerContext.Provider>
   );
 });

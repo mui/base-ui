@@ -16,7 +16,9 @@ import type {
  * elements in the root store. Base UI components hand their elements to the store directly, so
  * only the ported Floating UI tests use this.
  */
-export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
+export function useFloating(
+  options: UseFloatingOptions & { nodeId?: string | undefined } = {},
+): UseFloatingReturn {
   const internalStore = useFloatingRootStore({
     ...options,
     elements: {

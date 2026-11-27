@@ -1,6 +1,5 @@
 import { contains } from '@base-ui/utils/shadowDom';
-import type { FloatingTreeType } from '../../utils/popups/types';
-import { getNodeChildren } from '../../utils/popups/tree/nodes';
+import type { PopupTreeRegistry } from '../../utils/popups/tree/PopupTreeRegistry';
 
 interface Targets {
   currentTarget: HTMLElement | null;
@@ -10,18 +9,14 @@ interface Targets {
 interface Params {
   popupElement: HTMLElement | null;
   rootRef: React.RefObject<HTMLDivElement | null>;
-  tree: FloatingTreeType | null;
+  tree: PopupTreeRegistry | null;
   nodeId: string | undefined;
 }
 
 export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, params: Params) {
   const { popupElement, rootRef, tree, nodeId } = params;
 
-  const nodeChildrenContains = tree
-    ? getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
-        contains(node.context?.elements.floating, relatedTarget),
-      )
-    : false;
+  const nodeChildrenContains = tree?.descendantContains(nodeId, relatedTarget);
 
   if (!popupElement) {
     return !contains(rootRef.current, relatedTarget) && !nodeChildrenContains;

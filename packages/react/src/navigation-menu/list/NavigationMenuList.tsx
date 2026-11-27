@@ -6,10 +6,7 @@ import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
-import {
-  useNavigationMenuRootContext,
-  useNavigationMenuTreeContext,
-} from '../root/NavigationMenuRootContext';
+import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
 import { getEmptyRootStore } from '../../utils/popups/floating-root/getEmptyRootStore';
@@ -26,8 +23,6 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   forwardedRef: React.ForwardedRef<HTMLUListElement>,
 ) {
   const { render, className, style, ...elementProps } = componentProps;
-
-  const nodeId = useNavigationMenuTreeContext();
 
   const {
     orientation,
@@ -49,7 +44,6 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   useHoverPopupInteraction(store, {
     enabled: Boolean(floatingRootStore) && hoverInteractionsEnabled,
     closeDelay,
-    nodeId,
   });
 
   const dismiss = useDismiss(store, {
