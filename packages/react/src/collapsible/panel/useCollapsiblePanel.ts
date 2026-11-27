@@ -10,6 +10,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
 import { ownerWindow } from '@base-ui/utils/owner';
 import type { HTMLProps } from '../../internals/types';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
@@ -28,6 +29,13 @@ interface Dimensions {
 const EMPTY_DIMENSIONS: Dimensions = {
   height: undefined,
   width: undefined,
+};
+
+// `content-visibility` matches `hidden="until-found"`; `height` covers browsers without it.
+const DEFERRED_HIDDEN_STYLE: React.CSSProperties = {
+  contentVisibility: 'hidden',
+  height: 0,
+  overflow: 'hidden',
 };
 
 export function useCollapsiblePanel(
@@ -72,6 +80,11 @@ export function useCollapsiblePanel(
   const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef);
 
   const hidden = !open && !mounted;
+  const isHydrating = useIsHydrating();
+  // React renders `hidden="until-found"` as `hidden=""` (https://github.com/facebook/react/issues/24740),
+  // which hides closed panels in server HTML from crawlers and text extractors.
+  // Collapse them with inline styles until hydration instead.
+  const shouldDeferHiddenAttribute = hiddenUntilFound && hidden && isHydrating;
   const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
   const shouldPreventOpenAnimation =
     open &&
@@ -363,7 +376,8 @@ export function useCollapsiblePanel(
     // legit string values to booleans so we have to force it back in the DOM
     // when necessary: https://github.com/react/react/issues/24740
     panel.setAttribute('hidden', 'until-found');
-  }, [hidden, hiddenUntilFound]);
+    // `isHydrating`: React writes `hidden=""` once hydration ends, so restore `until-found`.
+  }, [hidden, hiddenUntilFound, isHydrating]);
 
   React.useEffect(
     function registerBeforeMatchListener() {
@@ -466,8 +480,9 @@ export function useCollapsiblePanel(
       ...(shouldPersistHiddenTransitionStyles
         ? { [CollapsiblePanelDataAttributes.startingStyle]: '' }
         : undefined),
-      hidden,
+      hidden: shouldDeferHiddenAttribute ? undefined : hidden,
       id: idParam,
+      style: shouldDeferHiddenAttribute ? DEFERRED_HIDDEN_STYLE : undefined,
     },
     ref: mergedPanelRef,
     shouldPreventOpenAnimation,
