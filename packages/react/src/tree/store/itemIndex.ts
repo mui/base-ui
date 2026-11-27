@@ -79,9 +79,9 @@ function copyLookup<T extends object>(lookup: T): T {
 }
 
 /**
- * The parents whose children differ, in content or order, between two children
- * lookups. An edit can rebuild the children of an item without changing them,
- * such as a replacement model with a copy of its children.
+ * The parents whose set of children differs between two children lookups.
+ * Selection follows membership, so a reorder doesn't count, and neither does an
+ * edit that rebuilds the children of an item without changing them.
  */
 export function getChangedParentKeys(
   previous: TreeItemsState['itemOrderedChildrenIdsLookup'],
@@ -98,11 +98,26 @@ export function getChangedParentKeys(
   for (const key of keys) {
     const before = previous[key];
     const after = next[key];
-    if (before !== after && (before == null || after == null || !areArraysEqual(before, after))) {
+    if (before !== after && !haveSameMembers(before, after)) {
       changed.add(key);
     }
   }
   return changed;
+}
+
+function haveSameMembers(
+  before: readonly TreeItemId[] | undefined,
+  after: readonly TreeItemId[] | undefined,
+): boolean {
+  if (before == null || after == null || before.length !== after.length) {
+    return false;
+  }
+  if (areArraysEqual(before, after)) {
+    return true;
+  }
+  // The IDs of siblings are unique.
+  const members = new Set(before);
+  return after.every((itemId) => members.has(itemId));
 }
 
 /** Whether an item can be expanded: it has inline children. */

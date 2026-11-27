@@ -1295,6 +1295,43 @@ describe('removal selection/expansion pruning', () => {
     expect(onSelectedItemsChange).not.toHaveBeenCalled();
   });
 
+  it('leaves a row selection alone when its children are reordered', async () => {
+    const actionsRef = React.createRef<Tree.Root.Actions<Item>>();
+    const onSelectedItemsChange = vi.fn();
+    await render(
+      <Tree.Root
+        defaultItems={ITEMS}
+        actionsRef={actionsRef}
+        multiple="opt-in"
+        defaultSelectedItems={['a']}
+        defaultExpandedItems={['a']}
+        onSelectedItemsChange={onSelectedItemsChange}
+      >
+        <Tree.List>
+          {(item) => (
+            <Tree.Item itemId={item.id} data-testid={`item-${item.id}`}>
+              {item.label}
+            </Tree.Item>
+          )}
+        </Tree.List>
+      </Tree.Root>,
+    );
+    expect(
+      screen.getByTestId('item-a2').compareDocumentPosition(screen.getByTestId('item-a1')),
+    ).toBe(Node.DOCUMENT_POSITION_PRECEDING);
+
+    await act(() =>
+      actionsRef.current!.applyTransaction((transaction) =>
+        transaction.move('a2', { before: 'a1' }),
+      ),
+    );
+
+    expect(
+      screen.getByTestId('item-a2').compareDocumentPosition(screen.getByTestId('item-a1')),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(onSelectedItemsChange).not.toHaveBeenCalled();
+  });
+
   it('selects a parent when removing its only unselected child', async () => {
     const actionsRef = React.createRef<Tree.Root.Actions<Item>>();
     const onSelectedItemsChange = vi.fn();
