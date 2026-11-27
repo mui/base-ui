@@ -228,12 +228,14 @@ describe('<ContextMenu.Trigger />', () => {
 
     await render(<Test />);
     fireEvent.contextMenu(screen.getByTestId('trigger'));
+    // Past the long-press window, a mouseup outside the popup closes the menu.
+    clock.tick(501);
+    expect(screen.queryByRole('menu')).not.toBe(null);
 
     await act(async () => {
       hideTrigger();
     });
 
-    clock.tick(501);
     fireEvent.mouseUp(document.body);
 
     expect(onOpenChange.mock.calls).toHaveLength(1);
