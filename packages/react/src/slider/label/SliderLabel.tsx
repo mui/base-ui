@@ -47,6 +47,7 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
 
   const labelProps = useLabel({
     id: rootLabelId,
+    render,
     setLabelId,
     focusControl,
   });

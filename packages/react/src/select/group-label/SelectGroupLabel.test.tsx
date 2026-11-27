@@ -180,4 +180,32 @@ describe('<Select.GroupLabel />', () => {
     await rerender(<Test />);
     expect(group).not.toHaveAttribute('aria-labelledby');
   });
+
+  describe('prop: render', () => {
+    it('labels the group with the id of the render element', async () => {
+      await render(
+        <Select.Root open>
+          <Select.Group>
+            <Select.GroupLabel render={<div id="custom" />}>Fruits</Select.GroupLabel>
+          </Select.Group>
+        </Select.Root>,
+      );
+
+      expect(screen.getByText('Fruits')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Select.Root open>
+          <Select.Group>
+            <Select.GroupLabel render={<div id={undefined} />}>Fruits</Select.GroupLabel>
+          </Select.Group>
+        </Select.Root>,
+      );
+
+      expect(screen.getByText('Fruits')).not.toHaveAttribute('id');
+      expect(screen.getByRole('group')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

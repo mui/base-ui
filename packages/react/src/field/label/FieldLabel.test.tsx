@@ -186,4 +186,65 @@ describe('<Field.Label />', () => {
       }
     });
   });
+
+  describe('prop: render', () => {
+    it('labels the control with the id of the render element', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Label render={<label id="custom" />}>Label</Field.Label>
+        </Field.Root>,
+      );
+
+      expect(screen.getByText('Label')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Label render={<label id={undefined} />}>Label</Field.Label>
+        </Field.Root>,
+      );
+
+      expect(screen.getByText('Label')).not.toHaveAttribute('id');
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-labelledby');
+    });
+
+    it('labels the control with the id prop when the render element id goes away', async () => {
+      const { setProps } = await render(
+        <TestLabel id="fallback" render={<label id="temporary" />} />,
+      );
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-labelledby', 'temporary');
+
+      await setProps({ render: <label /> });
+
+      expect(screen.getByText('Label')).toHaveAttribute('id', 'fallback');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-labelledby', 'fallback');
+    });
+  });
+
+  describe('prop: id', () => {
+    it('labels the control with the new id when the id changes', async () => {
+      const { setProps } = await render(<TestLabel id="first" />);
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-labelledby', 'first');
+
+      await setProps({ id: 'second' });
+
+      expect(screen.getByText('Label')).toHaveAttribute('id', 'second');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-labelledby', 'second');
+    });
+  });
 });
+
+function TestLabel(props: Field.Label.Props) {
+  return (
+    <Field.Root>
+      <Field.Control />
+      <Field.Label {...props}>Label</Field.Label>
+    </Field.Root>
+  );
+}

@@ -19,7 +19,7 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 
   const { disabled, setLegendId } = useFieldsetRootContext();
 
-  const id = useRegisteredLabelId(idProp, setLegendId);
+  const id = useRegisteredLabelId(componentProps, setLegendId);
 
   const state: FieldsetLegendState = {
     disabled,

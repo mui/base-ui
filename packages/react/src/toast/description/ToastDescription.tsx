@@ -24,7 +24,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     ...elementProps
   } = componentProps;
 
-  const { id, children, type, setId } = useToastLabelPart(idProp, childrenProp, 'description');
+  const { id, children, type, setId } = useToastLabelPart(componentProps, 'description');
 
   const state: ToastDescriptionState = { type };
 

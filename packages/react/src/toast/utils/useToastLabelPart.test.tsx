@@ -138,6 +138,20 @@ describe('useToastLabelPart', () => {
         );
       });
 
+      it(`wires ${attribute} to the id of the render element`, async () => {
+        await renderInRoot(<Part render={<div id="custom">render prop content</div>} />);
+
+        expect(screen.getByText('render prop content')).toHaveAttribute('id', 'custom');
+        expect(screen.getByTestId('root')).toHaveAttribute(attribute, 'custom');
+      });
+
+      it(`does not add ${attribute} when the render element removes the id`, async () => {
+        await renderInRoot(<Part render={<div id={undefined}>render prop content</div>} />);
+
+        expect(screen.getByText('render prop content')).not.toHaveAttribute('id');
+        expect(screen.getByTestId('root')).not.toHaveAttribute(attribute);
+      });
+
       it(`renders the toast ${field} through a childless render prop`, async () => {
         await renderInRoot(<Part render={<div />} />, { id: 'test', [field]: 'Toast content' });
 
@@ -218,6 +232,31 @@ describe('useToastLabelPart', () => {
       expect(root).toHaveAttribute(attribute, 'new-part');
 
       await rerender(<Fixture parts="new" />);
+      expect(root).toHaveAttribute(attribute, 'new-part');
+    });
+
+    it('does not let an older part without an id clear a newer part', async () => {
+      function Fixture({ oldRender }: { oldRender?: React.ReactElement | undefined }) {
+        return (
+          <Toast.Provider>
+            <Toast.Viewport>
+              <Toast.Root toast={{ id: 'test' }} data-testid="root">
+                <Part id="old-part" render={oldRender}>
+                  Old
+                </Part>
+                <Part id="new-part">New</Part>
+              </Toast.Root>
+            </Toast.Viewport>
+          </Toast.Provider>
+        );
+      }
+
+      const { setProps } = await render(<Fixture />);
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute(attribute, 'new-part');
+
+      await setProps({ oldRender: <div id={undefined} /> });
       expect(root).toHaveAttribute(attribute, 'new-part');
     });
   });

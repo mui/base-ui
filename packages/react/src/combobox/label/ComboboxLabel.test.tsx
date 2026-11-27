@@ -1,6 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { SafeReact } from '@base-ui/utils/safeReact';
+import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Combobox.Label />', () => {
@@ -82,5 +83,45 @@ describe('<Combobox.Label />', () => {
       });
       process.env.NODE_ENV = nodeEnv;
     }
+  });
+
+  describe('prop: render', () => {
+    it('labels the trigger with the id of the render element', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Label render={<div id="custom" />}>Fruit</Combobox.Label>
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByText('Fruit')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Label render={<div id={undefined} />}>Fruit</Combobox.Label>
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByText('Fruit')).not.toHaveAttribute('id');
+      expect(screen.getByRole('combobox')).not.toHaveAttribute('aria-labelledby');
+    });
   });
 });

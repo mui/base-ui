@@ -7,6 +7,7 @@ import { useLabelableContext } from '../../internals/labelable-provider/Labelabl
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFieldItemContext } from '../item/FieldItemContext';
 
@@ -22,7 +23,8 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 ) {
   const { render, id: idProp, className, style, ...elementProps } = componentProps;
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = resolveRenderedId(componentProps, defaultId) || undefined;
 
   const fieldRootContext = useFieldRootContext(false);
   const fieldItemContext = useFieldItemContext();

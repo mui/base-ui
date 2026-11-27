@@ -23,7 +23,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     ...elementProps
   } = componentProps;
 
-  const { id, children, type, setId } = useToastLabelPart(idProp, childrenProp, 'title');
+  const { id, children, type, setId } = useToastLabelPart(componentProps, 'title');
 
   const state: ToastTitleState = { type };
 

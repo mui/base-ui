@@ -57,4 +57,28 @@ describe('<Meter.Label />', () => {
       errorSpy.mockRestore();
     }
   });
+
+  describe('prop: render', () => {
+    it('labels the meter with the id of the render element', async () => {
+      await render(
+        <Meter.Root value={30}>
+          <Meter.Label render={<span id="custom" />}>Battery</Meter.Label>
+        </Meter.Root>,
+      );
+
+      expect(screen.getByText('Battery')).toHaveAttribute('id', 'custom');
+      expect(screen.getByRole('meter')).toHaveAttribute('aria-labelledby', 'custom');
+    });
+
+    it('does not reference a missing id when the render element removes it', async () => {
+      await render(
+        <Meter.Root value={30}>
+          <Meter.Label render={<span id={undefined} />}>Battery</Meter.Label>
+        </Meter.Root>,
+      );
+
+      expect(screen.getByText('Battery')).not.toHaveAttribute('id');
+      expect(screen.getByRole('meter')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
 });

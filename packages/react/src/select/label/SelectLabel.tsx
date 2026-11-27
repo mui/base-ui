@@ -33,6 +33,7 @@ export const SelectLabel = React.forwardRef(function SelectLabel(
 
   const labelProps = useLabel({
     id: defaultLabelId,
+    render,
     fallbackControlId: triggerElement?.id ?? rootId,
     setLabelId(nextLabelId) {
       const resolvedLabelId =

@@ -10,6 +10,7 @@ import { useLabelableContext } from './LabelableContext';
 export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
   const {
     id: idProp,
+    render,
     fallbackControlId,
     native = false,
     setLabelId: setLabelIdProp,
@@ -23,7 +24,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
     setLabelIdProp?.(nextLabelId);
   });
 
-  const id = useRegisteredLabelId(idProp, syncLabelId);
+  const id = useRegisteredLabelId({ id: idProp, render }, syncLabelId);
 
   const resolvedControlId = contextControlId ?? fallbackControlId;
 
@@ -78,6 +79,10 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
 
 export interface UseLabelParameters {
   id?: string | undefined;
+  /**
+   * The label's `render` prop. An id on the render element replaces `id`.
+   */
+  render?: unknown;
   /**
    * Control id used when no labelable context control id exists.
    */

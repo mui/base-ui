@@ -21,7 +21,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
 
   const { setLabelId, state } = useProgressRootContext();
 
-  const id = useRegisteredLabelId(idProp, setLabelId);
+  const id = useRegisteredLabelId(componentProps, setLabelId);
 
   const element = useRenderElement('span', componentProps, {
     state,

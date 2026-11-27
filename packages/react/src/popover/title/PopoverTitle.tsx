@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 
 /**
  * A heading that labels the popover.
@@ -19,9 +20,13 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 
   const store = usePopoverRootContext();
 
-  const id = useBaseUiId(idProp);
-
-  store.useSyncedValueWithCleanup('titleElementId', id);
+  const setTitleId = useStableCallback((action: React.SetStateAction<string | undefined>) => {
+    store.set(
+      'titleElementId',
+      typeof action === 'function' ? action(store.state.titleElementId) : action,
+    );
+  });
+  const id = useRegisteredLabelId(componentProps, setTitleId);
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,

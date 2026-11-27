@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
@@ -19,9 +20,13 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
 
   const store = useDialogRootContext();
 
-  const id = useBaseUiId(idProp);
-
-  store.useSyncedValueWithCleanup('descriptionElementId', id);
+  const setDescriptionId = useStableCallback((action: React.SetStateAction<string | undefined>) => {
+    store.set(
+      'descriptionElementId',
+      typeof action === 'function' ? action(store.state.descriptionElementId) : action,
+    );
+  });
+  const id = useRegisteredLabelId(componentProps, setDescriptionId);
 
   return useRenderElement('p', componentProps, {
     ref: forwardedRef,

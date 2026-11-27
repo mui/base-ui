@@ -10,6 +10,7 @@ import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 
 const stateAttributesMapping: StateAttributesMapping<AccordionItemState> = {
   ...accordionStateAttributesMapping,
@@ -47,11 +48,17 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   });
 
   const { defaultTriggerId, state, setTriggerId } = useAccordionItemContext();
-  const registeredId = idProp || undefined;
-  const id = registeredId ?? defaultTriggerId;
+  const id = resolveRenderedId({ id: idProp || undefined, render }, defaultTriggerId) || undefined;
+  // `null` tells the panel that the rendered element has no id.
+  const registeredId = id === defaultTriggerId ? undefined : (id ?? null);
 
   useIsoLayoutEffect(() => {
-    setTriggerId((currentId) => registeredId ?? (currentId === null ? undefined : currentId));
+    setTriggerId((currentId) => {
+      if (registeredId !== undefined) {
+        return registeredId;
+      }
+      return currentId === null ? undefined : currentId;
+    });
     return () => {
       setTriggerId((currentId) => (currentId === registeredId ? null : currentId));
     };

@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 
 /**
  * A paragraph with additional information about the popover.
@@ -19,9 +20,13 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
 
   const store = usePopoverRootContext();
 
-  const id = useBaseUiId(idProp);
-
-  store.useSyncedValueWithCleanup('descriptionElementId', id);
+  const setDescriptionId = useStableCallback((action: React.SetStateAction<string | undefined>) => {
+    store.set(
+      'descriptionElementId',
+      typeof action === 'function' ? action(store.state.descriptionElementId) : action,
+    );
+  });
+  const id = useRegisteredLabelId(componentProps, setDescriptionId);
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,

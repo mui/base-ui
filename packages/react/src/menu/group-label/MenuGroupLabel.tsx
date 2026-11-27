@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
 
 /**
@@ -18,16 +17,9 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
 ) {
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
-  const id = useBaseUiId(idProp);
-
   const setLabelId = useMenuGroupRootContext();
 
-  useIsoLayoutEffect(() => {
-    setLabelId(id);
-    return () => {
-      setLabelId((currentId) => (currentId === id ? undefined : currentId));
-    };
-  }, [setLabelId, id]);
+  const id = useRegisteredLabelId(componentProps, setLabelId);
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,
