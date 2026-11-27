@@ -114,6 +114,62 @@ describe('<OTPField.Root />', () => {
       expect(getValues()).toBe('654321');
     });
 
+    describe('characters outside the Basic Multilingual Plane', () => {
+      it('renders one character per slot', async () => {
+        await render(<OTPField validationType="none" defaultValue="😀12345" />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+        expect(inputs.map((input) => input.value)).toEqual(['😀', '1', '2', '3', '4', '5']);
+        expect(screen.getByRole('group')).toHaveAttribute('data-complete');
+      });
+
+      it('fills one slot per typed character and advances focus', async () => {
+        const onValueComplete = vi.fn();
+        await render(<OTPField validationType="none" onValueComplete={onValueComplete} />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+        await act(async () => {
+          inputs[0].focus();
+        });
+        fireEvent.change(inputs[0], { target: { value: '😀' } });
+
+        expect(inputs.map((input) => input.value)).toEqual(['😀', '', '', '', '', '']);
+        expect(inputs[1]).toHaveFocus();
+        expect(screen.getByRole('group')).not.toHaveAttribute('data-complete');
+        expect(onValueComplete).not.toHaveBeenCalled();
+      });
+
+      it('fires `onValueComplete` once every slot is filled', async () => {
+        const onValueComplete = vi.fn();
+        await render(<OTPField validationType="none" onValueComplete={onValueComplete} />);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        await act(async () => {
+          firstInput.focus();
+        });
+        fireEvent.change(firstInput, { target: { value: '😀1😀2😀3' } });
+
+        expect(onValueComplete).toHaveBeenCalledTimes(1);
+        expect(onValueComplete.mock.calls[0]?.[0]).toBe('😀1😀2😀3');
+      });
+
+      it('removes the whole character on Backspace', async () => {
+        const onValueChange = vi.fn();
+        await render(
+          <OTPField validationType="none" defaultValue="1😀2" onValueChange={onValueChange} />,
+        );
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+        await act(async () => {
+          inputs[1].focus();
+        });
+        fireEvent.keyDown(inputs[1], { key: 'Backspace' });
+
+        expect(onValueChange.mock.calls[0]?.[0]).toBe('12');
+        expect(inputs.map((input) => input.value)).toEqual(['1', '2', '', '', '', '']);
+      });
+    });
+
     describe('prop: validationType', () => {
       describe('built-in filtering', () => {
         it('supports alphabetic values when set to `alpha`', async () => {

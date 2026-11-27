@@ -17,7 +17,12 @@ import { REASONS } from '../../internals/reasons';
 import { useOTPFieldRootContext, getOTPFieldInputState } from '../root/OTPFieldRootContext';
 import type { OTPFieldRootState } from '../root/OTPFieldRoot';
 import { inputStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { normalizeOTPValueWithDetails, removeOTPCharacter, replaceOTPValue } from '../utils/otp';
+import {
+  getOTPCharacters,
+  normalizeOTPValueWithDetails,
+  removeOTPCharacter,
+  replaceOTPValue,
+} from '../utils/otp';
 
 /**
  * An individual OTP character input.
@@ -76,7 +81,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   // and committed once on `compositionend`.
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
 
-  const slotValue = value[index] ?? '';
+  const valueCharacters = getOTPCharacters(value);
+  const slotValue = valueCharacters[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
   const slotAriaLabel = externalAriaLabel;
   const inheritedLabel = externalAriaLabelledBy ?? inputAriaLabelledBy;
@@ -137,7 +143,10 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     );
 
     if (committedValue != null) {
-      queueFocusInput(Math.min(index + nextDigits.length, length - 1), committedValue);
+      queueFocusInput(
+        Math.min(index + getOTPCharacters(nextDigits).length, length - 1),
+        committedValue,
+      );
     }
   }
 
@@ -225,7 +234,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       const firstIndex = 0;
       const lastIndex = Math.max(length - 1, firstIndex);
-      const endTargetIndex = Math.min(value.length, lastIndex);
+      const endTargetIndex = Math.min(valueCharacters.length, lastIndex);
       const hasBoundaryModifier = (event.ctrlKey || event.metaKey) && !event.altKey;
       const isRtl = direction === 'rtl';
       const previousKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
