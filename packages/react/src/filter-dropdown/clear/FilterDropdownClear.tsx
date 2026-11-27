@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -34,6 +35,18 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
 
   const { buttonRef, getButtonProps } = useButton({ disabled, native: nativeButton });
 
+  const { onClick, onPointerDown } = useEnhancedClickHandler((event, interactionType) => {
+    if (event.type !== 'click') {
+      return;
+    }
+    const eventDetails = createChangeEventDetails(REASONS.clearPress, event.nativeEvent);
+    context.onValueChange('', eventDetails);
+    // Focusing the input after a tap would raise the on-screen keyboard.
+    if (interactionType !== 'touch' && interactionType !== 'pen') {
+      context.focusOwnerRef.current?.focus({ preventScroll: true });
+    }
+  });
+
   // `visible` is deliberately absent from the state: the component renders nothing when it is
   // false, so a `data-visible` attribute would be present on every rendered instance.
   const state: FilterDropdownClearState = {
@@ -52,11 +65,8 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
           // Avoid stealing focus from the input on pointer interaction.
           event.preventDefault();
         },
-        onClick(event) {
-          const eventDetails = createChangeEventDetails(REASONS.clearPress, event.nativeEvent);
-          context.onValueChange('', eventDetails);
-          context.focusOwnerRef.current?.focus({ preventScroll: true });
-        },
+        onClick,
+        onPointerDown,
       },
       elementProps,
       getButtonProps,

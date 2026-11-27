@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import { screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, resetBrowserPointer } from '#test-utils';
 import * as FilterDropdown from '../../../test/filterDropdown';
 
@@ -59,6 +59,25 @@ describe('<FilterDropdown.Clear />', () => {
       '',
       expect.objectContaining({ reason: 'clear-press' }),
     );
+  });
+
+  it('does not focus the input after a touch press', async () => {
+    await render(
+      <ControlledFilterDropdownRoot initialValue="can">
+        <FilterDropdown.Popup id={undefined}>
+          <FilterDropdown.Input aria-label="Filter countries" />
+          <FilterDropdown.Clear aria-label="Clear filter" />
+        </FilterDropdown.Popup>
+      </ControlledFilterDropdownRoot>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+    const clear = screen.getByLabelText('Clear filter');
+    fireEvent.pointerDown(clear, { pointerType: 'touch' });
+    fireEvent.click(clear, { detail: 1 });
+
+    expect(input).toHaveValue('');
+    expect(input).not.toHaveFocus();
   });
 
   it('does nothing when disabled', async () => {
