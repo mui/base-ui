@@ -56,7 +56,7 @@ This will ensure that all inline `<style>` and `<script>` tags rendered by BaseÂ
 
 ## Disable inline style elements
 
-You can avoid supplying a `nonce` if you disable inline `<style>` elements entirely and rely on external stylesheets only. The relevant components are `<ScrollArea.Viewport>` and `<Select.Popup>` or `<Select.List>` when `alignItemWithTrigger` is enabled, which inject a style tag to disable native scrollbars.
+You can avoid supplying a `nonce` if you disable inline `<style>` elements entirely and rely on external stylesheets only. The relevant components are `<ScrollArea.Viewport>` and `<Select.Popup>` or `<Select.List>` when `alignItemWithTrigger` is enabled, which inject a style tag to disable native scrollbars, and `<PasswordField.Input>`, which injects one to hide the browser's own password reveal button.
 
 ```html
 <style>
@@ -64,6 +64,9 @@ You can avoid supplying a `nonce` if you disable inline `<style>` elements entir
     scrollbar-width: none;
   }
   .base-ui-disable-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .base-ui-hide-native-reveal::-ms-reveal {
     display: none;
   }
 </style>
