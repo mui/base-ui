@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { screen, within } from '@mui/internal-test-utils';
 import { List, Button } from './test-utils';
 
 interface LabelPartCase {
@@ -111,14 +111,16 @@ describe('useToastLabelPart', () => {
     it('renders a numeric zero child', async () => {
       await renderInRoot(<Part>{0}</Part>);
 
-      expect(screen.getByText('0')).toBeInTheDocument();
+      expect(within(screen.getByTestId('root')).getByText('0')).toBeInTheDocument();
     });
 
     describe('prop: render', () => {
       it('renders content passed through the render prop', async () => {
         await renderInRoot(<Part render={<div>render prop content</div>} />);
 
-        expect(screen.getByText('render prop content')).toBeInTheDocument();
+        expect(
+          within(screen.getByTestId('root')).getByText('render prop content'),
+        ).toBeInTheDocument();
       });
 
       it('renders content passed through a render function', async () => {
@@ -126,7 +128,7 @@ describe('useToastLabelPart', () => {
           <Part render={(props: React.ComponentProps<'div'>) => <div {...props}>render fn</div>} />,
         );
 
-        expect(screen.getByText('render fn')).toBeInTheDocument();
+        expect(within(screen.getByTestId('root')).getByText('render fn')).toBeInTheDocument();
       });
 
       it(`wires ${attribute} to a part rendered through the render prop`, async () => {
@@ -134,14 +136,14 @@ describe('useToastLabelPart', () => {
 
         expect(screen.getByTestId('root')).toHaveAttribute(
           attribute,
-          screen.getByText('render prop content').id,
+          within(screen.getByTestId('root')).getByText('render prop content').id,
         );
       });
 
       it(`renders the toast ${field} through a childless render prop`, async () => {
         await renderInRoot(<Part render={<div />} />, { id: 'test', [field]: 'Toast content' });
 
-        expect(screen.getByText('Toast content')).toBeInTheDocument();
+        expect(within(screen.getByTestId('root')).getByText('Toast content')).toBeInTheDocument();
       });
 
       it('does not render a childless render prop when there is no content', async () => {
@@ -183,7 +185,7 @@ describe('useToastLabelPart', () => {
 
       await user.click(screen.getByRole('button', { name: 'clear' }));
 
-      expect(screen.queryByText('Toast content')).toBe(null);
+      expect(within(screen.getByTestId('root')).queryByText('Toast content')).toBe(null);
       expect(rootElement).not.toHaveAttribute(attribute);
     });
 
