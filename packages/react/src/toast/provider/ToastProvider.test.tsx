@@ -1,9 +1,9 @@
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, beforeEach } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { act, fireEvent, flushMicrotasks, reactMajor, screen } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { useToastProviderContext } from './ToastProviderContext';
 import type { ToastManager } from '../createToastManager';
 
@@ -11,6 +11,10 @@ describe('<Toast.Provider />', () => {
   const { clock, render } = createRenderer();
 
   clock.withFakeTimers();
+
+  // Keep tests isolated: a real pointer left over a toast by an earlier test hovers it and
+  // pauses its timer.
+  beforeEach(resetBrowserPointer);
 
   it('syncs a changed timeout before descendant layout effects', async () => {
     const onClose = vi.fn();
