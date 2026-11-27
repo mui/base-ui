@@ -88,7 +88,7 @@ export type {
   TreeFilter as TreeGridFilter,
   TreeFilterOptions as TreeGridFilterOptions,
 } from '../tree/utils/useTreeFilter';
-export type { TreeCreateItemsOptions as TreeGridCreateItemsOptions } from '../tree/items/createItems';
+export type { CreateTreeItemsOptions as CreateTreeGridItemsOptions } from '../tree/items/createItems';
 export type { TreeItemCollection as TreeGridItemCollection } from '../tree/items/itemCollection';
 export type { TreeRootItems as TreeGridRootItems } from '../tree/root/TreeRoot';
 export type {

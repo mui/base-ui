@@ -23,7 +23,6 @@ export type {
 } from './utils/useTreeFilter';
 
 export { createTreeItems as createItems } from './items/createItems';
-export type { TreeCreateItemsOptions as CreateItemsOptions } from './items/createItems';
 export type { TreeItemCollection as ItemCollection } from './items/itemCollection';
 export type {
   TreeDefaultItem as DefaultItem,

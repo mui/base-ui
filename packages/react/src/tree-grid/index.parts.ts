@@ -30,7 +30,6 @@ export type {
 } from '../tree/utils/useTreeFilter';
 
 export { createTreeItems as createItems } from '../tree/items/createItems';
-export type { TreeCreateItemsOptions as CreateItemsOptions } from '../tree/items/createItems';
 export type { TreeItemCollection as ItemCollection } from '../tree/items/itemCollection';
 export type {
   TreeDefaultItem as DefaultItem,

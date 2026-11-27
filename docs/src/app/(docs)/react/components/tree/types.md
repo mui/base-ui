@@ -716,10 +716,10 @@ Accessors are not called until the collection is consumed by a root component.
 
 **Parameters:**
 
-| Parameter | Type                             | Default | Description                                                  |
-| :-------- | :------------------------------- | :------ | :----------------------------------------------------------- |
-| data      | `TItem[] \| undefined`           | -       | The items to render, or `undefined` when there are none yet. |
-| options   | `Tree.CreateItemsOptions<TItem>` | -       | Accessors that read and update the item model.               |
+| Parameter | Type                            | Default | Description                                                  |
+| :-------- | :------------------------------ | :------ | :----------------------------------------------------------- |
+| data      | `TItem[] \| undefined`          | -       | The items to render, or `undefined` when there are none yet. |
+| options   | `CreateTreeItemsOptions<TItem>` | -       | Accessors that read and update the item model.               |
 
 **Return Value:**
 
@@ -1087,28 +1087,10 @@ type ReturnValue = Tree.Filter;
 
 ## Additional Types
 
-### Tree.CheckboxSelectionPropagation
-
-Checkbox selection propagation configuration.
-Controls how toggling an item's selection propagates through the hierarchy.
-Replacing the selection or selecting a range doesn't propagate.
+### CreateTreeItemsOptions
 
 ```typescript
-type TreeCheckboxSelectionPropagation = {
-  /**
-   * Whether selecting all of a parent's descendants selects the parent, and deselecting
-   * one of them deselects it.
-   */
-  parents?: boolean;
-  /** Whether selecting or deselecting a parent does the same to all its descendants. */
-  descendants?: boolean;
-};
-```
-
-### Tree.CreateItemsOptions
-
-```typescript
-type TreeCreateItemsOptions<TItem> = {
+type CreateTreeItemsOptions<TItem> = {
   /** Returns the unique ID that identifies an item. */
   getId: (item: TItem) => Tree.ItemId;
   /**
@@ -1128,6 +1110,24 @@ type TreeCreateItemsOptions<TItem> = {
   isSelectionDisabled?: (item: TItem) => boolean;
   /** Returns a copy of an item with replacement children. */
   setChildren?: (item: TItem, children: TItem[]) => TItem;
+};
+```
+
+### Tree.CheckboxSelectionPropagation
+
+Checkbox selection propagation configuration.
+Controls how toggling an item's selection propagates through the hierarchy.
+Replacing the selection or selecting a range doesn't propagate.
+
+```typescript
+type TreeCheckboxSelectionPropagation = {
+  /**
+   * Whether selecting all of a parent's descendants selects the parent, and deselecting
+   * one of them deselects it.
+   */
+  parents?: boolean;
+  /** Whether selecting or deselecting a parent does the same to all its descendants. */
+  descendants?: boolean;
 };
 ```
 
@@ -1563,7 +1563,7 @@ declare namespace TreeListDataAttributes {
 - `Tree.Input`: `Tree.Input`, `Tree.Input.State`, `Tree.Input.Props`
 - `Tree.Clear`: `Tree.Clear`, `Tree.Clear.State`, `Tree.Clear.Props`
 - `Tree.useFilter`
-- `Default`: `Tree.Filter`, `Tree.FilterOptions`, `Tree.CreateItemsOptions`, `Tree.DefaultItem`, `Tree.ItemId`, `Tree.CheckboxSelectionPropagation`, `Tree.FilterMode`, `Tree.ItemPosition`, `Tree.ItemDestination`, `Tree.ItemTransaction`, `Tree.ItemChange`, `TreeItemDataAttributes`, `TreeCheckboxItemDataAttributes`, `TreeCheckboxItemIndicatorDataAttributes`, `TreeLinkItemDataAttributes`, `TreeItemExpansionTriggerDataAttributes`, `TreeItemGroupIndicatorDataAttributes`, `TreeGroupTransitionDataAttributes`, `TreeItemIndentGuideDataAttributes`, `TreeInputDataAttributes`, `TreeClearDataAttributes`, `TreeListDataAttributes`, `TreeItemCssVariables`, `TreeCheckboxItemCssVariables`, `TreeLinkItemCssVariables`, `TreeGroupTransitionCssVariables`, `TreeItemIndentGuideCssVariables`, `TreeFilter`, `TreeFilterOptions`, `TreeCreateItemsOptions`, `TreeItemCollection`, `TreeItemId`, `TreeFilterMode`, `TreeFilterFunction`, `TreeDefaultItem`, `TreeCheckboxSelectionPropagation`, `TreeRootActions`, `TreeRootExpansionChangeEventReason`, `TreeRootExpansionChangeEventDetails`, `TreeRootSelectionChangeEventReason`, `TreeRootSelectionChangeEventDetails`, `TreeRootHighlightEventReason`, `TreeRootHighlightEventDetails`, `TreeRootItemExpansionToggleEventDetails`, `TreeRootItemExpansionToggleValue`, `TreeRootItemSelectionToggleEventDetails`, `TreeRootItemSelectionToggleValue`, `TreeRootItemsChangeEventReason`, `TreeRootItemsChangeEventDetails`, `TreeItemChange`, `TreeItemDestination`, `TreeItemPosition`, `TreeItemTransaction`, `TreeRootState`, `TreeRootItems`, `TreeRootProps`, `TreeLabelState`, `TreeLabelProps`, `TreeItemState`, `TreeItemProps`, `TreeCheckboxItemState`, `TreeCheckboxItemProps`, `TreeCheckboxItemIndicatorState`, `TreeCheckboxItemIndicatorProps`, `TreeLinkItemState`, `TreeLinkItemProps`, `TreeItemExpansionTriggerState`, `TreeItemExpansionTriggerProps`, `TreeItemGroupIndicatorState`, `TreeItemGroupIndicatorProps`, `TreeListState`, `TreeListProps`, `TreeGroupTransitionState`, `TreeGroupTransitionProps`, `TreeEmptyState`, `TreeEmptyProps`, `TreeStatusFilterChange`, `TreeStatusSelectionChange`, `TreeStatusChange`, `TreeStatusState`, `TreeStatusProps`, `TreeItemIndentGuideState`, `TreeItemIndentGuideProps`, `TreeFilterProviderProps`, `TreeFilterProviderChangeEventReason`, `TreeFilterProviderChangeEventDetails`, `TreeFilterProviderState`, `TreeInputState`, `TreeInputProps`, `TreeClearState`, `TreeClearProps`
+- `Default`: `Tree.Filter`, `Tree.FilterOptions`, `Tree.DefaultItem`, `Tree.ItemId`, `Tree.CheckboxSelectionPropagation`, `Tree.FilterMode`, `Tree.ItemPosition`, `Tree.ItemDestination`, `Tree.ItemTransaction`, `Tree.ItemChange`, `TreeItemDataAttributes`, `TreeCheckboxItemDataAttributes`, `TreeCheckboxItemIndicatorDataAttributes`, `TreeLinkItemDataAttributes`, `TreeItemExpansionTriggerDataAttributes`, `TreeItemGroupIndicatorDataAttributes`, `TreeGroupTransitionDataAttributes`, `TreeItemIndentGuideDataAttributes`, `TreeInputDataAttributes`, `TreeClearDataAttributes`, `TreeListDataAttributes`, `TreeItemCssVariables`, `TreeCheckboxItemCssVariables`, `TreeLinkItemCssVariables`, `TreeGroupTransitionCssVariables`, `TreeItemIndentGuideCssVariables`, `TreeFilter`, `TreeFilterOptions`, `CreateTreeItemsOptions`, `TreeItemCollection`, `TreeItemId`, `TreeFilterMode`, `TreeFilterFunction`, `TreeDefaultItem`, `TreeCheckboxSelectionPropagation`, `TreeRootActions`, `TreeRootExpansionChangeEventReason`, `TreeRootExpansionChangeEventDetails`, `TreeRootSelectionChangeEventReason`, `TreeRootSelectionChangeEventDetails`, `TreeRootHighlightEventReason`, `TreeRootHighlightEventDetails`, `TreeRootItemExpansionToggleEventDetails`, `TreeRootItemExpansionToggleValue`, `TreeRootItemSelectionToggleEventDetails`, `TreeRootItemSelectionToggleValue`, `TreeRootItemsChangeEventReason`, `TreeRootItemsChangeEventDetails`, `TreeItemChange`, `TreeItemDestination`, `TreeItemPosition`, `TreeItemTransaction`, `TreeRootState`, `TreeRootItems`, `TreeRootProps`, `TreeLabelState`, `TreeLabelProps`, `TreeItemState`, `TreeItemProps`, `TreeCheckboxItemState`, `TreeCheckboxItemProps`, `TreeCheckboxItemIndicatorState`, `TreeCheckboxItemIndicatorProps`, `TreeLinkItemState`, `TreeLinkItemProps`, `TreeItemExpansionTriggerState`, `TreeItemExpansionTriggerProps`, `TreeItemGroupIndicatorState`, `TreeItemGroupIndicatorProps`, `TreeListState`, `TreeListProps`, `TreeGroupTransitionState`, `TreeGroupTransitionProps`, `TreeEmptyState`, `TreeEmptyProps`, `TreeStatusFilterChange`, `TreeStatusSelectionChange`, `TreeStatusChange`, `TreeStatusState`, `TreeStatusProps`, `TreeItemIndentGuideState`, `TreeItemIndentGuideProps`, `TreeFilterProviderProps`, `TreeFilterProviderChangeEventReason`, `TreeFilterProviderChangeEventDetails`, `TreeFilterProviderState`, `TreeInputState`, `TreeInputProps`, `TreeClearState`, `TreeClearProps`
 - `Tree.createItems`
 - `Tree.ItemCollection`
 - `Tree.FilterFunction`
@@ -1625,7 +1625,6 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Tree.Clear.Props`: `TreeClearProps`
 - `Tree.Filter`: `TreeFilter`
 - `Tree.FilterOptions`: `TreeFilterOptions`
-- `Tree.CreateItemsOptions`: `TreeCreateItemsOptions`
 - `Tree.ItemCollection`: `TreeItemCollection`
 - `Tree.DefaultItem`: `TreeDefaultItem`
 - `Tree.ItemId`: `TreeItemId`

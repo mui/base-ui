@@ -6,7 +6,7 @@ import type { TreeItemCollection } from './itemCollection';
 const DEFAULT_GET_CHILDREN = () => undefined;
 const DEFAULT_IS_DISABLED = () => false;
 
-export interface TreeCreateItemsOptions<TItem> {
+export interface CreateTreeItemsOptions<TItem> {
   /** Returns the unique ID that identifies an item. */
   getId: (item: TItem) => TreeItemId;
   /**
@@ -42,7 +42,7 @@ export interface TreeCreateItemsOptions<TItem> {
  */
 export function createTreeItems<TItem>(
   data: readonly TItem[] | undefined,
-  options: TreeCreateItemsOptions<TItem>,
+  options: CreateTreeItemsOptions<TItem>,
 ): TreeItemCollection<TItem> {
   const {
     getId,

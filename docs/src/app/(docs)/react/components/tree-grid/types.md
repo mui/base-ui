@@ -790,10 +790,10 @@ Accessors are not called until the collection is consumed by a root component.
 
 **Parameters:**
 
-| Parameter | Type                                 | Default | Description                                                  |
-| :-------- | :----------------------------------- | :------ | :----------------------------------------------------------- |
-| data      | `TItem[] \| undefined`               | -       | The items to render, or `undefined` when there are none yet. |
-| options   | `TreeGrid.CreateItemsOptions<TItem>` | -       | Accessors that read and update the item model.               |
+| Parameter | Type                                | Default | Description                                                  |
+| :-------- | :---------------------------------- | :------ | :----------------------------------------------------------- |
+| data      | `TItem[] \| undefined`              | -       | The items to render, or `undefined` when there are none yet. |
+| options   | `CreateTreeGridItemsOptions<TItem>` | -       | Accessors that read and update the item model.               |
 
 **Return Value:**
 
@@ -1267,28 +1267,10 @@ type ReturnValue = TreeGrid.Filter;
 
 ## Additional Types
 
-### TreeGrid.CheckboxSelectionPropagation
-
-Checkbox selection propagation configuration.
-Controls how toggling an item's selection propagates through the hierarchy.
-Replacing the selection or selecting a range doesn't propagate.
+### CreateTreeGridItemsOptions
 
 ```typescript
-type TreeGridCheckboxSelectionPropagation = {
-  /**
-   * Whether selecting all of a parent's descendants selects the parent, and deselecting
-   * one of them deselects it.
-   */
-  parents?: boolean;
-  /** Whether selecting or deselecting a parent does the same to all its descendants. */
-  descendants?: boolean;
-};
-```
-
-### TreeGrid.CreateItemsOptions
-
-```typescript
-type TreeGridCreateItemsOptions<TItem> = {
+type CreateTreeGridItemsOptions<TItem> = {
   /** Returns the unique ID that identifies an item. */
   getId: (item: TItem) => TreeItemId;
   /**
@@ -1308,6 +1290,24 @@ type TreeGridCreateItemsOptions<TItem> = {
   isSelectionDisabled?: (item: TItem) => boolean;
   /** Returns a copy of an item with replacement children. */
   setChildren?: (item: TItem, children: TItem[]) => TItem;
+};
+```
+
+### TreeGrid.CheckboxSelectionPropagation
+
+Checkbox selection propagation configuration.
+Controls how toggling an item's selection propagates through the hierarchy.
+Replacing the selection or selecting a range doesn't propagate.
+
+```typescript
+type TreeGridCheckboxSelectionPropagation = {
+  /**
+   * Whether selecting all of a parent's descendants selects the parent, and deselecting
+   * one of them deselects it.
+   */
+  parents?: boolean;
+  /** Whether selecting or deselecting a parent does the same to all its descendants. */
+  descendants?: boolean;
 };
 ```
 
@@ -1725,7 +1725,7 @@ declare namespace TreeGridTableDataAttributes {
 - `TreeGrid.Input`: `TreeGrid.Input`, `TreeGrid.Input.State`, `TreeGrid.Input.Props`
 - `TreeGrid.Clear`: `TreeGrid.Clear`, `TreeGrid.Clear.State`, `TreeGrid.Clear.Props`
 - `TreeGrid.useFilter`
-- `Default`: `TreeGrid.Filter`, `TreeGrid.FilterOptions`, `TreeGrid.CreateItemsOptions`, `TreeGrid.DefaultItem`, `TreeGrid.ItemId`, `TreeGrid.CheckboxSelectionPropagation`, `TreeGrid.FilterMode`, `TreeGrid.ItemPosition`, `TreeGrid.ItemDestination`, `TreeGrid.ItemTransaction`, `TreeGrid.ItemChange`, `TreeGridRowDataAttributes`, `TreeGridRowExpansionTriggerDataAttributes`, `TreeGridRowGroupIndicatorDataAttributes`, `TreeGridGroupTransitionDataAttributes`, `TreeGridRowIndentGuideDataAttributes`, `TreeGridInputDataAttributes`, `TreeGridClearDataAttributes`, `TreeGridTableDataAttributes`, `TreeGridRowCssVariables`, `TreeGridGroupTransitionCssVariables`, `TreeGridRowIndentGuideCssVariables`, `TreeGridRowCheckboxDataAttributes`, `TreeGridRowCheckboxIndicatorDataAttributes`, `TreeGridCellButtonDataAttributes`, `TreeGridCellLinkDataAttributes`, `TreeGridCellInputDataAttributes`, `TreeGridCellControlDataAttributes`, `TreeGridLabelProps`, `TreeGridLabelState`, `TreeGridRowProps`, `TreeGridRowState`, `TreeGridRowExpansionTriggerProps`, `TreeGridRowExpansionTriggerState`, `TreeGridRowGroupIndicatorProps`, `TreeGridRowGroupIndicatorState`, `TreeGridRowIndentGuideProps`, `TreeGridRowIndentGuideState`, `TreeGridGroupTransitionProps`, `TreeGridGroupTransitionState`, `TreeGridEmptyProps`, `TreeGridEmptyState`, `TreeGridStatusProps`, `TreeGridStatusState`, `TreeGridFilterProviderProps`, `TreeGridFilterProviderState`, `TreeGridInputProps`, `TreeGridInputState`, `TreeGridClearProps`, `TreeGridClearState`, `TreeGridStatusChange`, `TreeGridStatusFilterChange`, `TreeGridStatusSelectionChange`, `TreeGridFilterProviderChangeEventReason`, `TreeGridFilterProviderChangeEventDetails`, `TreeGridFilter`, `TreeGridFilterOptions`, `TreeGridCreateItemsOptions`, `TreeGridItemCollection`, `TreeGridRootItems`, `TreeGridItemId`, `TreeGridFilterMode`, `TreeGridFilterFunction`, `TreeGridDefaultItem`, `TreeGridCheckboxSelectionPropagation`, `TreeGridRootActions`, `TreeGridRootExpansionChangeEventReason`, `TreeGridRootExpansionChangeEventDetails`, `TreeGridRootSelectionChangeEventReason`, `TreeGridRootSelectionChangeEventDetails`, `TreeGridRootHighlightEventReason`, `TreeGridRootHighlightEventDetails`, `TreeGridRootItemExpansionToggleEventDetails`, `TreeGridRootItemExpansionToggleValue`, `TreeGridRootItemSelectionToggleEventDetails`, `TreeGridRootItemSelectionToggleValue`, `TreeGridRootItemsChangeEventReason`, `TreeGridRootItemsChangeEventDetails`, `TreeGridItemChange`, `TreeGridItemDestination`, `TreeGridItemPosition`, `TreeGridItemTransaction`, `TreeGridRootState`, `TreeGridRootProps`, `TreeGridTableState`, `TreeGridTableProps`, `TreeGridHeaderRowState`, `TreeGridHeaderRowProps`, `TreeGridHeaderCellState`, `TreeGridHeaderCellProps`, `TreeGridCollectionState`, `TreeGridCollectionProps`, `TreeGridCellState`, `TreeGridCellProps`, `TreeGridRowCheckboxProps`, `TreeGridRowCheckboxState`, `TreeGridRowCheckboxIndicatorState`, `TreeGridRowCheckboxIndicatorProps`, `TreeGridCellButtonState`, `TreeGridCellButtonProps`, `TreeGridCellInputState`, `TreeGridCellInputProps`, `TreeGridCellLinkState`, `TreeGridCellLinkProps`, `TreeGridCellControlKeys`, `TreeGridCellControlState`, `TreeGridCellControlProps`
+- `Default`: `TreeGrid.Filter`, `TreeGrid.FilterOptions`, `TreeGrid.DefaultItem`, `TreeGrid.ItemId`, `TreeGrid.CheckboxSelectionPropagation`, `TreeGrid.FilterMode`, `TreeGrid.ItemPosition`, `TreeGrid.ItemDestination`, `TreeGrid.ItemTransaction`, `TreeGrid.ItemChange`, `TreeGridRowDataAttributes`, `TreeGridRowExpansionTriggerDataAttributes`, `TreeGridRowGroupIndicatorDataAttributes`, `TreeGridGroupTransitionDataAttributes`, `TreeGridRowIndentGuideDataAttributes`, `TreeGridInputDataAttributes`, `TreeGridClearDataAttributes`, `TreeGridTableDataAttributes`, `TreeGridRowCssVariables`, `TreeGridGroupTransitionCssVariables`, `TreeGridRowIndentGuideCssVariables`, `TreeGridRowCheckboxDataAttributes`, `TreeGridRowCheckboxIndicatorDataAttributes`, `TreeGridCellButtonDataAttributes`, `TreeGridCellLinkDataAttributes`, `TreeGridCellInputDataAttributes`, `TreeGridCellControlDataAttributes`, `TreeGridLabelProps`, `TreeGridLabelState`, `TreeGridRowProps`, `TreeGridRowState`, `TreeGridRowExpansionTriggerProps`, `TreeGridRowExpansionTriggerState`, `TreeGridRowGroupIndicatorProps`, `TreeGridRowGroupIndicatorState`, `TreeGridRowIndentGuideProps`, `TreeGridRowIndentGuideState`, `TreeGridGroupTransitionProps`, `TreeGridGroupTransitionState`, `TreeGridEmptyProps`, `TreeGridEmptyState`, `TreeGridStatusProps`, `TreeGridStatusState`, `TreeGridFilterProviderProps`, `TreeGridFilterProviderState`, `TreeGridInputProps`, `TreeGridInputState`, `TreeGridClearProps`, `TreeGridClearState`, `TreeGridStatusChange`, `TreeGridStatusFilterChange`, `TreeGridStatusSelectionChange`, `TreeGridFilterProviderChangeEventReason`, `TreeGridFilterProviderChangeEventDetails`, `TreeGridFilter`, `TreeGridFilterOptions`, `CreateTreeGridItemsOptions`, `TreeGridItemCollection`, `TreeGridRootItems`, `TreeGridItemId`, `TreeGridFilterMode`, `TreeGridFilterFunction`, `TreeGridDefaultItem`, `TreeGridCheckboxSelectionPropagation`, `TreeGridRootActions`, `TreeGridRootExpansionChangeEventReason`, `TreeGridRootExpansionChangeEventDetails`, `TreeGridRootSelectionChangeEventReason`, `TreeGridRootSelectionChangeEventDetails`, `TreeGridRootHighlightEventReason`, `TreeGridRootHighlightEventDetails`, `TreeGridRootItemExpansionToggleEventDetails`, `TreeGridRootItemExpansionToggleValue`, `TreeGridRootItemSelectionToggleEventDetails`, `TreeGridRootItemSelectionToggleValue`, `TreeGridRootItemsChangeEventReason`, `TreeGridRootItemsChangeEventDetails`, `TreeGridItemChange`, `TreeGridItemDestination`, `TreeGridItemPosition`, `TreeGridItemTransaction`, `TreeGridRootState`, `TreeGridRootProps`, `TreeGridTableState`, `TreeGridTableProps`, `TreeGridHeaderRowState`, `TreeGridHeaderRowProps`, `TreeGridHeaderCellState`, `TreeGridHeaderCellProps`, `TreeGridCollectionState`, `TreeGridCollectionProps`, `TreeGridCellState`, `TreeGridCellProps`, `TreeGridRowCheckboxProps`, `TreeGridRowCheckboxState`, `TreeGridRowCheckboxIndicatorState`, `TreeGridRowCheckboxIndicatorProps`, `TreeGridCellButtonState`, `TreeGridCellButtonProps`, `TreeGridCellInputState`, `TreeGridCellInputProps`, `TreeGridCellLinkState`, `TreeGridCellLinkProps`, `TreeGridCellControlKeys`, `TreeGridCellControlState`, `TreeGridCellControlProps`
 - `TreeGrid.createItems`
 - `TreeGrid.ItemCollection`
 - `TreeGrid.FilterFunction`
@@ -1802,7 +1802,6 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `TreeGrid.Clear.Props`: `TreeGridClearProps`
 - `TreeGrid.Filter`: `TreeGridFilter`
 - `TreeGrid.FilterOptions`: `TreeGridFilterOptions`
-- `TreeGrid.CreateItemsOptions`: `TreeGridCreateItemsOptions`
 - `TreeGrid.ItemCollection`: `TreeGridItemCollection`
 - `TreeGrid.DefaultItem`: `TreeGridDefaultItem`
 - `TreeGrid.ItemId`: `TreeGridItemId`

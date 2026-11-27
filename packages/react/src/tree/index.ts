@@ -18,7 +18,7 @@ export * as TreeGroupTransitionCssVariables from './group-transition/TreeGroupTr
 export * as TreeItemIndentGuideCssVariables from './item-indent-guide/TreeItemIndentGuideCssVars';
 
 export type { TreeFilter, TreeFilterOptions } from './utils/useTreeFilter';
-export type { TreeCreateItemsOptions } from './items/createItems';
+export type { CreateTreeItemsOptions } from './items/createItems';
 export type { TreeItemCollection } from './items/itemCollection';
 
 export type * from './root/TreeRoot';

@@ -4,6 +4,7 @@ import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { Select } from '@base-ui/react/select';
 import { TreeGrid } from '@base-ui/react/tree-grid';
+import type { CreateTreeGridItemsOptions } from '@base-ui/react/tree-grid';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
@@ -66,7 +67,7 @@ const JOIN_ITEMS: { value: FilterJoin; label: string }[] = [
 
 const COLUMN_ITEMS = COLUMNS.map((column) => ({ value: column.id, label: column.label }));
 
-const ITEM_OPTIONS: TreeGrid.CreateItemsOptions<FilterNode> = {
+const ITEM_OPTIONS: CreateTreeGridItemsOptions<FilterNode> = {
   getId: (node) => node.id,
   getLabel: getNodeLabel,
   getChildren: (node) => (node.kind === 'group' ? node.children : undefined),
