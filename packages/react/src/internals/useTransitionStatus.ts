@@ -37,7 +37,7 @@ export function useTransitionStatus(
     setTransitionStatus('ending');
   }
 
-  if (!open && !mounted && transitionStatus === 'ending') {
+  if (!open && !mounted && transitionStatus !== undefined) {
     setTransitionStatus(undefined);
   }
 
