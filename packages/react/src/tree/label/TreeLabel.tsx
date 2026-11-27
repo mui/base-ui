@@ -4,6 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { resolveRenderedId } from '../../internals/resolveRenderedId';
+import { focusElementWithVisible } from '../../internals/labelable-provider/useLabel';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { selectors } from '../store/selectors';
 
@@ -39,6 +40,12 @@ export const TreeLabel = React.forwardRef(function TreeLabel(
           const tabbableItemId = selectors.tabbableItemId(store.state);
           if (tabbableItemId != null) {
             store.interaction.focusItem(tabbableItemId, pressEvent ?? event.nativeEvent);
+            return;
+          }
+          // Without a row to focus, the container holds the tab stop, unless the tree is disabled.
+          const rootElement = store.context.rootRef.current;
+          if (rootElement != null && !store.state.disabled) {
+            focusElementWithVisible(rootElement);
           }
         },
         onPointerDown(event: React.PointerEvent) {

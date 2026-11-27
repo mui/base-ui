@@ -25,6 +25,15 @@ function Example(props: {
   );
 }
 
+function EmptyTree(props: { disabled?: boolean }) {
+  return (
+    <Tree.Root items={[]} disabled={props.disabled}>
+      <Tree.Label>Files</Tree.Label>
+      <Tree.List>{(item) => <Tree.Item itemId={item.id}>{item.label}</Tree.Item>}</Tree.List>
+    </Tree.Root>
+  );
+}
+
 describe('<Tree.Label />', () => {
   const { render } = createRenderer();
 
@@ -72,6 +81,24 @@ describe('<Tree.Label />', () => {
     fireEvent.click(label);
     // The selected item holds the tab stop.
     expect(screen.getByRole('treeitem', { name: 'B' })).toHaveFocus();
+  });
+
+  it('focuses the tree on click when it has no row to focus', async () => {
+    const { user } = await render(<EmptyTree />);
+    const tree = screen.getByRole('tree', { name: 'Files' });
+    expect(tree).not.toHaveFocus();
+
+    await user.click(screen.getByText('Files'));
+
+    expect(tree).toHaveFocus();
+  });
+
+  it('leaves focus where it is on click while the tree is disabled', async () => {
+    const { user } = await render(<EmptyTree disabled />);
+
+    await user.click(screen.getByText('Files'));
+
+    expect(screen.getByRole('tree', { name: 'Files' })).not.toHaveFocus();
   });
 
   it('reports the focus a press moves with the pointer reason', async () => {
