@@ -1,0 +1,309 @@
+import { expect, vi, describe, it } from 'vitest';
+import { REASONS } from '../../internals/reasons';
+import { ListSelection } from './listSelection';
+import type { SelectionItems } from './listSelection';
+
+const VALUES = ['a', 'b', 'c', 'd', 'e'];
+const EVENT = 'event';
+
+function setup(options: {
+  multiple: boolean | 'opt-in';
+  value?: string[];
+  disabled?: string[];
+  indexed?: boolean;
+}) {
+  const { multiple, disabled = [], indexed = false } = options;
+  let value = options.value ?? [];
+
+  const items: SelectionItems = {
+    count: VALUES.length,
+    getValue: (index) => VALUES[index],
+    indexOfValue: (itemValue) => VALUES.indexOf(itemValue),
+    isDisabled: (index) => disabled.includes(VALUES[index]),
+    keepsDisabled: multiple !== false,
+    indexed,
+  };
+
+  let rejecting = false;
+  const commit = vi.fn((nextValue: string[]) => {
+    if (rejecting) {
+      return false;
+    }
+    value = nextValue;
+    return undefined;
+  });
+
+  const selection = new ListSelection<string>({
+    getValue: () => value,
+    getItems: () => items,
+    getMultiple: () => multiple,
+    getDefaultAnchor: () => (value.length > 0 ? VALUES.indexOf(value[0]) : 0),
+    commit,
+  });
+
+  return {
+    selection,
+    commit,
+    getValue: () => value,
+    /** Replaces the selection from outside, like a controlled `value`. */
+    setValue(nextValue: string[]) {
+      value = nextValue;
+    },
+    /** Makes the list reject the changes made in `change`, like a canceled `onValueChange`. */
+    reject(change: () => void) {
+      rejecting = true;
+      change();
+      rejecting = false;
+    },
+  };
+}
+
+describe('ListSelection', () => {
+  describe('press', () => {
+    it('replaces the selection in single selection', () => {
+      const { selection, getValue } = setup({ multiple: false, value: ['a'] });
+      selection.press(2, {}, EVENT);
+      expect(getValue()).toEqual(['c']);
+    });
+
+    it('ignores modifiers in single selection', () => {
+      const { selection, getValue } = setup({ multiple: false, value: ['a'] });
+      selection.press(2, { shiftKey: true, ctrlKey: true }, EVENT);
+      expect(getValue()).toEqual(['c']);
+    });
+
+    it('keeps the selection when a disabled item is pressed', () => {
+      const { selection, getValue } = setup({ multiple: false, value: ['a'], disabled: ['c'] });
+      selection.press(2, {}, EVENT);
+      expect(getValue()).toEqual(['a']);
+    });
+
+    it('deselects a selected disabled item when another item is pressed in single selection', () => {
+      const { selection, getValue } = setup({ multiple: false, value: ['c'], disabled: ['c'] });
+      selection.press(0, {}, EVENT);
+      expect(getValue()).toEqual(['a']);
+    });
+
+    it('toggles the item with multiple selection', () => {
+      const { selection, getValue } = setup({ multiple: true, value: ['a'] });
+      selection.press(2, {}, EVENT);
+      expect(getValue()).toEqual(['a', 'c']);
+      selection.press(0, {}, EVENT);
+      expect(getValue()).toEqual(['c']);
+    });
+
+    it('replaces the selection in opt-in mode', () => {
+      const { selection, getValue } = setup({ multiple: 'opt-in', value: ['a', 'b'] });
+      selection.press(2, {}, EVENT);
+      expect(getValue()).toEqual(['c']);
+    });
+
+    it('toggles the item in opt-in mode with Ctrl', () => {
+      const { selection, getValue } = setup({ multiple: 'opt-in', value: ['a'] });
+      selection.press(2, { ctrlKey: true }, EVENT);
+      expect(getValue()).toEqual(['a', 'c']);
+    });
+
+    it('toggles the item in opt-in mode on touch', () => {
+      const { selection, getValue } = setup({ multiple: 'opt-in', value: ['a'] });
+      selection.press(2, { touch: true }, EVENT);
+      expect(getValue()).toEqual(['a', 'c']);
+    });
+
+    it('reports the press as the reason, with the event', () => {
+      const { selection, commit } = setup({ multiple: false });
+      selection.press(1, {}, EVENT);
+      expect(commit).toHaveBeenCalledWith(['b'], REASONS.itemPress, EVENT);
+    });
+  });
+
+  describe('press with Shift', () => {
+    it('selects the range from the default anchor when nothing was pressed before', () => {
+      const { selection, getValue } = setup({ multiple: true, value: ['b'] });
+      selection.press(3, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['b', 'c', 'd']);
+    });
+
+    it('keeps the default anchor for the next Shift+press', () => {
+      const { selection, getValue } = setup({ multiple: true });
+      selection.press(2, { shiftKey: true }, EVENT);
+      selection.press(4, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['a', 'b', 'c', 'd', 'e']);
+    });
+
+    it('does not keep the default anchor of a rejected Shift+press', () => {
+      const { selection, getValue, setValue, reject } = setup({ multiple: true, value: ['a'] });
+      reject(() => selection.press(2, { shiftKey: true }, EVENT));
+      setValue(['d']);
+
+      selection.press(1, { shiftKey: true }, EVENT);
+
+      expect(getValue()).toEqual(['b', 'c', 'd']);
+    });
+
+    it('selects the range from the last pressed item, replacing the selection', () => {
+      const { selection, getValue } = setup({ multiple: true, value: ['e'] });
+      selection.press(1, {}, EVENT);
+      selection.press(3, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['b', 'c', 'd']);
+    });
+
+    it('keeps the anchor, so the range can shrink and flip around it', () => {
+      const { selection, getValue } = setup({ multiple: true });
+      selection.press(2, {}, EVENT);
+      selection.press(4, { shiftKey: true }, EVENT);
+      selection.press(3, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['c', 'd']);
+      selection.press(0, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['a', 'b', 'c']);
+    });
+
+    it.each([
+      { name: 'scanned for', indexed: false },
+      { name: 'looked up by', indexed: true },
+    ])(
+      'skips disabled items in the range and keeps the selected disabled ones, with items $name their value',
+      ({ indexed }) => {
+        const { selection, getValue } = setup({
+          multiple: true,
+          value: ['e'],
+          disabled: ['c', 'e'],
+          indexed,
+        });
+        selection.press(0, {}, EVENT);
+        selection.press(3, { shiftKey: true }, EVENT);
+        expect(getValue()).toEqual(['a', 'b', 'd', 'e']);
+      },
+    );
+
+    it('adds the range to the selection in opt-in mode with Ctrl', () => {
+      const { selection, getValue } = setup({ multiple: 'opt-in' });
+      selection.press(0, {}, EVENT);
+      selection.press(3, { ctrlKey: true }, EVENT);
+      selection.press(4, { shiftKey: true, ctrlKey: true }, EVENT);
+      expect(getValue()).toEqual(['a', 'd', 'e']);
+    });
+  });
+
+  describe('keyboard commands', () => {
+    it('moveTo moves the selection and the anchor', () => {
+      const { selection, getValue, commit } = setup({ multiple: 'opt-in', value: ['a'] });
+      selection.moveTo(2, EVENT);
+      expect(commit).toHaveBeenLastCalledWith(['c'], REASONS.listNavigation, EVENT);
+      selection.press(4, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['c', 'd', 'e']);
+    });
+
+    it('moveTo keeps the selection when the item is disabled, and still moves the anchor', () => {
+      const { selection, commit, getValue } = setup({
+        multiple: 'opt-in',
+        value: ['a'],
+        disabled: ['c'],
+      });
+      selection.moveTo(2, EVENT);
+      expect(commit).not.toHaveBeenCalled();
+
+      selection.press(4, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['d', 'e']);
+    });
+
+    it('extendTo starts a range from the focused item and keeps its anchor as focus moves', () => {
+      const { selection, getValue } = setup({ multiple: true });
+
+      selection.extendTo(3, 2, EVENT);
+      expect(getValue()).toEqual(['c', 'd']);
+
+      selection.extendTo(4, 3, EVENT);
+      expect(getValue()).toEqual(['c', 'd', 'e']);
+
+      selection.extendTo(1, 4, EVENT);
+      expect(getValue()).toEqual(['b', 'c']);
+    });
+
+    it('extendTo continues a Shift+press range while focus is on the pressed item', () => {
+      const { selection, getValue } = setup({ multiple: true });
+      selection.press(0, {}, EVENT);
+      selection.press(2, { shiftKey: true }, EVENT);
+
+      selection.extendTo(3, 2, EVENT);
+
+      expect(getValue()).toEqual(['a', 'b', 'c', 'd']);
+    });
+
+    it('extendTo starts a new range once focus has moved away from the pressed item', () => {
+      const { selection, getValue } = setup({ multiple: true });
+      selection.press(0, {}, EVENT);
+      selection.press(2, { shiftKey: true }, EVENT);
+
+      // Focus moved to the fourth item another way, such as by typing.
+      selection.extendTo(4, 3, EVENT);
+
+      expect(getValue()).toEqual(['d', 'e']);
+    });
+
+    it('Shift+press extends from the anchor of a range made with extendTo', () => {
+      const { selection, getValue } = setup({ multiple: true });
+      selection.press(0, {}, EVENT);
+      selection.extendTo(4, 3, EVENT);
+
+      selection.press(1, { shiftKey: true }, EVENT);
+
+      expect(getValue()).toEqual(['b', 'c', 'd']);
+    });
+
+    it('moveTo keeps a selected disabled item when every item is selected', () => {
+      const { selection, getValue } = setup({
+        multiple: 'opt-in',
+        value: ['a', 'b', 'c', 'd', 'e'],
+        disabled: ['b'],
+      });
+      selection.moveTo(3, EVENT);
+      expect(getValue()).toEqual(['d', 'b']);
+    });
+
+    it.each([
+      {
+        name: 'moveTo',
+        multiple: 'opt-in' as const,
+        run: (selection: ListSelection<string>) => selection.moveTo(3, EVENT),
+      },
+      {
+        name: 'extendTo',
+        multiple: true,
+        run: (selection: ListSelection<string>) => selection.extendTo(3, 2, EVENT),
+      },
+      {
+        name: 'selectRange',
+        multiple: true,
+        run: (selection: ListSelection<string>) => selection.selectRange(3, 4, 4, EVENT),
+      },
+    ])('$name leaves the anchor where it was when the change is rejected', ({ multiple, run }) => {
+      const { selection, getValue, reject } = setup({ multiple });
+      selection.press(0, {}, EVENT);
+
+      reject(() => run(selection));
+      expect(getValue()).toEqual(['a']);
+
+      selection.press(1, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['a', 'b']);
+    });
+
+    it('selectRange adds to the selection and moves the anchor', () => {
+      const { selection, getValue } = setup({ multiple: true, value: ['a'] });
+      selection.selectRange(2, 4, 4, EVENT);
+      expect(getValue()).toEqual(['a', 'c', 'd', 'e']);
+      selection.press(3, { shiftKey: true }, EVENT);
+      expect(getValue()).toEqual(['d', 'e']);
+    });
+
+    it('selectAll leaves disabled items as they are', () => {
+      const { selection, getValue } = setup({
+        multiple: true,
+        value: ['b'],
+        disabled: ['b', 'c'],
+      });
+      selection.selectAll(EVENT);
+      expect(getValue()).toEqual(['a', 'b', 'd', 'e']);
+    });
+  });
+});

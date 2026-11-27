@@ -1,0 +1,336 @@
+import type * as React from 'react';
+import { ReactStore, createSelector } from '@base-ui/utils/store';
+import type { ListboxRoot } from './root/ListboxRoot';
+import type { ListboxItems } from './items/createItems';
+import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { ListFocus } from './utils/listFocus';
+import { ListSelection } from './utils/listSelection';
+import type { PressModifiers, SelectionItems } from './utils/listSelection';
+
+export type State = {
+  id: string | undefined;
+  labelId: string | undefined;
+  /** `'opt-in'` when pressing an item without a modifier replaces the selection. */
+  multiple: boolean | 'opt-in';
+
+  /** The selected values. An array even when `multiple` is `false`. */
+  value: any[];
+
+  /** The item that holds the tab stop. It stays set when focus leaves the list. */
+  activeIndex: number | null;
+  /** Whether an item has focus. Only then is the active item highlighted. */
+  itemFocused: boolean;
+  /** The item under the pointer. It's highlighted until a key press or focus leaving clears it. */
+  hoveredIndex: number | null;
+  /**
+   * Every item, including those that aren't rendered, when they're passed to `Listbox.Root`.
+   */
+  items: ListboxItems | undefined;
+  /** Whether the item that holds the tab stop is rendered. */
+  activeItemRendered: boolean;
+
+  listElement: HTMLElement | null;
+
+  orientation: 'vertical' | 'horizontal';
+
+  disabled: boolean;
+  highlightItemOnHover: boolean;
+};
+
+/** The part of the state that the root owns and keeps in sync with its props. */
+type RootState = Pick<
+  State,
+  'id' | 'multiple' | 'value' | 'orientation' | 'disabled' | 'highlightItemOnHover' | 'items'
+>;
+
+export type Context = {
+  valuesRef: React.RefObject<Array<any>>;
+  labelsRef: React.RefObject<Array<string | null>>;
+  /**
+   * The rendered items' own disabled states, without the root's. Not used with `items`, where the
+   * data decides.
+   */
+  disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
+  /** Returns `false` when the change was canceled. */
+  setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => boolean;
+  /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
+  highlightEvent: Event | undefined;
+  /**
+   * Reports the highlighted item to `onItemHighlighted` when it changed. Called once the rendered
+   * items have registered, which a report made while they change waits for.
+   */
+  reportHighlightedItem: (() => void) | undefined;
+  /** The rendered items' elements, by position. */
+  elementsRef: React.RefObject<Array<HTMLElement | null>>;
+};
+
+/**
+ * The highlighted item: the item under the pointer, or the focused item when the pointer isn't
+ * over an item.
+ */
+export function getHighlightedIndex(state: State) {
+  return state.hoveredIndex ?? (state.itemFocused ? state.activeIndex : null);
+}
+
+const selectedValueSets = new WeakMap<any[], Set<any>>();
+
+/**
+ * The selected values as a set, built once per `value` array, so that checking whether an item is
+ * selected doesn't scan the selection.
+ */
+export function getSelectedValueSet(value: any[]) {
+  let set = selectedValueSets.get(value);
+  if (!set) {
+    set = new Set(value);
+    selectedValueSets.set(value, set);
+  }
+  return set;
+}
+
+export const selectors = {
+  id: createSelector((state: State) => state.id),
+  labelId: createSelector((state: State) => state.labelId),
+  multiple: createSelector((state: State) => state.multiple),
+
+  value: createSelector((state: State) => state.value),
+
+  activeIndex: createSelector((state: State) => state.activeIndex),
+  isActive: createSelector((state: State, index: number) => state.activeIndex === index),
+  isHighlighted: createSelector(
+    (state: State, index: number) => getHighlightedIndex(state) === index,
+  ),
+
+  isSelected: createSelector((state: State, itemValue: any) =>
+    getSelectedValueSet(state.value).has(itemValue),
+  ),
+
+  items: createSelector((state: State) => state.items),
+  activeItemRendered: createSelector((state: State) => state.activeItemRendered),
+
+  orientation: createSelector((state: State) => state.orientation),
+
+  disabled: createSelector((state: State) => state.disabled),
+};
+
+export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof selectors> {
+  constructor(rootState: RootState) {
+    super(
+      {
+        ...rootState,
+        labelId: undefined,
+        activeIndex: null,
+        itemFocused: false,
+        hoveredIndex: null,
+        activeItemRendered: false,
+        listElement: null,
+      },
+      createInitialContext(),
+      selectors,
+    );
+  }
+
+  /** The selection gestures. They commit the next selected values through `setValue`. */
+  selection = new ListSelection<MouseEvent | KeyboardEvent>({
+    getValue: () => this.state.value,
+    getItems: () => this.selectionItems,
+    getMultiple: () => this.state.multiple,
+    getDefaultAnchor: () => this.getTabStopIndex(),
+    commit: (nextValue, reason, event) =>
+      this.context.setValue(nextValue, createChangeEventDetails(reason, event)),
+  });
+
+  /** Moves focus to items, waiting for those that aren't rendered yet. */
+  focus = new ListFocus<Event>({
+    getElement: (index) => this.context.elementsRef.current[index],
+    getListElement: () => this.state.listElement,
+    highlight: (index, event) => this.highlightItem(index, event),
+    // In opt-in mode, the selection follows focus (the APG alternative multiple selection
+    // model), however the user navigated to the item.
+    onNavigate: (index, event) => {
+      if (this.state.multiple === 'opt-in') {
+        this.selection.moveTo(index, event as MouseEvent | KeyboardEvent);
+      }
+    },
+    hasFocusedItem: () => this.state.itemFocused,
+    getActiveIndex: () => this.state.activeIndex,
+    setActiveIndex: (index) => this.setActiveIndex(index),
+    getTabStopIndex: () => this.getTabStopIndex(),
+    getDataCount: () => this.state.items?.size ?? 0,
+    getValue: (index) => this.getValueAt(index),
+    indexOfValue: (value) => this.indexOfValue(value),
+  });
+
+  /**
+   * The item that receives focus when the list does: the first selected item, or the first item
+   * when nothing is selected, as the APG listbox pattern describes.
+   */
+  getTabStopIndex(): number {
+    const { items, value } = this.state;
+    let tabStopIndex = -1;
+    if (items) {
+      for (const selectedValue of value) {
+        const index = items.indexOf(selectedValue);
+        if (index !== -1 && (tabStopIndex === -1 || index < tabStopIndex)) {
+          tabStopIndex = index;
+        }
+      }
+    } else if (value.length > 0) {
+      const selectedValues = getSelectedValueSet(value);
+      tabStopIndex = this.context.valuesRef.current.findIndex((itemValue) =>
+        selectedValues.has(itemValue),
+      );
+    }
+    return tabStopIndex === -1 ? 0 : tabStopIndex;
+  }
+
+  /** Puts the tab stop back on the item that should hold it, unless an item has focus. */
+  syncTabStop() {
+    if (!this.state.itemFocused) {
+      this.setActiveIndex(this.getTabStopIndex());
+    }
+  }
+
+  /**
+   * Moves the tab stop without changing whether an item has focus, and records the event that
+   * caused it, so `onItemHighlighted` can report the reason.
+   */
+  setActiveIndex(index: number | null, event?: Event) {
+    this.updateWithEvent({ activeIndex: index }, event);
+  }
+
+  /**
+   * The items the selection gestures select from: the rendered items' values and disabled states,
+   * and, with `items`, those of the items that aren't rendered.
+   */
+  private selectionItems = createSelectionItems(this);
+
+  /**
+   * Whether the item at a position is disabled, by the root or on its own. With `items`, the data
+   * decides, so the answer is the same whether or not the item is rendered.
+   */
+  isItemDisabled(index: number): boolean {
+    const { items, disabled } = this.state;
+    return (
+      disabled ||
+      (items ? items.isDisabled(index) : (this.context.disabledItemsRef.current[index] ?? false))
+    );
+  }
+
+  /**
+   * A press on an item, from a pointer or the keyboard, whether the item handled it or the list
+   * did while holding focus for it. A disabled item ignores it.
+   */
+  pressItem(index: number, modifiers: PressModifiers, event: MouseEvent | KeyboardEvent) {
+    if (!this.isItemDisabled(index)) {
+      this.selection.press(index, modifiers, event);
+    }
+  }
+
+  /** The value of the item at a position. */
+  getValueAt(index: number): any {
+    const { items } = this.state;
+    return items ? items.valueAt(index) : this.context.valuesRef.current[index];
+  }
+
+  /** Whether there's an item at a position, rendered or not. */
+  hasItemAt(index: number): boolean {
+    const { items } = this.state;
+    return items ? index >= 0 && index < items.size : index in this.context.valuesRef.current;
+  }
+
+  /** How many items the list has, including those that aren't rendered. */
+  getCount(): number {
+    const { items } = this.state;
+    return items ? items.size : this.context.labelsRef.current.length;
+  }
+
+  /** The label of the item at a position, used by typeahead. */
+  getLabelAt(index: number): string | null {
+    const { items } = this.state;
+    return items ? items.getLabel(index) : (this.context.labelsRef.current[index] ?? null);
+  }
+
+  /**
+   * The position of a rendered item, given the position it rendered with. React 18 renders twice
+   * in Strict Mode, which leaves a position guessed from the render order wrong until the list
+   * corrects it, so the item's value locates it meanwhile.
+   */
+  getItemIndex(index: number, value: any): number {
+    if (Object.is(this.getValueAt(index), value)) {
+      return index;
+    }
+    const indexOfValue = this.indexOfValue(value);
+    return indexOfValue === -1 ? index : indexOfValue;
+  }
+
+  /** The position of the item with a value, or `-1`. */
+  indexOfValue(value: any): number {
+    const { items } = this.state;
+    if (items) {
+      return items.indexOf(value);
+    }
+    return this.context.valuesRef.current.findIndex((itemValue) => Object.is(itemValue, value));
+  }
+
+  /**
+   * Highlights the item that has focus, or is about to receive it. The highlight moves with focus,
+   * so the hovered item is forgotten until the pointer moves again.
+   */
+  highlightItem(index: number, event?: Event) {
+    this.updateWithEvent({ activeIndex: index, itemFocused: true, hoveredIndex: null }, event);
+  }
+
+  /**
+   * Records the item under the pointer, or `null` when the pointer leaves the list.
+   */
+  hoverItem(index: number | null, event?: Event) {
+    this.updateWithEvent({ hoveredIndex: index }, event);
+  }
+
+  /**
+   * Removes the highlight when focus leaves the items. The hovered item is forgotten too, so
+   * nothing is highlighted until the pointer moves again.
+   */
+  unhighlightItem(event?: Event) {
+    this.updateWithEvent({ itemFocused: false, hoveredIndex: null }, event);
+  }
+
+  /** Updates the state while `onItemHighlighted` can read the event that caused the change. */
+  private updateWithEvent<Key extends keyof State>(
+    values: Pick<State, Key>,
+    event: Event | undefined,
+  ) {
+    this.context.highlightEvent = event;
+    this.update(values);
+    this.context.highlightEvent = undefined;
+  }
+}
+
+function createSelectionItems(store: ListboxStore): SelectionItems {
+  return {
+    get count() {
+      return store.getCount();
+    },
+    getValue: (index) => store.getValueAt(index),
+    indexOfValue: (value) => store.indexOfValue(value),
+    isDisabled: (index) => store.isItemDisabled(index),
+    get keepsDisabled() {
+      return store.state.multiple !== false;
+    },
+    get indexed() {
+      return store.state.items != null;
+    },
+  };
+}
+
+function createInitialContext(): Context {
+  return {
+    valuesRef: { current: [] },
+    labelsRef: { current: [] },
+    disabledItemsRef: { current: [] },
+    setValue: () => true,
+    highlightEvent: undefined,
+    reportHighlightedItem: undefined,
+    elementsRef: { current: [] },
+  };
+}

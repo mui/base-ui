@@ -1,0 +1,261 @@
+# Listbox
+
+<Subtitle>An always-visible list for selecting one or more options.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React listbox component for selecting options from an always-visible list."
+/>
+
+> **Note:** Listbox is currently in preview. Its API may change before it becomes stable.
+
+import { DemoListboxHero } from './demos/hero';
+
+<DemoListboxHero />
+
+## Usage guidelines
+
+- **Prefer Select for forms**: Use [Select](/react/components/select) instead of Listbox for selection in forms.
+- **Multi-select support**: Set `multiple` to allow selecting more than one item. The value is then an array.
+- **Provide an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered.
+- **Keep items free of interactive content**: Don't place buttons, links, inputs, or other controls inside `<Listbox.Item>`. Assistive technology treats an option's content as plain text, and the listbox handles key presses on its items, so a control inside one can't be reached or typed into. Put actions next to the listbox instead.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { ListboxPreview as Listbox } from '@base-ui/react/listbox';
+
+<Listbox.Root>
+  <Listbox.Label />
+  <Listbox.List>
+    <Listbox.Item>
+      <Listbox.ItemIndicator />
+    </Listbox.Item>
+    <Listbox.Group>
+      <Listbox.GroupLabel />
+      <Listbox.Item />
+    </Listbox.Group>
+    <Listbox.Collection />
+  </Listbox.List>
+</Listbox.Root>;
+```
+
+## Examples
+
+### Multiple selection
+
+Add the `multiple` prop to let users select more than one item. The value is an array of the selected items.
+
+import { DemoListboxMultiSelection } from './demos/multi-selection';
+
+<DemoListboxMultiSelection />
+
+### Opt-in multiple selection
+
+Use `multiple="opt-in"` when users opt in to selecting more than one item by holding a modifier key. Without one, a click or moving focus with the keyboard moves the selection to a single item.
+
+- <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+click adds or removes an item.
+- <kbd>Shift</kbd>+click or <kbd>Shift</kbd>+arrow keys select a range.
+- <kbd>Ctrl</kbd>+arrow keys move focus without changing the selection, and <kbd>Ctrl</kbd>+
+  <kbd>Space</kbd> adds or removes the focused item. On macOS, use <kbd>Option</kbd> instead of
+  <kbd>Ctrl</kbd>.
+
+On touch devices, which have no modifier keys, a tap adds or removes an item, the same as `multiple`.
+
+import { DemoListboxOptInSelection } from './demos/opt-in-selection';
+
+<DemoListboxOptInSelection />
+
+### Items
+
+Without the `items` prop, the rendered `Listbox.Item` parts are the whole list. Pass `items` to `Listbox.Root` to describe every item up front, which lets the listbox render them for you and reach items that aren't rendered, as in a [virtualized](#virtualized) list. It accepts:
+
+- An array of strings or numbers. Each one is an item's value and label.
+- A collection created with [`Listbox.createItems()`](#custom-data) for any other data, such as objects or [groups](#grouped) of items.
+
+Give each `Listbox.Item` its value. The selection holds the same values.
+
+Pass the same array or collection on every render, by defining it outside the component or memoizing it. A new one makes the listbox read the items again and render every item again.
+
+To render the items, pass a function to `Listbox.List`. It's called with each item and its index:
+
+```jsx title="Rendering items with a function"
+const fonts = ['Sans-serif', 'Serif', 'Monospace'];
+
+<Listbox.Root items={fonts}>
+  <Listbox.List>
+    {(font) => (
+      <Listbox.Item key={font} value={font}>
+        {font}
+      </Listbox.Item>
+    )}
+  </Listbox.List>
+</Listbox.Root>;
+```
+
+A function can't be passed from a Server Component, so a list rendered this way must be in a Client Component. You can also map over the data yourself and render `Listbox.Item` parts as children, which works in either. To render other content next to the items, place the function in `Listbox.Collection` instead of `Listbox.List`.
+
+When `items` is set, disabled items and the labels used for keyboard text navigation come from the data. The `disabled` and `label` props of `Listbox.Item` are ignored. An array of strings or numbers has no disabled items, so to disable some, create a collection with `Listbox.createItems()` and pass it `isDisabled`.
+
+Filter the data before you pass it to `items`. Selecting everything with <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd>, or a range with <kbd>Shift</kbd>, replaces the selection with items from the current `items`, so selected items that a filter has removed are deselected.
+
+### Grouped
+
+Use `Listbox.Group` and `Listbox.GroupLabel` to group related items.
+
+To describe grouped items with the `items` prop, pass an array of groups, each with an `items` array, to [`Listbox.createItems()`](#custom-data). The function passed to `Listbox.List` then receives each group. Pass the group's items to `Listbox.Group` and render them with `Listbox.Collection`.
+
+import { DemoListboxGrouped } from './demos/grouped';
+
+<DemoListboxGrouped />
+
+### Custom data
+
+For data that isn't an array of strings or numbers, create a collection with `Listbox.createItems()` and pass it to the `items` prop. Make sure `getValue` returns a unique primitive for each item, such as its ID, and give each `Listbox.Item` that value. The selection holds the same values, and `items.get()` returns the object for one.
+
+```tsx title="Custom data"
+interface User {
+  id: string;
+  name: string;
+  active: boolean;
+}
+
+function UserList({ users }: { users: User[] }) {
+  const [value, setValue] = React.useState<string | null>(users[0].id);
+  const items = React.useMemo(
+    () =>
+      Listbox.createItems(users, {
+        getValue: (user) => user.id,
+        getLabel: (user) => user.name,
+        isDisabled: (user) => !user.active,
+      }),
+    [users],
+  );
+  const selectedUser = items.get(value);
+
+  return (
+    <div>
+      <Listbox.Root items={items} value={value} onValueChange={setValue}>
+        <Listbox.List>
+          {items.map((user) => (
+            <Listbox.Item key={user.id} value={user.id}>
+              {user.name}
+            </Listbox.Item>
+          ))}
+        </Listbox.List>
+      </Listbox.Root>
+      <p>Selected: {selectedUser?.name}</p>
+    </div>
+  );
+}
+```
+
+`items.map()` calls a function with each item in order, and its argument is typed from your data. `createItems()` also accepts an array of groups, each with an `items` array; an item can't have an `items` array property of its own. The collection holds the functions you pass, so create it in a Client Component.
+
+### Virtualized
+
+Render large lists with a virtualization library such as `@tanstack/react-virtual`. Because only some of the items are rendered, a virtualized listbox needs the following:
+
+- **Pass every item to `items`**: The listbox can then reach items that aren't rendered with keyboard navigation, typeahead, and selection. Without it, arrow keys stop at the last rendered item.
+- **Scroll the highlighted item into view**: In `onItemHighlighted`, scroll to `eventDetails.index` unless the reason is `'pointer'`, or the index is `-1`, which means that no item is highlighted. The item receives focus once it renders.
+- **Set `aria-setsize` and `aria-posinset` on each item**: Assistive technology then announces an item's position in the whole list, not among the rendered items.
+- **Keep a focus indicator on the list**: `<Listbox.List>` holds focus while the highlighted item isn't rendered, so don't remove its focus style without showing one elsewhere.
+
+import { DemoListboxVirtualized } from './demos/virtualized';
+
+<DemoListboxVirtualized />
+
+## Keyboard interactions
+
+In every selection mode:
+
+- Arrow keys move focus to the next or previous item. Focus stops at the first and last items. A horizontal listbox uses the left and right arrow keys.
+- <kbd>Home</kbd> and <kbd>End</kbd> move focus to the first and last items.
+- Typing characters moves focus to the next item whose label starts with them.
+- <kbd>Space</kbd> or <kbd>Enter</kbd> selects the focused item.
+- <kbd>Tab</kbd> moves focus into the listbox, to the selected item or the first item, and out of
+  it.
+
+With `multiple`, each item is added or removed on its own:
+
+- <kbd>Space</kbd> or <kbd>Enter</kbd> adds or removes the focused item.
+
+With `multiple="opt-in"`, the selection follows focus:
+
+- Arrow keys, <kbd>Home</kbd>, <kbd>End</kbd> and typing move the selection to the item they move focus to. Disabled items can receive focus, and the selection stays where it was while focus is on one.
+- <kbd>Space</kbd> or <kbd>Enter</kbd> makes the focused item the only selected item.
+- See [Opt-in multiple selection](#opt-in-multiple-selection) for the keys that add or remove single items.
+
+In both multiple modes:
+
+- <kbd>Shift</kbd>+arrow keys replace the selection with a range that starts at the focused item.
+  Right after a <kbd>Shift</kbd>+press or another <kbd>Shift</kbd>+arrow key, they grow or shrink
+  that range instead.
+- <kbd>Shift</kbd>+<kbd>Space</kbd> replaces the selection with the range from the anchor to the
+  focused item. The anchor is the item that was last pressed without <kbd>Shift</kbd>, or the start
+  of the last range made with <kbd>Shift</kbd>+arrow keys. With `multiple="opt-in"`, moving the
+  selection with the keyboard moves the anchor too. When there's no anchor yet, the range starts at
+  the first selected item, or at the first item.
+- <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Home</kbd> or <kbd>End</kbd> adds the items from the focused
+  item to the first or last item to the selection. On macOS, use <kbd>Cmd</kbd> instead of
+  <kbd>Ctrl</kbd>.
+- <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd> selects every item.
+
+None of these change a disabled item: a selected one stays selected, and the others are skipped.
+
+The listbox doesn't handle <kbd>Esc</kbd>, so a popup or dialog around it can close.
+
+## API reference
+
+import { TypesListbox } from './types';
+
+### Root
+
+<TypesListbox.Root />
+
+### Label
+
+<TypesListbox.Label />
+
+### List
+
+<TypesListbox.List />
+
+### Item
+
+<TypesListbox.Item />
+
+### ItemIndicator
+
+<TypesListbox.ItemIndicator />
+
+### Group
+
+<TypesListbox.Group />
+
+### GroupLabel
+
+<TypesListbox.GroupLabel />
+
+### Collection
+
+<TypesListbox.Collection />
+
+## createItems
+
+Creates a collection for the `items` prop of `<Listbox.Root>` from data of any shape.
+
+<TypesListbox.createItems hideDescription />
+
+export const metadata = {
+  keywords: [
+    'React Listbox Component',
+    'Listbox',
+    'Option List',
+    'Multi Select',
+    'Accessible Listbox',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

@@ -22,7 +22,7 @@ export interface CompositeListModelParameters<Metadata> {
   elementsRef: React.RefObject<Array<HTMLElement | null>>;
   /**
    * A ref to the list of element labels, ordered by their index.
-   * `useTypeahead`'s `listRef` prop.
+   * `usePopupTypeahead`'s `listRef` prop.
    */
   labelsRef?: React.RefObject<Array<string | null>> | undefined;
   onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata>>) => void) | undefined;

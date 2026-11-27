@@ -13,7 +13,7 @@ import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
-import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
+import { usePopupTypeahead } from '../../utils/popups/interactions/usePopupTypeahead';
 import { SelectRootContext, SelectSelectionContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -420,7 +420,7 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const typeahead = useTypeahead(store, {
+  const typeahead = usePopupTypeahead(store, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't. In an open
     // filterable select the input owns typing, so typeahead would race the filter query.

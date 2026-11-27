@@ -1,0 +1,362 @@
+'use client';
+import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { error } from '@base-ui/utils/error';
+import { warn } from '@base-ui/utils/warn';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  HTMLProps,
+  NonNativeButtonProps,
+} from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useButton } from '../../internals/use-button';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
+import { isStationaryWebKitPointer } from '../../utils/popups/interactions/useListNavigation';
+import { isMacToggleKey } from '../utils/listKeyCommand';
+import { useListboxRootContext } from '../root/ListboxRootContext';
+import { ListboxItemContext } from './ListboxItemContext';
+
+/**
+ * An individual option in the listbox.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
+ */
+export const ListboxItem = React.memo(
+  React.forwardRef(function ListboxItem(
+    componentProps: ListboxItem.Props,
+    forwardedRef: React.ForwardedRef<HTMLElement>,
+  ) {
+    const {
+      render,
+      className,
+      style,
+      value: itemValue,
+      label,
+      disabled: disabledProp,
+      nativeButton = false,
+      ...elementProps
+    } = componentProps;
+
+    const store = useListboxRootContext();
+    const items = store.useState('items');
+
+    // With `items`, the item's position comes from its value, since a virtualized list renders
+    // only some of the items and their order in the DOM doesn't match their position.
+    const indexFromItems = items ? items.indexOf(itemValue) : undefined;
+
+    // Registered along with the item's position, so that the list reads the value and disabled
+    // state of every rendered item at the moment their positions change.
+    const ownDisabled = disabledProp ?? false;
+    const metadata = useRefWithInit(() => ({ value: itemValue, disabled: ownDisabled })).current;
+
+    const listItem = useCompositeListItem({
+      guess: true,
+      label,
+      index: indexFromItems,
+      metadata,
+    });
+
+    const rootDisabled = store.useState('disabled');
+    const active = store.useState('isActive', listItem.index);
+    const highlighted = store.useState('isHighlighted', listItem.index);
+    const selected = store.useState('isSelected', itemValue);
+
+    const index = listItem.index;
+    const hasRegistered = index !== -1;
+    // With `items`, the data decides whether an item is disabled, so the answer doesn't depend on
+    // whether the item is rendered.
+    const itemDisabled = items ? hasRegistered && items.isDisabled(index) : ownDisabled;
+    const disabled = rootDisabled || itemDisabled;
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (items && (disabledProp !== undefined || label !== undefined)) {
+        warn(
+          '<Listbox.Item> ignores the `disabled` and `label` props when <Listbox.Root> has `items`, ' +
+            "because the list must know every item's state and label, including those that aren't " +
+            'rendered. Set them in the data instead: the `disabled` and `label` fields of an item, ' +
+            'or the `isDisabled` and `getLabel` options of `Listbox.createItems()`.',
+        );
+      }
+      // Checked after the commit against the root's current `items`, which this render may not
+      // have seen yet when the items and the data change together.
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React.useEffect(() => {
+        if (store.state.items?.indexOf(itemValue) === -1) {
+          error(
+            `A <Listbox.Item> has the value ${String(itemValue)}, which is not in the \`items\` passed to ` +
+              "<Listbox.Root>, so it can't be highlighted or selected. Give each <Listbox.Item> " +
+              'the value of its item in `items`: the item itself, its `value` field, or what ' +
+              '`getValue` returns for it.',
+          );
+        }
+      }, [items, itemValue, store]);
+    }
+
+    const itemRef = React.useRef<HTMLDivElement | null>(null);
+    // With `items`, the root already knows every value and disabled state.
+    useIsoLayoutEffect(() => {
+      metadata.value = itemValue;
+      metadata.disabled = ownDisabled;
+
+      if (!hasRegistered || items) {
+        return undefined;
+      }
+
+      const values = store.context.valuesRef.current;
+      const disabledItems = store.context.disabledItemsRef.current;
+      values[index] = itemValue;
+      disabledItems[index] = itemDisabled;
+
+      // A selected item holds the tab stop, which was placed before this position was known when
+      // the item mounted out of order.
+      if (store.select('isSelected', itemValue)) {
+        store.syncTabStop();
+      }
+
+      return () => {
+        delete values[index];
+        delete disabledItems[index];
+      };
+    }, [hasRegistered, index, itemValue, itemDisabled, ownDisabled, items, metadata, store]);
+
+    // In a virtualized list, the list tracks whether the item holding the tab stop is rendered,
+    // and takes its place in the tab order while it isn't.
+    useIsoLayoutEffect(() => {
+      if (!active || !hasRegistered) {
+        return undefined;
+      }
+      store.set('activeItemRendered', true);
+      return () => {
+        store.set('activeItemRendered', false);
+      };
+    }, [active, hasRegistered, store]);
+
+    // The list holds focus while it waits for this item to render, such as after an arrow key
+    // moved past the rendered items of a virtualized list. Take focus from it.
+    useIsoLayoutEffect(() => {
+      if (hasRegistered) {
+        store.focus.itemMounted(index, itemRef.current);
+      }
+    }, [hasRegistered, index, store]);
+
+    // The focused item stops rendering when a virtualized list scrolls it out of view, or when
+    // it's removed. The list takes focus in its place, so the keyboard keeps working, and gives it
+    // back once the item renders again, or to another item when it's gone.
+    useIsoLayoutEffect(() => {
+      const element = itemRef.current;
+      return () => {
+        // The item's value when it stops rendering, not when the effect ran.
+        store.focus.itemUnmounting(element, metadata.value);
+      };
+    }, [metadata, store]);
+
+    const state: ListboxItemState = {
+      disabled,
+      selected,
+      highlighted,
+    };
+
+    // The pointer type of the last press, so a touch tap can be told apart from a click.
+    const lastPointerTypeRef = React.useRef<string | null>(null);
+    // Whether the key being held is a repeat of Space or Enter.
+    const repeatedPressRef = React.useRef(false);
+
+    const { getButtonProps, buttonRef } = useButton({
+      disabled,
+      focusableWhenDisabled: true,
+      native: nativeButton,
+      composite: true,
+    });
+
+    function handleItemKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+      store.highlightItem(index, event.nativeEvent);
+
+      // The item's button doesn't press it on Option+Space, so it's handled here.
+      if (isMacToggleKey(event, { multiple: store.state.multiple, mac: platform.os.mac })) {
+        event.preventDefault();
+        event.preventBaseUIHandler();
+        // Holding the key presses the item once, not on every repeat.
+        if (!event.repeat) {
+          store.pressItem(index, { shiftKey: event.shiftKey, ctrlKey: true }, event.nativeEvent);
+        }
+      }
+    }
+
+    const defaultProps: HTMLProps = {
+      role: 'option',
+      'aria-selected': selected,
+      tabIndex: active && !rootDisabled ? 0 : -1,
+      onFocus(event) {
+        if (rootDisabled) {
+          return;
+        }
+        const focusedIndex = store.focus.getFocusedIndex(store.getItemIndex(index, itemValue));
+        store.highlightItem(focusedIndex, event.nativeEvent);
+        store.focus.itemFocused(focusedIndex);
+      },
+      onBlur(event) {
+        // Moving focus to another item keeps the highlight; it moves with focus instead. So does
+        // the list holding focus for an item that isn't rendered yet.
+        const listElement = store.state.listElement;
+        const nextTarget = event.relatedTarget;
+        if (
+          contains(listElement, nextTarget) &&
+          (nextTarget !== listElement || store.focus.isPending())
+        ) {
+          return;
+        }
+        store.unhighlightItem(event.nativeEvent);
+      },
+      onMouseMove(event) {
+        if (
+          !store.state.highlightItemOnHover ||
+          rootDisabled ||
+          // The list scrolled under a resting pointer, such as during keyboard navigation.
+          isStationaryWebKitPointer(event)
+        ) {
+          return;
+        }
+        const element = itemRef.current;
+        const focusedElement = element ? activeElement(ownerDocument(element)) : null;
+        // The pointer moved within the item that already has focus and the highlight.
+        if (
+          focusedElement === element &&
+          store.state.multiple !== 'opt-in' &&
+          store.state.hoveredIndex === null &&
+          store.state.itemFocused &&
+          store.state.activeIndex === index
+        ) {
+          return;
+        }
+
+        // Hovering only moves focus once focus is in the list, so it never takes focus from
+        // another control. Until then, the hovered item is highlighted without focus. Opt-in mode
+        // never moves focus on hover, since arrow keys move the selection from the focused item.
+        if (
+          store.state.multiple !== 'opt-in' &&
+          element &&
+          contains(store.state.listElement, focusedElement)
+        ) {
+          store.highlightItem(index, event.nativeEvent);
+          // The pointer is already over the item, so the list doesn't scroll to it.
+          element.focus({ preventScroll: true });
+        } else {
+          store.hoverItem(index, event.nativeEvent);
+        }
+      },
+      onKeyDownCapture(event: BaseUIEvent<React.KeyboardEvent>) {
+        // Holding Space or Enter presses the item once, not on every repeat of the key.
+        repeatedPressRef.current =
+          event.repeat && (event.key === ' ' || event.code === 'Space' || event.key === 'Enter');
+        // A disabled item's button ignores key presses, so they're handled here.
+        if (itemDisabled && !rootDisabled) {
+          handleItemKeyDown(event);
+        }
+      },
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+        handleItemKeyDown(event);
+      },
+      onKeyUp() {
+        repeatedPressRef.current = false;
+      },
+      onPointerDown(event) {
+        lastPointerTypeRef.current = event.pointerType;
+      },
+      // Handled while capturing, since a disabled item's button ignores presses.
+      onMouseDownCapture(event) {
+        // A press with a modifier selects items, so it doesn't also select the text between them.
+        // Preventing that also keeps the press from moving focus, so the item takes it.
+        if (
+          !rootDisabled &&
+          event.button === 0 &&
+          store.state.multiple !== false &&
+          (event.shiftKey || event.ctrlKey || event.metaKey)
+        ) {
+          event.preventDefault();
+          itemRef.current?.focus({ preventScroll: true });
+        }
+      },
+      onClick(event) {
+        // A touch tap is a click made by a pointer (`detail` counts its presses) after a touch
+        // press. A click from the keyboard or assistive technology isn't one, even when an earlier
+        // touch ended without a click, such as in a scroll.
+        const touch = lastPointerTypeRef.current === 'touch' && event.detail > 0;
+        lastPointerTypeRef.current = null;
+
+        if (repeatedPressRef.current) {
+          return;
+        }
+
+        store.pressItem(
+          index,
+          {
+            shiftKey: event.shiftKey,
+            ctrlKey: event.ctrlKey || event.metaKey,
+            touch,
+          },
+          event.nativeEvent,
+        );
+      },
+    };
+
+    const element = useRenderElement('div', componentProps, {
+      ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
+      state,
+      props: [defaultProps, elementProps, getButtonProps],
+    });
+
+    return <ListboxItemContext.Provider value={selected}>{element}</ListboxItemContext.Provider>;
+  }),
+);
+
+export interface ListboxItemState {
+  /**
+   * Whether the item should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the item is selected.
+   */
+  selected: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
+  highlighted: boolean;
+}
+
+export interface ListboxItemProps
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', ListboxItemState>, 'id'> {
+  children?: React.ReactNode;
+  /**
+   * A unique value that identifies this listbox item.
+   */
+  value: any;
+  /**
+   * Whether the component should ignore user interaction.
+   *
+   * Ignored when the root has `items`. Use the item's `disabled` field or the `isDisabled`
+   * option of `Listbox.createItems()` instead.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+  /**
+   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   *
+   * Defaults to the item text content if not provided.
+   *
+   * Ignored when the root has `items`. Use the item's `label` field or the `getLabel` option of
+   * `Listbox.createItems()` instead.
+   */
+  label?: string | undefined;
+}
+
+export namespace ListboxItem {
+  export type State = ListboxItemState;
+  export type Props = ListboxItemProps;
+}

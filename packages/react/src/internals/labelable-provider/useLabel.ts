@@ -14,12 +14,15 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
     native = false,
     setLabelId: setLabelIdProp,
     focusControl: focusControlProp,
+    labelsFieldControl = true,
   } = params;
 
   const { controlId: contextControlId, setLabelId: setContextLabelId } = useLabelableContext();
 
   const syncLabelId = useStableCallback((nextLabelId: React.SetStateAction<string | undefined>) => {
-    setContextLabelId(nextLabelId);
+    if (labelsFieldControl) {
+      setContextLabelId(nextLabelId);
+    }
     setLabelIdProp?.(nextLabelId);
   });
 
@@ -96,6 +99,12 @@ export interface UseLabelParameters {
    * If omitted, focus behavior targets the resolved control id.
    */
   focusControl?: ((event: React.MouseEvent, controlId: string | undefined) => void) | undefined;
+  /**
+   * Whether the label also labels the control of an enclosing Field. Set to `false` for a
+   * component that isn't a Field control, so its label doesn't replace the Field's.
+   * @default true
+   */
+  labelsFieldControl?: boolean | undefined;
 }
 
 export type UseLabelReturnValue = React.HTMLAttributes<any> & React.LabelHTMLAttributes<any>;
