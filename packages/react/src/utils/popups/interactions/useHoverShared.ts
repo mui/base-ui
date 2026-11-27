@@ -7,6 +7,7 @@ export { isTargetInsideEnabledTrigger as isInsideEnabledTrigger } from '../eleme
 export interface HandleCloseOptions {
   blockPointerEvents?: boolean | undefined;
   getScope?: (() => HTMLElement | SVGSVGElement | null) | undefined;
+  getAdditionalPointerTargets?: ((scope: HTMLElement | SVGSVGElement) => HTMLElement[]) | undefined;
 }
 
 export interface HandleCloseContext {
