@@ -19,6 +19,13 @@ const RENDERERS = new Map<string, (data: ChangelogData) => string>([
   ['docs', renderDocsPage],
 ]);
 
+/** The local day of the run, as UTC midnight, since `formatDate` prints the UTC day. */
+function getReleaseDate() {
+  const now = new Date();
+
+  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+}
+
 function print(text: string) {
   process.stdout.write(`${text}\n`);
 }
@@ -54,6 +61,7 @@ async function run() {
     lastRelease: values.lastRelease,
     release: values.release,
     version: values.releaseVersion,
+    date: getReleaseDate(),
   });
 
   print(render(data));
