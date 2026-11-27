@@ -140,7 +140,7 @@ export interface PasswordFieldInputProps extends Omit<InputProps, 'id' | 'type'>
    * offer to generate one.
    * @default 'current-password'
    */
-  autoComplete?: React.HTMLInputAutoCompleteAttribute | undefined;
+  autoComplete?: InputProps['autoComplete'] | undefined;
 }
 
 export type PasswordFieldInputChangeEventReason = InputChangeEventReason;
