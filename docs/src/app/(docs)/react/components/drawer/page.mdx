@@ -160,6 +160,20 @@ import { DemoDrawerVirtualKeyboardAware } from './demos/virtual-keyboard-aware';
 
 <DemoDrawerVirtualKeyboardAware />
 
+By default, keyboard-focus alignment uses smooth scrolling, or `'auto'` when the user prefers reduced motion. Set `scrollBehavior="instant"` to make alignment corrections happen immediately as the software keyboard and layout change:
+
+```tsx title="Instant keyboard-focus scrolling"
+<Drawer.Root>
+  <Drawer.VirtualKeyboardProvider scrollBehavior="instant">
+    {/* ... */}
+  </Drawer.VirtualKeyboardProvider>
+</Drawer.Root>
+```
+
+The `scrollBehavior` prop accepts `'auto'`, `'instant'`, and `'smooth'`. The `'auto'` value follows CSS `scroll-behavior`, which can still request smooth scrolling. Use `'instant'` to ensure immediate scrolling. When the user prefers reduced motion, `'smooth'` is treated as `'auto'`; explicit `'instant'` and `'auto'` values are preserved.
+
+This prop controls keyboard-focus alignment scrolling independently of the drawer's opening and closing animations. Keyboard visibility handling, padding adjustments, and alignment checks continue to work with every value.
+
 ### Indent effect
 
 Scale the background down when any drawer opens by wrapping your app in `<Drawer.Provider>` and use `<Drawer.IndentBackground>` + `<Drawer.Indent>` at the top of your tree. Any `<Drawer.Root>` within the provider notifies it when it mounts, which activates the indent parts (they receive `[data-active]` state attributes).
