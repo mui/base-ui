@@ -3082,6 +3082,35 @@ describe('<Slider.Root />', () => {
       await user.keyboard(`[${ARROW_RIGHT}]`);
       expect(input).toHaveAttribute('aria-valuenow', '6');
     });
+
+    it.each([
+      { name: 'increments', key: ARROW_UP, value: 33, expected: '35' },
+      { name: 'decrements', key: ARROW_DOWN, value: 37, expected: '35' },
+      { name: 'increments by largeStep', key: 'PageUp', value: 33, expected: '40' },
+      { name: 'decrements by largeStep', key: 'PageDown', value: 37, expected: '30' },
+    ])(
+      '$name a value between steps from the adjacent step in that direction',
+      async ({ key, value, expected }) => {
+        const { user } = await render(
+          <Slider.Root defaultValue={value} step={5} largeStep={10}>
+            <Slider.Control>
+              <Slider.Track>
+                <Slider.Thumb />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        const input = screen.getByRole('slider');
+        expect(input).toHaveAttribute('aria-valuenow', String(value));
+
+        await user.keyboard('[Tab]');
+        expect(input).toHaveFocus();
+
+        await user.keyboard(`[${key}]`);
+        expect(input).toHaveAttribute('aria-valuenow', expected);
+      },
+    );
   });
 
   describe('prop: format', () => {

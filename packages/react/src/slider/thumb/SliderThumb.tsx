@@ -66,14 +66,21 @@ function getNewValue(
   thumbValue: number,
   increment: number,
   direction: number,
+  step: number,
   min: number,
   max: number,
 ): number {
-  const value = thumbValue + increment * direction;
+  const nearestValue = roundValueToStep(thumbValue, step, min);
+  // Like a native range input, a value between steps moves to the adjacent step in the
+  // pressed direction, so start from the step behind the value rather than the nearest one.
+  const startValue =
+    (nearestValue - thumbValue) * direction > 0 ? nearestValue - step * direction : nearestValue;
+  const value = startValue + increment * direction;
   const roundedValue = Number(
     value.toFixed(
       Math.max(
-        getDecimalPrecision(thumbValue),
+        getDecimalPrecision(nearestValue),
+        getDecimalPrecision(step),
         getDecimalPrecision(increment),
         getDecimalPrecision(min),
       ),
@@ -423,7 +430,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         let newValue = null;
         let direction = 0;
         let increment = event.shiftKey ? largeStep : step;
-        const roundedValue = roundValueToStep(thumbValue, step, min);
         switch (event.key) {
           case ARROW_UP:
             direction = 1;
@@ -462,7 +468,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         if (direction !== 0) {
-          newValue = getNewValue(roundedValue, increment, direction, min, max);
+          newValue = getNewValue(thumbValue, increment, direction, step, min, max);
         }
 
         if (newValue !== null) {
