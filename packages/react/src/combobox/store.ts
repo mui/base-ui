@@ -65,6 +65,8 @@ export type ComboboxStoreContext = ValuePopupContext<AriaCombobox.OpenChangeEven
   readonly emptyRef: React.RefObject<HTMLDivElement | null>;
   /** The input element that owns the combobox role. */
   readonly inputRef: React.RefObject<HTMLInputElement | null>;
+  /** Whether focus was inside the popup when it last closed. */
+  readonly focusInsidePopupOnCloseRef: React.RefObject<boolean>;
   /** Internal dismiss button rendered before the popup content. */
   readonly startDismissRef: React.RefObject<HTMLSpanElement | null>;
   /** Internal dismiss button rendered after the popup content. */
