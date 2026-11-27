@@ -1,11 +1,12 @@
 import type * as React from 'react';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
-import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
+import type { BaseUIEvent, WithBaseUIEvent, WithMaybeBaseUIEvent } from '../internals/types';
 
 type ElementType = React.ElementType;
-type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
+type InputPropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
+type PropsOf<T extends React.ElementType> = WithMaybeBaseUIEvent<React.ComponentPropsWithRef<T>>;
 type InputProps<T extends React.ElementType> =
-  PropsOf<T> | ((otherProps: PropsOf<T>) => PropsOf<T>) | undefined;
+  InputPropsOf<T> | ((otherProps: PropsOf<T>) => PropsOf<T>) | undefined;
 
 const EMPTY_PROPS = {};
 
@@ -29,6 +30,7 @@ const EMPTY_PROPS = {};
  *
  * Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
  * They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
+ * They are also not wrapped, so their event only has `preventBaseUIHandler` when a later handler is merged with them.
  *
  * @important **`ref` is not merged.**
  * @param a Props object to merge.

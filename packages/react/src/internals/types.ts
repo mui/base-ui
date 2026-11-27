@@ -29,6 +29,23 @@ export type WithBaseUIEvent<T> = {
   [K in keyof T]: WithPreventBaseUIHandler<T[K]>;
 };
 
+type WithMaybePreventBaseUIHandler<T> = T extends (event: infer E) => any
+  ? E extends React.SyntheticEvent<Element, Event>
+    ? (event: MaybeBaseUIEvent<E>) => ReturnType<T>
+    : T
+  : T extends undefined
+    ? undefined
+    : T;
+
+/**
+ * Event handlers that may receive an event with or without the `preventBaseUIHandler` method.
+ * Describes merged props: handlers accept plain React events, and props getters receive and
+ * return them without Base UI augmenting the handlers they create.
+ */
+export type WithMaybeBaseUIEvent<T> = {
+  [K in keyof T]: WithMaybePreventBaseUIHandler<T[K]>;
+};
+
 /**
  * Props shared by all Base UI components.
  * Contains `className` (string or callback taking the component's state as an argument) and `render` (function to customize rendering).
