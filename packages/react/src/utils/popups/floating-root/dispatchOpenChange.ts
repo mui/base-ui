@@ -11,12 +11,14 @@ import type { PopupInteractionContext } from '../types';
  * @param open Whether the popup is open before the change.
  * @param newOpen Whether the popup is open after the change.
  * @param eventDetails Details about the event that caused the change.
+ * @param triggerChanged Whether the change moves the open popup to another trigger.
  */
 export function dispatchOpenChange(
   context: Pick<PopupInteractionContext, 'openEvent' | 'events' | 'nested'>,
   open: boolean,
   newOpen: boolean,
   eventDetails: BaseUIChangeEventDetails<string>,
+  triggerChanged = false,
 ) {
   const event = eventDetails.event;
 
@@ -24,6 +26,7 @@ export function dispatchOpenChange(
   if (
     !newOpen ||
     !open ||
+    triggerChanged ||
     // Prevent a pending hover-open from overwriting a click-open event, while allowing
     // click events to upgrade a hover-open.
     (event != null && isClickLikeEvent(event))
