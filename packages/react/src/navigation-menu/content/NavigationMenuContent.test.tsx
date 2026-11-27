@@ -1,4 +1,5 @@
 import { expect, describe, it } from 'vitest';
+import * as React from 'react';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -217,5 +218,148 @@ describe('<NavigationMenu.Content />', () => {
     });
 
     expect(viewport.contains(screen.getByTestId('content-1'))).toBe(true);
+  });
+
+  // Issue #5103
+  it('renders content that suspends when the Suspense boundary is outside the root', async () => {
+    let resolveLazy: (value: { default: React.ComponentType }) => void = () => {};
+    const LazyContent = React.lazy(
+      () =>
+        new Promise<{ default: React.ComponentType }>((resolve) => {
+          resolveLazy = resolve;
+        }),
+    );
+
+    const { user } = await render(
+      <React.Suspense fallback="Loading...">
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item">
+              <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <LazyContent />
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>
+      </React.Suspense>,
+    );
+
+    expect(screen.queryByText('Loading...')).toBe(null);
+
+    await user.hover(screen.getByRole('button', { name: 'Item' }));
+
+    expect(await screen.findByText('Loading...')).not.toBe(null);
+
+    resolveLazy({ default: () => <p>Loaded content</p> });
+
+    expect(await screen.findByText('Loaded content')).not.toBe(null);
+  });
+
+  it('renders content that suspends when the Suspense boundary is inside the root', async () => {
+    let resolveLazy: (value: { default: React.ComponentType }) => void = () => {};
+    const LazyContent = React.lazy(
+      () =>
+        new Promise<{ default: React.ComponentType }>((resolve) => {
+          resolveLazy = resolve;
+        }),
+    );
+
+    const { user } = await render(
+      <NavigationMenu.Root>
+        <React.Suspense fallback="Loading...">
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item">
+              <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <LazyContent />
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </React.Suspense>
+      </NavigationMenu.Root>,
+    );
+
+    expect(screen.queryByText('Loading...')).toBe(null);
+
+    await user.hover(screen.getByRole('button', { name: 'Item' }));
+
+    expect(await screen.findByText('Loading...')).not.toBe(null);
+
+    resolveLazy({ default: () => <p>Loaded content</p> });
+
+    expect(await screen.findByText('Loaded content')).not.toBe(null);
+  });
+
+  describe('while its content is suspended above the root', () => {
+    const LazyContent = React.lazy(() => new Promise<{ default: React.ComponentType }>(() => {}));
+
+    function SuspendedMenu({ value }: { value: string | null }) {
+      return (
+        <React.Suspense fallback="Loading...">
+          <NavigationMenu.Root value={value}>
+            <NavigationMenu.List>
+              <NavigationMenu.Item value="lazy">
+                <NavigationMenu.Trigger>Lazy</NavigationMenu.Trigger>
+                <NavigationMenu.Content>
+                  <LazyContent />
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+              <NavigationMenu.Item value="static">
+                <NavigationMenu.Trigger>Static</NavigationMenu.Trigger>
+                <NavigationMenu.Content>Static content</NavigationMenu.Content>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+            <NavigationMenu.Portal>
+              <NavigationMenu.Positioner>
+                <NavigationMenu.Popup>
+                  <NavigationMenu.Viewport />
+                </NavigationMenu.Popup>
+              </NavigationMenu.Positioner>
+            </NavigationMenu.Portal>
+          </NavigationMenu.Root>
+        </React.Suspense>
+      );
+    }
+
+    it('shows the menu again when it closes', async () => {
+      const { rerender } = await render(<SuspendedMenu value={null} />);
+      await rerender(<SuspendedMenu value="lazy" />);
+      expect(await screen.findByText('Loading...')).not.toBe(null);
+
+      await rerender(<SuspendedMenu value={null} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Lazy' })).toBeVisible();
+      });
+      expect(screen.queryByText('Loading...')).toBe(null);
+    });
+
+    it('shows the next content when another item opens', async () => {
+      const { rerender } = await render(<SuspendedMenu value={null} />);
+      await rerender(<SuspendedMenu value="lazy" />);
+      expect(await screen.findByText('Loading...')).not.toBe(null);
+
+      await rerender(<SuspendedMenu value="static" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Static content')).toBeVisible();
+      });
+      expect(screen.queryByText('Loading...')).toBe(null);
+    });
   });
 });
