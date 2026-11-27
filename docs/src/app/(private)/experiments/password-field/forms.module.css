@@ -1,0 +1,219 @@
+.Page {
+  padding: 24px;
+  color: var(--color-gray-900);
+}
+
+.Columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.Column {
+  display: grid;
+  gap: 24px;
+}
+
+.Section {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 12px;
+  background-color: var(--color-gray-50);
+}
+
+.SectionTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-gray-700);
+}
+
+.Form {
+  display: grid;
+  gap: 12px;
+}
+
+.TextSetting {
+  display: grid;
+  gap: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.TextInput {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.25rem;
+  margin: 0;
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 400;
+  background-color: canvas;
+  color: var(--color-gray-900);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.Group {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 2.25rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 6px;
+  background-color: canvas;
+  overflow: hidden;
+
+  &:has(.Input:focus-visible) {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 0.5rem;
+  border: none;
+  font: inherit;
+  background-color: transparent;
+  color: var(--color-gray-900);
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.Toggle {
+  height: 100%;
+  margin: 0;
+  padding: 0 0.75rem;
+  border: none;
+  border-left: 1px solid var(--color-gray-300);
+  font: inherit;
+  font-size: 0.875rem;
+  background-color: transparent;
+  color: var(--color-gray-900);
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -2px;
+  }
+}
+
+.Buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.Button {
+  height: 2rem;
+  margin: 0;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.875rem;
+  background-color: canvas;
+  color: var(--color-gray-900);
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Frame {
+  width: 100%;
+  height: 3rem;
+  border: 1px dashed var(--color-gray-300);
+  border-radius: 6px;
+}
+
+.LogSection {
+  position: sticky;
+  top: 24px;
+}
+
+.LogHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Log {
+  display: grid;
+  gap: 4px;
+  max-height: 70vh;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.LogEmpty {
+  color: var(--color-gray-600);
+}
+
+.LogEntry {
+  display: grid;
+  grid-template-columns: auto 5rem 1fr;
+  gap: 8px;
+  padding: 4px 8px;
+  border-left: 3px solid var(--color-gray-300);
+  border-radius: 4px;
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+  overflow-wrap: anywhere;
+
+  &[data-kind='change'] {
+    border-left-color: var(--color-blue);
+  }
+
+  &[data-kind='formdata'] {
+    border-left-color: var(--color-red);
+  }
+}
+
+.LogTime {
+  color: var(--color-gray-600);
+}
+
+.LogKind {
+  font-weight: 600;
+}
