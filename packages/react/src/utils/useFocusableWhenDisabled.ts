@@ -19,9 +19,10 @@ export function useFocusableWhenDisabled(
   // would otherwise prevent subsequently merged props from setting them
   const props = React.useMemo(() => {
     const additionalProps = {
-      // allow Tabbing away from focusableWhenDisabled elements
+      // cancel only the keys that would activate the element (and scroll the page on Space);
+      // other keys such as Tab or find-in-page keep their default
       onKeyDown(event: React.KeyboardEvent) {
-        if (disabled && focusableWhenDisabled && event.key !== 'Tab') {
+        if (disabled && focusableWhenDisabled && (event.key === 'Enter' || event.key === ' ')) {
           event.preventDefault();
         }
       },
