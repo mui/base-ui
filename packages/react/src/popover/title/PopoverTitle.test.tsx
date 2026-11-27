@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, describe, it } from 'vitest';
 import { Popover } from '@base-ui/react/popover';
 import { screen } from '@mui/internal-test-utils';
@@ -114,6 +115,53 @@ describe('<Popover.Title />', () => {
 
       expect(screen.getByRole('heading')).not.toHaveAttribute('id');
       expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-labelledby');
+    });
+  });
+  describe('with two titles', () => {
+    function Fixture({
+      oldRender,
+      withOld = true,
+    }: {
+      oldRender?: React.ReactElement | undefined;
+      withOld?: boolean | undefined;
+    }) {
+      return (
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                {withOld && (
+                  <Popover.Title id="old-title" render={oldRender}>
+                    Old
+                  </Popover.Title>
+                )}
+                <Popover.Title id="new-title">New</Popover.Title>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    it('does not let an older title without an id clear the newer title', async () => {
+      const { setProps } = await render(<Fixture />);
+
+      const popup = screen.getByRole('dialog');
+      expect(popup).toHaveAttribute('aria-labelledby', 'new-title');
+
+      await setProps({ oldRender: <h2 id={undefined} /> });
+      expect(popup).toHaveAttribute('aria-labelledby', 'new-title');
+    });
+
+    it('does not let an older title that unmounts clear the newer title', async () => {
+      const { setProps } = await render(<Fixture />);
+
+      const popup = screen.getByRole('dialog');
+      expect(popup).toHaveAttribute('aria-labelledby', 'new-title');
+
+      await setProps({ withOld: false });
+      expect(popup).toHaveAttribute('aria-labelledby', 'new-title');
     });
   });
 });

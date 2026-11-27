@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, describe, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
@@ -48,6 +49,50 @@ describe('<Dialog.Description />', () => {
 
       expect(screen.getByText('Description')).not.toHaveAttribute('id');
       expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-describedby');
+    });
+  });
+  describe('with two descriptions', () => {
+    function Fixture({
+      oldRender,
+      withOld = true,
+    }: {
+      oldRender?: React.ReactElement | undefined;
+      withOld?: boolean | undefined;
+    }) {
+      return (
+        <Dialog.Root open modal={false}>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              {withOld && (
+                <Dialog.Description id="old-description" render={oldRender}>
+                  Old
+                </Dialog.Description>
+              )}
+              <Dialog.Description id="new-description">New</Dialog.Description>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    it('does not let an older description without an id clear the newer description', async () => {
+      const { setProps } = await render(<Fixture />);
+
+      const popup = screen.getByRole('dialog');
+      expect(popup).toHaveAttribute('aria-describedby', 'new-description');
+
+      await setProps({ oldRender: <p id={undefined} /> });
+      expect(popup).toHaveAttribute('aria-describedby', 'new-description');
+    });
+
+    it('does not let an older description that unmounts clear the newer description', async () => {
+      const { setProps } = await render(<Fixture />);
+
+      const popup = screen.getByRole('dialog');
+      expect(popup).toHaveAttribute('aria-describedby', 'new-description');
+
+      await setProps({ withOld: false });
+      expect(popup).toHaveAttribute('aria-describedby', 'new-description');
     });
   });
 });
