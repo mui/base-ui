@@ -129,7 +129,7 @@ export default function PasswordFieldForms() {
                 value={target}
                 onChange={(event) => setTarget(event.target.value as Target)}
               >
-                <option value="frame">Frame below (keeps the log)</option>
+                <option value="frame">Hidden frame (keeps the log)</option>
                 <option value="_self">This tab (for the save-password offer)</option>
                 <option value="_blank">New tab</option>
               </select>
@@ -172,8 +172,8 @@ export default function PasswordFieldForms() {
               ref={formRef}
               className={styles.Form}
               method="post"
-              // A same-origin POST reloads this page, which password managers treat as a sign-in.
-              action={target === 'frame' ? 'about:blank' : ''}
+              // Posts to this page: WebKit treats a form posting to `about:blank` as insecure.
+              action=""
               target={target === 'frame' ? `${id}-frame` : target}
               onSubmit={(event) => {
                 addLog('submit', `submit${preventSubmit ? ' — prevented by onSubmit' : ''}`);
@@ -244,9 +244,7 @@ export default function PasswordFieldForms() {
                 </button>
               </div>
             </form>
-            {target === 'frame' && (
-              <iframe className={styles.Frame} name={`${id}-frame`} title="Submission target" />
-            )}
+            {target === 'frame' && <iframe hidden name={`${id}-frame`} title="Submission target" />}
           </section>
 
           <section className={styles.Section}>
