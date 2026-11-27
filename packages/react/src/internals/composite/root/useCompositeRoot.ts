@@ -5,7 +5,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { getTarget } from '@base-ui/utils/shadowDom';
+import { activeElement, getTarget } from '@base-ui/utils/shadowDom';
+import { ownerDocument } from '@base-ui/utils/owner';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -112,13 +113,20 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       return;
     }
 
+    // An item can take focus before it registers, for example with `autoFocus`. Its focus handler
+    // reports index -1 then, so the tab stop moves to it here once the list resolves.
+    const focusedElement = activeElement(ownerDocument(rootRef.current));
+
     if (hasSetDefaultIndexRef.current) {
       const elements = elementsRef.current;
       // Items added or removed around the highlighted one shift its index, so the tab stop would
       // otherwise move to a different item and navigation would resume from the wrong position.
       const nextIndex = elements.indexOf(highlightedElementRef.current);
+      const focusedIndex = focusedElement ? elements.indexOf(focusedElement as HTMLElement) : -1;
 
-      if (nextIndex === -1) {
+      if (nextIndex === -1 && focusedIndex !== -1) {
+        onHighlightedIndexChange(focusedIndex);
+      } else if (nextIndex === -1) {
         // A replacement at the same index can keep the tab stop. Otherwise move it to an
         // eligible item so a missing, hidden, or disabled replacement does not take the
         // composite out of the tab order.
@@ -138,9 +146,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
     const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
     const activeItem =
+      sortedElements.find((compositeElement) => compositeElement === focusedElement) ??
       sortedElements.find((compositeElement) =>
         compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-      ) ?? null;
+      ) ??
+      null;
     // Set the default highlighted index of an arbitrary composite item. The map value carries
     // the item's own index, which is not its position among the keys once a list mixes explicit
     // and automatic indexes and leaves gaps.
@@ -321,6 +331,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onFocus(event) {
       const element = rootRef.current;
       const target = getTarget(event.nativeEvent);
+      // A focused item reports its own index, but until it re-renders with the index its list
+      // delivered, that index is -1, for example when the item is focused in a mount effect. The
+      // tab stop would then be on no item, so the item is resolved from the list instead.
+      const focusedIndex = elementsRef.current.findIndex((item) => item === target);
+      if (focusedIndex !== -1) {
+        onHighlightedIndexChange(focusedIndex);
+      }
+
       if (!element || target == null || !isNativeInput(target)) {
         return;
       }

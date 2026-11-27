@@ -1057,6 +1057,82 @@ describe('Composite', () => {
     });
   });
 
+  describe('tab stop', () => {
+    function FocusedInMountEffect() {
+      const second = React.useRef<HTMLButtonElement>(null);
+      React.useEffect(() => {
+        second.current?.focus();
+      }, []);
+      return (
+        <React.Fragment>
+          <button type="button">Before</button>
+          <CompositeRoot>
+            <CompositeItem tag="button">First</CompositeItem>
+            <CompositeItem tag="button" refs={[second]}>
+              Second
+            </CompositeItem>
+          </CompositeRoot>
+        </React.Fragment>
+      );
+    }
+
+    it.each([
+      { name: 'in a mount effect', element: <FocusedInMountEffect /> },
+      {
+        name: 'with autoFocus',
+        element: (
+          <React.Fragment>
+            <button type="button">Before</button>
+            <CompositeRoot>
+              <CompositeItem tag="button">First</CompositeItem>
+              <CompositeItem render={<button type="button" autoFocus />}>Second</CompositeItem>
+            </CompositeRoot>
+          </React.Fragment>
+        ),
+      },
+    ])('keeps the tab stop on an item focused $name', async ({ element }) => {
+      const { user } = await render(element);
+
+      const second = screen.getByRole('button', { name: 'Second' });
+      expect(second).toHaveFocus();
+      expect(second).toHaveAttribute('tabindex', '0');
+
+      screen.getByRole('button', { name: 'Before' }).focus();
+      await user.keyboard('[Tab]');
+      expect(second).toHaveFocus();
+    });
+
+    it('moves the tab stop to an item that mounts later with autoFocus', async () => {
+      function App({ showSecond }: { showSecond: boolean }) {
+        return (
+          <React.Fragment>
+            <button type="button">Before</button>
+            <CompositeRoot>
+              <CompositeItem tag="button">First</CompositeItem>
+              {showSecond && (
+                <CompositeItem render={<button type="button" autoFocus />}>Second</CompositeItem>
+              )}
+            </CompositeRoot>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps, user } = await render(<App showSecond={false} />);
+      expect(screen.getByRole('button', { name: 'First' })).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showSecond: true });
+
+      const second = screen.getByRole('button', { name: 'Second' });
+      expect(second).toHaveFocus();
+      expect(second).toHaveAttribute('tabindex', '0');
+      expect(screen.getByRole('button', { name: 'First' })).toHaveAttribute('tabindex', '-1');
+
+      screen.getByRole('button', { name: 'Before' }).focus();
+      await user.keyboard('[Tab]');
+      expect(second).toHaveFocus();
+    });
+  });
+
   describe('item removal', () => {
     it('keeps the tab stop on the highlighted item when an earlier item is removed', async () => {
       function App({ showFirst }: { showFirst: boolean }) {
