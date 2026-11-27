@@ -86,7 +86,7 @@ describe('<PasswordField.Toggle />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('does not toggle when disabled', async () => {
+    it('disables the native button', async () => {
       await render(
         <PasswordField.Root>
           <PasswordField.Input />
@@ -94,16 +94,12 @@ describe('<PasswordField.Toggle />', () => {
         </PasswordField.Root>,
       );
 
-      const input = document.querySelector('input')!;
       const button = screen.getByRole('button');
 
+      // A disabled native button never dispatches a click, so the non-native variant below covers
+      // the click itself.
       expect(button).toBeDisabled();
       expect(button).toHaveAttribute('data-disabled');
-
-      await act(async () => {
-        button.click();
-      });
-      expect(input).toHaveAttribute('type', 'password');
     });
   });
 

@@ -120,7 +120,7 @@ describe('<PasswordField.Root />', () => {
       await render(
         <PasswordField.Root disabled onRevealedChange={onRevealedChange}>
           <PasswordField.Input />
-          <PasswordField.Toggle />
+          <PasswordField.Toggle nativeButton={false} render={<span />} />
         </PasswordField.Root>,
       );
 
@@ -128,7 +128,7 @@ describe('<PasswordField.Root />', () => {
       const button = screen.getByRole('button');
 
       expect(input).toBeDisabled();
-      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute('aria-disabled', 'true');
       expect(button).toHaveAttribute('data-disabled');
 
       await act(async () => {
@@ -543,6 +543,7 @@ describe('<PasswordField.Root />', () => {
       const input = document.querySelector('input')!;
 
       fireEvent.submit(input.form!);
+      expect(input).toHaveAttribute('type', 'password');
       await reveal();
       expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
 
@@ -658,8 +659,8 @@ describe('<PasswordField.Root />', () => {
       function App(props: { form: string }) {
         return (
           <React.Fragment>
-            <form id="a" />
-            <form id="b" />
+            <form id="a" onSubmit={(event) => event.preventDefault()} />
+            <form id="b" onSubmit={(event) => event.preventDefault()} />
             <PasswordField.Root defaultRevealed>
               <PasswordField.Input form={props.form} />
               <PasswordField.Toggle />
