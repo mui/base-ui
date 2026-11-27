@@ -54,14 +54,17 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
 
   const handleSubmit = useStableCallback((event: Event) => {
     const input = inputRef.current;
-    if (!revealed || !input || event.target !== input.form) {
+    if (!input || event.target !== input.form) {
       return;
     }
 
     // The form data is built right after this event is dispatched, possibly before React
-    // commits, so the DOM is masked directly. The state keeps a re-render that React commits
-    // first, such as a form handler's update, from rendering `text` again.
-    input.type = 'password';
+    // commits, so a revealed input is masked directly. The state is set for every submit, so a
+    // re-render that React commits first, such as a form handler's update that reveals the
+    // password, can't render `text` again.
+    if (revealed) {
+      input.type = 'password';
+    }
     setMaskedForSubmit(true);
     // The form data has been built by the next task. A prevented submit unmasks then too.
     unmaskTimeout.start(0, () => {

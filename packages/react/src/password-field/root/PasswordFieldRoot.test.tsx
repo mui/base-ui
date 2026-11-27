@@ -551,6 +551,38 @@ describe('<PasswordField.Root />', () => {
       expect(input).toHaveAttribute('type', 'password');
     });
 
+    it('masks the input when submit reveals the password before the form data is built', async () => {
+      function App() {
+        const [revealed, setRevealed] = React.useState(false);
+        return (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              setRevealed(true);
+            }}
+          >
+            <PasswordField.Root revealed={revealed} onRevealedChange={setRevealed}>
+              <PasswordField.Input />
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      const input = document.querySelector('input')!;
+      expect(input).toHaveAttribute('type', 'password');
+
+      fireEvent.submit(input.form!);
+
+      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+      expect(input).toHaveAttribute('type', 'password');
+
+      await unmaskAfterSubmit();
+
+      expect(input).toHaveAttribute('type', 'text');
+    });
+
     it('masks on submit and restores on reset for an input mounted after the Root', async () => {
       let showInput!: () => void;
       function App() {
