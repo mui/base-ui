@@ -16,6 +16,7 @@ import { DemoPasswordFieldHero } from './demos/hero';
 ## Usage guidelines
 
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Preventing form events**: `preventDefault()` on a form's `submit` or `reset` event doesn't stop the visibility change. [Cancel the change](/react/handbook/customization#canceling-a-base-ui-event) in `onRevealedChange` instead.
 
 ## Anatomy
 

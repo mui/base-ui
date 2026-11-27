@@ -10,6 +10,7 @@ export interface PasswordFieldRootContext {
   state: PasswordFieldRoot.State;
   /**
    * Updates the visibility, running `onRevealedChange` and respecting cancelation.
+   * Callers only call it for an actual change.
    */
   setRevealed: (revealed: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void;
   /**

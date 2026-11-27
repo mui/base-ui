@@ -325,34 +325,23 @@ describe('<PasswordField.Root />', () => {
 
     it.each([
       {
-        name: 'stops its propagation',
-        onReset: (event: React.FormEvent) => event.stopPropagation(),
-        restores: true,
-        expectedType: 'password',
-      },
-      {
         name: 'cancels it',
         onReset: (event: React.FormEvent) => event.preventDefault(),
-        restores: false,
-        expectedType: 'text',
+        keepsValue: true,
       },
       {
-        name: 'cancels it and stops its propagation',
-        onReset: (event: React.FormEvent) => {
-          event.preventDefault();
-          event.stopPropagation();
-        },
-        restores: false,
-        expectedType: 'text',
+        name: 'stops its propagation',
+        onReset: (event: React.FormEvent) => event.stopPropagation(),
+        keepsValue: false,
       },
     ])(
-      'leaves type="$expectedType" when an onReset handler $name',
-      async ({ onReset, restores, expectedType }) => {
+      'restores the visibility when an onReset handler $name, which only affects the native reset',
+      async ({ onReset, keepsValue }) => {
         const onRevealedChange = vi.fn();
-        await render(
+        const { user } = await render(
           <form onReset={onReset}>
             <PasswordField.Root onRevealedChange={onRevealedChange}>
-              <PasswordField.Input />
+              <PasswordField.Input defaultValue="hunter" />
               <PasswordField.Toggle />
             </PasswordField.Root>
           </form>,
@@ -360,50 +349,17 @@ describe('<PasswordField.Root />', () => {
 
         const input = document.querySelector('input')!;
         await reveal();
+        await user.type(input, '2');
         expect(input).toHaveAttribute('type', 'text');
 
-        fireEvent.reset(input.form!);
-        // A reset whose propagation is stopped is decided after the dispatch.
+        // Runs the browser's reset, which `fireEvent.reset` doesn't.
         await act(async () => {
-          await wait(0);
+          input.form!.reset();
         });
 
-        expect(input).toHaveAttribute('type', expectedType);
-        expect(onRevealedChange.mock.calls.length).toBe(restores ? 2 : 1);
-        expect(onRevealedChange.mock.lastCall?.[1].reason).toBe(
-          restores ? REASONS.formReset : REASONS.none,
-        );
-      },
-    );
-
-    // A real click dispatches with an empty stack, so microtasks run between listeners and
-    // `defaultPrevented` isn't final until the form's handlers have run.
-    it.skipIf(isJSDOM)(
-      'keeps the visibility when a click on a reset button is canceled',
-      async () => {
-        await render(
-          <form onReset={(event) => event.preventDefault()}>
-            <PasswordField.Root>
-              <PasswordField.Input defaultValue="hunter2" />
-              <PasswordField.Toggle />
-            </PasswordField.Root>
-            <button type="reset">Reset</button>
-          </form>,
-        );
-
-        const input = document.querySelector('input')!;
-        await act(async () => {
-          document.querySelector<HTMLButtonElement>('button[aria-pressed]')!.click();
-        });
-        expect(input).toHaveAttribute('type', 'text');
-
-        const { userEvent } = await import('vitest/browser');
-        await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
-        await act(async () => {
-          await wait(10);
-        });
-
-        expect(input).toHaveAttribute('type', 'text');
+        expect(input).toHaveValue(keepsValue ? 'hunter2' : 'hunter');
+        expect(input).toHaveAttribute('type', 'password');
+        expect(onRevealedChange.mock.lastCall?.[1].reason).toBe(REASONS.formReset);
       },
     );
 
@@ -527,19 +483,10 @@ describe('<PasswordField.Root />', () => {
       expect(input).toHaveAttribute('type', 'password');
     });
 
-    function unmaskAfterSubmit() {
-      return act(async () => {
-        await wait(0);
-      });
-    }
-
-    it('masks the input while the form submits, even when onRevealedChange cancels every change', async () => {
-      // Masking doesn't go through onRevealedChange, so it can't be canceled or even observed there.
-      const onRevealedChange = vi.fn((_revealed: boolean, eventDetails: { cancel: () => void }) => {
-        eventDetails.cancel();
-      });
+    it('hides a revealed password when the form submits', async () => {
+      const onRevealedChange = vi.fn();
       await render(
-        <form onSubmit={(event) => event.preventDefault()}>
+        <form>
           <PasswordField.Root defaultRevealed onRevealedChange={onRevealedChange}>
             <PasswordField.Input />
             <PasswordField.Toggle />
@@ -553,23 +500,23 @@ describe('<PasswordField.Root />', () => {
       fireEvent.submit(input.form!);
 
       expect(input).toHaveAttribute('type', 'password');
-      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
-
-      await unmaskAfterSubmit();
-
-      expect(input).toHaveAttribute('type', 'text');
-      expect(onRevealedChange.mock.calls.length).toBe(0);
+      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+      expect(onRevealedChange.mock.calls.length).toBe(1);
+      expect(onRevealedChange.mock.lastCall?.[0]).toBe(false);
+      expect(onRevealedChange.mock.lastCall?.[1].reason).toBe(REASONS.formSubmit);
     });
 
-    it('masks the input on submit even if the submit handler stops propagation', async () => {
+    it('keeps the password revealed when the form-submit change is canceled', async () => {
       await render(
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-        >
-          <PasswordField.Root defaultRevealed>
+        <form>
+          <PasswordField.Root
+            defaultRevealed
+            onRevealedChange={(_revealed, eventDetails) => {
+              if (eventDetails.reason === REASONS.formSubmit) {
+                eventDetails.cancel();
+              }
+            }}
+          >
             <PasswordField.Input />
             <PasswordField.Toggle />
           </PasswordField.Root>
@@ -577,14 +524,13 @@ describe('<PasswordField.Root />', () => {
       );
 
       const input = document.querySelector('input')!;
-      expect(input).toHaveAttribute('type', 'text');
-
       fireEvent.submit(input.form!);
 
-      expect(input).toHaveAttribute('type', 'password');
+      expect(input).toHaveAttribute('type', 'text');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
     });
 
-    it('stays masked after the submit when the password was hidden during it', async () => {
+    it('hides the password even when a submit handler prevents the submit', async () => {
       await render(
         <form onSubmit={(event) => event.preventDefault()}>
           <PasswordField.Root defaultRevealed>
@@ -595,56 +541,38 @@ describe('<PasswordField.Root />', () => {
       );
 
       const input = document.querySelector('input')!;
-
-      fireEvent.submit(input.form!);
-      expect(input).toHaveAttribute('type', 'password');
-      await reveal();
-      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
-
-      await unmaskAfterSubmit();
-
-      expect(input).toHaveAttribute('type', 'password');
-    });
-
-    it('masks the input when submit reveals the password before the form data is built', async () => {
-      function App() {
-        const [revealed, setRevealed] = React.useState(false);
-        return (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              setRevealed(true);
-            }}
-          >
-            <PasswordField.Root revealed={revealed} onRevealedChange={setRevealed}>
-              <PasswordField.Input />
-              <PasswordField.Toggle />
-            </PasswordField.Root>
-          </form>
-        );
-      }
-
-      await render(<App />);
-      const input = document.querySelector('input')!;
-      expect(input).toHaveAttribute('type', 'password');
-
-      fireEvent.submit(input.form!);
-
-      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
-      expect(input).toHaveAttribute('type', 'password');
-
-      await unmaskAfterSubmit();
-
       expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.submit(input.form!);
+
+      expect(input).toHaveAttribute('type', 'password');
     });
 
-    it('masks on submit and restores on reset for an input mounted after the Root', async () => {
+    it('hides the password on submit even if the submit handler stops propagation', async () => {
+      await render(
+        <form onSubmit={(event) => event.stopPropagation()}>
+          <PasswordField.Root defaultRevealed>
+            <PasswordField.Input />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </form>,
+      );
+
+      const input = document.querySelector('input')!;
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.submit(input.form!);
+
+      expect(input).toHaveAttribute('type', 'password');
+    });
+
+    it('hides the password on submit and restores it on reset for an input mounted after the Root', async () => {
       let showInput!: () => void;
       function App() {
         const [inputShown, setInputShown] = React.useState(false);
         showInput = () => setInputShown(true);
         return (
-          <form onSubmit={(event) => event.preventDefault()}>
+          <form>
             <PasswordField.Root>
               {inputShown && <PasswordField.Input />}
               <PasswordField.Toggle />
@@ -661,14 +589,49 @@ describe('<PasswordField.Root />', () => {
 
       fireEvent.submit(input.form!);
       expect(input).toHaveAttribute('type', 'password');
-      await unmaskAfterSubmit();
-      expect(input).toHaveAttribute('type', 'text');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
 
+      await reveal();
+      expect(input).toHaveAttribute('type', 'text');
       fireEvent.reset(input.form!);
       expect(input).toHaveAttribute('type', 'password');
     });
 
-    it('masks the input on submit when the form and input are portaled into a shadow root', async () => {
+    it('hides the password on submit and restores it on reset when a render element mounts its input later', async () => {
+      let showInput!: () => void;
+      const DeferredInput = React.forwardRef(function DeferredInput(
+        props: React.ComponentPropsWithoutRef<'input'>,
+        ref: React.ForwardedRef<HTMLInputElement>,
+      ) {
+        const [inputShown, setInputShown] = React.useState(false);
+        showInput = () => setInputShown(true);
+        return inputShown ? <input ref={ref} {...props} /> : null;
+      });
+
+      await render(
+        <form>
+          <PasswordField.Root>
+            <PasswordField.Input render={<DeferredInput />} />
+            <PasswordField.Toggle />
+          </PasswordField.Root>
+        </form>,
+      );
+      await act(async () => showInput());
+      const input = document.querySelector('input')!;
+      await reveal();
+      expect(input).toHaveAttribute('type', 'text');
+
+      fireEvent.submit(input.form!);
+      expect(input).toHaveAttribute('type', 'password');
+      expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+
+      await reveal();
+      expect(input).toHaveAttribute('type', 'text');
+      fireEvent.reset(input.form!);
+      expect(input).toHaveAttribute('type', 'password');
+    });
+
+    it('hides the password on submit when the form and input are portaled into a shadow root', async () => {
       const host = document.createElement('div');
       document.body.appendChild(host);
       const shadowRoot = host.attachShadow({ mode: 'open' });
@@ -677,7 +640,7 @@ describe('<PasswordField.Root />', () => {
       await render(
         <PasswordField.Root defaultRevealed>
           {ReactDOM.createPortal(
-            <form onSubmit={(event) => event.preventDefault()}>
+            <form>
               <PasswordField.Input />
             </form>,
             shadowRoot as unknown as Element,
@@ -692,6 +655,53 @@ describe('<PasswordField.Root />', () => {
 
       expect(input).toHaveAttribute('type', 'password');
     });
+
+    it.each([
+      { name: 'hides the password', cancelSubmit: false, expectedType: 'password' },
+      {
+        name: 'keeps the restored visibility when the form-submit change is canceled',
+        cancelSubmit: true,
+        expectedType: 'text',
+      },
+    ])(
+      'applies a reset and then a submit in one handler in order, and $name',
+      async ({ cancelSubmit, expectedType }) => {
+        const changes: string[] = [];
+        await render(
+          <form onSubmit={(event) => event.preventDefault()}>
+            <PasswordField.Root
+              defaultRevealed
+              onRevealedChange={(revealed, eventDetails) => {
+                changes.push(`${revealed} ${eventDetails.reason}`);
+                if (cancelSubmit && eventDetails.reason === REASONS.formSubmit) {
+                  eventDetails.cancel();
+                }
+              }}
+            >
+              <PasswordField.Input />
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+          </form>,
+        );
+
+        const input = document.querySelector('input')!;
+        // Hidden, so the reset reveals the password again before the submit.
+        await reveal();
+        expect(input).toHaveAttribute('type', 'password');
+
+        await act(async () => {
+          input.form!.reset();
+          input.form!.requestSubmit();
+        });
+
+        expect(changes).toEqual([
+          `false ${REASONS.none}`,
+          `true ${REASONS.formReset}`,
+          `false ${REASONS.formSubmit}`,
+        ]);
+        expect(input).toHaveAttribute('type', expectedType);
+      },
+    );
 
     it('does not call onRevealedChange on reset when the visibility would not change', async () => {
       const onRevealedChange = vi.fn();
@@ -713,8 +723,8 @@ describe('<PasswordField.Root />', () => {
       function App(props: { form: string }) {
         return (
           <React.Fragment>
-            <form id="a" onSubmit={(event) => event.preventDefault()} />
-            <form id="b" onSubmit={(event) => event.preventDefault()} />
+            <form id="a" />
+            <form id="b" />
             <PasswordField.Root defaultRevealed>
               <PasswordField.Input form={props.form} />
               <PasswordField.Toggle />
@@ -749,11 +759,12 @@ describe('<PasswordField.Root />', () => {
       });
 
       function App(props: {
-        trigger: 'submit-button' | 'request-submit';
+        trigger: 'submit-button' | 'request-submit' | 'submit-method';
         updateOnSubmit: boolean;
         controlled: boolean;
       }) {
         const [submitCount, setSubmitCount] = React.useState(0);
+        const [revealed, setRevealed] = React.useState(true);
         const formRef = React.useRef<HTMLFormElement>(null);
         return (
           <React.Fragment>
@@ -770,7 +781,9 @@ describe('<PasswordField.Root />', () => {
               }}
             >
               <PasswordField.Root
-                {...(props.controlled ? { revealed: true } : { defaultRevealed: true })}
+                {...(props.controlled
+                  ? { revealed, onRevealedChange: setRevealed }
+                  : { defaultRevealed: true })}
               >
                 <PasswordField.Input name="password" defaultValue="hunter2" />
                 <PasswordField.Toggle />
@@ -779,7 +792,14 @@ describe('<PasswordField.Root />', () => {
               {props.trigger === 'submit-button' ? (
                 <button type="submit">Sign in</button>
               ) : (
-                <button type="button" onClick={() => formRef.current!.requestSubmit()}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    props.trigger === 'submit-method'
+                      ? formRef.current!.submit()
+                      : formRef.current!.requestSubmit()
+                  }
+                >
                   Sign in
                 </button>
               )}
@@ -788,14 +808,17 @@ describe('<PasswordField.Root />', () => {
         );
       }
 
-      it('unmasks a revealed input after a submit dispatched in a transition', async () => {
+      it('hides a revealed password on a submit dispatched in a transition', async () => {
         await render(
-          <form onSubmit={(event) => event.preventDefault()}>
-            <PasswordField.Root defaultRevealed>
-              <PasswordField.Input />
-              <PasswordField.Toggle />
-            </PasswordField.Root>
-          </form>,
+          <React.Fragment>
+            <iframe name="transition-target" title="submit target" />
+            <form action="about:blank" target="transition-target">
+              <PasswordField.Root defaultRevealed>
+                <PasswordField.Input />
+                <PasswordField.Toggle />
+              </PasswordField.Root>
+            </form>
+          </React.Fragment>,
         );
 
         const input = document.querySelector('input')!;
@@ -806,45 +829,62 @@ describe('<PasswordField.Root />', () => {
         });
         await wait(50);
 
-        expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
-        expect(input.type).toBe('text');
+        expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+        expect(input.type).toBe('password');
       });
 
       it.each([
         {
           name: 'a submit button',
+          hides: true,
           trigger: 'submit-button',
           updateOnSubmit: false,
           controlled: false,
         },
         {
           name: 'a submit button whose onSubmit updates state',
+          hides: true,
           trigger: 'submit-button',
           updateOnSubmit: true,
           controlled: false,
         },
         {
           name: 'requestSubmit() in onClick',
+          hides: true,
           trigger: 'request-submit',
           updateOnSubmit: false,
           controlled: false,
         },
         {
+          name: 'form.submit() in onClick, which fires no submit event or hide',
+          hides: false,
+          trigger: 'submit-method',
+          updateOnSubmit: false,
+          controlled: false,
+        },
+        {
           name: 'a submit button whose onSubmit updates state, with `revealed` controlled',
+          hides: true,
           trigger: 'submit-button',
           updateOnSubmit: true,
           controlled: true,
         },
       ] as const)(
-        'builds the form data with type="password" when submitted through $name',
-        async ({ trigger, updateOnSubmit, controlled }) => {
+        'keeps the password out of autofill when submitted through $name',
+        async ({ trigger, updateOnSubmit, controlled, hides }) => {
           await render(
             <App trigger={trigger} updateOnSubmit={updateOnSubmit} controlled={controlled} />,
           );
           const input = document.querySelector<HTMLInputElement>('input[name="password"]')!;
-          const typesAtFormData: string[] = [];
+          // What the browser sees when it reads the form: a password field, or a text field with
+          // autocomplete off.
+          const seenAtFormData: string[] = [];
           input.form!.addEventListener('formdata', () => {
-            typesAtFormData.push(input.type);
+            seenAtFormData.push(
+              input.type === 'password' || input.autocomplete === 'off'
+                ? 'protected'
+                : `${input.type}, ${input.autocomplete}`,
+            );
           });
           expect(input.type).toBe('text');
 
@@ -853,9 +893,9 @@ describe('<PasswordField.Root />', () => {
           const { userEvent } = await import('vitest/browser');
           await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
-          expect(typesAtFormData).toEqual(['password']);
+          expect(seenAtFormData).toEqual(['protected']);
           await wait(10);
-          expect(input.type).toBe('text');
+          expect(input.type).toBe(hides ? 'password' : 'text');
         },
       );
     });

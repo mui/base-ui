@@ -6,7 +6,7 @@ import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance, fieldControlConformanceTests } from '#test-utils';
 
 describe('<PasswordField.Input />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<PasswordField.Input />, () => ({
     refInstanceof: window.HTMLInputElement,
@@ -52,7 +52,7 @@ describe('<PasswordField.Input />', () => {
     expect(document.querySelector('input')).toHaveClass('base-ui-hide-native-reveal');
     expect(
       Array.from(document.querySelectorAll('style')).some((element) =>
-        element.textContent?.includes('.base-ui-hide-native-reveal::-ms-reveal'),
+        element.textContent?.includes('.base-ui-hide-native-reveal::-ms-reveal{display:none}'),
       ),
     ).toBe(true);
   });
@@ -101,6 +101,44 @@ describe('<PasswordField.Input />', () => {
     );
 
     // Revealed -> `text`, never the consumer's `type`; the toggle stays functional.
+    expect(document.querySelector('input')).toHaveAttribute('type', 'text');
+  });
+
+  it('renders type="password" on the server and follows the visibility after hydration', async () => {
+    const { hydrate } = renderToString(
+      <PasswordField.Root defaultRevealed>
+        <PasswordField.Input />
+      </PasswordField.Root>,
+    );
+    const input = document.querySelector('input')!;
+    expect(input).toHaveAttribute('type', 'password');
+
+    await act(async () => {
+      hydrate();
+    });
+
+    expect(input).toHaveAttribute('type', 'text');
+  });
+
+  it('mounts as a password input and then follows the visibility', async () => {
+    let typeAtMount: string | undefined;
+    await render(
+      <PasswordField.Root defaultRevealed>
+        <PasswordField.Input
+          render={
+            <input
+              ref={(node) => {
+                if (node && typeAtMount === undefined) {
+                  typeAtMount = node.type;
+                }
+              }}
+            />
+          }
+        />
+      </PasswordField.Root>,
+    );
+
+    expect(typeAtMount).toBe('password');
     expect(document.querySelector('input')).toHaveAttribute('type', 'text');
   });
 

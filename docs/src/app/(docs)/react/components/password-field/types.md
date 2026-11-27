@@ -11,14 +11,14 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop             | Type                                                                                        | Default | Description                                                                                                                                                                      |
-| :--------------- | :------------------------------------------------------------------------------------------ | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultRevealed  | `boolean`                                                                                   | `false` | Whether the password is initially revealed as plain text. To render a controlled password field, use the `revealed` prop instead.                                                |
-| revealed         | `boolean`                                                                                   | -       | Whether the password is currently revealed as plain text. To render an uncontrolled password field, use the `defaultRevealed` prop instead.                                      |
-| onRevealedChange | `((revealed: boolean, eventDetails: PasswordFieldPreview.Root.ChangeEventDetails) => void)` | -       | Callback fired when the password visibility changes.&#xA;Besides the toggle, resetting the owning form restores the initial visibility.&#xA;Cancel `'form-reset'` to prevent it. |
-| disabled         | `boolean`                                                                                   | `false` | Whether the component should ignore user interaction.&#xA;Applies to both the input and the toggle.                                                                              |
-| id               | `string`                                                                                    | -       | The id of the input element.                                                                                                                                                     |
-| children         | `React.ReactNode`                                                                           | -       | The parts of the password field.                                                                                                                                                 |
+| Prop             | Type                                                                                        | Default | Description                                                                                                                                                                                                                                                                                                                                                                                    |
+| :--------------- | :------------------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultRevealed  | `boolean`                                                                                   | `false` | Whether the password is initially revealed as plain text. To render a controlled password field, use the `revealed` prop instead.                                                                                                                                                                                                                                                              |
+| revealed         | `boolean`                                                                                   | -       | Whether the password is currently revealed as plain text. To render an uncontrolled password field, use the `defaultRevealed` prop instead.                                                                                                                                                                                                                                                    |
+| onRevealedChange | `((revealed: boolean, eventDetails: PasswordFieldPreview.Root.ChangeEventDetails) => void)` | -       | Callback fired when the password visibility changes.&#xA;Besides the toggle, submitting the owning form hides the password (`'form-submit'`), and&#xA;resetting it restores the initial visibility (`'form-reset'`). To prevent either, call&#xA;`eventDetails.cancel()`. Calling `preventDefault()` on the form's event only cancels what the&#xA;browser does, such as resetting the values. |
+| disabled         | `boolean`                                                                                   | `false` | Whether the component should ignore user interaction.&#xA;Applies to both the input and the toggle.                                                                                                                                                                                                                                                                                            |
+| id               | `string`                                                                                    | -       | The id of the input element.                                                                                                                                                                                                                                                                                                                                                                   |
+| children         | `React.ReactNode`                                                                           | -       | The parts of the password field.                                                                                                                                                                                                                                                                                                                                                               |
 
 ### Root.Props
 
@@ -48,14 +48,14 @@ type PasswordFieldPreviewRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type PasswordFieldPreviewRootChangeEventReason = 'none' | 'form-reset';
+type PasswordFieldPreviewRootChangeEventReason = 'none' | 'form-submit' | 'form-reset';
 ```
 
 ### Root.ChangeEventDetails
 
 ```typescript
 type PasswordFieldPreviewRootChangeEventDetails = (
-  { reason: 'none' } | { reason: 'form-reset' }
+  { reason: 'none' } | { reason: 'form-submit' } | { reason: 'form-reset' }
 ) & {
   /** The native event associated with the custom event. */
   event: Event;
@@ -81,22 +81,21 @@ type PasswordFieldPreviewRootChangeEventDetails = (
 
 The password input.
 Renders an `<input>` element.
-It's masked while its form submits, even when revealed, so browsers don't save the password to
-autofill history and password managers still recognize it. This can't be canceled and doesn't
-call `onRevealedChange`.
+It turns `autocomplete` off while revealed, so browsers don't save the password to autofill
+history.
 
 **Input Props:**
 
-| Prop          | Type                                                                                            | Default              | Description                                                                                                                                                                                   |
-| :------------ | :---------------------------------------------------------------------------------------------- | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `string \| number \| string[]`                                                                  | -                    | The default value of the input. Use when uncontrolled.                                                                                                                                        |
-| value         | `string \| string[] \| number`                                                                  | -                    | The value of the input. Use when controlled.                                                                                                                                                  |
-| onValueChange | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`                             | -                    | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
-| autoComplete  | `React.HTMLInputAutoCompleteAttribute`                                                          | `'current-password'` | The browser autofill hint for the input.&#xA;Use `'new-password'` on sign-up or change-password forms so browsers and password managers&#xA;offer to generate one.                            |
-| disabled      | `boolean`                                                                                       | `false`              | Whether the input should ignore user interaction.&#xA;Use the `disabled` prop on `PasswordField.Root` to disable the toggle as well.                                                          |
-| className     | `string \| ((state: PasswordFieldInputState) => string \| undefined)`                           | -                    | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style         | `React.CSSProperties \| ((state: PasswordFieldInputState) => React.CSSProperties \| undefined)` | -                    | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render        | `ReactElement \| ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement)`          | -                    | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop          | Type                                                                                            | Default              | Description                                                                                                                                                                                                                                            |
+| :------------ | :---------------------------------------------------------------------------------------------- | :------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string \| number \| string[]`                                                                  | -                    | The default value of the input. Use when uncontrolled.                                                                                                                                                                                                 |
+| value         | `string \| string[] \| number`                                                                  | -                    | The value of the input. Use when controlled.                                                                                                                                                                                                           |
+| onValueChange | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`                             | -                    | Callback fired when the `value` changes. Use when controlled.                                                                                                                                                                                          |
+| autoComplete  | `React.HTMLInputAutoCompleteAttribute`                                                          | `'current-password'` | The browser autofill hint for the input.&#xA;Use `'new-password'` on sign-up or change-password forms so browsers and password managers&#xA;offer to generate one.&#xA;While the password is revealed, the input renders `autocomplete="off"` instead. |
+| disabled      | `boolean`                                                                                       | `false`              | Whether the input should ignore user interaction.&#xA;Use the `disabled` prop on `PasswordField.Root` to disable the toggle as well.                                                                                                                   |
+| className     | `string \| ((state: PasswordFieldInputState) => string \| undefined)`                           | -                    | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                               |
+| style         | `React.CSSProperties \| ((state: PasswordFieldInputState) => React.CSSProperties \| undefined)` | -                    | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                            |
+| render        | `ReactElement \| ((props: HTMLProps, state: PasswordFieldInputState) => ReactElement)`          | -                    | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                          |
 
 **Input Data Attributes:**
 
@@ -392,6 +391,7 @@ type PasswordFieldInputProps = {
    * The browser autofill hint for the input.
    * Use `'new-password'` on sign-up or change-password forms so browsers and password managers
    * offer to generate one.
+   * While the password is revealed, the input renders `autocomplete="off"` instead.
    * @default 'current-password'
    */
   autoComplete?: React.HTMLInputAutoCompleteAttribute;
@@ -526,7 +526,7 @@ declare namespace PasswordFieldPreviewToggleIndicatorDataAttributes {
 ### PasswordFieldRootChangeEventReason
 
 ```typescript
-type PasswordFieldRootChangeEventReason = 'none' | 'form-reset';
+type PasswordFieldRootChangeEventReason = 'none' | 'form-submit' | 'form-reset';
 ```
 
 ### PasswordFieldRootProps
@@ -550,8 +550,10 @@ type PasswordFieldRootProps = {
   defaultRevealed?: boolean;
   /**
    * Callback fired when the password visibility changes.
-   * Besides the toggle, resetting the owning form restores the initial visibility.
-   * Cancel `'form-reset'` to prevent it.
+   * Besides the toggle, submitting the owning form hides the password (`'form-submit'`), and
+   * resetting it restores the initial visibility (`'form-reset'`). To prevent either, call
+   * `eventDetails.cancel()`. Calling `preventDefault()` on the form's event only cancels what the
+   * browser does, such as resetting the values.
    */
   onRevealedChange?: (
     revealed: boolean,

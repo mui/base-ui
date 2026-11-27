@@ -53,10 +53,6 @@ export function PasswordFieldRoot(props: PasswordFieldRoot.Props) {
 
   const setRevealed = useStableCallback(
     (nextRevealed: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => {
-      if (nextRevealed === revealed) {
-        return;
-      }
-
       onRevealedChange?.(nextRevealed, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -121,8 +117,10 @@ export interface PasswordFieldRootProps {
   defaultRevealed?: boolean | undefined;
   /**
    * Callback fired when the password visibility changes.
-   * Besides the toggle, resetting the owning form restores the initial visibility.
-   * Cancel `'form-reset'` to prevent it.
+   * Besides the toggle, submitting the owning form hides the password (`'form-submit'`), and
+   * resetting it restores the initial visibility (`'form-reset'`). To prevent either, call
+   * `eventDetails.cancel()`. Calling `preventDefault()` on the form's event only cancels what the
+   * browser does, such as resetting the values.
    */
   onRevealedChange?:
     ((revealed: boolean, eventDetails: PasswordFieldRoot.ChangeEventDetails) => void) | undefined;
@@ -138,7 +136,8 @@ export interface PasswordFieldRootProps {
   children?: React.ReactNode;
 }
 
-export type PasswordFieldRootChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
+export type PasswordFieldRootChangeEventReason =
+  typeof REASONS.none | typeof REASONS.formSubmit | typeof REASONS.formReset;
 export type PasswordFieldRootChangeEventDetails =
   BaseUIChangeEventDetails<PasswordFieldRoot.ChangeEventReason>;
 
