@@ -25,7 +25,6 @@ import { REASONS } from '../../internals/reasons';
 import { getHighlightReason } from '../../utils/getHighlightReason';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import {
   clickHighlightedItem,
   getChipNavigationKeys,
@@ -83,7 +82,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const selectedValue = store.useState('selectedValue');
   const rootId = store.useState('id');
   const inline = store.useState('inline');
-  const modal = store.useState('modal');
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = usePopupSide(store);
@@ -93,7 +91,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const setFocused = useSetFieldFocused(disabled, store.context.inputRef);
 
   const isInsidePopup = hasPositionerParent || inline;
-  const focusManagerModal = !isInsidePopup || modal;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
   const fieldStateForInput = hasPositionerParent ? DEFAULT_FIELD_STATE_ATTRIBUTES : fieldState;
 
@@ -431,21 +428,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     stateAttributesMapping: triggerStateAttributesMapping,
   });
 
-  const renderedInput = hasPositionerParent ? (
+  return hasPositionerParent ? (
     <FieldRootContext.Provider value={DEFAULT_FIELD_ROOT_CONTEXT}>
       {element}
     </FieldRootContext.Provider>
   ) : (
     element
-  );
-
-  return (
-    <React.Fragment>
-      {open && focusManagerModal && (
-        <ComboboxInternalDismissButton ref={store.context.startDismissRef} />
-      )}
-      {renderedInput}
-    </React.Fragment>
   );
 });
 
