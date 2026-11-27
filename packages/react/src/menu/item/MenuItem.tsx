@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
-import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
-import { useMenuRootContext } from '../root/MenuRootContext';
+import { useRegularMenuItem } from './useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
-import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 
 const MenuItemPlain = React.forwardRef(function MenuItemPlain(
   componentProps: MenuItem.Props,
@@ -24,28 +21,8 @@ const MenuItemPlain = React.forwardRef(function MenuItemPlain(
     ...elementProps
   } = componentProps;
 
-  const { store } = useMenuRootContext();
-
-  const listItem = useCompositeListItem({ guess: true, label });
-  const id = useBaseUiId(idProp);
-
-  const rootDisabled = store.useState('disabled');
-  const highlighted = store.useState('isActive', listItem.index);
-  const nodeId = store.useState('floatingNodeId');
-  const itemProps = store.useState('itemProps');
-
-  const disabled = disabledProp || rootDisabled;
-
-  const { getItemProps, itemRef } = useMenuItem({
-    closeOnClick,
-    disabled,
-    highlighted,
-    id,
-    store,
-    nativeButton,
-    nodeId,
-    itemMetadata: REGULAR_ITEM,
-  });
+  const { disabled, highlighted, itemProps, getItemProps, itemRef, listItemRef } =
+    useRegularMenuItem(label, idProp, disabledProp, closeOnClick, nativeButton);
 
   const state: MenuItemState = {
     disabled,
@@ -55,7 +32,7 @@ const MenuItemPlain = React.forwardRef(function MenuItemPlain(
   return useRenderElement('div', componentProps, {
     state,
     props: [itemProps, elementProps, getItemProps],
-    ref: [itemRef, forwardedRef, listItem.ref],
+    ref: [itemRef, forwardedRef, listItemRef],
   });
 });
 
