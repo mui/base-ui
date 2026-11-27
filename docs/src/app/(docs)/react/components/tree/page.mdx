@@ -169,6 +169,8 @@ An item part rendered as a child renders nothing while one of its ancestors is c
 - **Render the data you pass to `items`**: With `defaultItems`, the items that [`actionsRef`](#updating-items) adds aren't in your data, so they don't render. Pass `items` and update it in `onItemsChange` instead.
 - **Prefer a function for large or animated trees**: A function renders only the items in view, and only a function can animate branches with `<Tree.GroupTransition>`.
 
+Tree doesn't virtualize its rows yet. It renders a row for every item whose ancestors are expanded, including rows scrolled out of view, and keyboard navigation can't move focus to a row that isn't rendered.
+
 ### Links
 
 Render `<Tree.LinkItem>` in place of `<Tree.Item>` to link an item to another page, and set `active` on the current page's item.

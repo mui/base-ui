@@ -18,7 +18,7 @@ import { DemoTreeGridHero } from './demos/hero';
 ## Usage guidelines
 
 - **Avoid when rows hold no controls or columns**: Use [Tree](/react/components/tree) instead when each item is a single element, including items that toggle like a checkbox or link to another page. Screen readers read a tree item as a whole, and users need fewer key presses.
-- **Avoid for tabular data**: Tree Grid doesn't sort, resize, edit, or page through its rows. When users compare values across rows, use a data grid instead.
+- **Avoid for tabular data**: Tree Grid doesn't sort, resize, edit, or page through its rows. It doesn't virtualize them yet either, so it renders a row for every item whose ancestors are expanded, including rows scrolled out of view. When users compare values across rows, use a data grid instead.
 - **Give the tree grid an accessible name**: Prefer `<TreeGrid.Label>`, or provide an `aria-label` on `<TreeGrid.Table>` when no visible label is rendered.
 - **Name every control**: Give each control inside a row a name that includes the item's label, such as "Remove Wireframes". Show what an input or a switch is for with visible text, such as a unit or a "Done" label, and keep that text in its name. Give `<TreeGrid.Input>` a visible `<label>`. The checkbox, expansion trigger, and clear button have English names, such as "Select Documents", "Expand Documents", and "Clear filter": pass your own `aria-label` to translate them, based on `state.expanded` for the trigger.
 - **Support touch screen readers**: VoiceOver on iOS and TalkBack users can't press arrow keys. Render `<TreeGrid.RowExpansionTrigger>`, and `<TreeGrid.RowCheckbox>` with checkbox selection, so they can expand and select rows by tapping.
