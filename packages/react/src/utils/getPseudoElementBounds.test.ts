@@ -58,6 +58,60 @@ describe('getPseudoElementBounds', () => {
     }
   });
 
+  it.skipIf(isJSDOM)(
+    'includes descendants that extend past the element, even when covered by another element',
+    () => {
+      const style = document.createElement('style');
+      style.textContent = `
+      .descendant-bounds-test {
+        position: absolute;
+        left: 100px;
+        top: 50px;
+        width: 20px;
+        height: 10px;
+      }
+
+      .descendant-bounds-test-hit-area {
+        position: absolute;
+        inset: -20px;
+      }
+
+      .descendant-bounds-test-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+      }
+    `;
+
+      const element = document.createElement('div');
+      element.className = 'descendant-bounds-test';
+      const hitArea = document.createElement('span');
+      hitArea.className = 'descendant-bounds-test-hit-area';
+      element.appendChild(hitArea);
+      // stands in for a popup backdrop on top of the trigger
+      const cover = document.createElement('div');
+      cover.className = 'descendant-bounds-test-cover';
+
+      document.head.appendChild(style);
+      document.body.appendChild(element);
+      document.body.appendChild(cover);
+
+      const within = (clientX: number, clientY: number) =>
+        isMouseWithinBounds(new MouseEvent('mouseup', { clientX, clientY }), element);
+
+      try {
+        // inside the hit area, but outside the element and its drift tolerance
+        expect(within(85, 40)).toBe(true);
+        // outside the hit area too
+        expect(within(75, 40)).toBe(false);
+      } finally {
+        cover.remove();
+        element.remove();
+        style.remove();
+      }
+    },
+  );
+
   it('allows up to 5px of mouse drift around element bounds', () => {
     const element = createElementWithRect({ x: 100, y: 50, width: 20, height: 10 });
 
