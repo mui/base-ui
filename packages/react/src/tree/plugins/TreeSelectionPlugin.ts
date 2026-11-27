@@ -261,13 +261,15 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       this.setSelectedItems(allIds, reason, event);
       return;
     }
+    // Select all replaces the selection, so it drops the ids the tree doesn't know.
+    const knownIds = this.getSelectedIds().filter((id) => selectors.itemMeta(state, id) != null);
     const shownIds: TreeItemId[] = [];
     forEachDescendant(projectedChildrenLookupSelector(state), null, (itemId) => {
       if (selectors.canItemBeSelected(state, itemId)) {
         shownIds.push(itemId);
       }
     });
-    this.setSelectedItems([...new Set([...this.getSelectedIds(), ...shownIds])], reason, event);
+    this.setSelectedItems([...new Set([...knownIds, ...shownIds])], reason, event);
   };
 
   private isItemRendered(itemId: TreeItemId): boolean {
@@ -304,13 +306,17 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
 
   /**
    * Replaces the selection with `itemIds`. Selected items that can't be selected anymore,
-   * such as disabled ones, stay selected, since users can't deselect them.
+   * such as disabled ones, stay selected, since users can't deselect them. Ids the tree
+   * doesn't know are dropped.
    */
   private replaceWith(itemIds: TreeItemId[]): TreeItemId[] {
     const state = this.store.state;
     const replacement = new Set(itemIds);
     const kept = this.getSelectedIds().filter(
-      (id) => !replacement.has(id) && !selectors.canItemBeSelected(state, id),
+      (id) =>
+        !replacement.has(id) &&
+        selectors.itemMeta(state, id) != null &&
+        !selectors.canItemBeSelected(state, id),
     );
     return kept.length === 0 ? itemIds : [...itemIds, ...kept];
   }
@@ -545,27 +551,18 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     }
 
     const details = createChangeEventDetails(reason, event);
-    // Reported without ids the tree no longer knows: `items` legitimately shrinks
-    // and grows (filtering, lazy loading), so internal state keeps them — but a
-    // consumer storing this payload must not accumulate ids for removed items.
-    const reportedModel = filterSelectionModel(
-      cleanModel,
-      (itemId) => selectors.itemMeta(this.store.state, itemId) != null,
-    );
-    // The model the state takes once the change applies. Recorded before the
-    // callback, which a controlled parent can apply synchronously.
-    const proposedModel =
-      this.store.state.selectedItemsProp === undefined ? cleanModel : reportedModel;
+    // Recorded before the callback, which a controlled parent can apply synchronously.
     const { status } = this.store;
     status?.handleSelectionProposal(
-      automatic || reason === REASONS.imperativeAction ? undefined : proposedModel,
+      automatic || reason === REASONS.imperativeAction ? undefined : cleanModel,
     );
-    this.store.context.onSelectedItemsChange?.(copySelectionModel(reportedModel), details);
+    // Reports the model the tree stores, so controlled and uncontrolled trees agree.
+    this.store.context.onSelectedItemsChange?.(copySelectionModel(cleanModel), details);
     if (details.isCanceled && !automatic) {
       if (this.pendingControlledAnchor?.model === cleanModel) {
         this.pendingControlledAnchor = null;
       }
-      status?.discardUserSelection(proposedModel);
+      status?.discardUserSelection(cleanModel);
       return false;
     }
     // Only persist internally when uncontrolled; when `selectedItems` is

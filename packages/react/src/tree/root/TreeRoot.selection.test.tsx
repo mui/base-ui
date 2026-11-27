@@ -209,6 +209,50 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     });
   });
 
+  // The app can leave a selected item out of `items`, such as when it filters them itself.
+  describe('selected ids missing from the items', () => {
+    it('keeps them when a press toggles another item', async () => {
+      const onSelectedItemsChange = vi.fn();
+      const view = await render({
+        items: [{ id: '1' }, { id: '2' }],
+        multiple: true,
+        defaultSelectedItems: ['1'],
+        onSelectedItemsChange,
+      });
+      await view.setItems([{ id: '2' }]);
+
+      fireEvent.click(view.getItemRoot('2'));
+
+      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '2']);
+      expect([...view.actionsRef.current!.getSelectedItemIds()]).toEqual(['1', '2']);
+    });
+
+    it.each([
+      { name: 'a press replaces the selection', filterValue: '' },
+      { name: 'Ctrl+A selects all while filtered', filterValue: '2' },
+    ])('drops them when $name', async ({ filterValue }) => {
+      const onSelectedItemsChange = vi.fn();
+      const view = await render({
+        items: [{ id: '1' }, { id: '2' }, { id: '3' }],
+        multiple: 'opt-in',
+        defaultSelectedItems: ['1'],
+        filterValue,
+        onSelectedItemsChange,
+      });
+      await view.setItems([{ id: '2' }, { id: '3' }]);
+
+      if (filterValue === '') {
+        fireEvent.click(view.getItemRoot('2'));
+      } else {
+        act(() => view.getItemRoot('2').focus());
+        fireEvent.keyDown(view.getItemRoot('2'), { key: 'a', ctrlKey: true });
+      }
+
+      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['2']);
+      expect([...view.actionsRef.current!.getSelectedItemIds()]).toEqual(['2']);
+    });
+  });
+
   // A controlled component must not mutate its own state; only the parent's
   // prop should drive it. These tests interact under a STATIC controlled
   // `selectedItems` prop (with a `vi.fn()` handler that never feeds the change

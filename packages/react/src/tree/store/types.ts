@@ -568,8 +568,9 @@ export interface TreeStoreParameters<
   /**
    * Event handler called when items are expanded or collapsed.
    *
-   * The event `reason` is `'missing'` when expanded items left the tree. Automatic
-   * changes cannot be canceled; calling `eventDetails.cancel()` for `'missing'` has no effect.
+   * The event `reason` is `'missing'` when expanded items are removed by a transaction.
+   * Automatic changes cannot be canceled; calling `eventDetails.cancel()` for `'missing'` has
+   * no effect.
    */
   onExpandedItemsChange?:
     | ((expandedItems: TreeItemId[], eventDetails: TreeRootExpansionChangeEventDetails) => void)
@@ -601,9 +602,9 @@ export interface TreeStoreParameters<
   /**
    * Event handler called when the selected items change.
    *
-   * The event `reason` is `'missing'` when selected items left the tree, and `'none'` when
-   * the tree re-applies checkbox propagation after its items change, such as when a checked
-   * folder loads its children. Automatic changes cannot be canceled; calling
+   * The event `reason` is `'missing'` when selected items are removed by a transaction, and
+   * `'none'` when the tree re-applies checkbox propagation after its items change, such as when
+   * a checked folder loads its children. Automatic changes cannot be canceled; calling
    * `eventDetails.cancel()` for `'missing'` or `'none'` has no effect.
    */
   onSelectedItemsChange?:
