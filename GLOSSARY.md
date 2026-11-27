@@ -20,6 +20,14 @@ An element the user interacts with to open or close a popup. A popup can have se
 _Avoid_: reference, reference element, DOM reference
 _In code_: the active trigger is `activeTriggerElement` in the popup store and `anchorElement` in `FloatingRootStore`.
 
+**Owner**:
+The trigger a popup currently belongs to: usually the one that opened it, or one that claimed it later. The popup's ARIA relationships, focus return and trigger payload follow it. In code it is the **active trigger** (`activeTriggerId` and `activeTriggerElement`).
+_Avoid_: current trigger, selected trigger
+
+**Lone-trigger claim**:
+When a popup is open without an owner and exactly one trigger is registered, that trigger becomes the owner, whether the popup has just opened or the other triggers have unmounted. It doesn't apply when the popup was opened deliberately without a trigger, such as with a handle's `open(null)`.
+_Avoid_: implicit trigger, implicit active trigger
+
 **Anchor**:
 The element or rectangle a popup is positioned against. When none is set, the component picks a default, usually the active trigger: Combobox uses its input, and Context Menu uses the point where it was opened. One that the interactions set, such as the cursor position, is the **anchor override**. The **anchor element** is the active trigger's element. Popup stores keep it after the popup unmounts; `FloatingRootStore` clears it while the popup isn't mounted.
 _Avoid_: reference, position reference, DOM reference

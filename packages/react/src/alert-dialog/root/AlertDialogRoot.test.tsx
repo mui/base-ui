@@ -46,6 +46,7 @@ describe('<AlertDialog.Root />', () => {
     openInteractions: ['click'],
     ariaExpanded: true,
     throwOnMissingTrigger: false,
+    closesOnActiveTriggerUnmount: false,
   });
 
   it('ARIA attributes', async () => {

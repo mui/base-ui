@@ -216,6 +216,7 @@ describe('<Popover.Root />', () => {
     openInteractions: ['click'],
     ariaExpanded: true,
     throwOnMissingTrigger: true,
+    closesOnActiveTriggerUnmount: false,
   });
 
   describe('does not re-render inactive triggers', () => {

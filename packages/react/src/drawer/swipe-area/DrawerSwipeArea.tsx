@@ -109,15 +109,9 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const releaseGuardCleanupRef = React.useRef<() => void>(NOOP);
 
   const swipeAreaId = useBaseUiId(componentProps.id);
-  const registerTrigger = useTriggerRegistration(swipeAreaId, store);
-
-  // `registerTrigger` is stable, so the ref does not re-fire when the id changes: re-register the
-  // rendered element here instead. On React 17 the id also starts out `undefined`, so this is what
-  // registers the swipe area at all.
-  useIsoLayoutEffect(() => {
-    registerTrigger(swipeAreaRef.current);
-    return () => registerTrigger(null);
-  }, [registerTrigger, swipeAreaId, store]);
+  // The swipe area counts as a trigger (for example toward the lone-trigger claim) but never
+  // claims the drawer when it registers.
+  const registerTrigger = useTriggerRegistration(swipeAreaId, swipeAreaRef, store);
 
   const open = store.useState('open');
 
