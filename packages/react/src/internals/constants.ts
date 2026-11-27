@@ -12,6 +12,12 @@ export const BASE_UI_SWIPE_IGNORE_SELECTOR = `[${BASE_UI_SWIPE_IGNORE_ATTRIBUTE}
 export const LEGACY_SWIPE_IGNORE_SELECTOR = `[${LEGACY_SWIPE_IGNORE_ATTRIBUTE}]`;
 
 /**
+ * A `form` attribute that names no element. It takes a control out of any surrounding form, so
+ * the form never submits it and Enter in it never submits the form.
+ */
+export const NO_FORM_ID = 'base-ui-no-form';
+
+/**
  * Used for dropdowns that usually strictly prefer top/bottom placements and
  * use `var(--available-height)` to limit their height.
  */

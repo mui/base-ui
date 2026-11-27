@@ -7,6 +7,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { NO_FORM_ID } from '../../internals/constants';
 import { useTreeFilterPart } from '../filter-provider/TreeFilterContext';
 
 /**
@@ -130,6 +131,8 @@ export const TreeInput = React.forwardRef(function TreeInput(
         },
       },
       elementProps,
+      // The query is UI state, not a form value.
+      { form: NO_FORM_ID },
     ],
   });
 });
@@ -141,7 +144,11 @@ export interface TreeInputState {
   disabled: boolean;
 }
 
-export interface TreeInputProps extends BaseUIComponentProps<'input', TreeInputState> {
+// The input isn't a form control: it renders its own `form` and submits no value.
+export interface TreeInputProps extends Omit<
+  BaseUIComponentProps<'input', TreeInputState>,
+  'name' | 'form'
+> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

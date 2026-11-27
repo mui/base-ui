@@ -485,6 +485,23 @@ describe('Tree filtering parts', () => {
       expect(screen.getByRole('treeitem', { name: 'Notes.txt' })).toHaveFocus();
     });
 
+    it('does not submit an enclosing form on Enter', async () => {
+      const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+      const { user } = await render(
+        <form onSubmit={onSubmit}>
+          <FilterableTree />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+      await user.click(getInput());
+      expect(getInput()).toHaveFocus();
+
+      // Without a query, the tree leaves Enter to the input.
+      await user.keyboard('{Enter}');
+
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
     it('leaves modified arrows to the input', async () => {
       await render(<FilterableTree defaultValue="notes" />);
       act(() => getInput().focus());

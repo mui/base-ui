@@ -1593,9 +1593,37 @@ describe('Tree', () => {
 
     expect(inputRef.current).toBeInstanceOf(HTMLInputElement);
     expect(inputRef.current).not.toHaveAttribute('name');
+    expect(inputRef.current!.form).toBe(null);
     expect([...new FormData(screen.getByTestId('file-form') as HTMLFormElement).keys()]).toEqual(
       [],
     );
+  });
+
+  it('does not submit an enclosing form on Enter in a row checkbox', async () => {
+    const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+    const { user } = await render(
+      <form onSubmit={onSubmit}>
+        <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} multiple>
+          <TreeGrid.Table aria-label="Files">
+            {(item: Item) => (
+              <TreeGrid.Row itemId={item.id}>
+                <TreeGrid.Cell>
+                  <TreeGrid.RowCheckbox />
+                </TreeGrid.Cell>
+              </TreeGrid.Row>
+            )}
+          </TreeGrid.Table>
+        </TreeGrid.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+    const checkbox = screen.getByRole('checkbox', { name: 'Select Music' });
+    act(() => checkbox.focus());
+    expect(checkbox).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('keeps row checkboxes from registering as the control of an enclosing field', async () => {

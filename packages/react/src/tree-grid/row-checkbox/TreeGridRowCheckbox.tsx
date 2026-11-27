@@ -6,6 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Checkbox } from '../../checkbox';
 import { REASONS } from '../../internals/reasons';
+import { NO_FORM_ID } from '../../internals/constants';
 import {
   DEFAULT_FIELD_ROOT_CONTEXT,
   FieldRootContext,
@@ -99,6 +100,8 @@ export const TreeGridRowCheckbox = fastComponentRef(function TreeGridRowCheckbox
           // Out of the tab order while disabled, as the arrows skip it too.
           tabIndex={otherProps.tabIndex ?? (checkboxDisabled ? -1 : control.tabIndex)}
           onCheckedChange={handleCheckedChange}
+          // Selecting a row isn't a form value, and Enter must not submit a surrounding form.
+          form={NO_FORM_ID}
         />
       </LabelableProvider>
     </FieldRootContext.Provider>
