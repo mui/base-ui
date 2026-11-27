@@ -17,9 +17,14 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 ) {
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
-  const { disabled, setLegendId } = useFieldsetRootContext();
+  const { disabled, legendId, defaultLegendId, setLegendId } = useFieldsetRootContext();
 
-  const id = useRegisteredLabelId(idProp, setLegendId);
+  // Register the explicit id (or the root's generated one) once layout effects run. Until then
+  // render the id the root already points `aria-labelledby` at, so the server markup and the
+  // hydrated tree stay associated. An explicit `id` therefore only reaches the DOM after
+  // hydration, the same trade-off `Field.Label` makes for its control id.
+  useRegisteredLabelId(idProp ?? defaultLegendId, setLegendId);
+  const id = legendId ?? defaultLegendId;
 
   const state: FieldsetLegendState = {
     disabled,
