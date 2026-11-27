@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Tree } from '@base-ui/react/tree';
-import styles from './index.module.css';
+import styles from '../../_index.module.css';
 
 const items: Tree.DefaultItem[] = [
   {

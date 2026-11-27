@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TreeItemsProposals } from './itemsProposals';
-import type { TreeParentLookupKey, TreeState } from './types';
+import type { TreeItemLookupKey, TreeState } from './types';
 
 type Item = { id: string };
 
@@ -26,7 +26,7 @@ function propose(
   current: TreeState<Item>,
   {
     removedIds = undefined as ReadonlySet<string> | undefined,
-    changedParentKeys = new Set<TreeParentLookupKey>() as ReadonlySet<TreeParentLookupKey>,
+    changedParentKeys = new Set<TreeItemLookupKey>() as ReadonlySet<TreeItemLookupKey>,
   } = {},
 ) {
   // The lookups the proposal prepared, with the readers of the state it was made on.
@@ -39,7 +39,7 @@ function propose(
     removedIds,
     changedParentKeys,
   });
-  return { state };
+  return state;
 }
 
 describe('TreeItemsProposals', () => {
@@ -48,7 +48,7 @@ describe('TreeItemsProposals', () => {
     const first = propose(proposals, [{ id: 'a' }], createState());
 
     expect(proposals.isStale()).toBe(false);
-    expect(proposals.baseState).toBe(first.state);
+    expect(proposals.baseState).toBe(first);
     await Promise.resolve();
     expect(proposals.isStale()).toBe(true);
   });
@@ -73,12 +73,12 @@ describe('TreeItemsProposals', () => {
     });
     const third = propose(proposals, [{ id: 'c' }], current);
 
-    const acceptance = proposals.accept(second.state.items)!;
+    const acceptance = proposals.accept(second.items)!;
     expect(acceptance.removedIds).toEqual(new Set(['x']));
     expect(acceptance.changedParentKeys).toEqual(new Set(['p', 'q']));
     // The later proposal stays pending, and the earlier ones are gone.
-    expect(proposals.latest?.items).toBe(third.state.items);
-    expect(proposals.accept(first.state.items)).toEqual({
+    expect(proposals.latest?.items).toBe(third.items);
+    expect(proposals.accept(first.items)).toEqual({
       removedIds: new Set(),
       changedParentKeys: new Set(),
     });
@@ -88,7 +88,7 @@ describe('TreeItemsProposals', () => {
   it('reuses the lookups the latest proposal prepared while those it was built from are current', () => {
     const proposals = new TreeItemsProposals<Item>((items, expected) => items === expected);
     const current = createState();
-    const { state } = propose(proposals, [{ id: 'a' }], current);
+    const state = propose(proposals, [{ id: 'a' }], current);
 
     expect(proposals.getPreparedItemsState(state.items, current)?.itemMetaLookup).toBe(
       state.itemMetaLookup,

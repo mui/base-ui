@@ -1,5 +1,6 @@
-import type { TreeItemId, TreeItemsState, TreeParentLookupKey, TreeState } from './types';
+import type { TreeItemId, TreeItemLookupKey, TreeItemsState, TreeState } from './types';
 import { ITEM_READER_KEYS } from '../items/itemCollection';
+import { EMPTY_SET } from './selectors';
 
 export interface TreeItemsProposalEntry<TItem> {
   items: readonly TItem[];
@@ -18,19 +19,14 @@ export interface TreeItemsProposalEntry<TItem> {
   /** Ids removed by this proposal and the ones it builds on, pruned on acceptance. */
   removedIds: ReadonlySet<TreeItemId>;
   /** Parents whose children this proposal and the ones it builds on changed. */
-  changedParentKeys: ReadonlySet<TreeParentLookupKey>;
+  changedParentKeys: ReadonlySet<TreeItemLookupKey>;
 }
 
 /** What a rendered `items` value accepted, for the tree to prune and reconcile. */
-export interface TreeItemsAcceptance {
-  /** The ids the accepted proposal and the ones it builds on removed. */
-  removedIds: ReadonlySet<TreeItemId>;
-  /** The parents whose children the accepted proposal and the ones it builds on changed. */
-  changedParentKeys: ReadonlySet<TreeParentLookupKey>;
-}
-
-const NO_IDS: ReadonlySet<TreeItemId> = new Set();
-const NO_KEYS: ReadonlySet<TreeParentLookupKey> = new Set();
+export type TreeItemsAcceptance = Pick<
+  TreeItemsProposalEntry<unknown>,
+  'removedIds' | 'changedParentKeys'
+>;
 
 /**
  * The items changes proposed to a parent that controls `items`, until the
@@ -93,7 +89,7 @@ export class TreeItemsProposals<TItem> {
     state: TreeState<TItem>;
     baseItemsState: TreeItemsState<TItem>;
     removedIds: ReadonlySet<TreeItemId> | undefined;
-    changedParentKeys: ReadonlySet<TreeParentLookupKey>;
+    changedParentKeys: ReadonlySet<TreeItemLookupKey>;
   }): void {
     if (!this.batchOpen) {
       this.batchOpen = true;
@@ -168,7 +164,7 @@ export class TreeItemsProposals<TItem> {
     }
     if (acceptedIndex === -1) {
       this.proposals = [];
-      return { removedIds: NO_IDS, changedParentKeys: NO_KEYS };
+      return { removedIds: EMPTY_SET, changedParentKeys: EMPTY_SET };
     }
     // Later proposals build on the accepted one, so the parent can still accept them.
     this.proposals = proposals.slice(acceptedIndex + 1);
@@ -177,7 +173,6 @@ export class TreeItemsProposals<TItem> {
         proposal.base = null;
       }
     }
-    const accepted = proposals[acceptedIndex];
-    return { removedIds: accepted.removedIds, changedParentKeys: accepted.changedParentKeys };
+    return proposals[acceptedIndex];
   }
 }

@@ -270,15 +270,6 @@ describeTree('TreeRoot - Filtering', ({ render }) => {
         fireEvent.keyDown(screen.getByRole('treeitem', { name: 'Apple' }), { key: 'ArrowDown' }),
       expected: ['apricot', 'banana'],
     },
-    {
-      name: 'Ctrl+A',
-      replaceSelection: () =>
-        fireEvent.keyDown(screen.getByRole('treeitem', { name: 'Apple' }), {
-          key: 'a',
-          ctrlKey: true,
-        }),
-      expected: ['apple', 'apricot', 'banana'],
-    },
   ])(
     'keeps the selected items the filter hides when $name replaces the selection',
     async ({ replaceSelection, expected }) => {

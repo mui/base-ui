@@ -33,11 +33,8 @@ export interface UseTreeGridCellControlParameters {
   defaultKeys:
     | Required<TreeGridCellControlKeys>
     | ((element: HTMLElement) => Required<TreeGridCellControlKeys>);
-  /**
-   * Whether the control is disabled and can't receive focus, so navigation skips it.
-   * A function reads the state from the element on each key press.
-   */
-  disabled?: boolean | ((element: HTMLElement) => boolean) | undefined;
+  /** Whether the control is disabled and can't receive focus, so navigation skips it. */
+  disabled?: boolean | undefined;
 }
 
 export interface UseTreeGridCellControlReturnValue {
@@ -70,20 +67,13 @@ export function useTreeGridCellControl(
       escape: controlKeys?.escape ?? defaults.escape,
     };
   });
-  const isDisabled = useStableCallback((element: HTMLElement) =>
-    typeof disabled === 'function' ? disabled(element) : disabled,
-  );
+  const isDisabled = useStableCallback(() => disabled);
 
   const ref = React.useCallback(
     (element: HTMLElement | null) =>
       element == null
         ? undefined
-        : grid.registerControl(
-            itemId,
-            element,
-            () => getKeys(element),
-            () => isDisabled(element),
-          ),
+        : grid.registerControl(itemId, element, () => getKeys(element), isDisabled),
     [grid, itemId, getKeys, isDisabled],
   );
 

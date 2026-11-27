@@ -9,8 +9,8 @@ import type {
   TreeItemDestination,
   TreeItemChange,
   TreeItemsState,
+  TreeItemLookupKey,
   TreeParentKeyed,
-  TreeParentLookupKey,
   TreeState,
 } from './types';
 import type { TreeItemReaders } from '../items/itemCollection';
@@ -79,22 +79,21 @@ function copyLookup<T extends object>(lookup: T): T {
 }
 
 /**
- * The parents whose set of children differs between two children lookups.
- * Selection follows membership, so a reorder doesn't count, and neither does an
- * edit that rebuilds the children of an item without changing them.
+ * The keys of the items whose set of children differs between two children
+ * lookups. The root isn't an item, so it doesn't count. Selection follows
+ * membership, so a reorder doesn't count, and neither does an edit that
+ * rebuilds the children of an item without changing them.
  */
 export function getChangedParentKeys(
   previous: TreeItemsState['itemOrderedChildrenIdsLookup'],
   next: TreeItemsState['itemOrderedChildrenIdsLookup'],
-): Set<TreeParentLookupKey> {
-  const changed = new Set<TreeParentLookupKey>();
+): Set<TreeItemLookupKey> {
+  const changed = new Set<TreeItemLookupKey>();
   if (previous === next) {
     return changed;
   }
-  // The key of the root parent is a symbol.
-  const keys = new Set([...Reflect.ownKeys(previous), ...Reflect.ownKeys(next)]) as Set<
-    keyof typeof next
-  >;
+  // The key of the root parent is a symbol, which `Object.keys` skips.
+  const keys = new Set([...Object.keys(previous), ...Object.keys(next)]);
   for (const key of keys) {
     const before = previous[key];
     const after = next[key];

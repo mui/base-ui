@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { TreeGrid } from '@base-ui/react/tree-grid';
-import styles from './index.module.css';
+import styles from '../../_index.module.css';
 
 const items: TreeGrid.DefaultItem[] = [
   {

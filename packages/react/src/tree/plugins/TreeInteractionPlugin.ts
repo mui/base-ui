@@ -5,6 +5,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
 import { isElement } from '@floating-ui/utils/dom';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
+import { focusElementWithVisible } from '../../internals/labelable-provider/useLabel';
 import { REASONS } from '../../internals/reasons';
 import type { MaybeBaseUIEvent } from '../../internals/types';
 import { getHighlightReason } from '../../utils/getHighlightReason';
@@ -225,7 +226,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     if (rootElement == null || this.getFocusLocation(rootElement) !== 'outside') {
       return;
     }
-    this.scheduleFocusRecovery((rootElement, focusLocation) => {
+    this.scheduleFocusRecovery((_rootElement, focusLocation) => {
       // Focus that moved elsewhere, such as back to a trigger outside the tree, stays there.
       if (focusLocation !== 'lost') {
         return;
@@ -238,15 +239,10 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
           : (selectors
               .ancestorIds(state, hiddenItemId)
               .find((ancestorId) => !selectors.isItemExpanded(state, ancestorId)) ?? null);
-      const target =
-        ancestor != null && selectors.isItemFocusTarget(state, ancestor)
-          ? ancestor
-          : selectors.tabbableItemId(state);
-      if (target != null) {
-        this.focusItem(target);
+      if (ancestor != null && selectors.isItemFocusTarget(state, ancestor)) {
+        this.focusItem(ancestor);
       } else {
-        // No row is left, so the empty tree container takes focus.
-        rootElement.focus({ preventScroll: true });
+        this.focusTabStop();
       }
     });
   }
@@ -402,6 +398,29 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     }, this.controlRecoveryFrame);
   }
 
+  /**
+   * Focuses the row with the tab stop, or else the tree container. `event` is the press
+   * that moves focus, when there's one: the container then shows its focus, as a control
+   * does when its label is clicked. Focus recovery passes none, so the container doesn't
+   * scroll into view.
+   */
+  public focusTabStop(event?: Event): void {
+    const tabbableItemId = selectors.tabbableItemId(this.store.state);
+    if (tabbableItemId != null) {
+      this.focusItem(tabbableItemId, event);
+      return;
+    }
+    const rootElement = this.store.context.rootRef.current;
+    if (rootElement == null) {
+      return;
+    }
+    if (event == null) {
+      rootElement.focus({ preventScroll: true });
+    } else {
+      focusElementWithVisible(rootElement);
+    }
+  }
+
   /** Focuses a row. `event` is the keydown or press that moves focus, when there's one. */
   public focusItem = (itemId: TreeItemId, event?: Event) => {
     if (selectors.isItemFocusTarget(this.store.state, itemId)) {
@@ -470,12 +489,12 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   public readonly handleTypeaheadMatch = (index: number, event: React.KeyboardEvent) => {
     // The key did something, so it doesn't also trigger a shortcut outside the tree.
     stopEvent(event);
+    const itemId = selectors.flatList(this.store.state)[index];
+    this.focusItem(itemId, event.nativeEvent);
     // A held Shift types an uppercase letter here, so the selection still follows.
-    this.navigateTo(
-      selectors.flatList(this.store.state)[index],
-      this.store.state.multiple === 'opt-in',
-      event,
-    );
+    if (this.store.state.multiple === 'opt-in') {
+      this.store.selection.moveTo(itemId, REASONS.listNavigation, event.nativeEvent);
+    }
   };
 
   private handleKeyDown(event: React.KeyboardEvent, itemId: TreeItemId) {
@@ -505,8 +524,6 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     ) {
       return;
     }
-    // With `multiple="opt-in"`, the selection follows focus as the keyboard moves it.
-    const followFocus = multiple === 'opt-in' && !event.shiftKey && !ctrlPressed && !event.altKey;
     const isRtl = this.store.state.direction === 'rtl';
     const expandKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
     const collapseKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
@@ -552,17 +569,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         itemId,
       );
       if (targetItem != null) {
-        this.focusItem(targetItem, event.nativeEvent);
-        if (multiple && event.shiftKey && !ctrlPressed) {
-          this.store.selection.extendTo(
-            targetItem,
-            itemId,
-            REASONS.listNavigation,
-            event.nativeEvent,
-          );
-        } else if (followFocus) {
-          this.store.selection.moveTo(targetItem, REASONS.listNavigation, event.nativeEvent);
-        }
+        this.navigateTo(targetItem, event, { extendFrom: itemId });
       }
     } else if (key === expandKey) {
       if (ctrlPressed) {
@@ -579,7 +586,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       } else if (!this.store.grid?.focusFirstStop(itemId) && expanded) {
         const firstFocusableChild = getFirstNavigableChild(this.store.state, itemId);
         if (firstFocusableChild != null) {
-          this.navigateTo(firstFocusableChild, followFocus, event);
+          this.navigateTo(firstFocusableChild, event);
         }
       }
       event.preventDefault();
@@ -600,7 +607,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       } else {
         const parent = selectors.itemParentId(this.store.state, itemId);
         if (parent != null) {
-          this.navigateTo(parent, followFocus, event);
+          this.navigateTo(parent, event);
         }
       }
       event.preventDefault();
@@ -618,7 +625,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
             event.nativeEvent,
           );
         }
-        this.navigateTo(edgeItem, followFocus, event);
+        this.navigateTo(edgeItem, event);
       }
       event.preventDefault();
     } else if ((key === 'PageDown' || key === 'PageUp') && !ctrlPressed && !event.shiftKey) {
@@ -635,7 +642,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
           }
           targetItem = nextItem;
         }
-        this.navigateTo(targetItem, followFocus, event);
+        this.navigateTo(targetItem, event);
         event.preventDefault();
       }
     } else if (key === '*') {
@@ -711,13 +718,36 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     return true;
   }
 
-  /**
-   * Moves focus to an item the keyboard navigated to. With `multiple="opt-in"`, the
-   * selection follows unless a modifier asked to move focus only.
-   */
-  private navigateTo(itemId: TreeItemId, followFocus: boolean, event: React.KeyboardEvent) {
+  /** Moves focus to an item the keyboard navigated to, and the selection with it. */
+  private navigateTo(
+    itemId: TreeItemId,
+    event: React.KeyboardEvent,
+    options: { extendFrom?: TreeItemId | undefined } = {},
+  ) {
     this.focusItem(itemId, event.nativeEvent);
-    if (followFocus) {
+    this.moveSelectionWithFocus(itemId, event, options);
+  }
+
+  /**
+   * Moves the selection to an item the keyboard moved focus to. Shift extends the range
+   * from `extendFrom`, the item focus left. With `multiple="opt-in"`, the selection
+   * follows unless a modifier asked to move focus only.
+   */
+  public moveSelectionWithFocus(
+    itemId: TreeItemId,
+    event: React.KeyboardEvent,
+    options: { extendFrom?: TreeItemId | undefined } = {},
+  ) {
+    const { multiple } = this.store.state;
+    const ctrlPressed = event.ctrlKey || event.metaKey;
+    if (options.extendFrom != null && multiple && event.shiftKey && !ctrlPressed) {
+      this.store.selection.extendTo(
+        itemId,
+        options.extendFrom,
+        REASONS.listNavigation,
+        event.nativeEvent,
+      );
+    } else if (multiple === 'opt-in' && !event.shiftKey && !ctrlPressed && !event.altKey) {
       this.store.selection.moveTo(itemId, REASONS.listNavigation, event.nativeEvent);
     }
   }

@@ -7,19 +7,17 @@ import type {
   TreeMultiple,
   TreeState,
   TreeItemTransaction,
-  TreeParentLookupKey,
+  TreeItemLookupKey,
 } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
-import { selectors } from '../store/selectors';
+import { EMPTY_SET, normalizeSelectedItems, selectors } from '../store/selectors';
 import { buildItemsState, getChangedParentKeys } from '../store/itemIndex';
 import type { TreeItemsEdit } from '../store/itemIndex';
 import { getTransactionEdit, recordItemsTransaction } from '../store/itemsTransaction';
 import type { TreeItemsOperation } from '../store/itemsTransaction';
 import { TreeItemsProposals } from '../store/itemsProposals';
 import { areItemModelsEquivalent } from '../utils/areItemModelsEquivalent';
-
-const NO_KEYS: ReadonlySet<TreeParentLookupKey> = new Set();
 
 export class TreeItemMutationPlugin<TItem> {
   declare private store: TreeStore<TreeMultiple | undefined, TItem>;
@@ -164,7 +162,7 @@ export class TreeItemMutationPlugin<TItem> {
   private commitItemsState(
     nextState: TreeState<TItem>,
     removedIds: ReadonlySet<TreeItemId> | undefined,
-    changedParentKeys: ReadonlySet<TreeParentLookupKey>,
+    changedParentKeys: ReadonlySet<TreeItemLookupKey>,
   ): void {
     // Pruned against the state being committed: a required selection falls back
     // to an item the edit adds, and never to one it disables.
@@ -231,6 +229,20 @@ export class TreeItemMutationPlugin<TItem> {
   }
 
   /**
+   * Whether the selection reconcile after an items change can act: it only adds
+   * items next to selected ones, following checkbox propagation.
+   */
+  private canReconcileSelection(itemsControlled: boolean): boolean {
+    const { state } = this.store;
+    const { descendants, parents } = state.checkboxSelectionPropagation;
+    if (!state.multiple || (!descendants && !parents)) {
+      return false;
+    }
+    // The selection can change while a controlled parent decides on the items.
+    return itemsControlled || normalizeSelectedItems(state.selectedItems).length > 0;
+  }
+
+  /**
    * Fire `onItemsChange`, check cancellation, and commit an edit of `state`, or
    * propose it to a controlled parent. Returns `false` when the change is
    * canceled or dropped.
@@ -242,12 +254,6 @@ export class TreeItemMutationPlugin<TItem> {
   ): boolean {
     const { items: newItems, lookups: lookupUpdates, removedIds } = edit;
     const hierarchy = lookupUpdates.itemOrderedChildrenIdsLookup;
-    // Selection follows the hierarchy, which an edit that only replaces item
-    // models leaves as is.
-    const changedParentKeys =
-      hierarchy == null
-        ? NO_KEYS
-        : getChangedParentKeys(state.itemOrderedChildrenIdsLookup, hierarchy);
     const itemsControlled = selectors.isItemsControlled(this.store.state);
 
     if (itemsControlled && !this.store.state.hasItemsChangeHandler) {
@@ -280,6 +286,13 @@ export class TreeItemMutationPlugin<TItem> {
     if (!itemsControlled && this.store.state.items !== state.items) {
       return false;
     }
+
+    // Selection follows the hierarchy, which an edit that only replaces item
+    // models leaves as is. Read after `onItemsChange`, which can change the selection.
+    const changedParentKeys =
+      hierarchy != null && this.canReconcileSelection(itemsControlled)
+        ? getChangedParentKeys(state.itemOrderedChildrenIdsLookup, hierarchy)
+        : EMPTY_SET;
 
     // Controlled `items`: the parent owns the model. Committing it here as well
     // would move the tree even when the parent kept the same prop — the classic

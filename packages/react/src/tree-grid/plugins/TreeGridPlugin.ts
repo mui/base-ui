@@ -3,7 +3,6 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
-import { REASONS } from '../../internals/reasons';
 import type { TreeDefaultItem, TreeItemId, TreeMultiple } from '../../tree/store/types';
 import type { TreeStore } from '../../tree/store/TreeStore';
 import { selectors } from '../../tree/store/selectors';
@@ -391,13 +390,8 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
         const targetItem = intent.row(this.store.state, itemId);
         if (targetItem != null && position != null) {
           this.moveInColumn(position, targetItem, event.nativeEvent);
-          // As on the row, the selection follows an unmodified vertical arrow with `multiple="opt-in"`.
-          if (
-            this.store.state.multiple === 'opt-in' &&
-            (event.key === 'ArrowDown' || event.key === 'ArrowUp')
-          ) {
-            this.store.selection.moveTo(targetItem, REASONS.listNavigation, event.nativeEvent);
-          }
+          // As on the row: the move focused a cell, so only the selection is left.
+          this.store.interaction.moveSelectionWithFocus(targetItem, event);
         }
         break;
       }

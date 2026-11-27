@@ -98,6 +98,32 @@ function SingleRowTree(props: {
   );
 }
 
+const MUSIC: Item[] = [{ id: 'music', label: 'Music' }];
+
+// Renders a row checkbox alone in each row.
+function CheckboxGrid(props: {
+  items?: TreeGrid.Root.Props<Item>['items'];
+  multiple?: boolean | 'opt-in' | undefined;
+  disabled?: boolean | undefined;
+  onSelectedItemsChange?: TreeGrid.Root.Props<Item, boolean | 'opt-in'>['onSelectedItemsChange'];
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
+}) {
+  const { items = MUSIC, inputRef, ...rootProps } = props;
+  return (
+    <TreeGrid.Root items={items} {...rootProps}>
+      <TreeGrid.Table aria-label="Files">
+        {(item: Item) => (
+          <TreeGrid.Row itemId={item.id}>
+            <TreeGrid.Cell>
+              <TreeGrid.RowCheckbox inputRef={inputRef} />
+            </TreeGrid.Cell>
+          </TreeGrid.Row>
+        )}
+      </TreeGrid.Table>
+    </TreeGrid.Root>
+  );
+}
+
 function press(element: HTMLElement, key: string) {
   fireEvent.keyDown(element, { key });
 }
@@ -1573,17 +1599,7 @@ describe('Tree', () => {
     const inputRef = React.createRef<HTMLInputElement>();
     await render(
       <form data-testid="file-form">
-        <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} multiple="opt-in">
-          <TreeGrid.Table>
-            {(item: Item) => (
-              <TreeGrid.Row itemId={item.id}>
-                <TreeGrid.Cell>
-                  <TreeGrid.RowCheckbox inputRef={inputRef} />
-                </TreeGrid.Cell>
-              </TreeGrid.Row>
-            )}
-          </TreeGrid.Table>
-        </TreeGrid.Root>
+        <CheckboxGrid multiple="opt-in" inputRef={inputRef} />
       </form>,
     );
 
@@ -1601,17 +1617,7 @@ describe('Tree', () => {
     const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
     const { user } = await render(
       <form onSubmit={onSubmit}>
-        <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} multiple>
-          <TreeGrid.Table aria-label="Files">
-            {(item: Item) => (
-              <TreeGrid.Row itemId={item.id}>
-                <TreeGrid.Cell>
-                  <TreeGrid.RowCheckbox />
-                </TreeGrid.Cell>
-              </TreeGrid.Row>
-            )}
-          </TreeGrid.Table>
-        </TreeGrid.Root>
+        <CheckboxGrid multiple />
         <button type="submit">Submit</button>
       </form>,
     );
@@ -1628,23 +1634,13 @@ describe('Tree', () => {
     await render(
       <form data-testid="file-form">
         <Field.Root name="files">
-          <TreeGrid.Root
+          <CheckboxGrid
             items={[
               { id: 'music', label: 'Music' },
               { id: 'photos', label: 'Photos' },
             ]}
             multiple="opt-in"
-          >
-            <TreeGrid.Table>
-              {(item: Item) => (
-                <TreeGrid.Row itemId={item.id}>
-                  <TreeGrid.Cell>
-                    <TreeGrid.RowCheckbox />
-                  </TreeGrid.Cell>
-                </TreeGrid.Row>
-              )}
-            </TreeGrid.Table>
-          </TreeGrid.Root>
+          />
         </Field.Root>
       </form>,
     );
@@ -1681,21 +1677,7 @@ describe('Tree', () => {
       ),
     },
   ])('takes no disabled state from an enclosing disabled $name', async ({ wrap }) => {
-    await render(
-      wrap(
-        <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} multiple>
-          <TreeGrid.Table aria-label="Files">
-            {(item: Item) => (
-              <TreeGrid.Row itemId={item.id}>
-                <TreeGrid.Cell>
-                  <TreeGrid.RowCheckbox />
-                </TreeGrid.Cell>
-              </TreeGrid.Row>
-            )}
-          </TreeGrid.Table>
-        </TreeGrid.Root>,
-      ),
-    );
+    await render(wrap(<CheckboxGrid multiple />));
 
     expect(screen.getByRole('checkbox', { name: 'Select Music' })).not.toHaveAttribute(
       'data-disabled',
@@ -1711,21 +1693,11 @@ describe('Tree', () => {
     });
 
     const { rerender } = await render(
-      <TreeGrid.Root
+      <CheckboxGrid
         items={selectionLockedItems}
         multiple="opt-in"
         onSelectedItemsChange={onSelectedItemsChange}
-      >
-        <TreeGrid.Table>
-          {(item) => (
-            <TreeGrid.Row itemId={item.id}>
-              <TreeGrid.Cell>
-                <TreeGrid.RowCheckbox />
-              </TreeGrid.Cell>
-            </TreeGrid.Row>
-          )}
-        </TreeGrid.Table>
-      </TreeGrid.Root>,
+      />,
     );
 
     expect(screen.getByRole('checkbox', { name: 'Select Locked' })).toHaveAttribute(
@@ -1735,19 +1707,7 @@ describe('Tree', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Select Locked' }));
     expect(onSelectedItemsChange).not.toHaveBeenCalled();
 
-    await rerender(
-      <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} multiple="opt-in" disabled>
-        <TreeGrid.Table>
-          {(item: Item) => (
-            <TreeGrid.Row itemId={item.id}>
-              <TreeGrid.Cell>
-                <TreeGrid.RowCheckbox />
-              </TreeGrid.Cell>
-            </TreeGrid.Row>
-          )}
-        </TreeGrid.Table>
-      </TreeGrid.Root>,
-    );
+    await rerender(<CheckboxGrid multiple="opt-in" disabled />);
     expect(screen.getByRole('checkbox', { name: 'Select Music' })).toHaveAttribute(
       'aria-disabled',
       'true',

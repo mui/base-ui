@@ -1366,6 +1366,39 @@ describe('removal selection/expansion pruning', () => {
     );
   });
 
+  it('does not select a parent left with only children that cannot be selected', async () => {
+    const actionsRef = React.createRef<Tree.Root.Actions<Item>>();
+    const onSelectedItemsChange = vi.fn();
+    await render(
+      <Tree.Root
+        defaultItems={[
+          {
+            id: 'parent',
+            label: 'Parent',
+            children: [
+              { id: 'disabled', label: 'Disabled', disabled: true },
+              { id: 'unselected', label: 'Unselected' },
+            ],
+          },
+          { id: 'other', label: 'Other' },
+        ]}
+        actionsRef={actionsRef}
+        multiple="opt-in"
+        defaultSelectedItems={['other']}
+        checkboxSelectionPropagation={{ parents: true }}
+        onSelectedItemsChange={onSelectedItemsChange}
+      >
+        <Tree.List>{(item) => <Tree.Item itemId={item.id}>{item.label}</Tree.Item>}</Tree.List>
+      </Tree.Root>,
+    );
+
+    act(() => {
+      actionsRef.current!.applyTransaction((transaction) => transaction.remove('unselected'));
+    });
+
+    expect(onSelectedItemsChange).not.toHaveBeenCalled();
+  });
+
   it('fires the change callbacks with the pruned models', async () => {
     const actionsRef = React.createRef<Tree.Root.Actions<Item>>();
     const onSelectedItemsChange = vi.fn();
