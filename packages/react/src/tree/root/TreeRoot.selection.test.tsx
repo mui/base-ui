@@ -596,24 +596,27 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       });
 
       it.each([
-        {
-          name: 'multiple',
-          multiple: true as const,
-          modifiers: {},
-          expected: ['1', '1.1', '1.2', '2'],
-        },
+        { name: 'multiple', multiple: true as const, modifiers: {}, expected: ['1', '2'] },
         {
           name: 'multiple="opt-in" with Ctrl',
           multiple: 'opt-in' as const,
           modifiers: { ctrlKey: true },
-          expected: ['1', '1.1', '1.2', '2'],
+          expected: ['1', '2'],
         },
         { name: 'multiple="opt-in"', multiple: 'opt-in' as const, modifiers: {}, expected: ['1'] },
+        {
+          name: 'multiple on a checkbox item',
+          multiple: true as const,
+          checkboxSelection: true,
+          modifiers: {},
+          expected: ['1', '1.1', '1.2', '2'],
+        },
       ])(
         'should select $expected when clicking on a parent with $name',
-        async ({ multiple, modifiers, expected }) => {
+        async ({ multiple, checkboxSelection, modifiers, expected }) => {
           const view = await render({
             multiple,
+            checkboxSelection,
             items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }, { id: '2' }],
             defaultExpandedItems: ['1'],
             defaultSelectedItems: ['2'],

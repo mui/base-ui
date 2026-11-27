@@ -161,7 +161,7 @@ import { DemoTreeGridColumns } from './demos/columns';
 
 Render `<TreeGrid.RowCheckbox>` inside `<TreeGrid.Cell>` to select a row with a checkbox, and `<TreeGrid.RowCheckboxIndicator>` inside it to show the state. Set `multiple` on `<TreeGrid.Root>` to allow more than one row to be selected. A click on the row toggles it, like a click on its checkbox.
 
-The `checkboxSelectionPropagation` prop controls how a checkbox affects related rows. With `descendants`, checking a parent selects its whole branch. With `parents`, checking all of its selectable children selects the parent. Both are enabled by default with multiple selection.
+The `checkboxSelectionPropagation` prop controls how a checkbox affects related rows. With `descendants`, checking a parent selects its whole branch. With `parents`, checking all of its selectable children selects the parent. Both are enabled by default with multiple selection. Pressing a row without a checkbox selects or deselects that row only.
 
 import { DemoTreeGridCheckboxSelection } from './demos/checkbox-selection';
 

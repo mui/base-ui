@@ -442,8 +442,8 @@ export interface TreeState<TItem = any> extends TreeItemsState<TItem> {
    */
   disableEmptySelection: boolean;
   /**
-   * How toggling an item's selection propagates through the hierarchy.
-   * Doesn't affect presses that replace the selection or select a range.
+   * How checking an item, with its checkbox or `setItemSelection()`, propagates through the
+   * hierarchy.
    */
   checkboxSelectionPropagation: TreeCheckboxSelectionPropagation;
   /**

@@ -31,7 +31,10 @@ export interface PressModifiers {
   ctrlKey?: boolean | undefined;
   /** Touch has no modifier keys, so opt-in multiple selection toggles on tap. */
   touch?: boolean | undefined;
-  /** Whether the press is on the item's checkbox, which toggles it in every mode. */
+  /**
+   * Whether the press is on the item's checkbox, which toggles it in every mode and
+   * propagates the change through the hierarchy.
+   */
   toggle?: boolean | undefined;
 }
 
@@ -60,22 +63,28 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
   }
 
   /**
-   * Checks or unchecks an item's checkbox, or toggles it when `checked` is
-   * `undefined`, propagating the change through the hierarchy. With multiple
-   * selection, the rest of the selection stays as it is.
+   * Selects or deselects an item, or toggles it when `checked` is `undefined`. With
+   * multiple selection, the rest of the selection stays as it is. With `propagate`, as
+   * for a checkbox, the change spreads through the hierarchy following
+   * `checkboxSelectionPropagation`.
    */
   public setItemChecked = (
     itemId: TreeItemId,
     checked: boolean | undefined,
     reason: TreeRootSelectionChangeEventReason,
     event?: Event,
+    propagate = true,
   ) => {
     const { state } = this.store;
     let newSelected: TreeItemId[] | TreeItemId | null;
 
     if (state.multiple !== false) {
       const isSelectedBefore = selectors.isItemSelected(state, itemId);
-      const select = checked ?? selectors.checkboxSelectionStatus(state, itemId) !== 'checked';
+      // A checkbox toggles from its own state, which its descendants can make checked.
+      const isChecked = propagate
+        ? selectors.checkboxSelectionStatus(state, itemId) === 'checked'
+        : isSelectedBefore;
+      const select = checked ?? !isChecked;
       if (!select) {
         newSelected = this.getSelectedIds().filter((id) => id !== itemId);
       } else if (isSelectedBefore) {
@@ -94,7 +103,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     }
 
     this.setSelectedItems(newSelected, reason, event, {
-      propagateFrom: [itemId],
+      propagateFrom: propagate ? [itemId] : undefined,
       anchor: { itemId, focus: itemId },
     });
   };
@@ -106,6 +115,8 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
    * - `multiple` toggles the item on every press, and `multiple="opt-in"` does with
    *   Ctrl/Cmd or on touch, which has no modifier keys.
    * - Otherwise, the press makes the item the selection.
+   *
+   * Only a press on a checkbox propagates through the hierarchy.
    */
   public press = (
     itemId: TreeItemId,
@@ -136,7 +147,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     }
 
     if (toggle || (multiple && (!replaceOnPress || ctrlKey))) {
-      this.setItemChecked(itemId, undefined, reason, event);
+      this.setItemChecked(itemId, undefined, reason, event, toggle);
       return;
     }
 

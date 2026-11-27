@@ -277,9 +277,10 @@ interface TreeRootOwnProps<TItem> {
    */
   disableEmptySelection?: boolean | undefined;
   /**
-   * Controls how toggling an item's selection propagates through the hierarchy, such as with a
-   * checkbox, with `multiple`, or with `setItemSelection()`.
-   * Replacing the selection or selecting a range doesn't propagate.
+   * Controls how checking an item propagates through the hierarchy: with its checkbox, on a
+   * `Tree.CheckboxItem` or a row with a `TreeGrid.RowCheckbox`, or with `setItemSelection()`.
+   * Pressing an item without a checkbox, replacing the selection, or selecting a range
+   * doesn't propagate.
    *
    * When `checkboxSelectionPropagation.descendants` is set to `true`:
    * - Selecting a parent selects all its descendants automatically.

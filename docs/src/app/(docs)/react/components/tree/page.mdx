@@ -113,7 +113,7 @@ import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 
 ### Selection propagation
 
-The `checkboxSelectionPropagation` prop controls how checkbox selection affects related items. With `descendants`, selecting a parent selects its whole branch. With `parents`, selecting all selectable children selects their parent. Both are enabled by default with multiple selection.
+The `checkboxSelectionPropagation` prop controls how checking an item affects related items, with a `<Tree.CheckboxItem>` or with `actionsRef.setItemSelection()`. With `descendants`, checking a parent selects its whole branch. With `parents`, checking all of its selectable children selects the parent. Both are enabled by default with multiple selection. Pressing a `<Tree.Item>` selects or deselects that item only.
 
 import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
 
