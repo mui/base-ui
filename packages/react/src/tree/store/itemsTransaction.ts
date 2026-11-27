@@ -436,7 +436,7 @@ function getReplacement<TItem>(
 
 /**
  * The destination a position points to, or `null` when it references an item the tree doesn't have.
- * Unlike Mosaic, which appends a row whose reference is unknown, this skips the operation:
+ * Unlike a data grid, which can append a row whose reference is unknown, this skips the operation:
  * in a tree the end of the root is usually the wrong level, and a consumer saving
  * `onItemsChange` would persist the item there.
  */
