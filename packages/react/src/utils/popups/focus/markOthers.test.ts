@@ -282,6 +282,48 @@ test('leaves live regions, their ancestors, and scripts exposed', () => {
   expect(liveSibling).not.toHaveAttribute('aria-hidden');
 });
 
+test('hides aria-live="off" regions regardless of case', () => {
+  const keep = document.createElement('div');
+  const offRegion = document.createElement('div');
+  offRegion.setAttribute('aria-live', 'off');
+  offRegion.append(document.createElement('button'));
+  const upperCaseOffRegion = document.createElement('div');
+  upperCaseOffRegion.setAttribute('aria-live', 'OFF');
+  upperCaseOffRegion.append(document.createElement('button'));
+  document.body.append(keep, offRegion, upperCaseOffRegion);
+
+  const cleanup = markOthers([keep], { ariaHidden: true, mark: false });
+
+  expect(offRegion).toHaveAttribute('aria-hidden', 'true');
+  expect(upperCaseOffRegion).toHaveAttribute('aria-hidden', 'true');
+
+  cleanup();
+
+  expect(offRegion).not.toHaveAttribute('aria-hidden');
+  expect(upperCaseOffRegion).not.toHaveAttribute('aria-hidden');
+});
+
+test('keeps live regions nested in an aria-live="off" region exposed', () => {
+  const keep = document.createElement('div');
+  const offRegion = document.createElement('div');
+  offRegion.setAttribute('aria-live', 'off');
+  const nestedLiveRegion = document.createElement('div');
+  nestedLiveRegion.setAttribute('aria-live', 'polite');
+  const offSibling = document.createElement('button');
+  offRegion.append(nestedLiveRegion, offSibling);
+  document.body.append(keep, offRegion);
+
+  const cleanup = markOthers([keep], { ariaHidden: true, mark: false });
+
+  expect(offRegion).not.toHaveAttribute('aria-hidden');
+  expect(nestedLiveRegion).not.toHaveAttribute('aria-hidden');
+  expect(offSibling).toHaveAttribute('aria-hidden', 'true');
+
+  cleanup();
+
+  expect(offSibling).not.toHaveAttribute('aria-hidden');
+});
+
 test('does not recurse infinitely with target inside anchor in shadow root', () => {
   const host = document.createElement('div');
   document.body.appendChild(host);
