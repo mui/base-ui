@@ -1,13 +1,21 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, onTestFinished } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { DirectionProvider } from '../../direction-provider';
+import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { describeTree } from '../../../test/describeTree';
 import { selectors } from '../store/selectors';
 import { Tree } from '..';
 
 const { render: renderElement } = createRenderer();
+
+// Keys typed after a pause start a new search. Call under fake timers.
+function waitForSearchReset() {
+  act(() => {
+    vi.advanceTimersByTime(TYPEAHEAD_RESET_MS);
+  });
+}
 
 describeTree('TreeRoot - Keyboard', ({ render }) => {
   it('should not highlight a row or move focus with the arrow keys when the root is disabled', async () => {
@@ -1509,17 +1517,24 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       });
       expect(view.getFocusedItemId()).toBe('1');
 
-      fireEvent.keyDown(view.getItemRoot('1'), { key: 't' });
-      expect(view.getFocusedItemId()).toBe('2');
+      vi.useFakeTimers();
+      try {
+        fireEvent.keyDown(view.getItemRoot('1'), { key: 't' });
+        expect(view.getFocusedItemId()).toBe('2');
 
-      fireEvent.keyDown(view.getItemRoot('2'), { key: 'f' });
-      expect(view.getFocusedItemId()).toBe('4');
+        waitForSearchReset();
+        fireEvent.keyDown(view.getItemRoot('2'), { key: 'f' });
+        expect(view.getFocusedItemId()).toBe('4');
 
-      fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
-      expect(view.getFocusedItemId()).toBe('4');
+        fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
+        expect(view.getFocusedItemId()).toBe('4');
 
-      fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
-      expect(view.getFocusedItemId()).toBe('1');
+        waitForSearchReset();
+        fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
+        expect(view.getFocusedItemId()).toBe('1');
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('should move to the next item in the displayed order when typing the same starting character', async () => {
@@ -1560,17 +1575,24 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       });
       expect(view.getFocusedItemId()).toBe('1');
 
-      fireEvent.keyDown(view.getItemRoot('1'), { key: 't' });
-      expect(view.getFocusedItemId()).toBe('2');
+      vi.useFakeTimers();
+      try {
+        fireEvent.keyDown(view.getItemRoot('1'), { key: 't' });
+        expect(view.getFocusedItemId()).toBe('2');
 
-      fireEvent.keyDown(view.getItemRoot('2'), { key: 'f' });
-      expect(view.getFocusedItemId()).toBe('4');
+        waitForSearchReset();
+        fireEvent.keyDown(view.getItemRoot('2'), { key: 'f' });
+        expect(view.getFocusedItemId()).toBe('4');
 
-      fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
-      expect(view.getFocusedItemId()).toBe('4');
+        fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
+        expect(view.getFocusedItemId()).toBe('4');
 
-      fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
-      expect(view.getFocusedItemId()).toBe('1');
+        waitForSearchReset();
+        fireEvent.keyDown(view.getItemRoot('4'), { key: 'o' });
+        expect(view.getFocusedItemId()).toBe('1');
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('should type a space as part of a multi-word label', async () => {
@@ -1661,15 +1683,26 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       act(() => {
         view.getItemRoot('1').focus();
       });
+      // Each key is a search of its own. Timers are real while the items change, as
+      // the tree recovers focus on the next frame.
+      onTestFinished(() => {
+        vi.useRealTimers();
+      });
 
+      vi.useFakeTimers();
       fireEvent.keyDown(view.getItemRoot('1'), { key: '4' });
       expect(view.getFocusedItemId()).toBe('4');
+      waitForSearchReset();
+      vi.useRealTimers();
 
       await view.setItems([{ id: '1' }, { id: '2' }, { id: '3' }]);
       expect(view.getFocusedItemId()).toBe('3');
 
+      vi.useFakeTimers();
       fireEvent.keyDown(view.getItemRoot('3'), { key: '2' });
       expect(view.getFocusedItemId()).toBe('2');
+      waitForSearchReset();
+      vi.useRealTimers();
 
       await view.setItems([{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }]);
       expect(view.getFocusedItemId()).toBe('2');
@@ -1720,23 +1753,52 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       expect(view.getFocusedItemId()).toBe('2');
     });
 
-    it('should match labels whatever their case and accents', async () => {
+    it.each([
+      { name: 'keeps a key that matches an item from reaching', key: 'b', calls: 0 },
+      { name: 'lets a key that matches no item reach', key: 'z', calls: 1 },
+    ])('$name handlers outside the tree', async ({ key, calls }) => {
+      const handleDocumentKeyDown = vi.fn();
+      document.addEventListener('keydown', handleDocumentKeyDown);
+      onTestFinished(() => document.removeEventListener('keydown', handleDocumentKeyDown));
       const view = await render({
         items: [
-          { id: '1', label: 'Notes' },
-          { id: '2', label: 'Écoles' },
-          { id: '3', label: 'Ëxport' },
+          { id: '1', label: 'Apple' },
+          { id: '2', label: 'Banana' },
         ],
       });
 
       act(() => {
         view.getItemRoot('1').focus();
       });
+      fireEvent.keyDown(view.getItemRoot('1'), { key });
 
-      fireEvent.keyDown(view.getItemRoot('1'), { key: 'e' });
+      expect(handleDocumentKeyDown).toHaveBeenCalledTimes(calls);
+    });
+
+    it('should start a new search after focus leaves the tree', async () => {
+      const view = await render({
+        items: [
+          { id: '1', label: 'Apple' },
+          { id: '2', label: 'Abacus' },
+          { id: '3', label: 'Bravo' },
+        ],
+      });
+
+      act(() => {
+        view.getItemRoot('1').focus();
+      });
+      fireEvent.keyDown(view.getItemRoot('1'), { key: 'a' });
       expect(view.getFocusedItemId()).toBe('2');
 
-      fireEvent.keyDown(view.getItemRoot('2'), { key: 'X' });
+      act(() => {
+        view.getItemRoot('2').blur();
+      });
+      act(() => {
+        view.getItemRoot('2').focus();
+      });
+      // Typed right away, this would continue the search as "ab" and stay on Abacus.
+      fireEvent.keyDown(view.getItemRoot('2'), { key: 'b' });
+
       expect(view.getFocusedItemId()).toBe('3');
     });
 
@@ -1836,15 +1898,22 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         view.getItemRoot('3').focus();
       });
 
-      fireEvent.keyDown(view.getItemRoot('3'), { key: 'a' });
-      expect(view.getFocusedItemId()).toBe('1');
-      fireEvent.keyDown(view.getItemRoot('1'), { key: 'p' });
-      expect(view.getFocusedItemId()).toBe('1');
+      vi.useFakeTimers();
+      try {
+        fireEvent.keyDown(view.getItemRoot('3'), { key: 'a' });
+        expect(view.getFocusedItemId()).toBe('1');
+        fireEvent.keyDown(view.getItemRoot('1'), { key: 'p' });
+        expect(view.getFocusedItemId()).toBe('1');
+        fireEvent.keyDown(view.getItemRoot('1'), { key: 'r' });
+        expect(view.getFocusedItemId()).toBe('2');
 
-      fireEvent.keyDown(view.getItemRoot('1'), { key: 'r' });
-      expect(view.getFocusedItemId()).toBe('2');
-      fireEvent.keyDown(view.getItemRoot('2'), { key: 'a' });
-      expect(view.getFocusedItemId()).toBe('1');
+        waitForSearchReset();
+        fireEvent.keyDown(view.getItemRoot('2'), { key: 'a' });
+        expect(view.getFocusedItemId()).toBe('1');
+        waitForSearchReset();
+      } finally {
+        vi.useRealTimers();
+      }
 
       await view.setItems([
         { id: '1', label: 'apple' },

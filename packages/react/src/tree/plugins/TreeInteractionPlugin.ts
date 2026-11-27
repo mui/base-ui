@@ -7,8 +7,9 @@ import { isElement } from '@floating-ui/utils/dom';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import type { MaybeBaseUIEvent } from '../../internals/types';
+import { stopEvent } from '../../utils/popups/event';
+import type { UseTypeaheadReturnValue } from '../../utils/popups/interactions/useTypeahead';
 import type {
   TreeItemId,
   TreeRootHighlightEventReason,
@@ -32,22 +33,6 @@ import {
 /** Where DOM focus sits relative to the tree container. */
 export type FocusLocation = 'lost' | 'inside' | 'outside';
 
-let typeaheadCollator: Intl.Collator | undefined;
-
-/**
- * Whether `label` starts with `query`, ignoring case, accents, and punctuation in the
- * runtime's locale, as `Tree.useFilter()` and the Combobox filter match. Inlined so a tree
- * without `Tree.FilterProvider` doesn't bundle the filter's matchers.
- */
-function labelStartsWith(label: string, query: string): boolean {
-  typeaheadCollator ??= new Intl.Collator(undefined, {
-    usage: 'search',
-    sensitivity: 'base',
-    ignorePunctuation: true,
-  });
-  return typeaheadCollator.compare(label.slice(0, query.length), query) === 0;
-}
-
 function isPrintableKey(key: string): boolean {
   return key.length === 1 && !!key.match(/\S/);
 }
@@ -62,7 +47,11 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
    */
   private lastFocusCause: FocusCause = { reason: REASONS.none };
 
-  private typeaheadQuery = '';
+  /** The typeahead of the element with the tree role, which `useTreeRootProps` sets up. */
+  private typeahead: Pick<UseTypeaheadReturnValue, 'onKeyDown' | 'endSession'> | null = null;
+
+  /** Whether a typeahead search is in progress, in which Space continues it. */
+  private typing = false;
 
   private focusRecoveryCleanup: (() => void) | null = null;
 
@@ -467,52 +456,33 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     getFocusedItemId: (): TreeItemId | null => selectors.focusedItemId(this.store.state),
   };
 
-  private getFirstItemMatchingTypeaheadQuery(
-    itemId: TreeItemId,
-    newKey: string,
-  ): TreeItemId | null {
-    const state = this.store.state;
-    const flatList = selectors.flatList(state);
-    const n = flatList.length;
-
-    // If the focused item isn't in the visible list (e.g. collapsed ancestor),
-    // start from 0 and let the full-wrap loop cover everything.
-    const currentIndex = selectors.flatListIndex(state, itemId);
-    const base = currentIndex === -1 ? 0 : currentIndex;
-
-    const findMatch = (query: string, startOffset: number): TreeItemId | null => {
-      for (let i = 0; i < n; i += 1) {
-        const idx = (base + startOffset + i) % n;
-        const id = flatList[idx];
-        if (
-          labelStartsWith(selectors.itemLabel(state, id), query) &&
-          selectors.canItemBeFocused(state, id)
-        ) {
-          return id;
-        }
+  /** Gives the tree the typeahead that its key handler sends typed keys to. */
+  public registerTypeahead(typeahead: Pick<UseTypeaheadReturnValue, 'onKeyDown' | 'endSession'>) {
+    this.typeahead = typeahead;
+    return () => {
+      if (this.typeahead === typeahead) {
+        this.typeahead = null;
+        this.typing = false;
       }
-      return null;
     };
-
-    const concatenatedQuery = `${this.typeaheadQuery}${newKey}`;
-    const concatenatedStartOffset = concatenatedQuery.length > 1 ? 0 : 1;
-    const concatenatedMatch = findMatch(concatenatedQuery, concatenatedStartOffset);
-    if (concatenatedMatch != null) {
-      this.typeaheadQuery = concatenatedQuery;
-      return concatenatedMatch;
-    }
-
-    if (concatenatedQuery !== newKey) {
-      const singleKeyMatch = findMatch(newKey, 1);
-      if (singleKeyMatch != null) {
-        this.typeaheadQuery = newKey;
-        return singleKeyMatch;
-      }
-    }
-
-    this.typeaheadQuery = '';
-    return null;
   }
+
+  /** Called by the typeahead as a search starts and ends. */
+  public readonly setTyping = (typing: boolean) => {
+    this.typing = typing;
+  };
+
+  /** Focuses the row in view at `index`, which the typed keys matched. */
+  public readonly handleTypeaheadMatch = (index: number, event: React.KeyboardEvent) => {
+    // The key did something, so it doesn't also trigger a shortcut outside the tree.
+    stopEvent(event);
+    // A held Shift types an uppercase letter here, so the selection still follows.
+    this.navigateTo(
+      selectors.flatList(this.store.state)[index],
+      this.store.state.multiple === 'opt-in',
+      event,
+    );
+  };
 
   private handleKeyDown(event: React.KeyboardEvent, itemId: TreeItemId) {
     const ctrlPressed = event.ctrlKey || event.metaKey;
@@ -560,7 +530,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     // falls through to the typeahead branch below. Ctrl+Space, and Shift+Space with
     // multiple selection, never type.
     const modifiedSpace = ctrlPressed || (event.shiftKey && multiple !== false);
-    if (macToggle || (key === ' ' && (modifiedSpace || this.typeaheadQuery === ''))) {
+    if (macToggle || (key === ' ' && (modifiedSpace || !this.typing))) {
       // Always preventDefault, even for non-selectable items, so the page doesn't scroll.
       event.preventDefault();
       if (selectors.canItemBeSelected(this.store.state, itemId)) {
@@ -694,26 +664,17 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
     //
     // A Space reaches here only mid-query, where it is the separator in a
     // multi-word label ("New Folder"); an idle Space was taken as selection above.
-    else if (!ctrlPressed && (isPrintableKey(key) || (key === ' ' && this.typeaheadQuery !== ''))) {
+    else if (!ctrlPressed && (isPrintableKey(key) || (key === ' ' && this.typing))) {
       // With a filter input, typing on a row continues the query instead: focus
       // moves before the key's default action, which then types into the input.
       if (isPrintableKey(key) && this.store.filtering?.focusInput()) {
         return;
       }
-      // A Space that ends up matching nothing must still not scroll the page.
-      if (key === ' ') {
-        event.preventDefault();
+      // The typeahead reports when the search ends.
+      if (key !== ' ') {
+        this.typing = true;
       }
-      const matchingItem = this.getFirstItemMatchingTypeaheadQuery(itemId, key);
-      if (matchingItem != null) {
-        // A held Shift types an uppercase letter here, so the selection still follows.
-        this.navigateTo(matchingItem, multiple === 'opt-in', event);
-        event.preventDefault();
-      }
-
-      this.store.timeoutManager.start('typeahead', TYPEAHEAD_RESET_MS, () => {
-        this.typeaheadQuery = '';
-      });
+      this.typeahead?.onKeyDown(event);
     }
   }
 
@@ -894,6 +855,8 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       // keeps the tab stop, so tabbing back in returns to it.
       const rootElement = this.store.context.rootRef.current;
       if (rootElement && !contains(rootElement, event.relatedTarget as Element)) {
+        // Typing after coming back starts a new search.
+        this.typeahead?.endSession();
         const focusedItemId = this.store.state.focusedItemId;
         this.store.update({
           focusedItemId: null,

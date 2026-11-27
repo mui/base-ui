@@ -1,7 +1,11 @@
+'use client';
 import { useStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { resolveRenderedId } from '../../internals/resolveRenderedId';
+import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
+import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { useWarnMisplacedTreeRootFeatures } from '../root/TreeRootFeatures';
 import { selectors } from '../store/selectors';
@@ -43,6 +47,31 @@ export function useTreeRootProps(props: { id?: string | undefined; render?: unkn
   } else if (containerFocus === 'focusable') {
     tabIndex = -1;
   }
+
+  // Like Select, Menu and Listbox: keys typed in quick succession build one search through
+  // the rows in view, which resets after a pause. The tree's key handler sends it typed keys.
+  const typeahead = useTypeahead({
+    getLabel: (index) => selectors.itemLabel(store.state, selectors.flatList(store.state)[index]),
+    getCount: () => selectors.flatList(store.state).length,
+    getActiveIndex: () => {
+      const focusedItemId = store.state.focusedItemId;
+      return focusedItemId == null ? null : selectors.flatListIndex(store.state, focusedItemId);
+    },
+    // A disabled row matches while it stays focusable.
+    disabledIndices: (index) =>
+      !selectors.canItemBeFocused(store.state, selectors.flatList(store.state)[index]),
+    resetMs: TYPEAHEAD_RESET_MS,
+    onTyping: store.interaction.setTyping,
+    onMatch: store.interaction.handleTypeaheadMatch,
+  });
+  useIsoLayoutEffect(
+    () =>
+      store.interaction.registerTypeahead({
+        onKeyDown: typeahead.onKeyDown,
+        endSession: typeahead.endSession,
+      }),
+    [store, typeahead.onKeyDown, typeahead.endSession],
+  );
 
   const rootProps = {
     id,
