@@ -101,6 +101,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
       [ToastRootCssVars.index as string]:
         toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
     },
+    isPositioned: positioning.isPositioned,
     transitionStatus: toast.transitionStatus,
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],

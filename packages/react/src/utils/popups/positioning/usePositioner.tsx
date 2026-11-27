@@ -1,12 +1,17 @@
 'use client';
+import * as React from 'react';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { popupStateMapping } from '../popupStateMapping';
 import { useRenderElement } from '../../../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../../internals/getDisabledMountTransitionStyles';
 import type { TransitionStatus } from '../../../internals/useTransitionStatus';
+import { resolveStyle } from '../../resolveStyle';
 
 interface UsePositionerOptions {
   styles: React.CSSProperties;
+  isPositioned: boolean;
   transitionStatus: TransitionStatus;
   props?: React.ComponentProps<'div'> | undefined;
   refs?: React.Ref<HTMLDivElement> | (React.Ref<HTMLDivElement> | undefined)[] | undefined;
@@ -21,22 +26,57 @@ interface UsePositionerOptions {
 export function usePositioner<State extends Record<string, any>>(
   componentProps: UseRenderElementComponentProps<State>,
   state: State,
-  { styles, transitionStatus, props, refs, hidden, inert = false }: UsePositionerOptions,
+  {
+    styles,
+    isPositioned,
+    transitionStatus,
+    props,
+    refs,
+    hidden,
+    inert = false,
+  }: UsePositionerOptions,
 ) {
+  const [initialPositioningComplete, setInitialPositioningComplete] = React.useState(false);
+  const initialPositioningAnimationFrame = useAnimationFrame();
+
+  useIsoLayoutEffect(() => {
+    if (!isPositioned) {
+      setInitialPositioningComplete(false);
+      return undefined;
+    }
+
+    initialPositioningAnimationFrame.request(() => {
+      initialPositioningAnimationFrame.request(() => {
+        setInitialPositioningComplete(true);
+      });
+    });
+
+    return initialPositioningAnimationFrame.cancel;
+  }, [initialPositioningAnimationFrame, isPositioned]);
+
   const style: React.CSSProperties = { ...styles };
+  const disabledTransitionStyles = getDisabledMountTransitionStyles(
+    initialPositioningComplete ? transitionStatus : 'starting',
+  );
 
   if (inert) {
     style.pointerEvents = 'none';
   }
 
-  return useRenderElement('div', componentProps, {
-    state,
-    ref: refs,
-    props: [
-      { role: 'presentation', hidden, style },
-      getDisabledMountTransitionStyles(transitionStatus),
-      props,
-    ],
-    stateAttributesMapping: popupStateMapping,
-  });
+  return useRenderElement(
+    'div',
+    {
+      ...componentProps,
+      style: (renderState) => ({
+        ...resolveStyle(componentProps.style, renderState),
+        ...disabledTransitionStyles.style,
+      }),
+    },
+    {
+      state,
+      ref: refs,
+      props: [{ role: 'presentation', hidden, style }, props],
+      stateAttributesMapping: popupStateMapping,
+    },
+  );
 }
