@@ -284,13 +284,16 @@ const checkboxSelectionStatusSelector = (
 const isItemFocusedSelector = (state: TreeState, itemId: TreeItemId): boolean =>
   state.focusedItemId === itemId;
 
-/** Whether an item can take focus while the tree is or isn't disabled. */
+/**
+ * Whether an item can take focus. Nothing in a disabled tree can, as in a disabled
+ * RadioGroup or ToggleGroup. `focusableWhenDisabled` only applies to disabled items.
+ */
 function isMetaFocusable(
   meta: TreeItemMeta | undefined,
   treeDisabled: boolean,
   focusableWhenDisabled: boolean,
 ): meta is TreeItemMeta {
-  return meta != null && (focusableWhenDisabled || !(treeDisabled || meta.resolvedDisabled));
+  return meta != null && !treeDisabled && (focusableWhenDisabled || !meta.resolvedDisabled);
 }
 
 const canItemBeFocusedSelector = (state: TreeState, itemId: TreeItemId): boolean =>
@@ -367,9 +370,7 @@ const defaultFocusableItemIdSelector = createSelectorMemoized(
     disabledFocusable,
     treeDisabled,
   ): TreeItemId | null => {
-    // A tree-wide `disabled` disables every item, so unless disabled items stay
-    // focusable there is nothing to focus.
-    if (treeDisabled && !disabledFocusable) {
+    if (treeDisabled) {
       return null;
     }
     const isFocusable = (itemId: TreeItemId) =>

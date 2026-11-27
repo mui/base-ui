@@ -33,8 +33,8 @@ export function useTreeRootProps(props: { id?: string | undefined; render?: unkn
     if (selectors.tabbableItemId(s) != null) {
       return 'none';
     }
-    // A disabled tree without a focusable row leaves the tab order. It stays
-    // focusable to hold the focus of a row that just became disabled.
+    // A disabled tree leaves the tab order. It stays focusable to hold the
+    // focus of a row that just became disabled.
     return s.disabled ? 'focusable' : 'tab-stop';
   });
   let tabIndex: number | undefined;

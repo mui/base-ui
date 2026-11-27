@@ -132,19 +132,54 @@ describeTree('TreeRoot - Focus', ({ render }) => {
   });
 
   describe('tabIndex HTML attribute', () => {
-    it('should remove the remembered tab stop when the root becomes disabled', async () => {
-      const view = await render({
-        items: [{ id: '1' }, { id: '2' }],
-        itemFocusableWhenDisabled: false,
-      });
-      act(() => {
-        view.getItemRoot('2').focus();
-        view.getItemRoot('2').blur();
-      });
-      await view.setProps({ disabled: true });
-      expect(view.getItemRoot('1')).toHaveAttribute('tabindex', '-1');
-      expect(view.getItemRoot('2')).toHaveAttribute('tabindex', '-1');
-    });
+    it.each([
+      { name: 'stay focusable', itemFocusableWhenDisabled: true },
+      { name: "can't take focus", itemFocusableWhenDisabled: false },
+    ])(
+      'should remove the remembered tab stop when the root becomes disabled and disabled items $name',
+      async ({ itemFocusableWhenDisabled }) => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+          itemFocusableWhenDisabled,
+        });
+        act(() => {
+          view.getItemRoot('2').focus();
+          view.getItemRoot('2').blur();
+        });
+        await view.setProps({ disabled: true });
+        expect(view.getItemRoot('1')).toHaveAttribute('tabindex', '-1');
+        expect(view.getItemRoot('2')).toHaveAttribute('tabindex', '-1');
+      },
+    );
+
+    it.each([
+      { name: 'stay focusable', itemFocusableWhenDisabled: true },
+      { name: "can't take focus", itemFocusableWhenDisabled: false },
+    ])(
+      'should move focus to the tree root when the tree becomes disabled and disabled items $name',
+      async ({ itemFocusableWhenDisabled }) => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+          itemFocusableWhenDisabled,
+        });
+
+        act(() => {
+          view.getItemRoot('1').focus();
+        });
+        await view.setProps({ disabled: true });
+        await act(async () => {
+          await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => resolve());
+          });
+        });
+
+        expect(view.getItemRoot('1').tabIndex).toBe(-1);
+        expect(view.getItemRoot('2').tabIndex).toBe(-1);
+        // Focusable, but out of the tab order.
+        expect(view.getRoot()).toHaveAttribute('tabindex', '-1');
+        expect(document.activeElement).toBe(view.getRoot());
+      },
+    );
 
     it('should keep disabled items focusable by default', async () => {
       const view = await render({ items: [{ id: '1' }, { id: '2', disabled: true }] });
@@ -154,30 +189,25 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       expect(view.getItemRoot('2')).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should leave a disabled tree out of the tab order and expose it as disabled', async () => {
-      const view = await render({
-        items: [{ id: '1' }, { id: '2' }],
-        disabled: true,
-        itemFocusableWhenDisabled: false,
-      });
-      expect(view.getRoot()).not.toHaveAttribute('tabindex', '0');
-      expect(view.getRoot()).toHaveAttribute('aria-disabled', 'true');
-      expect(view.getItemRoot('1')).toHaveAttribute('tabindex', '-1');
-      await view.setProps({ disabled: false });
-      expect(view.getRoot()).not.toHaveAttribute('aria-disabled');
-      expect(view.getItemRoot('1')).toHaveAttribute('tabindex', '0');
-    });
-
-    it('should keep a row as the tab stop of a disabled tree whose items stay focusable', async () => {
-      const view = await render({
-        items: [{ id: '1' }, { id: '2' }],
-        disabled: true,
-        itemFocusableWhenDisabled: true,
-      });
-      expect(view.getRoot()).not.toHaveAttribute('tabindex', '0');
-      expect(view.getRoot()).toHaveAttribute('aria-disabled', 'true');
-      expect(view.getItemRoot('1')).toHaveAttribute('tabindex', '0');
-    });
+    it.each([
+      { name: 'stay focusable', itemFocusableWhenDisabled: true },
+      { name: "can't take focus", itemFocusableWhenDisabled: false },
+    ])(
+      'should leave a disabled tree out of the tab order and expose it as disabled when disabled items $name',
+      async ({ itemFocusableWhenDisabled }) => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+          disabled: true,
+          itemFocusableWhenDisabled,
+        });
+        expect(view.getRoot()).not.toHaveAttribute('tabindex', '0');
+        expect(view.getRoot()).toHaveAttribute('aria-disabled', 'true');
+        expect(view.getItemRoot('1')).toHaveAttribute('tabindex', '-1');
+        await view.setProps({ disabled: false });
+        expect(view.getRoot()).not.toHaveAttribute('aria-disabled');
+        expect(view.getItemRoot('1')).toHaveAttribute('tabindex', '0');
+      },
+    );
 
     it('should keep roving tabIndex consistent with the real active element', async () => {
       const view = await render({
@@ -744,29 +774,6 @@ describeTree('TreeRoot - Focus', ({ render }) => {
 
         expect(view.getItemRoot(expected)).toHaveFocus();
         expect(view.getFocusedItemId()).toBe(expected);
-      });
-
-      it('should move focus to the tree root when every item becomes disabled', async () => {
-        const view = await render({
-          items: [{ id: '1' }, { id: '2' }],
-          itemFocusableWhenDisabled: false,
-        });
-
-        act(() => {
-          view.getItemRoot('1').focus();
-        });
-        await view.setProps({ disabled: true });
-        await act(async () => {
-          await new Promise<void>((resolve) => {
-            requestAnimationFrame(() => resolve());
-          });
-        });
-
-        expect(view.getItemRoot('1').tabIndex).toBe(-1);
-        expect(view.getItemRoot('2').tabIndex).toBe(-1);
-        // Focusable, but out of the tab order.
-        expect(view.getRoot()).toHaveAttribute('tabindex', '-1');
-        expect(document.activeElement).toBe(view.getRoot());
       });
     });
 

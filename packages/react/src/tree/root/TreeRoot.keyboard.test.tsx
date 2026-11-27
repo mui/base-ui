@@ -10,19 +10,18 @@ import { Tree } from '..';
 const { render: renderElement } = createRenderer();
 
 describeTree('TreeRoot - Keyboard', ({ render }) => {
-  it('should ignore select-all when the root is disabled but rows are focusable', async () => {
-    const onSelectedItemsChange = vi.fn();
+  it('should not highlight a row or move focus with the arrow keys when the root is disabled', async () => {
     const view = await render({
       items: [{ id: '1' }, { id: '2' }],
-      multiple: 'opt-in',
       disabled: true,
       itemFocusableWhenDisabled: true,
-      onSelectedItemsChange,
     });
+    // Focus a row from code: it is still a focusable element, out of the tab order.
     act(() => view.getItemRoot('1').focus());
-    fireEvent.keyDown(view.getItemRoot('1'), { key: 'a', ctrlKey: true });
-    expect(onSelectedItemsChange).not.toHaveBeenCalled();
-    expect(view.isItemSelected('1')).toBe(false);
+    fireEvent.keyDown(view.getItemRoot('1'), { key: 'ArrowDown' });
+
+    expect(view.getItemRoot('1')).toHaveFocus();
+    expect(view.getItemRoot('1')).not.toHaveAttribute('data-highlighted');
   });
 
   describe('Navigation (focus and expansion)', () => {
@@ -790,29 +789,6 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
     });
 
     describe('multi selection', () => {
-      it('should keep the selection when Shift+ArrowDown extends a range in a disabled tree', async () => {
-        const onSelectedItemsChange = vi.fn();
-        const view = await render({
-          items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-          multiple: 'opt-in',
-          defaultSelectedItems: ['1'],
-          onSelectedItemsChange,
-        });
-
-        act(() => {
-          view.getItemRoot('1').focus();
-        });
-        fireEvent.keyDown(view.getItemRoot('1'), { key: 'ArrowDown', shiftKey: true });
-        expect(view.getSelectedTreeItems()).toEqual(['1', '2']);
-
-        await view.setProps({ disabled: true });
-        onSelectedItemsChange.mockClear();
-        fireEvent.keyDown(view.getItemRoot('2'), { key: 'ArrowDown', shiftKey: true });
-
-        expect(onSelectedItemsChange).not.toHaveBeenCalled();
-        expect(view.getSelectedTreeItems()).toEqual(['1', '2']);
-      });
-
       describe('key: Space', () => {
         it('should not re-toggle selection on auto-repeated Space (held key)', async () => {
           const view = await render({

@@ -456,7 +456,7 @@ export interface TreeState<TItem = any> extends TreeItemsState<TItem> {
    */
   lastFocusedItemId: TreeItemId | null;
   /**
-   * Whether disabled items can receive focus
+   * Whether disabled items can receive focus. Nothing in a disabled tree can.
    */
   itemFocusableWhenDisabled: boolean;
   /**

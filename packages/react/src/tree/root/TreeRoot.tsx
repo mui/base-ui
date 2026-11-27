@@ -295,6 +295,7 @@ interface TreeRootOwnProps<TItem> {
   checkboxSelectionPropagation?: TreeCheckboxSelectionPropagation | undefined;
   /**
    * Whether disabled items should be focusable.
+   * A disabled tree leaves the tab order whatever this prop is.
    * @default true
    */
   itemFocusableWhenDisabled?: boolean | undefined;
