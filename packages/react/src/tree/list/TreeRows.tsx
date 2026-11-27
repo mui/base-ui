@@ -14,7 +14,7 @@ import { TreeRowsContext } from './TreeRowsContext';
  * Renders every visible row with `children`, for `Tree.List` and the parts of
  * `TreeGrid` that render rows.
  */
-export function TreeRows<TItem>(props: TreeRows.Props<TItem>): React.JSX.Element {
+export function TreeRows(props: TreeRows.Props): React.JSX.Element {
   const { children } = props;
   const store = useTreeRootContext();
 
@@ -71,8 +71,8 @@ export function TreeRows<TItem>(props: TreeRows.Props<TItem>): React.JSX.Element
 }
 
 export namespace TreeRows {
-  export interface Props<TItem> {
-    children: (item: TItem) => React.ReactNode;
+  export interface Props {
+    children: (item: any) => React.ReactNode;
   }
 }
 

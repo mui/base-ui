@@ -17,10 +17,14 @@ export const TreeLabel = React.forwardRef(function TreeLabel(
   componentProps: TreeLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
   // Ignore an `id` from untyped consumers, so the tree references the id the label renders.
-  const elementPropsWithoutId = elementProps as typeof elementProps & { id?: string | undefined };
-  delete elementPropsWithoutId.id;
+  const {
+    render,
+    className,
+    style,
+    id: ignoredId,
+    ...elementProps
+  } = componentProps as TreeLabel.Props & { id?: string | undefined };
 
   const store = useTreeRootContext();
   // The press behind a click, so the highlight reports the focus it moves as a pointer one.
@@ -35,7 +39,6 @@ export const TreeLabel = React.forwardRef(function TreeLabel(
       // An empty id on the `render` element leaves the label without one to reference.
       store.set('labelId', labelId || undefined);
     },
-    // The tree isn't a Field control, so the Field's label keeps naming the Field's control.
     labelsFieldControl: false,
     focusControl(event) {
       // A click without a press, such as from assistive technology, has no pointer behind it.

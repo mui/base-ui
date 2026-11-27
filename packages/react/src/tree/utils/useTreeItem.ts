@@ -12,7 +12,7 @@ import type { TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import { getItemIdKey } from './itemIdKey';
 import * as TreeItemCssVars from '../item/TreeItemCssVars';
-import { assertPlainTree, ITEM_PARTS } from './assertTreeKind';
+import { assertPlainTree, getTreeNamespace, ITEM_PARTS } from './assertTreeKind';
 import { TreeRowsContext } from '../list/TreeRowsContext';
 
 /**
@@ -107,8 +107,8 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       if (selectors.itemMeta(store.state, itemId) == null) {
-        const [treePart, treeGridPart] = ITEM_PARTS[kind];
-        const [tree, part] = store.grid ? ['TreeGrid', treeGridPart] : ['Tree', treePart];
+        const tree = getTreeNamespace(store).namespace;
+        const part = ITEM_PARTS[kind][tree];
         error(
           `A <${tree}.${part}> has the itemId ${JSON.stringify(itemId)}, which is not in the ` +
             `\`items\` of <${tree}.Root>, so the tree can't show, focus or select it. ` +

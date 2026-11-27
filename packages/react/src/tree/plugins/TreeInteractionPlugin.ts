@@ -497,17 +497,18 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       event.altKey &&
       !ctrlPressed &&
       event.nativeEvent.code === 'Space';
+    const verticalArrow = key === 'ArrowDown' || key === 'ArrowUp';
     // With `multiple="opt-in"`, Ctrl+Arrow moves focus without moving the selection.
     // macOS reserves Ctrl+Arrow, so Option+Arrow does it there.
     const moveFocusOnly =
+      verticalArrow &&
       multiple === 'opt-in' &&
       !event.shiftKey &&
       (mac ? event.altKey && !ctrlPressed : ctrlPressed && !event.altKey);
-    if (
-      event.altKey &&
-      !macToggle &&
-      !(moveFocusOnly && (key === 'ArrowDown' || key === 'ArrowUp'))
-    ) {
+    // Alt on any key, and Ctrl/Cmd on an arrow, are left to the browser unless
+    // they make one of the gestures above.
+    const arrow = verticalArrow || key === 'ArrowLeft' || key === 'ArrowRight';
+    if (!moveFocusOnly && ((event.altKey && !macToggle) || (ctrlPressed && arrow))) {
       return;
     }
     const isRtl = this.store.state.direction === 'rtl';
@@ -548,11 +549,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
           link.click();
         }
       }
-    } else if (key === 'ArrowDown' || key === 'ArrowUp') {
-      // Ctrl/Cmd+Arrow is left to the browser unless it's the opt-in gesture above.
-      if (ctrlPressed && !moveFocusOnly) {
-        return;
-      }
+    } else if (verticalArrow) {
       event.preventDefault();
       const targetItem = (key === 'ArrowDown' ? getNextNavigableItem : getPreviousNavigableItem)(
         this.store.state,
@@ -561,7 +558,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       if (targetItem != null) {
         this.navigateTo(targetItem, event);
         // Shift extends the range from the item focus left.
-        if (multiple && event.shiftKey && !ctrlPressed) {
+        if (multiple && event.shiftKey) {
           this.store.selection.extendTo(
             targetItem,
             itemId,
@@ -571,9 +568,6 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         }
       }
     } else if (key === expandKey) {
-      if (ctrlPressed) {
-        return;
-      }
       const expanded = selectors.isItemExpanded(this.store.state, itemId);
       if (!expanded && this.store.expansion.canToggleItemExpansion(itemId)) {
         this.store.expansion.setItemExpansion(
@@ -590,9 +584,6 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       }
       event.preventDefault();
     } else if (key === collapseKey) {
-      if (ctrlPressed) {
-        return;
-      }
       if (
         this.store.expansion.canToggleItemExpansion(itemId) &&
         selectors.isItemExpanded(this.store.state, itemId)

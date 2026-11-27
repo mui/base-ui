@@ -4,6 +4,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { warn } from '@base-ui/utils/warn';
 import type { TreeStore } from '../store/TreeStore';
 import type { TreeState } from '../store/types';
+import { getTreeNamespace } from '../utils/assertTreeKind';
 import { TreeRootContext } from './TreeRootContext';
 
 /** The store state a provider wrapping the root controls. */
@@ -40,7 +41,7 @@ function warnMisplacedProvider(store: TreeStore<any, any>, name: string | undefi
   if (name === undefined) {
     return;
   }
-  const component = store.grid === undefined ? 'Tree' : 'TreeGrid';
+  const component = getTreeNamespace(store).namespace;
   warn(
     `<${component}.${name}> has no effect inside <${component}.Root>.`,
     'Providers configure the tree they wrap.',

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTreeRootContext } from '../root/TreeRootContext';
+import { getTreeNamespace } from '../utils/assertTreeKind';
 import type { TreeFilterProvider } from './TreeFilterProvider';
 
 export interface TreeFilterContext {
@@ -22,13 +23,12 @@ export function useTreeFilterPart(part: string) {
   const context = React.useContext(TreeFilterContext);
   const filtering = store.filtering;
   if (context === null || filtering === undefined) {
-    const [component, page] =
-      store.grid === undefined ? ['Tree', 'tree'] : ['TreeGrid', 'tree-grid'];
+    const { namespace: component, docsSlug } = getTreeNamespace(store);
     throw new Error(
       `Base UI: <${component}.${part}> must be placed in a tree wrapped in <${component}.FilterProvider>. ` +
         'It reads the filter query from the provider, which a plain tree does not have. ' +
         `Wrap the <${component}.Root> it belongs to in <${component}.FilterProvider>. ` +
-        `See https://base-ui.com/react/components/${page}#filtering`,
+        `See https://base-ui.com/react/components/${docsSlug}#filtering`,
     );
   }
   return { store, filtering, value: context.value, onValueChange: context.onValueChange };

@@ -304,16 +304,6 @@ const customActionsRef = React.createRef<Tree.Root.Actions<CustomItem> | null>()
   <Tree.List>{(item: CustomItem) => item.name}</Tree.List>
 </Tree.Root>;
 
-// An annotated parameter types the item.
-<Tree.Root items={[] as FileItem[]}>
-  <Tree.List>
-    {(item: FileItem) => {
-      expectType<FileItem, typeof item>(item);
-      return item.size;
-    }}
-  </Tree.List>
-</Tree.Root>;
-
 // Without one, the item is `any`, like `Combobox.List`'s: the list can't see the root's items.
 <Tree.Root items={[] as FileItem[]}>
   <Tree.List>

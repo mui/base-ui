@@ -19,6 +19,7 @@ import type { TreeStore } from '../store/TreeStore';
 import { EMPTY_SET, selectors } from '../store/selectors';
 import { createLookup } from '../utils/lookup';
 import { getItemIdKey } from '../utils/itemIdKey';
+import { getTreeNamespace } from '../utils/assertTreeKind';
 
 const EMPTY_MAP: ReadonlyMap<TreeItemId, boolean> = new Map();
 
@@ -482,7 +483,7 @@ export class TreeFilteringPlugin<TItem = TreeDefaultItem> {
     if (process.env.NODE_ENV === 'production' || unknownIds.length === 0) {
       return;
     }
-    const component = this.store.grid === undefined ? 'Tree' : 'TreeGrid';
+    const component = getTreeNamespace(this.store).namespace;
     warn(
       `${component}.FilterProvider received \`filteredItems\` containing item IDs that do not exist ` +
         `in the tree: ${unknownIds.map(String).join(', ')}. These matches are ignored ` +
