@@ -235,6 +235,60 @@ describe('<Dialog.Popup />', () => {
   });
 
   describe('prop: finalFocus', () => {
+    it.each([
+      { name: 'focuses the specified element', useExplicitTarget: true },
+      { name: 'leaves focus on the document when using the default', useExplicitTarget: false },
+    ])(
+      '$name on backdrop press when preventScroll is unsupported',
+      async ({ useExplicitTarget }) => {
+        const originalFocus = HTMLElement.prototype.focus;
+        const focusSpy = vi
+          .spyOn(HTMLElement.prototype, 'focus')
+          .mockImplementation(function focusWithoutOptions(this: HTMLElement) {
+            originalFocus.call(this);
+          });
+
+        try {
+          function TestDialog() {
+            const finalFocusRef = React.useRef<HTMLButtonElement>(null);
+
+            return (
+              <React.Fragment>
+                <button ref={finalFocusRef}>Continue</button>
+                <Dialog.Root>
+                  <Dialog.Trigger>Open</Dialog.Trigger>
+                  <Dialog.Portal>
+                    <Dialog.Backdrop data-testid="backdrop" />
+                    <Dialog.Popup
+                      finalFocus={() => (useExplicitTarget ? finalFocusRef.current : true)}
+                    >
+                      <Dialog.Close>Close</Dialog.Close>
+                    </Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </React.Fragment>
+            );
+          }
+
+          const { user } = await render(<TestDialog />);
+          const continueButton = screen.getByRole('button', { name: 'Continue' });
+          await user.click(screen.getByRole('button', { name: 'Open' }));
+          await waitFor(() => {
+            expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+          });
+
+          await user.click(screen.getByTestId('backdrop'));
+
+          await waitFor(() => {
+            expect(screen.queryByRole('dialog')).toBe(null);
+          });
+          expect(useExplicitTarget ? continueButton : document.body).toHaveFocus();
+        } finally {
+          focusSpy.mockRestore();
+        }
+      },
+    );
+
     it('respects finalFocus when initialFocus points outside the popup', async () => {
       function TestComponent() {
         const initialRef = React.useRef<HTMLInputElement>(null);
