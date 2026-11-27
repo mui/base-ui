@@ -26,6 +26,8 @@ import { usePasswordFieldRootContext } from '../root/PasswordFieldRootContext';
 /**
  * The password input.
  * Renders an `<input>` element.
+ * It's masked while its form submits, even when revealed, so the password is never submitted as
+ * plain text. This can't be canceled and doesn't call `onRevealedChange`.
  *
  * Documentation: [Base UI Password Field](https://base-ui.com/react/components/password-field)
  */
