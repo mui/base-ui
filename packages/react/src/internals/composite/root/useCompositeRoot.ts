@@ -4,6 +4,7 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import type { TextDirection } from '../../direction-context/DirectionContext';
@@ -160,7 +161,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       }
     }
 
-    scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
+    // Scrolling into view reads the root's layout. This runs in the commit that mounts the
+    // composite, while the page has pending DOM changes, so the read would force a layout of the
+    // whole page. The next frame still runs before the first paint.
+    AnimationFrame.request(() => {
+      if (activeItem?.isConnected) {
+        scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
+      }
+    });
   });
 
   useIsoLayoutEffect(() => {
