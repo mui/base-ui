@@ -1,5 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
@@ -1172,7 +1173,10 @@ describe('Composite', () => {
       const { setProps } = await render(<App showLast />);
 
       const item3 = screen.getByTestId('3');
-      expect(item3).toHaveAttribute('tabindex', '0');
+      // Whether the first item is hidden is checked in the frame after mount.
+      await waitFor(() => {
+        expect(item3).toHaveAttribute('tabindex', '0');
+      });
 
       act(() => item3.focus());
 
@@ -1186,6 +1190,60 @@ describe('Composite', () => {
       expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
       expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
       expect(item3).toHaveAttribute('tabindex', '0');
+    });
+
+    it('reads no computed style while it mounts', () => {
+      // Rendered synchronously, so no animation frame can run before the check.
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const root = ReactDOMClient.createRoot(host);
+      const getComputedStyle = vi.spyOn(window, 'getComputedStyle');
+
+      try {
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        React.act(() => {
+          root.render(
+            <CompositeRoot>
+              <CompositeItem data-testid="1" />
+              <CompositeItem data-testid="2" />
+              <CompositeItem data-testid="3" />
+            </CompositeRoot>,
+          );
+        });
+
+        expect(getComputedStyle).not.toHaveBeenCalled();
+        expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+      } finally {
+        getComputedStyle.mockRestore();
+        React.act(() => root.unmount());
+        document.body.removeChild(host);
+      }
+    });
+
+    it('moves the tab stop off a first item hidden by styles in the frame after mount', async () => {
+      await render(
+        <CompositeRoot>
+          <CompositeItem data-testid="1" style={{ visibility: 'hidden' }} />
+          <CompositeItem data-testid="2" />
+        </CompositeRoot>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      });
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('moves the tab stop off a disabled first item as it mounts', async () => {
+      await render(
+        <CompositeRoot>
+          <CompositeItem data-testid="1" aria-disabled="true" />
+          <CompositeItem data-testid="2" />
+        </CompositeRoot>,
+      );
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
     });
 
     it('keeps the tab stop in range when no item can hold it', async () => {

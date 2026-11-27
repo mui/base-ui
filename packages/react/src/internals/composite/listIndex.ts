@@ -523,6 +523,24 @@ export function isListIndexDisabled(
   index: number,
   disabledIndices?: DisabledIndices,
 ) {
+  if (isListIndexDisabledByAttributes(list, index, disabledIndices)) {
+    return true;
+  }
+
+  const element = list[index];
+  return element != null && !isElementVisible(element);
+}
+
+/**
+ * Whether the item at `index` is disabled by `disabledIndices` or its own attributes.
+ * Unlike `isListIndexDisabled`, it does not check whether the item is hidden by styles, so it
+ * reads no computed style and can run while a commit is still laying out.
+ */
+export function isListIndexDisabledByAttributes(
+  list: ReadonlyArray<HTMLElement | null>,
+  index: number,
+  disabledIndices?: DisabledIndices,
+) {
   const isExplicitlyDisabled =
     typeof disabledIndices === 'function'
       ? disabledIndices(index)
@@ -535,10 +553,6 @@ export function isListIndexDisabled(
   const element = list[index];
   if (!element) {
     return false;
-  }
-
-  if (!isElementVisible(element)) {
-    return true;
   }
 
   // A natively disabled element can never receive focus, so it must always be

@@ -4,7 +4,9 @@ import type { TextDirection } from '../direction-context/DirectionContext';
 export { stopEvent } from '../../utils/popups/event';
 export {
   isIndexOutOfListBounds,
+  isElementVisible,
   isListIndexDisabled,
+  isListIndexDisabledByAttributes,
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
