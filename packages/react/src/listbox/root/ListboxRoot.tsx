@@ -13,7 +13,6 @@ import { createListboxItems } from '../items/createItems';
 import type {
   CreateListboxItemsOptions,
   ListboxItemCollection,
-  ListboxItemGroupInput,
   ListboxItems,
   ListboxPrimitiveValue,
 } from '../items/createItems';
@@ -21,16 +20,12 @@ import { ListboxRootContext } from './ListboxRootContext';
 import { ListboxStore, getSelectedValueSet } from '../store';
 import { useHighlightChangeNotifier } from '../utils/useHighlightChangeNotifier';
 
-// A plain array is a collection of primitives, which are their own value and label, or of
-// `{ value, label, disabled }` objects.
-const PLAIN_ITEM_OPTIONS: CreateListboxItemsOptions<
-  ListboxPrimitiveValue | ListboxItemObject<ListboxPrimitiveValue>,
-  ListboxPrimitiveValue
-> = {
-  getValue: (item) => (typeof item === 'object' ? item.value : item),
-  getLabel: (item) => (typeof item === 'object' ? item.label : String(item)),
-  getDisabled: (item) => typeof item === 'object' && item.disabled === true,
-};
+// A plain array is a collection of primitives, which are their own value and label.
+const PLAIN_ITEM_OPTIONS: CreateListboxItemsOptions<ListboxPrimitiveValue, ListboxPrimitiveValue> =
+  {
+    getValue: (item) => item,
+    getLabel: String,
+  };
 
 /**
  * Groups all parts of the listbox.
@@ -54,16 +49,18 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     children,
   } = props;
 
-  if (
-    itemsProp != null &&
-    !Array.isArray(itemsProp) &&
-    (typeof itemsProp !== 'object' ||
-      typeof (itemsProp as Partial<ListboxItems>).getDisabled !== 'function')
-  ) {
+  // An array of items holds primitives, so an object as its first item marks data that needs
+  // `createItems()`.
+  const isReadable = Array.isArray(itemsProp)
+    ? typeof itemsProp[0] !== 'object'
+    : typeof itemsProp === 'object' &&
+      typeof (itemsProp as Partial<ListboxItems>).getDisabled === 'function';
+
+  if (itemsProp != null && !isReadable) {
     throw new Error(
-      'Base UI: <Listbox.Root> received an `items` object that is not a collection, ' +
-        'so its items cannot be read. Pass an array of items, an array of groups with items, ' +
-        'or the result of `Listbox.createItems()`. ' +
+      'Base UI: <Listbox.Root> received `items` that are neither an array of strings or numbers ' +
+        'nor a collection, so its items cannot be read. Pass an array of strings or numbers, ' +
+        'or the result of `Listbox.createItems()` for any other data. ' +
         'See https://base-ui.com/react/components/listbox#items',
     );
   }
@@ -226,9 +223,8 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * Pass one of the following:
    * - An array of primitives, such as strings or numbers, each of which is an item's value and
    *   label.
-   * - An array of `{ value, label, disabled }` objects.
-   * - An array of groups, each with an `items` array of either of the above.
-   * - A collection created with `Listbox.createItems()` for any other data.
+   * - A collection created with `Listbox.createItems()` for any other data, such as objects or
+   *   groups of items.
    *
    * Give each `Listbox.Item` its value, which with a collection is what `getValue` returns for
    * the item.
@@ -236,31 +232,10 @@ export interface ListboxRootProps<Value, Multiple extends boolean | 'opt-in' | u
    * Pass the same array or collection on every render, by defining it outside the component or
    * memoizing it, since a new one makes every item render again.
    *
-   * @type readonly Value[] | readonly ListboxItemObject<Value>[] | readonly ListboxItemGroup<Value | ListboxItemObject<Value>>[] | ListboxItemCollection<any, Value>
+   * @type readonly Value[] | ListboxItemCollection<any, Value>
    */
   items?:
-    | readonly (Value & ListboxPrimitiveValue)[]
-    | readonly ListboxItemObject<Value & ListboxPrimitiveValue>[]
-    | readonly ListboxItemGroupInput<
-        (Value & ListboxPrimitiveValue) | ListboxItemObject<Value & ListboxPrimitiveValue>
-      >[]
-    | ListboxItemCollection<any, Value>
-    | undefined;
-}
-
-/**
- * An item in a plain array passed to the root's `items` prop.
- */
-export interface ListboxItemObject<Value> {
-  /** The item's value, which identifies it. Give the same value to its `Listbox.Item`. */
-  value: Value;
-  /** The text that represents the item in keyboard text navigation. */
-  label: string;
-  /**
-   * Whether the item is disabled.
-   * @default false
-   */
-  disabled?: boolean | undefined;
+    readonly (Value & ListboxPrimitiveValue)[] | ListboxItemCollection<any, Value> | undefined;
 }
 
 export interface ListboxRootState {}

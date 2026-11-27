@@ -32,9 +32,14 @@ const groups: FolderGroup[] = [
   },
 ];
 
+const items = Listbox.createItems(groups, {
+  getValue: (folder) => folder.value,
+  getLabel: (folder) => folder.label,
+});
+
 export default function ExampleListboxGrouped() {
   return (
-    <Listbox.Root items={groups} defaultValue="archive">
+    <Listbox.Root items={items} defaultValue="archive">
       <div className={styles.Panel}>
         <div className={styles.Header}>
           <Listbox.Label className={styles.Label}>Move to</Listbox.Label>

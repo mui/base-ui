@@ -105,5 +105,5 @@
   "106": "Base UI: ListboxGroupContext is missing. ListboxGroup parts must be placed within <Listbox.Group>.",
   "107": "Base UI: ListboxItemContext is missing. ListboxItem parts must be placed within <Listbox.Item>.",
   "108": "Base UI: ListboxRootContext is missing. Listbox parts must be placed within <Listbox.Root>.",
-  "109": "Base UI: <Listbox.Root> received an `items` object that is not a collection, so its items cannot be read. Pass an array of items, an array of groups with items, or the result of `Listbox.createItems()`. See https://base-ui.com/react/components/listbox#items"
+  "109": "Base UI: <Listbox.Root> received `items` that are neither an array of strings or numbers nor a collection, so its items cannot be read. Pass an array of strings or numbers, or the result of `Listbox.createItems()` for any other data. See https://base-ui.com/react/components/listbox#items"
 }

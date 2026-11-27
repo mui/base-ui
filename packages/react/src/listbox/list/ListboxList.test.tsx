@@ -33,22 +33,6 @@ describe('<Listbox.List />', () => {
       ]);
     });
 
-    it('passes the objects of a plain array to a function child', async () => {
-      await render(
-        <Listbox.Root items={[{ value: 'apple', label: 'Apple' }]}>
-          <Listbox.List>
-            {(item: { value: string; label: string }) => (
-              <Listbox.Item key={item.value} value={item.value}>
-                {item.label}
-              </Listbox.Item>
-            )}
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      expect(screen.getByRole('option', { name: 'Apple' })).toBeVisible();
-    });
-
     it('passes the data given to createItems to a function child', async () => {
       const items = Listbox.createItems([{ id: 'apple', name: 'Apple' }], {
         getValue: (fruit) => fruit.id,

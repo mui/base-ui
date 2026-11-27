@@ -72,28 +72,22 @@ import { DemoListboxOptInSelection } from './demos/opt-in-selection';
 Without the `items` prop, the rendered `Listbox.Item` parts are the whole list. Pass `items` to `Listbox.Root` to describe every item up front, which lets the listbox render them for you and reach items that aren't rendered, as in a [virtualized](#virtualized) list. It accepts:
 
 - An array of strings or numbers. Each one is an item's value and label.
-- An array of `{ value, label, disabled }` objects. `disabled` is optional.
-- An array of groups, each with an `items` array of either of the above. See [Grouped](#grouped).
-- A collection created with [`Listbox.createItems()`](#custom-data) for data in any other shape.
+- A collection created with [`Listbox.createItems()`](#custom-data) for any other data, such as objects or [groups](#grouped) of items.
 
 Give each `Listbox.Item` its value. The selection holds the same values.
 
-Pass the same array on every render, by defining it outside the component or memoizing it. A new array makes the listbox read the items again and render every item again.
+Pass the same array or collection on every render, by defining it outside the component or memoizing it. A new one makes the listbox read the items again and render every item again.
 
 To render the items, pass a function to `Listbox.List`. It's called with each item and its index:
 
 ```jsx title="Rendering items with a function"
-const fonts = [
-  { value: 'sans', label: 'Sans-serif' },
-  { value: 'serif', label: 'Serif' },
-  { value: 'mono', label: 'Monospace', disabled: true },
-];
+const fonts = ['Sans-serif', 'Serif', 'Monospace'];
 
 <Listbox.Root items={fonts}>
   <Listbox.List>
     {(font) => (
-      <Listbox.Item key={font.value} value={font.value}>
-        {font.label}
+      <Listbox.Item key={font} value={font}>
+        {font}
       </Listbox.Item>
     )}
   </Listbox.List>
@@ -102,7 +96,7 @@ const fonts = [
 
 A function can't be passed from a Server Component, so a list rendered this way must be in a Client Component. You can also map over the data yourself and render `Listbox.Item` parts as children, which works in either. To render other content next to the items, place the function in `Listbox.Collection` instead of `Listbox.List`.
 
-When `items` is set, disabled items and the labels used for keyboard text navigation come from the data. The `disabled` and `label` props of `Listbox.Item` are ignored.
+When `items` is set, disabled items and the labels used for keyboard text navigation come from the data. The `disabled` and `label` props of `Listbox.Item` are ignored. An array of strings or numbers has no disabled items, so to disable some, create a collection with `Listbox.createItems()` and pass it `getDisabled`.
 
 Filter the data before you pass it to `items`. Selecting everything with <kbd>Ctrl</kbd> or <kbd>Cmd</kbd>+<kbd>A</kbd>, or a range with <kbd>Shift</kbd>, replaces the selection with items from the current `items`, so selected items that a filter has removed are deselected.
 
@@ -110,7 +104,7 @@ Filter the data before you pass it to `items`. Selecting everything with <kbd>Ct
 
 Use `Listbox.Group` and `Listbox.GroupLabel` to group related items.
 
-When `items` is an array of groups, the function passed to `Listbox.List` receives each group. Pass the group's items to `Listbox.Group` and render them with `Listbox.Collection`.
+To describe grouped items with the `items` prop, pass an array of groups, each with an `items` array, to [`Listbox.createItems()`](#custom-data). The function passed to `Listbox.List` then receives each group. Pass the group's items to `Listbox.Group` and render them with `Listbox.Collection`.
 
 import { DemoListboxGrouped } from './demos/grouped';
 
@@ -118,7 +112,7 @@ import { DemoListboxGrouped } from './demos/grouped';
 
 ### Custom data
 
-For data in any other shape, create a collection with `Listbox.createItems()` and pass it to the `items` prop. Make sure `getValue` returns a unique primitive for each item, such as its ID, and give each `Listbox.Item` that value. The selection holds the same values, and `items.get()` returns the object for one.
+For data that isn't an array of strings or numbers, create a collection with `Listbox.createItems()` and pass it to the `items` prop. Make sure `getValue` returns a unique primitive for each item, such as its ID, and give each `Listbox.Item` that value. The selection holds the same values, and `items.get()` returns the object for one.
 
 ```tsx title="Custom data"
 interface User {

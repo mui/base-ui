@@ -31,9 +31,14 @@ const groups: FolderGroup[] = [
   },
 ];
 
+const items = Listbox.createItems(groups, {
+  getValue: (folder) => folder.value,
+  getLabel: (folder) => folder.label,
+});
+
 export default function ExampleListboxGrouped() {
   return (
-    <Listbox.Root items={groups} defaultValue="archive">
+    <Listbox.Root items={items} defaultValue="archive">
       <div className="w-64 border border-neutral-950 bg-white text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-1 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white">
         <div className="border-b border-neutral-200 px-3.5 py-3 dark:border-neutral-800">
           <Listbox.Label className="cursor-default text-sm font-bold">Move to</Listbox.Label>

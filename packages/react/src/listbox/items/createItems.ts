@@ -5,7 +5,7 @@ import { isGroupedItems } from '../../internals/resolveValueLabel';
 export type ListboxPrimitiveValue = string | number | bigint | boolean;
 
 /**
- * A group of items in the data passed to the root's `items` prop or to `Listbox.createItems()`.
+ * A group of items in the data passed to `Listbox.createItems()`.
  * It can carry any other fields, such as a label to render.
  */
 export interface ListboxItemGroup<Item> {
@@ -173,7 +173,7 @@ export function createListboxItems<Item, Key extends ListboxPrimitiveValue>(
         warn(
           `An item passed to the \`items\` of <Listbox.Root> has the label ${String(label)}, which ` +
             "is not a string, so keyboard text navigation can't match it reliably. Return a string " +
-            'from `getLabel`, or set a string `label` on the item.',
+            'from `getLabel`.',
         );
       }
       return label == null ? null : String(label);

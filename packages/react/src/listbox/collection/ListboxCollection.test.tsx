@@ -10,6 +10,10 @@ describe('<Listbox.Collection />', () => {
     { label: 'Fruits', items: ['Apple', 'Banana'] },
     { label: 'Vegetables', items: ['Carrot'] },
   ];
+  const groupedItems = Listbox.createItems(groups, {
+    getValue: (item) => item,
+    getLabel: (item) => item,
+  });
 
   it('renders the root items next to other content', async () => {
     await render(
@@ -36,7 +40,7 @@ describe('<Listbox.Collection />', () => {
 
   it('renders the groups of grouped items, and the items of the group it is in', async () => {
     await render(
-      <Listbox.Root items={groups}>
+      <Listbox.Root items={groupedItems}>
         <Listbox.List>
           {(group: (typeof groups)[number]) => (
             <Listbox.Group key={group.label} items={group.items}>

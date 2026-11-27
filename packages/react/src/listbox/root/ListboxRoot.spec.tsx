@@ -142,34 +142,11 @@ fruits.get(1);
 // @ts-expect-error -- other data goes through `Listbox.createItems()`
 <Listbox.Root items={[{ id: 'a' }]} />;
 
-// An array of `{ value, label, disabled }` objects takes its values from the `value` fields.
-<Listbox.Root
-  items={[
-    { value: 'a', label: 'Apple' },
-    { value: 'b', label: 'Banana', disabled: true },
-  ]}
-  multiple
-  onValueChange={(value) => {
-    expectType<string[], typeof value>(value);
-  }}
-/>;
+// @ts-expect-error -- objects go through `Listbox.createItems()`
+<Listbox.Root items={[{ value: 'a', label: 'Apple' }]} />;
 
-// @ts-expect-error -- the values are the items' `value` fields
-<Listbox.Root items={[{ value: 'a', label: 'Apple' }]} defaultValue={1} />;
-
-// @ts-expect-error -- the label is a string, since it's used for keyboard text navigation
-<Listbox.Root items={[{ value: 'a', label: <span>Apple</span> }]} />;
-
-// Groups hold either kind of item.
-<Listbox.Root
-  items={[
-    { label: 'Fruits', items: ['a', 'b'] },
-    { label: 'Vegetables', items: [{ value: 'c', label: 'Carrot' }] },
-  ]}
-  onValueChange={(value) => {
-    expectType<string | null, typeof value>(value);
-  }}
-/>;
+// @ts-expect-error -- groups go through `Listbox.createItems()`
+<Listbox.Root items={[{ label: 'Fruits', items: ['a', 'b'] }]} />;
 
 // `createItems` takes groups, and its accessors receive the items.
 const groupedFruits = Listbox.createItems(
@@ -203,7 +180,11 @@ interface FruitGroup {
   items: string[];
 }
 declare const fruitGroups: FruitGroup[];
-<Listbox.Root items={fruitGroups} defaultValue="a" />;
+const interfaceGroups = Listbox.createItems(fruitGroups, {
+  getValue: (fruit) => fruit,
+  getLabel: (fruit) => fruit,
+});
+<Listbox.Root items={interfaceGroups} defaultValue="a" />;
 
 // An item needs a value.
 // @ts-expect-error -- `value` is required

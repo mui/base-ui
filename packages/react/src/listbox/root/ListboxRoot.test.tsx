@@ -3165,6 +3165,8 @@ describe('<Listbox.Root />', () => {
     it.each([
       { name: 'an object that is not a collection', items: { sans: 'Sans-serif' } },
       { name: 'a string', items: 'sans' },
+      { name: 'an array of objects', items: [{ value: 'sans', label: 'Sans-serif' }] },
+      { name: 'an array of groups', items: [{ label: 'Fonts', items: ['sans'] }] },
     ])('throws when `items` is $name', async ({ items }) => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -3177,7 +3179,7 @@ describe('<Listbox.Root />', () => {
               </Listbox.List>
             </Listbox.Root>,
           ),
-        ).rejects.toThrow(/not a collection/);
+        ).rejects.toThrow(/nor a collection/);
       } finally {
         errorSpy.mockRestore();
       }
@@ -3574,11 +3576,11 @@ describe('<Listbox.Root />', () => {
     });
 
     describe('key presses while the list holds focus for an item that is not rendered', () => {
-      const items = [
-        { value: 'a', label: 'a' },
-        { value: 'b', label: 'b', disabled: true },
-        { value: 'c', label: 'c' },
-      ];
+      const items = Listbox.createItems(['a', 'b', 'c'], {
+        getValue: (item) => item,
+        getLabel: (item) => item,
+        getDisabled: (item) => item === 'b',
+      });
 
       // Renders only the first item, and moves focus to the list for the item at `index`.
       async function holdFocusFor(
@@ -3650,12 +3652,19 @@ describe('<Listbox.Root />', () => {
       );
     });
 
-    describe('with an array of objects', () => {
-      const fruits = [
-        { value: 'apple', label: 'Apple' },
-        { value: 'banana', label: 'Banana', disabled: true },
-        { value: 'cherry', label: 'Cherry' },
-      ];
+    describe('with a collection of objects', () => {
+      const fruits = Listbox.createItems(
+        [
+          { id: 'apple', name: 'Apple' },
+          { id: 'banana', name: 'Banana', unavailable: true },
+          { id: 'cherry', name: 'Cherry' },
+        ],
+        {
+          getValue: (fruit) => fruit.id,
+          getLabel: (fruit) => fruit.name,
+          getDisabled: (fruit) => fruit.unavailable === true,
+        },
+      );
 
       // Renders only the first item.
       function FruitList(props: Omit<Listbox.Root.Props<string, true>, 'items'>) {
@@ -3694,10 +3703,13 @@ describe('<Listbox.Root />', () => {
     describe('with a label that is not a string', () => {
       it('matches it as text and warns', async () => {
         const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-        const items = [
-          { value: 'one', label: 'One' },
-          { value: 'two', label: 2 as unknown as string },
-        ];
+        const items = Listbox.createItems(
+          [
+            { value: 'one', label: 'One' },
+            { value: 'two', label: 2 as unknown as string },
+          ],
+          { getValue: (item) => item.value, getLabel: (item) => item.label },
+        );
 
         const { user } = await render(
           <Listbox.Root items={items}>
@@ -3719,17 +3731,17 @@ describe('<Listbox.Root />', () => {
     });
 
     describe('with groups', () => {
-      const groups = [
-        { label: 'Fruits', items: ['Apple', 'Banana'] },
+      const groups = Listbox.createItems(
+        [
+          { label: 'Fruits', items: ['Apple', 'Banana'] },
+          { label: 'Vegetables', items: ['Carrot', 'Daikon', 'Endive'] },
+        ],
         {
-          label: 'Vegetables',
-          items: [
-            { value: 'Carrot', label: 'Carrot' },
-            { value: 'Daikon', label: 'Daikon', disabled: true },
-            { value: 'Endive', label: 'Endive' },
-          ],
+          getValue: (item) => item,
+          getLabel: (item) => item,
+          getDisabled: (item) => item === 'Daikon',
         },
-      ];
+      );
 
       // Renders only the first group.
       function GroupedList(props: Omit<Listbox.Root.Props<string, true>, 'items'>) {

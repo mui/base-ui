@@ -7,7 +7,6 @@ export type {
   ListboxRootChangeEventDetails as ListboxPreviewRootChangeEventDetails,
   ListboxRootHighlightEventReason as ListboxPreviewRootHighlightEventReason,
   ListboxRootHighlightEventDetails as ListboxPreviewRootHighlightEventDetails,
-  ListboxItemObject,
 } from './root/ListboxRoot';
 export type {
   ListboxLabelProps as ListboxPreviewLabelProps,
