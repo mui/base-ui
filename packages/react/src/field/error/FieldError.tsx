@@ -34,7 +34,6 @@ export const FieldError = React.forwardRef(function FieldError(
   const { render, id: idProp, className, match, style, ...elementProps } = componentProps;
 
   const defaultId = useBaseUiId(idProp);
-  const id = resolveRenderedId(componentProps, defaultId) || undefined;
 
   const { validityData, state: fieldState, name } = useFieldRootContext(false);
   const { setMessageIds } = useLabelableContext();
@@ -57,6 +56,9 @@ export const FieldError = React.forwardRef(function FieldError(
   }
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
+
+  // Resolve only while mounted: unwrapping a pending lazy render element suspends.
+  const id = mounted ? resolveRenderedId(componentProps, defaultId) || undefined : undefined;
 
   useIsoLayoutEffect(() => {
     if (!rendered || !id) {

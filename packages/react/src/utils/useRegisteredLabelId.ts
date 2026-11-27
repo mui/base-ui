@@ -12,6 +12,11 @@ export function useRegisteredLabelId(
   const id = resolveRenderedId(props, defaultId) || undefined;
 
   useIsoLayoutEffect(() => {
+    // An id-less label releases only its own id, in the cleanup of its previous id.
+    if (id === undefined) {
+      return undefined;
+    }
+
     setLabelId(id);
     return () => {
       setLabelId((currentId) => (currentId === id ? undefined : currentId));

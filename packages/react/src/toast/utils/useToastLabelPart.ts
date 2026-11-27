@@ -39,7 +39,8 @@ export function useToastLabelElement(
   const shouldRender = hasRenderableChildren(element);
 
   useIsoLayoutEffect(() => {
-    if (!shouldRender) {
+    // An id-less part releases only its own id, in the cleanup of its previous id.
+    if (!shouldRender || id === undefined) {
       return undefined;
     }
 

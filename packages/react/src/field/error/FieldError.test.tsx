@@ -1,6 +1,6 @@
-import { expect, describe, it, afterEach } from 'vitest';
+import { expect, describe, it, afterEach, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -450,5 +450,32 @@ describe('<Field.Error />', () => {
       expect(screen.getByText('Message')).not.toHaveAttribute('id');
       expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-describedby');
     });
+
+    // A Server Component's render element reaches the client as a `react.lazy` wrapper.
+    it.skipIf(reactMajor < 19)(
+      'does not unwrap a pending lazy render element while hidden',
+      async () => {
+        const init = vi.fn(() => {
+          throw new Promise(() => {});
+        });
+        const lazyElement = {
+          $$typeof: Symbol.for('react.lazy'),
+          _payload: null,
+          _init: init,
+        } as unknown as React.ReactElement;
+
+        await render(
+          <React.Suspense fallback={<div data-testid="fallback" />}>
+            <Field.Root>
+              <Field.Control />
+              <Field.Error render={lazyElement} />
+            </Field.Root>
+          </React.Suspense>,
+        );
+
+        expect(init).not.toHaveBeenCalled();
+        expect(screen.getByRole('textbox')).toBeInTheDocument();
+      },
+    );
   });
 });

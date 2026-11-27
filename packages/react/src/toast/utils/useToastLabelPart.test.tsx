@@ -234,5 +234,30 @@ describe('useToastLabelPart', () => {
       await rerender(<Fixture parts="new" />);
       expect(root).toHaveAttribute(attribute, 'new-part');
     });
+
+    it('does not let an older part without an id clear a newer part', async () => {
+      function Fixture({ oldRender }: { oldRender?: React.ReactElement | undefined }) {
+        return (
+          <Toast.Provider>
+            <Toast.Viewport>
+              <Toast.Root toast={{ id: 'test' }} data-testid="root">
+                <Part id="old-part" render={oldRender}>
+                  Old
+                </Part>
+                <Part id="new-part">New</Part>
+              </Toast.Root>
+            </Toast.Viewport>
+          </Toast.Provider>
+        );
+      }
+
+      const { setProps } = await render(<Fixture />);
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute(attribute, 'new-part');
+
+      await setProps({ oldRender: <div id={undefined} /> });
+      expect(root).toHaveAttribute(attribute, 'new-part');
+    });
   });
 });

@@ -7,7 +7,6 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useLabel } from '../../internals/labelable-provider/useLabel';
 import { useFieldItemContext } from '../item/FieldItemContext';
 
@@ -32,7 +31,6 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const fieldRootContext = useFieldRootContext(false);
   const fieldItemContext = useFieldItemContext();
-  const { labelId } = useLabelableContext();
 
   const state: FieldLabelState = {
     ...fieldRootContext.state,
@@ -41,7 +39,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const labelRef = React.useRef<HTMLElement | null>(null);
   const labelProps = useLabel({
-    id: labelId ?? idProp,
+    id: idProp,
     render,
     native: nativeLabel,
   });
