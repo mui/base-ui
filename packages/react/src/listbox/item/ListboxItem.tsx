@@ -196,7 +196,7 @@ export const ListboxItem = React.memo(
         if (rootDisabled) {
           return;
         }
-        const focusedIndex = store.focus.getFocusedIndex(index);
+        const focusedIndex = store.focus.getFocusedIndex(store.getItemIndex(index, itemValue));
         store.highlightItem(focusedIndex, event.nativeEvent);
         store.focus.itemFocused(focusedIndex);
       },

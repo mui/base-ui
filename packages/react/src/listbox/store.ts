@@ -250,6 +250,19 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     return items ? items.getLabel(index) : (this.context.labelsRef.current[index] ?? null);
   }
 
+  /**
+   * The position of a rendered item, given the position it rendered with. React 18 renders twice
+   * in Strict Mode, which leaves a position guessed from the render order wrong until the list
+   * corrects it, so the item's value locates it meanwhile.
+   */
+  getItemIndex(index: number, value: any): number {
+    if (Object.is(this.getValueAt(index), value)) {
+      return index;
+    }
+    const indexOfValue = this.indexOfValue(value);
+    return indexOfValue === -1 ? index : indexOfValue;
+  }
+
   /** The position of the item with a value, or `-1`. */
   indexOfValue(value: any): number {
     const { items } = this.state;
