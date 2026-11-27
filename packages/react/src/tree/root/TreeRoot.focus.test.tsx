@@ -222,10 +222,10 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       expect(view.getItemRoot('2').tabIndex).toBe(0);
     });
 
-    it('should set tabIndex={0} on the first selected item (multi selection)', async () => {
+    it('should set tabIndex={0} on the first selected item in tree order (multi selection)', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        selectedItems: ['2', '3'],
+        selectedItems: ['3', '2'],
         multiple: 'opt-in',
       });
 

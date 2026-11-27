@@ -354,6 +354,7 @@ const defaultFocusableItemIdSelector = createSelectorMemoized(
   (state: TreeState) => state.selectedItems,
   (state: TreeState) => state.activeLinkCounts,
   viewSelector,
+  flatListIndexLookupSelector,
   itemMetaLookupSelector,
   (state: TreeState) => state.itemFocusableWhenDisabled,
   (state: TreeState) => state.disabled,
@@ -361,6 +362,7 @@ const defaultFocusableItemIdSelector = createSelectorMemoized(
     selectedItems,
     activeLinkCounts,
     view,
+    flatListIndexLookup,
     metaLookup,
     disabledFocusable,
     treeDisabled,
@@ -373,15 +375,18 @@ const defaultFocusableItemIdSelector = createSelectorMemoized(
     const isFocusable = (itemId: TreeItemId) =>
       isMetaFocusable(metaLookup[getItemIdKey(itemId)], treeDisabled, disabledFocusable);
 
-    // Focus the first selected item whose ancestors are all expanded.
+    // Focus the selected row that comes first in the view, whatever the order of the selection.
+    let selectedTabStop: TreeItemId | null = null;
+    let selectedTabStopIndex = Infinity;
     for (const selectedId of normalizeSelectedItems(selectedItems)) {
-      const meta = metaLookup[getItemIdKey(selectedId)];
-      if (
-        isMetaFocusable(meta, treeDisabled, disabledFocusable) &&
-        isMetaInView(view, metaLookup, meta)
-      ) {
-        return selectedId;
+      const index = flatListIndexLookup[getItemIdKey(selectedId)];
+      if (index !== undefined && index < selectedTabStopIndex && isFocusable(selectedId)) {
+        selectedTabStop = selectedId;
+        selectedTabStopIndex = index;
       }
+    }
+    if (selectedTabStop != null) {
+      return selectedTabStop;
     }
 
     // Then the row linking to the current page, as in the APG navigation tree view.
