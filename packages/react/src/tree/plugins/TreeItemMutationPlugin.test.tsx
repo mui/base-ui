@@ -1270,6 +1270,31 @@ describe('removal selection/expansion pruning', () => {
     );
   });
 
+  it('leaves a row selection alone when another parent changes', async () => {
+    const actionsRef = React.createRef<Tree.Root.Actions<Item>>();
+    const onSelectedItemsChange = vi.fn();
+    await render(
+      <Tree.Root
+        defaultItems={ITEMS}
+        actionsRef={actionsRef}
+        multiple="opt-in"
+        defaultSelectedItems={['a', 'b1', 'b2']}
+        onSelectedItemsChange={onSelectedItemsChange}
+      >
+        <Tree.List>{(item) => <Tree.Item itemId={item.id}>{item.label}</Tree.Item>}</Tree.List>
+      </Tree.Root>,
+    );
+
+    await act(() =>
+      actionsRef.current!.applyTransaction((transaction) =>
+        transaction.add({ id: 'd', label: 'D' }, { parentId: null, index: 3 }),
+      ),
+    );
+
+    // Neither `a`'s children nor `b` follow from the propagation defaults.
+    expect(onSelectedItemsChange).not.toHaveBeenCalled();
+  });
+
   it('selects a parent when removing its only unselected child', async () => {
     const actionsRef = React.createRef<Tree.Root.Actions<Item>>();
     const onSelectedItemsChange = vi.fn();

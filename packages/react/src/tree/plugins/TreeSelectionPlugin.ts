@@ -7,6 +7,7 @@ import {
 import { REASONS } from '../../internals/reasons';
 import type {
   TreeItemId,
+  TreeParentLookupKey,
   TreeRootSelectionChangeEventReason,
   TreeMultiple,
   TreeDefaultItem,
@@ -357,8 +358,14 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
       this.setItemSelected(itemId, selected, true, REASONS.imperativeAction),
   };
 
-  /** Re-establish checkbox propagation after the item hierarchy changes. */
-  public reconcileSelectionAfterItemsMutation = (): void => {
+  /**
+   * Re-establish checkbox propagation around the parents whose children an items
+   * change changed. The rest of the selection may come from presses that don't
+   * propagate, so it stays as is.
+   */
+  public reconcileSelectionAfterItemsMutation = (
+    changedParentKeys: ReadonlySet<TreeParentLookupKey>,
+  ): void => {
     const { state } = this.store;
     if (
       !state.multiple ||
@@ -375,26 +382,48 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
     }
     const selectedSet = new Set(selectedItems);
 
+    // The root is not an item, so a change of the root items propagates nowhere.
+    const changedParentIds: TreeItemId[] = [];
+    for (const key of changedParentKeys) {
+      const meta = typeof key === 'string' ? state.itemMetaLookup[key] : undefined;
+      if (meta != null) {
+        changedParentIds.push(meta.id);
+      }
+    }
+    if (changedParentIds.length === 0) {
+      return;
+    }
+
     const childrenLookup = state.itemOrderedChildrenIdsLookup;
     if (state.checkboxSelectionPropagation.descendants) {
-      // A selected item selects its subtree, which the walk then skips.
-      forEachDescendant(
-        childrenLookup,
-        null,
-        (itemId) => {
-          if (selectedSet.has(itemId)) {
-            forEachDescendant(childrenLookup, itemId, (descendantId) => {
-              if (selectors.canItemBeSelected(state, descendantId)) {
-                selectedSet.add(descendantId);
-              }
-            });
-          }
-        },
-        (itemId) => !selectedSet.has(itemId),
-      );
+      for (const parentId of changedParentIds) {
+        // A parent that can't be selected follows its closest selectable ancestor.
+        let ownerId: TreeItemId | null = parentId;
+        while (ownerId != null && !selectors.canItemBeSelected(state, ownerId)) {
+          ownerId = selectors.itemParentId(state, ownerId);
+        }
+        if (ownerId != null && selectedSet.has(ownerId)) {
+          forEachDescendant(childrenLookup, parentId, (descendantId) => {
+            if (selectors.canItemBeSelected(state, descendantId)) {
+              selectedSet.add(descendantId);
+            }
+          });
+        }
+      }
     }
 
     if (state.checkboxSelectionPropagation.parents) {
+      // A changed parent can become fully selected, and so can its ancestors.
+      const affectedIds = new Set<TreeItemId>();
+      for (const parentId of changedParentIds) {
+        for (
+          let id: TreeItemId | null = parentId;
+          id != null && !affectedIds.has(id);
+          id = selectors.itemParentId(state, id)
+        ) {
+          affectedIds.add(id);
+        }
+      }
       const fullySelected = new Set<TreeItemId>();
       const hasSelectedItem = new Set<TreeItemId>();
       const isFullySelected = (itemId: TreeItemId) => fullySelected.has(itemId);
@@ -416,7 +445,13 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
         const childrenFullySelected = children.every(isFullySelected);
         const subtreeHasSelection = selectedSet.has(itemId) || children.some(hasSelection);
         const canBeSelected = selectors.canItemBeSelected(state, itemId);
-        if (children.length > 0 && childrenFullySelected && subtreeHasSelection && canBeSelected) {
+        if (
+          affectedIds.has(itemId) &&
+          children.length > 0 &&
+          childrenFullySelected &&
+          subtreeHasSelection &&
+          canBeSelected
+        ) {
           selectedSet.add(itemId);
         }
         if (subtreeHasSelection) {

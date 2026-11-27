@@ -1,43 +1,5 @@
-import type { TreeItemId, TreeItemsState, TreeState } from './types';
+import type { TreeItemId, TreeItemsState, TreeParentLookupKey, TreeState } from './types';
 import { ITEM_READER_KEYS } from '../items/itemCollection';
-
-/**
- * An items change the tree made. It is accepted at once while the tree owns
- * `items`. With controlled `items`, it is accepted once the parent renders the
- * proposed items, and rejected once the parent renders other items instead.
- */
-export interface TreeItemsProposal {
-  /** Runs `callback` once the change is settled, or at once if it already is. */
-  whenSettled(callback: (accepted: boolean) => void): void;
-}
-
-export const ACCEPTED_PROPOSAL: TreeItemsProposal = { whenSettled: (callback) => callback(true) };
-
-function createItemsProposal() {
-  let outcome: boolean | undefined;
-  let callbacks: Array<(accepted: boolean) => void> = [];
-  const proposal: TreeItemsProposal = {
-    whenSettled(callback) {
-      if (outcome === undefined) {
-        callbacks.push(callback);
-      } else {
-        callback(outcome);
-      }
-    },
-  };
-  const settle = (accepted: boolean) => {
-    if (outcome !== undefined) {
-      return;
-    }
-    outcome = accepted;
-    const pending = callbacks;
-    callbacks = [];
-    for (const callback of pending) {
-      callback(accepted);
-    }
-  };
-  return { proposal, settle };
-}
 
 export interface TreeItemsProposalEntry<TItem> {
   items: readonly TItem[];
@@ -55,20 +17,20 @@ export interface TreeItemsProposalEntry<TItem> {
   base: TreeItemsProposalEntry<TItem> | null;
   /** Ids removed by this proposal and the ones it builds on, pruned on acceptance. */
   removedIds: ReadonlySet<TreeItemId>;
-  reconcileSelection: boolean;
-  settle: (accepted: boolean) => void;
+  /** Parents whose children this proposal and the ones it builds on changed. */
+  changedParentKeys: ReadonlySet<TreeParentLookupKey>;
 }
 
-/** What a rendered `items` value accepted, to apply before the proposals settle. */
+/** What a rendered `items` value accepted, for the tree to prune and reconcile. */
 export interface TreeItemsAcceptance {
   /** The ids the accepted proposal and the ones it builds on removed. */
   removedIds: ReadonlySet<TreeItemId>;
-  reconcileSelection: boolean;
-  /** Settles the proposals: the accepted ones, and the ones it rejected or superseded. */
-  settle: () => void;
+  /** The parents whose children the accepted proposal and the ones it builds on changed. */
+  changedParentKeys: ReadonlySet<TreeParentLookupKey>;
 }
 
 const NO_IDS: ReadonlySet<TreeItemId> = new Set();
+const NO_KEYS: ReadonlySet<TreeParentLookupKey> = new Set();
 
 /**
  * The items changes proposed to a parent that controls `items`, until the
@@ -131,8 +93,8 @@ export class TreeItemsProposals<TItem> {
     state: TreeState<TItem>;
     baseItemsState: TreeItemsState<TItem>;
     removedIds: ReadonlySet<TreeItemId> | undefined;
-    reconcileSelection: boolean;
-  }): TreeItemsProposal {
+    changedParentKeys: ReadonlySet<TreeParentLookupKey>;
+  }): void {
     if (!this.batchOpen) {
       this.batchOpen = true;
       queueMicrotask(() => {
@@ -143,21 +105,20 @@ export class TreeItemsProposals<TItem> {
       proposal.base != null && this.proposals.includes(proposal.base) ? proposal.base : null;
     const removedIds = new Set(base?.removedIds);
     proposal.removedIds?.forEach((id) => removedIds.add(id));
+    const changedParentKeys = new Set(base?.changedParentKeys);
+    proposal.changedParentKeys.forEach((key) => changedParentKeys.add(key));
     const latest = this.latest;
     if (latest != null) {
       // Only the latest proposal is reused as a base or as prepared lookups.
       latest.snapshot = null;
     }
-    const { proposal: handle, settle } = createItemsProposal();
     this.proposals.push({
       items: proposal.items,
       snapshot: { state: proposal.state, baseItemsState: proposal.baseItemsState },
       base,
       removedIds,
-      reconcileSelection: (base?.reconcileSelection ?? false) || proposal.reconcileSelection,
-      settle,
+      changedParentKeys,
     });
-    return handle;
   }
 
   /**
@@ -207,15 +168,7 @@ export class TreeItemsProposals<TItem> {
     }
     if (acceptedIndex === -1) {
       this.proposals = [];
-      return {
-        removedIds: NO_IDS,
-        reconcileSelection: false,
-        settle: () => {
-          for (const proposal of proposals) {
-            proposal.settle(false);
-          }
-        },
-      };
+      return { removedIds: NO_IDS, changedParentKeys: NO_KEYS };
     }
     // Later proposals build on the accepted one, so the parent can still accept them.
     this.proposals = proposals.slice(acceptedIndex + 1);
@@ -225,21 +178,6 @@ export class TreeItemsProposals<TItem> {
       }
     }
     const accepted = proposals[acceptedIndex];
-    const acceptedChain = new Set<TreeItemsProposalEntry<TItem>>();
-    for (let proposal: typeof accepted | null = accepted; proposal != null;) {
-      acceptedChain.add(proposal);
-      proposal = proposal.base;
-    }
-    return {
-      removedIds: accepted.removedIds,
-      reconcileSelection: accepted.reconcileSelection,
-      // An earlier proposal the accepted one doesn't build on was superseded.
-      settle: () => {
-        for (let index = 0; index <= acceptedIndex; index += 1) {
-          const proposal = proposals[index];
-          proposal.settle(acceptedChain.has(proposal));
-        }
-      },
-    };
+    return { removedIds: accepted.removedIds, changedParentKeys: accepted.changedParentKeys };
   }
 }

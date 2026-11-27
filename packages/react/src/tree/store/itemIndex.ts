@@ -10,6 +10,7 @@ import type {
   TreeItemChange,
   TreeItemsState,
   TreeParentKeyed,
+  TreeParentLookupKey,
   TreeState,
 } from './types';
 import type { TreeItemReaders } from '../items/itemCollection';
@@ -78,29 +79,30 @@ function copyLookup<T extends object>(lookup: T): T {
 }
 
 /**
- * Whether two children lookups hold the same children, in the same order, under
- * every parent. An edit can rebuild the children of an item without changing
- * them, such as a replacement model with a copy of its children.
+ * The parents whose children differ, in content or order, between two children
+ * lookups. An edit can rebuild the children of an item without changing them,
+ * such as a replacement model with a copy of its children.
  */
-export function isSameHierarchy(
-  a: TreeItemsState['itemOrderedChildrenIdsLookup'],
-  b: TreeItemsState['itemOrderedChildrenIdsLookup'],
-): boolean {
-  if (a === b) {
-    return true;
+export function getChangedParentKeys(
+  previous: TreeItemsState['itemOrderedChildrenIdsLookup'],
+  next: TreeItemsState['itemOrderedChildrenIdsLookup'],
+): Set<TreeParentLookupKey> {
+  const changed = new Set<TreeParentLookupKey>();
+  if (previous === next) {
+    return changed;
   }
   // The key of the root parent is a symbol.
-  const keys = Reflect.ownKeys(b) as Array<keyof typeof b>;
-  return (
-    keys.length === Reflect.ownKeys(a).length &&
-    keys.every((key) => {
-      const previous = a[key];
-      const next = b[key];
-      return (
-        previous === next || (previous != null && next != null && areArraysEqual(previous, next))
-      );
-    })
-  );
+  const keys = new Set([...Reflect.ownKeys(previous), ...Reflect.ownKeys(next)]) as Set<
+    keyof typeof next
+  >;
+  for (const key of keys) {
+    const before = previous[key];
+    const after = next[key];
+    if (before !== after && (before == null || after == null || !areArraysEqual(before, after))) {
+      changed.add(key);
+    }
+  }
+  return changed;
 }
 
 /** Whether an item can be expanded: it has inline children. */

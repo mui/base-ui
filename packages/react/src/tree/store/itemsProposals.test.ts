@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { TreeItemsProposals } from './itemsProposals';
-import type { TreeState } from './types';
+import type { TreeParentLookupKey, TreeState } from './types';
 
 type Item = { id: string };
 
@@ -24,21 +24,22 @@ function propose(
   proposals: TreeItemsProposals<Item>,
   items: Item[],
   current: TreeState<Item>,
-  { removedIds = undefined as ReadonlySet<string> | undefined, reconcileSelection = false } = {},
+  {
+    removedIds = undefined as ReadonlySet<string> | undefined,
+    changedParentKeys = new Set<TreeParentLookupKey>() as ReadonlySet<TreeParentLookupKey>,
+  } = {},
 ) {
   // The lookups the proposal prepared, with the readers of the state it was made on.
   const state = { ...current, items, itemMetaLookup: {} };
-  const handle = proposals.propose({
+  proposals.propose({
     base: proposals.latest,
     items,
     state,
     baseItemsState: current,
     removedIds,
-    reconcileSelection,
+    changedParentKeys,
   });
-  const settled = vi.fn();
-  handle.whenSettled(settled);
-  return { state, settled };
+  return { state };
 }
 
 describe('TreeItemsProposals', () => {
@@ -63,21 +64,25 @@ describe('TreeItemsProposals', () => {
   it('accepts the latest proposal the items match with the ones it builds on', () => {
     const proposals = new TreeItemsProposals<Item>((items, expected) => items === expected);
     const current = createState();
-    const first = propose(proposals, [{ id: 'a' }], current, { removedIds: new Set(['x']) });
-    const second = propose(proposals, [{ id: 'b' }], current, { reconcileSelection: true });
+    const first = propose(proposals, [{ id: 'a' }], current, {
+      removedIds: new Set(['x']),
+      changedParentKeys: new Set(['p']),
+    });
+    const second = propose(proposals, [{ id: 'b' }], current, {
+      changedParentKeys: new Set(['q']),
+    });
     const third = propose(proposals, [{ id: 'c' }], current);
 
     const acceptance = proposals.accept(second.state.items)!;
-    // The caller prunes and reconciles the selection before the proposals settle.
     expect(acceptance.removedIds).toEqual(new Set(['x']));
-    expect(acceptance.reconcileSelection).toBe(true);
-    expect(first.settled).not.toHaveBeenCalled();
-    acceptance.settle();
-
-    expect(first.settled).toHaveBeenCalledWith(true);
-    expect(second.settled).toHaveBeenCalledWith(true);
-    expect(third.settled).not.toHaveBeenCalled();
+    expect(acceptance.changedParentKeys).toEqual(new Set(['p', 'q']));
+    // The later proposal stays pending, and the earlier ones are gone.
     expect(proposals.latest?.items).toBe(third.state.items);
+    expect(proposals.accept(first.state.items)).toEqual({
+      removedIds: new Set(),
+      changedParentKeys: new Set(),
+    });
+    expect(proposals.latest).toBe(null);
   });
 
   it('reuses the lookups the latest proposal prepared while those it was built from are current', () => {

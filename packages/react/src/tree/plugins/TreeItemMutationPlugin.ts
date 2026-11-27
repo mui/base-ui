@@ -7,17 +7,19 @@ import type {
   TreeMultiple,
   TreeState,
   TreeItemTransaction,
+  TreeParentLookupKey,
 } from '../store/types';
 
 import type { TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
-import { buildItemsState, isSameHierarchy } from '../store/itemIndex';
+import { buildItemsState, getChangedParentKeys } from '../store/itemIndex';
 import type { TreeItemsEdit } from '../store/itemIndex';
 import { getTransactionEdit, recordItemsTransaction } from '../store/itemsTransaction';
 import type { TreeItemsOperation } from '../store/itemsTransaction';
-import { ACCEPTED_PROPOSAL, TreeItemsProposals } from '../store/itemsProposals';
-import type { TreeItemsProposal } from '../store/itemsProposals';
+import { TreeItemsProposals } from '../store/itemsProposals';
 import { areItemModelsEquivalent } from '../utils/areItemModelsEquivalent';
+
+const NO_KEYS: ReadonlySet<TreeParentLookupKey> = new Set();
 
 export class TreeItemMutationPlugin<TItem> {
   declare private store: TreeStore<TreeMultiple | undefined, TItem>;
@@ -141,7 +143,7 @@ export class TreeItemMutationPlugin<TItem> {
   private commitOperations(operations: readonly TreeItemsOperation<TItem>[]): Promise<boolean> {
     const state = this.getMutationState();
     const { edit } = getTransactionEdit(state, operations);
-    const committed = edit != null && this.applyEdit(state, edit, REASONS.imperativeAction) != null;
+    const committed = edit != null && this.applyEdit(state, edit, REASONS.imperativeAction);
     if (committed) {
       this.lastTransactionTime = performance.now();
     }
@@ -162,7 +164,7 @@ export class TreeItemMutationPlugin<TItem> {
   private commitItemsState(
     nextState: TreeState<TItem>,
     removedIds: ReadonlySet<TreeItemId> | undefined,
-    reconcileSelection: boolean,
+    changedParentKeys: ReadonlySet<TreeParentLookupKey>,
   ): void {
     // Pruned against the state being committed: a required selection falls back
     // to an item the edit adds, and never to one it disables.
@@ -178,8 +180,8 @@ export class TreeItemMutationPlugin<TItem> {
     }
     expansion?.dispatch();
     selection?.dispatch();
-    if (reconcileSelection) {
-      this.store.selection.reconcileSelectionAfterItemsMutation();
+    if (changedParentKeys.size > 0) {
+      this.store.selection.reconcileSelectionAfterItemsMutation(changedParentKeys);
     }
   }
 
@@ -225,26 +227,27 @@ export class TreeItemMutationPlugin<TItem> {
     }
     // Against the current state: selection or expansion may have changed while
     // the parent was deciding.
-    this.commitItemsState(this.store.state, removedIds, acceptance.reconcileSelection);
-    acceptance.settle();
+    this.commitItemsState(this.store.state, removedIds, acceptance.changedParentKeys);
   }
 
   /**
    * Fire `onItemsChange`, check cancellation, and commit an edit of `state`, or
-   * propose it to a controlled parent. Returns `null` when the change is
+   * propose it to a controlled parent. Returns `false` when the change is
    * canceled or dropped.
    */
   private applyEdit(
     state: TreeState<TItem>,
     edit: TreeItemsEdit<TItem>,
     reason: TreeRootItemsChangeEventReason,
-  ): TreeItemsProposal | null {
+  ): boolean {
     const { items: newItems, lookups: lookupUpdates, removedIds } = edit;
     const hierarchy = lookupUpdates.itemOrderedChildrenIdsLookup;
     // Selection follows the hierarchy, which an edit that only replaces item
     // models leaves as is.
-    const reconcileSelection =
-      hierarchy != null && !isSameHierarchy(hierarchy, state.itemOrderedChildrenIdsLookup);
+    const changedParentKeys =
+      hierarchy == null
+        ? NO_KEYS
+        : getChangedParentKeys(state.itemOrderedChildrenIdsLookup, hierarchy);
     const itemsControlled = selectors.isItemsControlled(this.store.state);
 
     if (itemsControlled && !this.store.state.hasItemsChangeHandler) {
@@ -256,7 +259,7 @@ export class TreeItemMutationPlugin<TItem> {
             '`items`, or use `defaultItems` to let the component own them.',
         );
       }
-      return null;
+      return false;
     }
 
     const details = createChangeEventDetails(reason, undefined, undefined, {
@@ -269,13 +272,13 @@ export class TreeItemMutationPlugin<TItem> {
       return !details.isCanceled;
     });
     if (!notified) {
-      return null;
+      return false;
     }
     // `onItemsChange` ran another mutation, which changed the hierarchy this one
     // was built on: committing would overwrite it, such as by putting back a
     // removed parent.
     if (!itemsControlled && this.store.state.items !== state.items) {
-      return null;
+      return false;
     }
 
     // Controlled `items`: the parent owns the model. Committing it here as well
@@ -291,26 +294,26 @@ export class TreeItemMutationPlugin<TItem> {
     // here would leave a still-rendered controlled item deselected or collapsed
     // merely because the parent ignored `onItemsChange`.
     if (itemsControlled) {
-      const proposal = this.proposals.propose({
+      this.proposals.propose({
         base,
         items: newItems,
         state: { ...state, items: newItems, ...lookupUpdates },
         baseItemsState: this.store.state,
         removedIds,
-        reconcileSelection,
+        changedParentKeys,
       });
       // A `flushSync` parent already answered from `onItemsChange`.
       if (this.store.state.items !== itemsBeforeNotify) {
         this.acceptControlledItems(this.store.state.items);
       }
-      return proposal;
+      return true;
     }
 
     this.commitItemsState(
       { ...this.store.state, items: newItems, ...lookupUpdates },
       removedIds,
-      reconcileSelection,
+      changedParentKeys,
     );
-    return ACCEPTED_PROPOSAL;
+    return true;
   }
 }
