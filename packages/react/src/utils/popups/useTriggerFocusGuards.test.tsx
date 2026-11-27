@@ -225,5 +225,57 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
         },
       );
     });
+
+    it.each([
+      { direction: 'forward', destination: 'after' },
+      { direction: 'backward', destination: 'before' },
+    ] as const)(
+      'focuses the element $destination the trigger when tabbing $direction and the closed trigger renders a different element',
+      async ({ direction, destination }) => {
+        await render(
+          <div>
+            <button data-testid="before">Before</button>
+            <Component.Root modal={false}>
+              <Component.Trigger
+                nativeButton={false}
+                // Closing replaces the trigger's DOM node.
+                render={(props, state) => (state.open ? <span {...props} /> : <div {...props} />)}
+              >
+                Toggle
+              </Component.Trigger>
+              <Component.Portal>
+                <Component.Positioner>
+                  <Component.Popup data-testid="popup">
+                    {name === 'Menu' ? (
+                      <Menu.Item data-testid="inside">Inside</Menu.Item>
+                    ) : (
+                      <button data-testid="inside">Inside</button>
+                    )}
+                  </Component.Popup>
+                </Component.Positioner>
+              </Component.Portal>
+            </Component.Root>
+            <button data-testid="after">After</button>
+          </div>,
+        );
+
+        await openPopup();
+        // Opening also replaces the trigger's DOM node.
+        const openTrigger = screen.getByRole('button', { name: 'Toggle' });
+        // Menu closes on Shift+Tab from its content, so a backward Tab leaves from the trigger.
+        await act(async () =>
+          (direction === 'backward' ? openTrigger : screen.getByTestId('inside')).focus(),
+        );
+
+        await user.tab({ shift: direction === 'backward' });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+        expect(screen.getByRole('button', { name: 'Toggle' })).not.toBe(openTrigger);
+        expect(openTrigger.isConnected).toBe(false);
+        expect(screen.getByTestId(destination)).toHaveFocus();
+      },
+    );
   });
 });

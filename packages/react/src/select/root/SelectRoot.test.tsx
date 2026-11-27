@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import * as ReactDOM from 'react-dom';
 import { Select, SelectSeparatorDataAttributes } from '@base-ui/react/select';
 import { Popover } from '@base-ui/react/popover';
+import { Dialog } from '@base-ui/react/dialog';
 import {
   act,
   fireEvent,
@@ -2903,42 +2904,73 @@ describe('<Select.Root />', () => {
       expect(screen.queryByTestId('popover-popup')).not.toBe(null);
     });
 
-    it('does not bubble Escape from a non-modal select to the popover', async () => {
-      const { user } = await render(
-        <Popover.Root defaultOpen>
-          <Popover.Trigger>Open popover</Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup data-testid="popover-popup">
-                <Select.Root modal={false}>
-                  <Select.Trigger data-testid="select-trigger">
-                    <Select.Value placeholder="Pick one" />
-                  </Select.Trigger>
-                  <Select.Portal>
-                    <Select.Positioner>
-                      <Select.Popup>
-                        <Select.Item value="one">One</Select.Item>
-                        <Select.Item value="two">Two</Select.Item>
-                      </Select.Popup>
-                    </Select.Positioner>
-                  </Select.Portal>
-                </Select.Root>
-              </Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
+    it.each([
+      {
+        name: 'popover',
+        renderParent: (onOpenChange: () => void, children: React.ReactNode) => (
+          <Popover.Root defaultOpen onOpenChange={onOpenChange}>
+            <Popover.Trigger>Open popover</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="parent-popup">{children}</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        ),
+      },
+      {
+        name: 'dialog',
+        renderParent: (onOpenChange: () => void, children: React.ReactNode) => (
+          <Dialog.Root defaultOpen onOpenChange={onOpenChange}>
+            <Dialog.Trigger>Open dialog</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="parent-popup">{children}</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+      },
+    ])(
+      'does not bubble Escape from a non-modal select to the $name and returns focus to the select trigger',
+      async ({ renderParent }) => {
+        const handleParentOpenChange = vi.fn();
+        const { user } = await render(
+          renderParent(
+            handleParentOpenChange,
+            <Select.Root modal={false}>
+              <Select.Trigger data-testid="select-trigger">
+                <Select.Value placeholder="Pick one" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="one">One</Select.Item>
+                    <Select.Item value="two">Two</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>,
+          ),
+        );
 
-      await user.click(screen.getByTestId('select-trigger'));
-      await screen.findByRole('listbox');
+        const selectTrigger = screen.getByTestId('select-trigger');
+        await user.click(selectTrigger);
+        await screen.findByRole('listbox');
+        await waitFor(() => {
+          expect(document.activeElement).toHaveAttribute('role', 'option');
+        });
 
-      await user.keyboard('{Escape}');
+        await user.keyboard('{Escape}');
 
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).toBe(null);
-      });
-      expect(screen.queryByTestId('popover-popup')).not.toBe(null);
-    });
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+        expect(handleParentOpenChange).not.toHaveBeenCalled();
+        expect(screen.getByTestId('parent-popup')).toBeVisible();
+        await waitFor(() => {
+          expect(selectTrigger).toHaveFocus();
+        });
+      },
+    );
 
     it('returns focus to the opener when a select is opened programmatically inside a popover', async () => {
       function Test() {
@@ -3113,6 +3145,52 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('popover-popup')).toBe(null);
       });
+    });
+  });
+
+  it('closes only a modal select inside a dialog on Escape and returns focus to its trigger', async () => {
+    const handleDialogOpenChange = vi.fn();
+    const { user } = await render(
+      <Dialog.Root defaultOpen onOpenChange={handleDialogOpenChange}>
+        <Dialog.Trigger>Open dialog</Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Popup data-testid="dialog-popup">
+            <Select.Root defaultValue="a">
+              <Select.Trigger data-testid="select-trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">A</Select.Item>
+                    <Select.Item value="b">B</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    const selectTrigger = screen.getByTestId('select-trigger');
+    await user.click(selectTrigger);
+    await waitFor(() => {
+      expect(selectTrigger).toHaveAttribute('aria-expanded', 'true');
+    });
+    await waitFor(() => {
+      expect(document.activeElement).toHaveAttribute('role', 'option');
+    });
+
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(selectTrigger).toHaveAttribute('aria-expanded', 'false');
+    });
+    expect(handleDialogOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByTestId('dialog-popup')).toBeVisible();
+    await waitFor(() => {
+      expect(selectTrigger).toHaveFocus();
     });
   });
 
