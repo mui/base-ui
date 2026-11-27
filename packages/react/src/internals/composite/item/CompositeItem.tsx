@@ -17,12 +17,13 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
     props = EMPTY_ARRAY,
     refs = EMPTY_ARRAY,
     metadata,
+    guess,
     stateAttributesMapping,
     tag = 'div',
     ...elementProps
   } = componentProps;
 
-  const { compositeProps, compositeRef } = useCompositeItem({ metadata });
+  const { compositeProps, compositeRef } = useCompositeItem({ metadata, guess });
 
   return useRenderElement(tag, componentProps, {
     state,
@@ -41,6 +42,12 @@ export interface CompositeItemProps<Metadata, State extends Record<string, any>>
 > {
   children?: React.ReactNode;
   metadata?: Metadata | undefined;
+  /**
+   * Whether to guess the initial index from render order, avoiding a re-render after mount for
+   * flat lists.
+   * @default false
+   */
+  guess?: boolean | undefined;
   refs?: React.Ref<HTMLElement | null>[] | undefined;
   props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
   state?: State | undefined;
