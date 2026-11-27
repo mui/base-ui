@@ -34,7 +34,7 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   const direction = useDirection();
   const { onItemsChange, focusOwnerRef, triggerId } = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
-  const { subscribeMapChange } = useCompositeListContext();
+  const list = useCompositeListContext();
 
   const value = useFilterDropdownValueContext();
   const handleInputKeyDown = useMenuFilterKeyDown(value !== '');
@@ -117,8 +117,8 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   });
 
   useIsoLayoutEffect(() => {
-    return subscribeMapChange(handleItemMapChange);
-  }, [subscribeMapChange, handleItemMapChange]);
+    return list.subscribeMapChange(handleItemMapChange);
+  }, [list, handleItemMapChange]);
 
   const ariaLabelledBy = resolvePopupLabel(componentProps, null, triggerId ?? null);
 

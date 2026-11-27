@@ -37,7 +37,7 @@ export function useCompositeList<Metadata>(
 
   useIsoLayoutEffect(() => () => list.dispose(), [list]);
 
-  return list.context;
+  return list;
 }
 
 /**
