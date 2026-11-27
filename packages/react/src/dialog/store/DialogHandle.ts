@@ -14,22 +14,11 @@ import { BasePopupHandle } from '../../utils/popups/popupHandle';
  */
 export class DialogHandle<Payload> extends BasePopupHandle<
   DialogHandleStore<Payload>,
-  DialogStore<Payload>
+  DialogStore<Payload>,
+  string | null
 > {
   constructor() {
     super(createNullDialogStore<Payload>(), 'Dialog', false);
-  }
-
-  /**
-   * Opens the dialog, optionally associating it with a trigger.
-   *
-   * This method should only be called in an event handler or an effect (not during rendering).
-   *
-   * @param triggerId ID of the trigger to associate with the dialog. The trigger must be a matching
-   * `Dialog.Trigger` with this handle passed as a prop. Pass `null` to open without associating any trigger.
-   */
-  open(triggerId: string | null) {
-    this.openByTrigger(triggerId);
   }
 
   /**
@@ -54,22 +43,6 @@ export class DialogHandle<Payload> extends BasePopupHandle<
 
     attachedStore.set('payload', payload);
     attachedStore.setOpen(true, createChangeEventDetails(REASONS.imperativeAction));
-  }
-
-  /**
-   * Closes the dialog.
-   *
-   * This method should only be called in an event handler or an effect (not during rendering).
-   */
-  close() {
-    this.closePopup();
-  }
-
-  /**
-   * Whether the dialog is currently open. Returns `false` while no root is attached to the handle.
-   */
-  get isOpen() {
-    return this.attachedStore?.select('open') ?? false;
   }
 }
 

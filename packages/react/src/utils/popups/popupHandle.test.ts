@@ -28,21 +28,13 @@ function createStore(): FakeStore {
   };
 }
 
-class TestHandle extends BasePopupHandle<FakeStore, FakeStore> {
+class TestHandle extends BasePopupHandle<FakeStore, FakeStore, string | null | undefined> {
   constructor(throwOnMissingTrigger?: boolean) {
     super(createStore(), 'Test', throwOnMissingTrigger);
   }
 
   get fallback() {
     return this.fallbackStore;
-  }
-
-  open(triggerId: string | null | undefined) {
-    this.openByTrigger(triggerId);
-  }
-
-  close() {
-    this.closePopup();
   }
 }
 

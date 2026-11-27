@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
 import { NullStore } from '../../utils/popups/NullStore';
@@ -82,12 +81,11 @@ export class DialogStore<Payload> extends BasePopupStore<
  * detached triggers can register before migrating to the live root store.
  */
 export function createNullDialogStore<Payload>(): DialogHandleStore<Payload> {
-  const store = new NullStore<Readonly<State<Payload>>, Context, typeof selectors>(
-    Object.freeze(createInitialState<Payload>(undefined)),
-    Object.freeze(createInitialContext()),
+  return new NullStore<Readonly<State<Payload>>, Context, typeof selectors>(
+    createInitialState<Payload>(undefined),
+    createInitialContext(),
     selectors,
   );
-  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialState<Payload>(

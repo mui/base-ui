@@ -117,11 +117,11 @@ export class TooltipStore<Payload> extends BasePopupStore<
  */
 export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined)),
-    Object.freeze(createInitialContext()),
+    createInitialState<Payload>(undefined),
+    createInitialContext(),
     selectors,
   );
-  return Object.assign(store, { setOpen: NOOP, cancelPendingOpen: NOOP, closeForSibling: NOOP });
+  return Object.assign(store, { cancelPendingOpen: NOOP, closeForSibling: NOOP });
 }
 
 function createInitialState<Payload>(
