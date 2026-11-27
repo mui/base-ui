@@ -198,6 +198,27 @@ describe('resolveListKeyCommand', () => {
       expect(resolve({ key: 'q', code: 'KeyA', ctrlKey: true }, { multiple: true })).toBe(null);
     });
 
+    it.each([
+      {
+        name: 'Alt+Shift+ArrowDown',
+        key: { key: 'ArrowDown', shiftKey: true },
+        multiple: true as const,
+      },
+      {
+        name: 'Ctrl+Alt+ArrowDown in opt-in mode',
+        key: { key: 'ArrowDown', ctrlKey: true },
+        multiple: 'opt-in' as const,
+      },
+      {
+        name: 'Ctrl+Alt+Shift+End',
+        key: { key: 'End', ctrlKey: true, shiftKey: true },
+        multiple: true as const,
+      },
+    ])('ignores $name, which acts without Alt', ({ key, multiple }) => {
+      expect(resolve(key, { multiple })).not.toBe(null);
+      expect(resolve({ ...key, altKey: true }, { multiple })).toBe(null);
+    });
+
     it('does not select every item on Ctrl+Alt+A', () => {
       expect(
         resolve({ key: 'a', code: 'KeyA', ctrlKey: true, altKey: true }, { multiple: true }),

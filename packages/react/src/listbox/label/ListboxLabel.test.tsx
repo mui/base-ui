@@ -1,6 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { ListboxPreview as Listbox } from '@base-ui/react/listbox';
+import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Listbox.Label />', () => {
@@ -69,5 +70,24 @@ describe('<Listbox.Label />', () => {
     fireEvent.click(screen.getByText('Artists'));
 
     expect(item).toHaveFocus();
+  });
+
+  it('leaves the label of an enclosing Field to the Field control', async () => {
+    await render(
+      <Field.Root>
+        <Field.Label>Name</Field.Label>
+        <Field.Control />
+        <Listbox.Root>
+          <Listbox.Label>Fonts</Listbox.Label>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>
+      </Field.Root>,
+    );
+
+    expect(screen.getByRole('textbox')).toHaveAccessibleName('Name');
+    expect(screen.getByRole('listbox')).toHaveAccessibleName('Fonts');
+    expect(screen.getByText('Fonts').id).not.toBe(screen.getByText('Name').id);
   });
 });

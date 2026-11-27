@@ -55,6 +55,11 @@ export type Context = {
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => boolean;
   /** The event that caused the current `activeIndex` update, read by `onItemHighlighted`. */
   highlightEvent: Event | undefined;
+  /**
+   * Reports the highlighted item to `onItemHighlighted` when it changed. Called once the rendered
+   * items have registered, which a report made while they change waits for.
+   */
+  reportHighlightedItem: (() => void) | undefined;
   /** The rendered items' elements, by position. */
   elementsRef: React.RefObject<Array<HTMLElement | null>>;
 };
@@ -227,6 +232,12 @@ export class ListboxStore extends ReactStore<Readonly<State>, Context, typeof se
     return items ? items.valueAt(index) : this.context.valuesRef.current[index];
   }
 
+  /** Whether there's an item at a position, rendered or not. */
+  hasItemAt(index: number): boolean {
+    const { items } = this.state;
+    return items ? index >= 0 && index < items.size : index in this.context.valuesRef.current;
+  }
+
   /** How many items the list has, including those that aren't rendered. */
   getCount(): number {
     const { items } = this.state;
@@ -306,6 +317,7 @@ function createInitialContext(): Context {
     disabledItemsRef: { current: [] },
     setValue: () => true,
     highlightEvent: undefined,
+    reportHighlightedItem: undefined,
     elementsRef: { current: [] },
   };
 }

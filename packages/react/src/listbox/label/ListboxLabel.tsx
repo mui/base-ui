@@ -46,6 +46,7 @@ export const ListboxLabel = React.forwardRef(function ListboxLabel(
     id: defaultLabelId,
     setLabelId,
     focusControl: focusList,
+    labelsFieldControl: false,
   });
 
   return useRenderElement('div', componentProps, {

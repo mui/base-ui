@@ -45,6 +45,10 @@ function setup(options: {
     selection,
     commit,
     getValue: () => value,
+    /** Replaces the selection from outside, like a controlled `value`. */
+    setValue(nextValue: string[]) {
+      value = nextValue;
+    },
     /** Makes the list reject the changes made in `change`, like a canceled `onValueChange`. */
     reject(change: () => void) {
       rejecting = true;
@@ -125,6 +129,16 @@ describe('ListSelection', () => {
       selection.press(2, { shiftKey: true }, EVENT);
       selection.press(4, { shiftKey: true }, EVENT);
       expect(getValue()).toEqual(['a', 'b', 'c', 'd', 'e']);
+    });
+
+    it('does not keep the default anchor of a rejected Shift+press', () => {
+      const { selection, getValue, setValue, reject } = setup({ multiple: true, value: ['a'] });
+      reject(() => selection.press(2, { shiftKey: true }, EVENT));
+      setValue(['d']);
+
+      selection.press(1, { shiftKey: true }, EVENT);
+
+      expect(getValue()).toEqual(['b', 'c', 'd']);
     });
 
     it('selects the range from the last pressed item, replacing the selection', () => {

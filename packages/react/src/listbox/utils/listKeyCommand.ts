@@ -105,7 +105,7 @@ export function resolveListKeyCommand(
   }
 
   const ctrlOrMeta = ctrlKey || metaKey;
-  const shiftArrow = shiftKey && !ctrlOrMeta && step !== 0;
+  const shiftArrow = shiftKey && !ctrlOrMeta && !altKey && step !== 0;
 
   if (!multiple) {
     // The list owns the arrow keys even when they do nothing, so the page doesn't scroll.
@@ -114,7 +114,7 @@ export function resolveListKeyCommand(
 
   // Opt-in mode: Ctrl+Arrow moves focus without changing the selection. macOS reserves
   // Ctrl+Arrow and uses Cmd+Arrow to jump to the ends, so Option+Arrow does it there.
-  const moveWithoutSelecting = mac ? altKey && !ctrlOrMeta : ctrlOrMeta;
+  const moveWithoutSelecting = mac ? altKey && !ctrlOrMeta : ctrlOrMeta && !altKey;
   if (optIn && moveWithoutSelecting && !shiftKey && step !== 0 && currentIndex != null) {
     const index = currentIndex + step;
     return isInList(index, count) ? { type: 'move', index, focusOnly: true } : { type: 'none' };
@@ -127,7 +127,7 @@ export function resolveListKeyCommand(
       : { type: 'none' };
   }
 
-  if (ctrlOrMeta && shiftKey && (key.key === 'Home' || key.key === 'End')) {
+  if (ctrlOrMeta && shiftKey && !altKey && (key.key === 'Home' || key.key === 'End')) {
     if (currentIndex == null) {
       return { type: 'none' };
     }

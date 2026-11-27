@@ -297,6 +297,147 @@ describe('<Listbox.Root />', () => {
       expect(handleItemHighlighted.mock.calls[0][0]).toBe('cherry');
       expect(handleItemHighlighted.mock.calls[0][1].reason).toBe('none');
     });
+
+    it('reports an item that a layout effect focuses on mount', async () => {
+      const handleItemHighlighted = vi.fn();
+      function App() {
+        const itemRef = React.useRef<HTMLDivElement>(null);
+        React.useLayoutEffect(() => {
+          itemRef.current?.focus();
+        }, []);
+        return (
+          <Listbox.Root onItemHighlighted={handleItemHighlighted}>
+            <Listbox.List>
+              <Listbox.Item ref={itemRef} value="apple">
+                Apple
+              </Listbox.Item>
+              <Listbox.Item value="banana">Banana</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByRole('option', { name: 'Apple' })).toHaveFocus();
+      expect(handleItemHighlighted.mock.calls.map((call) => [call[0], call[1].index])).toEqual([
+        ['apple', 0],
+      ]);
+    });
+
+    it('reports the item that takes the place of a removed highlighted item', async () => {
+      const handleItemHighlighted = vi.fn();
+      function App(props: { names: string[] }) {
+        return (
+          <Listbox.Root onItemHighlighted={handleItemHighlighted}>
+            <Listbox.List>
+              {props.names.map((name) => (
+                <Listbox.Item key={name} value={name}>
+                  {name}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App names={['a', 'b', 'c']} />);
+      await act(async () => screen.getByRole('option', { name: 'b' }).focus());
+      expect(handleItemHighlighted.mock.lastCall?.[0]).toBe('b');
+      handleItemHighlighted.mockClear();
+
+      await setProps({ names: ['a', 'c'] });
+
+      expect(handleItemHighlighted.mock.calls.map((call) => [call[0], call[1].index])).toEqual([
+        ['c', 1],
+      ]);
+    });
+
+    it('does not report the highlighted item again when the callback is added later', async () => {
+      const handleItemHighlighted = vi.fn();
+      function App(props: { onItemHighlighted?: typeof handleItemHighlighted }) {
+        return (
+          <Listbox.Root onItemHighlighted={props.onItemHighlighted}>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b">b</Listbox.Item>
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App />);
+      await act(async () => screen.getByRole('option', { name: 'a' }).focus());
+
+      await setProps({ onItemHighlighted: handleItemHighlighted });
+      expect(handleItemHighlighted).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(screen.getByRole('option', { name: 'a' }), { key: 'ArrowDown' });
+      expect(handleItemHighlighted.mock.calls.map((call) => call[0])).toEqual(['b']);
+    });
+
+    it('reports the new position once when the highlighted item moves', async () => {
+      const handleItemHighlighted = vi.fn();
+      function App(props: { names: string[] }) {
+        return (
+          <Listbox.Root onItemHighlighted={handleItemHighlighted}>
+            <Listbox.List>
+              {props.names.map((name) => (
+                <Listbox.Item key={name} value={name}>
+                  {name}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      const { setProps } = await render(<App names={['a', 'b', 'c']} />);
+      await act(async () => screen.getByRole('option', { name: 'b' }).focus());
+      expect(handleItemHighlighted.mock.lastCall?.[1].index).toBe(1);
+      handleItemHighlighted.mockClear();
+
+      await setProps({ names: ['c', 'a', 'b'] });
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+      expect(handleItemHighlighted.mock.calls.map((call) => [call[0], call[1].index])).toEqual([
+        ['b', 2],
+      ]);
+    });
+
+    it.each([
+      { name: 'first', focused: 'a', index: 0 },
+      { name: 'last', focused: 'b', index: 1 },
+    ])(
+      'reports an unhighlight once when every item is removed with focus on the $name one',
+      async ({ focused, index }) => {
+        const handleItemHighlighted = vi.fn();
+        function App(props: { names: string[] }) {
+          return (
+            <Listbox.Root onItemHighlighted={handleItemHighlighted}>
+              <Listbox.List>
+                {props.names.map((name) => (
+                  <Listbox.Item key={name} value={name}>
+                    {name}
+                  </Listbox.Item>
+                ))}
+              </Listbox.List>
+            </Listbox.Root>
+          );
+        }
+
+        const { setProps } = await render(<App names={['a', 'b']} />);
+        await act(async () => screen.getByRole('option', { name: focused }).focus());
+        expect(handleItemHighlighted.mock.lastCall?.[1].index).toBe(index);
+        handleItemHighlighted.mockClear();
+
+        await setProps({ names: [] });
+
+        expect(handleItemHighlighted.mock.calls.map((call) => [call[0], call[1].index])).toEqual([
+          [undefined, -1],
+        ]);
+      },
+    );
   });
 
   describe('highlight', () => {
@@ -471,7 +612,7 @@ describe('<Listbox.Root />', () => {
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('tabindex', '-1');
     });
 
-    it('moves the tab stop to an item that exists when the focused item is removed', async () => {
+    it('moves the tab stop to the last item when the focused last item is removed', async () => {
       function RemovableList(props: { names: string[] }) {
         return (
           <Listbox.Root>
@@ -494,12 +635,12 @@ describe('<Listbox.Root />', () => {
       await setProps({ names: ['a', 'b'] });
 
       const options = screen.getAllByRole('option');
-      expect(options.map((option) => option.getAttribute('tabindex'))).toEqual(['0', '-1']);
-
-      await act(async () => options[0].focus());
-      fireEvent.keyDown(options[0], { key: 'ArrowDown' });
-
+      expect(options.map((option) => option.getAttribute('tabindex'))).toEqual(['-1', '0']);
       expect(options[1]).toHaveFocus();
+
+      fireEvent.keyDown(options[1], { key: 'ArrowUp' });
+
+      expect(options[0]).toHaveFocus();
     });
 
     it('moves the tab stop to a newly selected item while the list does not have focus', async () => {
@@ -2641,6 +2782,42 @@ describe('<Listbox.Root />', () => {
         expect(handleValueChange).not.toHaveBeenCalled();
       });
     });
+
+    it.each([
+      {
+        name: 'Shift+Space selects a range with multiple selection',
+        multiple: true as const,
+        keys: '{Shift>} {/Shift}',
+        expected: ['apple', 'banana', 'cherry'],
+      },
+      {
+        name: 'Ctrl+Space toggles the focused item in opt-in mode',
+        multiple: 'opt-in' as const,
+        keys: '{Control>} {/Control}',
+        expected: [],
+      },
+    ])('$name while a search is in progress', async ({ multiple, keys, expected }) => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Listbox.Root multiple={multiple} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="apple">Apple</Listbox.Item>
+            <Listbox.Item value="banana">Banana</Listbox.Item>
+            <Listbox.Item value="cherry">Cherry</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+      await act(async () => screen.getByRole('option', { name: 'Apple' }).focus());
+
+      await user.keyboard('c');
+      expect(screen.getByRole('option', { name: 'Cherry' })).toHaveFocus();
+      handleValueChange.mockClear();
+
+      await user.keyboard(keys);
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(expected);
+    });
   });
 
   describe('focus at the ends of the list', () => {
@@ -2793,6 +2970,13 @@ describe('<Listbox.Root />', () => {
   });
 
   describe('focus on the list element', () => {
+    // JSDOM has no `scrollIntoView`, so the item gets one to record the calls.
+    function spyOnScrollIntoView(element: HTMLElement) {
+      const scrollIntoView = vi.fn();
+      element.scrollIntoView = scrollIntoView;
+      return scrollIntoView;
+    }
+
     function renderList() {
       return render(
         <Listbox.Root defaultValue="a">
@@ -2807,23 +2991,27 @@ describe('<Listbox.Root />', () => {
     it('passes focus to the tab stop without scrolling when it comes from a press', async () => {
       await renderList();
       const list = screen.getByRole('listbox');
-      const focusSpy = vi.spyOn(screen.getByRole('option', { name: 'a' }), 'focus');
+      const itemA = screen.getByRole('option', { name: 'a' });
+      const scrollSpy = spyOnScrollIntoView(itemA);
 
       // A press on a gap between items or on a group label focuses the list.
       fireEvent.pointerDown(list);
       await act(async () => list.focus());
 
-      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+      expect(itemA).toHaveFocus();
+      expect(scrollSpy).not.toHaveBeenCalled();
     });
 
     it('passes focus to the tab stop and scrolls to it when it comes from elsewhere', async () => {
       await renderList();
       const list = screen.getByRole('listbox');
-      const focusSpy = vi.spyOn(screen.getByRole('option', { name: 'a' }), 'focus');
+      const itemA = screen.getByRole('option', { name: 'a' });
+      const scrollSpy = spyOnScrollIntoView(itemA);
 
       await act(async () => list.focus());
 
-      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+      expect(itemA).toHaveFocus();
+      expect(scrollSpy).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
     });
 
     it.each([
@@ -2844,13 +3032,13 @@ describe('<Listbox.Root />', () => {
         const list = screen.getByRole('listbox');
         const itemA = screen.getByRole('option', { name: 'a' });
         await act(async () => itemA.focus());
-        const focusSpy = vi.spyOn(itemA, 'focus');
+        const scrollSpy = spyOnScrollIntoView(itemA);
 
         fireEvent.pointerDown(list);
         end(list);
         await act(async () => list.focus());
 
-        expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+        expect(scrollSpy).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
       },
     );
   });
@@ -2879,6 +3067,36 @@ describe('<Listbox.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'item 0' })).toHaveFocus();
       expect(list.scrollTop).toBe(400);
+    });
+
+    it('scrolls by one item when an arrow key moves past the visible items', async () => {
+      const names = Array.from({ length: 40 }, (_, index) => `item ${index}`);
+      const { user } = await render(
+        <Listbox.Root defaultValue="item 0">
+          <Listbox.List style={{ height: 100, overflow: 'auto' }}>
+            {names.map((name) => (
+              <Listbox.Item key={name} value={name} style={{ height: 20 }}>
+                {name}
+              </Listbox.Item>
+            ))}
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      await act(async () => screen.getByRole('option', { name: 'item 0' }).focus());
+
+      // The first five items fit, so the list stays where it is until the sixth.
+      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}');
+      expect(screen.getByRole('option', { name: 'item 4' })).toHaveFocus();
+      expect(list.scrollTop).toBe(0);
+
+      await user.keyboard('{ArrowDown}');
+      expect(screen.getByRole('option', { name: 'item 5' })).toHaveFocus();
+      expect(list.scrollTop).toBe(20);
+
+      await user.keyboard('{ArrowDown}');
+      expect(list.scrollTop).toBe(40);
     });
   });
 
@@ -2914,7 +3132,7 @@ describe('<Listbox.Root />', () => {
       { name: 'right after the removed item', selected: 'c' },
       { name: 'further after the removed item', selected: 'e' },
     ])(
-      'moves focus to the selected item $name when the list has no `items`',
+      'moves focus to the item that took its position when the selected item is $name and the list has no `items`',
       async ({ selected }) => {
         function App(props: { names: string[] }) {
           return (
@@ -2936,14 +3154,35 @@ describe('<Listbox.Root />', () => {
 
         await setProps({ names: ['a', 'c', 'd', 'e'] });
 
-        const selectedItem = screen.getByRole('option', { name: selected });
-        expect(selectedItem).toHaveFocus();
-        expect(selectedItem).toHaveAttribute('tabindex', '0');
+        const nextItem = screen.getByRole('option', { name: 'c' });
+        expect(nextItem).toHaveFocus();
+        expect(nextItem).toHaveAttribute('tabindex', '0');
       },
     );
   });
 
   describe('prop: items', () => {
+    it.each([
+      { name: 'an object that is not a collection', items: { sans: 'Sans-serif' } },
+      { name: 'a string', items: 'sans' },
+    ])('throws when `items` is $name', async ({ items }) => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      try {
+        await expect(
+          render(
+            <Listbox.Root items={items as any}>
+              <Listbox.List>
+                <Listbox.Item value="sans">Sans-serif</Listbox.Item>
+              </Listbox.List>
+            </Listbox.Root>,
+          ),
+        ).rejects.toThrow(/not a collection/);
+      } finally {
+        errorSpy.mockRestore();
+      }
+    });
+
     const WINDOW_SIZE = 5;
     const ALL_ITEMS = Array.from({ length: 100 }, (_, index) => `Item ${index}`);
 
@@ -3594,7 +3833,7 @@ describe('<Listbox.Root />', () => {
         expect(item2).toHaveAttribute('data-highlighted');
       });
 
-      it('moves focus to an item that exists when the focused item is removed', async () => {
+      it('moves focus to the last item when the focused item is removed from the end', async () => {
         const { setProps } = await render(<VirtualList />);
         await act(async () => screen.getByRole('option', { name: 'Item 0' }).focus());
         fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'End' });
@@ -3603,7 +3842,7 @@ describe('<Listbox.Root />', () => {
 
         await setProps({ names: ALL_ITEMS.slice(0, 50) });
 
-        expect(screen.getByRole('option', { name: 'Item 0' })).toHaveFocus();
+        expect(screen.getByRole('option', { name: 'Item 49' })).toHaveFocus();
       });
 
       it('does not log an error for items added along with their data', async () => {
@@ -3650,7 +3889,7 @@ describe('<Listbox.Root />', () => {
         expect(item2).toHaveAttribute('tabindex', '0');
       });
 
-      it('moves focus to an item that exists when the item is removed', async () => {
+      it('moves focus to the item that took its position when the item is removed', async () => {
         const { setProps } = await render(<VirtualList />);
         await act(async () => screen.getByRole('option', { name: 'Item 2' }).focus());
         await setProps({ start: 50 });
@@ -3658,7 +3897,7 @@ describe('<Listbox.Root />', () => {
 
         await setProps({ names: ALL_ITEMS.filter((name) => name !== 'Item 2'), start: 50 });
 
-        expect(screen.getByRole('option', { name: 'Item 0' })).toHaveFocus();
+        expect(screen.getByRole('option', { name: 'Item 3' })).toHaveFocus();
       });
 
       it('does not hold focus when the list is disabled', async () => {

@@ -268,6 +268,20 @@ export const ListboxItem = React.memo(
       onPointerDown(event) {
         lastPointerTypeRef.current = event.pointerType;
       },
+      // Handled while capturing, since a disabled item's button ignores presses.
+      onMouseDownCapture(event) {
+        // A press with a modifier selects items, so it doesn't also select the text between them.
+        // Preventing that also keeps the press from moving focus, so the item takes it.
+        if (
+          !rootDisabled &&
+          event.button === 0 &&
+          store.state.multiple !== false &&
+          (event.shiftKey || event.ctrlKey || event.metaKey)
+        ) {
+          event.preventDefault();
+          itemRef.current?.focus({ preventScroll: true });
+        }
+      },
       onClick(event) {
         // A touch tap is a click made by a pointer (`detail` counts its presses) after a touch
         // press. A click from the keyboard or assistive technology isn't one, even when an earlier

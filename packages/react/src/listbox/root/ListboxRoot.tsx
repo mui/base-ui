@@ -54,6 +54,20 @@ export function ListboxRoot<Value, Multiple extends boolean | 'opt-in' | undefin
     children,
   } = props;
 
+  if (
+    itemsProp != null &&
+    !Array.isArray(itemsProp) &&
+    (typeof itemsProp !== 'object' ||
+      typeof (itemsProp as Partial<ListboxItems>).getDisabled !== 'function')
+  ) {
+    throw new Error(
+      'Base UI: <Listbox.Root> received an `items` object that is not a collection, ' +
+        'so its items cannot be read. Pass an array of items, an array of groups with items, ' +
+        'or the result of `Listbox.createItems()`. ' +
+        'See https://base-ui.com/react/components/listbox#items',
+    );
+  }
+
   // The collection's internal shape, which is opaque to consumers. An array is wrapped in one.
   const items = React.useMemo(
     () =>

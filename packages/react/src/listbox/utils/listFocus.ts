@@ -25,6 +25,8 @@ export interface ListFocusParameters<E> extends ItemReferenceSource {
 interface PendingFocus<E> {
   /** The item the list holds focus for. */
   item: ItemReference;
+  /** Where the item last was, which is where focus stays when the item is removed. */
+  lastIndex: number;
   /** Set when the user navigated to the item, to report it once the item has focus. */
   event: E | undefined;
   /**
@@ -40,7 +42,8 @@ interface PendingFocus<E> {
  * A virtualized list renders only some of its items. When focus moves to one that isn't rendered,
  * or the focused item stops rendering, the list holds focus in its place and the item takes it
  * once it renders. When items are added, removed or reordered, focus and the tab stop follow the
- * item they were on, and fall back to the item that receives focus by default when it's gone.
+ * item they were on. When that item is removed, focus stays at its position, and the tab stop
+ * falls back to the item that receives focus by default.
  */
 export class ListFocus<E = Event> {
   declare private readonly parameters: ListFocusParameters<E>;
@@ -83,6 +86,7 @@ export class ListFocus<E = Event> {
 
     this.pending = {
       item: createItemReference(this.parameters, index),
+      lastIndex: index,
       event: navigation ? event : undefined,
       held: false,
     };
@@ -103,7 +107,7 @@ export class ListFocus<E = Event> {
     const index = getActiveIndex() ?? getTabStopIndex();
     const element = getElement(index);
     if (element) {
-      element.focus({ preventScroll: fromPress });
+      focusAndReveal(element, fromPress);
     } else if (!fromPress && getDataCount() > 0) {
       // The item isn't rendered, so highlight it to have it scrolled into view.
       this.moveTo(index, event);
@@ -128,12 +132,12 @@ export class ListFocus<E = Event> {
     }
     // The user didn't ask to go back to an item that the list held focus for, so the list stays
     // where it was scrolled to.
-    this.focusElement(element, index, { preventScroll: pending.held });
+    this.focusElement(element, index, pending.held);
   }
 
-  private focusElement(element: HTMLElement, index: number, options?: FocusOptions) {
+  private focusElement(element: HTMLElement, index: number, preventScroll = false) {
     this.focusingIndex = index;
-    element.focus(options);
+    focusAndReveal(element, preventScroll);
     this.focusingIndex = null;
   }
 
@@ -154,8 +158,12 @@ export class ListFocus<E = Event> {
     if (!element || !listElement || activeElement(ownerDocument(element)) !== element) {
       return;
     }
+    const index = this.parameters.indexOfValue(value);
     this.pending = {
-      item: { index: this.parameters.indexOfValue(value), value },
+      item: { index, value },
+      // A rendered item that isn't in the data has already given up its position, which is the
+      // tab stop's, since the item has focus.
+      lastIndex: index === -1 ? (this.parameters.getActiveIndex() ?? -1) : index,
       event: undefined,
       held: true,
     };
@@ -208,9 +216,17 @@ export class ListFocus<E = Event> {
     const listHasFocus = focusedElement != null && focusedElement === listElement;
     // The list holds focus for an item that isn't rendered, and items were added or removed
     // around it, so the tab stop follows it to its new position.
+    const pending = this.pending;
     const pendingIndex = listHasFocus ? this.resolvePending() : undefined;
-    if (pendingIndex === -1) {
+    if (pending && pendingIndex === -1) {
       this.pending = null;
+      // The item was removed, so focus goes to the one that took its position, or to the last
+      // item when it was the last one.
+      const neighborIndex = this.findItemAtOrBefore(pending.lastIndex);
+      if (neighborIndex !== null) {
+        this.moveTo(neighborIndex, undefined);
+        return;
+      }
     } else if (pendingIndex != null && pendingIndex !== getActiveIndex()) {
       setActiveIndex(pendingIndex);
       this.itemMounted(pendingIndex, getElement(pendingIndex) ?? null);
@@ -241,6 +257,25 @@ export class ListFocus<E = Event> {
     }
   }
 
+  /** The position of the item at `index`, or of the closest one before it, or `null`. */
+  private findItemAtOrBefore(index: number): number | null {
+    const { getDataCount, getElement } = this.parameters;
+    if (index < 0) {
+      return null;
+    }
+    const dataCount = getDataCount();
+    if (dataCount > 0) {
+      return Math.min(index, dataCount - 1);
+    }
+    // Without data, the rendered items are the whole list.
+    for (let position = index; position >= 0; position -= 1) {
+      if (getElement(position)) {
+        return position;
+      }
+    }
+    return null;
+  }
+
   /**
    * Looks up where the item that the list holds focus for is now. Returns its position, `-1` when
    * it was removed, or `undefined` when the list isn't holding focus for an item.
@@ -251,6 +286,21 @@ export class ListFocus<E = Event> {
       return undefined;
     }
     pending.item.index = resolveItemReference(this.parameters, pending.item);
+    if (pending.item.index !== -1) {
+      pending.lastIndex = pending.item.index;
+    }
     return pending.item.index;
+  }
+}
+
+/**
+ * Focuses an item and scrolls it into view by the smallest amount, since browsers choose their own
+ * position for an element that `focus()` reveals, such as the middle of the list.
+ */
+function focusAndReveal(element: HTMLElement, preventScroll: boolean) {
+  element.focus({ preventScroll: true });
+  if (!preventScroll) {
+    // Not available in JSDOM.
+    element.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }
 }

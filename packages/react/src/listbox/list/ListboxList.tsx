@@ -165,8 +165,11 @@ export const ListboxList = React.forwardRef(function ListboxList(
     },
     onKeyDownCapture(event: React.KeyboardEvent) {
       // While a search is in progress, Space continues it instead of selecting the focused item,
-      // so it's handled before the item's own handler.
-      if (event.key === ' ' && typingRef.current && !disabled) {
+      // so it's handled before the item's own handler. Ctrl+Space, and Shift+Space with multiple
+      // selection, select items, so they never type.
+      const modifiedSpace =
+        event.ctrlKey || event.metaKey || (event.shiftKey && multiple !== false);
+      if (event.key === ' ' && typingRef.current && !disabled && !modifiedSpace) {
         typeahead.onKeyDown(event);
       }
     },
@@ -241,6 +244,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       });
     }
     store.focus.itemsChanged((element) => map?.get(element)?.index);
+    store.context.reportHighlightedItem?.();
   });
   useIsoLayoutEffect(() => {
     syncActiveItem();

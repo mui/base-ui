@@ -73,11 +73,10 @@ export class ListSelection<E = Event> {
     const { shiftKey = false, ctrlKey = false, touch = false } = modifiers;
     const multiple = this.parameters.getMultiple();
     const replaceOnPress = multiple === 'opt-in' && !touch;
-    if (shiftKey && multiple && this.resolveAnchor(this.pressAnchor) === null) {
-      this.pressAnchor = this.createAnchor(this.parameters.getDefaultAnchor());
-    }
-    // A Shift+press always has an anchor, which is the pressed item at the least.
-    const anchorIndex = this.resolveAnchor(this.pressAnchor) ?? index;
+    // A Shift+press with nothing pressed or selected before it extends from the default anchor.
+    const anchorIndex =
+      this.resolveAnchor(this.pressAnchor) ??
+      (shiftKey && multiple ? this.parameters.getDefaultAnchor() : index);
     const { value, items } = this.read();
 
     let nextValue: any[];
@@ -103,9 +102,7 @@ export class ListSelection<E = Event> {
       return;
     }
 
-    if (!keepsAnchor) {
-      this.pressAnchor = this.createAnchor(index);
-    }
+    this.pressAnchor = this.createAnchor(keepsAnchor ? anchorIndex : index);
     this.anchorFocus = this.createAnchor(index);
   }
 

@@ -3,6 +3,19 @@ import { ListFocus } from './listFocus';
 
 const EVENT = 'event';
 
+/** Records the calls that scroll an item into view. JSDOM has no `scrollIntoView` of its own. */
+function mockScrollIntoView() {
+  const original = Element.prototype.scrollIntoView;
+  const scrollIntoView = vi.fn();
+  Element.prototype.scrollIntoView = scrollIntoView;
+  return {
+    scrollIntoView,
+    restore() {
+      Element.prototype.scrollIntoView = original;
+    },
+  };
+}
+
 function createFocusable(parent: HTMLElement) {
   const element = document.createElement('div');
   element.tabIndex = -1;
@@ -170,6 +183,20 @@ describe('ListFocus', () => {
       expect(focus.isPending()).toBe(false);
     });
 
+    it('scrolls to the item it gives focus to', () => {
+      const { focus, mountItem } = setup();
+      focus.moveTo(10, EVENT);
+      const { scrollIntoView, restore } = mockScrollIntoView();
+
+      try {
+        const item = mountItem(10);
+
+        expect(scrollIntoView.mock.contexts).toEqual([item]);
+      } finally {
+        restore();
+      }
+    });
+
     it('reports navigation once the item has focus', () => {
       const { focus, mountItem, onNavigate } = setup();
       focus.navigateTo(10, EVENT);
@@ -299,15 +326,15 @@ describe('ListFocus', () => {
       const { element, mountItem, unmountItem } = setup();
       element(1).focus();
       unmountItem(1);
-      const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
+      const { scrollIntoView, restore } = mockScrollIntoView();
 
       try {
         const item = mountItem(1);
 
         expect(item).toHaveFocus();
-        expect(focusSpy).toHaveBeenLastCalledWith({ preventScroll: true });
+        expect(scrollIntoView).not.toHaveBeenCalled();
       } finally {
-        focusSpy.mockRestore();
+        restore();
       }
     });
   });
@@ -362,19 +389,31 @@ describe('ListFocus', () => {
       expect(item).toHaveFocus();
     });
 
-    it('moves focus to the default item when the item the list holds focus for is removed', () => {
-      const { element, state, setValues, unmountItem, focus } = setup({
-        values: ['a', 'b', 'c'],
-      });
-      element(1).focus();
-      unmountItem(1);
+    it.each([
+      { name: 'the item that took its position', removed: 1, remaining: ['a', 'c'], index: 1 },
+      {
+        name: 'the last item when it was the last one',
+        removed: 2,
+        remaining: ['a', 'b'],
+        index: 1,
+      },
+    ])(
+      'moves focus to $name when the item the list holds focus for is removed',
+      ({ removed, remaining, index }) => {
+        const { element, state, setValues, unmountItem, focus } = setup({
+          values: ['a', 'b', 'c'],
+          tabStop: 0,
+        });
+        element(removed).focus();
+        unmountItem(removed);
 
-      setValues(['a', 'c']);
+        setValues(remaining);
 
-      expect(element(0)).toHaveFocus();
-      expect(state.activeIndex).toBe(0);
-      expect(focus.isPending()).toBe(false);
-    });
+        expect(element(index)).toHaveFocus();
+        expect(state.activeIndex).toBe(index);
+        expect(focus.isPending()).toBe(false);
+      },
+    );
   });
 
   describe('when the list element receives focus', () => {
@@ -384,13 +423,17 @@ describe('ListFocus', () => {
     ])('passes focus to the item that holds the tab stop, $name', ({ fromPress }) => {
       const { list, element, focus, setTabStop } = setup();
       setTabStop(2);
-      const focusSpy = vi.spyOn(element(2), 'focus');
       list.focus();
+      const { scrollIntoView, restore } = mockScrollIntoView();
 
-      focus.listFocused(EVENT, fromPress);
+      try {
+        focus.listFocused(EVENT, fromPress);
 
-      expect(element(2)).toHaveFocus();
-      expect(focusSpy).toHaveBeenCalledWith({ preventScroll: fromPress });
+        expect(element(2)).toHaveFocus();
+        expect(scrollIntoView.mock.contexts).toEqual(fromPress ? [] : [element(2)]);
+      } finally {
+        restore();
+      }
     });
 
     it('highlights a tab-stop item that is not rendered, to have it scrolled into view', () => {
