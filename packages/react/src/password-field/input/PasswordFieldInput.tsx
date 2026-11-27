@@ -167,7 +167,8 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
       ...control.props,
       // Hides the browser's own reveal button, through the style rendered below.
       { className: styleHideNativeReveal.className },
-      // The Root owns `type` so switching can't break.
+      // The Root owns `type`, so a spread `type` can't break switching. A render element's `type`
+      // still wins, like any of its props.
       { type: revealed && !maskedForSubmit ? 'text' : 'password' },
     ],
     stateAttributesMapping: fieldValidityMapping,

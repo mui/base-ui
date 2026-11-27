@@ -70,8 +70,8 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
       },
       elementProps,
       getButtonProps,
-      // `type` isn't part of the props, and a spread or untyped one is overridden too: the
-      // toggle must never submit a form.
+      // `type` isn't part of the props, and a spread or untyped one is overridden too, so the
+      // toggle doesn't submit a form. A render element's `type` still wins, like any of its props.
       nativeButton ? { type: 'button' } : undefined,
     ],
   });
