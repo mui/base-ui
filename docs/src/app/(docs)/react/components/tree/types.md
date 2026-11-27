@@ -368,7 +368,7 @@ type TreeClearState = {
 
 ### List
 
-Renders all tree items at once.
+A container for the tree items.
 Renders a `<div>` element.
 
 Render a group transition after each item of a function child to animate expand/collapse transitions.
@@ -406,7 +406,7 @@ type TreeListState = {
 
 ### Item
 
-An individual item in a hierarchical collection, and a row in a tree grid. Clicking it selects it and deselects other items.
+An item in a tree, and a row in a tree grid.
 Renders a `<div>` element.
 
 **Item Props:**
@@ -597,7 +597,7 @@ type TreeEmptyState = {};
 
 ### CheckboxItem
 
-An item that toggles its selection like a checkbox, leaving the other items selected.
+An item that users check and uncheck like a checkbox.
 In a tree grid, render `TreeGrid.RowCheckbox` in the item instead.
 Renders a `<div>` element.
 

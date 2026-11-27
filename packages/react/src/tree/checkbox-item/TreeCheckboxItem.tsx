@@ -23,7 +23,7 @@ const mixedStateAttributesMapping: StateAttributesMapping<TreeCheckboxItemState>
 };
 
 /**
- * An item that toggles its selection like a checkbox, leaving the other items selected.
+ * An item that users check and uncheck like a checkbox.
  * In a tree grid, render `TreeGrid.RowCheckbox` in the item instead.
  * Renders a `<div>` element.
  *

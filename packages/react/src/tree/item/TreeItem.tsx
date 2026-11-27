@@ -12,7 +12,7 @@ import type { TreeItemBaseState } from '../utils/useTreeItem';
 import { itemMapping } from '../utils/stateAttributesMapping';
 
 /**
- * An individual item in a hierarchical collection, and a row in a tree grid. Clicking it selects it and deselects other items.
+ * An item in a tree, and a row in a tree grid.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)

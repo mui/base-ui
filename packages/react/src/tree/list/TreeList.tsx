@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useTreeListElement } from './useTreeListElement';
 
 /**
- * Renders all tree items at once.
+ * A container for the tree items.
  * Renders a `<div>` element.
  *
  * Render a group transition after each item of a function child to animate expand/collapse transitions.

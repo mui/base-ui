@@ -520,7 +520,7 @@ type TreeGridCollectionState = {};
 
 ### Row
 
-An individual item in a hierarchical collection, and a row in a tree grid. Clicking it selects it and deselects other items.
+An item in a tree, and a row in a tree grid.
 Renders a `<div>` element.
 
 **Row Props:**
