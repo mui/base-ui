@@ -138,8 +138,7 @@ export interface PasswordFieldRootProps {
   children?: React.ReactNode;
 }
 
-export type PasswordFieldRootChangeEventReason =
-  typeof REASONS.triggerPress | typeof REASONS.formReset;
+export type PasswordFieldRootChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 export type PasswordFieldRootChangeEventDetails =
   BaseUIChangeEventDetails<PasswordFieldRoot.ChangeEventReason>;
 

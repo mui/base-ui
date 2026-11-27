@@ -48,16 +48,17 @@ type PasswordFieldPreviewRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type PasswordFieldPreviewRootChangeEventReason = 'trigger-press' | 'form-reset';
+type PasswordFieldPreviewRootChangeEventReason = 'none' | 'form-reset';
 ```
 
 ### Root.ChangeEventDetails
 
 ```typescript
 type PasswordFieldPreviewRootChangeEventDetails = (
-  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
-  | { reason: 'form-reset'; event: Event }
+  { reason: 'none' } | { reason: 'form-reset' }
 ) & {
+  /** The native event associated with the custom event. */
+  event: Event;
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
   /** Allows the event to propagate in cases where Base UI will stop the propagation. */
@@ -522,7 +523,7 @@ declare namespace PasswordFieldPreviewToggleIndicatorDataAttributes {
 ### PasswordFieldRootChangeEventReason
 
 ```typescript
-type PasswordFieldRootChangeEventReason = 'trigger-press' | 'form-reset';
+type PasswordFieldRootChangeEventReason = 'none' | 'form-reset';
 ```
 
 ### PasswordFieldRootProps
@@ -704,7 +705,3 @@ Maps `Type`: `URL` — the docs of a built-in type the page references.
 
 - `Element`: <https://developer.mozilla.org/docs/Web/API/Element>
 - `Event`: <https://developer.mozilla.org/docs/Web/API/Event>
-- `KeyboardEvent`: <https://developer.mozilla.org/docs/Web/API/KeyboardEvent>
-- `MouseEvent`: <https://developer.mozilla.org/docs/Web/API/MouseEvent>
-- `PointerEvent`: <https://developer.mozilla.org/docs/Web/API/PointerEvent>
-- `TouchEvent`: <https://developer.mozilla.org/docs/Web/API/TouchEvent>

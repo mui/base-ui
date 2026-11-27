@@ -88,7 +88,7 @@ describe('<PasswordField.Root />', () => {
 
       expect(onRevealedChange.mock.calls.length).toBe(1);
       expect(onRevealedChange.mock.calls[0][0]).toBe(true);
-      expect(onRevealedChange.mock.calls[0][1].reason).toBe(REASONS.triggerPress);
+      expect(onRevealedChange.mock.calls[0][1].reason).toBe(REASONS.none);
       expect(onRevealedChange.mock.calls[0][1].event).toBeInstanceOf(MouseEvent);
       expect(onRevealedChange.mock.calls[0][1].trigger).toBe(screen.getByRole('button'));
     });
