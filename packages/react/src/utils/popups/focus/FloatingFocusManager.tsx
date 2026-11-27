@@ -950,6 +950,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           const focusOptions: FocusOptions = { preventScroll: true };
           if (closeType === 'keyboard') {
             focusOptions.focusVisible = true;
+          } else if (closeType !== '' && !isTypeableElement(tabbableReturnElement)) {
+            // A pointer press inside the popup may not move focus (e.g. items prevent default),
+            // so the browser still applies the focus-visible state of the element that kept
+            // focus, such as a text input. Text inputs always show the ring, so leave them alone.
+            focusOptions.focusVisible = false;
           }
           tabbableReturnElement.focus(focusOptions);
         }

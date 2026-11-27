@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { isJSDOM } from '@base-ui/utils/testUtils';
 
 describe('<Combobox.Popup />', () => {
   const { render } = createRenderer();
@@ -162,6 +163,47 @@ describe('<Combobox.Popup />', () => {
     });
     expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
   });
+
+  it.skipIf(isJSDOM)(
+    'does not show the focus ring on the trigger after typing and then picking an item with a pointer',
+    async () => {
+      const { user } = await render(
+        <Combobox.Root items={['a', 'b']}>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      const input = await screen.findByTestId('input');
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('b');
+      expect(input.matches(':focus-visible')).toBe(true);
+
+      await user.click(screen.getByRole('option', { name: 'b' }));
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+      expect(trigger.matches(':focus-visible')).toBe(false);
+    },
+  );
 
   it('returns focus to an explicitly provided element when the popup closes', async () => {
     function Test() {

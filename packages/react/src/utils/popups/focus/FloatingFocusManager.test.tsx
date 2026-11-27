@@ -653,7 +653,7 @@ describe('FloatingFocusManager', () => {
         }
       });
 
-      test('omits focusVisible when returning focus after pointer close', async () => {
+      test('prevents focusVisible when returning focus after pointer close', async () => {
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);
 
@@ -692,16 +692,63 @@ describe('FloatingFocusManager', () => {
         const focusSpy = vi.spyOn(reference, 'focus');
 
         try {
-          // Closing with a pointer must not force `:focus-visible`; `focusVisible`
-          // is omitted entirely so the browser's own heuristics decide.
+          await userEvent.click(reference);
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true, focusVisible: false });
+          });
+        } finally {
+          focusSpy.mockRestore();
+        }
+      });
+
+      test('does not pass focusVisible: false when returning focus to a text input after pointer close', async () => {
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context.rootStore);
+          const dismiss = useDismiss(context.rootStore);
+
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          return (
+            <>
+              <input data-testid="input" ref={inputRef} />
+              <button ref={refs.setReference} {...getReferenceProps()}>
+                reference
+              </button>
+              {isOpen && (
+                <FloatingFocusManager store={context.rootStore} returnFocus={inputRef}>
+                  <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating" />
+                </FloatingFocusManager>
+              )}
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByText('reference');
+        await userEvent.click(reference);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating')).toHaveFocus();
+
+        const input = screen.getByTestId('input');
+        const focusSpy = vi.spyOn(input, 'focus');
+
+        try {
           await userEvent.click(reference);
 
           await waitFor(() => {
             expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
           });
-          expect(focusSpy).not.toHaveBeenCalledWith(
-            expect.objectContaining({ focusVisible: true }),
-          );
         } finally {
           focusSpy.mockRestore();
         }
