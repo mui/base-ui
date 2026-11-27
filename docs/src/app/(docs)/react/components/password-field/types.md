@@ -184,11 +184,10 @@ Its pressed state is announced to screen readers, so don't change the label when
 
 **Toggle Data Attributes:**
 
-| Attribute     | Type | Description                                                                  |
-| :------------ | :--- | :--------------------------------------------------------------------------- |
-| data-pressed  | -    | Present when the toggle is pressed (the password is revealed as plain text). |
-| data-revealed | -    | Present when the password is revealed as plain text.                         |
-| data-disabled | -    | Present when the toggle is disabled.                                         |
+| Attribute     | Type | Description                                          |
+| :------------ | :--- | :--------------------------------------------------- |
+| data-revealed | -    | Present when the password is revealed as plain text. |
+| data-disabled | -    | Present when the toggle is disabled.                 |
 
 ### Toggle.Props
 
@@ -198,8 +197,6 @@ Re-export of [Toggle](#toggle) props.
 
 ```typescript
 type PasswordFieldPreviewToggleState = {
-  /** Whether the toggle is pressed (the password is revealed as plain text). */
-  pressed: boolean;
   /** Whether the password is currently revealed as plain text. */
   revealed: boolean;
   /** Whether the toggle should ignore user interaction. */
@@ -499,8 +496,6 @@ Data attributes of [Toggle](#toggle).
 
 ```typescript
 declare namespace PasswordFieldPreviewToggleDataAttributes {
-  /** Present when the toggle is pressed (the password is revealed as plain text). */
-  const pressed: 'data-pressed';
   /** Present when the password is revealed as plain text. */
   const revealed: 'data-revealed';
   /** Present when the toggle is disabled. */
@@ -680,8 +675,6 @@ type PasswordFieldToggleProps = {
 
 ```typescript
 type PasswordFieldToggleState = {
-  /** Whether the toggle is pressed (the password is revealed as plain text). */
-  pressed: boolean;
   /** Whether the password is currently revealed as plain text. */
   revealed: boolean;
   /** Whether the toggle should ignore user interaction. */

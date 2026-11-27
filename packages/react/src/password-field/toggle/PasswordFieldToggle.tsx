@@ -39,7 +39,7 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
 
   const { getButtonProps, buttonRef } = useButton({ disabled, native: nativeButton });
 
-  const state: PasswordFieldToggle.State = { pressed: revealed, revealed, disabled };
+  const state: PasswordFieldToggle.State = { revealed, disabled };
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -80,10 +80,6 @@ export const PasswordFieldToggle = React.forwardRef(function PasswordFieldToggle
 });
 
 export interface PasswordFieldToggleState {
-  /**
-   * Whether the toggle is pressed (the password is revealed as plain text).
-   */
-  pressed: boolean;
   /**
    * Whether the password is currently revealed as plain text.
    */
