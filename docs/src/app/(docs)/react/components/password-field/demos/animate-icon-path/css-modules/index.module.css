@@ -81,11 +81,6 @@
   &:autofill {
     background-clip: text;
   }
-
-  /* Hides the reveal button that Edge adds to password inputs. */
-  &::-ms-reveal {
-    display: none;
-  }
 }
 
 .Toggle {

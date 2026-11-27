@@ -10,3 +10,20 @@ export const styleDisableScrollbar = {
     );
   },
 };
+
+const HIDE_NATIVE_REVEAL_CLASS_NAME = 'base-ui-hide-native-reveal';
+
+/**
+ * Hides the reveal button that Edge and Chromium on Windows add to password inputs, for inputs
+ * whose visibility a component controls.
+ */
+export const styleHideNativeReveal = {
+  className: HIDE_NATIVE_REVEAL_CLASS_NAME,
+  getElement(nonce?: string) {
+    return (
+      <style nonce={nonce} href={HIDE_NATIVE_REVEAL_CLASS_NAME} precedence="base-ui:low">
+        {`.${HIDE_NATIVE_REVEAL_CLASS_NAME}::-ms-reveal{display:none}`}
+      </style>
+    );
+  },
+};

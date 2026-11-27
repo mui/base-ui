@@ -1,6 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { Select } from '@base-ui/react/select';
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
 import { CSPProvider } from '@base-ui/react/csp-provider';
 import { createRenderer } from '#test-utils';
 
@@ -45,6 +46,23 @@ describe('<CSPProvider />', () => {
     );
 
     expect(queryDisableScrollbarStyle()).toBeNull();
+  });
+
+  it('does not render PasswordField inline style tags when disableStyleElements is true', async () => {
+    await render(
+      <CSPProvider disableStyleElements>
+        <PasswordField.Root>
+          <PasswordField.Input />
+        </PasswordField.Root>
+      </CSPProvider>,
+    );
+
+    expect(document.querySelector('input')).toHaveClass('base-ui-hide-native-reveal');
+    expect(
+      Array.from(document.querySelectorAll('style')).some((element) =>
+        element.textContent?.includes('.base-ui-hide-native-reveal'),
+      ),
+    ).toBe(false);
   });
 
   it('applies nonce to inline style tags', async () => {

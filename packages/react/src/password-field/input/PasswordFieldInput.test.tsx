@@ -33,6 +33,21 @@ describe('<PasswordField.Input />', () => {
     expect(input).toHaveAttribute('data-revealed');
   });
 
+  it("hides the browser's own reveal button on the input", async () => {
+    await render(
+      <PasswordField.Root>
+        <PasswordField.Input />
+      </PasswordField.Root>,
+    );
+
+    expect(document.querySelector('input')).toHaveClass('base-ui-hide-native-reveal');
+    expect(
+      Array.from(document.querySelectorAll('style')).some((element) =>
+        element.textContent?.includes('.base-ui-hide-native-reveal::-ms-reveal'),
+      ),
+    ).toBe(true);
+  });
+
   it('applies password-friendly defaults', async () => {
     await render(
       <PasswordField.Root>

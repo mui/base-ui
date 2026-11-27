@@ -12,6 +12,8 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useRenderedId } from '../../internals/resolveRenderedId';
+import { styleHideNativeReveal } from '../../utils/styles';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type {
   InputChangeEventDetails,
@@ -111,6 +113,8 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
     );
   }, [inputRef, handleReset, handleSubmit]);
 
+  const { nonce, disableStyleElements } = useCSPContext();
+
   const control = useFieldControl({
     ...elementProps,
     // `id` resolves through the Root so the toggle's `aria-controls` and a Field's label follow
@@ -121,7 +125,7 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
 
   const state: PasswordFieldInput.State = { ...control.state, revealed };
 
-  return useRenderElement('input', componentProps, {
+  const element = useRenderElement('input', componentProps, {
     ref: [mergedRef, control.ref],
     state,
     props: [
@@ -133,11 +137,20 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
         spellCheck: false,
       },
       ...control.props,
+      // Hides the browser's own reveal button, through the style rendered below.
+      { className: styleHideNativeReveal.className },
       // The Root owns `type` so switching can't break.
       { type: revealed && !maskedForSubmit ? 'text' : 'password' },
     ],
     stateAttributesMapping: fieldValidityMapping,
   });
+
+  return (
+    <React.Fragment>
+      {!disableStyleElements && styleHideNativeReveal.getElement(nonce)}
+      {element}
+    </React.Fragment>
+  );
 });
 
 export interface PasswordFieldInputState extends InputState {
