@@ -733,6 +733,28 @@ describe('<PasswordField.Root />', () => {
         );
       }
 
+      it('unmasks a revealed input after a submit dispatched in a transition', async () => {
+        await render(
+          <form onSubmit={(event) => event.preventDefault()}>
+            <PasswordField.Root defaultRevealed>
+              <PasswordField.Input />
+              <PasswordField.Toggle />
+            </PasswordField.Root>
+          </form>,
+        );
+
+        const input = document.querySelector('input')!;
+        expect(input.type).toBe('text');
+
+        React.startTransition(() => {
+          input.form!.requestSubmit();
+        });
+        await wait(50);
+
+        expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+        expect(input.type).toBe('text');
+      });
+
       it.each([
         {
           name: 'a submit button',

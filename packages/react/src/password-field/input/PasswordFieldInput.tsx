@@ -52,6 +52,15 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
   const [maskedForSubmit, setMaskedForSubmit] = React.useState(false);
   const unmaskTimeout = useTimeout();
 
+  const unmask = useStableCallback(() => {
+    setMaskedForSubmit(false);
+    // A mask set during a transition may never render, in which case React sees no `type` change
+    // and leaves the direct DOM write below in place.
+    if (revealed && inputRef.current) {
+      inputRef.current.type = 'text';
+    }
+  });
+
   const handleSubmit = useStableCallback((event: Event) => {
     const input = inputRef.current;
     if (!input || event.target !== input.form) {
@@ -67,9 +76,7 @@ export const PasswordFieldInput = React.forwardRef(function PasswordFieldInput(
     }
     setMaskedForSubmit(true);
     // The form data has been built by the next task. A prevented submit unmasks then too.
-    unmaskTimeout.start(0, () => {
-      setMaskedForSubmit(false);
-    });
+    unmaskTimeout.start(0, unmask);
   });
 
   const handleReset = useStableCallback((event: Event) => {
