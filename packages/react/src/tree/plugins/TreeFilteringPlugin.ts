@@ -483,7 +483,7 @@ export class TreeFilteringPlugin<TItem = TreeDefaultItem> {
     if (process.env.NODE_ENV === 'production' || unknownIds.length === 0) {
       return;
     }
-    const component = getTreeNamespace(this.store).namespace;
+    const component = getTreeNamespace(this.store);
     warn(
       `${component}.FilterProvider received \`filteredItems\` containing item IDs that do not exist ` +
         `in the tree: ${unknownIds.map(String).join(', ')}. These matches are ignored ` +

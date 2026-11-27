@@ -32,11 +32,9 @@ export const ITEM_PARTS = {
   link: { Tree: 'LinkItem', TreeGrid: 'CellLink' },
 } as const;
 
-/** The namespace of the root's parts, and the slug of its docs page. */
-export function getTreeNamespace(store: TreeStore<any, any>) {
-  return store.grid === undefined
-    ? ({ namespace: 'Tree', docsSlug: 'tree' } as const)
-    : ({ namespace: 'TreeGrid', docsSlug: 'tree-grid' } as const);
+/** The namespace of the root's parts. */
+export function getTreeNamespace(store: TreeStore<any, any>): 'Tree' | 'TreeGrid' {
+  return store.grid === undefined ? 'Tree' : 'TreeGrid';
 }
 
 /** Throws when a `Tree` item part renders in a `TreeGrid.Root`. */

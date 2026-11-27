@@ -41,7 +41,7 @@ function warnMisplacedProvider(store: TreeStore<any, any>, name: string | undefi
   if (name === undefined) {
     return;
   }
-  const component = getTreeNamespace(store).namespace;
+  const component = getTreeNamespace(store);
   warn(
     `<${component}.${name}> has no effect inside <${component}.Root>.`,
     'Providers configure the tree they wrap.',

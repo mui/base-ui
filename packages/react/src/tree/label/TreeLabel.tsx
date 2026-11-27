@@ -17,14 +17,10 @@ export const TreeLabel = React.forwardRef(function TreeLabel(
   componentProps: TreeLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const { render, className, style, ...elementProps } = componentProps;
   // Ignore an `id` from untyped consumers, so the tree references the id the label renders.
-  const {
-    render,
-    className,
-    style,
-    id: ignoredId,
-    ...elementProps
-  } = componentProps as TreeLabel.Props & { id?: string | undefined };
+  const elementPropsWithoutId = elementProps as typeof elementProps & { id?: string | undefined };
+  delete elementPropsWithoutId.id;
 
   const store = useTreeRootContext();
   // The press behind a click, so the highlight reports the focus it moves as a pointer one.

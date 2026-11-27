@@ -107,7 +107,7 @@ export function useTreeItem(parameters: UseTreeItemParameters): UseTreeItemRetur
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       if (selectors.itemMeta(store.state, itemId) == null) {
-        const tree = getTreeNamespace(store).namespace;
+        const tree = getTreeNamespace(store);
         const part = ITEM_PARTS[kind][tree];
         error(
           `A <${tree}.${part}> has the itemId ${JSON.stringify(itemId)}, which is not in the ` +

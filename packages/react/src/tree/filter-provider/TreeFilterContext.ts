@@ -23,7 +23,8 @@ export function useTreeFilterPart(part: string) {
   const context = React.useContext(TreeFilterContext);
   const filtering = store.filtering;
   if (context === null || filtering === undefined) {
-    const { namespace: component, docsSlug } = getTreeNamespace(store);
+    const component = getTreeNamespace(store);
+    const docsSlug = component === 'Tree' ? 'tree' : 'tree-grid';
     throw new Error(
       `Base UI: <${component}.${part}> must be placed in a tree wrapped in <${component}.FilterProvider>. ` +
         'It reads the filter query from the provider, which a plain tree does not have. ' +

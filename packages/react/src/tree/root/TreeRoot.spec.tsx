@@ -182,8 +182,10 @@ const customCollection: Tree.ItemCollection<CustomItem> = Tree.createItems(custo
 // @ts-expect-error Collections are opaque and expose no data methods.
 customCollection.data;
 
+const customActionsRef = React.createRef<Tree.Root.Actions<CustomItem> | null>();
 <Tree.Root
   items={customCollection}
+  actionsRef={customActionsRef}
   onItemsChange={(items) => {
     expectType<CustomItem[], typeof items>(items);
   }}
@@ -299,12 +301,7 @@ function OptInFileTree(props: Tree.Root.Props<FileItem, 'opt-in'>) {
 // Parts type the item as `any`, so renderers annotate it
 // ---------------------------------------------------------------------------
 
-const customActionsRef = React.createRef<Tree.Root.Actions<CustomItem> | null>();
-<Tree.Root items={customCollection} actionsRef={customActionsRef}>
-  <Tree.List>{(item: CustomItem) => item.name}</Tree.List>
-</Tree.Root>;
-
-// Without one, the item is `any`, like `Combobox.List`'s: the list can't see the root's items.
+// An unannotated parameter is `any`.
 <Tree.Root items={[] as FileItem[]}>
   <Tree.List>
     {(item) => {
