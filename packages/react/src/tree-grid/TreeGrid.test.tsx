@@ -1914,7 +1914,7 @@ describe('checkbox click selection', () => {
     act(() => row.focus());
 
     fireEvent.keyDown(row, { key: ' ' });
-    expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['documents', 'music']);
+    expect(onSelectedItemsChange.mock.lastCall?.[0]).toEqual(['music', 'documents']);
   });
 
   it('keeps the selection when the arrow keys move focus to a row with a checkbox with multiple="opt-in"', async () => {

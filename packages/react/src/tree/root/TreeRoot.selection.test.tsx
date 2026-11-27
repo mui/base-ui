@@ -152,7 +152,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       fireEvent.click(view.getItemRoot('2'), { ctrlKey: true });
 
       expect(onSelectedItemsChange.mock.calls.length).toBe(1);
-      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['2', '1']);
+      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '2']);
       expect(onSelectedItemsChange.mock.calls.at(-1)![1]).toHaveProperty('reason', 'item-press');
     });
 
@@ -242,7 +242,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     describe('multi selection', () => {
       it.each([
         { name: 'clicking', modifiers: {}, expected: ['2'] },
-        { name: 'ctrl-clicking', modifiers: { ctrlKey: true }, expected: ['2', '1'] },
+        { name: 'ctrl-clicking', modifiers: { ctrlKey: true }, expected: ['1', '2'] },
       ])(
         'should report the intended selection but keep the controlled value when $name another item',
         async ({ modifiers, expected }) => {
@@ -971,7 +971,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         });
 
         fireEvent.click(view.getItemRoot('1.1'));
-        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1.1', '1.2', '1']);
+        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1.2', '1.1', '1']);
       });
 
       it('should not select the parent when selecting all the children if checkboxSelectionPropagation.parents is false', async () => {
@@ -1275,7 +1275,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         });
 
         fireEvent.click(view.getItemRoot('1.1'));
-        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1.1', '1.2']);
+        expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual(['1.2', '1.1']);
       });
     });
   });
@@ -1910,7 +1910,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       fireEvent.click(view.getItemRoot(2), { ctrlKey: true });
 
-      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual([2, 1]);
+      expect(onSelectedItemsChange.mock.calls.at(-1)![0]).toEqual([1, 2]);
     });
 
     it('should support checkbox selection with numeric ids', async () => {

@@ -82,7 +82,7 @@ export class TreeSelectionPlugin<TItem = TreeDefaultItem> {
         // A selected item that isn't fully checked still propagates to its subtree now.
         newSelected = this.getSelectedIds().slice();
       } else {
-        newSelected = [itemId, ...this.getSelectedIds()];
+        newSelected = [...this.getSelectedIds(), itemId];
       }
     } else {
       const select = checked ?? !selectors.isItemSelected(state, itemId);

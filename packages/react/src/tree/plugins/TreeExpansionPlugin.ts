@@ -166,7 +166,7 @@ export class TreeExpansionPlugin<TItem = TreeDefaultItem> {
 
     const oldExpanded = this.store.state.expandedItems;
     this.commitExpansion(
-      shouldBeExpanded ? [itemId, ...oldExpanded] : oldExpanded.filter((id) => id !== itemId),
+      shouldBeExpanded ? [...oldExpanded, itemId] : oldExpanded.filter((id) => id !== itemId),
       [itemId],
       shouldBeExpanded,
       reason,

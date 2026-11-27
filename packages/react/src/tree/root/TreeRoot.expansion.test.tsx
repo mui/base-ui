@@ -93,7 +93,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       fireEvent.click(view.getItemRoot('2'));
 
       expect(onExpandedItemsChange.mock.calls.length).toBe(1);
-      expect(onExpandedItemsChange.mock.calls.at(-1)![0]).toEqual(['2', '1']);
+      expect(onExpandedItemsChange.mock.calls.at(-1)![0]).toEqual(['1', '2']);
       expect(onExpandedItemsChange.mock.calls.at(-1)![1]).toHaveProperty('reason', 'item-press');
     });
 
