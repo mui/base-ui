@@ -1126,6 +1126,44 @@ describe('<Combobox.Root />', () => {
     expect(group).not.toHaveAttribute('aria-hidden', 'true');
   });
 
+  it('does not aria-hide a label pointing to the input when the input is outside the popup', async () => {
+    const { user } = await render(
+      <div>
+        <label htmlFor="fruit" data-testid="label">
+          Fruit
+        </label>
+        <Combobox.Root items={['apple', 'banana']}>
+          <Combobox.Input id="fruit" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+        <button data-testid="outside">Outside</button>
+      </div>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const label = screen.getByTestId('label');
+    const outside = screen.getByTestId('outside');
+
+    expect(input).toHaveAccessibleName('Fruit');
+
+    await user.click(input);
+    expect(await screen.findByRole('listbox')).not.toBe(null);
+    await flushMicrotasks();
+
+    expect(outside).toHaveAttribute('aria-hidden', 'true');
+    expect(label).not.toHaveAttribute('aria-hidden');
+    expect(input).toHaveAccessibleName('Fruit');
+  });
+
   it('dismisses the popup when clicking a plain wrapper around the input', async () => {
     const { user } = await render(
       <Combobox.Root items={['apple', 'banana']}>
