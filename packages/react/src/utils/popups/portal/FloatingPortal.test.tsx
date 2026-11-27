@@ -660,4 +660,47 @@ describe.each([
       );
     },
   );
+
+  describe('tab order of non-modal portal content', () => {
+    function Test() {
+      const { context, refs } = useFloating({ open: true });
+
+      return (
+        <React.Fragment>
+          <button data-testid="outside" />
+          <FloatingPortal>
+            <button data-testid="inside" />
+            <FloatingFocusManager store={context.rootStore} modal={false} closeOnFocusOut={false}>
+              <div ref={refs.setFloating} />
+            </FloatingFocusManager>
+          </FloatingPortal>
+        </React.Fragment>
+      );
+    }
+
+    test('restores the tab order when focus returns without a related target', async () => {
+      render(<Test />);
+      await flushMicrotasks();
+
+      const inside = screen.getByTestId('inside');
+      fireEvent.focusOut(inside, { relatedTarget: screen.getByTestId('outside') });
+      expect(inside).toHaveAttribute('tabindex', '-1');
+
+      // As when a popup in a sibling portal returns focus after its focused element was removed.
+      fireEvent.focusIn(inside, { relatedTarget: null });
+
+      expect(inside).not.toHaveAttribute('tabindex');
+      expect(inside).not.toHaveAttribute('data-tabindex');
+    });
+
+    test('keeps the tab order when focus leaves without a related target', async () => {
+      render(<Test />);
+      await flushMicrotasks();
+
+      const inside = screen.getByTestId('inside');
+      fireEvent.focusOut(inside, { relatedTarget: null });
+
+      expect(inside).not.toHaveAttribute('tabindex');
+    });
+  });
 });
