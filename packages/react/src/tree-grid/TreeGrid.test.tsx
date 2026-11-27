@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
+import { CheckboxGroup } from '../checkbox-group';
 import { DirectionProvider } from '../direction-provider';
 import { Field } from '../field';
 import { Menu } from '../menu';
@@ -392,9 +393,6 @@ describe('Tree', () => {
         <span ref={(element) => element?.setAttribute('inert', '')}>
           <TreeGrid.CellButton>Inert</TreeGrid.CellButton>
         </span>
-        <Field.Root disabled>
-          <TreeGrid.RowCheckbox />
-        </Field.Root>
         <TreeGrid.CellButton data-testid="action">Action</TreeGrid.CellButton>
       </SingleRowTree>,
     );
@@ -1658,6 +1656,50 @@ describe('Tree', () => {
     const [first, second] = Array.from(form.querySelectorAll('input[type="checkbox"]'));
     expect(first.id).not.toBe(second.id);
     expect([...new FormData(form).keys()]).toEqual([]);
+  });
+
+  // The tree owns the selection, so only the tree can make a row unselectable.
+  it.each([
+    {
+      name: 'Field.Root',
+      wrap: (tree: React.ReactNode) => <Field.Root disabled>{tree}</Field.Root>,
+    },
+    {
+      name: 'Field.Item',
+      wrap: (tree: React.ReactNode) => (
+        <Field.Root>
+          <Field.Item disabled>{tree}</Field.Item>
+        </Field.Root>
+      ),
+    },
+    {
+      name: 'CheckboxGroup',
+      wrap: (tree: React.ReactNode) => (
+        <CheckboxGroup disabled defaultValue={[]}>
+          {tree}
+        </CheckboxGroup>
+      ),
+    },
+  ])('takes no disabled state from an enclosing disabled $name', async ({ wrap }) => {
+    await render(
+      wrap(
+        <TreeGrid.Root items={[{ id: 'music', label: 'Music' }]} multiple>
+          <TreeGrid.Table aria-label="Files">
+            {(item: Item) => (
+              <TreeGrid.Row itemId={item.id}>
+                <TreeGrid.Cell>
+                  <TreeGrid.RowCheckbox />
+                </TreeGrid.Cell>
+              </TreeGrid.Row>
+            )}
+          </TreeGrid.Table>
+        </TreeGrid.Root>,
+      ),
+    );
+
+    expect(screen.getByRole('checkbox', { name: 'Select Music' })).not.toHaveAttribute(
+      'data-disabled',
+    );
   });
 
   it('disables checkboxes when selection is unavailable', async () => {

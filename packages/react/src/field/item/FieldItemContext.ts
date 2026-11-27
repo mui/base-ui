@@ -5,7 +5,9 @@ export interface FieldItemContext {
   disabled: boolean;
 }
 
-export const FieldItemContext = React.createContext<FieldItemContext>({ disabled: false });
+export const DEFAULT_FIELD_ITEM_CONTEXT: FieldItemContext = { disabled: false };
+
+export const FieldItemContext = React.createContext<FieldItemContext>(DEFAULT_FIELD_ITEM_CONTEXT);
 
 export function useFieldItemContext() {
   const context = React.useContext(FieldItemContext);

@@ -10,8 +10,9 @@ import { NO_FORM_ID } from '../../internals/constants';
 import {
   DEFAULT_FIELD_ROOT_CONTEXT,
   FieldRootContext,
-  useFieldRootContext,
 } from '../../internals/field-root-context/FieldRootContext';
+import { DEFAULT_FIELD_ITEM_CONTEXT, FieldItemContext } from '../../field/item/FieldItemContext';
+import { CheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { LabelableProvider } from '../../internals/labelable-provider';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import type { CheckboxRootProps, CheckboxRootState } from '../../checkbox';
@@ -19,11 +20,6 @@ import { useTreeRootContext } from '../../tree/root/TreeRootContext';
 import { useTreeItemContext } from '../../tree/item/TreeItemContext';
 import { ACTION_CONTROL_KEYS, useTreeGridCellControl } from '../utils/useTreeGridCellControl';
 import { mapStateProps } from '../../tree/utils/mapStateProps';
-
-// `Checkbox.Root` also inherits the disabled state of an enclosing field or checkbox group.
-function isCheckboxDisabled(element: HTMLElement) {
-  return element.hasAttribute('data-disabled');
-}
 
 function toItemCheckboxState(state: CheckboxRootState): TreeGridRowCheckboxState {
   return { checked: state.checked, indeterminate: state.indeterminate, disabled: state.disabled };
@@ -51,7 +47,7 @@ export const TreeGridRowCheckbox = fastComponentRef(function TreeGridRowCheckbox
     part: 'RowCheckbox',
     treePart: 'CheckboxItem',
     defaultKeys: ACTION_CONTROL_KEYS,
-    disabled: isCheckboxDisabled,
+    disabled: checkboxDisabled,
   });
   const checked = status === 'checked';
   const indeterminate = status === 'indeterminate';
@@ -73,37 +69,34 @@ export const TreeGridRowCheckbox = fastComponentRef(function TreeGridRowCheckbox
 
   const mergedRef = useMergedRefs(forwardedRef, control.ref);
 
-  // A row checkbox selects its item; it isn't the control of a field around the tree.
-  // The default context tells `Checkbox.Root` that no field encloses it, so it doesn't
-  // take the field's name, id or validation. Only the field's disabled state is kept,
-  // like a native `<fieldset disabled>`.
-  const fieldDisabled = useFieldRootContext().disabled;
-  const fieldContext = React.useMemo(
-    () => ({ ...DEFAULT_FIELD_ROOT_CONTEXT, disabled: fieldDisabled }),
-    [fieldDisabled],
-  );
-
   return (
-    // A labelable scope per checkbox gives each hidden input its own id.
-    <FieldRootContext.Provider value={fieldContext}>
-      <LabelableProvider>
-        <Checkbox.Root
-          aria-label={`Select ${label}`}
-          {...otherProps}
-          {...mapStateProps({ className, style, render }, toItemCheckboxState)}
-          ref={mergedRef}
-          id={id}
-          inputRef={inputRef}
-          checked={checked}
-          indeterminate={indeterminate}
-          disabled={checkboxDisabled}
-          // Out of the tab order while disabled, as the arrows skip it too.
-          tabIndex={otherProps.tabIndex ?? (checkboxDisabled ? -1 : control.tabIndex)}
-          onCheckedChange={handleCheckedChange}
-          // Selecting a row isn't a form value, and Enter must not submit a surrounding form.
-          form={NO_FORM_ID}
-        />
-      </LabelableProvider>
+    // A row checkbox selects its item; it isn't the control of a field or checkbox group
+    // around the tree. The default contexts tell `Checkbox.Root` that none encloses it, so
+    // its name, validation and disabled state come from the tree only.
+    <FieldRootContext.Provider value={DEFAULT_FIELD_ROOT_CONTEXT}>
+      <FieldItemContext.Provider value={DEFAULT_FIELD_ITEM_CONTEXT}>
+        <CheckboxGroupContext.Provider value={undefined}>
+          {/* A labelable scope per checkbox gives each hidden input its own id. */}
+          <LabelableProvider>
+            <Checkbox.Root
+              aria-label={`Select ${label}`}
+              {...otherProps}
+              {...mapStateProps({ className, style, render }, toItemCheckboxState)}
+              ref={mergedRef}
+              id={id}
+              inputRef={inputRef}
+              checked={checked}
+              indeterminate={indeterminate}
+              disabled={checkboxDisabled}
+              // Out of the tab order while disabled, as the arrows skip it too.
+              tabIndex={otherProps.tabIndex ?? (checkboxDisabled ? -1 : control.tabIndex)}
+              onCheckedChange={handleCheckedChange}
+              // Selecting a row isn't a form value, and Enter must not submit a surrounding form.
+              form={NO_FORM_ID}
+            />
+          </LabelableProvider>
+        </CheckboxGroupContext.Provider>
+      </FieldItemContext.Provider>
     </FieldRootContext.Provider>
   );
 });
