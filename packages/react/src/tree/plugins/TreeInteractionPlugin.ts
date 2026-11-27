@@ -554,9 +554,14 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       if (targetItem != null) {
         this.focusItem(targetItem, event.nativeEvent);
         if (multiple && event.shiftKey && !ctrlPressed) {
-          this.store.selection.extendTo(targetItem, itemId, REASONS.keyboard, event.nativeEvent);
+          this.store.selection.extendTo(
+            targetItem,
+            itemId,
+            REASONS.listNavigation,
+            event.nativeEvent,
+          );
         } else if (followFocus) {
-          this.store.selection.moveTo(targetItem, REASONS.keyboard, event.nativeEvent);
+          this.store.selection.moveTo(targetItem, REASONS.listNavigation, event.nativeEvent);
         }
       }
     } else if (key === expandKey) {
@@ -565,7 +570,12 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       }
       const expanded = selectors.isItemExpanded(this.store.state, itemId);
       if (!expanded && this.store.expansion.canToggleItemExpansion(itemId)) {
-        this.store.expansion.setItemExpansion(itemId, true, REASONS.keyboard, event.nativeEvent);
+        this.store.expansion.setItemExpansion(
+          itemId,
+          true,
+          REASONS.listNavigation,
+          event.nativeEvent,
+        );
       } else if (!this.store.grid?.focusFirstStop(itemId) && expanded) {
         const firstFocusableChild = getFirstNavigableChild(this.store.state, itemId);
         if (firstFocusableChild != null) {
@@ -581,7 +591,12 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         this.store.expansion.canToggleItemExpansion(itemId) &&
         selectors.isItemExpanded(this.store.state, itemId)
       ) {
-        this.store.expansion.setItemExpansion(itemId, false, REASONS.keyboard, event.nativeEvent);
+        this.store.expansion.setItemExpansion(
+          itemId,
+          false,
+          REASONS.listNavigation,
+          event.nativeEvent,
+        );
       } else {
         const parent = selectors.itemParentId(this.store.state, itemId);
         if (parent != null) {
@@ -596,7 +611,12 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       if (edgeItem != null) {
         // The range skips the rows that can't be selected, the focused one included.
         if (!this.store.state.disabled && multiple && ctrlPressed && event.shiftKey) {
-          this.store.selection.selectRangeTo(itemId, edgeItem, REASONS.keyboard, event.nativeEvent);
+          this.store.selection.selectRangeTo(
+            itemId,
+            edgeItem,
+            REASONS.listNavigation,
+            event.nativeEvent,
+          );
         }
         this.navigateTo(edgeItem, followFocus, event);
       }
@@ -619,7 +639,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
         event.preventDefault();
       }
     } else if (key === '*') {
-      this.store.expansion.expandAllSiblings(itemId, REASONS.keyboard, event.nativeEvent);
+      this.store.expansion.expandAllSiblings(itemId, REASONS.listNavigation, event.nativeEvent);
       event.preventDefault();
     } else if (
       ctrlPressed &&
@@ -627,7 +647,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       // On a layout without Latin letters, the key in the position of A selects everything.
       (key === 'a' || key === 'A' || (event.nativeEvent.code === 'KeyA' && !/^[a-z]$/i.test(key)))
     ) {
-      this.store.selection.selectAll(REASONS.keyboard, event.nativeEvent);
+      this.store.selection.selectAll(REASONS.listNavigation, event.nativeEvent);
       event.preventDefault();
     }
 
@@ -698,7 +718,7 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
   private navigateTo(itemId: TreeItemId, followFocus: boolean, event: React.KeyboardEvent) {
     this.focusItem(itemId, event.nativeEvent);
     if (followFocus) {
-      this.store.selection.moveTo(itemId, REASONS.keyboard, event.nativeEvent);
+      this.store.selection.moveTo(itemId, REASONS.listNavigation, event.nativeEvent);
     }
   }
 
@@ -958,7 +978,12 @@ export class TreeInteractionPlugin<TItem = TreeDefaultItem> {
       this.store.expansion.canToggleItemExpansion(itemId) &&
       selectors.isItemExpanded(this.store.state, itemId) !== expand
     ) {
-      this.store.expansion.setItemExpansion(itemId, expand, REASONS.keyboard, event.nativeEvent);
+      this.store.expansion.setItemExpansion(
+        itemId,
+        expand,
+        REASONS.listNavigation,
+        event.nativeEvent,
+      );
     }
     // Focus follows the screen reader to the row, unless it is outside the tree, such
     // as in a filter input.

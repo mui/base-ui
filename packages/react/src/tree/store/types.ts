@@ -138,7 +138,7 @@ export interface TreeItemsState<TItem = any> {
 export type TreeRootExpansionChangeEventReason =
   | typeof REASONS.itemPress
   | typeof REASONS.triggerPress
-  | typeof REASONS.keyboard
+  | typeof REASONS.listNavigation
   | typeof REASONS.imperativeAction
   | typeof REASONS.missing
   | typeof REASONS.none;
@@ -148,7 +148,7 @@ export type TreeRootExpansionChangeEventDetails =
 
 export type TreeRootSelectionChangeEventReason =
   | typeof REASONS.itemPress
-  | typeof REASONS.keyboard
+  | typeof REASONS.listNavigation
   | typeof REASONS.imperativeAction
   | typeof REASONS.missing
   | typeof REASONS.none;
@@ -565,7 +565,8 @@ export interface TreeStoreParameters<
   /**
    * Event handler called when items are expanded or collapsed.
    *
-   * The event `reason` is `'missing'` when expanded items are removed by a transaction.
+   * The event `reason` is `'list-navigation'` for Arrow Right, Arrow Left and `*`, and
+   * `'missing'` when expanded items are removed by a transaction.
    * Automatic changes cannot be canceled; calling `eventDetails.cancel()` for `'missing'` has
    * no effect.
    */
@@ -597,9 +598,10 @@ export interface TreeStoreParameters<
   /**
    * Event handler called when the selected items change.
    *
-   * The event `reason` is `'missing'` when selected items are removed by a transaction, and
-   * `'none'` when the tree re-applies checkbox propagation after its items change, such as when
-   * a checked folder loads its children. Automatic changes cannot be canceled; calling
+   * The event `reason` is `'list-navigation'` when a key that moves focus, or Ctrl+A, changes
+   * the selection, `'missing'` when selected items are removed by a transaction, and `'none'`
+   * when the tree re-applies checkbox propagation after its items change, such as when a
+   * checked folder loads its children. Automatic changes cannot be canceled; calling
    * `eventDetails.cancel()` for `'missing'` or `'none'` has no effect.
    */
   onSelectedItemsChange?:

@@ -2253,6 +2253,7 @@ describe('TreeGrid columns', () => {
     header?: boolean | undefined;
     multiple?: boolean | 'opt-in' | undefined;
     onItemHighlighted?: TreeGrid.Root.Props['onItemHighlighted'];
+    onSelectedItemsChange?: TreeGrid.Root.Props<Item, boolean | 'opt-in'>['onSelectedItemsChange'];
     renderRow?: ((item: Item, cells: React.ReactNode[]) => React.ReactNode[]) | undefined;
   }) {
     const { header = true, renderRow = (_item, cells) => cells } = props;
@@ -2262,6 +2263,7 @@ describe('TreeGrid columns', () => {
         defaultExpandedItems={['documents']}
         multiple={props.multiple}
         onItemHighlighted={props.onItemHighlighted}
+        onSelectedItemsChange={props.onSelectedItemsChange}
       >
         <TreeGrid.Table aria-label="Files">
           {header ? (
@@ -2410,8 +2412,9 @@ describe('TreeGrid columns', () => {
     expect(screen.getByTestId('size-resume')).toHaveFocus();
   });
 
-  it('moves the selection with ArrowUp and ArrowDown on a cell with multiple="opt-in"', async () => {
-    await render(<ColumnsTree multiple="opt-in" />);
+  it('moves the selection with ArrowUp and ArrowDown on a cell with multiple="opt-in", as list navigation', async () => {
+    const onSelectedItemsChange = vi.fn();
+    await render(<ColumnsTree multiple="opt-in" onSelectedItemsChange={onSelectedItemsChange} />);
 
     const row = screen.getByTestId('row-resume');
     act(() => row.focus());
@@ -2425,6 +2428,7 @@ describe('TreeGrid columns', () => {
     expect(screen.getByTestId('size-cover-letter')).toHaveFocus();
     expect(row).toHaveAttribute('aria-selected', 'false');
     expect(screen.getByTestId('row-cover-letter')).toHaveAttribute('aria-selected', 'true');
+    expect(onSelectedItemsChange.mock.calls.at(-1)![1].reason).toBe('list-navigation');
 
     press(screen.getByTestId('size-cover-letter'), 'ArrowUp');
     expect(screen.getByTestId('size-resume')).toHaveFocus();

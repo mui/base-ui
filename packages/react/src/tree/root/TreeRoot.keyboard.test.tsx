@@ -605,6 +605,30 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         expect(view.isItemExpanded('1')).toBe(false);
       });
     });
+
+    it.each([
+      { name: 'Arrow Right', key: 'ArrowRight', defaultExpandedItems: [] },
+      { name: 'Arrow Left', key: 'ArrowLeft', defaultExpandedItems: ['1'] },
+      { name: '*', key: '*', defaultExpandedItems: [] },
+    ])(
+      'should report the expansion with $name as list navigation',
+      async ({ key, defaultExpandedItems }) => {
+        const onExpandedItemsChange = vi.fn();
+        const view = await render({
+          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
+          defaultExpandedItems,
+          onExpandedItemsChange,
+        });
+
+        act(() => {
+          view.getItemRoot('1').focus();
+        });
+        fireEvent.keyDown(view.getItemRoot('1'), { key });
+
+        expect(onExpandedItemsChange).toHaveBeenCalledTimes(1);
+        expect(onExpandedItemsChange.mock.calls[0][1].reason).toBe('list-navigation');
+      },
+    );
   });
 
   describe('Selection', () => {
@@ -796,6 +820,32 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       fireEvent.keyDown(view.getItemRoot('1'), { key: 'Enter' });
       expect(onExpandedItemsChange.mock.calls.at(-1)![1].reason).toBe('item-press');
     });
+
+    it.each([
+      { name: 'Arrow Down with multiple="opt-in"', multiple: 'opt-in', key: 'ArrowDown' },
+      { name: 'End with multiple="opt-in"', multiple: 'opt-in', key: 'End' },
+      { name: 'Shift+Arrow Down', multiple: true, key: 'ArrowDown', shiftKey: true },
+      { name: 'Ctrl+Shift+End', multiple: true, key: 'End', ctrlKey: true, shiftKey: true },
+      { name: 'Ctrl+A', multiple: true, key: 'a', ctrlKey: true },
+    ])(
+      'should report the selection with $name as list navigation',
+      async ({ multiple, key, shiftKey = false, ctrlKey = false }) => {
+        const onSelectedItemsChange = vi.fn();
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }, { id: '3' }],
+          multiple,
+          onSelectedItemsChange,
+        });
+
+        act(() => {
+          view.getItemRoot('1').focus();
+        });
+        fireEvent.keyDown(view.getItemRoot('1'), { key, shiftKey, ctrlKey });
+
+        expect(onSelectedItemsChange).toHaveBeenCalledTimes(1);
+        expect(onSelectedItemsChange.mock.calls[0][1].reason).toBe('list-navigation');
+      },
+    );
 
     describe('multi selection', () => {
       describe('key: Space', () => {
@@ -1326,7 +1376,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
               _value: unknown,
               eventDetails: { reason: string; cancel: () => void },
             ) => {
-              if (eventDetails.reason === 'keyboard') {
+              if (eventDetails.reason === 'list-navigation') {
                 eventDetails.cancel();
               }
             },
@@ -2118,11 +2168,19 @@ describe('TreeRoot - Expand and Collapse actions on an item without focus', () =
     { id: '2', label: 'Two' },
   ];
 
-  function ActionTree(props: { direction: 'ltr' | 'rtl'; defaultExpandedItems?: string[] }) {
+  function ActionTree(props: {
+    direction: 'ltr' | 'rtl';
+    defaultExpandedItems?: string[];
+    onExpandedItemsChange?: Tree.Root.Props['onExpandedItemsChange'];
+  }) {
     return (
       <DirectionProvider direction={props.direction}>
         <input aria-label="Outside" data-testid="outside" />
-        <Tree.Root items={ITEMS} defaultExpandedItems={props.defaultExpandedItems}>
+        <Tree.Root
+          items={ITEMS}
+          defaultExpandedItems={props.defaultExpandedItems}
+          onExpandedItemsChange={props.onExpandedItemsChange}
+        >
           <Tree.List aria-label="Items">
             {(item: any) => <Tree.Item itemId={item.id}>{item.label}</Tree.Item>}
           </Tree.List>
@@ -2142,6 +2200,19 @@ describe('TreeRoot - Expand and Collapse actions on an item without focus', () =
       element.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
     });
   }
+
+  it('reports the expansion as list navigation', async () => {
+    const onExpandedItemsChange = vi.fn();
+    await renderElement(
+      <ActionTree direction="ltr" onExpandedItemsChange={onExpandedItemsChange} />,
+    );
+    act(() => getItemRoot('2').focus());
+
+    sendAction(getItemRoot('1'), 'ArrowRight');
+
+    expect(onExpandedItemsChange).toHaveBeenCalledTimes(1);
+    expect(onExpandedItemsChange.mock.calls[0][1].reason).toBe('list-navigation');
+  });
 
   it.each([{ direction: 'ltr' as const }, { direction: 'rtl' as const }])(
     'expands the item on Arrow Right and focuses it ($direction)',

@@ -396,7 +396,7 @@ export class TreeGridPlugin<TItem = TreeDefaultItem> {
             this.store.state.multiple === 'opt-in' &&
             (event.key === 'ArrowDown' || event.key === 'ArrowUp')
           ) {
-            this.store.selection.moveTo(targetItem, REASONS.keyboard, event.nativeEvent);
+            this.store.selection.moveTo(targetItem, REASONS.listNavigation, event.nativeEvent);
           }
         }
         break;
