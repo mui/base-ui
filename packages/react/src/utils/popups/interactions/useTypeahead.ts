@@ -1,33 +1,33 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { contains } from '@base-ui/utils/shadowDom';
 import { isElementVisible, isListIndexDisabled } from '../../../internals/composite/listIndex';
 import type { DisabledIndices } from '../../../internals/composite/listIndex';
-import type { ElementProps, PopupInteractionStore } from '../types';
 import { stopEvent } from '../event';
 
 export interface UseTypeaheadProps {
   /**
-   * A ref which contains an array of strings whose indices match the HTML
-   * elements of the list.
-   * @default empty list
+   * Returns the label of the item at an index, or `null` when it has none. Labels are read one at
+   * a time, so a match near the active item doesn't read the rest.
    */
-  listRef: React.RefObject<Array<string | null>>;
+  getLabel: (index: number) => string | null;
   /**
-   * The index of the active (focused or highlighted) item in the list.
-   * @default null
+   * Returns how many items there are.
    */
-  activeIndex: number | null;
+  getCount: () => number;
+  /**
+   * Returns the index of the active (focused or highlighted) item in the list. It's read when a
+   * key is pressed, so the active item doesn't have to be known during render.
+   */
+  getActiveIndex: () => number | null;
   /**
    * Callback invoked with the matching index if found as the user types.
    */
   onMatch?: ((index: number, event: React.KeyboardEvent) => void) | undefined;
   /**
-   * Optional list of item elements that correspond to `listRef` indices.
+   * Optional list of item elements, by index.
    * When an element exists for an index, typeahead skips it if it is hidden by
    * `display: none`, `visibility: hidden|collapse`, other browser-reported
    * visibility checks, or native disabled state.
@@ -47,12 +47,6 @@ export interface UseTypeaheadProps {
    */
   onTyping?: ((isTyping: boolean) => void) | undefined;
   /**
-   * Whether the Hook is enabled, including all internal Effects and event
-   * handlers.
-   * @default true
-   */
-  enabled?: boolean | undefined;
-  /**
    * The number of milliseconds to wait before resetting the typed string.
    * @default 750
    */
@@ -62,32 +56,53 @@ export interface UseTypeaheadProps {
    * @default null
    */
   selectedIndex?: number | null | undefined;
+  /**
+   * Whether typing keys are stopped from reaching other handlers. Space is always stopped while
+   * the user is typing.
+   * @default false
+   */
+  stopTypingKeys?: boolean | undefined;
+}
+
+export interface UseTypeaheadReturnValue {
+  /**
+   * Handles a key press, matching the typed string against the list.
+   */
+  onKeyDown: (event: React.KeyboardEvent) => void;
+  /**
+   * Ends the typing session, so the next key press starts a new search from the active item.
+   */
+  endSession: () => void;
+  /**
+   * Ends the typing session and forgets the last match.
+   */
+  reset: () => void;
 }
 
 /**
- * Provides a matching callback that can be used to focus an item as the user
- * types, often used in tandem with `useListNavigation()`.
- * @see https://floating-ui.com/docs/useTypeahead
+ * Matches items as the user types. Keys typed in quick succession build one search, which
+ * starts from the item after the active one and resets after a pause. Typing the same letter
+ * again cycles through the items that start with it.
  */
-export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadProps): ElementProps {
+export function useTypeahead(props: UseTypeaheadProps): UseTypeaheadReturnValue {
   const {
-    listRef,
+    getLabel,
+    getCount,
     elementsRef,
-    activeIndex,
+    getActiveIndex,
     onMatch: onMatchProp,
     disabledIndices,
     onTyping: onTypingProp,
-    enabled = true,
     resetMs = 750,
     selectedIndex = null,
+    stopTypingKeys = false,
   } = props;
 
   const onTyping = useStableCallback(onTypingProp);
-  const open = store.useState('open');
 
   const timeout = useTimeout();
   const stringRef = React.useRef('');
-  const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
+  const prevIndexRef = React.useRef<number | null>(-1);
   const matchIndexRef = React.useRef<number | null>(null);
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
@@ -108,17 +123,18 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
       return disabledIndices == null || !isListIndexDisabled(EMPTY_ARRAY, index, disabledIndices);
     }
 
-    function getMatchingIndex(list: Array<string | null>, string: string, startIndex = 0) {
-      if (list.length === 0) {
+    function getMatchingIndex(string: string, startIndex = 0) {
+      const count = getCount();
+      if (count === 0) {
         return -1;
       }
 
-      const normalizedStartIndex = ((startIndex % list.length) + list.length) % list.length;
+      const normalizedStartIndex = ((startIndex % count) + count) % count;
       const lowerString = string.toLowerCase();
 
-      for (let offset = 0; offset < list.length; offset += 1) {
-        const index = (normalizedStartIndex + offset) % list.length;
-        const text = list[index];
+      for (let offset = 0; offset < count; offset += 1) {
+        const index = (normalizedStartIndex + offset) % count;
+        const text = getLabel(index);
         if (!text?.toLowerCase().startsWith(lowerString) || !isItemAvailable(index)) {
           continue;
         }
@@ -127,8 +143,6 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
       return -1;
     }
 
-    const listContent = listRef.current;
-
     if (stringRef.current.length > 0 && event.key === ' ') {
       // Space should continue the in-progress typeahead session.
       stopEvent(event);
@@ -136,13 +150,12 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
     }
 
     if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
-      if (getMatchingIndex(listContent, stringRef.current) === -1 && event.key !== ' ') {
+      if (getMatchingIndex(stringRef.current) === -1 && event.key !== ' ') {
         onTyping?.(false);
       }
     }
 
     if (
-      listContent == null ||
       // Character key.
       event.key.length !== 1 ||
       // Modifier key.
@@ -153,7 +166,7 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
       return;
     }
 
-    if (open && event.key !== ' ') {
+    if (stopTypingKeys && event.key !== ' ') {
       stopEvent(event);
       onTyping?.(true);
     }
@@ -161,20 +174,28 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
     // Capture whether this is a new typing session before mutating the string.
     const isNewSession = stringRef.current === '';
     if (isNewSession) {
-      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
+      prevIndexRef.current = selectedIndex ?? getActiveIndex() ?? -1;
     }
 
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
     // allow it in this case, too. Unavailable items are skipped while matching, so
     // they must be ignored here as well — otherwise a hidden or disabled double-letter
     // label would block rapid cycling through the available items.
-    const allowRapidSuccessionOfFirstLetter = listContent.every((text, index) =>
-      text && isItemAvailable(index) ? text[0]?.toLowerCase() !== text[1]?.toLowerCase() : true,
-    );
+    // Only checked when the same letter is typed again, so the other keys don't read every label.
+    const allowRapidSuccessionOfFirstLetter = () => {
+      const count = getCount();
+      for (let index = 0; index < count; index += 1) {
+        const text = getLabel(index);
+        if (text && text[0]?.toLowerCase() === text[1]?.toLowerCase() && isItemAvailable(index)) {
+          return false;
+        }
+      }
+      return true;
+    };
 
     // Allows the user to cycle through items that start with the same letter
     // in rapid succession.
-    if (allowRapidSuccessionOfFirstLetter && stringRef.current === event.key) {
+    if (stringRef.current === event.key && allowRapidSuccessionOfFirstLetter()) {
       stringRef.current = '';
       prevIndexRef.current = matchIndexRef.current;
     }
@@ -189,10 +210,12 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
     // Compute the starting index for this search.
     // If this is a new typing session (string is empty), base it on the current
     // selection/active item; otherwise continue from the last matched index.
-    const prevIndex = isNewSession ? (selectedIndex ?? activeIndex ?? -1) : prevIndexRef.current;
+    const prevIndex = isNewSession
+      ? (selectedIndex ?? getActiveIndex() ?? -1)
+      : prevIndexRef.current;
     const startIndex = (prevIndex ?? 0) + 1;
 
-    const index = getMatchingIndex(listContent, stringRef.current, startIndex);
+    const index = getMatchingIndex(stringRef.current, startIndex);
 
     if (index !== -1) {
       onMatchProp?.(index, event);
@@ -203,30 +226,14 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
     }
   });
 
-  const onBlur = useStableCallback((event: React.FocusEvent) => {
-    const next = event.relatedTarget as Element | null;
-    const currentDomReferenceElement = store.select('anchorElement');
-    const currentFloatingElement = store.select('positionerElement');
-    const withinComposite =
-      contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
-
-    // Keep the session if focus moves within the composite (reference <-> floating).
-    if (withinComposite) {
-      return;
-    }
-
-    // End the current typing session when focus leaves the composite entirely.
+  const endSession = useStableCallback(() => {
     timeout.clear();
     stringRef.current = '';
     prevIndexRef.current = matchIndexRef.current;
     onTyping?.(false);
   });
 
-  useIsoLayoutEffect(() => {
-    if (!open && selectedIndex !== null) {
-      return;
-    }
-
+  const reset = useStableCallback(() => {
     timeout.clear();
     matchIndexRef.current = null;
 
@@ -234,12 +241,7 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
       stringRef.current = '';
       onTyping?.(false);
     }
-  }, [open, selectedIndex, timeout, onTyping]);
+  });
 
-  const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
-
-  return React.useMemo(
-    () => (enabled ? { reference: sharedProps, floating: sharedProps } : {}),
-    [enabled, sharedProps],
-  );
+  return { onKeyDown, endSession, reset };
 }
