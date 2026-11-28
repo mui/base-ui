@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { useSyncExternalStore } from '../useSyncExternalStore';
 import { mergeCleanups } from '../mergeCleanups';
 import { ownerDocument, ownerWindow } from '../owner';
 import { addEventListener } from '../addEventListener';

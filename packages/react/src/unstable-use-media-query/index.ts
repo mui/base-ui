@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { useSyncExternalStore } from '@base-ui/utils/useSyncExternalStore';
 
 export function useMediaQuery(query: string, options: useMediaQuery.Options): boolean {
   // Wait for jsdom to support the match media feature.
