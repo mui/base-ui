@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { useSyncExternalStore } from '@base-ui/utils/useSyncExternalStore';
 import { NOOP } from '@base-ui/utils/empty';
 import type { PopupHandleStoreProvider } from './popupHandle';
 
