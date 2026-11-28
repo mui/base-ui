@@ -24,15 +24,19 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   const timeout = useTimeout();
 
   React.useEffect(() => {
+    // Keep an already visible fallback visible, and skip the no-op update on mount.
+    if (delayPassed) {
+      return undefined;
+    }
+
     if (delay > 0) {
       timeout.start(delay, () => setDelayPassed(true));
-    } else {
-      // Once the fallback is shown without a delay, keep it visible. Otherwise a later
-      // change from no delay to a number would re-hide an already-visible fallback.
-      setDelayPassed(true);
+      return timeout.clear;
     }
-    return timeout.clear;
-  }, [timeout, delay]);
+
+    setDelayPassed(true);
+    return undefined;
+  }, [timeout, delay, delayPassed]);
 
   const state: AvatarFallbackState = {
     imageLoadingStatus,
