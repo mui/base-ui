@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../internals/types';
-import { Field } from '../field';
-import type { FieldControlState } from '../field';
+import { fieldValidityMapping } from '../internals/field-constants/constants';
+import { useRenderElement } from '../internals/useRenderElement';
+import type { Field, FieldControlState } from '../field';
+import { useFieldControl } from '../field/control/useFieldControl';
 
 /**
  * A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
@@ -14,7 +16,14 @@ export const Input = React.forwardRef(function Input(
   props: Input.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  return <Field.Control ref={forwardedRef} {...props} />;
+  const { state, ref, props: controlProps } = useFieldControl(props);
+
+  return useRenderElement('input', props, {
+    ref: [forwardedRef, ref],
+    state,
+    props: controlProps,
+    stateAttributesMapping: fieldValidityMapping,
+  });
 });
 
 export interface InputProps extends BaseUIComponentProps<'input', InputState> {

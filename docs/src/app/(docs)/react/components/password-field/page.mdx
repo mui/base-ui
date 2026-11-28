@@ -1,0 +1,93 @@
+# Password Field
+
+<Subtitle>A password input with a button to reveal or hide its value.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React password field component with a button to reveal or hide the entered password."
+/>
+
+> **Note:** Password Field is currently in preview. Its API may change before it becomes stable.
+
+import { DemoPasswordFieldHero } from './demos/hero';
+
+<DemoPasswordFieldHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Preventing form events**: `preventDefault()` on a form's `submit` or `reset` event doesn't stop the visibility change. [Cancel the change](/react/handbook/customization#canceling-a-base-ui-event) in `onRevealedChange` instead.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { PasswordFieldPreview as PasswordField } from '@base-ui/react/password-field';
+
+<PasswordField.Root>
+  <PasswordField.Group>
+    <PasswordField.Input />
+    <PasswordField.Toggle>
+      <PasswordField.ToggleIndicator />
+    </PasswordField.Toggle>
+  </PasswordField.Group>
+</PasswordField.Root>;
+```
+
+## Examples
+
+### Animate icon path
+
+Without `match`, the indicator stays mounted and reflects the visibility through `data-revealed`.
+Wrap an icon in it and use `data-revealed` to transition parts of the icon, such as the eye's slash.
+
+import { DemoPasswordFieldAnimateIconPath } from './demos/animate-icon-path';
+
+<DemoPasswordFieldAnimateIconPath />
+
+### Animate between icons
+
+With `match`, each indicator mounts and unmounts as the visibility changes.
+Use `data-starting-style` and `data-ending-style` to animate one icon out while the other animates in.
+
+import { DemoPasswordFieldAnimateBetweenIcons } from './demos/animate-between-icons';
+
+<DemoPasswordFieldAnimateBetweenIcons />
+
+## API reference
+
+import { TypesPasswordField } from './types';
+
+### Root
+
+<TypesPasswordField.Root />
+
+### Group
+
+<TypesPasswordField.Group />
+
+### Input
+
+<TypesPasswordField.Input />
+
+### Toggle
+
+<TypesPasswordField.Toggle />
+
+### ToggleIndicator
+
+<TypesPasswordField.ToggleIndicator />
+
+export const metadata = {
+  keywords: [
+    'React Password Field',
+    'Password Input',
+    'Show Password Toggle',
+    'Reveal Password',
+    'Password Visibility Toggle',
+    'Accessible Password Input',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
