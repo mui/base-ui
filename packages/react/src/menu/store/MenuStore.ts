@@ -20,7 +20,7 @@ import {
   createPopupStoreContext,
   popupStoreSelectors,
 } from '../../utils/popups/store';
-import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
+import { isKeyboardClick, isKeyboardOpen } from '../../utils/isKeyboardOpen';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
