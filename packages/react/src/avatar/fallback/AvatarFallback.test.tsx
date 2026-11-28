@@ -201,6 +201,46 @@ describe('<Avatar.Fallback />', () => {
     });
   });
 
+  it('does not render extra times on the first re-render after mounting without a delay', async () => {
+    mockLoadingStatus(() => 'error');
+
+    let fallbackCalls = 0;
+
+    function Test() {
+      const [count, setCount] = React.useState(0);
+
+      return (
+        <div>
+          <button onClick={() => setCount(count + 1)}>Re-render</button>
+          <Avatar.Root>
+            <Avatar.Fallback
+              render={(props) => {
+                fallbackCalls += 1;
+                return <span {...props} />;
+              }}
+            >
+              AC
+            </Avatar.Fallback>
+          </Avatar.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    expect(screen.getByText('AC')).not.toBe(null);
+
+    const callsBeforeFirstClick = fallbackCalls;
+    await user.click(screen.getByText('Re-render'));
+    const firstClickCalls = fallbackCalls - callsBeforeFirstClick;
+
+    const callsBeforeSecondClick = fallbackCalls;
+    await user.click(screen.getByText('Re-render'));
+    const secondClickCalls = fallbackCalls - callsBeforeSecondClick;
+
+    expect(firstClickCalls).toBe(secondClickCalls);
+  });
+
   it.skipIf(!isJSDOM)(
     'keeps fallback mounted and image unmounted while the image is loading',
     async () => {
