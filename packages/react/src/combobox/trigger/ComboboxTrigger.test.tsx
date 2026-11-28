@@ -40,6 +40,43 @@ describe('<Combobox.Trigger />', () => {
     expect(trigger).toHaveAttribute('tabindex', '-1');
   });
 
+  it.each([
+    {
+      name: 'aria-label',
+      props: { 'aria-label': 'Show options' },
+      expectedName: 'Show options',
+    },
+    {
+      name: 'aria-label on a render element',
+      props: { render: <button aria-label="Show options" /> },
+      expectedName: 'Show options',
+    },
+    {
+      name: 'aria-labelledby',
+      props: { 'aria-label': 'Show options', 'aria-labelledby': 'trigger-label' },
+      expectedName: 'Open list',
+    },
+    {
+      name: 'blank aria-label',
+      props: { 'aria-label': ' ' },
+      expectedName: 'Return code',
+    },
+  ])('names the trigger inside a field with $name', async ({ props, expectedName }) => {
+    await render(
+      <Field.Root>
+        <Field.Label>Return code</Field.Label>
+        <span id="trigger-label">Open list</span>
+        <Combobox.Root>
+          <Combobox.Input />
+          <Combobox.Trigger {...props}>▾</Combobox.Trigger>
+        </Combobox.Root>
+      </Field.Root>,
+    );
+
+    expect(screen.getByRole('combobox')).toHaveAccessibleName('Return code');
+    expect(screen.getByRole('button')).toHaveAccessibleName(expectedName);
+  });
+
   describe('prop: disabled', () => {
     it('should render aria-disabled attribute when disabled', async () => {
       await render(

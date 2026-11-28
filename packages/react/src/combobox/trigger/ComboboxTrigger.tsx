@@ -20,6 +20,7 @@ import { useClick } from '../../utils/popups/interactions/useClick';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLabel';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { getComboboxPopupId } from '../root/utils';
 import { useListEmpty, usePopupSide } from '../utils/parts';
@@ -84,7 +85,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
-  const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, comboboxLabelId);
+  const ariaLabelledBy =
+    fieldLabelId && resolveRenderedAriaLabel(componentProps)?.trim()
+      ? undefined
+      : resolveAriaLabelledBy(fieldLabelId, comboboxLabelId);
 
   let ariaControls: string | undefined;
 
